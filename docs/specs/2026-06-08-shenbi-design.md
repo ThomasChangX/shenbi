@@ -138,7 +138,7 @@ SKILL.md 的 frontmatter 规则：
 - `name`: 仅字母、数字、连字符
 - `description`: 只描述触发条件（"Use when..."），绝不描述做什么（描述陷阱）
 - frontmatter 整体 ≤ 1024 字符，description ≤ 500 字符
-- `description` 以中文为主，附英文翻译（第三人称，"Use when..." 开头）
+- `description` 使用英文，第三人称，"Use when..." 开头。中文含义写在技能主体标题中
 
 ### 3.3 行为工程模式
 
