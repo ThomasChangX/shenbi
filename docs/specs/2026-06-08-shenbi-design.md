@@ -227,7 +227,48 @@ my-novel/
     └── analysis/                  # 导入分析结果
 ```
 
-### 4.1 真相文件格式
+### 4.1 核心配置文件
+
+`novel.json`:
+
+```json
+{
+  "title": "苍穹之上",
+  "genre": "玄幻",
+  "language": "zh",
+  "status": "active",
+  "mode": "original",
+  "target_word_count": 2000000,
+  "narrative_pov": "third_limited",
+  "chapter_word_count": 3000,
+  "created_at": "2026-06-08",
+  "current_chapter": 0,
+  "current_volume": 1
+}
+```
+
+`genre-config.json`:
+
+```json
+{
+  "auditDimensions": [3, 4, 5, 6, 7, 9, 11, 15, 16, 17, 24, 26, 32, 33],
+  "eraResearch": false,
+  "eraConstraints": false,
+  "fatigueWords": ["缓缓", "淡淡", "微微", "不禁", "不由得", "仿佛", "似乎"],
+  "pacingRules": {
+    "questRatio": 0.6,
+    "fireRatio": 0.2,
+    "constellationRatio": 0.2,
+    "maxConsecutiveQuest": 5,
+    "maxGapQuest": 3
+  },
+  "chapterTypes": ["COMBAT", "DIALOGUE", "EXPLORATION", "TRAINING", "SOCIAL", "REVELATION", "TRANSITION"],
+  "goldenOpeningChapters": 3,
+  "prohibitions": ["全场震惊", "不由得倒吸一口凉气"]
+}
+```
+
+### 4.2 真相文件格式
 
 所有真相文件使用 **YAML frontmatter + Markdown body** 格式。YAML frontmatter 是结构化数据的权威来源，Markdown body 是人类可读的投影。
 
@@ -270,7 +311,69 @@ hooks:
 ...
 ```
 
-### 4.2 角色档案格式
+示例 `truth/current_state.md`:
+
+```markdown
+---
+chapter: 4
+protagonist:
+  location: "内门演武场"
+  status: "健康"
+  emotion: "警觉"
+  inventory: ["玉佩", "初级剑谱"]
+  known_secrets: ["玉佩有隐藏力量"]
+active_characters:
+  - name: "师姐苏晴"
+    location: "内门演武场"
+    attitude: "观望"
+active_conflicts:
+  - "内门考核（进行中）"
+  - "反派代理人挑衅（升级中）"
+pending_events:
+  - "考核结果公布"
+---
+
+# 当前世界状态
+
+## 主角位置
+林轩正在内门演武场参加考核。
+
+## 活跃冲突
+- 内门考核进入第二轮...
+```
+
+示例 `truth/particle_ledger.md`:
+
+```markdown
+---
+chapter: 4
+items:
+  - name: "古墓玉佩"
+    owner: "林轩"
+    status: "隐藏"
+    acquired_chapter: 1
+    notes: "隐藏力量未激活"
+  - name: "初级剑谱"
+    owner: "林轩"
+    status: "学习中"
+    acquired_chapter: 2
+resources:
+  - type: "灵石"
+    amount: 50
+    change: "+20（考核奖励）"
+    chapter: 4
+---
+
+# 资源账本
+
+## 物品
+- 古墓玉佩：林轩持有，隐藏状态
+- 初级剑谱：学习中
+
+## 灵石余额: 50
+```
+
+### 4.3 角色档案格式
 
 示例 `characters/protagonist.md`:
 
@@ -302,7 +405,7 @@ voice_profile:
 ...
 ```
 
-### 4.3 章节备忘格式
+### 4.4 章节备忘格式
 
 示例 `plans/chapter-005-plan.md`:
 
