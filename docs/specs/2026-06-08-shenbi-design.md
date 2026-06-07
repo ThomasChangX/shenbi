@@ -235,6 +235,8 @@ my-novel/
 {
   "title": "苍穹之上",
   "genre": "玄幻",
+  "core_concept": "一个失去灵根的少年偶然获得上古传承，踏上逆天改命之路",
+  "themes": ["逆境成长", "自由与代价", "信任与背叛"],
   "language": "zh",
   "status": "active",
   "mode": "original",
