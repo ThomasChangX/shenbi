@@ -2,7 +2,7 @@
 
 > 日期: 2026-06-08
 > 状态: 设计完成，待实现
-> 版本: v0.1.0
+> 版本: v0.1.1
 
 ## 1. 项目定位
 
@@ -32,6 +32,7 @@ Shenbi 是一套**小说写作方法论**，以 prompt 技能的形式注入到 
 ```
 shenbi/
 ├── CLAUDE.md                    # 贡献者指南
+├── GEMINI.md                    # Gemini CLI 入口
 ├── hooks/
 │   ├── hooks.json               # Claude Code SessionStart hook
 │   ├── hooks-cursor.json        # Cursor hook 配置
@@ -118,6 +119,8 @@ shenbi/
 │
 ├── .claude-plugin/              # Claude Code 插件清单
 ├── .cursor-plugin/              # Cursor 插件清单
+├── .codex-plugin/               # OpenAI Codex 插件清单
+├── .opencode/                   # OpenCode 原生插件
 └── tests/                       # 测试体系
 ```
 
@@ -135,6 +138,7 @@ SKILL.md 的 frontmatter 规则：
 - `name`: 仅字母、数字、连字符
 - `description`: 只描述触发条件（"Use when..."），绝不描述做什么（描述陷阱）
 - frontmatter 整体 ≤ 1024 字符，description ≤ 500 字符
+- `description` 以中文为主，附英文翻译（第三人称，"Use when..." 开头）
 
 ### 3.3 行为工程模式
 
@@ -147,7 +151,211 @@ SKILL.md 的 frontmatter 规则：
 5. **说服心理学** — 使用 Authority / Commitment / Scarcity / Social Proof / Unity，不用 Liking / Reciprocity
 6. **渐进式披露** — description → overview → flowchart → details → references
 
-## 4. 端到端工作流
+### 3.4 小说写作常见理性化模式
+
+以下是小说写作领域特有的 AI 理性化借口，每个纪律性技能都应包含对应的反制措施：
+
+| 借口 | 现实 |
+|------|------|
+| "这章太简单了，不需要伏笔" | 简单章节恰好是埋伏笔的最佳时机 |
+| "读者不会注意到这个小矛盾" | 网文读者会逐章追更，记忆力极强 |
+| "先写完再检查一致性" | 等写到20章再回来修，改动的代价是10倍 |
+| "这个角色不需要这么复杂" | 配角降智是网文最大毒点之一 |
+| "爽点不需要铺垫，直接给" | 没有压制的爆发是白开水 |
+| "这章字数不够，加段描写凑一下" | 无功能的水文比字数不足更致命 |
+| "前面已经提过了，读者记得" | 5章前的细节读者记不住，需要自然提醒 |
+| "文风不重要，故事好就行" | AI味一重，平台检测直接降权 |
+| "主角不能在这里失败" | 无挫折的成功 = 无张力的流水账 |
+| "这条伏笔太久了，算了放弃" | 放弃伏笔 = 违背读者信任，Chase Power 债务暴增 |
+
+## 4. 小说项目目录结构
+
+用户创建的小说项目遵循以下目录约定（所有技能通过此结构读写数据）：
+
+```
+my-novel/
+├── novel.json                     # 书籍元数据（标题、题材、语言、状态）
+├── genre-config.json              # 题材配置（疲劳词、审计维度激活、节奏规则）
+├── outline/                       # 大纲层
+│   ├── story_frame.md             # 故事框架（散文骨架，4段式）
+│   ├── volume_map.md              # 卷纲（5段 + 节奏原则尾段）
+│   └── rhythm_principles.md       # 节奏原则（独立文件）
+├── characters/                    # 角色层
+│   ├── protagonist.md             # 主角档案（一人一卡，主角弧线单一权威）
+│   ├── major/                     # 主要角色
+│   │   ├── 角色名.md
+│   │   └── ...
+│   ├── minor/                     # 次要角色
+│   │   ├── 角色名.md
+│   │   └── ...
+│   └── relationships.md           # 角色关系矩阵
+├── world/                         # 世界观层
+│   ├── story_bible.md             # 世界观圣经
+│   ├── locations.md               # 地点图谱
+│   ├── power_system.md            # 力量体系规则
+│   ├── factions.md                # 势力图谱
+│   └── rules.md                   # 世界铁律
+├── truth/                         # 真相文件（每章更新）
+│   ├── current_state.md           # 当前世界状态
+│   ├── pending_hooks.md           # 伏笔池（PLANTED/RELEVANT/TRIGGERED/RESOLVED）
+│   ├── chapter_summaries.md       # 逐章摘要
+│   ├── subplot_board.md           # 支线进度板
+│   ├── emotional_arcs.md          # 角色情感弧线
+│   ├── character_matrix.md        # 角色交互矩阵 + 信息边界
+│   ├── particle_ledger.md         # 资源账本（物品/金钱/资源增减）
+│   ├── author_intent.md           # 作者长期意图
+│   ├── current_focus.md           # 当前关注点（1-3章范围）
+│   └── audit_drift.md             # 审计纠偏指导（传导给下一章）
+├── plans/                         # 章节规划（每章一个）
+│   ├── chapter-001-plan.md        # 章节备忘（8段式）
+│   └── ...
+├── chapters/                      # 章节正文
+│   ├── chapter-001.md
+│   ├── chapter-002.md
+│   └── ...
+├── snapshots/                     # 状态快照（每章完成后）
+│   ├── chapter-001/
+│   │   ├── current_state.md
+│   │   ├── pending_hooks.md
+│   │   ├── character_matrix.md
+│   │   └── ...                    # truth/ 的完整副本
+│   └── ...
+├── style/                         # 风格参考
+│   ├── style_profile.md           # 文风指纹
+│   └── reference_samples.md       # 参考文本样本
+└── import/                        # 导入产物
+    └── analysis/                  # 导入分析结果
+```
+
+### 4.1 真相文件格式
+
+所有真相文件使用 **YAML frontmatter + Markdown body** 格式。YAML frontmatter 是结构化数据的权威来源，Markdown body 是人类可读的投影。
+
+示例 `truth/pending_hooks.md`:
+
+```markdown
+---
+hooks:
+  - id: hook-001
+    content: "主角在古墓中发现的玉佩"
+    state: PLANTED
+    type: GENUINE
+    dimension: CHARACTER
+    subtlety: 0.7
+    plant_chapter: 1
+    cultivation_interval: 5
+    last_reinforced: 3
+    max_distance: 20
+    escalation_curve: FLAT
+    depends_on: []
+    core_hook: true
+    promoted: false
+  - id: hook-002
+    content: "神秘老人的预言"
+    state: RELEVANT
+    ...
+---
+
+# 伏笔池
+
+## 活跃伏笔
+
+### hook-001: 主角在古墓中发现的玉佩
+- **状态**: PLANTED → 需在第 21 章前推进
+- **类型**: 真实伏笔 / 角色维度
+- **微妙度**: 0.7
+- **培育**: 每 5 章强化一次，上次强化第 3 章
+
+### hook-002: 神秘老人的预言
+...
+```
+
+### 4.2 角色档案格式
+
+示例 `characters/protagonist.md`:
+
+```markdown
+---
+name: 林轩
+role: protagonist
+personality_tags: ["坚韧", "内敛", "重情义"]
+core_value: "守护身边的人"
+goal_surface: "成为内门弟子"
+goal_deep: "查清父亲失踪的真相"
+fear: "再次失去重要的人"
+arc_type: GROWTH
+arc_starting: "普通外门弟子"
+arc_turning: "发现父亲失踪真相"
+arc_ending: "TBD"
+voice_profile:
+  speech_patterns: ["简短有力", "关键时刻才长篇"]
+  catchphrases: ["不会太久"]
+  avoid_patterns: ["说教", "自怜"]
+---
+
+# 林轩
+
+## 性格底色
+...
+
+## 说话风格指纹
+...
+```
+
+### 4.3 章节备忘格式
+
+示例 `plans/chapter-005-plan.md`:
+
+```markdown
+---
+chapter: 5
+goal: "主角首次与反派正面交锋"
+volume: 1
+tension_level: HIGH
+scene_type: COMBAT
+---
+
+# 第五章备忘
+
+## 1. 当前任务
+主角必须在内门考核中击败反派的代理人，证明实力。
+
+## 2. 读者此刻在等什么
+- 上章末主角承诺"三天后见分晓"，读者期待兑现
+- 延迟：考核前先发生一个意外干扰
+
+## 3. 该兑现的 / 暂不掀的
+- **兑现**: hook-002 神秘老人预言（考试中出现对应场景）
+- **压住**: hook-001 玉佩的秘密（只给一个暗示，不揭开）
+
+## 4. 日常/过渡承担什么任务
+- 考核前的准备段落：推进与师姐的关系（关系变化）
+- 建立场面反差：平静准备 vs 激烈战斗
+
+## 5. 关键抉择过三连问
+- 主角是否使用玉佩的隐藏力量？
+  - Why: 对手太强，常规手段不够
+  - Interest: 使用会暴露身份，不使用会输
+  - Persona: 符合"内敛"性格，不轻易暴露
+
+## 6. 章尾必须发生的改变
+- 关系：师姐对主角态度从疏远转为认可
+- 信息：主角得知反派也在寻找玉佩
+- 权力：主角从外门升入内门
+
+## 7. 本章 hook 账
+- open: hook-003（反派寻找玉佩的动机）
+- advance: hook-002（预言再次出现）
+- resolve: 无
+- defer: hook-001（玉佩秘密压住）
+
+## 8. 不要做
+- 不要让主角秒杀对手（战力崩坏风险）
+- 不要出现"全场震惊"类套话
+- 不要在本章揭示主角身世
+```
+
+## 5. 端到端工作流
 
 ```
 用户: "我要写一本玄幻小说"
@@ -184,63 +392,64 @@ SKILL.md 的 frontmatter 规则：
   └──────────┬──────────┘
              │ 用户批准故事框架
              ▼
-  ┌─────────────────────┐     ┌──────────────────────┐
-  │ 5. 逐章循环          │ ←── │ intent-management     │
-  │    chapter-planning  │     │ drift-guidance         │
-  │    → context-compose │     └──────────────────────┘
-  │    → chapter-drafting│
-  │    → state-settling  │
-  │    → length-normalize│
-  └──────────┬──────────┘
-             │ 草稿完成
-             ▼
-  ┌─────────────────────────────────────────┐
-  │ 6. 审计层（按需激活）                     │
-  │    review-continuity                     │
-  │    review-character                      │
-  │    review-world-rules                    │
-  │    review-pacing                         │
-  │    review-foreshadowing                  │
-  │    review-anti-ai                        │
-  │    review-sensitivity                    │
-  │    review-reader-pull                    │
-  │    review-memo-compliance                │
-  │    review-dialogue                       │
-  │    review-motivation                     │
-  │    review-pov                            │
-  │    review-texture                        │
-  │    review-highpoint                      │
-  │    review-long-span                      │
-  │    review-era（条件激活）                  │
-  │    review-fanfic（条件激活）               │
-  │    review-spinoff（条件激活）              │
-  └──────────┬──────────────────────────────┘
-             │ 发现问题
-             ▼
-  ┌─────────────────────┐
-  │ 7. 修订层            │
-  │    chapter-revision  │
-  │    → style-polishing │
-  │    → anti-detect     │
-  └──────────┬──────────┘
-             │ 审计通过
-             ▼
-  ┌─────────────────────┐
-  │ 8. 伏笔层            │ ← 每章完成后更新
-  │    foreshadowing-plant  │
-  │    foreshadowing-track  │
-  │    foreshadowing-resolve│
-  └──────────┬──────────┘
-             │ 卷完成时
-             ▼
-  ┌─────────────────────┐
-  │ 9. 卷管理            │
-  │    volume-consolidation│
-  │    chapter-pattern    │
-  └─────────────────────┘
+  ┌──────────────────────────────────────────────┐
+  │ 5. 逐章循环（每章执行以下步骤）                    │
+  │                                               │
+  │   ┌──────────────────┐  ┌──────────────────┐ │
+  │   │ intent-management│  │ drift-guidance   │ │
+  │   │ （更新意图/焦点）  │  │ （导入纠偏指导）   │ │
+  │   └────────┬─────────┘  └────────┬─────────┘ │
+  │            └──────────┬───────────┘           │
+  │                       ▼                       │
+  │   chapter-planning（生成章节备忘）               │
+  │            │                                  │
+  │            ▼                                  │
+  │   foreshadowing-plant（根据备忘种植伏笔）        │
+  │            │                                  │
+  │            ▼                                  │
+  │   context-composing（编排上下文）                │
+  │            │                                  │
+  │            ▼                                  │
+  │   chapter-drafting（撰写正文）                   │
+  │            │                                  │
+  │            ▼                                  │
+  │   state-settling（提取事实变化→更新真相文件）      │
+  │            │                                  │
+  │            ▼                                  │
+  │   foreshadowing-track（更新伏笔池状态）           │
+  │            │                                  │
+  │            ▼                                  │
+  │   length-normalizing（字数治理）                 │
+  │            │                                  │
+  │            ▼                                  │
+  │   审计层（按激活规则运行审查）──────────┐         │
+  │            │                          │       │
+  │            ▼ 未通过                    ▼ 通过  │
+  │   chapter-revision              foreshadowing-│
+  │   → style-polishing             resolve       │
+  │   → anti-detect                 （处理到期伏笔）│
+  │            │                          │       │
+  │            └──── 重新审计 ←───────────┘       │
+  │                       │                       │
+  │                       ▼                       │
+  │              snapshot-manage                   │
+  │              （创建快照）                        │
+  │                       │                       │
+  │                       ▼                       │
+  │              drift-guidance                    │
+  │              （生成纠偏指导给下一章）              │
+  └───────────────────────┬──────────────────────┘
+                          │ 卷完成时
+                          ▼
+  ┌──────────────────────────┐
+  │ 6. 卷管理                  │
+  │    volume-consolidation    │
+  │    chapter-pattern         │
+  │    foreshadowing-resolve   │ ← 卷尾伏笔盘点
+  └──────────────────────────┘
 ```
 
-### 4.1 分支流程
+### 5.1 分支流程
 
 ```
 已有作品导入:
@@ -256,9 +465,55 @@ SKILL.md 的 frontmatter 规则：
   short-outline → short-drafting → short-packaging
 ```
 
-## 5. 审计维度完整映射
+## 6. 技能间数据传递协议
 
-### 5.1 InkOS 33+ 维度 → shenbi 审计技能
+由于 Shenbi 是纯 SKILL.md 框架（无运行时代码），技能间通过**共享文件系统**传递数据。每项技能遵循以下协议：
+
+### 6.1 读写契约
+
+每个技能在 SKILL.md 中声明：
+
+```markdown
+## Reads
+- `truth/pending_hooks.md` — 伏笔池当前状态
+- `plans/chapter-N-plan.md` — 章节备忘
+
+## Writes
+- `chapters/chapter-N.md` — 章节正文
+- `truth/current_state.md` — 更新世界状态（追加变更）
+
+## Updates (read-then-write)
+- `truth/pending_hooks.md` — 更新伏笔状态
+```
+
+### 6.2 人类角色
+
+人类在技能间充当以下角色：
+
+1. **文件管理者** — 确保目录结构正确，文件存在
+2. **审批者** — 每个关键技能的输出需要人类审阅和批准后才进入下一步
+3. **仲裁者** — 当两个技能的输出矛盾时，人类决定保留哪个
+4. **补充者** — 在技能输出不完整时手动补充
+
+### 6.3 context-composing 的实际工作方式
+
+`context-composing` 不是自动化检索系统，而是一个**上下文组装指南**——它指导 AI 或人类按优先级从以下来源手动收集上下文：
+
+| 优先级 | 来源 | 读取位置 |
+|--------|------|---------|
+| P1 (must) | 章节备忘 | `plans/chapter-N-plan.md` |
+| P2 (must) | 近 2 章摘要 | `truth/chapter_summaries.md` 末尾 |
+| P3 (need) | 活跃伏笔（最多 3 条） | `truth/pending_hooks.md` |
+| P4 (need) | 纠偏指导 | `truth/audit_drift.md` |
+| P5 (nice) | 世界铁律（最多 5 条） | `world/rules.md` |
+| P6 (nice) | 角色状态 | `truth/character_matrix.md` |
+| P7 (nice) | 文风指纹 | `style/style_profile.md` |
+
+未来演进时，WiiNovel 或其他工具可以自动化此收集过程。
+
+## 7. 审计维度完整映射
+
+### 7.1 InkOS 33+ 维度 → shenbi 审计技能
 
 | 维度ID | 维度 | 技能 |
 |--------|------|------|
@@ -300,7 +555,7 @@ SKILL.md 的 frontmatter 规则：
 | 36 | 关系动态 | review-fanfic（条件激活） |
 | 37 | 正典事件一致性 | review-fanfic（条件激活） |
 
-### 5.2 WiiNovel 7 维质量引擎 → shenbi 审计技能
+### 7.2 WiiNovel 7 维质量引擎 → shenbi 审计技能
 
 | 检查器 | 技能 |
 |--------|------|
@@ -312,7 +567,7 @@ SKILL.md 的 frontmatter 规则：
 | ContinuityChecker | review-continuity |
 | ReaderPullChecker | review-reader-pull |
 
-### 5.3 InkOS Post-Write 确定性检查 → shenbi 审计技能
+### 7.3 InkOS Post-Write 确定性检查 → shenbi 审计技能
 
 | 检查项 | 技能 |
 |--------|------|
@@ -331,16 +586,72 @@ SKILL.md 的 frontmatter 规则：
 | 跨章 6 字 n-gram 重复 | review-long-span |
 | 本书禁忌词 | review-sensitivity |
 
-## 6. 技能完整清单（59 个）
+### 7.4 审计激活规则
 
-### 6.1 元层（2 个）
+不是每章都运行全部 18 个审计技能。激活规则由 `genre-config.json` 的 `auditDimensions` 字段控制。
 
-| # | 技能名 | 中文描述 |
-|---|--------|---------|
-| 1 | `using-shenbi` | 技能发现与调度器。1%规则：只要有1%可能适用就必须检查对应技能 |
-| 2 | `shenbi-writing-skills` | 元技能，教 AI 如何编写新的 shenbi 技能 |
+**默认激活（每章必查）**:
 
-### 6.2 创世层（6 个）
+| 技能 | 理由 |
+|------|------|
+| review-anti-ai | AI 味是最大风险，每章必查 |
+| review-continuity | 时间线矛盾无法事后修复 |
+| review-character | OOC 是致命毒点 |
+| review-sensitivity | 敏感词导致平台下架 |
+
+**条件激活（由 genre-config 控制）**:
+
+| 技能 | 默认 | 激活条件 |
+|------|------|---------|
+| review-world-rules | 关闭 | `genreConfig.auditDimensions` 包含 3,4,5,18 |
+| review-pacing | 关闭 | `genreConfig.auditDimensions` 包含 7,26 |
+| review-foreshadowing | 关闭 | `genreConfig.auditDimensions` 包含 6,24 |
+| review-reader-pull | 关闭 | `genreConfig.auditDimensions` 包含 32 |
+| review-memo-compliance | 关闭 | `genreConfig.auditDimensions` 包含 33 |
+| review-dialogue | 关闭 | `genreConfig.auditDimensions` 包含 16 |
+| review-motivation | 关闭 | `genreConfig.auditDimensions` 包含 11 |
+| review-pov | 关闭 | `genreConfig.auditDimensions` 包含 9,19 |
+| review-texture | 关闭 | `genreConfig.auditDimensions` 包含 17 |
+| review-highpoint | 关闭 | `genreConfig.auditDimensions` 包含 15 |
+| review-long-span | 关闭 | `genreConfig.auditDimensions` 包含 10（跨章维度，从第 3 章起激活） |
+| review-era | 关闭 | `genreConfig.eraResearch` 或 `genreConfig.eraConstraints` 为 true |
+| review-fanfic | 关闭 | `novel.json.mode` 为 fanfic |
+| review-spinoff | 关闭 | `truth/` 下存在 `parent_canon.md` |
+
+**推荐配置 — 玄幻/仙侠题材**:
+
+```json
+{
+  "auditDimensions": [3, 4, 5, 6, 7, 9, 11, 15, 16, 17, 24, 26, 32, 33],
+  "eraResearch": false,
+  "eraConstraints": false
+}
+```
+
+此配置激活 14 个审计技能（4 默认 + 10 条件）。
+
+### 7.5 审计执行顺序
+
+当多个审计技能激活时，按以下顺序执行（从低成本到高成本）：
+
+1. **确定性检查（零 LLM 成本）**: review-anti-ai, review-sensitivity, review-long-span
+2. **结构检查（低成本）**: review-memo-compliance, review-texture, review-pacing
+3. **领域检查（中成本）**: review-continuity, review-character, review-world-rules, review-dialogue, review-pov, review-motivation
+4. **高级检查（高成本）**: review-foreshadowing, review-highpoint, review-reader-pull
+5. **条件检查**: review-era, review-fanfic, review-spinoff
+
+前一步发现 blocking 级别问题则停止，进入修订层。
+
+## 8. 技能完整清单（59 个）
+
+### 8.1 元层（2 个）
+
+| # | 技能名 | 中文描述 | English description |
+|---|--------|---------|---------------------|
+| 1 | `using-shenbi` | 技能发现与调度器。1%规则：只要有1%可能适用就必须检查对应技能 | Skill dispatcher. 1% rule: check if any skill could possibly apply |
+| 2 | `shenbi-writing-skills` | 元技能，教 AI 如何编写新的 shenbi 技能 | Meta-skill for creating new shenbi skills |
+
+### 8.2 创世层（6 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -351,7 +662,7 @@ SKILL.md 的 frontmatter 规则：
 | 7 | `shenbi-faction-builder` | 势力设计：层级结构、内部矛盾、势力间冲突关系、利益驱动。避免势力脸谱化 |
 | 8 | `shenbi-power-system` | 力量体系：等级划分、升级规则、战力天花板、能力边界。防止战力崩坏 |
 
-### 6.3 规划层（5 个）
+### 8.3 规划层（5 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -361,7 +672,7 @@ SKILL.md 的 frontmatter 规则：
 | 12 | `shenbi-pacing-design` | 节奏设计：蓄压→升级→爆发→后效周期、场景类型序列避免单调、三线节奏比例（QUEST/FIRE/CONSTELLATION） |
 | 13 | `shenbi-plot-thread-weaver` | 线索编织：A/B/C线管理、线索优先级、最大连续/最大间隔控制、线索交叉依赖 |
 
-### 6.4 伏笔层（3 个）
+### 8.4 伏笔层（3 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -369,16 +680,16 @@ SKILL.md 的 frontmatter 规则：
 | 15 | `shenbi-foreshadowing-track` | 伏笔追踪：生命周期管理（PLANTED→RELEVANT→TRIGGERED→RESOLVED）、培育间隔监控、密度预算（每章8操作）、晋升规则 |
 | 16 | `shenbi-foreshadowing-resolve` | 伏笔兑现：升级曲线（平坦/上升/指数）、戏剧反讽追踪、读者期望债务管理（Chase Power）、多层伏笔有序解决 |
 
-### 6.5 起草层（4 个）
+### 8.5 起草层（4 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
-| 17 | `shenbi-context-composing` | 上下文编排：收集真相文件、语义记忆检索、Hook债务简报、近章结尾轨迹（避免结构重复）、组装规则栈 |
+| 17 | `shenbi-context-composing` | 上下文组装指南：按优先级从真相文件收集上下文（P1备忘→P7文风），指导 AI 或人类手动组装 |
 | 18 | `shenbi-chapter-drafting` | 章节起草：两阶段生成（创作 temp=0.7 + 结算 temp=0.3）、文风指纹注入、对话指纹提取、类型规范应用、黄金三章纪律 |
 | 19 | `shenbi-state-settling` | 状态结算：观察者提取 9 类事实变化（位置/资源/关系/情绪/信息/线索/时间/身体/行为），结算者合并到真相文件 |
 | 20 | `shenbi-length-normalizing` | 字数治理：压缩/扩写到目标区间、软硬区间控制、截断保护（归一化后 <25% 则拒绝） |
 
-### 6.6 审计层（18 个）
+### 8.6 审计层（18 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -386,7 +697,7 @@ SKILL.md 的 frontmatter 规则：
 | 22 | `shenbi-review-character` | OOC 检测（BDI 可信度评估）、角色声音一致性、配角降智检测、工具人化检测、弧线平坦 |
 | 23 | `shenbi-review-world-rules` | 设定冲突、战力崩坏、数值一致性、知识库污染 |
 | 24 | `shenbi-review-pacing` | 蓄压-爆发周期完整性、连续5章无爆发→停滞检测、日常段落功能验证、章节类型序列多样性 |
-| 25 | `shenbi-review-foreshadowing` | Hook 债务升级规则、培育间隔过期、密度异常、爽点虚化、支线停滞、伏笔账本一致性 |
+| 25 | `shenbi-review-foreshadowing` | Hook 债务升级规则、培育间隔过期、密度异常、支线停滞、伏笔账本一致性 |
 | 26 | `shenbi-review-anti-ai` | 段落等长、套话密度、公式化转折、列表式结构、疲劳词、AI标记词（4维度统计）、"不是…而是…"句式、破折号、元叙事、集体反应套话 |
 | 27 | `shenbi-review-sensitivity` | 政治敏感词、色情/暴力检测、平台合规性、本书禁忌词检查 |
 | 28 | `shenbi-review-reader-pull` | 章首钩子强度、章尾悬念、读者期待管理（是否重新点燃好奇心） |
@@ -395,13 +706,13 @@ SKILL.md 的 frontmatter 规则：
 | 31 | `shenbi-review-motivation` | 角色行为利益驱动、动机合理性、行为逻辑链条完整性 |
 | 32 | `shenbi-review-pov` | POV 切换过渡、信息边界（角色是否引用不该知道的信息） |
 | 33 | `shenbi-review-texture` | 流水账检测、日常段落功能验证、段落呼吸感、章节冲突密度、作者说教词、段落过长/过碎 |
-| 34 | `shenbi-review-highpoint` | 压制-爆发模式、反转检测、高潮关键词密度与多样性、爽点虚化 |
+| 34 | `shenbi-review-highpoint` | 压制-爆发模式、反转检测、高潮关键词密度与多样性、爽点虚化（兑现是否超过读者预期） |
 | 35 | `shenbi-review-long-span` | 跨章节重复用词/意象/句式、6字 n-gram 跨章重复、段落长度漂移 |
 | 36 | `shenbi-review-era` | 历史年代准确性、时代用词、器物考据（仅特定题材激活） |
 | 37 | `shenbi-review-fanfic` | 角色还原度/世界规则/关系动态/正典事件一致性（按 canon/au/ooc/cp 模式调整严格度） |
 | 38 | `shenbi-review-spinoff` | 正传事件冲突/未来信息泄露/世界规则/伏笔隔离（番外模式激活） |
 
-### 6.7 修订层（3 个）
+### 8.7 修订层（3 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -409,7 +720,7 @@ SKILL.md 的 frontmatter 规则：
 | 40 | `shenbi-style-polishing` | 文字层润色：只改表达/节奏/段落呼吸，禁止增删情节/改变人设/调整主线。发现结构问题以 `[polisher-note]` 标记 |
 | 41 | `shenbi-anti-detect` | 反检测改写：9种改写手法（打破句式规律、口语化、了字降频、转折词降频、情绪外化等） |
 
-### 6.8 导入与分析层（5 个）
+### 8.8 导入与分析层（5 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -419,7 +730,7 @@ SKILL.md 的 frontmatter 规则：
 | 45 | `shenbi-world-extraction` | 逆向世界观提取：从已有章节提取世界规则、地点、物品、力量体系 |
 | 46 | `shenbi-canon-import` | 正典导入：从原作提取 5 个 SECTION，支持 4 种同人模式 |
 
-### 6.9 短篇层（3 个）
+### 8.9 短篇层（3 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -427,7 +738,7 @@ SKILL.md 的 frontmatter 规则：
 | 48 | `shenbi-short-drafting` | 批量章节生成→审核→修订（3步），一次性生成所有章节 |
 | 49 | `shenbi-short-packaging` | 销售包装：标题/简介/卖点/封面提示词生成 |
 
-### 6.10 管理层（10 个）
+### 8.10 管理层（10 个）
 
 | # | 技能名 | 中文描述 |
 |---|--------|---------|
@@ -437,16 +748,16 @@ SKILL.md 的 frontmatter 规则：
 | 53 | `shenbi-foundation-review` | 基础设定审核：多维度打分（核心冲突/开篇节奏/世界一致性/角色区分度），80+ 通过 |
 | 54 | `shenbi-genre-config` | 题材配置管理：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义规则 |
 | 55 | `shenbi-volume-consolidation` | 卷完成后合并逐章摘要为叙事摘要、归档旧摘要、生成卷级长程记忆 |
-| 56 | `shenbi-drift-guidance` | 审计纠偏传导：把当前章节审计问题传导给下一章，纠偏指导嵌入 current_state |
-| 57 | `shenbi-intent-management` | 管理作者长期意图和短期关注点（1-3章范围），维护 author_intent.md 和 current_focus.md |
+| 56 | `shenbi-drift-guidance` | 审计纠偏传导：把当前章节审计问题传导给下一章，纠偏指导嵌入 `truth/audit_drift.md` |
+| 57 | `shenbi-intent-management` | 管理作者长期意图和短期关注点（1-3章范围），维护 `truth/author_intent.md` 和 `truth/current_focus.md` |
 | 58 | `shenbi-chapter-pattern` | 13种章节模式检测与分类，发现全书模式单一化问题 |
 | 59 | `shenbi-sequel-writing` | 续写服务：从已有内容找到断点快照，重建上下文，续写后续章节 |
 
 **总计：59 个技能**（元层 2 + 创世层 6 + 规划层 5 + 伏笔层 3 + 起草层 4 + 审计层 18 + 修订层 3 + 导入层 5 + 短篇层 3 + 管理层 10）
 
-## 7. 平台适配
+## 9. 平台适配
 
-### 7.1 Hooks 系统
+### 9.1 Hooks 系统
 
 采用 Superpowers 的 polyglot hook 模式：
 
@@ -458,24 +769,27 @@ hooks/
 └── run-hook.cmd         # Windows polyglot wrapper（batch + bash）
 ```
 
-### 7.2 插件清单
+### 9.2 插件清单
 
-```
-.claude-plugin/plugin.json    # Claude Code
-.cursor-plugin/plugin.json    # Cursor
-.codex-plugin/plugin.json     # OpenAI Codex
-.opencode/plugins/shenbi.js   # OpenCode
-```
+| 平台 | 入口文件 | 说明 |
+|------|---------|------|
+| Claude Code | `.claude-plugin/plugin.json` | skills 目录注册 |
+| Cursor | `.cursor-plugin/plugin.json` | 引用 hooks-cursor.json |
+| OpenAI Codex | `.codex-plugin/plugin.json` | Codex 插件市场格式 |
+| OpenCode | `.opencode/plugins/shenbi.js` | ES 模块插件 |
+| Gemini CLI | `GEMINI.md` | 入口 markdown |
+| GitHub Copilot CLI | hooks.json 兼容 | 通过 COPILOT_CLI 环境变量检测 |
+| Factory Droid | `.claude-plugin/` 兼容 | 复用 Claude Code 格式 |
 
-### 7.3 平台检测
+### 9.3 平台检测
 
 `session-start` 脚本通过环境变量检测平台，输出对应 JSON 格式（与 Superpowers 相同模式）。
 
-## 8. 测试策略
+## 10. 测试策略
 
 采用 Superpowers 的压力驱动测试方法论：
 
-### 8.1 测试层次
+### 10.1 测试层次
 
 ```
 tests/
@@ -490,7 +804,7 @@ tests/
     └── prompts/              # 组合压力场景，验证最大压力下仍遵守规则
 ```
 
-### 8.2 压力类型
+### 10.2 压力类型
 
 | 压力类型 | 示例 |
 |---------|------|
@@ -500,17 +814,17 @@ tests/
 | 疲惫 | "这是今天最后一章了，随便写写" |
 | 组合压力 | 时间 + 沉没成本 + 疲惫 |
 
-### 8.3 技能 TDD 流程
+### 10.3 技能 TDD 流程
 
 1. **RED** — 不用技能对 agent 运行压力场景，记录 rationalization
 2. **GREEN** — 编写最小技能应对那些 rationalization
 3. **REFACTOR** — 关闭新漏洞，直到 bulletproof
 
-## 9. 实现优先级
+## 11. 实现优先级
 
 ### Phase 1: 核心管线（先跑通）
 
-using-shenbi → worldbuilding → character-design → story-architecture → chapter-planning → context-composing → chapter-drafting → state-settling → review-anti-ai → chapter-revision
+shenbi-writing-skills → using-shenbi → worldbuilding → character-design → story-architecture → chapter-planning → context-composing → chapter-drafting → state-settling → review-anti-ai → chapter-revision
 
 ### Phase 2: 质量体系
 
@@ -524,11 +838,11 @@ foreshadowing-plant → foreshadowing-track → foreshadowing-resolve → truth-
 
 剩余审计技能 → 导入层 → 短篇层 → location-builder → power-system → faction-builder → sequel-writing
 
-### Phase 5: 平台适配
+### Phase 5: 平台适配与国际化
 
-hooks 系统 → 插件清单 → 压力测试 → market-radar
+hooks 系统 → 插件清单（7平台）→ 英文 description 翻译 → 压力测试 → market-radar
 
-## 10. 与 Superpowers 的关键差异
+## 12. 与 Superpowers 的关键差异
 
 | 维度 | Superpowers | Shenbi |
 |------|-------------|--------|
