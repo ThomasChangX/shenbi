@@ -15,11 +15,16 @@
 
 根据问题类型自动选择：
 
-| 问题类型 | 路由到 | Phase 1 可用 |
-|---------|--------|------------|
-| OOC / 主线偏离 / 冲突缺失 / 时间线错 / 伏笔未收 | rewrite | Phase 2+（Phase 1 无对应审计技能） |
-| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | 部分可用（anti-ai 覆盖措辞/疲劳词） |
-| 混合 / 未知 | rewrite（保守策略） | |
+| 问题类型 | 路由到 | 触发审计技能 | Phase |
+|---------|--------|------------|-------|
+| 时间线错 / 地点矛盾 / 事件时序 / 物理空间 | rewrite | `shenbi-review-continuity` | 2 |
+| OOC / 声音不一致 / 配角降智 / 弧线平坦 | rewrite | `shenbi-review-character` | 2 |
+| 蓄压-爆发缺失 / 连续无 FIRE / 日常无功能 / 序列单调 | rewrite | `shenbi-review-pacing` | 2 |
+| 伏笔过期 / 培育间隔超 / 支线停滞 / 密度异常 / 备忘不符 | rewrite | `shenbi-review-foreshadowing` | 2 |
+| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | `shenbi-review-anti-ai` | 1 |
+| 混合 / 未知 | rewrite（保守策略） | — | — |
+
+> Phase 2 起：`shenbi-review-continuity`、`shenbi-review-character`、`shenbi-review-pacing`、`shenbi-review-foreshadowing` 四个审计技能均已就绪，auto 模式的 rewrite 路由全部可用。Phase 1 仅有 `shenbi-review-anti-ai`，因此部分 rewrite 路由在 Phase 1 不可用。
 
 ## PATCHES 格式
 
