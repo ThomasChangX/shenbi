@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "matcher": "",
+      "command": "bash \"${CURSOR_PLUGIN_ROOT}/hooks/session-start\""
+    }
+  ]
+}
