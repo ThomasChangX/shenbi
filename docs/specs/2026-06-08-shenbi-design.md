@@ -2,7 +2,7 @@
 
 > 日期: 2026-06-08
 > 状态: 设计完成，待实现
-> 版本: v0.1.1
+> 版本: v0.2.0
 
 ## 1. 项目定位
 
@@ -245,9 +245,12 @@ my-novel/
   "chapter_word_count": 3000,
   "created_at": "2026-06-08",
   "current_chapter": 0,
-  "current_volume": 1
+  "current_volume": 1,
+  "golden_opening_chapters": 3
 }
 ```
+
+`current_chapter: 0` 表示项目已初始化但尚未撰写任何章节。`golden_opening_chapters` 定义黄金三章（或N章）纪律适用的范围，`chapter-drafting` 据此施加额外约束。`narrative_pov` 有效值: `first_person` (第一人称), `third_limited` (第三人称限知), `third_omniscient` (第三人称全知), `multiple` (多视角切换)。
 
 `genre-config.json`:
 
@@ -265,7 +268,6 @@ my-novel/
     "maxGapQuest": 3
   },
   "chapterTypes": ["COMBAT", "DIALOGUE", "EXPLORATION", "TRAINING", "SOCIAL", "REVELATION", "TRANSITION"],
-  "goldenOpeningChapters": 3,
   "prohibitions": ["全场震惊", "不由得倒吸一口凉气"]
 }
 ```
@@ -375,7 +377,139 @@ resources:
 ## 灵石余额: 50
 ```
 
-### 4.3 角色档案格式
+示例 `truth/chapter_summaries.md`（追加模式，每章末尾追加一节）:
+
+```markdown
+# 逐章摘要
+
+## 第1章
+[3-5句叙事摘要，涵盖：核心事件、角色变化、新信息、章尾悬念]
+
+## 第2章
+[3-5句叙事摘要]
+...
+```
+
+示例 `truth/character_matrix.md`:
+
+```markdown
+---
+characters:
+  - name: "林轩"
+    role: protagonist
+    location: "内门演武场"
+    known_info: ["玉佩有隐藏力量", "反派在寻找玉佩"]
+  - name: "苏晴"
+    role: major
+    location: "内门演武场"
+    known_info: ["考核结果即将公布"]
+    attitude_toward_protagonist: "认可"
+relationships:
+  - pair: ["林轩", "苏晴"]
+    type: "信任/师徒"
+    chapter_established: 1
+    last_change_chapter: 5
+    change_note: "态度从疏远转为认可"
+---
+
+# 角色交互矩阵
+
+## 当前信息边界
+- 林轩知道: ...
+- 苏晴知道: ...
+- 林轩不知道: ...
+```
+
+示例 `truth/emotional_arcs.md`:
+
+```markdown
+---
+characters:
+  - name: "林轩"
+    arcs:
+      - chapter: 1
+        emotional_state: "平静/期待"
+        trigger: "入门考核"
+      - chapter: 5
+        emotional_state: "自信/警觉"
+        trigger: "通过考核，发现玉佩被觊觎"
+---
+
+# 角色情感弧线
+
+## 林轩
+- 第1章: 平静/期待（入门考核）
+- 第5章: 自信/警觉（通过考核，发现玉佩被觊觎）
+```
+
+示例 `truth/audit_drift.md`:
+
+```markdown
+---
+chapter: 5
+drift_items:
+  - source_audit: review-anti-ai
+    severity: warning
+    issue: "转折词密度偏高（4次/3000字）"
+    guidance: "下章起草时注意控制转折词，优先用动作推进替代然而/突然"
+    targeted_chapter: 6
+  - source_audit: review-anti-ai
+    severity: error
+    issue: "第3段含破折号一处"
+    guidance: "修订时移除破折号，用句号断句"
+    targeted_chapter: 5
+---
+
+# 审计纠偏指导
+
+## 传导至第6章
+- **转折词控制**: 下章转折词目标 ≤ 3次
+- **来自第5章**: 破折号已修复，无需传导
+```
+
+示例 `style/style_profile.md`:
+
+```markdown
+# 文风指纹
+
+## 句段统计
+- 平均句长: 25.3 字
+- 平均段长: 4.2 句
+- 段落CV: 0.31
+
+## 词汇特征
+- TTR (词汇多样性): 0.72
+- 高频句式: 动作导向（65%段落以角色动作为首句）
+- 修辞特征: 比喻密度适中（每章3-5个），少用排比
+
+## 避免模式
+- 不用"不是…而是…"
+- 不用破折号
+- 了字密度 < 5%
+```
+
+### 4.3 大纲文件格式
+
+`outline/rhythm_principles.md`:
+
+```markdown
+# 节奏原则
+
+## 整体节奏哲学
+[本书的节奏理念——快慢交替的尺度、爆发频率、蓄压深度]
+
+## 章节类型节奏
+- QUEST: 蓄压/推进，占比 ~60%
+- FIRE: 爆发/高潮，占比 ~20%
+- CONSTELLATION: 日常/关系/世界观展开，占比 ~20%
+
+## 张力曲线规则
+- 最大连续 QUEST 章数: 5
+- 最大连续无 FIRE 章数: 3
+- 每卷至少 1 个反转型高潮（出乎读者预期）
+```
+
+### 4.4 角色档案格式
 
 示例 `characters/protagonist.md`:
 
@@ -407,7 +541,7 @@ voice_profile:
 ...
 ```
 
-### 4.4 章节备忘格式
+### 4.5 章节备忘格式
 
 示例 `plans/chapter-005-plan.md`:
 
@@ -417,10 +551,12 @@ chapter: 5
 goal: "主角首次与反派正面交锋"
 volume: 1
 tension_level: HIGH
-scene_type: COMBAT
+chapter_type: COMBAT
 ---
 
 # 第五章备忘
+
+`tension_level` 有效值: `LOW` (纯过渡/日常章), `MEDIUM` (有冲突无高潮), `HIGH` (关键冲突/高潮章)。`chapter_type` 取值来自 `genre-config.json` 的 `chapterTypes` 列表。
 
 ## 1. 当前任务
 主角必须在内门考核中击败反派的代理人，证明实力。
@@ -704,7 +840,7 @@ scene_type: COMBAT
 | review-character | OOC 是致命毒点 |
 | review-sensitivity | 敏感词导致平台下架 |
 
-**条件激活（由 genre-config 控制）**:
+**条件激活（由 genre-config 控制）** — "包含 X,Y" 表示 `auditDimensions` 数组中存在至少一个所列维度即激活：
 
 | 技能 | 默认 | 激活条件 |
 |------|------|---------|
@@ -737,15 +873,15 @@ scene_type: COMBAT
 
 ### 7.5 审计执行顺序
 
-当多个审计技能激活时，按以下顺序执行（从低成本到高成本）：
+仅激活的技能参与执行。每章按照 `genre-config.json` 的 `auditDimensions` 和默认激活规则确定激活的技能集合，然后按以下顺序执行（从低成本到高成本）：
 
-1. **确定性检查（零 LLM 成本）**: review-anti-ai, review-sensitivity, review-long-span
+1. **确定性检查（零 LLM 成本）**: review-anti-ai, review-sensitivity, review-long-span（仅当各自激活时）
 2. **结构检查（低成本）**: review-memo-compliance, review-texture, review-pacing
 3. **领域检查（中成本）**: review-continuity, review-character, review-world-rules, review-dialogue, review-pov, review-motivation
 4. **高级检查（高成本）**: review-foreshadowing, review-highpoint, review-reader-pull
 5. **条件检查**: review-era, review-fanfic, review-spinoff
 
-前一步发现 blocking 级别问题则停止，进入修订层。
+每层内按表中顺序执行。前一步发现 blocking 级别问题则停止，进入修订层。`review-long-span` 额外要求 `current_chapter ≥ 3` 才参与执行。
 
 ## 8. 技能完整清单（59 个）
 
@@ -850,7 +986,7 @@ scene_type: COMBAT
 | 50 | `shenbi-truth-sync` | 真相文件同步：从编辑后的正文重新反推 truth files，校验一致性 |
 | 51 | `shenbi-snapshot-manage` | 状态快照管理：创建/查看/回滚快照，状态恢复 |
 | 52 | `shenbi-market-radar` | 平台趋势扫描：排行榜数据、题材分析、开书建议、对标作品 |
-| 53 | `shenbi-foundation-review` | 基础设定审核：多维度打分（核心冲突/开篇节奏/世界一致性/角色区分度），80+ 通过 |
+| 53 | `shenbi-foundation-review` | 基础设定审核：5 维度打分（核心冲突 30分/开篇节奏 20分/世界一致性 20分/角色区分度 20分/伏笔潜力 10分），总分 80+ 通过 |
 | 54 | `shenbi-genre-config` | 题材配置管理：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义规则 |
 | 55 | `shenbi-volume-consolidation` | 卷完成后合并逐章摘要为叙事摘要、归档旧摘要、生成卷级长程记忆 |
 | 56 | `shenbi-drift-guidance` | 审计纠偏传导：把当前章节审计问题传导给下一章，纠偏指导嵌入 `truth/audit_drift.md` |
