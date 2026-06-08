@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-continuity
-description: Use when checking chapter for timeline consistency, location contradictions, event sequence ordering, or physical spatial logic errors
+description: Use when a finished chapter needs an internal consistency audit against truth files
 ---
 
 # 连续性审计
@@ -21,6 +21,7 @@ digraph review_continuity {
     "Compile results" -> "Passed?";
     "Passed?" -> "Report PASS" [label="yes"];
     "Passed?" -> "Report issues with severity" [label="no"];
+    "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
 
@@ -48,7 +49,7 @@ digraph review_continuity {
 - 提取本章所有地点提及
 - 与角色当前位置对比（来自 `truth/current_state.md`）
 - 地点之间如果跳跃，检查是否有过渡段落或能力支撑
-- 使用 Allen 区间代数检查地点间时空关系
+- 检查地点间在时间上的先后、并行、包含关系
 
 ### 3. 事件时序
 - 提取本章事件链，按文本顺序编号
@@ -82,6 +83,9 @@ digraph review_continuity {
 [空间矛盾标注]
 
 ### 评分: X/10 通过
+
+### 建议修复
+- [ERROR] [具体段落] [问题描述]：[修复方案]
 ```
 
 ## Anti-Rationalization
