@@ -55,7 +55,12 @@ digraph skill_check {
 | "伏笔兑现" / "收线" | shenbi-foreshadowing-resolve |
 | "导入" / "分析已有作品" | shenbi-import-analysis |
 | "文风" / "风格学习" | shenbi-style-learning |
+| "提取角色" / "反推角色" | shenbi-character-extraction |
+| "提取世界" / "反推世界" | shenbi-world-extraction |
+| "原作导入" / "同人原作" | shenbi-canon-import |
 | "短篇" | shenbi-short-outline |
+| "批量写短篇" / "短篇写作" | shenbi-short-drafting |
+| "短篇包装" / "短篇上架" | shenbi-short-packaging |
 | "续写" | shenbi-sequel-writing |
 | "平台趋势" / "市场" | shenbi-market-radar |
 | "改题材配置" / "疲劳词" | shenbi-genre-config |
@@ -96,6 +101,6 @@ When working with a novel project, the directory structure is defined in `docs/s
 
 Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity
 
-> **Phase 1**: Only review-anti-ai is implemented. The other three default audits (review-continuity, review-character, review-sensitivity) are deferred to Phase 2. If triggered, the agent will fail gracefully — the skill file doesn't exist, so skip and log.
+> All 4 default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). For conditional audits, see design spec Section 7.4 and the Phase 4b skill set (review-pacing, review-foreshadowing, review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff).
 
 Additional audits activate based on `genre-config.json` in the novel project. See design spec Section 7.4 for activation rules.
