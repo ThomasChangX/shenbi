@@ -40,4 +40,4 @@ digraph hook_lifecycle {
 
 - `current_chapter - last_reinforced > cultivation_interval` → 培育过期
 - 培育过期不处理 → 下次检查标记为 OVERDUE
-- 连续 2 次 OVERDUE → 自动 ABANDON
+- 连续 2 次 OVERDUE → 标记为 CRITICAL，需人工决定（ABANDON 或 DEFER）。core_hook 不允许 ABANDON

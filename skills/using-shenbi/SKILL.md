@@ -103,6 +103,6 @@ When working with a novel project, the directory structure is defined in `docs/s
 
 Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity
 
-> All 4 default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). For conditional audits, see design spec Section 7.4 and the Phase 4b skill set (review-pacing, review-foreshadowing, review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff).
+> All 4 default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). Conditional audits: Phase 2 (review-pacing, review-foreshadowing), Phase 4b (review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff). Activation rules in design spec Section 7.4.
 
 Additional audits activate based on `genre-config.json` in the novel project. See design spec Section 7.4 for activation rules.

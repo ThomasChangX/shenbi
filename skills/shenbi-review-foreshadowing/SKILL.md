@@ -9,7 +9,7 @@ description: Use when a finished chapter needs foreshadowing audit against hook 
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 6 或 24 时激活。
 
-> **Phase 2 limitation:** Before Phase 3's foreshadowing-track is implemented, `truth/pending_hooks.md` may be empty or a placeholder. The audit will report PASS by default. Full functionality activates after Phase 3 populates the hook pool.
+> If `truth/pending_hooks.md` is empty or missing, report explicitly that no hook pool data was found — do NOT auto-PASS. Direct the human partner to populate it via `shenbi-foreshadowing-plant` (Phase 3).
 
 ## 流程
 

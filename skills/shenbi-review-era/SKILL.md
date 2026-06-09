@@ -7,7 +7,7 @@ description: Use when a finished chapter needs a historical era accuracy audit (
 
 这是条件激活的审计技能。检查历史时代准确性、时期恰当词汇、器物/地点事实。
 
-> 激活条件：`genre-config.json` 的 `eraResearch` 或 `eraConstraints` 字段为 true 时激活。
+> 激活条件：`genre-config.json` 的 `eraResearch` 为 truthy，或 `eraConstraints` 存在且非空（可为约束列表或对象）时激活。
 
 > 与 `shenbi-review-world-rules` 区别：世界规则审计检查"作品内自洽性"，本审计检查"与历史/时代事实的一致性"。
 

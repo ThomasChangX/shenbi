@@ -19,7 +19,7 @@
 - `cultivation_interval`: 每 N 章需要一次强化
 - `max_distance`: 最大种植到兑现距离（章）
 - `last_reinforced`: 上次强化所在章
-- 超过 `max_distance` 未兑现 → 警告
+- 超过 `max_distance` 未兑现 → error（铁律: 过期伏笔必须标记为 error）
 
 ## 密度预算
 
