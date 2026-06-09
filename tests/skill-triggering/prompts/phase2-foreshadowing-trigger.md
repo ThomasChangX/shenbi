@@ -15,7 +15,7 @@
 1. 加载 `skills/using-shenbi/SKILL.md`
 2. 识别关键词："伏笔"、"记得"、"揭开" → 对应伏笔审计
 3. 路由到 `skills/shenbi-review-foreshadowing/SKILL.md`（注意：是审计，不是 plan/track/resolve）
-4. 读取 `truth/hook_pool.md`（伏笔池）
+4. 读取 `truth/pending_hooks.md`（伏笔池）
 5. 比对章节中触发的伏笔与池中条目是否一致
 6. 检查是否有 PLANTED 后长期未 TRIGGERED 的"遗失伏笔"
 
@@ -33,4 +33,4 @@
 
 - 路由到 `shenbi-foreshadowing-track`（那是状态评估，不是审计） → FAIL
 - 路由到 `shenbi-foreshadowing-resolve`（那是揭伏笔的创作技能） → FAIL
-- Agent 没有读取 `truth/hook_pool.md` 就直接审计 → FAIL
+- Agent 没有读取 `truth/pending_hooks.md` 就直接审计 → FAIL

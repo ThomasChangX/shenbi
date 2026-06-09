@@ -18,7 +18,7 @@ digraph length_normalizing {
     "Expand or compress?" -> "Compress: trim redundant prose" [label="over"];
     "Expand or compress?" -> "Expand: enrich existing descriptions" [label="under"];
     "Compress: trim redundant prose" -> "Post-normalization > 25% original?";
-    "Expand: enrich existing descriptions" -> "Post-normalization > 25% original?";
+    "Expand: enrich existing descriptions" -> "Output normalized chapter";
     "Post-normalization > 25% original?" -> "Output normalized chapter" [label="yes"];
     "Post-normalization > 25% original?" -> "REJECT: chapter structure cannot support target length" [label="no"];
 }

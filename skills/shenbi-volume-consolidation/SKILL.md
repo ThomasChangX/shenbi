@@ -25,8 +25,8 @@ digraph volume_consolidation {
 ## 数据契约
 
 - **Reads:** `chapters/chapter-N.md`, `truth/chapter_summaries.md`
-- **Writes:** `truth/volume_summaries.md` (new file per volume)
-- **Updates:** `truth/chapter_summaries.md` (archives old per-chapter entries)
+- **Writes:** `truth/volume_summaries.md` (creates on first volume, appends for subsequent volumes)
+- **Updates:** `truth/chapter_summaries.md` (preserves per-chapter entries; marks them as archived but does not delete)
 
 ## 铁律
 
