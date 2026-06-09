@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-sensitivity
-description: Use when a finished chapter needs a default sensitivity and platform-compliance audit before publication or platform submission
+description: Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries
 ---
 
 # 敏感内容审计

@@ -11,6 +11,9 @@
 | `truth/particle_ledger.md` | 按需 | 物品/资源增减 |
 | `truth/subplot_board.md` | 按需 | 支线进度 |
 | `truth/emotional_arcs.md` | 按需 | 角色情感变化 |
+| `truth/author_intent.md` | 按需 | 作者长期意图和目标 |
+| `truth/current_focus.md` | 按需 | 当前焦点和叙事方向 |
+| `truth/audit_drift.md` | 每章 | 审计纠偏记录 |
 
 ## 更新原则
 

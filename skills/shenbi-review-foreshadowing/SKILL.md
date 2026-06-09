@@ -5,7 +5,7 @@ description: Use when a finished chapter needs foreshadowing audit against hook 
 
 # 伏笔审计
 
-这是默认激活的审计技能（每章必查）。检查伏笔账本兑现、培育间隔合规、距离上限约束、密度预算、支线活跃度。
+这是条件激活的审计技能。检查伏笔账本兑现、培育间隔合规、距离上限约束、密度预算、支线活跃度。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 6 或 24 时激活。
 

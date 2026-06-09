@@ -27,13 +27,13 @@ digraph snapshot_manage {
 ## 数据契约
 
 - **Reads:** `truth/*.md`, `chapters/chapter-N.md`, `characters/**/*.md`
-- **Writes:** `snapshots/chapter-NNN/` (10 truth 文件副本 + 1 章节正文 + 1 manifest)
+- **Writes:** `snapshots/chapter-NNN/` (11 truth 文件副本 + 1 章节正文 + 1 manifest)
 - **Updates:** none (snapshots are append-only)
 
 ## 铁律
 
 1. **每章完成后必须创建快照** — 不创建快照视为流程未完成
-2. **快照是完整副本** — 包括所有 10 个 truth/ 文件 + 本章正文（见下方完整清单）
+2. **快照是完整副本** — 包括所有 11 个 truth/ 文件 + 本章正文（见下方完整清单）
 3. **回滚需人类确认** — 回滚是破坏性操作，必须有人类合作者批准
 4. **快照不可修改** — 一旦创建，快照是只读的
 5. **回滚后续处理** — 回滚后 N+1 到当前章节的正文保留但标记为 UNVERIFIED，需要从回滚点重新运行 state-settling + audits 或手动验证一致性
@@ -73,7 +73,7 @@ digraph snapshot_manage {
   3. 按章节号排序
   4. 标记缺失章节（如果 outline 知道总章节数）
 
-## 快照清单（10 个 truth 文件）
+## 快照清单（11 个 truth 文件）
 
 1. `truth/current_state.md`
 2. `truth/pending_hooks.md`
@@ -85,6 +85,7 @@ digraph snapshot_manage {
 8. `truth/author_intent.md`
 9. `truth/current_focus.md`
 10. `truth/audit_drift.md`
+11. `truth/volume_summaries.md` (if exists)
 
 ## Manifest 模板
 
@@ -105,6 +106,7 @@ files:
   - author_intent.md
   - current_focus.md
   - audit_drift.md
+  - volume_summaries.md
   - chapter-NNN.md
 ---
 ```
@@ -128,6 +130,7 @@ files:
 - truth/author_intent.md ✓
 - truth/current_focus.md ✓
 - truth/audit_drift.md ✓
+- truth/volume_summaries.md ✓
 - chapters/chapter-NNN.md ✓
 
 **快照清单**: snapshots/chapter-001/, ..., chapter-NNN/
@@ -142,7 +145,7 @@ files:
 **章节摘要**: <chapter_summaries.md 对应条目第一行>
 **关键状态变更**: <current_state.md 中角色位置/活跃冲突摘要>
 **活跃伏笔**: PLANTED = X 个, RELEVANT = Y 个
-**包含文件**: 10 truth files + 1 chapter
+**包含文件**: 11 truth files + 1 chapter
 ```
 
 ### 回滚
@@ -152,7 +155,7 @@ files:
 
 **目标快照**: 第N章 (created YYYY-MM-DD HH:MM)
 **将覆盖**:
-- truth/ (10 files)
+- truth/ (11 files)
 - chapters/chapter-N.md
 **风险**: 回滚后 N+1 到当前章节标记 UNVERIFIED
 **HARD-GATE**: 请人类合作者明确确认 "确认回滚到第N章" 后继续

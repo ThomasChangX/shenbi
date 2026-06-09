@@ -27,6 +27,12 @@ digraph state_settling {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `chapters/chapter-N.md`
+- **Writes:** none
+- **Updates:** `truth/current_state.md`, `truth/particle_ledger.md`, `truth/character_matrix.md`, `truth/emotional_arcs.md`, `truth/subplot_board.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`
+
 ## 铁律
 
 1. **只记录正文明确描述的变化** — 不推论、不猜测、不补充

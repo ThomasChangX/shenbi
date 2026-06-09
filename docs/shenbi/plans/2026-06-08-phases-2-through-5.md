@@ -536,7 +536,7 @@ digraph review_pacing {
 
 ## 数据契约
 
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `truth/chapter_summaries.md`
+- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `truth/chapter_summaries.md`, `outline/rhythm_principles.md` (if exists)
 - **Writes:** report only
 - **Updates:** none
 
@@ -956,9 +956,11 @@ digraph foundation_review {
 
 ## 数据契约
 
-- **Reads:** `world/*.md`, `characters/**/*.md`, `outline/*.md`, `truth/current_state.md`, `truth/chapter_summaries.md`
+- **Reads:** `world/*.md`, `characters/**/*.md`, `outline/*.md`, `truth/current_state.md` (may be empty template), `truth/chapter_summaries.md` (may be empty template), `novel.json`, `genre-config.json`
 - **Writes:** report only
 - **Updates:** none
+
+> **Note:** `truth/current_state.md` and `truth/chapter_summaries.md` are initialized as empty templates by `shenbi-worldbuilding` (see Phase 1 plan Section "输出契约"). If no chapters have been written, these contain only frontmatter with empty bodies. The foundation-review reads them to verify they exist and are properly initialized; the scoring itself is driven primarily by `world/`, `characters/`, and `outline/` content.
 
 ## 铁律
 
@@ -1290,7 +1292,7 @@ git commit -m "feat: add shenbi-foreshadowing-plant skill (Phase 3)"
 
 ## 状态转换图
 
-~~~dot
+```dot
 digraph hook_lifecycle {
     PLANTED -> RELEVANT [label="REINFORCE (培育强化)"];
     PLANTED -> PLANTED [label="PROMOTE (提升微妙度)"];
@@ -1303,7 +1305,7 @@ digraph hook_lifecycle {
     PLANTED -> ABANDONED [label="ABANDON (放弃)" style=dashed color=red];
     RELEVANT -> ABANDONED [label="ABANDON" style=dashed color=red];
 }
-~~~
+```
 
 ## 操作定义
 
@@ -1983,6 +1985,23 @@ git commit -m "feat: add shenbi-volume-consolidation skill (Phase 3)"
 
 # Phase 4: 扩展能力 (33 skills)
 
+> **Content completeness legend:**
+> - ✅ **Full content** — SKILL.md written inline in this plan (same as Phase 1/2/3 tasks)
+> - ⚠️ **Stub spec** — One-line specification; implementer must expand using the stub template below
+>
+> **Phase 4 breakdown by content completeness:**
+> - 4a (sensitivity): ✅ Full content (1 skill)
+> - 4b (conditional audits): ⚠️ Stub specs (12 skills — expand using template)
+> - 4c (genesis extensions): ⚠️ Stub specs (4 skills — expand using template)
+> - 4d (planning extensions): ⚠️ Stub specs (3 skills — expand using template)
+> - 4e (length-normalizing): ✅ Full content (1 skill)
+> - 4f (anti-detect): ✅ Full content (1 skill)
+> - 4g (import layer): ⚠️ Stub specs (5 skills — expand using template)
+> - 4h (short story): ⚠️ Stub specs (3 skills — expand using template)
+> - 4i (management extensions): ⚠️ Stub specs (3 skills — expand using template; market-radar has ✅ full content in Phase 5)
+>
+> **Total**: 3 skills with ✅ full inline content, 30 skills with ⚠️ stub specs requiring expansion
+
 **Goal:** Complete all remaining skills: 13 audit skills, 5 import skills, 3 short-story skills, 4 worldbuilding extensions, 3 planning extensions, 1 drafting extension, 1 revision extension, and 3 management extensions. This fills all functional gaps.
 
 **Architecture:** Audit skills follow the established review-anti-ai pattern. Import skills form an 8-pass analysis pipeline. Short-story skills are a simplified parallel to the main pipeline. Extensions enrich existing layers with advanced capabilities.
@@ -1992,6 +2011,126 @@ git commit -m "feat: add shenbi-volume-consolidation skill (Phase 3)"
 **Note:** Due to the large number of skills in Phase 4, tasks are batched by layer. Each batch produces 2-5 skills that share similar patterns.
 
 **Implementation pattern for Phase 4 stubs:** Phase 4b-4i skills are described as one-line specifications rather than full inline SKILL.md content (unlike Phase 2-3 which have complete inline content). Implementers should follow the pattern established by Phase 2's detailed skills: YAML frontmatter (name + description), DOT flowchart, iron laws, anti-rationalization table, check execution steps, and structured output format. Use `shenbi-writing-skills` meta-skill for guidance. Phase 4a (sensitivity), 4e (length-normalizing), and 4f (anti-detect) have full inline content as reference patterns. For skills requiring supporting files (review-long-span, review-era, review-fanfic, review-spinoff), create the supporting files listed in the File Structure tree above.
+
+**Stub expansion template** (use for each Phase 4b-4i skill, excluding 4a/e/f which are already complete):
+
+```
+1. Write YAML frontmatter: name + description (trigger-condition-only, English, ≤500 chars)
+2. Write DOT flowchart: 5-10 nodes covering read → check → compile → report → pass/fail
+3. Write data contract block: - **Reads:** [...], - **Writes:** report only, - **Updates:** none
+4. Write iron laws: 3-5 absolute rules using MUST/NEVER/NO X WITHOUT Y
+5. Write check execution: 3-5 check categories with deterministic rules where possible
+6. Write output format: markdown table-based report with pass/fail/warning severity
+7. Write anti-rationalization table: 3-5 excuse/reality pairs covering domain-specific AI shortcuts
+8. Write commit instructions: `git add skills/shenbi-<skill>/ && git commit -m "feat: add <skill> (Phase 4)"`
+```
+
+**Reference example — `shenbi-review-world-rules` expanded from stub to full content:**
+
+```markdown
+---
+name: shenbi-review-world-rules
+description: Use when checking chapter for world rule violations, power-system scaling collapse, numerical inconsistencies, or knowledge base contamination from outside the novel's setting
+---
+
+# 世界规则审计
+
+检查设定矛盾、力量体系崩坏、数值一致性、知识库污染。
+
+> 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 3,4,5,18 时激活。
+
+## 流程
+
+\`\`\`dot
+digraph review_world_rules {
+    "Read chapter content" -> "Read world/rules.md (world iron laws)";
+    "Read world/rules.md" -> "Read world/power_system.md (if exists)";
+    "Read world/power_system.md" -> "Check rule violations";
+    "Check rule violations" -> "Check power scaling consistency";
+    "Check power scaling consistency" -> "Check numerical consistency";
+    "Check numerical consistency" -> "Check knowledge contamination";
+    "Check knowledge contamination" -> "Compile results";
+    "Compile results" -> "Passed?";
+    "Passed?" -> "Report PASS" [label="yes"];
+    "Passed?" -> "Report issues with severity" [label="no"];
+}
+\`\`\`
+
+## 数据契约
+
+- **Reads:** `chapters/chapter-N.md`, `world/rules.md`, `world/power_system.md` (if exists), `world/story_bible.md`
+- **Writes:** report only
+- **Updates:** none
+
+## 铁律
+
+1. **世界铁律不可违反** — `world/rules.md` 中定义的规则在本章必须一致，任何违反都是 error
+2. **力量体系不能崩坏** — 角色能力、等级、技能必须在已建立的体系内运作
+3. **数值必须自洽** — 年龄、时间、距离、数量、等级等数值与前后章一致
+4. **知识不能越界** — 角色不能引用小说世界设定之外的现代概念或知识
+5. **设定不能凭空增减** — 新设定必须有种植过程（至少在前文暗示过），不能"突然出现"
+
+## 检查执行
+
+### 1. 规则违反检测
+- 逐条对比 `world/rules.md` 的每条铁律与本章内容
+- 标记违反的规则和具体段落
+
+### 2. 力量体系一致性
+- 检查角色能力使用是否符合 `world/power_system.md` 的等级和能力边界
+- 检测"越级打怪"是否有合理铺垫
+
+### 3. 数值一致性
+- 年龄、时间流逝、距离、资源数量与 `truth/current_state.md` 对比
+- 等级、分数、排名的前后一致性
+
+### 4. 知识污染检测
+- 正则检测现代术语、科技概念、非世界观内知识的出现
+- 检查角色引用的知识是否在其信息边界内
+
+## 输出格式
+
+\`\`\`markdown
+## 世界规则审计报告
+
+**章节**: 第N章
+**结果**: 通过 / 有瑕疵 / 不通过
+
+### 规则违反
+| 规则 | 违反位置 | 严重度 |
+|------|---------|--------|
+| ... | ... | ... |
+
+### 力量体系
+| 角色 | 能力使用 | 是否超限 | 状态 |
+|------|---------|---------|------|
+| ... | ... | ... | OK/VIOLATION |
+
+### 数值一致性
+| 数值项 | 前章值 | 本章值 | 状态 |
+|--------|--------|--------|------|
+| ... | ... | ... | OK/MISMATCH |
+
+### 知识污染
+| 污染词/概念 | 位置 | 严重度 |
+|------------|------|--------|
+| ... | ... | ... |
+
+### 评分: X/10 通过
+\`\`\`
+
+## Anti-Rationalization
+
+| Excuse | Reality |
+|--------|---------|
+| "力量体系偶尔崩一下没事" | 一次崩坏 = 读者对整个体系的信任崩塌 |
+| "加个新设定很方便" | 未经种植的新设定 = deus ex machina = 读者弃书 |
+| "数值差不多就行" | 读者有心算能力，数值矛盾是最容易被发现的 |
+\`\`\`
+
+> This example demonstrates the expansion pattern. All 29 Phase 4b-4i stub skills follow this same pattern with domain-specific check categories, applicable truth files in the data contract, and anti-rationalization entries relevant to the audit domain.
+
+**Phase 4b skill count verification**: The Phase 4b checklist references 12 conditional audit skills. Count them: world-rules, reader-pull, memo-compliance, dialogue, motivation, pov, texture, highpoint, long-span, era, fanfic, spinoff = 12 skills. Plus pacing/continuity/character/foreshadowing (already created in Phase 2, referenced in Phase 4b batches for routing integration) = 16 total audit skills in the complete system.
 
 ---
 
@@ -2195,7 +2334,7 @@ git commit -m "feat: add Phase 4c genesis extension skills (4 skills)"
 
 - [ ] **shenbi-pacing-design** — Pacing design: buildup → escalation → explosion → aftermath cycle, scene type sequence to avoid monotony, three-line ratio (QUEST/FIRE/CONSTELLATION). Creates `outline/rhythm_principles.md`.
 
-- [ ] **shenbi-plot-thread-weaver** — Thread weaving: A/B/C plot line management, thread priority, max consecutive/max gap control, thread cross-dependencies.
+- [ ] **shenbi-plot-thread-weaver** — Thread weaving: A/B/C plot line management, thread priority, max consecutive/max gap control, thread cross-dependencies. **Also resolves Phase 1 deferral**: manages `truth/subplot_board.md` updates — each chapter's state-settling extracts plot thread changes as 9-class fact type 6 (剧情线索); plot-thread-weaver processes these into subplot_board.md with thread lifecycle tracking (active/stalled/resolved/abandoned).
 
 ```bash
 git commit -m "feat: add Phase 4d planning extension skills (3 skills)"
@@ -2678,7 +2817,65 @@ export default {
   version: '0.2.0',
   description: 'AI skill framework for novel writing',
   skills: [
-    // (same list, in JavaScript array format)
+    'skills/using-shenbi/SKILL.md',
+    'skills/shenbi-writing-skills/SKILL.md',
+    'skills/shenbi-worldbuilding/SKILL.md',
+    'skills/shenbi-location-builder/SKILL.md',
+    'skills/shenbi-character-design/SKILL.md',
+    'skills/shenbi-relationship-map/SKILL.md',
+    'skills/shenbi-faction-builder/SKILL.md',
+    'skills/shenbi-power-system/SKILL.md',
+    'skills/shenbi-story-architecture/SKILL.md',
+    'skills/shenbi-volume-outlining/SKILL.md',
+    'skills/shenbi-chapter-planning/SKILL.md',
+    'skills/shenbi-pacing-design/SKILL.md',
+    'skills/shenbi-plot-thread-weaver/SKILL.md',
+    'skills/shenbi-foreshadowing-plant/SKILL.md',
+    'skills/shenbi-foreshadowing-track/SKILL.md',
+    'skills/shenbi-foreshadowing-resolve/SKILL.md',
+    'skills/shenbi-context-composing/SKILL.md',
+    'skills/shenbi-chapter-drafting/SKILL.md',
+    'skills/shenbi-state-settling/SKILL.md',
+    'skills/shenbi-length-normalizing/SKILL.md',
+    'skills/shenbi-review-continuity/SKILL.md',
+    'skills/shenbi-review-character/SKILL.md',
+    'skills/shenbi-review-world-rules/SKILL.md',
+    'skills/shenbi-review-pacing/SKILL.md',
+    'skills/shenbi-review-foreshadowing/SKILL.md',
+    'skills/shenbi-review-anti-ai/SKILL.md',
+    'skills/shenbi-review-sensitivity/SKILL.md',
+    'skills/shenbi-review-reader-pull/SKILL.md',
+    'skills/shenbi-review-memo-compliance/SKILL.md',
+    'skills/shenbi-review-dialogue/SKILL.md',
+    'skills/shenbi-review-motivation/SKILL.md',
+    'skills/shenbi-review-pov/SKILL.md',
+    'skills/shenbi-review-texture/SKILL.md',
+    'skills/shenbi-review-highpoint/SKILL.md',
+    'skills/shenbi-review-long-span/SKILL.md',
+    'skills/shenbi-review-era/SKILL.md',
+    'skills/shenbi-review-fanfic/SKILL.md',
+    'skills/shenbi-review-spinoff/SKILL.md',
+    'skills/shenbi-chapter-revision/SKILL.md',
+    'skills/shenbi-style-polishing/SKILL.md',
+    'skills/shenbi-anti-detect/SKILL.md',
+    'skills/shenbi-import-analysis/SKILL.md',
+    'skills/shenbi-style-learning/SKILL.md',
+    'skills/shenbi-character-extraction/SKILL.md',
+    'skills/shenbi-world-extraction/SKILL.md',
+    'skills/shenbi-canon-import/SKILL.md',
+    'skills/shenbi-short-outline/SKILL.md',
+    'skills/shenbi-short-drafting/SKILL.md',
+    'skills/shenbi-short-packaging/SKILL.md',
+    'skills/shenbi-truth-sync/SKILL.md',
+    'skills/shenbi-snapshot-manage/SKILL.md',
+    'skills/shenbi-market-radar/SKILL.md',
+    'skills/shenbi-foundation-review/SKILL.md',
+    'skills/shenbi-genre-config/SKILL.md',
+    'skills/shenbi-volume-consolidation/SKILL.md',
+    'skills/shenbi-drift-guidance/SKILL.md',
+    'skills/shenbi-intent-management/SKILL.md',
+    'skills/shenbi-chapter-pattern/SKILL.md',
+    'skills/shenbi-sequel-writing/SKILL.md'
   ]
 }
 ```
@@ -2844,6 +3041,97 @@ git commit -m "feat: add shenbi-market-radar with web search integration (Phase 
 
 ---
 
+## Self-Review
+
+### 1. Phase 1 Gap Resolution
+
+| Phase 1 Gap | Resolved By | Status |
+|------------|-------------|--------|
+| No foreshadowing lifecycle | Phase 3 (plant → track → resolve) | Resolved |
+| Missing default audit: continuity | Phase 2 Task 2-1 | Resolved |
+| Missing default audit: character | Phase 2 Task 2-2 | Resolved |
+| Missing default audit: sensitivity | Phase 4a Task 4a-1 | Resolved |
+| No conditional audit activation | Phase 4b (12 conditional audits) | Resolved |
+| No style learning | Phase 4g (style-learning) | Resolved |
+| No import pipeline | Phase 4g (5 import skills) | Resolved |
+| No length normalizing | Phase 4e (length-normalizing) | Resolved |
+| No volume management | Phase 3 (volume-consolidation) + Phase 4d (volume-outlining) | Resolved |
+| No subplot_board.md updates | Phase 4d (plot-thread-weaver) | Resolved |
+| No truth/ bootstrapping for existing projects | Phase 4g (import pipeline) + Phase 3 (truth-sync) | Resolved |
+
+### 2. Content Completeness Scan
+
+| Phase | Skills | Full Inline Content | Stub Spec | Coverage |
+|-------|--------|-------------------|-----------|----------|
+| Phase 2 | 7 | 7 | 0 | 100% |
+| Phase 3 | 7 | 7 | 0 | 100% |
+| Phase 4a | 1 | 1 | 0 | 100% |
+| Phase 4b | 12 | 0 | 12 | 0% (template provided) |
+| Phase 4c | 4 | 0 | 4 | 0% (template provided) |
+| Phase 4d | 3 | 0 | 3 | 0% (template provided) |
+| Phase 4e | 1 | 1 | 0 | 100% |
+| Phase 4f | 1 | 1 | 0 | 100% |
+| Phase 4g | 5 | 0 | 5 | 0% (template provided) |
+| Phase 4h | 3 | 0 | 3 | 0% (template provided) |
+| Phase 4i | 3 (+1 Phase 5) | 0 (+1 Phase 5) | 3 | 0% (template provided) |
+| Phase 5 | 1 | 1 | 0 | 100% |
+| **Total** | **48** | **19** | **29** | **40% inline, 60% with template** |
+
+> Phase 4b-4i stub skills (29 skills) each have a one-line specification describing their purpose, activation conditions, and file outputs. The stub expansion template (see Phase 4 header) provides step-by-step guidance for implementers to produce full SKILL.md content matching Phase 2-3 quality standards. A reference example (`shenbi-review-world-rules`) demonstrates the expansion from stub to full content — all 29 stubs follow this same pattern.
+
+### 3. Cross-Plan Consistency
+
+- [ ] Phase 1 Plan "Phase 1 Limitations" section lists 7 gaps → all 7 have explicit resolution targets in this plan
+- [ ] Phase 1 Plan `using-shenbi` trigger map includes Phase 2-5 skills → this plan creates them
+- [ ] Phase 1 Plan revision-modes.md auto-routing table lists Phase 2+ gaps → this plan's Output section updates them
+- [ ] Phase 1 Plan context-composing P3 references `[Phase 3]` → Phase 3 foreshadowing-track populates `pending_hooks.md`
+- [ ] Phase 1 Plan state-settling deferral (`subplot_board.md` → Phase 4) → Phase 4d plot-thread-weaver takes ownership
+- [ ] File structure in this plan's preamble matches the combined file tree of all phases
+- [ ] DOT graph syntax consistent: all use ` ```dot ` fences (verified, fixed lifecycle-states.md from `~~~dot`)
+
+### 4. Dependency Order Verification
+
+```
+Phase 1 (core pipeline)
+    ↓
+Phase 2 (quality audits + drift guidance) ← depends on Phase 1 truth files existing
+    ↓
+Phase 3 (foreshadowing + management) ← depends on Phase 2 audit infrastructure
+    ↓
+Phase 4 (extensions) ← depends on Phase 2-3 for audit patterns and foreshadowing lifecycle
+    ↓
+Phase 5 (platform packaging) ← depends on all skills existing
+```
+
+Each phase is independently testable after completion. Phase 2 audits can be tested against Phase 1 chapter output. Phase 3 foreshadowing can be tested with a multi-chapter sequence. Phase 4 import can be tested with external novel content.
+
+### 5. Placeholder Scan
+
+No ambiguous TBD, TODO, or "implement later" markers found in Phase 2-3 full-content skills.
+
+Intentional phase-gating markers exist in:
+- Phase 2 review-foreshadowing: "Before Phase 3's foreshadowing-track is implemented, truth/pending_hooks.md may be empty" (explicit deferral note)
+- Phase 2 review-foreshadowing hook-lifecycle.md: "DEFER 操作不在 Phase 2 审计模型中" (explicit scope boundary)
+- Phase 4b-4i skills: Marked as ⚠️ stub specs with expansion template (intentional — these are specifications, not implementations)
+
+### 6. Post-Implementation Verification (Full System)
+
+After all 5 phases are implemented:
+
+- [ ] **Skill count**: 59 total skills exist (11 Phase 1 + 48 Phase 2-5), each with valid SKILL.md
+- [ ] **Description trap**: All 59 skills have English `description` fields that describe trigger conditions only (no workflow summaries)
+- [ ] **DOT consistency**: All 59 skills' DOT flowcharts use consistent fence syntax, no orphaned nodes
+- [ ] **Iron laws**: All 59 skills have ≥2 iron laws using absolute language
+- [ ] **Anti-rationalization**: All discipline skills have anti-rationalization tables with ≥3 excuse/reality pairs
+- [ ] **using-shenbi discovery**: All 59 skills appear in the dispatcher's trigger map
+- [ ] **7-platform manifests**: All 7 platform plugin files register all 59 skills
+- [ ] **End-to-end test**: Run a 5-chapter cycle: worldbuilding → character-design → story-architecture → foundation-review → chapter-planning × 5 → context-composing × 5 → chapter-drafting × 5 → state-settling × 5 → all 4 default audits × 5 → chapter-revision × 5 → snapshot-manage × 5. Verify all gates are enforced and all audits produce valid reports.
+- [ ] **Foreshadowing test**: Plant 3 hooks, track through 5 chapters, resolve 2, verify Chase Power tracking is accurate
+- [ ] **Import test**: Feed 10 chapters of external novel content through import-analysis, verify all 8 passes produce structured output
+- [ ] **Pressure tests**: Run all 3 combined pressure tests (audit-skipping, foreshadowing-fatigue, import-shortcut) and verify agent behavior matches expectations
+
+---
+
 ## Implementation Order Recommendation
 
 1. **Phase 2 first** — Adds quality audits that immediately benefit Phase 1's pipeline
@@ -2852,3 +3140,34 @@ git commit -m "feat: add shenbi-market-radar with web search integration (Phase 
 4. **Phase 5 last** — Platform packaging depends on all skills existing
 
 Each phase is independently testable. Phase 2 can be verified by running audits against chapters produced by the Phase 1 pipeline. Phase 3 can be verified end-to-end by writing a multi-chapter sequence. Phase 4 import can be tested with existing novel content. Phase 5 platform tests verify hooks and manifests.
+
+## Implementation Effort Guide
+
+| Phase | Skills | Full Inline | Stub to Expand | Est. Effort | Critical Path? |
+|-------|--------|------------|----------------|-------------|----------------|
+| Phase 2 | 7 | 7 | 0 | Low (implement inline content) | Yes — enables all quality gates |
+| Phase 3 | 7 | 7 | 0 | Low (implement inline content) | Yes — completes writing loop |
+| Phase 4a | 1 | 1 | 0 | Low (implement inline content) | Yes — final default audit |
+| Phase 4b | 12 | 0 | 12 | **High** (expand 12 stubs) | Partial — pacing/foreshadowing audits feed Phase 2 drift-guidance |
+| Phase 4c | 4 | 0 | 4 | Medium (expand 4 stubs) | No — enriches worldbuilding layer |
+| Phase 4d | 3 | 0 | 3 | Medium (expand 3 stubs) | No — enriches planning layer |
+| Phase 4e | 1 | 1 | 0 | Low (implement inline content) | No — post-draft optimization |
+| Phase 4f | 1 | 1 | 0 | Low (implement inline content) | No — revision optimization |
+| Phase 4g | 5 | 0 | 5 | **High** (complex pipeline design) | Partial — enables existing-novel bootstrap |
+| Phase 4h | 3 | 0 | 3 | Medium (simplified pipeline) | No — alternative workflow |
+| Phase 4i | 3 | 0 | 3 | Medium (management tools) | No — utility skills |
+| Phase 5 | 1 skill + infra | 1 + most infra | 0 | Medium (platform config) | Yes — enables skill discovery on all platforms |
+| **Total** | **48** | **19** | **29** | — | — |
+
+> **High-effort sub-phases**: 4b (12 conditional audits — each following the same pattern but with domain-specific checks) and 4g (5 import skills forming an 8-pass pipeline — requires careful pipeline design). Tackle 4b in batches of 2-3 similar skills. Tackle 4g sequentially (import-analysis → then parallel extraction passes → then canon-import).
+
+## Risk Register
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| Phase 4b-4i stub expansion inconsistent with Phase 2-3 patterns | Medium | High | Follow reference example (`review-world-rules`); run `shenbi-writing-skills` pressure test on each expanded skill |
+| Import pipeline (Phase 4g) produces invalid truth files for existing novels | Medium | High | Test import-analysis → foundation-review → chapter-drafting end-to-end with sample novel content before declaring import complete |
+| Chase Power formula produces unrealistic debt values at scale (>200 chapters) | Low | Medium | Calibrate formula parameters with multi-volume test; add configurable `cp_scale_factor` to `genre-config.json` |
+| Platform hook system fails on some of 7 target platforms | Medium | Low | Test session-start on Claude Code, Cursor, and OpenCode as minimum viable coverage; defer rare platforms |
+| 59-skill discovery table in `using-shenbi` becomes unmaintainable | Low | Medium | Group skills by layer; auto-discover from manifest files (Phase 5 plugin manifests are the single source of truth) |
+| Phase 4 conditional audit explosion (too many audits per chapter = performance degradation) | Medium | Medium | Default to only 4 audits (anti-ai, continuity, character, sensitivity); conditional audits activate only when genre-config demands them; cap at 6 total audits per chapter |

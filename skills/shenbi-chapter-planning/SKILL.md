@@ -23,6 +23,18 @@ digraph chapter_planning {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `truth/current_state.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`, `outline/volume_map.md`, `outline/story_frame.md`, `truth/current_focus.md`, `truth/author_intent.md`
+- **Writes:** `plans/chapter-N-plan.md`
+- **Updates:** none
+
+## 铁律
+
+1. **NO CHAPTER WITHOUT A MEMO** — 没有章节备忘就动笔 = 删除重来
+2. **目标推导必须走优先级链** — 外部指令 > 局部覆盖 > 卷纲 Key Result > current_focus > author_intent
+3. **黄金三章不降级** — 前 N 章的特殊纪律不可跳过
+
 ## 目标推导优先级链
 
 ```

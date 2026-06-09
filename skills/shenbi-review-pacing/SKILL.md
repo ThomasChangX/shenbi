@@ -5,7 +5,7 @@ description: Use when a finished chapter needs pacing audit against rhythm rules
 
 # 节奏审计
 
-这是默认激活的审计技能（每章必查）。检查蓄压-爆发周期完整性、连续无爆发检测、日常段落功能验证、章节类型序列多样性。
+这是条件激活的审计技能。检查蓄压-爆发周期完整性、连续无爆发检测、日常段落功能验证、章节类型序列多样性。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 7 或 26 时激活。
 

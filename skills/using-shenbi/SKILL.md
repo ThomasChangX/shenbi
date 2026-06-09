@@ -71,6 +71,8 @@ digraph skill_check {
 | "纠偏" / "下一章注意" | shenbi-drift-guidance |
 | "作者意图" / "长期目标" | shenbi-intent-management |
 | "章节模式" / "模式检测" | shenbi-chapter-pattern |
+| "写技能" / "创建技能" / "修改技能" | shenbi-writing-skills |
+| "卷纲" / "分卷规划" / "卷结构" | shenbi-volume-outlining |
 | novel-related request that matches nothing above | Check full skill list in design spec Section 8 |
 
 ## Red Flags — Stop and Check

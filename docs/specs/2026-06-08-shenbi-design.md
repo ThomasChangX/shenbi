@@ -179,7 +179,9 @@ my-novel/
 ├── outline/                       # 大纲层
 │   ├── story_frame.md             # 故事框架（散文骨架，4段式）
 │   ├── volume_map.md              # 卷纲（5段 + 节奏原则尾段）
-│   └── rhythm_principles.md       # 节奏原则（独立文件）
+│   ├── rhythm_principles.md       # 节奏原则（独立文件）
+│   ├── thread_map.md              # 线索交叉图（Phase 4d）
+│   └── short_story_map.md         # 短篇大纲（Phase 4h）
 ├── characters/                    # 角色层
 │   ├── protagonist.md             # 主角档案（一人一卡，主角弧线单一权威）
 │   ├── major/                     # 主要角色
@@ -205,7 +207,8 @@ my-novel/
 │   ├── particle_ledger.md         # 资源账本（物品/金钱/资源增减）
 │   ├── author_intent.md           # 作者长期意图
 │   ├── current_focus.md           # 当前关注点（1-3章范围）
-│   └── audit_drift.md             # 审计纠偏指导（传导给下一章）
+│   ├── audit_drift.md             # 审计纠偏指导（传导给下一章）
+│   └── volume_summaries.md        # 卷摘要归档（Phase 3，卷完成后追加）
 ├── plans/                         # 章节规划（每章一个）
 │   ├── chapter-001-plan.md        # 章节备忘（8段式）
 │   └── ...
@@ -224,7 +227,9 @@ my-novel/
 │   ├── style_profile.md           # 文风指纹
 │   └── reference_samples.md       # 参考文本样本
 └── import/                        # 导入产物
-    └── analysis/                  # 导入分析结果
+    ├── analysis/                  # 导入分析结果
+    ├── canon/                     # 同人正典数据（Phase 4g）
+    └── packaging/                 # 短篇销售包装（Phase 4h）
 ```
 
 ### 4.1 核心配置文件

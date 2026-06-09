@@ -25,6 +25,12 @@ digraph chapter_revision {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `chapters/chapter-N.md`, audit report
+- **Writes:** none
+- **Updates:** `chapters/chapter-N.md`
+
 ## 铁律
 
 1. **只修审计发现的问题** — 不顺手改进无关内容

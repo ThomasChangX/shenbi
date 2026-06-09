@@ -24,6 +24,12 @@ digraph chapter_drafting {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `plans/chapter-N-plan.md`, `style/style_profile.md`, `genre-config.json`, `truth/audit_drift.md`
+- **Writes:** `chapters/chapter-N.md`
+- **Updates:** none
+
 ## 铁律
 
 1. **NO CHAPTER WITHOUT A PLAN** — 没有章节备忘（`plans/chapter-N-plan.md`）就动笔 = 删除重来

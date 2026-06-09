@@ -1406,9 +1406,11 @@ git commit -m "feat: add shenbi-review-anti-ai skill with deterministic checklis
 | auto | 默认模式，自动路由到最佳策略 | 根据问题类型决定 |
 | spot-fix | 局部措辞/用词问题 | PATCHES（靶向替换） |
 | polish | 表达/节奏微调，不涉及情节 | REVISED_CONTENT（全文替换） |
-| rewrite | 结构问题，需重组段落 | REVISED_CONTENT（全文替换） |
-| rework | 重大问题，可重构场景推进 | REVISED_CONTENT（全文替换） |
+| rewrite | 段落/结构重组，不改叙事骨架 | REVISED_CONTENT（全文替换） |
+| rework | 场景推进/冲突结构调整 | REVISED_CONTENT（全文替换） |
 | anti-detect | 降低 AI 可检测性 | REVISED_CONTENT（全文替换） |
+
+> **rewrite vs rework 区分**: rewrite 管"怎么写"（段落/句式/节奏的重组），不改事件链；rework 管"发生什么"（可增删场景、调整冲突展开方式），但仍保持核心叙事目标。rewrite 不改变事件链，rework 可重新编排事件呈现方式。
 
 ## auto 模式路由规则
 
@@ -1620,7 +1622,12 @@ git commit -m "test: add pressure test prompt for core pipeline"
 
 ### 2. Placeholder Scan
 
-No TBD, TODO, "implement later", or "similar to Task N" found. All code blocks contain complete content.
+No ambiguous TBD, TODO, or "implement later" markers found. All code blocks contain complete content for Phase 1 scope.
+
+Intentional phase-gating markers exist at these locations (each is a planned deferral, not an oversight):
+- `[Phase 3]` in context-composing DOT (P3: active hooks) and chapter-planning hook rules (foreshadowing lifecycle)
+- `[Phase 4]` in state-settling update rules (subplot_board.md) and context-composing priority table
+- These markers are structural — they tell future implementers exactly where to wire in later-phase capabilities
 
 ### 3. Type Consistency
 
@@ -1628,6 +1635,20 @@ No TBD, TODO, "implement later", or "similar to Task N" found. All code blocks c
 - Novel project paths match design spec Section 4
 - Audit checklist items match design spec Section 7.3
 - Revision modes match design spec description
+
+### 4. Post-Implementation Verification
+
+After all 12 tasks are implemented, verify the following:
+
+- [ ] **Skill structure**: Each `skills/shenbi-*/SKILL.md` has valid YAML frontmatter (`name` alphanumeric+hyphens, `description` ≤500 chars, trigger-condition-only)
+- [ ] **DOT consistency**: All DOT flowcharts use consistent node/edge syntax, no orphaned nodes, CJK characters properly encoded
+- [ ] **Iron laws**: Each skill has ≥2 iron laws using absolute language (MUST, NEVER, NO X WITHOUT Y)
+- [ ] **Anti-rationalization**: Each discipline skill has an anti-rationalization table with ≥3 excuse/reality pairs
+- [ ] **Pipeline integration**: Verify the end-to-end flow: using-shenbi → worldbuilding → character-design → story-architecture → chapter-planning → context-composing → chapter-drafting → state-settling → review-anti-ai → chapter-revision
+- [ ] **HARD-GATE enforcement**: Verify chapter-drafting refuses to write without a chapter plan; chapter-planning refuses without truth files
+- [ ] **File path consistency**: All skill body references to truth files, novel project paths, and config files use the same path conventions
+- [ ] **Pressure test**: Run `tests/pressure-tests/prompts/chapter-writing-pressure.md` scenario and verify agent behavior matches expectations
+- [ ] **Commit history**: All commits follow Conventional Commits format, each task is one commit
 
 ---
 

@@ -18,8 +18,8 @@ digraph review_world_rules {
     "Read chapter content" -> "Read world/rules.md";
     "Read world/rules.md" -> "Read world/power_system.md";
     "Read world/power_system.md" -> "Read world/locations.md";
-    "Read world/locations.md" -> "Read story_bible.md";
-    "Read story_bible.md" -> "Check setting conflicts";
+    "Read world/locations.md" -> "Read world/story_bible.md";
+    "Read world/story_bible.md" -> "Check setting conflicts";
     "Check setting conflicts" -> "Check power-system integrity";
     "Check power-system integrity" -> "Check numerical consistency";
     "Check numerical consistency" -> "Check knowledge base contamination";
@@ -33,7 +33,7 @@ digraph review_world_rules {
 
 ## 数据契约
 
-- **Reads:** `chapters/chapter-N.md`, `world/rules.md`, `world/power_system.md`, `world/locations.md`, `story_bible.md`
+- **Reads:** `chapters/chapter-N.md`, `world/rules.md`, `world/power_system.md`, `world/locations.md`, `world/story_bible.md`, `truth/chapter_summaries.md`, `truth/current_state.md`
 - **Writes:** report only
 - **Updates:** none
 
@@ -49,7 +49,7 @@ digraph review_world_rules {
 ### 1. 设定冲突检查
 - 提取本章所有"能做/不能做"类陈述（如"X 族不能使用 Y"）
 - 与 `world/rules.md` 对比
-- 与 `story_bible.md` 第四段"暗流涌动"对比
+- 与 `world/story_bible.md` 第四段"暗流涌动"对比
 - 冲突 = error
 
 ### 2. 战力体系完整性
