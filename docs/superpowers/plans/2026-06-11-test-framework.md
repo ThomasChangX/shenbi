@@ -901,8 +901,16 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 | `tests/skill-behavior/review-catches-bug/phase4-dialogue-bug.md` | `t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-memo-compliance-bug.md` | `t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-reader-pull-bug.md` | `t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-*.md` (10 files) | Corresponding `t1-skill/shenbi-review-*/bug-hunt/input/scenario.md` |
-| `tests/skill-behavior/review-catches-bug/phase3-foreshadowing-lifecycle.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-character-bug.md` | `t1-skill/shenbi-review-character/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-continuity-bug.md` | `t1-skill/shenbi-review-continuity/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-foreshadowing-bug.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-pacing-bug.md` | `t1-skill/shenbi-review-pacing/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-dialogue-bug.md` | `t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-memo-compliance-bug.md` | `t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-reader-pull-bug.md` | `t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-style-bug.md` | `t1-skill/shenbi-style-polishing/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-anti-ai-bug.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-show-dont-tell-bug.md` | `t1-skill/shenbi-review-show-dont-tell/bug-hunt/input/scenario-pressure.md` |
 | `tests/skill-behavior/review-catches-bug/phase3-plant-track-resolve.md` | `t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase3-volume-consolidation.md` | `t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/revision-fixes-issue/phase4b-revision-mode-routing.md` | `t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario.md` |
@@ -911,7 +919,7 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 | `tests/skill-triggering/prompts/phase3-*-trigger.md` (4 files) | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
 | `tests/pressure-tests/prompts/audit-skipping-pressure.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md` |
 | `tests/pressure-tests/prompts/chapter-writing-pressure.md` | `t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md` |
-| `tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md` | `t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md` | `t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario-pressure.md` |
 | `tests/pressure-tests/prompts/import-shortcut-pressure.md` | `t1-skill/shenbi-import-analysis/bug-hunt/input/scenario.md` |
 | `tests/pressure-tests/prompts/snapshot-skip-pressure.md` | `t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario.md` |
 | `tests/pressure-tests/prompts/state-drift-pressure.md` | `t1-skill/shenbi-state-settling/bug-hunt/input/scenario.md` |
@@ -1200,14 +1208,14 @@ Create `tests/rounds/CHANGELOG.md`:
 All rounds are logged here. Each entry records the model, tier, scores, and fixes applied.
 
 ## Format
-- T1 band breakdown: PASS (90+), CONDITIONAL (60-74), FAIL (0-59)
+- T1 band breakdown: PASS excellent (90+), PASS acceptable (75-89), CONDITIONAL (60-74), FAIL (0-59)
 - Fixes are SKILL.md changes with file references
 
 ## Example Entry
 
 ## Round 001 (2026-06-11) — Claude
 - T1: 42/59 skills at 100
-- T1 band breakdown: 42 PASS (90+), 10 CONDITIONAL (60-74), 7 FAIL (0-59)
+- T1 band breakdown: 30 PASS excellent (90+), 12 PASS acceptable (75-89), 10 CONDITIONAL (60-74), 7 FAIL (0-59)
 - T2: not started (T1 incomplete)
 - T3: not started
 - Fixes applied: promoted BDI to HARD-GATE in skills/shenbi-review-character/SKILL.md
@@ -1246,7 +1254,8 @@ Create `tests/rounds/round-000-TEMPLATE/summary.json`:
   "kill_switches": [],
   "enhancement_signals": [],
   "band_breakdown": {
-    "pass": 0,
+    "pass_excellent": 0,
+    "pass_acceptable": 0,
     "conditional": 0,
     "fail": 0
   },
@@ -1317,7 +1326,7 @@ cat > "${ROUND_DIR}/summary.json" << EOF
   "t3_scores": {},
   "kill_switches": [],
   "enhancement_signals": [],
-  "band_breakdown": {"pass": 0, "conditional": 0, "fail": 0},
+  "band_breakdown": {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0},
   "next_actions": []
 }
 EOF
@@ -1393,7 +1402,9 @@ from pathlib import Path
 
 def classify(score):
     if score >= 90:
-        return "pass"
+        return "pass_excellent"
+    elif score >= 75:
+        return "pass_acceptable"
     elif score >= 60:
         return "conditional"
     else:
@@ -1417,7 +1428,7 @@ def main():
 
     # Compute band breakdown from t1_scores
     t1 = summary.get("t1_scores", {})
-    bands = {"pass": 0, "conditional": 0, "fail": 0}
+    bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
     for skill, score in t1.items():
         bands[classify(score)] += 1
 
@@ -1425,19 +1436,24 @@ def main():
     summary["next_actions"] = []
 
     fail_skills = [s for s, v in t1.items() if v < 60]
-    cond_skills = [s for s, v in t1.items() if 60 <= v < 90]
+    cond_skills = [s for s, v in t1.items() if 60 <= v < 75]
+    acceptable_skills = [s for s, v in t1.items() if 75 <= v < 90]
 
     if fail_skills:
         summary["next_actions"].append(f"Fix failing skills: {', '.join(fail_skills)}")
     if cond_skills:
         summary["next_actions"].append(f"Improve conditional skills: {', '.join(cond_skills)}")
-    if not fail_skills and not cond_skills:
+    if acceptable_skills:
+        summary["next_actions"].append(f"Improve acceptable skills: {', '.join(acceptable_skills)}")
+    if not fail_skills and not cond_skills and not acceptable_skills:
         summary["next_actions"].append("All T1 skills at 100. Ready for T2.")
 
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    print(f"Round summary updated: {bands['pass']} PASS, {bands['conditional']} CONDITIONAL, {bands['fail']} FAIL")
+    print(f"Round summary updated: {bands['pass_excellent']} PASS (excellent), "
+          f"{bands['pass_acceptable']} PASS (acceptable), "
+          f"{bands['conditional']} CONDITIONAL, {bands['fail']} FAIL")
 
 
 if __name__ == "__main__":
