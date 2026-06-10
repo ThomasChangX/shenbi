@@ -15,7 +15,7 @@
 1. 加载 `skills/using-shenbi/SKILL.md`
 2. 识别关键词："快照"、"创建" → 对应快照管理
 3. 路由到 `skills/shenbi-snapshot-manage/SKILL.md`
-4. 先执行"创建快照"操作（copy truth/ + chapter-15.md）
+4. 先执行"创建快照"操作（copy truth/ + chapters/chapter-015.md）
 5. 再执行"查看快照"操作（列出 snapshots/ 目录）
 
 ## 期望触发的技能
@@ -26,7 +26,7 @@
 
 - [ ] Agent 加载 `using-shenbi`
 - [ ] 路由到 `shenbi-snapshot-manage`（不是 `shenbi-state-settling`）
-- [ ] 创建快照时复制全部 11 个 truth 文件 + chapter-15.md
+- [ ] 创建快照时复制全部 11 个 truth 文件 + chapters/chapter-015.md
 - [ ] 写入 manifest（含 type/chapter/created/trigger/files）
 
 ## 失败条件

@@ -21,7 +21,7 @@
 | OOC / 声音不一致 / 配角降智 / 弧线平坦 | rewrite | `shenbi-review-character` | 2 |
 | 蓄压-爆发缺失 / 连续无 FIRE / 日常无功能 / 序列单调 | rewrite | `shenbi-review-pacing` | 2 |
 | 伏笔过期 / 培育间隔超 / 支线停滞 / 密度异常 / 备忘不符 | rewrite | `shenbi-review-foreshadowing` | 2 |
-| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | `shenbi-review-anti-ai` | 1 |
+| 措辞 / 段落形状 / 疲劳词 / 知识污染 | spot-fix | `shenbi-review-anti-ai` | 1 |
 | 设定冲突 / 战力崩坏 / 数值不一致 / 知识库污染 | rewrite | `shenbi-review-world-rules` | 4b |
 | 对白风格不一致 / 了字密度异常 / 口头禅失真 | spot-fix | `shenbi-review-dialogue` | 4b |
 | 动机不可信 / 行为链断裂 / 利益驱动缺失 | rewrite | `shenbi-review-motivation` | 4b |

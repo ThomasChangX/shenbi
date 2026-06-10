@@ -15,7 +15,7 @@
 1. 加载 `skills/using-shenbi/SKILL.md`
 2. 识别关键词："重新提取"、"同步"、"truth文件" → 对应真相同步
 3. 路由到 `skills/shenbi-truth-sync/SKILL.md`
-4. 从修改后的 chapter-8.md 重新提取状态变化
+4. 从修改后的 chapters/chapter-008.md 重新提取状态变化
 5. 更新受影响的 truth 文件（current_state.md 的位置信息、chapter_summaries.md 等）
 
 ## 期望触发的技能

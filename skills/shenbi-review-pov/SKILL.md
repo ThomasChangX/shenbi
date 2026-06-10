@@ -60,7 +60,7 @@ digraph review_pov {
 - 每次 POV 切换前是否有过渡（空行/小标题/视觉锚点）
 - 突然切换 = error
 - 平滑切换 = pass
-- `third-omniscient` 模式不强制要求过渡
+- `third-omniscient` 模式仍需过渡（场景锚点 / 空行），但允许更宽松的过渡形式
 
 ### 4. 信息边界（跨 POV 泄漏）
 - 提取本章所有"X 知道 Y"类陈述
