@@ -45,13 +45,13 @@ Secondary output: model comparison data collected as a byproduct.
 | Import | import-analysis → character-extraction → world-extraction → canon-import | `report-example.txt` |
 | Management | snapshot-manage → drift-guidance → intent-management → chapter-pattern → volume-consolidation | Drafting output |
 | Short story | short-outline → short-drafting → short-packaging | `outline-example.md` |
-| Foundation | foundation-review → chapter-revision → truth-sync → style-learning | Genesis output |
+| Foundation | foundation-review → chapter-revision → truth-sync → style-learning | Genesis + Architecture + Drafting output (full mini-project required) |
 
 **Skills not in any T2 phase** (T1-only, enter T3 directly): sequel-writing, market-radar, writing-skills, shenbi-drift-guidance (also in Management), foreshadowing-resolve, shenbi-chapter-pattern (also in Management). These skills are tested at T1 level only; their integration is validated at the pipeline level in T3.
 
 ### 2.4 Pipeline Variants (T3)
 
-- **Long-form**: `outline-example.md` → genesis → architecture → planning → drafting (5+ chapters) → audit → revision → state-settling → management. Produces a mini-novel project. After 5 chapters, runs a state-accumulation stress check (see Section 6.1).
+- **Long-form**: `outline-example.md` → genesis → architecture → planning → drafting (5+ chapters) → audit → revision → state-settling → management. Produces a mini-novel project. After 5 chapters, runs a state-accumulation integrity check (see T3 dimension 9 in Section 6.1).
 - **Short-form**: `outline-example.md` → short-outline → short-drafting → short-packaging. Produces a complete short story.
 - **Import-form**: `report-example.txt` → import-analysis → character-extraction → world-extraction → canon-import. Produces extracted project files from existing novel.
 
@@ -87,13 +87,13 @@ Any violation = total test score 0:
 
 ## 4. T1: Per-Skill Rating Standards (85% remaining)
 
-Each skill has 5–8 bespoke dimensions with explicit critical standards. Full rubrics live in `tests/tiers/t1-skill/<skill-name>/rubric.md`.
+Each skill has 4–8 bespoke dimensions with explicit critical standards. Full rubrics live in `tests/tiers/t1-skill/<skill-name>/rubric.md`.
 
 All bespoke dimension weights sum to exactly 85% per skill. Combined with 15% universal = 100%.
 
 ### 4.0 Dispatcher Skill
 
-#### using-shenbi (6 dimensions)
+#### using-shenbi (5 dimensions)
 
 | # | Dimension | Weight | Standard |
 |---|-----------|--------|----------|
@@ -591,7 +591,7 @@ Shared dimensions (65%) + unique dimension (20%) = 85%. Combined with 15% univer
 
 ## 5. T2: Phase-Level Rating Standards
 
-Each phase test scored 0–100. Phase-type-specific dimensions replace the generic ones where the generic dimension is semantically inapplicable.
+Each phase test scored 0–100. T2 dimensions are **independent** of T1 dimensions — T2 evaluates integration quality, not individual skill quality. Phase-type-specific dimensions are tailored to each phase's interaction pattern (sequential, parallel, or hybrid).
 
 ### 5.1 Sequential Phase Dimensions (Genesis, Architecture, Planning, Drafting, Import, Management, Foundation)
 
@@ -607,7 +607,7 @@ For phases where skills chain outputs to each other:
 | 6 | Execution time | 5% | No single skill exceeds 10 minutes; total phase under 60 minutes (wall clock) |
 | 7 | Human gate compliance | 10% | Every hard-gate pause within phase is respected; zero auto-proceeds past hard gates |
 
-Kill switch: any skill's T1 score drops below 90 during T2 integration = phase = 0.
+Kill switch: any skill's individual output during T2 scores below its T1 score on the same input = phase = 0.
 
 ### 5.2 Parallel Phase Dimensions (Audit)
 
@@ -622,6 +622,8 @@ For the audit phase where 18 skills run independently on the same input:
 | 5 | Phase output completeness | 15% | All 18 audit reports present and non-empty |
 | 6 | Execution time | 10% | No single audit skill exceeds 10 minutes; total audit phase under 30 minutes |
 
+Kill switch: any audit skill's individual report during T2 scores below its T1 score on the same chapter = phase = 0. This applies the same regression check as sequential phases.
+
 ### 5.3 Short Story Phase Dimensions
 
 | # | Dimension | Weight | Standard |
@@ -630,9 +632,11 @@ For the audit phase where 18 skills run independently on the same input:
 | 2 | Cross-skill consistency | 20% | Drafting matches outline; packaging matches story content |
 | 3 | Phase output completeness | 15% | Outline, all chapters, and packaging materials all present |
 | 4 | Regression within phase | 15% | Skills maintain their T1 scores during integration |
-| 5 | Story coherence | 15% | The final short story is a coherent narrative (no plot holes, character consistency) |
+| 5 | Story coherence | 15% | Zero plot holes (every event caused by prior event); character behavior matches established profiles; all threads opened in act 1 closed by act 3; chapter transitions reference prior events |
 | 6 | Execution time | 5% | No single skill exceeds 10 minutes; total phase under 45 minutes |
 | 7 | Human gate compliance | 10% | Every hard-gate pause respected |
+
+Kill switch: any skill's output during T2 scores below its T1 score on the same input = phase = 0.
 
 ## 6. T3: Pipeline-Level Rating Standards
 
@@ -659,6 +663,8 @@ Kill switch: any chapter fails sensitivity audit (platform-prohibited content) =
 **Long-form** (uses outline-example.md): all 9 dimensions apply.
 
 **Short-form** (uses outline-example.md):
+- Replace dimension 1 (End-to-end data integrity) with **Short-form data integrity** (15%): Outline, all chapters, and packaging materials are mutually consistent; character names, settings, and events match across all outputs
+- Replace dimension 3 (Cross-phase state consistency) with **Short-form internal consistency** (15%): Character behavior in chapters matches outline character descriptions; plot events in chapters follow outline chapter tasks; no contradictions between chapters
 - Replace dimension 5 (Revision non-regression) with **Pacing tightness** (10%): No chapter exceeds pacing-design word count range by >30%; act proportions match short-outline spec
 - Replace dimension 6 (Foreshadowing lifecycle) with **Story completeness** (10%): Story has beginning, climax, and resolution; all threads opened in act 1 are closed by act 3
 - Replace dimension 9 (State accumulation) with **Packaging fidelity** (5%): Title, blurb, and selling points accurately represent the generated story content
@@ -825,7 +831,7 @@ tests/
 │   │   ├── audit/
 │   │   ├── management/
 │   │   ├── import/
-│   │   ├── foundation/
+│   │   ├── foundation/               # requires full mini-project (genesis + drafting output)
 │   │   └── short-story/
 │   └── t3-pipeline/
 │       ├── long-form/
