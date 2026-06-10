@@ -10,7 +10,7 @@ TIER="${2:?Specify T1, T2, or T3}"
 DATE=$(date +%Y-%m-%d)
 
 # Find next round number
-LAST=$(ls -d tests/rounds/round-* 2>/dev/null | grep -v TEMPLATE | sort | tail -1)
+LAST=$(ls -d tests/rounds/round-* 2>/dev/null | { grep -v TEMPLATE || true; } | sort | tail -1)
 if [ -z "$LAST" ]; then
   NUM=1
 else
