@@ -351,7 +351,7 @@ def load_rubric(rubric_path):
                 continue
             if stripped.startswith("## ") and in_kill_switch:
                 in_kill_switch = False
-            if in_kill_switch and "total score = 0" in stripped.lower():
+            if in_kill_switch and ("total score = 0" in stripped.lower() or "phase = 0" in stripped.lower() or "pipeline = 0" in stripped.lower()):
                 kill_switches.append(stripped.lstrip("- ").rstrip())
             if stripped.startswith("| #") or stripped.startswith("|---"):
                 in_table = True
@@ -415,9 +415,12 @@ def main():
             for ks in kill_switches:
                 print(f"  - {ks}")
             print()
-            ks_input = input("Kill switch triggered? (y/n): ").strip().lower()
-            if ks_input == "y":
-                kill_switch_triggered = True
+            try:
+                ks_input = input("Kill switch triggered? (y/n): ").strip().lower()
+                if ks_input == "y":
+                    kill_switch_triggered = True
+            except EOFError:
+                pass
         print()
         for d in dimensions:
             while True:
@@ -892,7 +895,8 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 |---|---|
 | `tests/skill-behavior/review-catches-bug/phase2-character-bug.md` | `t1-skill/shenbi-review-character/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase2-continuity-bug.md` | `t1-skill/shenbi-review-continuity/bug-hunt/input/scenario.md` |
-| `tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario.md` |
+| `tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario.md` (primary scenario) |
+| `tests/skill-behavior/review-catches-bug/phase3-foreshadowing-lifecycle.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-lifecycle.md` (second scenario; rename to avoid overwrite) |
 | `tests/skill-behavior/review-catches-bug/phase2-pacing-bug.md` | `t1-skill/shenbi-review-pacing/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-dialogue-bug.md` | `t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-memo-compliance-bug.md` | `t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario.md` |
@@ -905,8 +909,14 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 | `tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md` | `t1-skill/shenbi-style-polishing/bug-hunt/input/scenario.md` |
 | `tests/skill-triggering/prompts/phase2-*-trigger.md` (4 files) | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
 | `tests/skill-triggering/prompts/phase3-*-trigger.md` (4 files) | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
-| `tests/pressure-tests/prompts/audit-skip-tendency.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md` |
-| `tests/pressure-tests/prompts/chapter-writing-flow.md` | `t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/audit-skipping-pressure.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/chapter-writing-pressure.md` | `t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md` | `t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/import-shortcut-pressure.md` | `t1-skill/shenbi-import-analysis/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/snapshot-skip-pressure.md` | `t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario.md` |
+| `tests/pressure-tests/prompts/state-drift-pressure.md` | `t1-skill/shenbi-state-settling/bug-hunt/input/scenario.md` |
+| `tests/skill-triggering/prompts/phase4-management-triggers.md` | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
+| `tests/skill-triggering/prompts/phase4b-audit-triggers.md` | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
 
 **Rubric generation is mechanical** — each rubric.md copies the skill's dimensions from the spec Section 4 verbatim into the template from Task 1. No creativity needed.
 
@@ -1061,11 +1071,13 @@ git commit -m "feat: add T2 phase test structure with rubrics for all 9 phases"
 - Create: `tests/tiers/t3-pipeline/import-form/rubric.md`
 - Create: `tests/tiers/t3-pipeline/import-form/input/seed.md`
 
+Note: T3 pipeline tests have no `expected/` directory. Output is evaluated against the rubric, not against pre-defined expected output.
+
 - [ ] **Step 1: Create T3 directories**
 
 ```bash
 for variant in long-form short-form import-form; do
-  mkdir -p tests/tiers/t3-pipeline/$variant/{input,expected}
+  mkdir -p tests/tiers/t3-pipeline/$variant/input
 done
 ```
 
@@ -1516,7 +1528,7 @@ Expected: all 59 skill directories under t1-skill, 9 phase directories under t2-
 find tests/tiers -name "rubric.md" | wc -l
 ```
 
-Expected: 59 (T1 skills) + 9 (T2 phases) + 3 (T3 variants) = 71 rubric files.
+Expected: 1 (template) + 59 (T1 skills) + 9 (T2 phases) + 3 (T3 variants) = 72 rubric files.
 
 - [ ] **Step 3: Verify fixtures**
 
@@ -1528,17 +1540,20 @@ Expected: both UTF-8 text.
 
 - [ ] **Step 4: Verify scoring script**
 
+Use JSON input mode (avoids interactive stdin issues):
+
 ```bash
-python3 tests/scoring.py tests/tiers/t1-skill/using-shenbi/rubric.md --interactive <<< "100
-100
-100
-100
-100
-100
-"
+echo '{"1": 100, "2": 95, "3": 100, "4": 100, "5": 100, "6": 100, "7": 100}' > /tmp/test-scores.json
+python3 tests/scoring.py tests/tiers/t1-skill/using-shenbi/rubric.md /tmp/test-scores.json
 ```
 
-Expected: JSON output with score.
+Expected: JSON with final_score ~99.25, classification "PASS (excellent)", kill_switch_triggered false.
+
+```bash
+python3 tests/scoring.py tests/tiers/t1-skill/using-shenbi/rubric.md /tmp/test-scores.json --kill-switch
+```
+
+Expected: final_score 0, classification "FAIL", kill_switch_triggered true.
 
 - [ ] **Step 5: Final commit**
 
