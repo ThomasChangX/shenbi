@@ -727,7 +727,7 @@ Every test report includes a skill trace section:
 ```markdown
 ## Round 001 (2026-06-11) — Claude
 - T1: 42/59 skills at 100. Failures: shenbi-review-character (65), ...
-- T1 band breakdown: 42 PASS (90+), 10 CONDITIONAL (60-74), 7 FAIL (0-59)
+- T1 band breakdown: 35 PASS excellent (90+), 7 PASS acceptable (75-89), 10 CONDITIONAL (60-74), 7 FAIL (0-59)
 - T2: not started (T1 incomplete)
 - T3: not started
 - Fixes applied: promoted BDI to HARD-GATE in shenbi-review-character
@@ -735,7 +735,7 @@ Every test report includes a skill trace section:
 
 ## Round 002 (2026-06-12) — Claude
 - T1: 55/59 skills at 100.
-- T1 band breakdown: 55 PASS (90+), 3 CONDITIONAL (60-74), 1 FAIL (0-59)
+- T1 band breakdown: 48 PASS excellent (90+), 7 PASS acceptable (75-89), 3 CONDITIONAL (60-74), 1 FAIL (0-59)
 - ...
 ```
 
