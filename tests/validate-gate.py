@@ -819,21 +819,26 @@ def gate_G4(skill_name, test_type, file_paths, round_dir=None):
         return gate_G4_clean(file_paths)
 
     checkers = {
-        "shenbi-worldbuilding": g4_worldbuilding,
-        "shenbi-character-design": g4_character_design,
+        "shenbi-anti-detect": g4_anti_detect,
         "shenbi-chapter-drafting": g4_chapter_drafting,
-        "shenbi-story-architecture": g4_story_architecture,
-        "shenbi-power-system": g4_power_system,
+        "shenbi-chapter-planning": g4_chapter_planning,
+        "shenbi-character-design": g4_character_design,
+        "shenbi-context-composing": g4_context_composing,
         "shenbi-faction-builder": g4_faction_builder,
+        "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
+        "shenbi-foreshadowing-track": g4_foreshadowing_track,
+        "shenbi-genre-config": g4_genre_config,
+        "shenbi-length-normalizing": g4_length_normalizing,
         "shenbi-location-builder": g4_location_builder,
-        "shenbi-relationship-map": g4_relationship_map,
         "shenbi-pacing-design": g4_pacing_design,
         "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
-        "shenbi-genre-config": g4_genre_config,
+        "shenbi-power-system": g4_power_system,
+        "shenbi-relationship-map": g4_relationship_map,
+        "shenbi-state-settling": g4_state_settling,
+        "shenbi-story-architecture": g4_story_architecture,
+        "shenbi-style-polishing": g4_style_polishing,
         "shenbi-volume-outlining": g4_volume_outlining,
-        "shenbi-chapter-planning": g4_chapter_planning,
-        "shenbi-foreshadowing-track": g4_foreshadowing_track,
-        "shenbi-context-composing": g4_context_composing,
+        "shenbi-worldbuilding": g4_worldbuilding,
     }
     fn = checkers.get(skill_name)
     if fn:
@@ -1714,6 +1719,212 @@ def g4_context_composing(fps, rd=None):
     if mf:
         return fail("G4-context-composing", c, "scoring", mf)
     return passed("G4-context-composing", c)
+
+
+def g4_foreshadowing_plant(fps, rd=None):
+    """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 8, SMOKESCREEN check."""
+    c = []
+    mf = []
+
+    for fp in (fps or []):
+        pf = Path(fp)
+        if not pf.exists():
+            mf.append(f"G4.fp.not_found:{fp}")
+            continue
+
+        fm = yload(str(pf)) or {}
+        hooks = fm.get("hooks", [])
+
+        if not hooks:
+            mf.append(f"G4.fp.no_hooks:{fp}")
+            continue
+
+        for h in hooks:
+            hid = h.get("id", "?")
+            required = ["type", "dimension", "subtlety", "cultivation_interval",
+                        "max_distance", "escalation_curve", "depends_on"]
+            for f in required:
+                if f not in h:
+                    mf.append(f"G4.fp.{hid}.missing_{f}")
+
+            if h.get("depends_on") is None:
+                mf.append(f"G4.fp.{hid}.depends_on_null")
+
+            if h.get("type") == "SMOKESCREEN":
+                notes = h.get("notes", "")
+                if len(notes) < 50 or not re.search(r'如果|若|when|if|则|then', notes):
+                    mf.append(f"G4.fp.{hid}.smokescreen_no_exit")
+
+        # plant+reinforce+trigger+resolve ops <= 8
+        total_ops = sum(1 for h in hooks
+                        if h.get("operation") in ("plant", "reinforce", "trigger", "resolve"))
+        if total_ops > 8:
+            mf.append(f"G4.fp.ops:{total_ops}>8")
+        else:
+            c.append({"id": "G4.fp.ops", "file": fp, "s": "PASS", "count": total_ops})
+
+    if not fps:
+        c.append({"id": "G4.fp", "s": "SKIP", "r": "no files"})
+
+    if mf:
+        return fail("G4-foreshadowing-plant", c, "scoring", mf)
+    return passed("G4-foreshadowing-plant", c)
+
+
+def g4_state_settling(fps, rd=None):
+    """State settling: current_state has position, char_matrix has characters, summaries appended, emotional arcs."""
+    c = []
+    mf = []
+
+    for fp in (fps or []):
+        pf = Path(fp)
+        if not pf.exists():
+            mf.append(f"G4.ss.not_found:{fp}")
+            continue
+
+        content = pf.read_text(encoding="utf-8")
+
+        if "current_state" in str(fp):
+            if "## 位置" not in content:
+                mf.append(f"G4.ss.no_position:{fp}")
+            else:
+                c.append({"id": "G4.ss.position", "file": fp, "s": "PASS"})
+
+        if "character_matrix" in str(fp):
+            if "## 已登场角色" not in content and "## 角色" not in content:
+                mf.append(f"G4.ss.no_characters:{fp}")
+            else:
+                c.append({"id": "G4.ss.characters", "file": fp, "s": "PASS"})
+
+        if "chapter_summaries" in str(fp):
+            if not re.search(r'## 第\d+章', content):
+                mf.append(f"G4.ss.no_chapter_summary:{fp}")
+            else:
+                c.append({"id": "G4.ss.summaries", "file": fp, "s": "PASS"})
+
+        if "emotional_arcs" in str(fp):
+            if not re.search(r'### 第\d+章', content):
+                mf.append(f"G4.ss.no_emotional_arc:{fp}")
+            else:
+                c.append({"id": "G4.ss.arcs", "file": fp, "s": "PASS"})
+
+    if not fps:
+        c.append({"id": "G4.ss", "s": "SKIP", "r": "no files"})
+
+    if mf:
+        return fail("G4-state-settling", c, "scoring", mf)
+    return passed("G4-state-settling", c)
+
+
+def g4_style_polishing(fps, rd=None):
+    """Style polishing: 润色说明 block present, word count change ratio check."""
+    c = []
+    mf = []
+
+    for fp in (fps or []):
+        pf = Path(fp)
+        if not pf.exists():
+            mf.append(f"G4.sp.not_found:{fp}")
+            continue
+
+        content = pf.read_text(encoding="utf-8")
+
+        if "## 润色说明" not in content:
+            mf.append(f"G4.sp.no_report:{fp}")
+        else:
+            c.append({"id": "G4.sp.report", "file": fp, "s": "PASS"})
+
+        # Word count change ratio within [0.85, 1.15]
+        # Check if there's a .bak file (pre-polish version)
+        bak = Path(str(fp) + ".bak")
+        if bak.exists():
+            wc_before = word_count_md(str(bak))
+            wc_after = word_count_md(fp)
+            if wc_before > 0:
+                ratio = wc_after / wc_before
+                if ratio < 0.85 or ratio > 1.15:
+                    mf.append(f"G4.sp.word_ratio:{fp}:{ratio:.2f}")
+                else:
+                    c.append({"id": "G4.sp.word_ratio", "file": fp, "s": "PASS",
+                               "before": wc_before, "after": wc_after})
+
+    if not fps:
+        c.append({"id": "G4.sp", "s": "SKIP", "r": "no files"})
+
+    if mf:
+        return fail("G4-style-polishing", c, "scoring", mf)
+    return passed("G4-style-polishing", c)
+
+
+def g4_anti_detect(fps, rd=None):
+    """Anti-detect: 改写报告 block present, applied techniques listed."""
+    c = []
+    mf = []
+
+    for fp in (fps or []):
+        pf = Path(fp)
+        if not pf.exists():
+            mf.append(f"G4.ad.not_found:{fp}")
+            continue
+
+        content = pf.read_text(encoding="utf-8")
+
+        if "## 改写报告" not in content:
+            mf.append(f"G4.ad.no_report:{fp}")
+        else:
+            c.append({"id": "G4.ad.report", "file": fp, "s": "PASS"})
+
+        # Check for applied techniques (table rows or numbered list)
+        has_techniques = bool(
+            re.search(r'^\|.*\|.*\|', content, re.MULTILINE) or
+            re.search(r'^\d+[\.\)、]\s', content, re.MULTILINE)
+        )
+        if has_techniques:
+            c.append({"id": "G4.ad.techniques", "file": fp, "s": "PASS"})
+        else:
+            mf.append(f"G4.ad.no_techniques:{fp}")
+
+    if not fps:
+        c.append({"id": "G4.ad", "s": "SKIP", "r": "no files"})
+
+    if mf:
+        return fail("G4-anti-detect", c, "scoring", mf)
+    return passed("G4-anti-detect", c)
+
+
+def g4_length_normalizing(fps, rd=None):
+    """Length normalizing: 归一化报告 present, word count in [floor, ceiling]."""
+    c = []
+    mf = []
+
+    for fp in (fps or []):
+        pf = Path(fp)
+        if not pf.exists():
+            mf.append(f"G4.ln.not_found:{fp}")
+            continue
+
+        content = pf.read_text(encoding="utf-8")
+        wc = word_count_md(fp)
+
+        if "## 归一化报告" not in content:
+            mf.append(f"G4.ln.no_report:{fp}")
+        else:
+            c.append({"id": "G4.ln.report", "file": fp, "s": "PASS"})
+
+        if wc < CHAPTER_WORD_FLOOR:
+            mf.append(f"G4.ln.below_floor:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
+        elif wc > CHAPTER_WORD_CEILING:
+            mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>{CHAPTER_WORD_CEILING}")
+        else:
+            c.append({"id": "G4.ln.word_count", "file": fp, "s": "PASS", "wc": wc})
+
+    if not fps:
+        c.append({"id": "G4.ln", "s": "SKIP", "r": "no files"})
+
+    if mf:
+        return fail("G4-length-normalizing", c, "scoring", mf)
+    return passed("G4-length-normalizing", c)
+
 
 def gate_G4_bughunt(file_paths):
     """G4.b: Bug-hunt checks (STUB)."""
