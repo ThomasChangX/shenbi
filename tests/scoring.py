@@ -62,45 +62,46 @@ def load_applicability(rubric_path):
                     header_dims = cells[1:]
                 elif len(cells) >= 4 and not cells[0].startswith("---"):
                     dim_scope = cells[0]
-                    for i, val in enumerate(header_dims):
-                        if val not in applicability:
-                            applicability[val] = {}
-                        applicability[val][dim_scope] = val.strip().lower() not in ("no",)
+                    for i, test_type in enumerate(header_dims):
+                        if test_type not in applicability:
+                            applicability[test_type] = {}
+                        cell_val = cells[i + 1] if i + 1 < len(cells) else "Yes"
+                        applicability[test_type][dim_scope] = cell_val.strip().lower().startswith("no") is False
     return applicability
 
 
 def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
-    """Remove dimensions not applicable to the given test type."""
+    """Remove dimensions not applicable to the given test type.
+
+    Strategy: Build an exclusion set of dimension numbers from rows
+    where the cell value starts with "No". Then filter those dimensions
+    out and renormalize weights.
+    """
+    import re
     if not test_type:
         return dimensions
     applicability = load_applicability(rubric_path)
     if not applicability:
         return dimensions
-    type_key = test_type.lower().replace("-", "-")
+    type_key = test_type
+    if type_key not in applicability:
+        type_key = test_type.capitalize()
+    if type_key not in applicability:
+        type_key = test_type.lower()
     if type_key not in applicability:
         return dimensions
     applicable_scopes = applicability[type_key]
-    filtered = []
-    for d in dimensions:
-        dim_name_lower = d["name"].lower()
-        matched = False
-        for scope, applies in applicable_scopes.items():
-            scope_tokens = scope.lower().split()
-            if any(t in dim_name_lower for t in scope_tokens):
-                if applies:
-                    matched = True
-                break
-        if not matched and not any(
-            t in dim_name_lower
-            for scope in applicable_scopes
-            for t in scope.lower().split()
-        ):
-            matched = True
-        if matched:
-            filtered.append(d)
-    if not filtered:
+    excluded_nums = set()
+    for scope, applies in applicable_scopes.items():
+        if not applies:
+            nums = re.findall(r'dim\s+(\d+)', scope, re.IGNORECASE)
+            excluded_nums.update(int(n) for n in nums)
+            scope_nums = re.findall(r'#?(\d+)', scope)
+            excluded_nums.update(int(n) for n in scope_nums if int(n) <= 20)
+    if not excluded_nums:
         return dimensions
-    return filtered
+    filtered = [d for d in dimensions if d["num"] not in excluded_nums]
+    return filtered if filtered else dimensions
 
 
 def compute_score(dimensions, scores, kill_switch_triggered=False):

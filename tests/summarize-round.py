@@ -17,6 +17,23 @@ def classify(score):
         return "fail"
 
 
+def classify_scores(scores_dict):
+    bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
+    for name, entry in scores_dict.items():
+        score = entry if isinstance(entry, (int, float)) else entry.get("score", entry.get("re_score", 0))
+        bands[classify(score)] += 1
+    return bands
+
+
+def below_threshold(scores_dict, threshold):
+    result = []
+    for name, entry in scores_dict.items():
+        score = entry if isinstance(entry, (int, float)) else entry.get("score", entry.get("re_score", 0))
+        if score < threshold:
+            result.append(name)
+    return result
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: summarize-round.py <round-dir>")
@@ -32,34 +49,90 @@ def main():
     with open(summary_path) as f:
         summary = json.load(f)
 
-    # Compute band breakdown from t1_scores
+    tier_target = summary.get("tier_target", "T1")
+    next_actions = []
+
+    # T1 scores
     t1 = summary.get("t1_scores", {})
-    bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
-    for skill, score in t1.items():
-        bands[classify(score)] += 1
+    if t1:
+        t1_bands = classify_scores(t1)
+        t1_fail = below_threshold(t1, 60)
+        t1_cond = below_threshold(t1, 75)
+        t1_accept = [s for s in below_threshold(t1, 90) if s not in t1_fail and s not in t1_cond]
 
-    summary["band_breakdown"] = bands
-    summary["next_actions"] = []
+        if t1_fail:
+            next_actions.append(f"T1 FAIL: {', '.join(t1_fail)}")
+        if t1_cond:
+            next_actions.append(f"T1 CONDITIONAL: {', '.join(t1_cond)}")
+        if t1_accept:
+            next_actions.append(f"T1 PASS (acceptable, needs improvement): {', '.join(t1_accept)}")
+        if not t1_fail and not t1_cond and not t1_accept:
+            next_actions.append("T1: All skills PASS (excellent, 90+).")
+    else:
+        t1_bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
 
-    fail_skills = [s for s, v in t1.items() if v < 60]
-    cond_skills = [s for s, v in t1.items() if 60 <= v < 75]
-    acceptable_skills = [s for s, v in t1.items() if 75 <= v < 90]
+    # T2 scores
+    t2 = summary.get("t2_scores", {})
+    if t2:
+        t2_bands = classify_scores(t2)
+        t2_fail = below_threshold(t2, 60)
+        t2_cond = below_threshold(t2, 75)
+        t2_accept = [s for s in below_threshold(t2, 90) if s not in t2_fail and s not in t2_cond]
 
-    if fail_skills:
-        summary["next_actions"].append(f"Fix failing skills: {', '.join(fail_skills)}")
-    if cond_skills:
-        summary["next_actions"].append(f"Improve conditional skills: {', '.join(cond_skills)}")
-    if acceptable_skills:
-        summary["next_actions"].append(f"Improve acceptable skills: {', '.join(acceptable_skills)}")
-    if not fail_skills and not cond_skills and not acceptable_skills:
-        summary["next_actions"].append("All T1 skills at 100. Ready for T2.")
+        if t2_fail:
+            next_actions.append(f"T2 FAIL: {', '.join(t2_fail)}")
+        if t2_cond:
+            next_actions.append(f"T2 CONDITIONAL: {', '.join(t2_cond)}")
+        if t2_accept:
+            next_actions.append(f"T2 PASS (acceptable): {', '.join(t2_accept)}")
+        if not t2_fail and not t2_cond and not t2_accept:
+            next_actions.append("T2: All phases PASS (excellent, 90+).")
+    else:
+        t2_bands = None
+
+    # T3 scores
+    t3 = summary.get("t3_scores", {})
+    if t3:
+        t3_bands = classify_scores(t3)
+        t3_fail = below_threshold(t3, 60)
+        t3_cond = below_threshold(t3, 75)
+        t3_accept = [s for s in below_threshold(t3, 90) if s not in t3_fail and s not in t3_cond]
+
+        if t3_fail:
+            next_actions.append(f"T3 FAIL: {', '.join(t3_fail)}")
+        if t3_cond:
+            next_actions.append(f"T3 CONDITIONAL: {', '.join(t3_cond)}")
+        if t3_accept:
+            next_actions.append(f"T3 PASS (acceptable): {', '.join(t3_accept)}")
+        if not t3_fail and not t3_cond and not t3_accept:
+            next_actions.append("T3: All pipelines PASS (excellent, 90+).")
+    else:
+        t3_bands = None
+
+    # Tier readiness
+    if t1 and not below_threshold(t1, 90) and not t2:
+        next_actions.append("T1 complete. Ready for T2 phase testing.")
+    if t2 and not below_threshold(t2, 90) and not t3:
+        next_actions.append("T2 complete. Ready for T3 pipeline testing.")
+    if t3 and not below_threshold(t3, 90):
+        next_actions.append("All tiers complete. Framework validated.")
+
+    summary["band_breakdown"] = t1_bands
+    if t2_bands:
+        summary["band_breakdown_t2"] = t2_bands
+    if t3_bands:
+        summary["band_breakdown_t3"] = t3_bands
+    summary["next_actions"] = next_actions
 
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    print(f"Round summary updated: {bands['pass_excellent']} PASS (excellent), "
-          f"{bands['pass_acceptable']} PASS (acceptable), "
-          f"{bands['conditional']} CONDITIONAL, {bands['fail']} FAIL")
+    parts = [f"T1: {t1_bands['pass_excellent']}ex {t1_bands['pass_acceptable']}ok {t1_bands['conditional']}cond {t1_bands['fail']}fail"]
+    if t2_bands:
+        parts.append(f"T2: {t2_bands['pass_excellent']}ex")
+    if t3_bands:
+        parts.append(f"T3: {t3_bands['pass_excellent']}ex")
+    print(f"Round summary: {' | '.join(parts)}")
 
 
 if __name__ == "__main__":

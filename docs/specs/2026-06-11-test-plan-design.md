@@ -512,7 +512,7 @@ Shared dimensions (65%) + unique dimension (20%) = 85%. Combined with 15% univer
 | 7 | Location coverage | 10% | Top locations extracted with atmosphere, function, and first appearance |
 | 8 | Prose format | 15% | story_bible.md is 4-paragraph narrative prose; rules.md is structured with evidence |
 
-#### shenbi-canon-import (6 dimensions)
+#### shenbi-canon-import (4 dimensions)
 
 | # | Dimension | Weight | Standard |
 |---|-----------|--------|----------|

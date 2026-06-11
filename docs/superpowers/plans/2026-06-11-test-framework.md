@@ -90,7 +90,11 @@ tests/
 │   └── t3-pipeline/                            # Task 64
 ├── rounds/                                     # Task 65
 ├── fixtures/                                   # Task 2
-└── scoring.py                                  # Task 3
+├── scoring.py                                  # Task 3
+├── summarize-round.py                          # Task 65b
+├── round-exec.sh                               # Task 65
+└── benchmarks/                                 # Task 65b
+    └── models/{claude,gemini}/
 ```
 
 ---
@@ -718,10 +722,10 @@ Create `tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md`:
 |-----------|----------|-------|------------|
 | 1-2 (Universal) | Yes | Yes | Yes |
 | 3,5,7-9 | Yes | Yes | Yes |
-| 4,6 (Prose/narrative) | No | No | Yes |
+| 4 (Prose/narrative) | No | No | Yes |
+| 6 (Hook potential — structural) | Yes | Yes | Yes |
 
-## Scoring Rules
-- Each dimension scored 0-100
+> **Note:** The actual rubric file at `tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md` is authoritative. This embedded block is for reference only.
 - Final = weighted sum
 - Kill switch → final = 0
 - 90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL
@@ -1207,6 +1211,8 @@ git commit -m "feat: add T3 pipeline test structure with rubrics for all 3 varia
 
 ### Task 65: Create round execution infrastructure
 
+> **Note:** `round-exec.sh` has already been implemented at `tests/round-exec.sh` with --validate mode. The code block below shows the original spec; see the actual file for the current implementation.
+
 **Files:**
 - Create: `tests/rounds/CHANGELOG.md`
 - Create: `tests/rounds/round-000-TEMPLATE/`
@@ -1350,7 +1356,7 @@ cat > "${ROUND_DIR}/summary.json" << EOF
 EOF
 
 # Write empty enhancement signals
-echo '{"signals": []}' > "${ROUND_DIR}/enhancement-signals.json"
+echo '{"enhancement_signals": []}' > "${ROUND_DIR}/enhancement-signals.json"
 
 echo "Round directory: ${ROUND_DIR}"
 echo "Next steps:"
@@ -1623,6 +1629,8 @@ This is NOT a desk-check of SKILL.md documentation. It's executing skills and sc
 For each skill, the test runner:
 
 1. **Bug-hunt**: Provide a scenario with a planted defect. Agent executes the skill on the scenario. Score: did the agent catch the defect? (Kill switch: miss = 0)
+
+   **Bug-hunt for generative skills** (worldbuilding, character-design, chapter-drafting, etc.): The agent is given pre-made output (not asked to generate). The planted defect tests whether the skill's self-review/quality-check step catches the issue. If the skill lacks a self-review step, the test instead validates whether a downstream review skill (e.g., review-continuity) would catch the defect in the output.
 2. **Clean**: Provide a correct scenario. Agent executes the skill. Score: zero false positives? (Kill switch: hallucinated defect = 0)
 3. **Generative**: Provide seed input. Agent executes the skill and produces output (world files, chapter text, audit report, etc.). Output scored against rubric dimensions.
 

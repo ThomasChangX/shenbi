@@ -12,10 +12,12 @@
 ### Bug-Hunt Kill Switches
 - Missed planted defect (wrong route) → total score = 0
 - HARD-GATE bypass → total score = 0
+- 3+ wrong routes in a single round → total score = 0
 
 ### Clean Kill Switches
 - Any hallucinated defect (false positive) → total score = 0
 - HARD-GATE bypass → total score = 0
+- 3+ wrong routes in a single round → total score = 0
 
 ### Generative Kill Switches
 - 3+ wrong routes in a single round → total score = 0

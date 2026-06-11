@@ -38,7 +38,8 @@
 | Dimension scope | Bug-hunt | Clean | Generative |
 |----------------|----------|-------|------------|
 | Universal (1-2) | Yes | Yes | Yes |
-| All bespoke | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
+| Non-prose bespoke (dims 3,4,5,8,10) | Yes | Yes | Yes |
+| Prose/narrative quality (dims 6,7,9) | No | No | Yes |
 
 ## Scoring Rules
 - Each dimension scored 0-100
