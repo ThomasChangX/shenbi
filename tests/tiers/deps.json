@@ -1,0 +1,26 @@
+{
+  "t2-phases": {
+    "genesis": {
+      "prerequisites": ["shenbi-worldbuilding","shenbi-power-system","shenbi-faction-builder","shenbi-location-builder","shenbi-character-design","shenbi-relationship-map"],
+      "expected_outputs": ["novel.json","genre-config.json","world/story_bible.md","world/rules.md","world/locations.md","world/power_system.md","world/factions.md","characters/protagonist.md","characters/major/*.md","characters/relationships.md","truth/current_state.md","truth/character_matrix.md","truth/emotional_arcs.md","truth/chapter_summaries.md"]
+    },
+    "architecture": {
+      "prerequisites": ["shenbi-story-architecture","shenbi-pacing-design","shenbi-plot-thread-weaver","shenbi-genre-config"],
+      "expected_outputs": ["outline/story_frame.md","outline/volume_map.md","outline/rhythm_principles.md","outline/thread_map.md","genre-config.json"]
+    },
+    "planning": {
+      "prerequisites": ["shenbi-volume-outlining","shenbi-chapter-planning","shenbi-foreshadowing-plant","shenbi-context-composing"],
+      "expected_outputs": ["plans/chapter-*-plan.md","truth/pending_hooks.md","context/chapter-*-context.md"]
+    },
+    "drafting": {
+      "prerequisites": ["shenbi-chapter-drafting","shenbi-state-settling","shenbi-foreshadowing-track","shenbi-style-polishing","shenbi-anti-detect","shenbi-length-normalizing"],
+      "expected_outputs": ["chapters/chapter-*.md","truth/current_state.md","truth/character_matrix.md","truth/emotional_arcs.md","truth/chapter_summaries.md","truth/pending_hooks.md"]
+    }
+  },
+  "t3-pipelines": {
+    "long-form": {
+      "prerequisites": ["genesis","architecture","planning","drafting"],
+      "min_chapter_ratio": 0.5
+    }
+  }
+}
