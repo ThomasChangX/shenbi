@@ -113,7 +113,9 @@ git commit -m "feat: add deps.json, acceptance.json, sensitive_words, stop_words
 **Files:**
 - Create: `tests/validate-gate.py`
 
-这个文件是所有 Gate 的唯一实现位置。~800 行，分为 7 个 section。
+这个文件是所有 Gate 的唯一实现位置。完整实现包含全部 11 个 Gate 类型、19 个 G4 技能检查函数、G5/G6/G7/G_TRANSITION/G_DISPATCH/G_RECONCILE 所有子检查。
+
+**重要**: 以下展示关键函数的完整代码。所有函数必须实现，不可留空。实施时按本计划中的代码逐函数编写，不省略。
 
 #### Section 0: Imports + 工具函数
 
@@ -170,7 +172,7 @@ def read_genre_config(project_dir):
 ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
 FATIGUE_BASE = ["突然","猛地","瞬间","一股","恐怖","死死","眼中闪过","嘴角","冷冷","淡淡","微微一笑","心中一动","暗道","不由得","显然","似乎","仿佛","如同","无比","极致","难以形容","不可思议","前所未有","令人发指","震惊","愣住","呆住"]
 META_NARRATIVE = ["让人感悟","引人深思","由此可见","综上所述","值得注意的是","不禁感慨","不由得想到"]
-TRANSITION_WORDS = ["然而","不过","此时","突然","终于","于是","然"]
+TRANSITION_WORDS = ["然", "不过", "此时", "突然", "终于", "于是"]  # "然"检测用词边界避免与"然而"重叠: re.findall(r'\b然\b|\B然\B的否定', content)
 ```
 
 #### Section 1: G0 — 环境就绪
@@ -1102,15 +1104,172 @@ git commit -m "docs: add Gate System V1 CHANGELOG entry"
 
 ---
 
-## What Is NOT In This Plan (deferred to future rounds)
+## Spec 覆盖检查清单
 
-以下 spec 组件需要 LLM 语义判断或复杂的跨系统集成，不在脚本层实现：
+以下逐项映射 spec 中的每个 Gate 检查到本计划的实现位置。标记说明：
+- ✅ 已完成（代码在计划中）
+- 🔧 脚本可实现（已定义算法，实施时编写）
+- 🤖 LLM 必需（语义判断，评分 subagent 执行）
+- ⏭ 下次迭代
 
-1. **G4 完整检查层** — LLM 评分 subagent 执行（语义判断，非脚本）
-2. **G5.2 handoff 数据契约解析** — 需要解析每个 SKILL.md 的结构（可在 round 执行时由 Agent 手动验证）
-3. **G6.4-G6.5 hook 追踪** — 需要 pending_hooks.md 的完整状态机分析
-4. **G6.7 角色名提取** — 需要停用词过滤 + character_matrix 交叉比对（已定义算法，未完成实现）
-5. **G4 校准锚点读取** — 评分 subagent 读取 rubric.md 锚点进行校准（非脚本）
-6. **Override token 验证** — validate-gate.py 接收 token + gate_id，查 .token-hashes.json 验证（下次迭代）
-7. **Subagent 重试/清理机制** — 指数退避、部分产出清理（round-exec.sh 下次迭代）
-8. **Agent ID 追踪** — round-exec.sh 生成 agent_id 并写入 progress.json（下次迭代）
+### G0 环境就绪
+| # | 状态 | 实现 |
+|---|------|------|
+| G0.1 | ✅ | gate_G0() — 文件存在/UTF-8 |
+| G0.2 | ✅ | gate_G0() — target_words 正则提取 |
+| G0.3 | ✅ | gate_G0() — ceiling division |
+| G0.4 | ✅ | gate_G0() — 目录不存在=HARD FAIL, SKILL.md缺失=SKIP |
+| G0.5 | 🔧 | 采样检查 rubric.md 权重总和 |
+| G0.6 | ✅ | gate_G0() — os.access W_OK |
+| G0.7 | 🔧 | scoring.py self-test |
+
+### G1 Subagent 派发前
+| # | 状态 | 实现 |
+|---|------|------|
+| G1.1 | ✅ | gate_G1() — 文件存在/非空 |
+| G1.2 | ✅ | gate_G1() — JSON 解析 |
+| G1.3 | ✅ | gate_G1() — YAML frontmatter 解析 |
+| G1.4 | 🔧 | 自动备份 .bak |
+| G1.5 | ⏭ | 文件锁（.gate-lock，300s 超时）— 下次迭代 |
+| G1.6 | 🔧 | scoring_history 检查（G3 防重用） |
+
+### G2 写盘验证
+| # | 状态 | 实现 |
+|---|------|------|
+| G2.1 | ✅ | gate_G2() — 存在 |
+| G2.2 | ✅ | gate_G2() — 非空 |
+| G2.3 | ✅ | gate_G2() — UTF-8 |
+| G2.4 | ✅ | gate_G2() — JSON 语法 |
+| G2.5 | ✅ | gate_G2() — YAML frontmatter |
+| G2.6 | ✅ | gate_G2() — 字数 ≥ floor(3000) |
+| G2.7 | 🔧 | 字数 ≤ ceiling(10000/4500)，重要章检测 |
+| G2.8 | ✅ | gate_G2() — PRE_WRITE_CHECK |
+| G2.9 | ✅ | gate_G2() — POST_WRITE_SELF_CHECK |
+| G2.10 | ✅ | gate_G2() — 模板占位符检测（10%行阈值） |
+| G2.11 | 🔧 | truth .bak 对比（逐行 diff，非 set diff） |
+| G2.12 | ✅ | gate_G2() — 句末标点检测 |
+
+### G3 评分前
+| # | 状态 | 实现 |
+|---|------|------|
+| G3.1 | ✅ | gate_G3() — deps.json 前置检查 |
+| G3.2 | ✅ | gate_G3() — acceptance.json 阈值 |
+| G3.3 | ✅ | gate_G3() — G2 通过验证 |
+| G3.4 | 🔧 | agent_id != generator_id（需 agent_id 追踪） |
+| G3.5 | 🔧 | scoring_history 防重用 |
+
+### G4 T1 技能专项 — 生成类
+| 技能 | 状态 | 脚本层检查 |
+|------|------|-----------|
+| worldbuilding | ✅ | 6 字段 novel.json + 4 段 story_bible + 1-10 rules + 3-5 locations |
+| character-design | ✅ | 12 frontmatter 字段 + voice_profile 3 数组 + 关系表 |
+| story-architecture | 🔧 | 3 conflict 字段 + volume_map Objective/KR |
+| power-system | 🔧 | 等级表 + 进阶规则 + 能力边界 + 代价机制 + 力量天花板 |
+| faction-builder | 🔧 | ≥2 势力 × 4 必需标题 |
+| location-builder | 🔧 | 布局描述 + 氛围锚点 + 功能事件 |
+| relationship-map | 🔧 | ≥3 关系对 × 利益根基/信息边界/演化轨迹 |
+| pacing-design | 🔧 | 四拍循环 + 三线比例 + ≥6 场景类型 + 单调性检测 |
+| plot-thread-weaver | 🔧 | A/B/C 线 + 线索推进表 + 空白检测 |
+| genre-config | 🔧 | JSON 合法 + fatigue_words + audit_dimensions + chapter_word |
+| volume-outlining | 🔧 | Objective + 3-5 KR + 张力曲线 + 跨卷桥接 |
+| chapter-planning | 🔧 | 8 段标题 + 黄金三章(ch1-3) + 关键抉择 + hook账 |
+| chapter-drafting | ✅ | PRE/POST check + 转折词密度 + 疲劳词 + 元叙事 + 字数 |
+| foreshadowing-plant | ✅ | hook metadata × 7 + depends_on + ops ≤ 8 + SMOKESCREEN 退出 |
+| foreshadowing-track | 🔧 | hook state 变更 + 章节引用 + core_hook 沉默检查 |
+| context-composing | 🔧 | P1-P7 标签 + P1/P2 非空 |
+| state-settling | ✅ | current_state 位置 + character_matrix 角色 + summaries + emotional_arcs |
+| style-polishing | ✅ | 润色说明块 + 字数变化 |
+| anti-detect | ✅ | 改写报告块 |
+| length-normalizing | ✅ | 归一化报告 + 字数 floor/ceiling |
+
+### G4 T1 技能专项 — Bug-hunt + Clean
+| # | 状态 | 实现 |
+|---|------|------|
+| G4.b1 | 🤖 | planted defect 命中 — LLM 语义判断 |
+| G4.b2 | 🤖 | 零误报 — LLM 语义判断 |
+| G4.b3 | ✅ | 每个 finding 标注 severity + evidence |
+| G4.c1 | 🤖 | issues=0 — LLM 语义判断 |
+| G4.c2 | ✅ | "已检查 X 维度" 摘要存在 |
+
+### G5 T2 Phase
+| # | 状态 | 实现 |
+|---|------|------|
+| G5.1 | ✅ | 前置 T1 分数 ≥ 阈值 |
+| G5.2 | 🔧 | handoff: 解析 SKILL.md Reads vs 上游 Writes+Updates |
+| G5.3 | 🔧 | 角色名交叉引用 grep |
+| G5.4 | 🔧 | 规则/地点交叉引用 grep |
+| G5.5 | ✅ | expected_outputs glob 匹配 |
+| G5.6 | 🔧 | G4 脚本层回归检查 |
+
+### G6 T3 Pipeline
+| # | 状态 | 实现 |
+|---|------|------|
+| G6.1 | ✅ | 章节数 ≥ ceil(expected × min_ratio)，target_words 从 novel.json 动态读取 |
+| G6.2 | ✅ | 章节序列无断号 |
+| G6.3 | ✅ | 每章通过 G4 drafting + G2 子集 |
+| G6.4 | 🔧 | P0 hook last_reinforced ≤ 3 章前（简单算术） |
+| G6.5 | 🔧 | plant_chapter + max_distance 过期检查（简单算术） |
+| G6.6 | 🔧 | 幽灵角色 grep（状态: 死亡的角色不出现在后续章节） |
+| G6.7 | 🔧 | 角色名提取 + stop_words + character_matrix 交叉比对 |
+| G6.8 | 🔧 | 地点名 vs locations.md grep |
+| G6.9 | 🔧 | chapter_summaries 标题计数 |
+| G6.10 | 🔧 | current_state updated 日期 ≥ 最新章节 mtime |
+| G6.11 | 🔧 | emotional_arcs 轨迹计数 |
+| G6.12 | ✅ | 敏感词扫描。文件缺失 → SKIP（非 FAIL），标记 round INCOMPLETE |
+
+### G7 轮次关闭
+| # | 状态 | 实现 |
+|---|------|------|
+| G7.1 | ✅ | 技能名 ∈ skills/ 目录 |
+| G7.2 | 🔧 | skill-traces/ 文件存在 |
+| G7.3 | 🔧 | t1-reports/ 文件存在 |
+| G7.4 | 🔧 | deps.json expected_outputs glob 匹配 |
+| G7.5 | ✅ | 模板占位符检测 |
+| G7.6 | ✅ | truth status != pending（YAML 解析，非子串匹配） |
+| G7.7 | ✅ | CHANGELOG 已追加或可写入 |
+| G7.8 | 🔧 | gate_blockers 为空 |
+
+### G_TRANSITION
+| # | 状态 | 实现 |
+|---|------|------|
+| GT.1 | ✅ | remaining 队列空 |
+| GT.2 | 🔧 | 所有技能 DONE 或 DEAD |
+| GT.3 | ✅ | gate_blockers 无 FAIL |
+| GT.4 | 🔧 | 批量 G2 检查 |
+| GT.5 | 🔧 | 下一 phase 输入文件存在（deps.json 或通用规则） |
+
+### G_DISPATCH
+| # | 状态 | 实现 |
+|---|------|------|
+| GD.1 | ✅ | completed = all skills（含 test_type 过滤） |
+| GD.2 | 🔧 | 无 PENDING 状态技能 |
+| GD.3 | 🔧 | DEAD 技能有 bypass 记录 |
+
+### G_RECONCILE
+| # | 状态 | 实现 |
+|---|------|------|
+| GR.1 | ✅ | DONE→report 存在 |
+| GR.2 | ✅ | report→DONE 状态一致（bug已修：使用更健壮的 skill-test_type 拆分） |
+| GR.3 | 🔧 | DONE→trace 存在 |
+| GR.4 | ⏭ | orphan 文件检测 — 下次迭代（需完整 output_files 数据） |
+
+---
+
+## 已知 Bug 修复清单（实施时必须处理）
+
+实施 Task 2 时，必须修复以下已知问题（计划代码中已标注或在此列出）：
+
+1. **TRANSITION_WORDS**: 使用 `["然", "不过", "此时", "突然", "终于", "于是"]`，检测时对"然"用词边界避免与"然而"重叠
+2. **G4 worldbuilding bullet regex**: `r'^[\-\*]\s|^\d+\.\s'` 替代错误的 `r'^[\-\*\d+\.]\s'`
+3. **G4 worldbuilding rules count**: 同时支持中文数字和阿拉伯数字
+4. **G4 worldbuilding locations**: 标题匹配不要求冒号
+5. **G4 character-design**: 检查 `## 关系对` 标题数而非表格行数
+6. **G4 foreshadowing-plant ops**: plant+reinforce+trigger+resolve 合计，非 hook 总数
+7. **G4 state-settling**: character_matrix 做逐章 diff，非仅标题检查
+8. **G5.5 路径**: 使用 PROJECT 根目录而非 round_dir.parent.parent
+9. **G6.1 expected_chapters**: 从 novel.json 动态读取 target_words，非硬编码 100000
+10. **G6.12 缺失行为**: 返回 SKIP + INCOMPLETE 标记，非 FAIL
+11. **G7.6 truth status**: YAML 解析 status 字段精确匹配 "pending"，非子串匹配
+12. **G_RECONCILE GR.2 解析**: 处理多词 test_type（如 "bug-hunt"）
+13. **G2.11 truth .bak**: 逐行 diff，非 set diff
+14. **G0.4 严重级别**: 目录缺失=HARD FAIL，SKILL.md缺失=SKIP
