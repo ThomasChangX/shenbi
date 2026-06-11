@@ -99,6 +99,21 @@ def passed(gid, checks):
     )
 
 
+def _find_report(reports_dir, skill_name, test_type=None):
+    """Find a report file with flexible naming convention.
+
+    Tries: <skill>-<test_type>.json, then <skill>.json.
+    """
+    if test_type:
+        path = reports_dir / f"{skill_name}-{test_type}.json"
+        if path.exists():
+            return path
+    path = reports_dir / f"{skill_name}.json"
+    if path.exists():
+        return path
+    return None
+
+
 def _normalize_file_paths(file_paths):
     """Accept list or comma-separated string, return list of Path strings."""
     if file_paths is None:
@@ -548,7 +563,7 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
             else:
                 checks.append({"id": "G2.9", "file": fp, "s": "PASS"})
 
-        # G2.10 — template placeholder detection (10% threshold)
+        # G2.10 — template placeholder detection (10% threshold, chapter files only)
         lines = content.split("\n")
         if len(lines) > 0:
             placeholder_ratio = sum(1 for l in lines if "待填充" in l) / len(lines)
@@ -594,7 +609,7 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
                 else:
                     checks.append({"id": "G2.11", "file": fp, "s": "PASS"})
 
-        # G2.12 — file completeness (sentence-final punctuation)
+        # G2.12 — file completeness (sentence-final punctuation, chapter files only)
         last = content.strip().split("\n")[-1].strip() if content.strip() else ""
         sentence_enders = ("。", "！", "？", "…", "」", "』", '"', "）", ")", "---")
         ends_ok = last.endswith(sentence_enders) or last.startswith("#")
@@ -679,7 +694,7 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
                 if not isinstance(prereqs, list):
                     prereqs = []
                 for prereq in prereqs:
-                    rp = reports_dir / f"{prereq}-{test_type}.json" if test_type else reports_dir / f"{prereq}.json"
+                    rp = _find_report(reports_dir, prereq, test_type)
                     if not rp.exists():
                         mf.append({"id": "G3.1", "file": str(rp), "s": "FAIL",
                                    "r": f"missing t1-report for {prereq}"})
@@ -693,7 +708,7 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
         c.append({"id": "G3.1", "s": "SKIP", "r": "no deps.json"})
 
     # G3.2 — Prerequisite scores >= threshold from acceptance.json
-    accept_path = rd / "acceptance.json"
+    accept_path = TESTS / "tiers" / "acceptance.json"
     if accept_path.exists():
         try:
             acceptance = jload(str(accept_path))
@@ -1729,7 +1744,7 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
 
     # G5.1: prereq T1 scores >= threshold
     for pr in prereqs:
-        report = rd / "t1-reports" / f"{pr}-generative.json" if rd else None
+        report = _find_report(rd / "t1-reports", pr, "generative") if rd else None
         if report and report.exists():
             score = jload(str(report)).get("final_score", jload(str(report)).get("score", 0))
             if score < threshold: mf.append(f"G5.1:{pr}:score={score}<{threshold}")
@@ -1829,8 +1844,11 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         else: c.append({"id": "G6.2", "s": "PASS"})
         # G6.3: each chapter passes G4 chapter-drafting
         for ch in chapters:
-            g4r = json.loads(gate_G4("shenbi-chapter-drafting", "generative", [str(ch)]))
-            if g4r.get("status") == "FAIL": mf.append(f"G6.3:{ch.name}")
+            try:
+                g4r = json.loads(gate_G4("shenbi-chapter-drafting", "generative", [str(ch)]))
+                if g4r.get("status") == "FAIL": mf.append(f"G6.3:{ch.name}")
+            except Exception as e:
+                mf.append(f"G6.3:{ch.name}:exception={e}")
         if not any(x.startswith("G6.3:") for x in mf): c.append({"id": "G6.3", "s": "PASS"})
     else: mf.append("G6.1:no_chapters_dir")
 
@@ -1926,7 +1944,13 @@ def gate_G7(round_dir):
         c.append({"id": "G7.5", "s": "SKIP", "r": "novel-output/ not found"})
 
     # G7.6 — truth files: status != pending (YAML parse, exact match)
-    truth_dir = no_dir / "truth" if no_dir.exists() else None
+    # Walk one level deeper to find project subdirectories
+    truth_dir = None
+    if no_dir.exists():
+        for proj in no_dir.iterdir():
+            if proj.is_dir() and (proj / "truth").exists():
+                truth_dir = proj / "truth"
+                break
     if truth_dir and truth_dir.exists():
         pending = []
         for f in truth_dir.glob("*.md"):
@@ -2137,7 +2161,7 @@ def gate_G_RECONCILE(round_dir=None):
     for sn, sd in skills.items():
         for tt, td in sd.items():
             if isinstance(td, dict) and td.get("status") == "DONE":
-                report = rd / "t1-reports" / f"{sn}-{tt}.json"
+                report = _find_report(rd / "t1-reports", sn, tt)
                 if not report.exists(): mf.append(f"GR.1:{sn}-{tt}:no_report")
     # GR.2: reports on disk have DONE status in progress
     # Use robust rsplit to handle skill names with hyphens (e.g. shenbi-story-architecture)

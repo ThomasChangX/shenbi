@@ -144,8 +144,8 @@ def main():
     # --gate-only mode: run gate check, skip scoring entirely
     if "--gate-only" in sys.argv:
         import subprocess
-        gate_type = sys.argv[sys.argv.index("--gate-only") + 1] if len(sys.argv) > sys.argv.index("--gate-only") + 1 else "G2"
-        files = sys.argv[sys.argv.index("--files") + 1].split(",") if "--files" in sys.argv else []
+        idx = sys.argv.index("--gate-only"); gate_type = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "G2"
+        idx = sys.argv.index("--files") if "--files" in sys.argv else -1; files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
         vg = str(Path(__file__).parent / "validate-gate.py")
         result = subprocess.run([sys.executable, vg, gate_type, ",".join(files), ftype],
