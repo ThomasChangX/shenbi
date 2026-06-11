@@ -1577,3 +1577,73 @@ Expected: final_score 0, classification "FAIL", kill_switch_triggered true.
 git add -A
 git commit -m "feat: complete Shenbi test framework infrastructure"
 ```
+
+---
+
+## Round Execution Protocol
+
+### Seed Files
+
+| Seed File | Path | Content | Used By |
+|-----------|------|---------|---------|
+| `outline-example.md` | `tests/fixtures/outline-example.md` (source: project root) | 完整小说构思大纲（星火燃穹）：标题、世界观、角色、冲突、三幕结构、3 章详细大纲。93 行 UTF-8。 | T2 Genesis/Architecture/Planning/Drafting/Management/Short-story phases; T3 Long-form + Short-form pipelines |
+| `report-example.txt` | `tests/fixtures/report-example.txt` (converted from GB18030 source) | 完整中文小说（《钢铁是怎样炼成的》）第一章全文。约 9752 行 UTF-8。 | T2 Import phase; T3 Import-form pipeline |
+
+### What "Running a Test" Actually Means
+
+The test framework tests **skill execution output**, not skill documentation quality. A proper round:
+
+1. **Creates a real novel project directory** — agent calls skills in sequence, producing actual files (novel.json, world/story_bible.md, chapters/chapter-1.md, etc.)
+2. **Evaluates generated output** — scored against the rubric's dimensions: is story_bible.md narrative prose? Are world rules internally consistent? Does the chapter have AI-flavor?
+3. **Fixes skills** — if a skill's output scores below 90, the SKILL.md is revised and the test rerun
+4. **Iterates** until all skills/phases/pipelines reach 90+
+
+This is NOT a desk-check of SKILL.md documentation. It's executing skills and scoring their output.
+
+### T1 Execution (per skill)
+
+For each skill, the test runner:
+
+1. **Bug-hunt**: Provide a scenario with a planted defect. Agent executes the skill on the scenario. Score: did the agent catch the defect? (Kill switch: miss = 0)
+2. **Clean**: Provide a correct scenario. Agent executes the skill. Score: zero false positives? (Kill switch: hallucinated defect = 0)
+3. **Generative**: Provide seed input. Agent executes the skill and produces output (world files, chapter text, audit report, etc.). Output scored against rubric dimensions.
+
+For generative tests, the agent must be given the seed file path and instructed to execute the skill, producing real output files to a novel project directory.
+
+### T2 Execution (per phase)
+
+For each phase, the test runner:
+
+1. Loads the seed input (outline-example.md or report-example.txt or prior phase output)
+2. Executes each skill in the phase chain sequentially, passing previous skill's output as input
+3. Evaluates: handoff integrity, cross-skill consistency, state propagation, phase completeness
+4. Kill switch: any individual skill scores below its T1 score → phase = 0
+
+### T3 Execution (per pipeline variant)
+
+For each pipeline variant, the test runner:
+
+1. Runs the full pipeline from seed to final output
+2. Long-form: genesis → architecture → planning → drafting (5 chapters) → audit → revision → management
+3. Short-form: short-outline → short-drafting → short-packaging
+4. Import-form: import-analysis → character-extraction → world-extraction → canon-import
+5. Evaluates: end-to-end data integrity, novel output coherence, cross-phase state consistency, literary quality
+
+### How to Trigger a Real Test Round
+
+To execute an actual (non-desk-check) test round, the user should give an instruction like:
+
+```
+Run Round N: Execute the full T1/T2/T3 test using the test framework.
+- T1: For each skill, run generative test with the appropriate seed file, produce real output, score against rubric.
+- T2: For each phase, execute skill chains sequentially with real output, score phase rubric.
+- T3: For each pipeline variant, run end-to-end with seed files, score pipeline rubric.
+- Fix any skill/phase/pipeline scoring below 90 and iterate.
+```
+
+The agent must:
+1. Create a real novel project directory
+2. Actually call skills (load SKILL.md, follow instructions, produce files)
+3. Score the produced files against rubrics
+4. Iterate on SKILL.md if scores are below threshold
+5. Log results in the round directory
