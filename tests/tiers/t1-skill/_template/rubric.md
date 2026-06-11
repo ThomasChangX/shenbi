@@ -34,7 +34,7 @@
 | Dimension scope | Bug-hunt | Clean | Generative |
 |----------------|----------|-------|------------|
 | Universal (1-2) | Yes | Yes | Yes |
-| All bespoke | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
+| Non-prose bespoke (detection, report, etc.) | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
 | Prose/narrative quality | No | No | Yes |
 
 ## Scoring Rules

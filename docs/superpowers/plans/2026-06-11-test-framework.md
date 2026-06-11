@@ -901,21 +901,21 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 | `tests/skill-behavior/review-catches-bug/phase4-dialogue-bug.md` | `t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-memo-compliance-bug.md` | `t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase4-reader-pull-bug.md` | `t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-character-bug.md` | `t1-skill/shenbi-review-character/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-continuity-bug.md` | `t1-skill/shenbi-review-continuity/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-foreshadowing-bug.md` | `t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-pacing-bug.md` | `t1-skill/shenbi-review-pacing/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-dialogue-bug.md` | `t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-era-bug.md` | `t1-skill/shenbi-review-era/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-fanfic-bug.md` | `t1-skill/shenbi-review-fanfic/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-highpoint-bug.md` | `t1-skill/shenbi-review-highpoint/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-long-span-bug.md` | `t1-skill/shenbi-review-long-span/bug-hunt/input/scenario-pressure.md` |
 | `tests/skill-behavior/review-catches-bug/phase4b-memo-compliance-bug.md` | `t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-motivation-bug.md` | `t1-skill/shenbi-review-motivation/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-pov-bug.md` | `t1-skill/shenbi-review-pov/bug-hunt/input/scenario-pressure.md` |
 | `tests/skill-behavior/review-catches-bug/phase4b-reader-pull-bug.md` | `t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-style-bug.md` | `t1-skill/shenbi-style-polishing/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-anti-ai-bug.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario-pressure.md` |
-| `tests/skill-behavior/review-catches-bug/phase4b-show-dont-tell-bug.md` | `t1-skill/shenbi-review-show-dont-tell/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-texture-bug.md` | `t1-skill/shenbi-review-texture/bug-hunt/input/scenario-pressure.md` |
+| `tests/skill-behavior/review-catches-bug/phase4b-world-rules-bug.md` | `t1-skill/shenbi-review-world-rules/bug-hunt/input/scenario-pressure.md` |
 | `tests/skill-behavior/review-catches-bug/phase3-plant-track-resolve.md` | `t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/review-catches-bug/phase3-volume-consolidation.md` | `t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/revision-fixes-issue/phase4b-revision-mode-routing.md` | `t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario.md` |
 | `tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md` | `t1-skill/shenbi-style-polishing/bug-hunt/input/scenario.md` |
-| `tests/skill-triggering/prompts/phase2-*-trigger.md` (4 files) | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
+| `tests/skill-triggering/prompts/phase2-{character,continuity,foreshadowing,polishing}-trigger.md` | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
 | `tests/skill-triggering/prompts/phase3-*-trigger.md` (4 files) | `t1-skill/using-shenbi/bug-hunt/` (routing scenarios) |
 | `tests/pressure-tests/prompts/audit-skipping-pressure.md` | `t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md` |
 | `tests/pressure-tests/prompts/chapter-writing-pressure.md` | `t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md` |
@@ -931,6 +931,19 @@ Each of these tasks follows the exact same pattern as Task 5 above (Steps 1-8), 
 ---
 
 ### Task 63: Create T2 phase test structure
+
+**T2 execution order**: Phases must run sequentially where there are dependencies:
+1. **Genesis** (seed: `outline-example.md`)
+2. **Architecture** (seed: Genesis output)
+3. **Planning** (seed: Architecture output)
+4. **Drafting** (seed: Planning output)
+5. **Audit** (seed: Drafting output) — can run in parallel with Management
+6. **Management** (seed: Drafting output) — can run in parallel with Audit
+7. **Foundation** (seed: Genesis + Architecture + Drafting output) — requires full mini-project
+8. **Import** (seed: `report-example.txt`) — independent of other phases
+9. **Short story** (seed: `outline-example.md`) — independent of other phases
+
+**T1-only skills** (not in any T2 phase): sequel-writing, market-radar, writing-skills, foreshadowing-resolve. These receive T1 testing only. Their integration is implicitly tested when they appear in T3 long-form pipeline runs, but they are not explicitly included in any T3 pipeline variant. This is an accepted gap — these skills are auxiliary tools rather than core pipeline components.
 
 **Files:**
 - Create: `tests/tiers/t2-phase/genesis/rubric.md`
@@ -1647,3 +1660,63 @@ The agent must:
 3. Score the produced files against rubrics
 4. Iterate on SKILL.md if scores are below threshold
 5. Log results in the round directory
+
+### Validation Gates (prevent desk-check misinterpretation)
+
+After every round, the following MUST be verified before accepting results:
+
+1. **Skill name coverage**: Every skill name in summary.json must match a directory in `tests/tiers/t1-skill/` (excluding `_template`). Run:
+   ```bash
+   diff <(jq -r '.t1_scores | keys[]' tests/rounds/round-NNN-*/summary.json | sort) \
+        <(ls tests/tiers/t1-skill/ | grep -v _template | sed 's|/$||' | sort)
+   ```
+   Expected: empty diff. Any skill in summary not in framework = invalid round.
+
+2. **Output exists**: `novel-output/` must contain at least one generated file per generative test. Empty novel-output = invalid round.
+
+3. **Skill traces exist**: `skill-traces/` must have one trace file per skill tested. Missing traces = incomplete round.
+
+4. **Reports exist**: `t1-reports/` (or t2/t3) must have one report per skill/phase tested. Empty reports = invalid round.
+
+5. **No desk-check evidence**: If summary.json scores were derived from reading SKILL.md without executing skills, the round is invalid. Evidence of valid execution: generated files in novel-output/, skill traces showing agent behavior, timestamped reports.
+
+### Execution Model
+
+- **Who executes**: A Claude Code agent session, acting as the test runner
+- **How**: The agent is given a scenario.md and instructed to:
+  1. Read the skill's SKILL.md
+  2. Follow its instructions using the seed input
+  3. Write output to a novel project directory (created under `tests/rounds/round-NNN-YYYY-MM-DD/novel-output/`)
+  4. Generate a skill trace documenting what it did
+- **Scoring**: After skill execution, a separate evaluator scores the output against the rubric (using scoring.py or manual evaluation with the rubric dimensions)
+- **Iteration**: If score < 90, the SKILL.md is revised and the skill is re-executed
+
+### Model Improvement Loop
+
+Per spec Section 8:
+
+1. **Cycle**: Model A runs full loop (T1 → T2 → T3), fixing skills until all tiers = 100. Model B runs against Model A's improved skills. Model C runs against A+B skills. Continue until no model finds remaining issues.
+
+2. **What gets fixed**:
+   - **SKILL.md improvements** (primary): instructions clarified, HARD-GATEs added, anti-rationalization tables expanded, edge cases documented
+   - **Test case improvements**: better planted bugs, more representative clean scenarios, more realistic generative prompts
+
+3. **Success criteria**: Framework is ready when:
+   - All 59 skills score 100 on T1 (bug-hunt, clean, generative)
+   - All phases score 100 on T2
+   - All pipeline variants score 100 on T3
+   - Generated novel output is human-readable, professional-quality Chinese fiction
+   - Skills are robust enough that switching models doesn't drop scores below 90
+
+4. **Convergence failure handling**:
+   - After 5 rounds with no score improvement → escalate to design review (dimension standard may need refinement)
+   - Options: (a) refine dimension standard, (b) add HARD-GATE, (c) mark dimension as "acceptable at 90+"
+   - Hard limit: if skill cannot reach 90 after 10 rounds → mark as "design-limited", file skill redesign task
+
+5. **Secondary output** (model comparison data):
+   - Score velocity: rounds to reach 100 per tier
+   - Dimension weakness pattern: which dimensions consistently score lowest
+   - Novel output quality: blind human evaluation of generated chapters
+   - Token efficiency: total tokens consumed to reach 100
+   - Fix effectiveness: delta per round
+   - Skill enhancement count: number of SKILL.md changes needed

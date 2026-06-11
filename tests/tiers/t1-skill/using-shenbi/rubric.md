@@ -7,9 +7,19 @@
 | 1 | Instruction adherence | 10% | Every SKILL.md section executed |
 | 2 | Output completeness | 5% | All required output sections produced |
 
-## Kill Switch
-- 3+ wrong route in a single round → total score = 0
-- Allowing HARD-GATE bypass → total score = 0
+## Kill Switches by Test Type
+
+### Bug-Hunt Kill Switches
+- Missed planted defect (wrong route) → total score = 0
+- HARD-GATE bypass → total score = 0
+
+### Clean Kill Switches
+- Any hallucinated defect (false positive) → total score = 0
+- HARD-GATE bypass → total score = 0
+
+### Generative Kill Switches
+- 3+ wrong routes in a single round → total score = 0
+- HARD-GATE bypass → total score = 0
 
 ## Bespoke Dimensions (85%)
 

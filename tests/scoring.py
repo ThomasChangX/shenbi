@@ -43,6 +43,66 @@ def load_rubric(rubric_path):
     return dimensions, kill_switches
 
 
+def load_applicability(rubric_path):
+    """Parse rubric.md to extract dimension applicability by test type."""
+    applicability = {}
+    in_applicability = False
+    header_dims = []
+    with open(rubric_path) as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped.startswith("## Dimension Applicability"):
+                in_applicability = True
+                continue
+            if in_applicability and stripped.startswith("## "):
+                in_applicability = False
+            if in_applicability and stripped.startswith("|"):
+                cells = [c.strip() for c in stripped.split("|")[1:-1]]
+                if len(cells) >= 4 and cells[0] == "Dimension scope":
+                    header_dims = cells[1:]
+                elif len(cells) >= 4 and not cells[0].startswith("---"):
+                    dim_scope = cells[0]
+                    for i, val in enumerate(header_dims):
+                        if val not in applicability:
+                            applicability[val] = {}
+                        applicability[val][dim_scope] = val.strip().lower() not in ("no",)
+    return applicability
+
+
+def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
+    """Remove dimensions not applicable to the given test type."""
+    if not test_type:
+        return dimensions
+    applicability = load_applicability(rubric_path)
+    if not applicability:
+        return dimensions
+    type_key = test_type.lower().replace("-", "-")
+    if type_key not in applicability:
+        return dimensions
+    applicable_scopes = applicability[type_key]
+    filtered = []
+    for d in dimensions:
+        dim_name_lower = d["name"].lower()
+        matched = False
+        for scope, applies in applicable_scopes.items():
+            scope_tokens = scope.lower().split()
+            if any(t in dim_name_lower for t in scope_tokens):
+                if applies:
+                    matched = True
+                break
+        if not matched and not any(
+            t in dim_name_lower
+            for scope in applicable_scopes
+            for t in scope.lower().split()
+        ):
+            matched = True
+        if matched:
+            filtered.append(d)
+    if not filtered:
+        return dimensions
+    return filtered
+
+
 def compute_score(dimensions, scores, kill_switch_triggered=False):
     """Compute weighted score from dimension scores. Kill switch overrides to 0."""
     if kill_switch_triggered:
@@ -50,6 +110,8 @@ def compute_score(dimensions, scores, kill_switch_triggered=False):
     total_weight = sum(d["weight"] for d in dimensions)
     if total_weight == 0:
         return 0
+    if total_weight != 100:
+        print(f"WARNING: total dimension weight is {total_weight}% (expected 100%)", file=sys.stderr)
     weighted_sum = sum(
         scores.get(d["num"], 0) * d["weight"] for d in dimensions
     )
@@ -69,9 +131,10 @@ def classify(score):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: scoring.py <rubric.md> <scores.json> [--kill-switch]")
+        print("Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]")
         print("  scores.json format: {\"1\": 100, \"2\": 95, \"3\": 80, ...}")
         print("  --kill-switch: force final score to 0 (any kill switch triggered)")
+        print("  --test-type: filter dimensions by applicability (renormalizes weights)")
         print("  Or: scoring.py <rubric.md> --interactive")
         sys.exit(1)
 
@@ -79,6 +142,13 @@ def main():
     dimensions, kill_switches = load_rubric(rubric_path)
 
     kill_switch_triggered = "--kill-switch" in sys.argv
+    test_type = None
+    for i, arg in enumerate(sys.argv):
+        if arg == "--test-type" and i + 1 < len(sys.argv):
+            test_type = sys.argv[i + 1]
+
+    if test_type:
+        dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
 
     if sys.argv[2] == "--interactive":
         scores = {}

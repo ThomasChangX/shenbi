@@ -20,10 +20,12 @@
 ## Kill Switches by Test Type
 
 ### Bug-Hunt Kill Switches
+- Content not groundable to source text → total score = 0
 - Missed planted defect (false negative) -> total score = 0
 - HARD-GATE violation -> total score = 0
 
 ### Clean Kill Switches
+- Content not groundable to source text → total score = 0
 - Any hallucinated defect (false positive) -> total score = 0
 - HARD-GATE violation -> total score = 0
 
