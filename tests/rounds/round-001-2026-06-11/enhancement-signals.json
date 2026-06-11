@@ -1,0 +1,36 @@
+{
+  "signals": [
+    {
+      "id": "S1",
+      "scope": "systemic",
+      "description": "No self-audit/verification step in DOT flows before human review gate",
+      "affected_skills": "all",
+      "severity": "medium",
+      "recommendation": "Add a self-check node before each human review gate in all DOT flowcharts"
+    },
+    {
+      "id": "S2",
+      "scope": "systemic",
+      "description": "Cross-file consistency checking stated in iron rules but not proceduralized in DOT flows",
+      "affected_skills": "truth-sync, snapshot-manage, volume-consolidation",
+      "severity": "medium",
+      "recommendation": "Add explicit cross-reference verification nodes in DOT flows"
+    },
+    {
+      "id": "S3",
+      "scope": "systemic",
+      "description": "Content preservation rules are implicit across revision skills, not standalone testable invariants",
+      "affected_skills": "chapter-revision, scene-expansion, scene-compression, style-transfer",
+      "severity": "high",
+      "recommendation": "Add explicit preservation checklist as mandatory output section"
+    },
+    {
+      "id": "S4",
+      "scope": "systemic",
+      "description": "External reference dependencies not inlined in SKILL.md — agent must know file schemas without external reads",
+      "affected_skills": "truth-sync, snapshot-manage, volume-consolidation",
+      "severity": "low",
+      "recommendation": "Inline minimal file schemas in output contract sections"
+    }
+  ]
+}

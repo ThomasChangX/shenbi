@@ -43,7 +43,7 @@ digraph skill_check {
 | "检查这章" / "审计" / "审查" | shenbi-review-anti-ai (default) + activated audit skills |
 | "连贯性" / "前后矛盾" / "对不上" | shenbi-review-continuity |
 | "角色一致性" / "人设崩了" / "OOC" | shenbi-review-character |
-| "节奏不对" / "太拖" / "太赶" / "节奏" | shenbi-review-pacing |
+| "节奏不对" / "太拖" / "太赶" / "节奏检查" | shenbi-review-pacing |
 | "伏笔检查" / "埋线检查" | shenbi-review-foreshadowing |
 | "世界观矛盾" / "设定冲突" / "世界规则" | shenbi-review-world-rules |
 | "对话问题" / "台词" / "说话方式" | shenbi-review-dialogue |
@@ -65,7 +65,7 @@ digraph skill_check {
 | "力量体系" / "修炼等级" | shenbi-power-system |
 | "势力" / "门派" / "组织" | shenbi-faction-builder |
 | "关系" / "角色关系" | shenbi-relationship-map |
-| "节奏" / "张弛" | shenbi-pacing-design |
+| "节奏设计" / "张弛" | shenbi-pacing-design |
 | "线索" / "主线支线" | shenbi-plot-thread-weaver |
 | "伏笔" / "埋线" / "hook" | shenbi-foreshadowing-plant |
 | "伏笔追踪" / "hook状态" | shenbi-foreshadowing-track |
