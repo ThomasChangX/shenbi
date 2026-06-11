@@ -21,6 +21,12 @@ digraph character_design {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `world/story_bible.md`, `world/rules.md`
+- **Writes:** `characters/protagonist.md`, `characters/major/*.md`, `characters/minor/*.md`, `characters/relationships.md`
+- **Updates:** none (initial creation)
+
 ## 铁律
 
 1. **一人一卡** — 每个角色独立文件，不把多个角色塞进同一个文件

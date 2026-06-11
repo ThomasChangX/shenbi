@@ -22,6 +22,12 @@ digraph context_composing {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `plans/chapter-N-plan.md`, `truth/chapter_summaries.md`, `truth/pending_hooks.md`, `truth/audit_drift.md`, `world/rules.md`, `truth/character_matrix.md`, `style/style_profile.md`, `chapters/chapter-(N-3).md` through `chapters/chapter-(N-1).md`
+- **Writes:** none (assembles context for drafting)
+- **Updates:** none
+
 ## 铁律
 
 1. **优先级严格递减** — P1 不可省略，P7 最先被裁剪

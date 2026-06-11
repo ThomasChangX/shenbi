@@ -25,6 +25,12 @@ digraph worldbuilding {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `novel.json` (if exists)
+- **Writes:** `novel.json`, `genre-config.json`, `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `truth/` (empty templates)
+- **Updates:** none (initial creation)
+
 ## 铁律
 
 1. **NO BULLET-POINT WORLDS** — 世界观以散文形式输出，不是表格、不是 schema、不是条目化 bullet。每个设定段落是一段连贯的叙述。

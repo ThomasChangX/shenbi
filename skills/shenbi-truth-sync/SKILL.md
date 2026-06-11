@@ -1,0 +1,95 @@
+---
+name: shenbi-truth-sync
+description: Use when restoring consistency between manually edited chapter content and truth files, re-extracting state from revised chapters, or bootstrapping truth files from existing novel content
+---
+
+# 真相文件同步
+
+从编辑后的正文重新反推 truth files，校验一致性。当人类合作者手动修改了章节后，需要运行此技能确保 truth files 与正文同步。
+
+## 流程
+
+```dot
+digraph truth_sync {
+    "Read chapters/ (modified chapters)" -> "For each modified chapter: extract 9 fact categories";
+    "For each modified chapter: extract 9 fact categories" -> "Compare extracted facts with current truth files";
+    "Compare extracted facts with current truth files" -> "Identify conflicts";
+    "Identify conflicts" -> "Present conflicts to human for resolution";
+    "Present conflicts to human for resolution" -> "Apply approved changes to truth files" [label="approved"];
+    "Present conflicts to human for resolution" -> "Revise extraction" [label="corrections"];
+    "Apply approved changes to truth files" -> "Report sync summary";
+}
+```
+
+## 数据契约
+
+- **Reads:** `chapters/chapter-N.md`, `truth/*.md`, `world/*.md`, `characters/**/*.md`
+- **Writes:** none
+- **Updates:** `truth/*.md` (in-place corrections)
+
+## 铁律
+
+1. **正文是权威来源** — truth files 服务于正文，不能反过来"纠正"正文
+2. **冲突必须人工仲裁** — 发现 truth files 与正文不一致时，列出冲突让人类选择保留哪个
+3. **增量更新** — 只更新变化的部分，不重写整个文件
+4. **保留历史** — 在报告中记录同步前/后的差异
+
+## 9 类事实提取
+
+与 `shenbi-state-settling` 相同的 9 类：
+1. 位置变化
+2. 资源变化
+3. 关系变化
+4. 情绪变化
+5. 信息流动
+6. 剧情线索
+7. 时间推进
+8. 身体状态
+9. 行为变化
+
+参考 `shenbi-state-settling` 的提取模板。sync 与 state-settling 的关键差异：sync 从成稿反推（必须与正文一致），state-settling 从初稿前瞻（可能有解读偏差）。
+
+## 输出格式
+
+```markdown
+## 真相文件同步报告
+
+**同步范围**: 第N章 至 第M章
+**触发原因**: 人类手动修改了第N章（替换了关键对话）
+**操作**: 重新提取 → 比较 → 仲裁 → 增量更新
+
+### 同步汇总
+
+| 维度 | 数量 |
+|------|------|
+| 检查章节数 | N |
+| 提取事实数 | X |
+| 冲突总数 | Y |
+| 已仲裁（保留正文） | A |
+| 已仲裁（保留 truth） | B |
+| 待人类决定 | C |
+| 实际更新 truth 文件 | D |
+
+### 冲突清单
+
+| 文件 | 字段 | 正文值 | truth值 | 处理 |
+|------|------|--------|---------|------|
+| current_state.md | protagonist.location | "外门演武场" | "内门修炼室" | → 保留正文 |
+| pending_hooks.md | hook-001.state | (未触发) | TRIGGERED | → 等待人类决定 |
+
+### 变更汇总
+- current_state.md: 2处更新
+- pending_hooks.md: 1处待决定
+- character_matrix.md: 无变化
+
+### 同步前后对比（保留审计轨迹）
+- current_state.md: protagonist.location: "内门修炼室" → "外门演武场"
+- pending_hooks.md: hook-001.state: TRIGGERED → (待人类决定)
+```
+
+## Anti-Rationalization
+
+| Excuse | Reality |
+|--------|---------|
+| "正文改了一处而已，不必同步" | 一处不同步 → 下一章 draft 基于错误信息 → 连锁矛盾 |
+| "truth files 太久没更新，重写算了" | 重写丢失历史，增量更新保留审计轨迹 |

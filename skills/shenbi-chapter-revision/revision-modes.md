@@ -15,11 +15,29 @@
 
 根据问题类型自动选择：
 
-| 问题类型 | 路由到 | Phase 1 可用 |
-|---------|--------|------------|
-| OOC / 主线偏离 / 冲突缺失 / 时间线错 / 伏笔未收 | rewrite | Phase 2+（Phase 1 无对应审计技能） |
-| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | 部分可用（anti-ai 覆盖措辞/疲劳词） |
-| 混合 / 未知 | rewrite（保守策略） | |
+| 问题类型 | 路由到 | 触发审计技能 | Phase |
+|---------|--------|------------|-------|
+| 时间线错 / 地点矛盾 / 事件时序 / 物理空间 | rewrite | `shenbi-review-continuity` | 2 |
+| OOC / 声音不一致 / 配角降智 / 弧线平坦 | rewrite | `shenbi-review-character` | 2 |
+| 蓄压-爆发缺失 / 连续无 FIRE / 日常无功能 / 序列单调 | rewrite | `shenbi-review-pacing` | 2 |
+| 伏笔过期 / 培育间隔超 / 支线停滞 / 密度异常 / 备忘不符 | rewrite | `shenbi-review-foreshadowing` | 2 |
+| 措辞 / 段落形状 / 疲劳词 / 知识污染 | spot-fix | `shenbi-review-anti-ai` | 1 |
+| 设定冲突 / 战力崩坏 / 数值不一致 / 知识库污染 | rewrite | `shenbi-review-world-rules` | 4b |
+| 对白风格不一致 / 了字密度异常 / 口头禅失真 | spot-fix | `shenbi-review-dialogue` | 4b |
+| 动机不可信 / 行为链断裂 / 利益驱动缺失 | rewrite | `shenbi-review-motivation` | 4b |
+| POV 切换突兀 / 信息越界 | spot-fix | `shenbi-review-pov` | 4b |
+| 流水账 / 段落极端 / 呼吸感差 / 作者说教 | spot-fix | `shenbi-review-texture` | 4b |
+| 蓄压-爆发虚化 / 反转生硬 / 爽点虚化 | rewrite | `shenbi-review-highpoint` | 4b |
+| 跨章用词/意象/句式重复 / n-gram 异常 / 段长漂移 | spot-fix | `shenbi-review-long-span` | 4b |
+| 时代用词错误 / 器物考据问题 | spot-fix | `shenbi-review-era` | 4b |
+| 角色还原度低 / 世界规则偏离 / 关系动态失真 / 正典事件冲突 | rewrite | `shenbi-review-fanfic` | 4b |
+| 正传事件冲突 / 未来信息泄漏 / 伏笔隔离违反 | rewrite | `shenbi-review-spinoff` | 4b |
+| 敏感词 / 平台违规 | spot-fix | `shenbi-review-sensitivity` | 4a |
+| 章首钩子弱 / 章尾无悬念 / 期待管理失败 | rewrite | `shenbi-review-reader-pull` | 4b |
+| 章节备忘偏离 / 承诺未兑现 / 禁止事项违反 | rewrite | `shenbi-review-memo-compliance` | 4b |
+| 混合 / 未知 | rewrite（保守策略） | — | — |
+
+> Phase 4b 起：全部 18 个审计技能的路由规则已就绪。Phase 1-2 阶段仅 `review-anti-ai` + Phase 2 的 4 个审计可用。Phase 4b 的 12 个条件审计仅在 `genre-config.json` 激活对应维度时参与路由。
 
 ## PATCHES 格式
 

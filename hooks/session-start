@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# session-start: Platform-agnostic hook entry point
+# Detects host platform and outputs using-shenbi skill injection
+
+PLATFORM="unknown"
+
+if [ -n "$CLAUDE_PLUGIN_ROOT" ]; then
+    PLATFORM="claude-code"
+elif [ -n "$CURSOR_PLUGIN_ROOT" ]; then
+    PLATFORM="cursor"
+elif [ -n "$CODEX_PLUGIN_ROOT" ]; then
+    PLATFORM="codex"
+elif [ -n "$OPENCODE_PLUGIN_ROOT" ]; then
+    PLATFORM="opencode"
+elif [ -n "$GEMINI_CLI" ]; then
+    PLATFORM="gemini-cli"
+elif [ -n "$COPILOT_CLI" ]; then
+    PLATFORM="copilot-cli"
+elif [ -n "$FACTORY_DROID" ]; then
+    PLATFORM="factory-droid"
+fi
+
+echo "{\"platform\": \"$PLATFORM\", \"action\": \"inject-skill\", \"skill\": \"using-shenbi\"}"

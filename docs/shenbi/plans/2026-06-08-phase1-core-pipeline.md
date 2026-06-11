@@ -8,16 +8,17 @@
 
 **Tech Stack:** Markdown (SKILL.md), YAML frontmatter, DOT/GraphViz flowcharts, bash (hooks)
 
-**Spec:** `docs/specs/2026-06-08-shenbi-design.md` (v0.1.1)
+**Spec:** `docs/specs/2026-06-08-shenbi-design.md` (v0.2.0)
 
 **Scope:** Phase 1 only — 11 skills that form the end-to-end writing pipeline. Phases 2-5 get separate plans.
 
 **Phase 1 Limitations:**
-- No foreshadowing lifecycle management (plant→track→resolve chain requires Phase 3)
-- State-settling only updates hook `last_reinforced`/`subtlety`, does not advance hook states
-- Only 1 of 18 audit skills (review-anti-ai). No continuity, pacing, character, or foreshadowing review
-- No style learning, no import pipeline, no length normalizing
+- No foreshadowing lifecycle management (plant→track→resolve chain requires Phase 3). Chapter-planning hook 账 sections are placeholders; context-composing skips P3 伏笔简报
+- State-settling only updates hook `last_reinforced`/`subtlety`, does not advance hook states. `subplot_board.md` updates deferred to Phase 4
+- Only 1 of 4 default audit skills (review-anti-ai). Missing: review-continuity, review-character, review-sensitivity. No conditional audits
+- No style learning, no import pipeline, no length normalizing (`shenbi-length-normalizing` deferred to Phase 4)
 - No volume management or consolidation
+- No `truth/` file bootstrapping — existing projects need manually initialized truth files
 - These gaps are by design — Phase 1 proves the core workflow, Phases 2-5 fill the gaps
 
 ---
@@ -384,6 +385,8 @@ When working with a novel project, the directory structure is defined in `docs/s
 
 Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity
 
+> **Phase 1**: Only review-anti-ai is implemented. The other three default audits (review-continuity, review-character, review-sensitivity) are deferred to Phase 2. If triggered, the agent will fail gracefully — the skill file doesn't exist, so skip and log.
+
 Additional audits activate based on `genre-config.json` in the novel project. See design spec Section 7.4 for activation rules.
 ```
 
@@ -424,8 +427,8 @@ digraph worldbuilding {
     "Create novel.json + genre-config.json" -> "Read genre config";
     "Read genre config" -> "Ask: core concept and genre";
     "Ask: core concept and genre" -> "Generate story_bible.md";
-    "Generate story_bible.md" -> "Generate rules.md";
-    "Generate rules.md" -> "Human reviews" [label="present for approval"];
+    "Generate story_bible.md" -> "Generate rules.md + locations.md";
+    "Generate rules.md + locations.md" -> "Human reviews" [label="present for approval"];
     "Human reviews" -> "Revise" [label="rejected"];
     "Human reviews" -> "Write files to disk" [label="approved"];
 }
@@ -450,6 +453,7 @@ digraph worldbuilding {
 | `world/story_bible.md` | 世界观圣经（散文，4段式） |
 | `world/rules.md` | 世界铁律（最多10条） |
 | `world/locations.md` | 初始地点图谱（3-5个核心地点） |
+| `truth/` (初始化) | 创建 `current_state.md`, `character_matrix.md`, `emotional_arcs.md`, `chapter_summaries.md` 的空模板（带 frontmatter，body 标记为待填充）。state-settling 首次运行时填充实际数据 |
 
 ### story_bible.md 结构
 
@@ -701,13 +705,21 @@ deep_conflict: "主题问题"
 
 **Key Results**:
 1. KR1（第1-5章完成）
+   - 第1章节点: [本章在KR1中的具体定位——开篇、承接、转折或收官]
+   - 第2章节点: ...
+   - ...
 2. KR2（第6-10章完成）
+   - 第6章节点: ...
+   - ...
 3. KR3（第11-15章完成）
+   - ...
 
 **节奏原则**: 本卷的张力曲线描述
 
 **跨卷衔接**: 本卷结尾如何过渡到下一卷
 ```
+
+每个 KR 下的章节节点是 `chapter-planning` DOT 流程图中 "Locate outline node for this chapter" 的锚点。规划器据此推导单章目标。
 
 ## Anti-Rationalization
 
@@ -752,8 +764,8 @@ digraph chapter_planning {
     "Read truth files" -> "Read volume_map (current volume)";
     "Read volume_map (current volume)" -> "Locate outline node for this chapter";
     "Locate outline node for this chapter" -> "Derive goal (priority chain)";
-    "Derive goal (priority chain)" -> "Collect hook debts";
-    "Collect hook debts" -> "Read recent 2 chapter summaries";
+    "Derive goal (priority chain)" -> "Collect hook debts [Phase 3]";
+    "Collect hook debts [Phase 3]" -> "Read recent 2 chapter summaries";
     "Read recent 2 chapter summaries" -> "Generate chapter memo (8 sections)";
     "Generate chapter memo (8 sections)" -> "Human reviews";
     "Human reviews" -> "Revise" [label="rejected"];
@@ -782,12 +794,15 @@ digraph chapter_planning {
 
 ## 黄金三章纪律
 
-当 chapterNumber ≤ 3 时，追加以下约束：
+前 N 章适用额外约束，N = `novel.json.golden_opening_chapters`（默认 3）：
 - 第1章：三面墙（建立世界观约束）+ 信息钩子（结尾给出读者必须知道的答案的线索）
 - 第2章：验证主角特殊性 + 建立第一个对手
 - 第3章：第一次小高潮 + 打开大主线钩子
+- 若 N > 3: Ch4+ 延续特殊纪律，直到第 N 章后转入常规流程
 
 ## Hook 账本硬规则
+
+> **Phase 1 限制**: 在 foreshadowing-plant/track/resolve 实现前（Phase 3），`pending_hooks.md` 不存在或为空伏笔池。本章节 hook 账规则在 Phase 1 为**占位声明**——规划器输出 hook 账各段为占位符，context-composing 跳过 P3 伏笔简报，state-settling 不推进 hook 状态。Phase 3 引入伏笔系统后，以下规则从占位升级为可执行。
 
 - `pressured` 或 `near_payoff` 状态且沉默 ≥5 章的 hook 必须 advance 或 resolve
 - `core_hook=true` 且过期 >10 章升级为 critical
@@ -804,7 +819,7 @@ digraph chapter_planning {
 
 ## 输出
 
-写 `plans/chapter-N-plan.md`，格式参见设计规范 Section 4.4。
+写 `plans/chapter-N-plan.md`，格式参见设计规范 Section 4.5。
 ```
 
 - [ ] **Step 2: Commit**
@@ -837,8 +852,8 @@ description: Use when assembling context before drafting a chapter, collecting t
 digraph context_composing {
     "Read chapter plan" -> "Collect P1: plan";
     "Collect P1: plan" -> "Collect P2: recent summaries";
-    "Collect P2: recent summaries" -> "Collect P3: active hooks (max 3)";
-    "Collect P3: active hooks (max 3)" -> "Collect P4: drift guidance";
+    "Collect P2: recent summaries" -> "Collect P3: active hooks [Phase 3] (max 3)";
+    "Collect P3: active hooks [Phase 3] (max 3)" -> "Collect P4: drift guidance";
     "Collect P4: drift guidance" -> "Collect P5: world rules (max 5)";
     "Collect P5: world rules (max 5)" -> "Collect P6: character states";
     "Collect P6: character states" -> "Collect P7: style profile";
@@ -851,7 +866,7 @@ digraph context_composing {
 ## 铁律
 
 1. **优先级严格递减** — P1 不可省略，P7 最先被裁剪
-2. **近章结尾轨迹** — 收集近 3 章的结尾方式，避免连续相同结尾结构（如连续3个崩塌式结尾）
+2. **近章结尾轨迹** — 收集近 3 章的结尾方式（从 `chapters/chapter-(N-3).md` 到 `chapters/chapter-(N-1).md` 的末段），避免连续相同结尾结构（如连续3个崩塌式结尾）。此检查独立于 P2 摘要收集——摘要提供叙事脉络，结尾轨迹检查章尾模式多样性
 3. **不自动检索** — 这是手动组装指南，由 AI 或人类按优先级从文件读取
 
 ## 上下文优先级
@@ -859,7 +874,7 @@ digraph context_composing {
 | 优先级 | 来源 | 文件位置 | 裁剪规则 |
 |--------|------|---------|---------|
 | P1 (must) | 章节备忘 | `plans/chapter-N-plan.md` | 不裁剪 |
-| P2 (must) | 近 2 章摘要 | `truth/chapter_summaries.md` 末尾 | 不裁剪 |
+| P2 (must) | 近 2 章摘要 | `truth/chapter_summaries.md` 末尾 | 不裁剪。第 1 章跳过此项，第 2 章只取近 1 章 |
 | P3 (need) | 活跃伏笔 | `truth/pending_hooks.md` | 最多 3 条，按紧迫度排序 |
 | P4 (need) | 纠偏指导 | `truth/audit_drift.md` | 不裁剪 |
 | P5 (nice) | 世界铁律 | `world/rules.md` | 最多 5 条 |
@@ -954,10 +969,11 @@ git commit -m "feat: add shenbi-context-composing skill"
 
 ## 黄金三章纪律
 
-第1-3章有额外约束：
-- Ch1: 三面墙（世界约束）+ 信息钩子
-- Ch2: 验证特殊性 + 建立第一个对手
-- Ch3: 第一次小高潮 + 打开大主线
+前 N 章适用额外约束，N = `novel.json.golden_opening_chapters`（默认 3）：
+- Ch1: 三面墙（世界约束）+ 信息钩子（结尾给出读者必须知道的答案的线索）
+- Ch2: 验证主角特殊性 + 建立第一个对手
+- Ch3: 第一次小高潮 + 打开大主线钩子
+- 若 N > 3: Ch4+ 延续特殊纪律，直到第 N 章后转入常规流程
 ```
 
 - [ ] **Step 2: Write SKILL.md**
@@ -1176,7 +1192,7 @@ digraph state_settling {
 | 关系 | `truth/character_matrix.md` |
 | 情绪 | `truth/emotional_arcs.md` |
 | 信息 | `truth/character_matrix.md` (信息边界) |
-| 线索 | `truth/subplot_board.md` |
+| 线索 | `truth/subplot_board.md` [Phase 4] |
 | 伏笔 | `truth/pending_hooks.md` |
 | 摘要 | `truth/chapter_summaries.md` (追加) |
 
@@ -1279,7 +1295,7 @@ git commit -m "feat: add shenbi-state-settling skill with truth files reference"
 - 0 error + 3+ warning: 有瑕疵，建议修订
 - 1+ error: 不通过，必须修订
 
-> **Phase 1 note:** 了字检测和段落长度检测属于 review-dialogue 和 review-texture 的职责范围（参见设计规范 Section 7.3）。Phase 4 实现这些技能后，从本 checklist 移除是错误的——应保持各自独立的检查域。Phase 1 仅覆盖 anti-ai 核心检查项。
+> **Phase 1 note:** 了字密度检测和段落长度检测属于 `review-dialogue` 和 `review-texture` 的审计职责范围（参见 Section 7.3），Phase 2/4 实现后由对应审计技能独立检查。Phase 1 仅覆盖 anti-ai 核心检查项。`anti-ai-reference.md` 中的 了字/段落指引是**起草阶段的预防性指导**（提醒 drafter 注意），不等于审计阶段的确定性检查（审计有独立阈值和纠偏流程）。两者互补不重复。
 ```
 
 - [ ] **Step 2: Write SKILL.md**
@@ -1390,19 +1406,21 @@ git commit -m "feat: add shenbi-review-anti-ai skill with deterministic checklis
 | auto | 默认模式，自动路由到最佳策略 | 根据问题类型决定 |
 | spot-fix | 局部措辞/用词问题 | PATCHES（靶向替换） |
 | polish | 表达/节奏微调，不涉及情节 | REVISED_CONTENT（全文替换） |
-| rewrite | 结构问题，需重组段落 | REVISED_CONTENT（全文替换） |
-| rework | 重大问题，可重构场景推进 | REVISED_CONTENT（全文替换） |
+| rewrite | 段落/结构重组，不改叙事骨架 | REVISED_CONTENT（全文替换） |
+| rework | 场景推进/冲突结构调整 | REVISED_CONTENT（全文替换） |
 | anti-detect | 降低 AI 可检测性 | REVISED_CONTENT（全文替换） |
+
+> **rewrite vs rework 区分**: rewrite 管"怎么写"（段落/句式/节奏的重组），不改事件链；rework 管"发生什么"（可增删场景、调整冲突展开方式），但仍保持核心叙事目标。rewrite 不改变事件链，rework 可重新编排事件呈现方式。
 
 ## auto 模式路由规则
 
 根据问题类型自动选择：
 
-| 问题类型 | 路由到 |
-|---------|--------|
-| OOC / 主线偏离 / 冲突缺失 / 时间线错 / 伏笔未收 | rewrite |
-| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix |
-| 混合 / 未知 | rewrite（保守策略） |
+| 问题类型 | 路由到 | Phase 1 可用 |
+|---------|--------|------------|
+| OOC / 主线偏离 / 冲突缺失 / 时间线错 / 伏笔未收 | rewrite | Phase 2+（Phase 1 无对应审计技能） |
+| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | 部分可用（anti-ai 覆盖措辞/疲劳词） |
+| 混合 / 未知 | rewrite（保守策略） | |
 
 ## PATCHES 格式
 
@@ -1489,6 +1507,13 @@ digraph chapter_revision {
 - [ ] 至少一项有改善
 ```
 
+## 回退到最佳版本
+
+3 次修订后仍未通过审计，按以下优先级选择最佳版本回退：
+1. **审计分数最高** — blocking + critical + ai_tell 加权总和最低的版本
+2. **分数相同时选最新** — 同等分数下选最近一次修订（更贴近人类合作者的最新意图）
+3. **标记为 manual** — 回退后在章节文件中追加 `<!-- REVISION_FAILED: 3次修订未通过，已回退至最佳版本 -->`，通知人类合作者手动介入
+
 ## 输出
 
 如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
@@ -1527,17 +1552,17 @@ git commit -m "feat: add shenbi-chapter-revision skill with revision modes refer
 
 ## 测试前置条件
 
-运行此测试前，需创建以下最小小说项目：
+运行此测试前，需手动创建以下最小小说项目（Phase 1 不包含导入管线，因此 truth files 需手动初始化）：
 
 ```
 苍穹之上/
 ├── novel.json            # { title: "苍穹之上", genre: "玄幻", current_chapter: 5 }
 ├── genre-config.json     # 玄幻默认配置
 ├── truth/
-│   ├── chapter_summaries.md  # 5章摘要
-│   └── current_state.md      # 第5章后的世界状态
+│   ├── chapter_summaries.md  # 5章摘要（手动编写或通过 shenbi-worldbuilding 后手动追加）
+│   └── current_state.md      # 第5章后的世界状态（手动编写）
 └── characters/
-    └── protagonist.md        # 林轩档案
+    └── protagonist.md        # 林轩档案（通过 shenbi-character-design 生成）
 ```
 
 ## 背景
@@ -1591,13 +1616,18 @@ git commit -m "test: add pressure test prompt for core pipeline"
 | Section 3.4 (rationalization patterns) | Task 2 (included in meta-skill) |
 | Section 4 (novel project dir) | Tasks 4-5 (worldbuilding/character create files) |
 | Section 5 (end-to-end workflow) | Tasks 3-12 cover the full pipeline |
-| Section 7.4 (audit activation) | Task 11 (anti-ai is default) |
+| Section 7.4 (audit activation) | Task 11 (1 of 4 default audits; remaining 3 + all conditional audits deferred to Phase 2-4) |
 | Section 8.1-8.5 (skill list) | Tasks 2-12 (11 Phase 1 skills) |
 | Section 11 (Phase 1 priority) | All 10 Phase 1 skills + meta-skill |
 
 ### 2. Placeholder Scan
 
-No TBD, TODO, "implement later", or "similar to Task N" found. All code blocks contain complete content.
+No ambiguous TBD, TODO, or "implement later" markers found. All code blocks contain complete content for Phase 1 scope.
+
+Intentional phase-gating markers exist at these locations (each is a planned deferral, not an oversight):
+- `[Phase 3]` in context-composing DOT (P3: active hooks) and chapter-planning hook rules (foreshadowing lifecycle)
+- `[Phase 4]` in state-settling update rules (subplot_board.md) and context-composing priority table
+- These markers are structural — they tell future implementers exactly where to wire in later-phase capabilities
 
 ### 3. Type Consistency
 
@@ -1605,6 +1635,20 @@ No TBD, TODO, "implement later", or "similar to Task N" found. All code blocks c
 - Novel project paths match design spec Section 4
 - Audit checklist items match design spec Section 7.3
 - Revision modes match design spec description
+
+### 4. Post-Implementation Verification
+
+After all 12 tasks are implemented, verify the following:
+
+- [ ] **Skill structure**: Each `skills/shenbi-*/SKILL.md` has valid YAML frontmatter (`name` alphanumeric+hyphens, `description` ≤500 chars, trigger-condition-only)
+- [ ] **DOT consistency**: All DOT flowcharts use consistent node/edge syntax, no orphaned nodes, CJK characters properly encoded
+- [ ] **Iron laws**: Each skill has ≥2 iron laws using absolute language (MUST, NEVER, NO X WITHOUT Y)
+- [ ] **Anti-rationalization**: Each discipline skill has an anti-rationalization table with ≥3 excuse/reality pairs
+- [ ] **Pipeline integration**: Verify the end-to-end flow: using-shenbi → worldbuilding → character-design → story-architecture → chapter-planning → context-composing → chapter-drafting → state-settling → review-anti-ai → chapter-revision
+- [ ] **HARD-GATE enforcement**: Verify chapter-drafting refuses to write without a chapter plan; chapter-planning refuses without truth files
+- [ ] **File path consistency**: All skill body references to truth files, novel project paths, and config files use the same path conventions
+- [ ] **Pressure test**: Run `tests/pressure-tests/prompts/chapter-writing-pressure.md` scenario and verify agent behavior matches expectations
+- [ ] **Commit history**: All commits follow Conventional Commits format, each task is one commit
 
 ---
 

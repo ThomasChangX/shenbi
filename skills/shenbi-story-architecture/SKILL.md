@@ -21,6 +21,12 @@ digraph story_architecture {
 }
 ```
 
+## 数据契约
+
+- **Reads:** `world/story_bible.md`, `characters/**/*.md`
+- **Writes:** `outline/story_frame.md`, `outline/volume_map.md`, `outline/rhythm_principles.md`
+- **Updates:** none (initial creation)
+
 ## 铁律
 
 1. **双线必写** — story_frame.md 必须包含前台故事（读者每章看到的表面冲突）和后台故事（贯穿全书的暗线）
