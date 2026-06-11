@@ -15,10 +15,21 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_DIR"
 
 # Generate unique agent_id
-AGENT_ID="${ROUND_DIR##*/round-}-${SKILL}-${TEST_TYPE}-$(python3 -c 'import uuid; print(uuid.uuid4().hex[:8])')"
+AGENT_ID="$(basename "$ROUND_DIR")-${SKILL}-${TEST_TYPE}-$(python3 -c 'import uuid; print(uuid.uuid4().hex[:8])')"
 echo "Agent ID: ${AGENT_ID}"
+
+# Derive file_type from skill name for G2 validation
+case "$SKILL" in
+    shenbi-chapter-drafting|shenbi-style-polishing|shenbi-anti-detect|shenbi-length-normalizing)
+        FILE_TYPE="chapter" ;;
+    shenbi-state-settling|shenbi-foreshadowing-track|shenbi-foreshadowing-plant)
+        FILE_TYPE="truth" ;;
+    *)
+        FILE_TYPE="$TEST_TYPE" ;;
+esac
 
 # Derive input files from SKILL.md data contract
 INPUT_FILES=$(python3 -c "
@@ -77,7 +88,7 @@ except Exception:
 # G2: Post-dispatch output validation
 if [ -n "$OUTPUT_FILES" ]; then
     echo "=== G2: Output Validation ==="
-    G2_RESULT=$(python3 "${SCRIPT_DIR}/validate-gate.py" G2 "$OUTPUT_FILES" "$TEST_TYPE" "$ROUND_DIR" "$PROJECT_DIR" 2>&1) || true
+    G2_RESULT=$(python3 "${SCRIPT_DIR}/validate-gate.py" G2 "$OUTPUT_FILES" "$FILE_TYPE" "$ROUND_DIR" "$PROJECT_DIR" 2>&1) || true
     G2_STATUS=$(echo "$G2_RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
     if [ "$G2_STATUS" != "PASS" ]; then
         echo "G2 FAILED:"
@@ -98,8 +109,8 @@ try:
     pp.setdefault('skills', {})
     pp['skills'].setdefault('${SKILL}', {})
     pp['skills']['${SKILL}']['${TEST_TYPE}'] = {'status': 'DONE', 'gate': 'PASS'}
-    pp['skills']['${SKILL}']['agent_trace'] = pp['skills']['${SKILL}'].get('agent_trace', {})
-    pp['skills']['${SKILL}']['agent_trace']['${TEST_TYPE}_generator'] = '${AGENT_ID}'
+    pp.setdefault('agent_trace', {})
+    pp['agent_trace']['${SKILL}'] = '${AGENT_ID}'
     output_list = [f.strip() for f in '${OUTPUT_FILES}'.split(',') if f.strip()]
     pp['skills']['${SKILL}']['output_files'] = output_list
     pp['subagent_completion_count'] = pp.get('subagent_completion_count', 0) + 1
