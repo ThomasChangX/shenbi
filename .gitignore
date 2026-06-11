@@ -5,3 +5,21 @@
 .node_modules/
 .env
 .env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Gate system artifacts
+*.bak
+.token-hashes.json
+progress.json
+
+# Round output (generated per-round, keep template)
+tests/rounds/round-*/meta.json
+tests/rounds/round-*/novel-output/
+tests/rounds/round-*/skill-traces/
+tests/rounds/round-*/t1-reports/
+tests/rounds/round-*/summary.json
+tests/rounds/round-*/enhancement-signals.json

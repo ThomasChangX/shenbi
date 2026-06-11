@@ -24,7 +24,7 @@ digraph volume_consolidation {
 
 ## 数据契约
 
-- **Reads:** `chapters/chapter-N.md`, `truth/chapter_summaries.md`
+- **Reads:** `chapters/chapter-N.md`, `truth/chapter_summaries.md`, `truth/pending_hooks.md`
 - **Writes:** `truth/volume_summaries.md` (creates on first volume, appends for subsequent volumes)
 - **Updates:** `truth/chapter_summaries.md` (preserves per-chapter entries; marks them as archived but does not delete)
 
@@ -33,7 +33,7 @@ digraph volume_consolidation {
 1. **卷完成后必须整合** — 逐章摘要继续增长会导致 context-composing 上下文过长
 2. **长程记忆是精炼的** — 每卷的卷级摘要必须控制在 500 字以内
 3. **保留可回查性** — 归档的逐章摘要必须仍然可以手动查阅
-4. **未兑现伏笔必须醒目** — 卷级摘要必须明确列出本卷种下但未兑现的伏笔
+4. **未兑现伏笔必须醒目** — 卷级摘要必须明确列出本卷种下但未兑现的伏笔。数据来源为 `truth/pending_hooks.md`，必须逐一核对状态字段
 
 ## 输出
 
@@ -52,10 +52,10 @@ digraph volume_consolidation {
 
 ### 关键事件
 
-1. 第1-3章: 入门考核 → 展示世界观 + 种植 hook-001
-2. 第4-7章: 考核中遭遇反派代理人 → 冲突升级
-3. 第8-12章: 内门修炼 → 角色关系发展
-4. 第13-15章: 考核最终战 → hook-002 部分兑现
+1. 第1-3章: 入门考核 → [为什么关键: 建立世界观基线 + 种植 hook-001]
+2. 第4-7章: 考核中遭遇反派代理人 → [为什么关键: 冲突升级, 引入反派线]
+3. 第8-12章: 内门修炼 → [为什么关键: 角色关系发展, 能力体系展开]
+4. 第13-15章: 考核最终战 → [为什么关键: hook-002 部分兑现, 第一卷高潮]
 
 ### 角色成长
 
@@ -77,8 +77,9 @@ digraph volume_consolidation {
 
 1. 读取本卷所有章节正文（`chapters/chapter-N.md`）
 2. 读取 `truth/chapter_summaries.md` 中本卷范围的逐章摘要
-3. 合并逐章摘要为卷级叙事摘要（叙事弧线、关键事件、角色成长、未兑现伏笔、尾声状态）
-4. 把本卷的逐章摘要归档（移入 `truth/volume_summaries.md` 或单独归档目录，但保留可回查入口）
+3. 读取 `truth/pending_hooks.md` 提取本卷种下但未兑现的伏笔
+4. 合并逐章摘要为卷级叙事摘要（叙事弧线、关键事件含选择理由、角色成长、未兑现伏笔、尾声状态）
+5. 把本卷的逐章摘要归档（移入 `truth/volume_summaries.md` 或单独归档目录，但保留可回查入口）
 5. 生成卷级长程记忆（精炼 ≤ 500 字）
 6. 追加到 `truth/volume_summaries.md`
 7. 报告卷整合完成
