@@ -25,7 +25,12 @@ if [ "${1:-}" = "--validate" ]; then
     fi
   fi
 
-  for subdir in novel-output t1-reports skill-traces; do
+  # Determine which report dir to check based on tier
+  TIER_TARGET=$(python3 -c "import json; print(json.load(open('${ROUND_DIR}/meta.json')).get('tier_target','T1'))" 2>/dev/null || echo "T1")
+  TIER_LOWER=$(echo "$TIER_TARGET" | tr '[:upper:]' '[:lower:]')
+  REPORT_DIR="${TIER_LOWER}-reports"
+
+  for subdir in novel-output "$REPORT_DIR" skill-traces; do
     COUNT=$(find "${ROUND_DIR}/${subdir}" -type f 2>/dev/null | wc -l)
     if [ "$COUNT" -eq 0 ]; then
       echo "FAIL: ${subdir}/ is empty (no output generated)"
