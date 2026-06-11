@@ -194,8 +194,16 @@ def gate_G0(seed_file=None):
         m = re.search(r'目标字数[：:]\s*(\d+)', content)
         if not m or int(m.group(1)) <= 0: return fail("G0",[{"id":"G0.2","s":"FAIL","r":"target_words not found"}],"round_creation",["G0.2"])
         checks.append({"id":"G0.2","s":"PASS","target_words":int(m.group(1))})
-        # G0.3: expected_chapters computed
-        default_w = CHAPTER_WORD_FLOOR  # fallback; ideally from genre-config
+        # G0.3: expected_chapters = ceil(target_words / genre_config.chapter_word.default)
+        default_w = CHAPTER_WORD_FLOOR
+        novel_output = PROJECT / "novel-output"
+        if novel_output.exists():
+            for proj_dir in novel_output.iterdir():
+                if not proj_dir.is_dir(): continue
+                gc = proj_dir / "genre-config.json"
+                if gc.exists():
+                    default_w = jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
+                    break
         expected = -(-int(m.group(1)) // default_w)
         checks.append({"id":"G0.3","s":"PASS","expected_chapters":expected})
     # G0.4: skill dirs
@@ -243,9 +251,16 @@ def gate_G1(skill_name, input_files, round_dir):
         if fp.endswith('.md') and p.exists():
             try: yload(fp); checks.append({"id":"G1.3","file":fp,"s":"PASS"})
             except: mf.append({"id":"G1.3","file":fp,"s":"FAIL","r":"invalid YAML frontmatter"})
-    # G1.4: backup for in-place skills (if .bak doesn't exist, create it)
-    # G1.5: file lock — checked externally via lockfile convention
-    # G1.6: scoring history check — checked in G3
+    # G1.4: backup for in-place modifying skills
+    for fp, _ in (input_files or []):
+        if fp.endswith('.md') and Path(fp).exists():
+            bak = Path(str(fp) + '.bak')
+            if not bak.exists():
+                import shutil
+                shutil.copy2(fp, str(bak))
+                checks.append({"id":"G1.4","file":fp,"s":"PASS","action":"backup created"})
+    # G1.5: file lock — see gate-lock convention in spec Section 3.1
+    # G1.6: scoring history check — in gate_G3
     if mf: return fail("G1", checks, "dispatch", [x["id"] for x in mf])
     return passed("G1", checks)
 ```
@@ -326,17 +341,22 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
     return passed("G2", checks)
 
 def _is_important_chapter(fp, project_dir):
-    """检查章节是否为重要章（卷首/卷末/高潮/爆发段）"""
+    """检查章节是否为重要章。来源: (a) volume_map.md 标注, (b) chapter-N-plan.md 第1段 '重要章' 标注"""
     if not project_dir: return False
-    vm_path = Path(project_dir) / "outline" / "volume_map.md"
-    if not vm_path.exists(): return False
-    content = vm_path.read_text()
     ch_num = re.search(r'chapter-(\d+)', str(fp))
     if not ch_num: return False
     n = int(ch_num.group(1))
-    # Check if chapter is in a 爆发段 or marked as 高潮/卷首/卷末
-    patterns = [rf'第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)']
-    return any(re.search(p, content) for p in patterns)
+    # (a) volume_map.md: 爆发段/高潮/卷首/卷末
+    vm = Path(project_dir) / "outline" / "volume_map.md"
+    if vm.exists():
+        patterns = [rf'第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)']
+        if any(re.search(p, vm.read_text()) for p in patterns): return True
+    # (b) chapter-N-plan.md 第1段标注 "重要章"
+    plan = Path(project_dir) / "plans" / f"chapter-{n}-plan.md"
+    if plan.exists():
+        first_section = plan.read_text().split('## 2.')[0] if '## 2.' in plan.read_text() else plan.read_text()[:500]
+        if '重要章' in first_section: return True
+    return False
 ```
 
 #### Section 4: G3 — 评分前依赖检查
@@ -720,14 +740,34 @@ def gate_G5(phase_name, round_dir):
                 mf.append(f"G5.1:{pr}:{score}<{threshold}")
         else: mf.append(f"G5.1:{pr}:no_report")
 
-    # G5.5: expected outputs present
+    # G5.2: handoff integrity — parse SKILL.md Reads vs upstream Writes+Updates
+    for i in range(1, len(prereqs)):
+        upstream = prereqs[i-1]; downstream = prereqs[i]
+        # Parse SKILL.md data contract sections
+        us_skill = (SKILLS / upstream / "SKILL.md").read_text() if (SKILLS / upstream / "SKILL.md").exists() else ""
+        ds_skill = (SKILLS / downstream / "SKILL.md").read_text() if (SKILLS / downstream / "SKILL.md").exists() else ""
+        us_outputs = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*(?:Writes|Updates):\*\*\s*(.*)', us_skill))))
+        ds_inputs = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*Reads:\*\*\s*(.*)', ds_skill))))
+        missing = ds_inputs - us_outputs
+        if missing: mf.append(f"G5.2:handoff:{upstream}->{downstream}:missing:{list(missing)}")
+
+    # G5.3: character name cross-reference (grep section headers)
+    # G5.4: rule/location cross-reference
+    # G5.5: expected outputs present (glob patterns)
     for pattern in phase_data.get("expected_outputs",[]):
         if '*' in pattern:
-            matches = list(Path(rd).parent.parent.rglob(pattern))  # rough
+            matches = list(Path(project_dir).rglob(pattern)) if project_dir else []
             if not matches: mf.append(f"G5.5:{pattern}:no_matches")
         else:
-            p = Path(rd).parent.parent / "novel-output" / pattern  # rough
-            if not p.exists(): mf.append(f"G5.5:{pattern}:not_found")
+            p = Path(project_dir) / pattern if project_dir else None
+            if p and not p.exists(): mf.append(f"G5.5:{pattern}:not_found")
+
+    # G5.6: no regression — re-run G4 script checks on phase outputs
+    for pr in prereqs:
+        output_files = []  # from progress.json
+        g4_result = json.loads(gate_G4(pr, "generative", output_files, round_dir))
+        if g4_result.get("status") == "FAIL":
+            return fail("G5",c+[{"id":"G5.6","s":"FAIL","skill":pr,"g4":g4_result}],"scoring",["G5.6"])
 
     if mf: return fail("G5",c,"scoring",mf)
     return passed("G5",c)
@@ -763,6 +803,54 @@ def gate_G6(pipeline_name, round_dir, project_dir):
             if result["status"] == "FAIL": mf.append(f"G6.3:{ch.name}")
         if not mf: c.append({"id":"G6.3","s":"PASS"})
     else: mf.append("G6.1:no_chapters_dir")
+
+    # G6.4: P0 hook last_reinforced within 3 chapters
+    # G6.5: no expired hooks (current - plant > max_distance)
+    hooks_path = Path(project_dir) / "truth" / "pending_hooks.md"
+    if hooks_path.exists():
+        fm = yload(str(hooks_path)) or {}
+        hooks = fm.get("hooks", [])
+        current_ch = max(nums) if nums else 0
+        for h in hooks:
+            if h.get("core_hook") and current_ch - h.get("last_reinforced", 0) > 3:
+                mf.append(f"G6.4:{h.get('id','?')}:silent={current_ch - h.get('last_reinforced',0)}ch")
+            if current_ch - h.get("plant_chapter", 0) > h.get("max_distance", 999):
+                mf.append(f"G6.5:{h.get('id','?')}:expired")
+
+    # G6.6: ghost characters — dead chars not in subsequent chapters
+    cm_path = Path(project_dir) / "truth" / "character_matrix.md"
+    dead_chars = set()
+    if cm_path.exists():
+        cm = cm_path.read_text()
+        dead_chars = set(re.findall(r'\|\s*(\S+)\s*\|.*死亡', cm))
+    for ch in chapters:
+        content = ch.read_text()
+        for dc in dead_chars:
+            if dc in content and f"character_matrix" not in str(ch):
+                return fail("G6",c+[{"id":"G6.6","s":"FAIL","ghost_character":dc,"file":str(ch)}],"scoring",["G6.6"])
+
+    # G6.7: character name cross-reference (simplified — full version uses stop_words)
+    # G6.8: location name cross-reference
+    # G6.9: chapter_summaries completeness — count ## 第N章 headings
+    cs_path = Path(project_dir) / "truth" / "chapter_summaries.md"
+    if cs_path.exists():
+        summary_chs = len(re.findall(r'## 第\d+章', cs_path.read_text()))
+        if summary_chs < len(chapters): mf.append(f"G6.9:{summary_chs}<{len(chapters)}")
+
+    # G6.10: current_state freshness — updated date >= latest chapter mtime
+    st_path = Path(project_dir) / "truth" / "current_state.md"
+    if st_path.exists() and chapters:
+        st_fm = yload(str(st_path)) or {}
+        st_updated = st_fm.get("updated", "")
+        latest_ch_mtime = max(ch.stat().st_mtime for ch in chapters)
+        # Simple check: updated field exists
+        if not st_updated: mf.append("G6.10:no_updated_field")
+
+    # G6.11: emotional_arcs completeness — count ### 第N章 entries
+    ea_path = Path(project_dir) / "truth" / "emotional_arcs.md"
+    if ea_path.exists():
+        arc_chs = len(re.findall(r'### 第\d+章', ea_path.read_text()))
+        if arc_chs < len(chapters): mf.append(f"G6.11:{arc_chs}<{len(chapters)}")
 
     # G6.12: sensitive word scan
     sw_path = FIXTURES / "sensitive_words.txt"
@@ -947,16 +1035,70 @@ git commit -m "feat: add validate-gate.py — all G0-G7 + G_TRANSITION/G_DISPATC
 
 ---
 
+### Task 2.5: Subagent 派发包装器（output_files + agent_id 追踪）
+
+**Files:**
+- Create: `tests/dispatch-subagent.sh`（包装 round-exec.sh 的 subagent 派发逻辑）
+
+实施 Task 4 时，将此逻辑内嵌到 round-exec.sh 中。以下为独立包装器的参考代码。
+
+- [ ] **Step 1: 实现 subagent 派发包装器**
+
+```bash
+#!/bin/bash
+# dispatch-subagent.sh <skill_name> <test_type> <round_dir> <subagent_prompt>
+# 包装 subagent 派发：生成 agent_id、调用 G1、派发、G2、记录 output_files
+
+SKILL=$1; TEST_TYPE=$2; ROUND_DIR=$3; PROMPT="$4"
+AGENT_ID="${ROUND_DIR##*/round-}-${SKILL}-${TEST_TYPE}-$(python3 -c 'import uuid;print(uuid.uuid4().hex[:8])')"
+
+# G1: input validation
+python3 tests/validate-gate.py G1 "$SKILL" '[...]' "$ROUND_DIR" || exit 1
+
+# Dispatch subagent (implementation-specific — calls Claude or other LLM)
+# ... subagent runs, produces output files ...
+
+# G2: output validation — derive output_files from SKILL.md data contract
+OUTPUT_FILES=$(python3 -c "
+import re, sys
+skill_md = open('skills/${SKILL}/SKILL.md').read()
+writes = re.findall(r'\*\*Writes:\*\*\s*(.*)', skill_md)
+updates = re.findall(r'\*\*Updates:\*\*\s*(.*)', skill_md)
+files = []
+for line in writes + updates:
+    files.extend(re.findall(r'`([^`]+)`', line))
+print(','.join(files))
+")
+python3 tests/validate-gate.py G2 "$OUTPUT_FILES" "$TEST_TYPE" "$ROUND_DIR" || exit 1
+
+# Record in progress.json
+python3 -c "
+import json
+pp = json.load(open('${ROUND_DIR}/progress.json'))
+pp['skills'].setdefault('${SKILL}', {})
+pp['skills']['${SKILL}']['${TEST_TYPE}'] = {'status': 'DONE', 'gate': 'PASS'}
+pp['skills']['${SKILL}']['agent_trace'] = pp['skills']['${SKILL}'].get('agent_trace', {})
+pp['skills']['${SKILL}']['agent_trace']['${TEST_TYPE}_generator'] = '${AGENT_ID}'
+pp['skills']['${SKILL}']['output_files'] = [f.strip() for f in '${OUTPUT_FILES}'.split(',') if f.strip()]
+pp['subagent_completion_count'] = pp.get('subagent_completion_count', 0) + 1
+pp['completed_skill_names'] = list(set(pp.get('completed_skill_names', []) + ['${SKILL}']))
+json.dump(pp, open('${ROUND_DIR}/progress.json', 'w'), indent=2, ensure_ascii=False)
+"
+echo "Subagent ${AGENT_ID} complete: ${SKILL}-${TEST_TYPE}"
+```
+
 ### Task 3: 改造 scoring.py
 
 **Files:**
 - Modify: `tests/scoring.py`
 
-添加内嵌 Gate 调用。在评分前自动运行相关 Gate。
+添加内嵌 Gate 调用和 `--tier`/`--phase` 标志。保持与现有位置参数 (`sys.argv[1]` = rubric_path) 的向后兼容。
 
-- [ ] **Step 1: 在 main() 中添加 --tier/--phase 参数和 Gate 检查**
+- [ ] **Step 1: 在 main() 中添加标志解析（不破坏现有位置参数）**
 
-在 `scoring.py` 的 `main()` 中，参数解析后插入：
+标志参数使用 `--flag value` 格式，在位置参数之前解析。现有调用 `scoring.py <rubric> <scores>` 不受影响。
+
+在 `scoring.py` 的 `main()` 中，位置参数解析之前插入：
 
 ```python
 # Gate integration: run pre-scoring checks
@@ -1031,7 +1173,9 @@ git commit -m "feat: integrate validate-gate into scoring.py — G3/G5/G6 pre-sc
 **Files:**
 - Modify: `tests/round-exec.sh`
 
-添加 G0 检查、progress.json 完整初始化、令牌生成。
+添加 G0 检查、progress.json 完整初始化、令牌生成、agent_id 追踪。
+
+**meta.json 处理**: 保留现有 `meta.json` 生成（向后兼容）。`progress.json` 是新文件，与 `meta.json` 并存。`summarize-round.py` 优先从 `progress.json` 读取数据；若不存在则 fallback 到 `meta.json` + `summary.json` 的手动推断逻辑。
 
 - [ ] **Step 1: 添加 G0 前置检查和 progress.json 完整初始化**
 
