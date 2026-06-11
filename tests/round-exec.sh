@@ -72,8 +72,57 @@ TIER_LOWER=$(echo "$TIER" | tr '[:upper:]' '[:lower:]')
 
 echo "=== Creating round ${ROUND_NUM}: ${MODEL} / ${TIER} ==="
 
+# G0: Environment readiness check
+echo "=== G0: Environment Check ==="
+G0_RESULT=$(python3 tests/validate-gate.py G0 "${SEED_FILE:-outline-example.md}" 2>&1) || true
+G0_STATUS=$(echo "$G0_RESULT" | python3 -c "import sys,json;print(json.load(sys.stdin).get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
+if [ "$G0_STATUS" != "PASS" ]; then
+    echo "G0 FAILED:"
+    echo "$G0_RESULT"
+    exit 1
+fi
+EXPECTED_CHAPTERS=$(echo "$G0_RESULT" | python3 -c "import sys,json;d=json.load(sys.stdin);print([c for c in d.get('checks',[]) if c.get('id')=='G0.3'][0].get('expected_chapters','N/A'))" 2>/dev/null || echo "N/A")
+echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
+
 mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,novel-output,skill-traces}
 
+# progress.json with full schema
+SKILL_COUNT=$(ls -d skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+SKILL_NAMES_FILE=$(mktemp)
+ls skills/ | grep -v '^\.' | sort > "$SKILL_NAMES_FILE"
+SKILL_LIST_JSON=$(python3 -c "import json;lines=open('${SKILL_NAMES_FILE}').read().strip().split('\n');print(json.dumps(lines))")
+rm "$SKILL_NAMES_FILE"
+
+cat > "${ROUND_DIR}/progress.json" << PROGEOF
+{
+  "round": "${ROUND_NUM}",
+  "tier": "${TIER}",
+  "test_cycle_phase": "generative",
+  "subagent_completion_count": 0,
+  "completed_skill_names": [],
+  "skills": {},
+  "remaining_generative": ${SKILL_LIST_JSON},
+  "remaining_bug_hunt": [],
+  "remaining_clean": [],
+  "gate_blockers": [],
+  "total_framework_skills": ${SKILL_COUNT},
+  "expected_chapters": ${EXPECTED_CHAPTERS}
+}
+PROGEOF
+
+# Override tokens
+TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")
+TOKEN2=$(python3 -c "import secrets;print(secrets.token_hex(16))")
+TOKEN3=$(python3 -c "import secrets;print(secrets.token_hex(16))")
+python3 -c "
+import hashlib,json
+ts=['$TOKEN1','$TOKEN2','$TOKEN3']
+hs=[{'hash':hashlib.sha256(t.encode()).hexdigest(),'spent':False} for t in ts]
+json.dump({'tokens':hs},open('${ROUND_DIR}/.token-hashes.json','w'),indent=2)
+"
+chmod 600 "${ROUND_DIR}/.token-hashes.json"
+
+# Keep existing meta.json and summary.json for backward compatibility
 cat > "${ROUND_DIR}/meta.json" << EOF
 {
   "round": "${ROUND_NUM}",
@@ -102,12 +151,13 @@ EOF
 
 echo '{"enhancement_signals": []}' > "${ROUND_DIR}/enhancement-signals.json"
 
-echo "Round directory: ${ROUND_DIR}"
-echo "Next steps:"
-echo "  1. Run ${TIER} tests (manual or automated)"
-echo "  2. Place reports in ${ROUND_DIR}/${TIER_LOWER}-reports/"
-echo "  3. Score reports with: python3 tests/scoring.py <rubric> <scores>"
-echo "  4. Fill summary.json"
-echo "  5. Update CHANGELOG.md"
 echo ""
+echo "=== Round ${ROUND_NUM} Override Tokens (SAVE THESE) ==="
+echo "Token 1: $TOKEN1"
+echo "Token 2: $TOKEN2"
+echo "Token 3: $TOKEN3"
+echo "=== Each token is SINGLE-USE. Store securely. ==="
+echo ""
+echo "Round directory: ${ROUND_DIR}"
+echo "progress.json: ${ROUND_DIR}/progress.json"
 echo "Validate with: $0 --validate ${ROUND_DIR}"

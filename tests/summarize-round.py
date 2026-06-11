@@ -3,6 +3,7 @@
 
 import json
 import sys
+import subprocess
 from pathlib import Path
 
 
@@ -41,6 +42,34 @@ def main():
 
     round_dir = Path(sys.argv[1])
     summary_path = round_dir / "summary.json"
+
+    # G7: Round close validation
+    vg = str(Path(__file__).parent / "validate-gate.py")
+    g7_result = subprocess.run([sys.executable, vg, "G7", str(round_dir)],
+                               capture_output=True, text=True)
+    try:
+        g7_out = json.loads(g7_result.stdout)
+        if g7_out.get("status") == "FAIL":
+            print(f"G7 FAILED: {json.dumps(g7_out, indent=2, ensure_ascii=False)}")
+            print("Fix G7 issues before closing round.")
+            sys.exit(1)
+        else:
+            print(f"G7: {g7_out.get('status')}")
+    except Exception as e:
+        print(f"G7 check skipped: {e}")
+
+    # Read progress.json for additional score data
+    progress_path = round_dir / "progress.json"
+    t1_from_progress = {}
+    if progress_path.exists():
+        try:
+            with open(progress_path) as f:
+                progress = json.load(f)
+            for sn, sd in progress.get("skills", {}).items():
+                for tt, td in sd.items():
+                    if isinstance(td, dict) and td.get("status") == "DONE" and "score" in td:
+                        t1_from_progress[f"{sn}-{tt}"] = {"score": td["score"], "band": classify(td["score"])}
+        except: pass
 
     if not summary_path.exists():
         print(f"No summary.json found in {round_dir}")
