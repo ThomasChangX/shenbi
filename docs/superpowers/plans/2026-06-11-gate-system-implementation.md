@@ -308,11 +308,14 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
         if file_type == "truth" and round_dir:
             bak = Path(fp + ".bak")
             if bak.exists():
-                old_lines = bak.read_text().split('\n')
-                new_lines = content.split('\n')
-                removed = set(old_lines) - set(new_lines)
-                if removed:
-                    mf.append({"id":"G2.11","file":fp,"s":"FAIL","r":f"lines removed from truth file"})
+                import difflib
+                old_lines = bak.read_text(encoding='utf-8').splitlines(keepends=True)
+                new_lines = content.splitlines(keepends=True)
+                diff = list(difflib.unified_diff(old_lines, new_lines, fromfile=str(bak), tofile=fp))
+                # Only removals (lines starting with -) are violations
+                removals = [l for l in diff if l.startswith('-') and not l.startswith('---')]
+                if removals:
+                    mf.append({"id":"G2.11","file":fp,"s":"FAIL","r":f"{len(removals)} lines removed from truth file","removed_lines":removals[:5]})
                 else: checks.append({"id":"G2.11","file":fp,"s":"PASS"})
         # G2.12: file completeness
         last = content.strip().split('\n')[-1].strip()
@@ -369,9 +372,15 @@ def gate_G3(skill_name, test_type, round_dir):
         except: pass
     checks.append({"id":"G3.1","s":"PASS","prereqs_checked":len(prereqs)})
 
-    # G3.3: file passed G2 (check t1-reports for pre-score gate result)
-    report_file = rd / "t1-reports" / f"{skill_name}-{test_type}.json"
-    checks.append({"id":"G3.3","s":"PASS","note":"file exists verification deferred to G2"})
+    # G3.3: file passed G2 — run G2 on the actual output files
+    output_files = []  # derive from progress.json or skill data contract
+    skill_progress = progress.get("skills",{}).get(skill_name,{})
+    output_files = skill_progress.get("output_files", [])
+    if output_files:
+        g2_result = json.loads(gate_G2(output_files, test_type, round_dir))
+        if g2_result["status"] == "FAIL":
+            return fail("G3",[{"id":"G3.3","s":"FAIL","g2_result":g2_result}],"scoring",["G3.3"])
+    checks.append({"id":"G3.3","s":"PASS","files_checked":len(output_files)})
 
     # G3.4: scorer agent_id != generator agent_id
     if progress:
@@ -395,45 +404,101 @@ def gate_G3(skill_name, test_type, round_dir):
 
 ```python
 def gate_G4(skill_name, test_type, file_paths, round_dir=None):
-    """G4: T1 技能专项检查。根据 skill_name 派发到对应检查函数"""
-    if test_type == "bug-hunt":
-        return gate_G4_bughunt(file_paths)
-    if test_type == "clean":
-        return gate_G4_clean(file_paths)
-    # Generative checks by skill
+    if test_type == "bug-hunt": return gate_G4_bughunt(file_paths)
+    if test_type == "clean": return gate_G4_clean(file_paths)
     checkers = {
-        "shenbi-worldbuilding": g4_worldbuilding,
-        "shenbi-character-design": g4_character_design,
-        "shenbi-story-architecture": g4_story_architecture,
-        "shenbi-power-system": g4_power_system,
-        "shenbi-faction-builder": g4_faction_builder,
-        "shenbi-location-builder": g4_location_builder,
-        "shenbi-relationship-map": g4_relationship_map,
-        "shenbi-pacing-design": g4_pacing_design,
-        "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
-        "shenbi-genre-config": g4_genre_config,
-        "shenbi-volume-outlining": g4_volume_outlining,
-        "shenbi-chapter-planning": g4_chapter_planning,
-        "shenbi-chapter-drafting": g4_chapter_drafting,
-        "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
-        "shenbi-foreshadowing-track": g4_foreshadowing_track,
-        "shenbi-context-composing": g4_context_composing,
-        "shenbi-state-settling": g4_state_settling,
-        "shenbi-style-polishing": g4_style_polishing,
-        "shenbi-anti-detect": g4_anti_detect,
-        "shenbi-length-normalizing": g4_length_normalizing,
+        "shenbi-worldbuilding": g4_worldbuilding, "shenbi-character-design": g4_character_design,
+        "shenbi-story-architecture": g4_story_architecture, "shenbi-power-system": g4_power_system,
+        "shenbi-faction-builder": g4_faction_builder, "shenbi-location-builder": g4_location_builder,
+        "shenbi-relationship-map": g4_relationship_map, "shenbi-pacing-design": g4_pacing_design,
+        "shenbi-plot-thread-weaver": g4_plot_thread_weaver, "shenbi-genre-config": g4_genre_config,
+        "shenbi-volume-outlining": g4_volume_outlining, "shenbi-chapter-planning": g4_chapter_planning,
+        "shenbi-chapter-drafting": g4_chapter_drafting, "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
+        "shenbi-foreshadowing-track": g4_foreshadowing_track, "shenbi-context-composing": g4_context_composing,
+        "shenbi-state-settling": g4_state_settling, "shenbi-style-polishing": g4_style_polishing,
+        "shenbi-anti-detect": g4_anti_detect, "shenbi-length-normalizing": g4_length_normalizing,
     }
-    checker = checkers.get(skill_name)
-    if not checker:
-        return json.dumps({"gate":f"G4-{skill_name}","status":"UNIMPLEMENTED","note":"no script-level checks defined"},indent=2,ensure_ascii=False)
-    return checker(file_paths, round_dir)
+    return checkers.get(skill_name, lambda f,r: json.dumps({"gate":f"G4-{skill_name}","status":"UNIMPLEMENTED"},indent=2,ensure_ascii=False))(file_paths, round_dir)
 ```
 
-每个技能的脚本检查函数遵循统一模式：读文件 → 检查结构完整性（标题/字段/表格）→ 检查可量化指标（字数/密度/计数）。每个约 15-25 行。
+每个检查函数遵循统一模式：读文件 → 检查结构完整性 → 检查可量化指标。以下列出所有 19 个函数的完整规格。实施时每个函数按规格编写约 15-30 行代码。
 
 - [ ] **Step 7: 实现 G4 各技能检查函数（19 个）**
 
-由于篇幅限制，此处列出代表性格局。完整 19 个函数的代码在实施时按相同模式编写。
+**g4_worldbuilding** — 检查项：
+- novel.json: title/genre/language/target_words 字段存在且非空
+- genre-config.json: 文件存在、JSON 合法
+- story_bible.md: 4 个 `## ` 标题、条目标记密度 < 5%（`r'^[\-\*]\s|^\d+\.\s'`）
+- rules.md: 1-10 条规则（`## 规则` 标题计数，支持中文和阿拉伯数字）、每条含"可测试标准"
+- locations.md: 3-5 个地点（`## 地点` 标题，不强制要求冒号）
+- truth/: 4 个模板文件存在且 frontmatter 含 type/category/status 字段
+
+**g4_character_design** — 检查项：
+- protagonist.md: 12 frontmatter 必填字段。voice_profile.speech_patterns 为数组且 length ≥ 2。catchphrases ≥ 1。avoid_patterns ≥ 1（三个数组独立检查，不共用一个循环）
+- relationships.md: 含 ≥3 个 `## 关系对` 标题（非表格行数）
+
+**g4_story_architecture** — 检查项：
+- story_frame.md frontmatter: surface_conflict/personal_conflict/deep_conflict 非空
+- volume_map.md: ≥1 个 `## 第.卷` 标题，每卷含 `**Objective**` 和 `**Key Results**`
+
+**g4_power_system** — 检查项：
+- power_system.md 含 6 个必需标题：等级表（表格行≥5）、进阶规则、能力边界、代价机制、力量天花板、跨级战斗参考
+
+**g4_faction_builder** — 检查项：
+- factions.md 含 ≥2 个 `## 势力` 标题，每个势力含 4 个必需子标题：层级结构、内部矛盾、跨势力关系、利益驱动行为
+
+**g4_location_builder** — 检查项：
+- locations.md 每个地点含布局描述（≥200 中文字符）、氛围锚点（≥150 中文字符）、功能事件
+- 检测：对每个 `## 地点` 标题下的内容做字数统计
+
+**g4_relationship_map** — 检查项：
+- relationships.md 含 ≥3 个 `## 关系对` 标题
+- 每个关系对含利益根基字段且非空、信息边界字段且值为 SYMMETRIC/ASYMMETRIC/ISOLATED/MUTUAL_SECRET 之一（枚举校验）、演化轨迹字段
+
+**g4_pacing_design** — 检查项：
+- rhythm_principles.md 含四拍循环标题、三线比例表格（QUEST/FIRE/CONSTELLATION 三行）、场景类型表格（≥6 行）、单调性检测规则标题
+
+**g4_plot_thread_weaver** — 检查项：
+- thread_map.md 含 A 长线标题、B 中线标题、章节线索推进表（`|` 表格）、空白检测标题
+
+**g4_genre_config** — 检查项：
+- genre-config.json 存在且 JSON 合法、含 fatigue_words 数组、audit_dimensions 数组（≥5）、chapter_word.default ≥ 1000
+
+**g4_volume_outlining** — 检查项：
+- volume_map.md 含当前卷 Objective（可二元判断）、3-5 个 KR、卷内张力曲线、≥1 个跨卷桥接实体钩子
+
+**g4_chapter_planning** — 检查项：
+- chapter-N-plan.md 含 8 个编号标题（`## 1.` 到 `## 8.`）
+- 黄金三章逻辑（需读取章节号 N）: N=1 → 段1含"三面墙"或世界观建立；N=2 → 段1含对手建立；N=3 → 段1含小高潮或大主线钩子；N≥4 → 跳过
+- 所有章节：段4含"关键抉择"、段5含 hook 操作名（open/advance/resolve/defer 至少一种）
+
+**g4_chapter_drafting** — 检查项（已有完整代码）：
+- PRE/POST check 块、转折词密度≤1/3000、疲劳词≤3（从 genre-config.json 读取，非硬编码）、元叙事句式=0、字数≥3000
+
+**g4_foreshadowing_plant** — 检查项（已有完整代码）：
+- hook metadata × 7 fields、depends_on 不为 None、plant+reinforce+trigger+resolve 合计 ≤ 8、SMOKESCREEN notes ≥ 50 字符且含条件关键词
+
+**g4_foreshadowing_track** — 检查项：
+- pending_hooks.md 中 ≥1 条 hook state 变更（PLANTED→RELEVANT/PAYING_OFF/RESOLVED）或 last_reinforced 更新、每条操作含章节引用、core_hook=true 的 hook 沉默章数未超 max_gap
+
+**g4_context_composing** — 检查项：
+- context/chapter-N-context.md 含 P1-P7 标签、P1 章节任务非空、P2 近章摘要非空
+
+**g4_state_settling** — 检查项（已有代码）：
+- current_state.md 含位置标题、character_matrix.md 做逐章 diff（非仅标题检查）检测新角色、chapter_summaries.md 末尾含本章摘要、emotional_arcs.md 含本章情绪轨迹
+
+**g4_style_polishing** — 检查项（需补全）：
+- 润色说明块存在
+- 字数变化比例 ∈ [0.85, 1.15]（需读取润色前后的字数）
+- 润色说明中每条修改含位置标记（段号或行引用）
+
+**g4_anti_detect** — 检查项（需补全）：
+- 改写报告块存在
+- 改写报告含应用手法列表（匹配 `|` 表格或编号列表）
+
+**g4_length_normalizing** — 检查项（需补全）：
+- 归一化后字数 ∈ [floor, ceiling] 或 25% REJECT 触发
+- 归一化报告含 4 个必需指标：原始字数、目标区间、归一化后字数、变化百分比
 
 ```python
 def g4_worldbuilding(fps, rd=None):
@@ -674,7 +739,10 @@ def gate_G6(pipeline_name, round_dir, project_dir):
     pipe_data = deps.get("t3-pipelines",{}).get(pipeline_name)
     if not pipe_data: return fail("G6",[],"scoring",[f"unknown pipeline: {pipeline_name}"])
     min_ratio = pipe_data.get("min_chapter_ratio", 0.5)
-    expected = -(-100000 // CHAPTER_WORD_FLOOR)  # dynamic from novel.json
+    # G6.1: read target_words dynamically from novel.json
+    nj_path = Path(project_dir) / "novel.json"
+    target_words = jload(nj_path).get("target_words", 100000) if nj_path.exists() else 100000
+    expected = -(-target_words // CHAPTER_WORD_FLOOR)
     min_chapters = -(-int(expected * min_ratio) // 1)
 
     # G6.1: chapter count
@@ -708,7 +776,9 @@ def gate_G6(pipeline_name, round_dir, project_dir):
                         return fail("G6",c+[{"id":"G6.12","s":"FAIL","word":word,"file":str(ch)}],"scoring",["G6.12"])
         c.append({"id":"G6.12","s":"PASS"})
     else:
-        return fail("G6",c+[{"id":"G6.12","s":"SKIP","r":"sensitive_words.txt missing — round INCOMPLETE"}],"scoring",["G6.12"])
+        # Spec: sensitive_words.txt missing → SKIP (not FAIL), mark round INCOMPLETE
+        c.append({"id":"G6.12","s":"SKIP","r":"sensitive_words.txt missing — round marked INCOMPLETE"})
+        return json.dumps({"gate":"G6","status":"INCOMPLETE","timestamp":datetime.now(timezone.utc).isoformat(),"checks":c,"reason":"G6.12 skipped: sensitive_words.txt missing"},indent=2,ensure_ascii=False)
 
     if mf: return fail("G6",c,"scoring",mf)
     return passed("G6",c)
@@ -745,10 +815,16 @@ def gate_G7(round_dir):
                 placeholders.append(str(f.relative_to(no_dir)))
         if placeholders: mf.append(f"G7.5:placeholders:{placeholders}")
         else: c.append({"id":"G7.5","s":"PASS"})
-    # G7.6: truth files status != pending
+    # G7.6: truth files status != pending (YAML解析，精确匹配字段值，非子串匹配)
     truth_dir = no_dir / "truth" if no_dir.exists() else None
     if truth_dir and truth_dir.exists():
-        pending = [f.name for f in truth_dir.glob("*.md") if 'status: pending' in f.read_text()]
+        pending = []
+        for f in truth_dir.glob("*.md"):
+            try:
+                fm = yload(str(f))
+                if isinstance(fm, dict) and fm.get("status") == "pending":
+                    pending.append(f.name)
+            except: pass
         if pending: mf.append(f"G7.6:pending:{pending}")
         else: c.append({"id":"G7.6","s":"PASS"})
     # G7.7: CHANGELOG appended (auto or manual)
