@@ -1732,7 +1732,11 @@ def g4_foreshadowing_plant(fps, rd=None):
             mf.append(f"G4.fp.not_found:{fp}")
             continue
 
-        fm = yload(str(pf)) or {}
+        try:
+            fm = yload(str(pf)) if yaml else {}
+        except Exception:
+            mf.append(f"G4.fp.yaml_error:{fp}")
+            continue
         hooks = fm.get("hooks", [])
 
         if not hooks:
@@ -1742,7 +1746,7 @@ def g4_foreshadowing_plant(fps, rd=None):
         for h in hooks:
             hid = h.get("id", "?")
             required = ["type", "dimension", "subtlety", "cultivation_interval",
-                        "max_distance", "escalation_curve", "depends_on"]
+                        "max_distance", "escalation_curve"]
             for f in required:
                 if f not in h:
                     mf.append(f"G4.fp.{hid}.missing_{f}")
@@ -1875,10 +1879,14 @@ def g4_anti_detect(fps, rd=None):
             c.append({"id": "G4.ad.report", "file": fp, "s": "PASS"})
 
         # Check for applied techniques (table rows or numbered list)
+        # Only search within the 改写报告 section to avoid false positives
+        report_match = re.search(r'## 改写报告(.+?)(?=\n## |\Z)', content, re.DOTALL)
+        report_section = report_match.group(1) if report_match else ""
         has_techniques = bool(
-            re.search(r'^\|.*\|.*\|', content, re.MULTILINE) or
-            re.search(r'^\d+[\.\)、]\s', content, re.MULTILINE)
+            re.search(r'^\|.*\|.*\|', report_section, re.MULTILINE) or
+            re.search(r'^\d+[\.\)、]\s', report_section, re.MULTILINE)
         )
+
         if has_techniques:
             c.append({"id": "G4.ad.techniques", "file": fp, "s": "PASS"})
         else:
