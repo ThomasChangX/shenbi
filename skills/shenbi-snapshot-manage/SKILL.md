@@ -44,7 +44,7 @@ digraph snapshot_manage {
 - 触发：每章审计通过后
 - 输出：`snapshots/chapter-NNN/` 目录，包含所有 truth/ 文件的副本 + 章节正文 + manifest
 - 步骤：
-  1. 复制所有 10 个 `truth/*.md` 到 `snapshots/chapter-NNN/`
+  1. 复制所有 truth/ 文件（见下方 11 文件清单）到 `snapshots/chapter-NNN/`
   2. 复制 `chapters/chapter-NNN.md` 到 `snapshots/chapter-NNN/chapter-NNN.md`
   3. 写入 manifest（见下方 manifest 模板）
   4. 报告快照已创建

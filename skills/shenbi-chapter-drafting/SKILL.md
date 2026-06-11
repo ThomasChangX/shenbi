@@ -15,9 +15,15 @@ digraph chapter_drafting {
     "Read assembled context" -> "Load genre rules + book rules";
     "Load genre rules + book rules" -> "Build style fingerprint context";
     "Build style fingerprint context" -> "Write PRE_WRITE_CHECK";
-    "Write PRE_WRITE_CHECK" -> "Generate chapter content";
+    "Write PRE_WRITE_CHECK" -> "Human approves PRE_WRITE_CHECK";
+    "Human approves PRE_WRITE_CHECK" -> "Generate chapter content";
+    "Human approves PRE_WRITE_CHECK" -> "Revise PRE_WRITE_CHECK" [label="rejected"];
     "Generate chapter content" -> "Self-check against anti-ai rules";
-    "Self-check against anti-ai rules" -> "Write chapter title + content";
+    "Self-check against anti-ai rules" -> "Count transition words (然/不过/此时/突然/终于/于是)";
+    "Count transition words" -> "Within 1/3000 limit?";
+    "Within 1/3000 limit?" -> "Write chapter title + content" [label="yes"];
+    "Within 1/3000 limit?" -> "Replace excess transitions" [label="no"];
+    "Replace excess transitions" -> "Write chapter title + content";
     "Write chapter title + content" -> "Human reviews draft";
     "Human reviews draft" -> "Proceed to state-settling" [label="approved"];
     "Human reviews draft" -> "Revise and resubmit" [label="changes requested"];
@@ -33,7 +39,7 @@ digraph chapter_drafting {
 ## 铁律
 
 1. **NO CHAPTER WITHOUT A PLAN** — 没有章节备忘（`plans/chapter-N-plan.md`）就动笔 = 删除重来
-2. **PRE_WRITE_CHECK 必写** — 起草前列出：本章核心任务、使用的伏笔、要避免的错误
+2. **PRE_WRITE_CHECK 必写** — 起草前列出：本章核心任务、使用的伏笔、要避免的错误。PRE_WRITE_CHECK 必须作为章节文件的第一个区块输出，位于正文之前，人类批准后才写正文
 3. **叙述者不替读者下结论** — 严禁"让人...感悟"、"引人...深思"类反思句
 4. **正文严禁分析报告式语言** — 不出现 hook_id、账本数据、元叙事
 5. **转折词密度 ≤ 1/3000字** — 然/不过/此时/突然/终于/于是
@@ -65,9 +71,24 @@ PRE_WRITE_CHECK:
 写 `chapters/chapter-N.md`：
 
 ```markdown
+## PRE_WRITE_CHECK
+
+- 本章核心任务: [从备忘第1段]
+- 要兑现的伏笔: [从备忘第3段]
+- 本章禁忌: [从备忘第8段]
+- 近3章结尾方式: [避免重复]
+- AI味重点防范: [根据最近的 audit_drift]
+- 转折词预算: ≤ [字数/3000] 个
+
 # 章节标题
 
 [正文内容]
+
+## POST_WRITE_SELF_CHECK
+
+- [ ] 转折词密度: X / Y字 = Z (≤ 1/3000)
+- [ ] 章尾好奇心点燃: [是/否]
+- [ ] 无反思句/元叙事: [是/否]
 ```
 
 章节标题不要包含章节号（如"第一章"），文件名已编码章节号。

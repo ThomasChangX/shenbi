@@ -41,6 +41,23 @@ digraph skill_check {
 | "结算" / "更新状态" / "提取变化" | shenbi-state-settling |
 | "字数调整" / "扩写" / "压缩" / "字数不够" | shenbi-length-normalizing |
 | "检查这章" / "审计" / "审查" | shenbi-review-anti-ai (default) + activated audit skills |
+| "连贯性" / "前后矛盾" / "对不上" | shenbi-review-continuity |
+| "角色一致性" / "人设崩了" / "OOC" | shenbi-review-character |
+| "节奏不对" / "太拖" / "太赶" / "节奏" | shenbi-review-pacing |
+| "伏笔检查" / "埋线检查" | shenbi-review-foreshadowing |
+| "世界观矛盾" / "设定冲突" / "世界规则" | shenbi-review-world-rules |
+| "对话问题" / "台词" / "说话方式" | shenbi-review-dialogue |
+| "动机不合理" / "为什么这么做" / "角色动机" | shenbi-review-motivation |
+| "视角问题" / "POV" / "视角混乱" | shenbi-review-pov |
+| "质感" / "沉浸感" / "画面感" | shenbi-review-texture |
+| "吸引力" / "读不下去" / "读者" | shenbi-review-reader-pull |
+| "高光" / "高潮" / "名场面" | shenbi-review-highpoint |
+| "长程" / "跨卷" / "长线" | shenbi-review-long-span |
+| "时代感" / "年代感" / "历史氛围" | shenbi-review-era |
+| "同人" / "原作一致" / "角色崩坏" | shenbi-review-fanfic |
+| "番外" / "衍生" / "外传" | shenbi-review-spinoff |
+| "敏感性" / "争议" / "冒犯" | shenbi-review-sensitivity |
+| "备忘合规" / "章节备忘检查" / "计划执行" | shenbi-review-memo-compliance |
 | "修改这章" / "修订" / "这段有问题" | shenbi-chapter-revision |
 | "润色" / "打磨" / "文字" | shenbi-style-polishing |
 | "去AI味" / "反检测" | shenbi-anti-detect |
