@@ -131,22 +131,66 @@ def classify(score):
 
 
 def main():
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
         print("Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]")
         print("  scores.json format: {\"1\": 100, \"2\": 95, \"3\": 80, ...}")
         print("  --kill-switch: force final score to 0 (any kill switch triggered)")
         print("  --test-type: filter dimensions by applicability (renormalizes weights)")
+        print("  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring")
+        print("  --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring")
         print("  Or: scoring.py <rubric.md> --interactive")
         sys.exit(1)
+
+    # --gate-only mode: run gate check, skip scoring entirely
+    if "--gate-only" in sys.argv:
+        import subprocess
+        gate_type = sys.argv[sys.argv.index("--gate-only") + 1] if len(sys.argv) > sys.argv.index("--gate-only") + 1 else "G2"
+        files = sys.argv[sys.argv.index("--files") + 1].split(",") if "--files" in sys.argv else []
+        ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
+        vg = str(Path(__file__).parent / "validate-gate.py")
+        result = subprocess.run([sys.executable, vg, gate_type, ",".join(files), ftype],
+                               capture_output=True, text=True)
+        print(result.stdout)
+        sys.exit(0 if result.returncode == 0 else 1)
 
     rubric_path = sys.argv[1]
     dimensions, kill_switches = load_rubric(rubric_path)
 
     kill_switch_triggered = "--kill-switch" in sys.argv
     test_type = None
+    tier = None
+    phase = None
     for i, arg in enumerate(sys.argv):
         if arg == "--test-type" and i + 1 < len(sys.argv):
             test_type = sys.argv[i + 1]
+        if arg == "--tier" and i + 1 < len(sys.argv):
+            tier = sys.argv[i + 1]
+        if arg == "--phase" and i + 1 < len(sys.argv):
+            phase = sys.argv[i + 1]
+
+    # Gate integration: run pre-scoring dependency checks
+    if tier:
+        import subprocess
+        vg = str(Path(__file__).parent / "validate-gate.py")
+        if tier == "T1" and test_type:
+            # G3: prerequisite check — extract skill_name from rubric path
+            rubric_p = Path(rubric_path)
+            skill_name = rubric_p.parent.name if rubric_p.parent.parent.name == "t1-skill" else None
+            if skill_name:
+                # Derive round_dir from rubric path or accept as flag
+                round_dir = None
+                for j, a in enumerate(sys.argv):
+                    if a == "--round-dir" and j + 1 < len(sys.argv):
+                        round_dir = sys.argv[j + 1]
+                if round_dir:
+                    result = subprocess.run([sys.executable, vg, "G3", skill_name, test_type, round_dir],
+                                           capture_output=True, text=True)
+                    try:
+                        gate_out = json.loads(result.stdout)
+                        if gate_out.get("status") == "FAIL":
+                            print(json.dumps(gate_out, indent=2, ensure_ascii=False))
+                            sys.exit(1)
+                    except: pass
 
     if test_type:
         dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
