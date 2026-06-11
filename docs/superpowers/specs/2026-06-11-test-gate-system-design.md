@@ -179,7 +179,7 @@ G3.1 的"前置技能"由机器可读的依赖清单定义。文件位置：`tes
 | # | 检查项 | 失败行为 |
 |---|--------|---------|
 | G3.1 | 根据 deps.json 中定义的前置技能列表，所有前置评分报告存在 | 拒绝评分，返回缺失列表 |
-| G3.2 | 前置技能分数 ≥ 接受阈值 | 拒绝评分，返回不达标列表 |
+| G3.2 | 前置技能分数 ≥ 接受阈值。阈值定义：`tests/tiers/acceptance.json`，格式 `{"t1": 94, "t2": 94, "t3": 94}`。单文件单源，所有 Gate 引用同一个值 | 拒绝评分，返回不达标列表 |
 | G3.3 | 被评文件已通过 G2 全套检查 | 拒绝评分，返回 G2 失败项 |
 | G3.4 | 评分 subagent 的 agent_id ≠ 生成 subagent 的 agent_id。agent_id 由 round-exec.sh 在 subagent 派发时生成并记录到 progress.json 的 `agent_trace` 字段 | 拒绝评分 |
 | G3.5 | 评分 subagent 的 agent_id 不存在于该文件的历史评分记录中（记录位置：progress.json `scoring_history`）。注：此检查在派发时由 G1.6 优先执行，G3.5 为防御性二次检查 | 拒绝评分 |
@@ -194,7 +194,7 @@ G3.1 的"前置技能"由机器可读的依赖清单定义。文件位置：`tes
 | GT.2 | 当前 phase 所有技能的 status = DONE 或 DEAD | 列出未完成技能 → 拒绝 |
 | GT.3 | 无 gate_blockers 条目处于 FAIL 状态且未 bypass | 列出阻塞项 → 拒绝 |
 | GT.4 | 当前 phase 所有产出文件通过 G2 检查（批量模式） | 列出失败文件 → 拒绝 |
-| GT.5 | 下一 phase 所需的所有输入文件存在（根据 deps.json） | 列出缺失 → 拒绝 |
+| GT.5 | 下一 test_cycle_phase 所需的所有输入文件存在。对于有 deps.json 定义的过渡（T2→T3 skill_group 切换），按 deps.json 检查。对于无 deps.json 定义的过渡（generative→bug-hunt、bug-hunt→clean），检查规则为：当前 test_cycle_phase 所有已评分技能的产出文件均存在且通过 G2 检查 → PASS（因为 bug-hunt/clean 的输入是前一个 test_cycle_phase 的产出，而非跨技能组依赖） | 列出缺失 → 拒绝 |
 
 ### G_DISPATCH — 派发完整性 Gate（新）
 
