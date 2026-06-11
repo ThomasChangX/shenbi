@@ -61,3 +61,10 @@ All rounds are logged here. Each entry records the model, tier, scores, and fixe
 - S2: Cross-file consistency checking not proceduralized (systemic)
 - S3: Content preservation rules implicit, not standalone testable invariants (partially addressed in chapter-revision)
 - S4: External reference dependencies not inlined in SKILL.md (systemic)
+
+## Round 003 Gate System V1 (2026-06-11)
+- validate-gate.py: 1258 lines, G0/G2/G4/G7/G_TRANSITION/G_DISPATCH fully implemented
+- scoring.py: --tier/--phase/--gate-only gate integration
+- round-exec.sh: G0 pre-check, progress.json init, override tokens
+- summarize-round.py: G7 validation, progress.json data source
+- Fixtures: deps.json (4 phases), acceptance.json, sensitive_words.txt, stop_words_zh.txt
