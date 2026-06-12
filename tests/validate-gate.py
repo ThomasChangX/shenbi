@@ -3370,6 +3370,139 @@ def gate_G7(round_dir):
     c.append({"id": "G7.4", "s": "PASS", "note": "expected outputs sampled"})
     c.append({"id": "G7.8", "s": "PASS", "note": "gate_blockers check deferred"})
 
+    # G7.13 — Gate re-run verification
+    marker_dir = rd / "gate-markers"
+    if marker_dir.exists():
+        for mf_path in sorted(marker_dir.glob("*.json")):
+            try:
+                marker = jload(str(mf_path))
+                if marker.get("status") != "PASS":
+                    continue
+                stem = mf_path.stem
+                gate_id, target, test_type = None, None, None
+                for prefix in ("G4-", "G6-"):
+                    if stem.startswith(prefix):
+                        gate_id = prefix.rstrip("-")
+                        rest = stem[len(prefix):]
+                        for tt in ("-generative", "-bug-hunt", "-clean"):
+                            if rest.endswith(tt):
+                                target = rest[:-len(tt)]
+                                test_type = tt[1:]
+                                break
+                        break
+                if not gate_id or not target:
+                    continue
+                files_checked = marker.get("files_checked", [])
+                if gate_id == "G4":
+                    rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
+                    if rerun.get("status") == "FAIL":
+                        mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
+                elif gate_id == "G6":
+                    proj_dir = str(rd / "project-output")
+                    rerun = json.loads(gate_G6(pipeline_name=target, round_dir=str(rd), project_dir=proj_dir))
+                    if rerun.get("status") == "FAIL":
+                        mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
+            except Exception as e:
+                mf.append(f"G7.13:{mf_path.stem}:rerun_error:{e}")
+        if not any(x.startswith("G7.13:") for x in mf):
+            c.append({"id": "G7.13", "s": "PASS", "note": "all markers verified by re-run"})
+    else:
+        c.append({"id": "G7.13", "s": "SKIP", "r": "no gate-markers directory"})
+
+    # G7.14 — Score timeline consistency
+    timeline_warnings = []
+    for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
+        reports_dir = rd / reports_dir_name
+        if not reports_dir.exists():
+            continue
+        for score_file in reports_dir.glob("*-scores.json"):
+            try:
+                score_mtime = score_file.stat().st_mtime
+                if marker_dir.exists():
+                    for marker_file in marker_dir.glob("*.json"):
+                        if marker_file.stat().st_mtime > score_mtime:
+                            timeline_warnings.append(
+                                f"G7.14:{score_file.name}:older_than_{marker_file.name}"
+                            )
+                            break
+            except OSError:
+                pass
+    if timeline_warnings:
+        for tw in timeline_warnings:
+            c.append({"id": "G7.14", "s": "WARN", "detail": tw})
+    else:
+        c.append({"id": "G7.14", "s": "PASS", "note": "timeline consistent"})
+
+    # G7.15 — Score pattern suspiciousness
+    pattern_warnings = []
+    for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
+        reports_dir = rd / reports_dir_name
+        if not reports_dir.exists():
+            continue
+        score_vectors = {}
+        for score_file in reports_dir.glob("*-generative-scores.json"):
+            try:
+                data = jload(str(score_file))
+                if isinstance(data, dict):
+                    vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
+                    if vec not in score_vectors:
+                        score_vectors[vec] = []
+                    score_vectors[vec].append(score_file.stem)
+            except Exception:
+                pass
+        for vec, names in score_vectors.items():
+            if len(names) >= 3:
+                pattern_warnings.append({
+                    "type": "DUPLICATE_PATTERN",
+                    "severity": "warn",
+                    "message": f"{len(names)} skills share identical score vector in {reports_dir_name}",
+                })
+    if pattern_warnings:
+        for pw in pattern_warnings:
+            c.append({"id": "G7.15", "s": "WARN", **pw})
+    else:
+        c.append({"id": "G7.15", "s": "PASS", "note": "no duplicate patterns"})
+
+    # G7.16 — Phase state verification
+    if summary_path.exists():
+        try:
+            s = jload(str(summary_path))
+            for phase_name in s.get("t2_scores", {}):
+                ps_file = rd / "phase-state" / f"{phase_name}.json"
+                if not ps_file.exists():
+                    mf.append(f"G7.16:phase:{phase_name}:no_state_file")
+                else:
+                    ps = jload(str(ps_file))
+                    if ps.get("state") != "finalized":
+                        mf.append(f"G7.16:phase:{phase_name}:state={ps.get('state')}")
+            for pipe_name in s.get("t3_scores", {}):
+                # Markers are named G6-{pipe_name}-{test_type}.json, so glob for prefix
+                g6_markers = list((rd / "gate-markers").glob(f"G6-{pipe_name}-*.json"))
+                if not g6_markers:
+                    mf.append(f"G7.16:pipeline:{pipe_name}:no_G6_marker")
+            if not any(x.startswith("G7.16:") for x in mf):
+                c.append({"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"})
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    # Write audit_warnings to summary.json
+    audit_warnings = []
+    for check in c:
+        if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
+            audit_warnings.append({
+                "type": check.get("type", check["id"]),
+                "severity": check.get("severity", "warn"),
+                "message": check.get("message", check.get("detail", "")),
+            })
+    if audit_warnings and summary_path.exists():
+        try:
+            s = jload(str(summary_path))
+            s["audit_warnings"] = audit_warnings
+            with open(str(summary_path), "w") as f:
+                json.dump(s, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
     if mf:
         return fail("G7", c, "round_close", mf)
     return passed("G7", c)

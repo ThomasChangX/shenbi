@@ -390,5 +390,76 @@ class TestPhaseRunner(unittest.TestCase):
         self.assertNotEqual(rc, 0, "pre-score without markers should fail")
 
 
+class TestG7AuditChecks(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="g7_test_")
+        self.round_dir = Path(self.tmpdir) / "round-test"
+        self.round_dir.mkdir()
+        (self.round_dir / "gate-markers").mkdir()
+        (self.round_dir / "t1-reports").mkdir()
+        (self.round_dir / "t2-reports").mkdir()
+        (self.round_dir / "t3-reports").mkdir()
+        (self.round_dir / "phase-state").mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _make_marker(self, gate, target, test_type="generative", files_checked=None, status="PASS"):
+        marker = {
+            "gate": gate, "status": status,
+            "timestamp": "2026-06-13T00:00:00+00:00",
+            "checks": [],
+            "files_checked": files_checked or [],
+        }
+        (self.round_dir / "gate-markers" / f"{gate}-{target}-{test_type}.json").write_text(
+            json.dumps(marker)
+        )
+
+    def _make_summary(self, t1=None, t2=None, t3=None):
+        summary = {
+            "t1_scores": t1 or {},
+            "t2_scores": t2 or {},
+            "t3_scores": t3 or {},
+        }
+        (self.round_dir / "summary.json").write_text(json.dumps(summary))
+
+    def _make_phase_state(self, phase, state="finalized"):
+        state_data = {"phase": phase, "state": state, "steps": []}
+        (self.round_dir / "phase-state" / f"{phase}.json").write_text(json.dumps(state_data))
+
+    def test_g716_incomplete_phase(self):
+        """G7.16 should detect phases with scores but state not finalized."""
+        self._make_summary(t2={"genesis": {"generative": 95}})
+        # Don't create phase state file — should be detected
+        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        result = json.loads(stdout)
+        self.assertEqual(result["status"], "FAIL")
+        must_fix = result.get("must_fix", [])
+        self.assertTrue(any("G7.16" in m and "genesis" in m for m in must_fix),
+                        f"Expected G7.16 phase violation, got: {must_fix}")
+
+    def test_g716_missing_gate(self):
+        """G7.16 should detect T3 pipelines missing gate markers."""
+        self._make_summary(t3={"long-form": {"generative": 95}})
+        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        result = json.loads(stdout)
+        self.assertEqual(result["status"], "FAIL")
+        must_fix = result.get("must_fix", [])
+        self.assertTrue(any("G7.16" in m and "long-form" in m for m in must_fix),
+                        f"Expected G7.16 gate violation, got: {must_fix}")
+
+    def test_g716_passes_when_valid(self):
+        """G7.16 should pass when phases are finalized and gates exist."""
+        self._make_summary(t2={"genesis": 95}, t3={"long-form": 95})
+        self._make_phase_state("genesis", "finalized")
+        self._make_marker("G6", "long-form", "generative")
+        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        result = json.loads(stdout)
+        # Should NOT have G7.16 violations
+        must_fix = result.get("must_fix", [])
+        g716_issues = [m for m in must_fix if "G7.16" in m]
+        self.assertEqual(len(g716_issues), 0, f"Should have no G7.16 issues, got: {g716_issues}")
+
+
 if __name__ == "__main__":
     unittest.main()
