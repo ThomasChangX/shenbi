@@ -19,10 +19,14 @@ def load_rubric(rubric_path):
                 in_kill_switch = True
                 in_table = False
                 continue
-            if stripped.startswith("## ") and in_kill_switch:
+            # Only exit kill-switch section on a new ## (h2) heading, not ### (h3) sub-sections.
+            # h3 sub-sections like "### Bug-Hunt Kill Switches" contain the actual kill switch items.
+            if stripped.startswith("## ") and not stripped.startswith("### ") and in_kill_switch:
                 in_kill_switch = False
             if in_kill_switch and ("total score = 0" in stripped.lower() or "phase = 0" in stripped.lower() or "pipeline = 0" in stripped.lower()):
-                kill_switches.append(stripped.lstrip("- ").rstrip())
+                ks_text = stripped.lstrip("- ").rstrip()
+                if ks_text not in kill_switches:
+                    kill_switches.append(ks_text)
             if stripped.startswith("| #") or stripped.startswith("|---"):
                 in_table = True
                 continue
@@ -104,6 +108,29 @@ def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
     return filtered if filtered else dimensions
 
 
+def validate_scores(scores, dimensions):
+    """Validate scores against rubric dimensions. Returns (is_valid, errors)."""
+    errors = []
+    if not scores:
+        errors.append("REJECT: scores is empty — no dimensions scored")
+        return False, errors
+    expected_nums = {d["num"] for d in dimensions}
+    actual_nums = set(scores.keys())
+    missing = expected_nums - actual_nums
+    extra = actual_nums - expected_nums
+    if missing:
+        errors.append(f"REJECT: missing dimension scores: {sorted(missing)}")
+    if extra:
+        errors.append(f"WARNING: unexpected dimension keys (ignored): {sorted(extra)}")
+    for num, score in scores.items():
+        if not isinstance(score, (int, float)):
+            errors.append(f"REJECT: dimension {num} score is not a number: {score}")
+        elif score < 0 or score > 100:
+            errors.append(f"REJECT: dimension {num} score {score} out of range 0-100")
+    is_valid = not any(e.startswith("REJECT") for e in errors)
+    return is_valid, errors
+
+
 def compute_score(dimensions, scores, kill_switch_triggered=False):
     """Compute weighted score from dimension scores. Kill switch overrides to 0."""
     if kill_switch_triggered:
@@ -128,6 +155,46 @@ def classify(score):
         return "CONDITIONAL"
     else:
         return "FAIL"
+
+
+def check_gate_markers(rubric_path, test_type, round_dir):
+    """Verify required gate markers exist. Returns list of missing marker descriptions."""
+    if not round_dir:
+        return []
+    rd = Path(round_dir)
+    marker_dir = rd / "gate-markers"
+    rubric_p = Path(rubric_path)
+    missing = []
+
+    if "t1-skill" in rubric_p.parts:
+        idx = rubric_p.parts.index("t1-skill")
+        skill_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
+        if skill_name:
+            marker_file = marker_dir / f"G4-{skill_name}-{test_type}.json"
+            if not marker_file.exists():
+                missing.append(f"G4-{skill_name}-{test_type}")
+
+    elif "t2-phase" in rubric_p.parts:
+        deps_path = Path(__file__).parent / "tiers" / "deps.json"
+        if deps_path.exists():
+            deps = json.loads(deps_path.read_text(encoding="utf-8"))
+            idx = rubric_p.parts.index("t2-phase")
+            phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
+            if phase_name and phase_name in deps.get("t2-phases", {}):
+                for skill in deps["t2-phases"][phase_name].get("prerequisites", []):
+                    marker_file = marker_dir / f"G4-{skill}-generative.json"
+                    if not marker_file.exists():
+                        missing.append(f"G4-{skill}-generative")
+
+    elif "t3-pipeline" in rubric_p.parts:
+        idx = rubric_p.parts.index("t3-pipeline")
+        pipeline_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
+        if pipeline_name:
+            marker_file = marker_dir / f"G6-{pipeline_name}.json"
+            if not marker_file.exists():
+                missing.append(f"G6-{pipeline_name}")
+
+    return missing
 
 
 def main():
@@ -160,9 +227,12 @@ def main():
     test_type = None
     tier = None
     phase = None
+    round_dir = None
     for i, arg in enumerate(sys.argv):
         if arg == "--test-type" and i + 1 < len(sys.argv):
             test_type = sys.argv[i + 1]
+        if arg == "--round-dir" and i + 1 < len(sys.argv):
+            round_dir = sys.argv[i + 1]
         if arg == "--tier" and i + 1 < len(sys.argv):
             tier = sys.argv[i + 1]
         if arg == "--phase" and i + 1 < len(sys.argv):
@@ -177,11 +247,6 @@ def main():
             rubric_p = Path(rubric_path)
             skill_name = rubric_p.parent.name if rubric_p.parent.parent.name == "t1-skill" else None
             if skill_name:
-                # Derive round_dir from rubric path or accept as flag
-                round_dir = None
-                for j, a in enumerate(sys.argv):
-                    if a == "--round-dir" and j + 1 < len(sys.argv):
-                        round_dir = sys.argv[j + 1]
                 if round_dir:
                     result = subprocess.run([sys.executable, vg, "G3", skill_name, test_type, round_dir],
                                            capture_output=True, text=True)
@@ -194,6 +259,19 @@ def main():
 
     if test_type:
         dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
+
+    # Gate marker enforcement
+    if round_dir and test_type:
+        missing = check_gate_markers(rubric_path, test_type, round_dir)
+        if missing:
+            err = {
+                "status": "MARKER_MISSING",
+                "missing_markers": missing,
+                "message": f"Required gate markers not found: {', '.join(missing)}. "
+                           f"Run gates (G4/G6) with --round-dir before scoring.",
+            }
+            print(json.dumps(err, indent=2, ensure_ascii=False))
+            sys.exit(3)
 
     if sys.argv[2] == "--interactive":
         scores = {}
@@ -235,7 +313,25 @@ def main():
             scores = {}
         else:
             with open(scores_file) as f:
-                scores = {int(k): v for k, v in json.load(f).items()}
+                raw = json.load(f)
+                scores = {int(k): v for k, v in raw.items() if k.lstrip("-").isdigit()}
+
+    # Always validate scores against rubric dimensions before computing
+    is_valid, validation_errors = validate_scores(scores, dimensions)
+    if not is_valid:
+        err_result = {
+            "status": "REJECT",
+            "reason": "score validation failed",
+            "errors": validation_errors,
+            "expected_dimensions": [{"num": d["num"], "name": d["name"]} for d in dimensions],
+            "received_keys": sorted(scores.keys()) if scores else [],
+        }
+        print(json.dumps(err_result, indent=2, ensure_ascii=False))
+        sys.exit(2)
+
+    if validation_errors:
+        for e in validation_errors:
+            print(e, file=sys.stderr)
 
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result = {

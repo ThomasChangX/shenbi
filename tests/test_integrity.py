@@ -1,6 +1,7 @@
 """Test gate marker writing for integrity verification."""
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -162,6 +163,90 @@ class TestGateMarkers(unittest.TestCase):
             # G2 should not write any markers regardless of result
             marker_dir = round_dir / "gate-markers"
             self.assertFalse(marker_dir.exists(), "G2 should not create gate-markers")
+
+
+SC = Path(__file__).resolve().parent / "scoring.py"
+
+
+def run_py(script, args):
+    """Run a Python script as subprocess, return (rc, stdout, stderr)."""
+    result = subprocess.run(
+        [os.environ.get("PYTHON", "python3"), str(script)] + list(args),
+        capture_output=True, text=True,
+    )
+    return result.returncode, result.stdout.strip(), result.stderr.strip()
+
+
+class TestScoringMarkers(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="scoring_test_")
+        self.round_dir = Path(self.tmpdir) / "round-test"
+        self.round_dir.mkdir()
+        (self.round_dir / "gate-markers").mkdir()
+        (self.round_dir / "t1-reports").mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _make_rubric(self):
+        rubric_dir = self.round_dir / "rubric-t1"
+        rubric_dir.mkdir(exist_ok=True)
+        rubric = rubric_dir / "rubric.md"
+        rubric.write_text(
+            "| # | Dimension | Weight |\n"
+            "|---|-----------|--------|\n"
+            "| 1 | Quality   | 100%   |\n"
+        )
+        return str(rubric)
+
+    def _make_t1_rubric(self, skill_name):
+        rubric_dir = self.round_dir / "t1-skill" / skill_name / "generative"
+        rubric_dir.mkdir(parents=True, exist_ok=True)
+        rubric = rubric_dir / "rubric.md"
+        rubric.write_text(
+            "| # | Dimension | Weight |\n"
+            "|---|-----------|--------|\n"
+            "| 1 | Quality   | 100%   |\n"
+        )
+        return str(rubric)
+
+    def _make_scores(self, scores=None):
+        scores = scores or {"1": 95}
+        scores_path = self.round_dir / "test-scores.json"
+        scores_path.write_text(json.dumps(scores))
+        return str(scores_path)
+
+    def _make_marker(self, gate, target, test_type="generative"):
+        marker = {
+            "gate": gate, "status": "PASS",
+            "timestamp": "2026-06-13T00:00:00+00:00",
+            "checks": [], "files_checked": ["/some/file.md"],
+        }
+        marker_path = self.round_dir / "gate-markers" / f"{gate}-{target}-{test_type}.json"
+        marker_path.write_text(json.dumps(marker))
+
+    def test_no_round_dir_skips_check(self):
+        rubric = self._make_rubric()
+        scores = self._make_scores()
+        rc, stdout, stderr = run_py(SC, [rubric, scores])
+        self.assertEqual(rc, 0, f"Should succeed without --round-dir. stderr: {stderr}")
+
+    def test_missing_marker_exits_3(self):
+        rubric = self._make_t1_rubric("shenbi-worldbuilding")
+        scores = self._make_scores()
+        rc, stdout, stderr = run_py(SC, [
+            rubric, scores, "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 3, f"Should exit 3 for missing marker. stdout: {stdout}")
+
+    def test_present_marker_succeeds(self):
+        rubric = self._make_t1_rubric("shenbi-worldbuilding")
+        scores = self._make_scores()
+        self._make_marker("G4", "shenbi-worldbuilding", "generative")
+        rc, stdout, stderr = run_py(SC, [
+            rubric, scores, "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 0, f"Should succeed with marker present. stdout: {stdout}")
 
 
 if __name__ == "__main__":
