@@ -461,5 +461,74 @@ class TestG7AuditChecks(unittest.TestCase):
         self.assertEqual(len(g716_issues), 0, f"Should have no G7.16 issues, got: {g716_issues}")
 
 
+class TestIntegration(unittest.TestCase):
+    """End-to-end test: gate markers → scoring enforcement → G7 audit."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="integration_test_")
+        self.round_dir = Path(self.tmpdir) / "round-integration"
+        self.round_dir.mkdir()
+        for d in ["gate-markers", "t1-reports", "t2-reports", "t3-reports",
+                  "phase-state", "project-output"]:
+            (self.round_dir / d).mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def test_scoring_rejects_without_markers_accepts_with(self):
+        """Scoring fails without markers, succeeds after markers written."""
+        # Create rubric in t1-skill path
+        rubric_dir = self.round_dir / "t1-skill" / "shenbi-worldbuilding" / "generative"
+        rubric_dir.mkdir(parents=True)
+        rubric = rubric_dir / "rubric.md"
+        rubric.write_text(
+            "| # | Dimension | Weight |\n|---|-----------|--------|\n| 1 | Quality | 100% |\n"
+        )
+        scores_path = self.round_dir / "test-scores.json"
+        scores_path.write_text(json.dumps({"1": 95}))
+
+        # Without marker → exit 3
+        rc, out, err = run_py(SC, [
+            str(rubric), str(scores_path),
+            "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 3)
+
+        # Write marker
+        marker = {
+            "gate": "G4", "status": "PASS",
+            "timestamp": "2026-06-13T00:00:00Z",
+            "checks": [], "files_checked": ["/some/file.md"],
+        }
+        (self.round_dir / "gate-markers" / "G4-shenbi-worldbuilding-generative.json").write_text(
+            json.dumps(marker)
+        )
+
+        # With marker → exit 0
+        rc, out, err = run_py(SC, [
+            str(rubric), str(scores_path),
+            "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 0)
+
+    def test_g7_detects_phase_without_finalized_state(self):
+        """G7.16 should flag a phase with score but no finalized state."""
+        summary = {
+            "t1_scores": {},
+            "t2_scores": {"genesis": 95},
+            "t3_scores": {},
+        }
+        (self.round_dir / "summary.json").write_text(json.dumps(summary))
+        state = {"phase": "genesis", "state": "scored", "steps": []}
+        (self.round_dir / "phase-state" / "genesis.json").write_text(json.dumps(state))
+
+        rc, out, err = run_py(VG, ["G7", str(self.round_dir)])
+        result = json.loads(out)
+        self.assertEqual(result["status"], "FAIL")
+        must_fix = result.get("must_fix", [])
+        self.assertTrue(any("G7.16" in m and "genesis" in m for m in must_fix),
+                        f"Expected G7.16 phase state violation, got: {must_fix}")
+
+
 if __name__ == "__main__":
     unittest.main()
