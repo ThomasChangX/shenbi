@@ -3393,6 +3393,9 @@ def gate_G7(round_dir):
                 if not gate_id or not target:
                     continue
                 files_checked = marker.get("files_checked", [])
+                if not files_checked and gate_id == "G4":
+                    mf.append(f"G7.13:{mf_path.stem}:empty_files_checked")
+                    continue
                 if gate_id == "G4":
                     rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
                     if rerun.get("status") == "FAIL":
@@ -3444,7 +3447,13 @@ def gate_G7(round_dir):
             try:
                 data = jload(str(score_file))
                 if isinstance(data, dict):
-                    vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
+                    # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
+                    dims = data.get("dimensions", [])
+                    if dims:
+                        vec = tuple((d.get("num"), d.get("score", 0)) for d in sorted(dims, key=lambda x: x.get("num", 0)))
+                    else:
+                        # Raw score file: {"1": 90, "2": 95, ...}
+                        vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
                     if vec not in score_vectors:
                         score_vectors[vec] = []
                     score_vectors[vec].append(score_file.stem)

@@ -190,9 +190,9 @@ def check_gate_markers(rubric_path, test_type, round_dir):
         idx = rubric_p.parts.index("t3-pipeline")
         pipeline_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
         if pipeline_name:
-            marker_file = marker_dir / f"G6-{pipeline_name}.json"
+            marker_file = marker_dir / f"G6-{pipeline_name}-{test_type}.json"
             if not marker_file.exists():
-                missing.append(f"G6-{pipeline_name}")
+                missing.append(f"G6-{pipeline_name}-{test_type}")
 
     return missing
 

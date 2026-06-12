@@ -529,6 +529,42 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(any("G7.16" in m and "genesis" in m for m in must_fix),
                         f"Expected G7.16 phase state violation, got: {must_fix}")
 
+    def test_t3_marker_required_for_scoring(self):
+        """T3 pipeline scoring requires G6 marker with test_type suffix."""
+        # Create rubric in t3-pipeline path
+        rubric_dir = self.round_dir / "t3-pipeline" / "long-form"
+        rubric_dir.mkdir(parents=True)
+        rubric = rubric_dir / "rubric.md"
+        rubric.write_text(
+            "| # | Dimension | Weight |\n|---|-----------|--------|\n| 1 | Quality | 100% |\n"
+        )
+        scores_path = self.round_dir / "test-scores.json"
+        scores_path.write_text(json.dumps({"1": 95}))
+
+        # Without marker → exit 3
+        rc, out, err = run_py(SC, [
+            str(rubric), str(scores_path),
+            "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 3, "Should fail without G6 marker")
+
+        # Write marker with correct naming (G6-<pipeline>-<test_type>.json)
+        marker = {
+            "gate": "G6", "status": "PASS",
+            "timestamp": "2026-06-13T00:00:00Z",
+            "checks": [], "files_checked": [],
+        }
+        (self.round_dir / "gate-markers" / "G6-long-form-generative.json").write_text(
+            json.dumps(marker)
+        )
+
+        # With marker → exit 0
+        rc, out, err = run_py(SC, [
+            str(rubric), str(scores_path),
+            "--test-type", "generative", "--round-dir", str(self.round_dir),
+        ])
+        self.assertEqual(rc, 0, f"Should succeed with G6 marker. stdout: {out}")
+
 
 if __name__ == "__main__":
     unittest.main()
