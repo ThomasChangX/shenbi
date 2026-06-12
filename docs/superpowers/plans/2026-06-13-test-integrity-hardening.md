@@ -400,7 +400,7 @@ Modify `main()` to parse `--round-dir` and check markers. Find the line `test_ty
             phase = sys.argv[i + 1]
 ```
 
-Remove the separate `round_dir = None` block around line 208 that only fires for tier=T1.
+Remove the duplicate `round_dir` parsing in the tier=T1 block (lines 208-211 of the current scoring.py, the block starting with `round_dir = None` and the `for j, a in enumerate(sys.argv)` loop inside the `if tier == "T1"` branch). The unified parsing above now handles `--round-dir` for all tiers.
 
 After the dimension filtering by test_type (around line 223, after `dimensions = filter_dimensions_by_test_type(...)`), add the marker check:
 
@@ -532,6 +532,19 @@ class TestPhaseRunner(unittest.TestCase):
             run_py(PR, ["post-skill", "genesis", skill,
                          "--round-dir", str(self.round_dir),
                          "--project-dir", str(self.round_dir / "project-output")])
+        # Create expected outputs so pre-score passes
+        proj = self.round_dir / "project-output"
+        (proj / "novel.json").write_text("{}")
+        (proj / "genre-config.json").write_text("{}")
+        for d in ["world", "characters/major", "characters/minor", "truth"]:
+            (proj / d).mkdir(parents=True, exist_ok=True)
+        for name in ["story_bible.md", "rules.md", "locations.md", "power_system.md",
+                     "factions.md", "faction-relations.md"]:
+            (proj / "world" / name).write_text("# content\n")
+        (proj / "characters" / "protagonist.md").write_text("# content\n")
+        (proj / "characters" / "relationships.md").write_text("# content\n")
+        for name in ["current_state.md", "character_matrix.md", "emotional_arcs.md", "chapter_summaries.md"]:
+            (proj / "truth" / name).write_text("# content\n")
         # Pre-score (transitions to skills_done)
         run_py(PR, ["pre-score", "genesis", "--round-dir", str(self.round_dir)])
         # Create score file and post-score
@@ -970,10 +983,23 @@ Add these checks at the end of `gate_G7()`, before the final `if mf:` / `return`
                 marker = jload(str(mf_path))
                 if marker.get("status") != "PASS":
                     continue
-                parts = mf_path.stem.split("-", 2)
-                if len(parts) < 3:
+                # Parse marker filename: G4-<target>-<test_type>.json or G6-<target>-<test_type>.json
+                # target may contain dashes (e.g., shenbi-worldbuilding), so parse by known prefixes
+                stem = mf_path.stem
+                gate_id, target, test_type = None, None, None
+                for prefix in ("G4-", "G6-"):
+                    if stem.startswith(prefix):
+                        gate_id = prefix.rstrip("-")
+                        rest = stem[len(prefix):]
+                        # Strip known test_type suffixes from end
+                        for tt in ("-generative", "-bug-hunt", "-clean"):
+                            if rest.endswith(tt):
+                                target = rest[:-len(tt)]
+                                test_type = tt[1:]
+                                break
+                        break
+                if not gate_id or not target:
                     continue
-                gate_id, target, test_type = parts[0], parts[1], parts[2]
                 files_checked = marker.get("files_checked", [])
                 if gate_id == "G4":
                     rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
