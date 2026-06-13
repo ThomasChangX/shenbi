@@ -4,7 +4,7 @@
 `skills/shenbi-character-extraction/SKILL.md`
 
 ## Test Setup
-A novel manuscript with 15 chapters has been analyzed. The character extraction has been correctly run, producing character cards at `characters/` and `characters/relationships.md`.
+A novel manuscript with 15 chapters has been analyzed. The character extraction has been correctly run, producing character cards at `tests/fixtures/characters/` and `tests/fixtures/character-profile-example.md`.
 
 All output is correct:
 - Every personality tag has >=1 quoted passage with chapter.paragraph reference

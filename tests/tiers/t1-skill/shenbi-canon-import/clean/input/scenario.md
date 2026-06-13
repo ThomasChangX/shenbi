@@ -4,7 +4,7 @@
 `skills/shenbi-canon-import/SKILL.md`
 
 ## Test Setup
-A fanfic project is being set up in AU mode based on a popular 200-episode TV drama. The canon import has been correctly run, producing 5 section files at `import/canon/` and a deviation list at `import/canon/deviations.md`.
+A fanfic project is being set up in AU mode based on a popular 200-episode TV drama. The canon import has been correctly run, producing 5 section files at `tests/fixtures/import/canon/` and a deviation list at `tests/fixtures/report-example.txt`.
 
 All output is correct:
 - AU mode consistently applied across all sections

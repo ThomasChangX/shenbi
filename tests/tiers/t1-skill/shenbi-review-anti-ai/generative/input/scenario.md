@@ -4,7 +4,7 @@
 `skills/shenbi-review-anti-ai/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 14 at `drafts/chapter-14.md`. The SKILL.md defines a checklist of 10 deterministic anti-AI pattern checks.
+A novel project exists with drafted chapter 14 at `tests/fixtures/chapter-draft-example.md`. The SKILL.md defines a checklist of 10 deterministic anti-AI pattern checks.
 
 ## Agent Task
 Run shenbi-review-anti-ai audit on chapter 14. Produce a complete anti-AI audit report including:
@@ -13,4 +13,4 @@ Run shenbi-review-anti-ai audit on chapter 14. Produce a complete anti-AI audit 
 3. Fix recommendations for detected patterns
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-14.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`

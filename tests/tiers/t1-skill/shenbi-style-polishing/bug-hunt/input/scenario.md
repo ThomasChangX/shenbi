@@ -4,10 +4,10 @@
 `skills/shenbi-style-polishing/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-7.md`. The chapter has been polished and the result is at `drafts/chapter-7-polished.md`. A polishing report is at `reports/chapter-7-polish-report.md`.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md`. The chapter has been polished and the result is at `tests/fixtures/chapter-draft-example.md`. A polishing report is at `tests/fixtures/report-example.txt`.
 
 ## Scenario
-The polishing pass on chapter 7 has been completed. The polished version at `drafts/chapter-7-polished.md` contains a content change disguised as a style improvement. Specifically:
+The polishing pass on chapter 7 has been completed. The polished version at `tests/fixtures/chapter-draft-example.md` contains a content change disguised as a style improvement. Specifically:
 
 1. **Content violation — emotional reaction changed**: In the original draft, a character (Lin Yue) reacts to betrayal with cold, calculated silence — she presses her lips together and says nothing. After polishing, her reaction is changed to: "Lin Yue felt a surge of anger and hurt, tears welling in her eyes." This changes the character's emotional behavior and the scene's emotional tone from restrained tension to overt emotional display. This is a plot/content change, not a prose style improvement.
 
@@ -17,8 +17,8 @@ The polishing pass on chapter 7 has been completed. The polished version at `dra
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `drafts/chapter-7-polished.md`: Lin Yue's reaction scene | Content changed — emotional reaction rewritten from cold silence to tearful anger, altering character behavior and scene tone | error |
-| `drafts/chapter-7-polished.md`: Lin Yue's exit | Plot event altered — door-slamming action added that was not in the original draft | error |
+| `tests/fixtures/chapter-draft-example.md`: Lin Yue's reaction scene | Content changed — emotional reaction rewritten from cold silence to tearful anger, altering character behavior and scene tone | error |
+| `tests/fixtures/chapter-draft-example.md`: Lin Yue's exit | Plot event altered — door-slamming action added that was not in the original draft | error |
 
 ## Agent Task
 Run shenbi-style-polishing quality check comparing the original draft with the polished version. The agent must detect that polishing changed content (character emotional reaction and behavior), not just prose style.

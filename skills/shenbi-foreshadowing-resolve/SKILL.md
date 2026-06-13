@@ -13,8 +13,8 @@ description: Use when foreshadowing hooks reach TRIGGERED state and need resolut
 digraph foreshadowing_resolve {
     "Read truth/pending_hooks.md (TRIGGERED hooks)" -> "For each TRIGGERED hook: determine resolution approach";
     "For each TRIGGERED hook: determine resolution approach" -> "Compute Chase Power debt";
-    "Compute Chase Power debt" -> "Balance: resolve high-debt hooks first";
-    "Balance: resolve high-debt hooks first" -> "Evaluate resolution quality (chase-power.md)";
+    "Compute Chase Power debt" -> "Balance: resolve low-CP hooks first (逐层兑现)";
+    "Balance: resolve low-CP hooks first (逐层兑现)" -> "Evaluate resolution quality (chase-power.md)";
     "Evaluate resolution quality" -> "Update hook states to RESOLVED";
     "Update hook states to RESOLVED" -> "Generate reader expectation report";
     "Generate reader expectation report" -> "Flag unresolved hooks for next volume";
@@ -34,6 +34,23 @@ digraph foreshadowing_resolve {
 2. **核心伏笔兑现不能是 FLAT_PAYOFF** — core_hook 的兑现至少达到 PARTIAL_PAYOFF 质量
 3. **卷尾必须盘点所有活跃伏笔** — 生成"本卷未兑现伏笔"清单
 4. **放弃伏笔必须有人类批准** — ABANDON 操作需要人类合作者确认
+5. **CP 公式必须写入输出** — 每次兑现报告必须记录所用 CP 公式及参数值，缺少公式的输出视为无效
+
+## Chase Power 计算公式
+
+```
+CP = hook_power × time_since_plant × escalation_factor
+```
+
+| 参数 | 说明 | 取值范围 |
+|------|------|---------|
+| hook_power | 伏笔基础威力（core_hook=10, main=5, side=2） | 1-10 |
+| time_since_plant | 自埋设以来的沉默章数 | ≥1 |
+| escalation_factor | 兑现方式放大系数（FULL_PAYOFF=1.0, PARTIAL_PAYOFF=0.7, TWIST_PAYOFF=0.8, FLAT_PAYOFF=0.3） | 0-1.0 |
+
+计算示例（输出中必须展示）:
+- hook-001: CP = 10 × 8 × 1.0 = 80 (RED 区)
+- hook-003: CP = 2 × 4 × 0.7 = 5.6 (GREEN 区)
 
 ## 兑现策略
 
@@ -48,11 +65,53 @@ digraph foreshadowing_resolve {
 
 ## 输出格式
 
+输出必须包含以下两个部分。缺任意部分 = 不合格。
+
+### 第一部分：伏笔兑现报告
+
 ```markdown
 ## 伏笔兑现报告
 
 **范围**: 第N章 / 第M卷
 **Chase Power 债务**: XX (GREEN/YELLOW/ORANGE/RED)
+
+### CP 计算工作表（铁律 5 强制要求）
+
+每条伏笔必须按以下公式展示完整计算过程。缺少公式或参数 = 不合格。
+
+```
+CP = hook_power × time_since_plant × escalation_factor
+
+| Hook ID | 等级 | hook_power | time_since_plant | escalation_factor | CP 值 | 区间 |
+|---------|------|-----------|-----------------|-------------------|-------|------|
+| hook-001 | core_hook | 10 | 8 | 1.0 (FULL_PAYOFF) | 80 | RED |
+| hook-003 | side | 2 | 4 | 0.7 (PARTIAL_PAYOFF) | 5.6 | GREEN |
+```
+
+区间判定：GREEN < 20, YELLOW 20-50, ORANGE 50-100, RED ≥ 100
+
+### 兑现计划
+
+每条伏笔必须填写。使用以下 EXACT 列名，列名不匹配 = 不合格。
+
+| ID | 当前CP | 计划章 | 计划事件 | PAYOFF类型 | 质量门 |
+|----|--------|--------|---------|-----------|--------|
+| hook-001 | 80 | 第25章 | 玉佩显灵救主角 | FULL_PAYOFF | 前 3 章有线索铺垫 + 兑现时有主角反应描写 |
+| hook-003 | 5.6 | 第22章 | 路人提及师姐去向 | PARTIAL_PAYOFF | 信息不得与已有设定冲突 |
+| hook-004 | 18 | 第23章 | ... | FULL_PAYOFF | ... |
+
+**质量门格式**：描述可验证的兑现成功条件（非主观感受）。
+
+### 逐层兑现顺序
+
+按 CP 从低到高排列，低 CP 先兑现。
+
+| 顺序 | Hook ID | CP | PAYOFF类型 | 兑现章 |
+|------|---------|-----|-----------|--------|
+| 1 | hook-003 | 5.6 | PARTIAL_PAYOFF | 第22章 |
+| 2 | hook-004 | 18 | FULL_PAYOFF | 第23章 |
+| 3 | hook-001 | 80 | FULL_PAYOFF | 第25章 |
+| 4 | hook-002 | 240 | FULL_PAYOFF | 第28章（高潮） |
 
 ### 本章兑现的伏笔
 
@@ -69,9 +128,7 @@ digraph foreshadowing_resolve {
 | hook-003 | PLANTED | 12 | 继续培育 |
 ```
 
-## 兑现汇总
-
-每次兑现完成，必须给出汇总便于 human partner 快速评估伏笔生态和读者期待状态：
+### 第二部分：兑现汇总
 
 ```markdown
 ## 兑现汇总（第N章 / 第M卷）
@@ -97,6 +154,17 @@ digraph foreshadowing_resolve {
 - hook-003 → 继续培育，下章可触发
 - hook-005 → 已超期，必须 TRIGGER 或 EXPIRE
 ```
+
+### 可自动检查的计数规则
+
+| 检查项 | 规则 | 不合格条件 |
+|--------|------|----------|
+| 兑现计划表列名 | ID/当前CP/计划章/计划事件/PAYOFF类型/质量门 | 列名不匹配 |
+| CP 工作表 | 每条伏笔有公式参数展示 | 缺少公式或参数 |
+| 逐层兑现顺序 | CP 升序排列 | 降序或无序 |
+| 兑现计划覆盖率 | 所有活跃伏笔在计划表中有一行 | 遗漏 |
+| 质量门可验证性 | 质量门描述可验证条件 | 纯主观感受 |
+| 核心伏笔兑现质量 | core_hook ≥ PARTIAL_PAYOFF | FLAT_PAYOFF
 
 ## Anti-Rationalization
 

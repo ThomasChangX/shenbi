@@ -4,7 +4,7 @@
 `skills/shenbi-short-packaging/SKILL.md`
 
 ## Test Setup
-A 20-chapter short novel has been completed. The short packaging has been correctly run, producing packaging materials at `import/packaging/`.
+A 20-chapter short novel has been completed. The short packaging has been correctly run, producing packaging materials at `tests/fixtures/import/packaging/`.
 
 All output is correct:
 - Blurbs contain zero plot points from act 3; only tease act 1-2 setup

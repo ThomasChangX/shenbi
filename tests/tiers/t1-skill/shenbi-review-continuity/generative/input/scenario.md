@@ -4,7 +4,7 @@
 `skills/shenbi-review-continuity/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapters 8-10 at `drafts/chapter-8.md` through `drafts/chapter-10.md`. Chapter summaries at `truth/chapter_summaries.md`.
+A novel project exists with drafted chapters 8-10 at `tests/fixtures/chapter-draft-example.md` (representing the full chapter range). Chapter summaries at `tests/fixtures/chapter-summaries-example.md`.
 
 ## Agent Task
 Run shenbi-review-continuity audit on chapters 8-10. Produce a complete continuity audit report including:
@@ -15,4 +15,4 @@ Run shenbi-review-continuity audit on chapters 8-10. Produce a complete continui
 5. Object continuity check
 
 ## Seed Input
-Drafted chapters from `drafts/chapter-8.md` through `drafts/chapter-10.md`, chapter summaries from `truth/chapter_summaries.md`
+Drafted chapters from `tests/fixtures/chapter-draft-example.md` (representing the full chapter range), chapter summaries from `tests/fixtures/chapter-summaries-example.md`

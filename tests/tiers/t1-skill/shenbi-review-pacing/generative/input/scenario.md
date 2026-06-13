@@ -4,7 +4,7 @@
 `skills/shenbi-review-pacing/SKILL.md`
 
 ## Test Setup
-A novel project exists with 10 drafted chapters. Rhythm principles defined at `truth/rhythm_principles.md`.
+A novel project exists with 10 drafted chapters. Rhythm principles defined at `tests/fixtures/style-profile-example.md`.
 
 ## Agent Task
 Run shenbi-review-pacing audit on the last 5 chapters (chapters 6-10). Produce a complete pacing audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-pacing audit on the last 5 chapters (chapters 6-10). Produce a
 4. Tension curve analysis
 
 ## Seed Input
-Drafted chapters from `drafts/chapter-6.md` through `drafts/chapter-10.md`, rhythm principles from `truth/rhythm_principles.md`
+Drafted chapters from `tests/fixtures/chapter-draft-example.md` (representing the full chapter range), rhythm principles from `tests/fixtures/style-profile-example.md`

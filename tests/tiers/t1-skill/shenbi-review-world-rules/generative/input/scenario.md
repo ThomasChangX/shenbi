@@ -4,7 +4,7 @@
 `skills/shenbi-review-world-rules/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 11 at `drafts/chapter-11.md`. Truth files include character profiles, world rules, and numerical data at `truth/`.
+A novel project exists with drafted chapter 11 at `tests/fixtures/chapter-draft-example.md`. Truth files include character profiles, world rules, and numerical data at `tests/fixtures/truth/`.
 
 ## Agent Task
 Run shenbi-review-world-rules audit on chapter 11. Produce a complete world-rules audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-world-rules audit on chapter 11. Produce a complete world-rule
 4. Setting/geography verification
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-11.md`, truth files from `truth/`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, truth files from `tests/fixtures/truth/`

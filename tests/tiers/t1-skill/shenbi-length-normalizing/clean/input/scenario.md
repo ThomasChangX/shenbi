@@ -4,7 +4,7 @@
 `skills/shenbi-length-normalizing/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-7.md` (4800 words). The target chapter length is 4000 words. The agent ran length normalization and produced `drafts/chapter-7-normalized.md` with a consistency checklist at `reports/chapter-7-normalize-report.md`.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md` (4800 words). The target chapter length is 4000 words. The agent ran length normalization and produced `tests/fixtures/chapter-draft-example.md` with a consistency checklist at `tests/fixtures/report-example.txt`.
 
 The normalization is fully correct:
 - Final word count within target +-15% (approximately 3800-4200 words)

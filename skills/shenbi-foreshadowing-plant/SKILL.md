@@ -64,6 +64,7 @@ digraph foreshadowing_plant {
 - id: hook-004
   content: "考核结束后，玉珮发出一声低鸣——只有主角听见"
   state: PLANTED
+  operation: plant
   type: GENUINE
   dimension: CHARACTER
   subtlety: 0.6

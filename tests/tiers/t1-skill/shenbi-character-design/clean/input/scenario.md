@@ -5,11 +5,11 @@
 
 ## Test Setup
 A novel project exists with complete, correct character design output:
-- `characters/protagonist.md` — unique voice markers, full arc (start/turning point/end), surface goals and deep motivations, explicit fears
-- `characters/antagonist.md` — distinct voice, independent motivation, explicit fears
-- `characters/mentor.md` — distinct voice from protagonist, agency, explicit fears
-- `characters/supporting/*.md` — minor characters with independent motivation and agency
-- `characters/relationships.md` — coherent relationship matrix consistent with profiles
+- `tests/fixtures/character-profile-example.md` — unique voice markers, full arc (start/turning point/end), surface goals and deep motivations, explicit fears
+- `tests/fixtures/character-profile-example.md` — distinct voice, independent motivation, explicit fears
+- `tests/fixtures/character-profile-example.md` — distinct voice from protagonist, agency, explicit fears
+- `tests/fixtures/characters/supporting/*.md` — minor characters with independent motivation and agency
+- `tests/fixtures/character-profile-example.md` — coherent relationship matrix consistent with profiles
 
 All characters have distinct voice profiles, grounded fears, and properly defined arcs. The relationship matrix is consistent with character profiles.
 

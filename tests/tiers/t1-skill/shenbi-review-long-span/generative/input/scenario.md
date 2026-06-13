@@ -4,7 +4,7 @@
 `skills/shenbi-review-long-span/SKILL.md`
 
 ## Test Setup
-A novel project exists with 12 drafted chapters at `drafts/`. The audit covers the last 5 chapters (chapters 8-12).
+A novel project exists with 12 drafted chapters at `tests/fixtures/drafts/`. The audit covers the last 5 chapters (chapters 8-12).
 
 ## Agent Task
 Run shenbi-review-long-span audit on the last 5 chapters. Produce a complete long-span audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-long-span audit on the last 5 chapters. Produce a complete lon
 4. Repetitive pattern identification with location citations
 
 ## Seed Input
-Drafted chapters from `drafts/chapter-8.md` through `drafts/chapter-12.md`
+Drafted chapters from `tests/fixtures/chapter-draft-example.md` (representing the full chapter range)

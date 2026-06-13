@@ -4,12 +4,12 @@
 `skills/shenbi-state-settling/SKILL.md`
 
 ## Test Setup
-A novel project has completed chapter 20 at `drafts/chapter-20.md`. The chapter explicitly states:
+A novel project has completed chapter 20 at `tests/fixtures/chapter-draft-example.md`. The chapter explicitly states:
 - Character Su Han gains a new ability called "Spirit Echo" (stated in dialogue)
 - Su Han's relationship with Mei Ling shifts from allies to rivals (stated in narration)
 - The setting moves from the capital city to the northern border (stated in scene description)
 
-The settling output at `state/chapter-20-settling.md` is fully correct:
+The settling output at `tests/fixtures/report-example.txt` is fully correct:
 - All three explicit changes extracted with "direct" certainty
 - All 9 change categories evaluated
 - Changes incrementally appended to truth files (no rewriting)

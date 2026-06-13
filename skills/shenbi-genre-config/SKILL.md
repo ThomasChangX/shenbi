@@ -34,6 +34,7 @@ digraph genre_config {
 3. **人类必批** — 配置变更需人类合作者确认
 4. **可回滚** — 修改前必须先备份（cp genre-config.json genre-config.json.bak）
 5. **格式一致** — 修改必须保持 JSON 格式与字段结构
+6. **审批留痕** — 每次配置变更输出必须包含审批决定区块，列出：(a) 变更内容、(b) 变更原因、(c) 冲突检查结果、(d) 明确的批准/驳回复选框。缺少审批区块的输出视为无效
 
 ## 配置文件结构
 
@@ -210,12 +211,61 @@ cp genre-config.json genre-config.json.bak.YYYYMMDD
 - [ ] 不破坏已有自定义规则
 - [ ] 不与 novel.json 的题材标记矛盾
 
-### 待人类确认
+### 人类审批（铁律 6 强制要求）
 
-- [ ] 禁用词增删是否同意？
-- [ ] 审计维度变更是否同意？
-- [ ] 自定义规则是否同意？
+**变更内容**:
+- 禁用词: [具体列出增/删/改项]
+- 审计维度: [具体列出启用/禁用项]
+- 自定义规则: [具体列出增/删/改项]
+- 其他: [节奏阈值/章节类型等]
+
+**变更原因**: [每条变更的理由，如"来源于 audit_drift 第N章反馈"]
+
+**冲突检查通过项**:
+- [ ] 不与 audit_drift 中已确认纠偏矛盾
+- [ ] 不破坏已有自定义规则
+- [ ] 不与 novel.json 的题材标记矛盾
+
+**审批决定**（必须勾选其一）:
+- [ ] **批准** — 应用全部变更，写入 genre-config.json
+- [ ] **驳回** — 不应用，需要修改以下项: _______
 ```
+
+### genre-config.json 字段规范
+
+输出文件必须通过以下自动化检查。不通过 = 不合格。
+
+| 字段 | 类型 | 必填 | 约束 |
+|------|------|------|------|
+| version | string | 是 | 格式 `"N.N"` |
+| updated | string | 是 | 格式 `"YYYY-MM-DD"` |
+| fatigueWords.禁用 | string[] | 是 | ≤ 50 项，每项在替换建议中有 ≥ 1 替换 |
+| fatigueWords.慎用 | string[] | 是 | 每项在替换建议中有 ≥ 1 替换 |
+| fatigueWords.替换建议 | object | 是 | key 对应禁用/慎用词，value 为 string[] |
+| pacing.softRange | number | 是 | 0-1 |
+| pacing.hardRange | number | 是 | 0-1 |
+| pacing.minChaptersPerCycle | integer | 是 | ≥ 1 |
+| pacing.maxChaptersPerCycle | integer | 是 | ≥ minChaptersPerCycle |
+| chapterTypes | object | 是 | 6-10 个类型，每个含 maxConsecutive + warningThreshold |
+| auditDimensions | object | 是 | 5-10 个维度，值均为 boolean |
+| customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
+| approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
+
+**顶层字段数**：恰好 8 个（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）。
+
+### 可自动检查的计数规则
+
+| 检查项 | 规则 | 不合格条件 |
+|--------|------|----------|
+| 顶层字段数 | = 8 | ≠ 8 |
+| approval 字段存在 | 必须 | 缺失 |
+| approval.decision | approved 或 rejected | 其他值 |
+| 禁用词数 | ≤ 50 | > 50 |
+| 禁用词替换全覆盖 | 每条禁用词在替换建议中有 ≥ 1 替换项 | 存在无替换的禁用词 |
+| 慎用词替换全覆盖 | 每条慎用词在替换建议中有 ≥ 1 替换项 | 存在无替换的慎用词 |
+| 章节类型数 | 6-10 | < 6 或 > 10 |
+| 审计维度数 | 5-10 | < 5 或 > 10 |
+| 禁用维度理由 | auditDimensions 中每个设为 false 的维度必须在 customRules 中有对应的禁用理由规则 | 存在 false 维度无对应规则 |
 
 ## 汇总
 

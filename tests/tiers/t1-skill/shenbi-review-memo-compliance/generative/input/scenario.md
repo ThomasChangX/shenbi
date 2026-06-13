@@ -4,7 +4,7 @@
 `skills/shenbi-review-memo-compliance/SKILL.md`
 
 ## Test Setup
-A novel project exists with chapter memo at `plans/chapter-10-plan.md` and drafted chapter 10 at `drafts/chapter-10.md`.
+A novel project exists with chapter memo at `tests/fixtures/chapter-plan-example.md` and drafted chapter 10 at `tests/fixtures/chapter-draft-example.md`.
 
 ## Agent Task
 Run shenbi-review-memo-compliance audit on chapter 10. Produce a complete memo-compliance audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-memo-compliance audit on chapter 10. Produce a complete memo-c
 4. Missing items clearly identified
 
 ## Seed Input
-Chapter memo from `plans/chapter-10-plan.md`, drafted chapter from `drafts/chapter-10.md`
+Chapter memo from `tests/fixtures/chapter-plan-example.md`, drafted chapter from `tests/fixtures/chapter-draft-example.md`

@@ -10,6 +10,7 @@ import os
 import re
 import hashlib
 import glob as gb
+import fnmatch
 import shutil
 from pathlib import Path
 from datetime import datetime, timezone
@@ -1708,6 +1709,61 @@ def g4_chapter_drafting(fps, rd=None):
         else:
             c.append({"id": "G4.word_count", "file": fp, "s": "PASS", "wc": wc})
 
+        # G4.cd.content_uniqueness: check this chapter against all other chapters
+        if rd:
+            chapters_dir = Path(rd) / "project-output" / "chapters"
+            if chapters_dir.exists():
+                other_chapters = list(chapters_dir.glob("chapter-*.md"))
+                if len(other_chapters) > 1:
+                    this_fingerprint = _text_fingerprint(content)
+                    max_overlap = 0.0
+                    for other in other_chapters:
+                        if str(other) == str(pf):
+                            continue
+                        try:
+                            other_content = other.read_text(encoding="utf-8")
+                            other_fp = _text_fingerprint(other_content)
+                            overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+                            max_overlap = max(max_overlap, overlap)
+                        except (OSError, UnicodeDecodeError) as e:
+                            print(f"G4.cd warn: cannot read {other}: {e}", file=sys.stderr)
+                    if max_overlap > 0.40:
+                        mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
+                    else:
+                        c.append({"id": "G4.cd.content_uniqueness", "file": fp, "s": "PASS",
+                                   "max_overlap": f"{max_overlap:.0%}"})
+
+
+        # G4.cd.scene_concreteness: at least 1 paragraph of >=200 CJK chars of visual narrative
+        paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
+        visual_p_count = 0
+        for p in paragraphs:
+            if p.startswith('#') or p.startswith('##') or p.startswith('>') or p.startswith('---'):
+                continue
+            cjk_in_p = len(re.findall(r'[\u4e00-\u9fff\u3400-\u4dbf]', p))
+            has_vn = bool(re.search(r'(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)', p))
+            has_di = bool(re.search(r'[「\u201c].*?[」\u201d]', p))
+            if cjk_in_p >= 200 and (has_vn or has_di):
+                visual_p_count += 1
+        if visual_p_count < 1:
+            mf.append(f"G4.cd.no_visual_scene:{fp}")
+        else:
+            c.append({"id": "G4.cd.scene_concreteness", "file": fp, "s": "PASS",
+                       "visual_paragraphs": visual_p_count})
+
+        # G4.cd.chapter_end_hook: last paragraph contains unresolved tension
+        if paragraphs:
+            last_p = paragraphs[-1]
+            if not last_p.startswith('##') and not last_p.startswith('>'):
+                cjk_last = len(re.findall(r'[\u4e00-\u9fff\u3400-\u4dbf]', last_p))
+                if cjk_last >= 30:
+                    has_q = bool(re.search(r'[？?]', last_p))
+                    has_t = bool(re.search(r'(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)', last_p))
+                    if not (has_q or has_t):
+                        mf.append(f"G4.cd.no_hook:{fp}")
+                    else:
+                        c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": "PASS"})
+
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)
     return passed("G4-chapter-drafting", c)
@@ -2590,6 +2646,21 @@ def gate_G4_clean(file_paths):
 # G5 — T2 Phase
 # ---------------------------------------------------------------------------
 
+def _text_fingerprint(text, min_len=50):
+    body = re.sub(r'^---.*?---', '', text, flags=re.DOTALL)
+    paragraphs = body.split(chr(10)+chr(10))
+    hashes = set()
+    for p in paragraphs:
+        p = p.strip()
+        if not p or p.startswith('#') or p.startswith('>'):
+            continue
+        if 'PRE_WRITE_CHECK' in p or 'POST_WRITE_SELF_CHECK' in p:
+            continue
+        cjk = len(re.findall(r'[一-鿿]', p))
+        if cjk >= min_len:
+            hashes.add(hash(p))
+    return hashes
+
 def gate_G5(phase_name=None, round_dir=None, project_dir=None):
     """G5: T2 Phase check."""
     c, mf = [], []
@@ -2737,6 +2808,40 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
             else:
                 c.append({"id": "G5.4", "pattern": pattern, "s": "PASS"})
 
+
+    # G5.5 checker → file pattern mapping (each checker only validates semantically relevant files)
+    G5_CHECKER_GLOBS = {
+        "shenbi-worldbuilding":       ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
+        "shenbi-power-system":        ["world/power_system.md"],
+        "shenbi-faction-builder":     ["world/factions.md", "world/faction-relations.md"],
+        "shenbi-location-builder":    ["world/locations.md"],
+        "shenbi-character-design":    ["characters/*.md", "characters/**/*.md"],
+        "shenbi-relationship-map":    ["characters/relationships.md", "truth/character_matrix.md"],
+        "shenbi-story-architecture":  ["outline/story_frame.md", "outline/volume_map.md", "outline/rhythm_principles.md"],
+        "shenbi-volume-outlining":    ["outline/volume_map.md"],
+        "shenbi-genre-config":        ["genre-config.json"],
+        "shenbi-pacing-design":       ["outline/rhythm_principles.md"],
+        "shenbi-plot-thread-weaver":  ["outline/thread_map.md"],
+        "shenbi-chapter-planning":    ["plans/*.md"],
+        "shenbi-chapter-drafting":    ["chapters/*.md"],
+        "shenbi-foreshadowing-plant": ["truth/pending_hooks.md"],
+        "shenbi-foreshadowing-track": ["truth/pending_hooks.md"],
+        "shenbi-context-composing":   ["context/*.md"],
+        "shenbi-state-settling":      ["truth/*.md"],
+        "shenbi-style-polishing":     ["chapters/*.md"],
+        "shenbi-anti-detect":         ["chapters/*.md"],
+        "shenbi-length-normalizing":  ["chapters/*.md"],
+    }
+
+    def _g5_file_matches_glob(file_path, project_dir, patterns):
+        """Check if file_path (relative to project_dir) matches any of the given glob patterns."""
+        try:
+            rel = Path(file_path).relative_to(project_dir)
+            rel_str = str(rel)
+            return any(fnmatch.fnmatch(rel_str, p) for p in patterns)
+        except ValueError:
+            return False
+
     # G5.5: No regression — re-run G4 checks for each prerequisite skill on phase outputs
     phase_outputs = phase_data.get("expected_outputs", [])
     if phase_outputs and project_dir:
@@ -2747,6 +2852,10 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
                     if fp.suffix == ".md":
                         # Run G4 check for every prerequisite skill on each output file
                         for pr in prereqs:
+                            # Only run checker if file matches its applicable globs
+                            globs = G5_CHECKER_GLOBS.get(pr, ["*.md"])
+                            if not _g5_file_matches_glob(str(fp), str(pd), globs):
+                                continue
                             try:
                                 g4_raw = gate_G4(pr, "generative", [str(fp)])
                                 g4_data = json.loads(g4_raw)

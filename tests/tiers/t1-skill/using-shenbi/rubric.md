@@ -33,5 +33,12 @@
 | 6 | Full skill list coverage | 10% | Can route to all 59 skills |
 | 7 | Red flag detection | 10% | Detects and flags red-flag conditions |
 
+## Dimension Applicability by Test Type
+
+| Dimension scope | Bug-hunt | Clean | Generative |
+|----------------|----------|-------|------------|
+| Universal (1-2) | Yes | Yes | Yes |
+| All bespoke (3-7) | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
+
 ## Scoring Rules
 - 90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL

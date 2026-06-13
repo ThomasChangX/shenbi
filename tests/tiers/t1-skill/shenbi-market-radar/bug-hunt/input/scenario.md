@@ -4,7 +4,7 @@
 `skills/shenbi-market-radar/SKILL.md`
 
 ## Test Setup
-A market radar report has been generated for an urban fantasy novel targeting the Qidian platform. The report is at `reports/market-radar.md` with sections on leaderboard analysis, trend identification, opening strategy, competitive benchmarks, and decision checklist.
+A market radar report has been generated for an urban fantasy novel targeting the Qidian platform. The report is at `tests/fixtures/report-example.txt` with sections on leaderboard analysis, trend identification, opening strategy, competitive benchmarks, and decision checklist.
 
 ## Scenario
 The market radar report has been completed. However, it contains unsupported claims and missing analysis:
@@ -21,10 +21,10 @@ The market radar report has been completed. However, it contains unsupported cla
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `reports/market-radar.md`: trend identification section | Data-backed claims violation — "mystery elements are trending" stated without any specific leaderboard rank or trend data point | error |
-| `reports/market-radar.md`: leaderboard analysis section | Saturation detection failure — "reincarnation" appears in 14/20 titles (70%) but not flagged as saturated; instead recommended as selling point | error |
-| `reports/market-radar.md`: trend identification section | Trend vs. imitation violation — "system-like progression" trend identified without differentiation suggestion | error |
-| `reports/market-radar.md`: decision checklist | Actionability violation — "Consider your options carefully" is not a single action and lacks rationale | error |
+| `tests/fixtures/report-example.txt`: trend identification section | Data-backed claims violation — "mystery elements are trending" stated without any specific leaderboard rank or trend data point | error |
+| `tests/fixtures/report-example.txt`: leaderboard analysis section | Saturation detection failure — "reincarnation" appears in 14/20 titles (70%) but not flagged as saturated; instead recommended as selling point | error |
+| `tests/fixtures/report-example.txt`: trend identification section | Trend vs. imitation violation — "system-like progression" trend identified without differentiation suggestion | error |
+| `tests/fixtures/report-example.txt`: decision checklist | Actionability violation — "Consider your options carefully" is not a single action and lacks rationale | error |
 
 ## Agent Task
 Run shenbi-market-radar quality check on the report. The agent must detect the unsupported claim, the missed saturation flag, the trend without differentiation, and the non-actionable checklist item.

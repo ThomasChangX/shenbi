@@ -6,10 +6,10 @@
 ## Test Setup
 A novel project has the following state:
 - Human author provided intent: "Focus on developing the rivalry between Lin and Zhao; I want more tension in their interactions."
-- Drift guidance at `guidance/drift-chapter-14.md` contains 3 warning-level items about pacing, sensory detail, and dialogue voice.
-- `truth/author_intent.md` contains the human's creative vision.
+- Drift guidance at `tests/fixtures/report-example.txt` contains 3 warning-level items about pacing, sensory detail, and dialogue voice.
+- `tests/fixtures/author-intent-example.md` contains the human's creative vision.
 
-The output at `truth/current_focus.md` is fully correct:
+The output at `tests/fixtures/author-intent-example.md` is fully correct:
 - Contains only human-provided intent items and drift guidance items
 - No AI-generated creative suggestions
 - All drift guidance items merged into current focus

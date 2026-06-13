@@ -4,7 +4,7 @@
 `skills/shenbi-review-fanfic/SKILL.md`
 
 ## Test Setup
-A fanfic novel project exists with `novel.json` declaring the fanfic mode. Drafted chapter 20 at `drafts/chapter-20.md`. Source material references at `truth/source_material/`.
+A fanfic novel project exists with `tests/fixtures/novel-example.json` declaring the fanfic mode. Drafted chapter 20 at `tests/fixtures/chapter-draft-example.md`. Source material references at `tests/fixtures/truth/source_material/`.
 
 ## Agent Task
 Run shenbi-review-fanfic audit on chapter 20. Produce a complete fanfic audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-fanfic audit on chapter 20. Produce a complete fanfic audit re
 4. Undeclared deviation detection
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-20.md`, fanfic mode from `novel.json`, source material from `truth/source_material/`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, fanfic mode from `tests/fixtures/novel-example.json`, source material from `tests/fixtures/truth/source_material/`

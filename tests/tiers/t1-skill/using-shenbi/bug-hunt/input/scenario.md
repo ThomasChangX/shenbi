@@ -7,7 +7,7 @@
 No novel project needed. Agent is fresh.
 
 ## Scenario
-Present 10 natural language requests from the existing trigger test prompts in `tests/skill-triggering/prompts/`. Three of them are deliberately ambiguous — the request could match two skills, and the wrong one is more obvious.
+Present 10 natural language requests from the existing trigger test prompts in `tests/fixtures/skill-triggering-prompts/`. Three of them are deliberately ambiguous — the request could match two skills, and the wrong one is more obvious.
 
 ## Planted Defect
 

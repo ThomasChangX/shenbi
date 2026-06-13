@@ -4,7 +4,7 @@
 `skills/shenbi-short-outline/SKILL.md`
 
 ## Test Setup
-A short novel project (20 chapters) has its `novel.json` and `truth/author_intent.md` set up. The short outline has been correctly run, producing `outline/short_story_map.md`.
+A short novel project (20 chapters) has its `tests/fixtures/novel-example.json` and `tests/fixtures/author-intent-example.md` set up. The short outline has been correctly run, producing `tests/fixtures/short-story-map-example.md`.
 
 All output is correct:
 - 3 steps executed: generate -> review -> revise

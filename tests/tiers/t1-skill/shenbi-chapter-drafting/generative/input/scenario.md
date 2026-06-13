@@ -4,7 +4,7 @@
 `skills/shenbi-chapter-drafting/SKILL.md`
 
 ## Test Setup
-A novel project exists with completed chapter memo at `plans/chapter-5-plan.md`. Truth files include character voice profiles at `truth/character_profiles/`, foreshadowing pool at `truth/foreshadowing_pool.md`, and chapter summaries at `truth/chapter_summaries.md`. The project is ready to draft chapter 5.
+A novel project exists with completed chapter memo at `tests/fixtures/chapter-plan-example.md`. Truth files include character voice profiles at `tests/fixtures/character-profile-example.md`, foreshadowing pool at `tests/fixtures/pending-hooks-example.md`, and chapter summaries at `tests/fixtures/chapter-summaries-example.md`. The project is ready to draft chapter 5.
 
 ## Agent Task
 Run shenbi-chapter-drafting to draft chapter 5 from the memo. The agent must:
@@ -18,4 +18,4 @@ Run shenbi-chapter-drafting to draft chapter 5 from the memo. The agent must:
 8. Maintain varied paragraph rhythm
 
 ## Seed Input
-Chapter memo from `plans/chapter-5-plan.md`, character profiles from `truth/character_profiles/`, foreshadowing state from `truth/foreshadowing_pool.md`
+Chapter memo from `tests/fixtures/chapter-plan-example.md`, character profiles from `tests/fixtures/character-profile-example.md`, foreshadowing state from `tests/fixtures/pending-hooks-example.md`

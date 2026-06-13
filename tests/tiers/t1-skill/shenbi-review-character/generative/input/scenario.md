@@ -4,7 +4,7 @@
 `skills/shenbi-review-character/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 10 at `drafts/chapter-10.md`. Character truth files are at `truth/character_profiles/`. The project has chapter summaries at `truth/chapter_summaries.md`.
+A novel project exists with drafted chapter 10 at `tests/fixtures/chapter-draft-example.md`. Character truth files are at `tests/fixtures/character-profile-example.md`. The project has chapter summaries at `tests/fixtures/chapter-summaries-example.md`.
 
 ## Agent Task
 Run shenbi-review-character audit on chapter 10. Produce a complete character audit report including:
@@ -13,4 +13,4 @@ Run shenbi-review-character audit on chapter 10. Produce a complete character au
 3. Dialogue-authenticity assessment per speaker
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-10.md`, character profiles from `truth/character_profiles/`, chapter summaries from `truth/chapter_summaries.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, character profiles from `tests/fixtures/character-profile-example.md`, chapter summaries from `tests/fixtures/chapter-summaries-example.md`

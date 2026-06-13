@@ -19,9 +19,11 @@ bash tests/round-exec.sh claude T1
 
 输出包含 G0 结果。G0 通过 → 继续第二步。G0 失败 → 按 G0 输出的 `must_fix` 逐条修复，重新运行 G0。**G0 不通过不 dispatch 任何 skill。**
 
+**注意**：修改 validate-gate.py / scoring.py / phase-runner.py / summarize-round.py 后，必须运行 `bash tests/lock-tool-hashes.sh` 更新 `deps.json` 中的 SHA256 锁定值，否则 G0.13 阻断。
+
 ### 第二步：确认进度
 
-读取 `progress.json`。对于本轮计划测试的 skill，检查 scores 目录是否有已有分数。≥94 的 skill 不重跑。**跳过 skill 的唯一依据是已有分数 ≥94。不存在其他跳过理由。**
+运行 `python3 tests/update-progress.py validate <round_dir>` 验证 progress.json 内部一致性。对于本轮计划测试的 skill，检查 scores 目录是否有已有分数。≥94 的 skill 不重跑。**跳过 skill 的唯一依据是已有分数 ≥94。不存在其他跳过理由。**
 
 ### 第三步：按 skill 列表执行
 
@@ -40,13 +42,14 @@ bash tests/round-exec.sh claude T1
 1. 读 `tests/tiers/t1-skill/<skill>/generative/input/scenario.md`
 2. 读 `skills/<skill>/SKILL.md`
 3. 执行 skill。输出到 `novel-output/<skill>/`
-4. 跑 `python3 tests/validate-gate.py G2 <files> report <round_dir>`
+4. 跑 `python3 tests/validate-gate.py G2 <files> <FILE_TYPE> <round_dir>`（FILE_TYPE 从 skill 推导：chapter-drafting/style-polishing → `chapter`，state-settling/foreshadowing → `truth`，其余默认 `chapter`）
 5. 跑 `python3 tests/validate-gate.py G4 <skill> <files> <round_dir>`
-6. **只在 G2 和 G4 都通过后**，新开独立 subagent 评分。**Dispatcher 不得评分。** 评分 subagent 只接收 rubric 路径和输出文件路径，不接收生成过程上下文。评分 subagent 的输出格式必须是：`{"1": 90, "2": 85, ...}`（仅整数键映射到 0-100 分数，无其他字段）。
+6. **只在 G2 和 G4 都通过后**，新开独立 subagent 评分（使用 `bash tests/dispatch-subagent.sh <skill> generative <round_dir> "<prompt>"`）。**Dispatcher 不得评分。** 评分 subagent 只接收 rubric 路径和输出文件路径，不接收生成过程上下文。评分 subagent 的输出格式必须是：`{"1": 90, "2": 85, ...}`（仅整数键映射到 0-100 分数，无其他字段）。
 7. 跑 `python3 tests/scoring.py <rubric> <scores.json> --test-type generative`
-   - **scoring.py 退出的三种状态**：
+   - **scoring.py 退出的四种状态**：
      - 0 = 评分计算成功，结果写入 stdout。Dispatcher 将 stdout 保存到 `t1-reports/<skill>-generative-scores.json`
      - 2 = 评分验证失败（dimensions 为空、缺失维度、分数越界）。**必须重新 dispatch 评分 subagent**（最多 2 次，每次使用新 subagent 实例）。3 次都失败 → 记录为 0 分并标记 `scoring_reject: true`
+     - 3 = Gate marker 缺失（`MARKER_MISSING`）。**必须先运行 G4/G6 gate 并生成 marker 文件，再评分。**
      - 1 = 其他错误，排查后重试
    - **分片规则**：输出文件总大小 > 20000 字时，将输出文件拆分为 N 组（每组 ≤ 15000 字），每组独立 dispatch 评分 subagent。最终每个维度的分数取各组最低分（conservative merge）。
 8. 分数记录到 `t1-reports/<skill>-generative-scores.json`

@@ -4,7 +4,7 @@
 `skills/shenbi-review-texture/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 18 at `drafts/chapter-18.md`.
+A novel project exists with drafted chapter 18 at `tests/fixtures/chapter-draft-example.md`.
 
 ## Agent Task
 Run shenbi-review-texture audit on chapter 18. Produce a complete texture audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-texture audit on chapter 18. Produce a complete texture audit 
 4. Sensory detail coverage
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-18.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`

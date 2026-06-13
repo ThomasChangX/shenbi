@@ -4,7 +4,7 @@
 `skills/shenbi-market-radar/SKILL.md`
 
 ## Test Setup
-A market radar report has been correctly generated for an urban fantasy novel targeting the Qidian platform. The report is at `reports/market-radar.md`.
+A market radar report has been correctly generated for an urban fantasy novel targeting the Qidian platform. The report is at `tests/fixtures/report-example.txt`.
 
 All output is correct:
 - Every recommendation references specific leaderboard rank or trend data point

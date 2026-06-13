@@ -4,7 +4,7 @@
 `skills/shenbi-style-polishing/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-5.md` that is ready for style polishing. A style profile exists at `config/style_profile.md`.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md` that is ready for style polishing. A style profile exists at `tests/fixtures/style-profile-example.md`.
 
 ## Agent Task
 Run shenbi-style-polishing on the drafted chapter. The agent must:
@@ -18,4 +18,4 @@ Run shenbi-style-polishing on the drafted chapter. The agent must:
 8. Use [polisher-note] annotations that are specific and actionable
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-5.md`, style profile from `config/style_profile.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, style profile from `tests/fixtures/style-profile-example.md`

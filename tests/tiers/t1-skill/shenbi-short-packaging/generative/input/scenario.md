@@ -4,7 +4,7 @@
 `skills/shenbi-short-packaging/SKILL.md`
 
 ## Test Setup
-A 15-chapter short novel has been completed with all chapters at `chapters/`. The outline is at `outline/short_story_map.md`, world building at `world/story_bible.md`, and author intent at `truth/author_intent.md`. No packaging materials have been generated yet.
+A 15-chapter short novel has been completed with all chapters at `tests/fixtures/chapters/`. The outline is at `tests/fixtures/short-story-map-example.md`, world building at `tests/fixtures/outline-example.md`, and author intent at `tests/fixtures/author-intent-example.md`. No packaging materials have been generated yet.
 
 ## Agent Task
 Run shenbi-short-packaging for the project. The agent must:
@@ -15,4 +15,4 @@ Run shenbi-short-packaging for the project. The agent must:
 5. Generate platform keywords matching the target platform tag taxonomy
 
 ## Seed Input
-Completed short novel with `chapters/*.md` (15 chapters) and `outline/short_story_map.md`
+Completed short novel with `tests/fixtures/chapter-draft-example.md` (15 chapters) and `tests/fixtures/short-story-map-example.md`

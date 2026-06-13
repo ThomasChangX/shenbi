@@ -4,7 +4,7 @@
 `skills/shenbi-anti-detect/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-7.md`. An anti-detect pass has been run correctly, producing `drafts/chapter-7-antidetect.md` and an audit report at `reports/chapter-7-antidetect-report.md`.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md`. An anti-detect pass has been run correctly, producing `tests/fixtures/chapter-draft-example.md` and an audit report at `tests/fixtures/report-example.txt`.
 
 The anti-detect output is fully correct:
 - Only the 4 detected AI marker points were rewritten; all other paragraphs untouched

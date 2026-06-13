@@ -73,6 +73,16 @@ digraph review_long_span {
 - 连续 3 章单向漂移（每次变化 > 20%）= warning
 - 漂移公式见 `ngram-methodology.md`
 
+## 缺陷证据格式
+
+每条缺陷报告必须遵循  定义的四要素格式：
+1. **位置**: 文件路径 + 行号范围
+2. **原文引述**: ≥20 字上下文，用 `>` 标记
+3. **违反规则**: SKILL.md 规则名（精确匹配）
+4. **严重度**: BLOCKING / CRITICAL / MINOR
+
+缺失任一要素 = 不合格。
+
 ## 输出格式
 
 ```markdown

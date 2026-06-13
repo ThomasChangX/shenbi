@@ -4,7 +4,7 @@
 `skills/shenbi-review-reader-pull/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 16 at `drafts/chapter-16.md`.
+A novel project exists with drafted chapter 16 at `tests/fixtures/chapter-draft-example.md`.
 
 ## Agent Task
 Run shenbi-review-reader-pull audit on chapter 16. Produce a complete reader-pull audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-reader-pull audit on chapter 16. Produce a complete reader-pul
 4. Overall reader-pull score
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-16.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`

@@ -4,7 +4,7 @@
 `skills/shenbi-chapter-drafting/SKILL.md`
 
 ## Test Setup
-A novel project exists with a completed chapter memo at `plans/chapter-7-plan.md`. The agent has drafted chapter 7 and the draft at `drafts/chapter-7.md` is fully correct:
+A novel project exists with a completed chapter memo at `tests/fixtures/chapter-plan-example.md`. The agent has drafted chapter 7 and the draft at `tests/fixtures/chapter-draft-example.md` is fully correct:
 - PRE_WRITE_CHECK completed and logged before drafting
 - Chapter follows all memo specifications (plan compliance)
 - Zero AI-typical transition word overuse (density well under 1/3000)

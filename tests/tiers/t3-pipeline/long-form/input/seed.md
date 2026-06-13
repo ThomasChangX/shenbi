@@ -8,5 +8,5 @@ Agent instructions:
 3. Run planning phase (chapter-planning → foreshadowing-plant → context-composing)
 4. Run drafting phase for 5+ chapters (chapter-drafting → state-settling → foreshadowing-track → style-polishing/anti-detect/length-normalizing)
 5. Run audit phase (all 18 review-* skills)
-6. Run revision phase (chapter-revision)
-7. Run state-settling and management
+6. Run foundation phase (foundation-review → chapter-revision → truth-sync → style-learning)
+7. Run management phase (snapshot-manage → drift-guidance → intent-management → chapter-pattern → volume-consolidation)

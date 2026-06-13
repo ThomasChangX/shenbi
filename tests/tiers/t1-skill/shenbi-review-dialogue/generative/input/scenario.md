@@ -4,7 +4,7 @@
 `skills/shenbi-review-dialogue/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 12 at `drafts/chapter-12.md`. Voice profiles at `truth/character_profiles/` define all speaking characters.
+A novel project exists with drafted chapter 12 at `tests/fixtures/chapter-draft-example.md`. Voice profiles at `tests/fixtures/character-profile-example.md` define all speaking characters.
 
 ## Agent Task
 Run shenbi-review-dialogue audit on chapter 12. Produce a complete dialogue audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-dialogue audit on chapter 12. Produce a complete dialogue audi
 4. Dialogue-narrative integration quality
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-12.md`, character voice profiles from `truth/character_profiles/`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, character voice profiles from `tests/fixtures/character-profile-example.md`

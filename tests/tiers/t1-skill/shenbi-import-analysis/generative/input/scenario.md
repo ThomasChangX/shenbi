@@ -4,7 +4,7 @@
 `skills/shenbi-import-analysis/SKILL.md`
 
 ## Test Setup
-A novel manuscript exists at `chapters/` with 10 source chapters of a fantasy novel. No prior import analysis has been run.
+A novel manuscript exists at `tests/fixtures/chapters/` with 10 source chapters of a fantasy novel. No prior import analysis has been run.
 
 ## Agent Task
 Run shenbi-import-analysis on the manuscript. The agent must:
@@ -17,4 +17,4 @@ Run shenbi-import-analysis on the manuscript. The agent must:
 7. Generate an exhaustive unconfirmed items list
 
 ## Seed Input
-Fantasy novel manuscript at `chapters/` with 10 chapters
+Fantasy novel manuscript at `tests/fixtures/chapters/` with 10 chapters

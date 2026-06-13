@@ -4,7 +4,7 @@
 `skills/shenbi-volume-consolidation/SKILL.md`
 
 ## Test Setup
-A novel project has completed Volume 1 (chapters 1-10). The consolidation report at `consolidation/volume-1/report.md` is fully correct:
+A novel project has completed Volume 1 (chapters 1-10). The consolidation report at `tests/fixtures/report-example.txt` is fully correct:
 - Volume summary is 420 words (within 500-word limit)
 - All active hooks listed: H001, H002, H003, H005 (H004 correctly excluded as RESOLVED)
 - Per-chapter summaries archived at expected paths

@@ -4,7 +4,7 @@
 `skills/shenbi-world-extraction/SKILL.md`
 
 ## Test Setup
-A fantasy novel manuscript with 20 chapters has been analyzed. The world extraction has been correctly run, producing `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `world/factions.md`, and `world/power_system.md`.
+A fantasy novel manuscript with 20 chapters has been analyzed. The world extraction has been correctly run, producing `tests/fixtures/chapter-plan-example.md`, `tests/fixtures/chapter-plan-example.md`, `tests/fixtures/chapter-plan-example.md`, `tests/fixtures/chapter-plan-example.md`, and `tests/fixtures/chapter-plan-example.md`.
 
 All output is correct:
 - Every rule has >=2 independent textual evidence citations with chapter.paragraph references

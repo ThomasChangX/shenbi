@@ -16,4 +16,4 @@ Run shenbi-canon-import on the original work in CP mode. The agent must:
 6. Produce non-empty output for all 5 sections
 
 ## Seed Input
-Original work at `source/` (50-chapter web novel), fanfic mode: CP
+Original work at `tests/fixtures/source/` (50-chapter web novel), fanfic mode: CP

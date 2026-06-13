@@ -3,6 +3,7 @@
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -257,21 +258,20 @@ def main():
                             sys.exit(1)
                     except: pass
 
+    # Gate marker enforcement — MUST pass before scoring can proceed
     if test_type:
         dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
-
-    # Gate marker enforcement
-    if round_dir and test_type:
-        missing = check_gate_markers(rubric_path, test_type, round_dir)
-        if missing:
-            err = {
-                "status": "MARKER_MISSING",
-                "missing_markers": missing,
-                "message": f"Required gate markers not found: {', '.join(missing)}. "
-                           f"Run gates (G4/G6) with --round-dir before scoring.",
-            }
-            print(json.dumps(err, indent=2, ensure_ascii=False))
-            sys.exit(3)
+        if round_dir:
+            missing = check_gate_markers(rubric_path, test_type, round_dir)
+            if missing:
+                err = {
+                    "status": "MARKER_MISSING",
+                    "missing_markers": missing,
+                    "message": f"Required gate markers not found: {', '.join(missing)}. "
+                               f"Run gates (G4/G6) with --round-dir before scoring.",
+                }
+                print(json.dumps(err, indent=2, ensure_ascii=False))
+                sys.exit(3)
 
     if sys.argv[2] == "--interactive":
         scores = {}
@@ -335,6 +335,13 @@ def main():
 
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result = {
+        "_provenance": {
+            "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "gate_markers_verified": bool(round_dir and test_type),
+            "round_dir": str(round_dir) if round_dir else None,
+            "scoring_tool": "scoring.py",
+        },
         "dimensions": [
             {"num": d["num"], "name": d["name"], "weight": d["weight"],
              "score": scores.get(d["num"], 0)}

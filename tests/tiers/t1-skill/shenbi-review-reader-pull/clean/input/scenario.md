@@ -4,7 +4,7 @@
 `skills/shenbi-review-reader-pull/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 8 at `drafts/chapter-8.md`. The chapter has a strong opening hook (classified type), mid-chapter traction points at proper intervals, and a well-crafted chapter-end suspense. All reader-pull elements are properly implemented and classified.
+A novel project exists with drafted chapter 8 at `tests/fixtures/chapter-draft-example.md`. The chapter has a strong opening hook (classified type), mid-chapter traction points at proper intervals, and a well-crafted chapter-end suspense. All reader-pull elements are properly implemented and classified.
 
 ## Scenario
 No defects. Opening hook is classified, mid-chapter traction points are properly spaced, and chapter-end suspense is correctly classified.

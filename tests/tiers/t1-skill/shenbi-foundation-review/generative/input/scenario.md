@@ -5,11 +5,11 @@
 
 ## Test Setup
 A novel project has just completed its foundation setup. The following foundation files exist:
-- `truth/author_intent.md` — story premise, genre, themes
-- `truth/character_profiles/` — main character profiles
-- `truth/world_rules.md` — world-building rules and constraints
-- `truth/plot_threads.md` — core plot threads defined
-- `plans/story-outline.md` — overall story outline
+- `tests/fixtures/author-intent-example.md` — story premise, genre, themes
+- `tests/fixtures/character-profile-example.md` — main character profiles
+- `tests/fixtures/outline-example.md` — world-building rules and constraints
+- `tests/fixtures/chapter-plan-example.md` — core plot threads defined
+- `tests/fixtures/chapter-plan-example.md` — overall story outline
 
 ## Agent Task
 Run shenbi-foundation-review to evaluate the project foundation. The agent must:
@@ -21,4 +21,4 @@ Run shenbi-foundation-review to evaluate the project foundation. The agent must:
 6. Make fix suggestions actionable (point to exact files/paragraphs)
 
 ## Seed Input
-Foundation files from `truth/` and `plans/story-outline.md`
+Foundation files from `tests/fixtures/truth/` and `tests/fixtures/chapter-plan-example.md`

@@ -84,7 +84,41 @@ def cmd_start(phase, round_dir, project_dir):
 def cmd_pre_skill(phase, skill, round_dir):
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "pre-skill")
-    print(json.dumps({"status": "ok", "phase": phase, "skill": skill, "action": "execute_skill"}))
+    # Validate skill exists
+    skill_path = PROJECT / "skills" / skill / "SKILL.md"
+    if not skill_path.exists():
+        print(json.dumps({"status": "error", "phase": phase, "skill": skill, 
+                          "message": f"SKILL.md not found: {skill_path}"}))
+        sys.exit(1)
+    # Extract data contract for dispatcher guidance
+    skill_md = skill_path.read_text(encoding="utf-8")
+    import re as _re
+    reads = _re.findall(r'\*\*Reads:\*\*\s*(.*)', skill_md)
+    writes = _re.findall(r'\*\*Writes:\*\*\s*(.*)', skill_md)
+    updates = _re.findall(r'\*\*Updates:\*\*\s*(.*)', skill_md)
+    read_files = []
+    for line in reads:
+        read_files.extend(_re.findall(r'`([^`]+)`', line))
+    write_files = []
+    for line in writes + updates:
+        write_files.extend(_re.findall(r'`([^`]+)`', line))
+    step = {
+        "action": "pre-skill",
+        "skill": skill,
+        "timestamp": now_iso(),
+        "data_contract": {
+            "reads": read_files,
+            "writes": write_files,
+        },
+    }
+    state["steps"].append(step)
+    save_state(round_dir, state)
+    print(json.dumps({
+        "status": "ok", "phase": phase, "skill": skill,
+        "action": "execute_skill",
+        "reads": read_files,
+        "writes": write_files,
+    }))
 
 
 def cmd_post_skill(phase, skill, round_dir, project_dir):

@@ -14,7 +14,7 @@ A novel project exists with 10 drafted chapters. The long-span audit covers the 
 This 6-char n-gram appears 5+ times across the last 5 chapters, which exceeds the repetition threshold defined in SKILL.md.
 
 ## Scenario
-The agent runs a long-span audit on the last 5 chapters. The audit report at `audit/long-span-review.md` does not flag the repeated 6-char phrase "他不禁想起了那" that appears 5+ times across chapters 6-10. The n-gram repetition is not detected despite exceeding the threshold.
+The agent runs a long-span audit on the last 5 chapters. The audit report at `tests/fixtures/audit-report-example.md` does not flag the repeated 6-char phrase "他不禁想起了那" that appears 5+ times across chapters 6-10. The n-gram repetition is not detected despite exceeding the threshold.
 
 ## Planted Defect
 

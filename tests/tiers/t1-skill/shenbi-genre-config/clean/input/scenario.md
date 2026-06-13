@@ -5,7 +5,7 @@
 
 ## Test Setup
 A novel project exists with a properly configured genre-config:
-- `genre-config.json` — well-formed JSON with all required fields, backup exists at `genre-config.json.bak`, banned words ≤50, caution words have viable replacements, audit dimensions selectively enabled, all changes have explicit human sign-off
+- `tests/fixtures/genre-config-example.json` — well-formed JSON with all required fields, backup exists at `genre-config.json.bak`, banned words ≤50, caution words have viable replacements, audit dimensions selectively enabled, all changes have explicit human sign-off
 
 The modification log shows backup creation before every change. No modifications contradict existing audit corrections. The fatigue word list is balanced.
 

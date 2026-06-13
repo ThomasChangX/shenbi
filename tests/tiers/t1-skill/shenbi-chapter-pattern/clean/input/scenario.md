@@ -4,7 +4,7 @@
 `skills/shenbi-chapter-pattern/SKILL.md`
 
 ## Test Setup
-A novel project has 15 completed chapters. The chapter pattern analysis at `analysis/chapter-patterns.md` is fully correct:
+A novel project has 15 completed chapters. The chapter pattern analysis at `tests/fixtures/chapter-plan-example.md` is fully correct:
 - Each chapter assigned to ≥1 of 13 defined patterns
 - No consecutive pattern exceeds the 3-chapter limit (max consecutive run is 2)
 - Shannon entropy correctly calculated

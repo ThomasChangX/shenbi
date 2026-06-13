@@ -4,7 +4,7 @@
 `skills/shenbi-chapter-planning/SKILL.md`
 
 ## Test Setup
-A novel project exists with a complete, correct chapter memo output at `plans/chapter-7-plan.md`:
+A novel project exists with a complete, correct chapter memo output at `tests/fixtures/chapter-plan-example.md`:
 - All 8 required memo sections are present and populated
 - Section 1 (当前任务): specific action derived from volume KR priority chain
 - Section 2 (读者此刻在等什么): explicitly lists reader expectations with create/delay/satisfy strategy

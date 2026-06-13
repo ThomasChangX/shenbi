@@ -5,11 +5,11 @@
 
 ## Test Setup
 A novel project exists with complete, correct faction output:
-- `world/factions/iron-syndicate.md` — has internal factional split, interest-driven behavior, narrative prose
-- `world/factions/dawn-collective.md` — has internal factional split, interest-driven behavior
-- `world/factions/order-of-ash.md` — has internal factional split, interest-driven behavior
-- `world/faction-relations.md` — ≥2 factions have explicit relationships
-- All anchor characters referenced in faction files exist in `characters/*.md`
+- `tests/fixtures/chapter-plan-example.md` — has internal factional split, interest-driven behavior, narrative prose
+- `tests/fixtures/chapter-plan-example.md` — has internal factional split, interest-driven behavior
+- `tests/fixtures/chapter-plan-example.md` — has internal factional split, interest-driven behavior
+- `tests/fixtures/report-example.txt` — ≥2 factions have explicit relationships
+- All anchor characters referenced in faction files exist in `tests/fixtures/characters/*.md`
 
 Every faction has internal conflict, all behavior is interest-driven, cross-faction dynamics are explicit, and behavioral patterns ("in situation X, faction does Y") are defined.
 

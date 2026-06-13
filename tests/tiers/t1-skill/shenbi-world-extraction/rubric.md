@@ -40,6 +40,17 @@
 | Universal (1-2) | Yes | Yes | Yes |
 | All bespoke | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
 
+### Rule Evidence Requirements
+
+For dimensions that check rule-type evidence, the provenance of references differs by rule category:
+
+| Rule category | Rule names | Evidence requirement |
+|--------------|-----------|---------------------|
+| Definition-type | 灵能守恒, 位面物理差, 种姓禁锢 | ≥2 references from world documents OR chapter text |
+| Demonstration-type | 金手指边界, 认知摩擦, 革命组织 | ≥2 references from chapter text specifically |
+
+**Note:** Definition-type rules describe world constraints (laws, physics, social structures) and may be evidenced by world-building documents or narrative text. Demonstration-type rules describe observable behaviors (protagonist power limits, reader-author knowledge gaps, revolution dynamics) that must be evidenced by in-chapter occurrences. This distinction prevents scoring rules as "evidenced" when only world documents mention them without narrative demonstration.
+
 ## Scoring Rules
 - Each dimension scored 0-100
 - Final = weighted sum of all dimensions

@@ -4,7 +4,7 @@
 `skills/shenbi-sequel-writing/SKILL.md`
 
 ## Test Setup
-A novel project with 30 published chapters was paused after chapter 30. A breakpoint snapshot exists at `snapshots/chapter-030/`. The sequel-writing skill has been correctly resumed.
+A novel project with 30 published chapters was paused after chapter 30. A breakpoint snapshot exists at `tests/fixtures/snapshots/chapter-030/`. The sequel-writing skill has been correctly resumed.
 
 All output is correct:
 - All 6 context categories rebuilt from files

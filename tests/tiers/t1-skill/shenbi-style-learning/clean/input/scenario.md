@@ -4,7 +4,7 @@
 `skills/shenbi-style-learning/SKILL.md`
 
 ## Test Setup
-A novel project exists with reference writing samples at `samples/reference-texts/`. The agent has run style learning and produced a style profile at `config/style_profile.md`.
+A novel project exists with reference writing samples at `tests/fixtures/samples/reference-texts/`. The agent has run style learning and produced a style profile at `tests/fixtures/style-profile-example.md`.
 
 The style profile is fully correct:
 - All 7 statistical dimensions computed and present

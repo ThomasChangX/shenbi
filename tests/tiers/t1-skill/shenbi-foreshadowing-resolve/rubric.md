@@ -13,7 +13,7 @@
 |---|-----------|--------|----------|
 | 3 | Chase Power management | 20% | CP above 200 triggers mandatory immediate resolution |
 | 4 | Resolution quality | 15% | Core hooks achieve ≥PARTIAL_PAYOFF, never FLAT_PAYOFF |
-| 5 | Prioritization | 15% | High-CP hooks resolved first |
+| 5 | Prioritization | 15% | 逐层兑现：low-CP hooks resolved first, high-CP last (aligned with SKILL.md strategy) |
 | 6 | Volume completeness | 15% | Every active hook inventoried at volume end |
 | 7 | Smokescreen handling | 10% | Smoke screens include truth revelation when resolved |
 | 8 | Human gate | 10% | ABANDON operations require explicit human approval |
@@ -22,6 +22,7 @@
 
 ### Bug-Hunt Kill Switches
 - Missed planted defect (false negative) → total score = 0
+- Evidence without file+line citation → detection dimension = 0
 - HARD-GATE violation → total score = 0
 
 ### Clean Kill Switches
@@ -33,10 +34,16 @@
 
 ## Dimension Applicability by Test Type
 
-| Dimension scope | Bug-hunt | Clean | Generative |
-|----------------|----------|-------|------------|
-| Universal (1-2) | Yes | Yes | Yes |
-| All bespoke | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
+| # | Dimension | Bug-hunt Standard | Clean Standard |
+|---|-----------|------------------|----------------|
+| 1 | Instruction adherence | Executed all review/audit steps from SKILL.md; detection workflow followed | Executed all review/audit steps from SKILL.md; zero-defect verification workflow followed |
+| 2 | Output completeness | Detection report present with required sections: defect description, location(file+line), violated rule, evidence, severity | Clean report present with required sections: files checked, confirmation of zero findings, per-file sign-off |
+| 3 | Chase Power management | **Detection accuracy**: All planted defects found with file+line evidence. Missing evidence → 0. Incorrect rule identification → 0. | **Zero hallucination**: No defects reported. Any reported issue → kill switch. "Improvement suggestion" = hallucinated defect. |
+| 4 | Resolution quality | **False positive control**: Zero clean content flagged as defective. Any false positive → -30pts. | **Thoroughness**: Every file/section explicitly checked. Skipped file → 0. |
+| 5 | Prioritization | **Rule application**: Violated rule correctly identified by name. Wrong rule → 0. Vague reference → -20pts. | **Restraint**: No fabricated "minor issues" to appear useful. Fabrication → kill switch. |
+| 6 | Volume completeness | **Evidence quality**: Citations include file path + line number. Missing → 0. Approximate → -15pts. | **Completeness**: All required output sections checked. Partial check → -25pts per missed section. |
+| 7 | Smokescreen handling | **Detection accuracy**: All planted defects found with file+line evidence. Missing evidence → 0. Incorrect rule identification → 0. | **Zero hallucination**: No defects reported. Any reported issue → kill switch. "Improvement suggestion" = hallucinated defect. |
+| 8 | Human gate | **Detection accuracy**: All planted defects found with file+line evidence. Missing evidence → 0. Incorrect rule identification → 0. | **Zero hallucination**: No defects reported. Any reported issue → kill switch. "Improvement suggestion" = hallucinated defect. |
 
 ## Scoring Rules
 - Each dimension scored 0-100

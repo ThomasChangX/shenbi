@@ -4,7 +4,7 @@
 `skills/shenbi-review-foreshadowing/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapters 5-6 at `drafts/chapter-5.md` and `drafts/chapter-6.md`. The foreshadowing pool at `truth/foreshadowing_pool.md` tracks all hooks. Every hook state transition has proper text evidence citing chapter and specific prose passage.
+A novel project exists with drafted chapters 5-6 at `tests/fixtures/chapter-draft-example.md` and `tests/fixtures/chapter-draft-example.md`. The foreshadowing pool at `tests/fixtures/pending-hooks-example.md` tracks all hooks. Every hook state transition has proper text evidence citing chapter and specific prose passage.
 
 ## Scenario
 No defects. All hook lifecycle transitions have complete text evidence with chapter citations and prose passage references.

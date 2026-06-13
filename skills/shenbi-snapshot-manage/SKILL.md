@@ -111,6 +111,16 @@ files:
 ---
 ```
 
+## Checksum 计算方法
+
+每个 truth 文件的 checksum 必须由以下命令计算，**不得由 LLM 自行生成**：
+
+```bash
+python3 -c "import hashlib; print(hashlib.sha256(open('FILE_PATH','rb').read()).hexdigest())"
+```
+
+将 `FILE_PATH` 替换为实际文件路径后执行。所有 truth 文件的 checksum 收集完毕后，**必须随机选取一个文件重新计算一次**，确认结果与首次计算一致。若不一致，说明文件在 snapshoting 过程中被修改，应立即报告差异。
+
 ## 输出格式
 
 ### 创建快照

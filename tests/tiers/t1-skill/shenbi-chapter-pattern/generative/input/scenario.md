@@ -4,7 +4,7 @@
 `skills/shenbi-chapter-pattern/SKILL.md`
 
 ## Test Setup
-A novel project has 12 completed chapters. Chapter drafts exist at `drafts/chapter-1.md` through `drafts/chapter-12.md`. The SKILL.md defines 13 pattern types (e.g., action, dialogue-heavy, revelation, romance, mystery, etc.) with hard limits on consecutive patterns and minimum distribution requirements.
+A novel project has 12 completed chapters. Chapter drafts exist at `tests/fixtures/chapter-draft-example.md` (representing the full chapter range). The SKILL.md defines 13 pattern types (e.g., action, dialogue-heavy, revelation, romance, mystery, etc.) with hard limits on consecutive patterns and minimum distribution requirements.
 
 ## Agent Task
 Run shenbi-chapter-pattern to analyze the pattern distribution across chapters 1-12. The agent must:
@@ -15,4 +15,4 @@ Run shenbi-chapter-pattern to analyze the pattern distribution across chapters 1
 5. Verify minimum distinct patterns in rolling windows
 
 ## Seed Input
-Chapter drafts from `drafts/chapter-1.md` through `drafts/chapter-12.md`, pattern definitions from `skills/shenbi-chapter-pattern/SKILL.md`
+Chapter drafts from `tests/fixtures/chapter-draft-example.md` (representing the full chapter range), pattern definitions from `skills/shenbi-chapter-pattern/SKILL.md`

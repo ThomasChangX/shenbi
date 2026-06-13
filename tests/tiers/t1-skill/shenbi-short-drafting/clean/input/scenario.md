@@ -4,7 +4,7 @@
 `skills/shenbi-short-drafting/SKILL.md`
 
 ## Test Setup
-A short novel project (12 chapters) has a completed outline at `outline/short_story_map.md`. The short drafting has been correctly run, producing all 12 chapters and a batch summary.
+A short novel project (12 chapters) has a completed outline at `tests/fixtures/short-story-map-example.md`. The short drafting has been correctly run, producing all 12 chapters and a batch summary.
 
 All output is correct:
 - All chapters generated strictly in order (each chapter's truth files exist before the next chapter starts)

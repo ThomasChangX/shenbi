@@ -22,6 +22,7 @@
 
 ### Bug-Hunt Kill Switches
 - Missed planted defect (false negative) → total score = 0
+- Evidence without file+line citation → detection dimension = 0
 - HARD-GATE violation → total score = 0
 
 ### Clean Kill Switches
@@ -33,11 +34,16 @@
 
 ## Dimension Applicability by Test Type
 
-| Dimension scope | Bug-hunt | Clean | Generative |
-|----------------|----------|-------|------------|
-| Universal (1-2) | Yes | Yes | Yes |
-| All bespoke | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
-| Prose/narrative quality (dim 5) | No | No | Yes |
+| # | Dimension | Bug-hunt Standard | Clean Standard |
+|---|-----------|------------------|----------------|
+| 1 | Instruction adherence | Executed all review/audit steps from SKILL.md; detection workflow followed | Executed all review/audit steps from SKILL.md; zero-defect verification workflow followed |
+| 2 | Output completeness | Detection report present with required sections: defect description, location(file+line), violated rule, evidence, severity | Clean report present with required sections: files checked, confirmation of zero findings, per-file sign-off |
+| 3 | Spatial consistency | **Detection accuracy**: All planted defects found with file+line evidence. Missing evidence → 0. Incorrect rule identification → 0. | **Zero hallucination**: No defects reported. Any reported issue → kill switch. "Improvement suggestion" = hallucinated defect. |
+| 4 | Atmosphere quality | **False positive control**: Zero clean content flagged as defective. Any false positive → -30pts. | **Thoroughness**: Every file/section explicitly checked. Skipped file → 0. |
+| 5 | Prose format | N/A — exempted: Prose format is a content-generation metric; no meaningful bug-hunt or clean interpretation for a review/detection workflow. scoring.py renormalizes weights for remaining applicable dimensions. | N/A — exempted: Same as bug-hunt. |
+| 6 | Functional clarity | **Rule application**: Violated rule correctly identified by name. Wrong rule → 0. Vague reference → -20pts. | **Restraint**: No fabricated "minor issues" to appear useful. Fabrication → kill switch. |
+| 7 | Walk-through-ability | **Evidence quality**: Citations include file path + line number. Missing → 0. Approximate → -15pts. | **Completeness**: All required output sections checked. Partial check → -25pts per missed section. |
+| 8 | Cross-location consistency | **Detection accuracy**: All planted defects found with file+line evidence. Missing evidence → 0. Incorrect rule identification → 0. | **Zero hallucination**: No defects reported. Any reported issue → kill switch. "Improvement suggestion" = hallucinated defect. |
 
 ## Scoring Rules
 - Each dimension scored 0-100

@@ -1,26 +1,242 @@
 {
   "t2-phases": {
     "genesis": {
-      "prerequisites": ["shenbi-worldbuilding","shenbi-power-system","shenbi-faction-builder","shenbi-location-builder","shenbi-character-design","shenbi-relationship-map"],
-      "expected_outputs": ["novel.json","genre-config.json","world/story_bible.md","world/rules.md","world/locations.md","world/power_system.md","world/factions.md","characters/protagonist.md","characters/major/*.md","characters/relationships.md","truth/current_state.md","truth/character_matrix.md","truth/emotional_arcs.md","truth/chapter_summaries.md"]
+      "prerequisites": [
+        "shenbi-worldbuilding",
+        "shenbi-power-system",
+        "shenbi-faction-builder",
+        "shenbi-location-builder",
+        "shenbi-character-design",
+        "shenbi-relationship-map",
+        "shenbi-story-architecture",
+        "shenbi-volume-outlining",
+        "shenbi-genre-config",
+        "shenbi-pacing-design"
+      ],
+      "expected_outputs": [
+        "novel.json",
+        "genre-config.json",
+        "world/story_bible.md",
+        "world/rules.md",
+        "world/locations.md",
+        "world/power_system.md",
+        "world/factions.md",
+        "world/faction-relations.md",
+        "characters/protagonist.md",
+        "characters/major/*.md",
+        "characters/minor/*.md",
+        "characters/relationships.md",
+        "truth/current_state.md",
+        "truth/character_matrix.md",
+        "truth/emotional_arcs.md",
+        "truth/chapter_summaries.md"
+      ],
+      "g4_checker": "shenbi-worldbuilding"
     },
     "architecture": {
-      "prerequisites": ["shenbi-story-architecture","shenbi-pacing-design","shenbi-plot-thread-weaver","shenbi-genre-config"],
-      "expected_outputs": ["outline/story_frame.md","outline/volume_map.md","outline/rhythm_principles.md","outline/thread_map.md","genre-config.json"]
+      "prerequisites": [
+        "shenbi-story-architecture",
+        "shenbi-volume-outlining",
+        "shenbi-pacing-design",
+        "shenbi-plot-thread-weaver",
+        "shenbi-genre-config"
+      ],
+      "expected_outputs": [
+        "outline/story_frame.md",
+        "outline/volume_map.md",
+        "outline/rhythm_principles.md",
+        "outline/thread_map.md",
+        "genre-config.json"
+      ],
+      "g4_checker": "shenbi-story-architecture"
     },
     "planning": {
-      "prerequisites": ["shenbi-volume-outlining","shenbi-chapter-planning","shenbi-foreshadowing-plant","shenbi-context-composing"],
-      "expected_outputs": ["plans/chapter-*-plan.md","truth/pending_hooks.md","context/chapter-*-context.md"]
+      "prerequisites": [
+        "shenbi-chapter-planning",
+        "shenbi-foreshadowing-plant",
+        "shenbi-context-composing"
+      ],
+      "expected_outputs": [
+        "plans/chapter-*-plan.md",
+        "truth/pending_hooks.md",
+        "context/chapter-*-context.md"
+      ],
+      "g4_checker": "shenbi-chapter-planning"
     },
     "drafting": {
-      "prerequisites": ["shenbi-chapter-drafting","shenbi-state-settling","shenbi-foreshadowing-track","shenbi-style-polishing","shenbi-anti-detect","shenbi-length-normalizing"],
-      "expected_outputs": ["chapters/chapter-*.md","truth/current_state.md","truth/character_matrix.md","truth/emotional_arcs.md","truth/chapter_summaries.md","truth/pending_hooks.md"]
+      "prerequisites": [
+        "shenbi-chapter-drafting",
+        "shenbi-state-settling",
+        "shenbi-foreshadowing-track",
+        "shenbi-style-polishing",
+        "shenbi-anti-detect",
+        "shenbi-length-normalizing"
+      ],
+      "expected_outputs": [
+        "chapters/chapter-*.md",
+        "truth/current_state.md",
+        "truth/character_matrix.md",
+        "truth/emotional_arcs.md",
+        "truth/chapter_summaries.md",
+        "truth/pending_hooks.md"
+      ],
+      "g4_checker": "shenbi-chapter-drafting"
+    },
+    "audit": {
+      "prerequisites": [
+        "shenbi-review-character",
+        "shenbi-review-continuity",
+        "shenbi-review-dialogue",
+        "shenbi-review-pacing",
+        "shenbi-review-anti-ai",
+        "shenbi-review-foreshadowing",
+        "shenbi-review-world-rules",
+        "shenbi-review-sensitivity",
+        "shenbi-review-memo-compliance",
+        "shenbi-review-motivation",
+        "shenbi-review-pov",
+        "shenbi-review-reader-pull",
+        "shenbi-review-highpoint",
+        "shenbi-review-texture",
+        "shenbi-review-long-span",
+        "shenbi-review-era",
+        "shenbi-review-fanfic",
+        "shenbi-review-spinoff"
+      ],
+      "expected_outputs": [
+        "audits/chapter-*-character.md",
+        "audits/chapter-*-continuity.md",
+        "audits/chapter-*-dialogue.md",
+        "audits/chapter-*-pacing.md",
+        "audits/chapter-*-anti-ai.md",
+        "audits/chapter-*-foreshadowing.md",
+        "audits/chapter-*-world-rules.md",
+        "audits/chapter-*-sensitivity.md",
+        "audits/chapter-*-memo-compliance.md",
+        "audits/chapter-*-motivation.md",
+        "audits/chapter-*-pov.md",
+        "audits/chapter-*-reader-pull.md",
+        "audits/chapter-*-highpoint.md",
+        "audits/chapter-*-texture.md",
+        "audits/chapter-*-long-span.md",
+        "audits/chapter-*-era.md",
+        "audits/chapter-*-fanfic.md",
+        "audits/chapter-*-spinoff.md"
+      ],
+      "g4_checker": null,
+      "_g4_note": "G4 checker for review-character not yet implemented in validate-gate.py"
+    },
+    "management": {
+      "prerequisites": [
+        "shenbi-snapshot-manage",
+        "shenbi-drift-guidance",
+        "shenbi-intent-management",
+        "shenbi-chapter-pattern",
+        "shenbi-volume-consolidation"
+      ],
+      "expected_outputs": [
+        "snapshots/*.json",
+        "truth/drift_guidance.md",
+        "truth/author_intent.md",
+        "truth/current_focus.md",
+        "outline/chapter_patterns.md",
+        "volumes/volume-*-summary.md"
+      ],
+      "g4_checker": null,
+      "_g4_note": "G4 checker for snapshot-manage not yet implemented in validate-gate.py"
+    },
+    "import": {
+      "prerequisites": [
+        "shenbi-import-analysis",
+        "shenbi-character-extraction",
+        "shenbi-world-extraction",
+        "shenbi-canon-import"
+      ],
+      "expected_outputs": [
+        "import/analysis/*.md",
+        "characters/*.md",
+        "world/story_bible.md",
+        "world/rules.md",
+        "import/canon/*.md"
+      ],
+      "g4_checker": null,
+      "_g4_note": "G4 checker for import-analysis not yet implemented in validate-gate.py"
+    },
+    "foundation": {
+      "prerequisites": [
+        "shenbi-foundation-review",
+        "shenbi-chapter-revision",
+        "shenbi-truth-sync",
+        "shenbi-style-learning"
+      ],
+      "expected_outputs": [
+        "foundation/review_report.md",
+        "chapters/chapter-*-revised.md",
+        "truth/*.md",
+        "config/style_profile.md"
+      ],
+      "g4_checker": null,
+      "_g4_note": "G4 checker for foundation-review not yet implemented in validate-gate.py"
+    },
+    "short-story": {
+      "prerequisites": [
+        "shenbi-short-outline",
+        "shenbi-short-drafting",
+        "shenbi-short-packaging"
+      ],
+      "expected_outputs": [
+        "short/outline.md",
+        "short/chapter-*.md",
+        "short/package.md"
+      ],
+      "g4_checker": null,
+      "_g4_note": "G4 checker for short-outline not yet implemented in validate-gate.py"
     }
   },
   "t3-pipelines": {
     "long-form": {
-      "prerequisites": ["genesis","architecture","planning","drafting"],
+      "prerequisites": [
+        "genesis",
+        "architecture",
+        "planning",
+        "drafting",
+        "audit",
+        "foundation",
+        "management"
+      ],
       "min_chapter_ratio": 0.5
+    },
+    "short-form": {
+      "prerequisites": [
+        "short-story"
+      ],
+      "min_chapter_ratio": 1.0
+    },
+    "import-form": {
+      "prerequisites": [
+        "import"
+      ],
+      "min_chapter_ratio": 1.0
     }
+  },
+  "_tool_hashes": {
+    "validate-gate.py": "sha256:b388c3add7a399b4cb407ff915b7f5f7e72687aacea15935a1abca01dac4de99",
+    "scoring.py": "sha256:128f86564dead61f55df51ca66c5efdca4c7fec9aa0a10781d1630b8f7af211e",
+    "phase-runner.py": "sha256:0b041f14363baeae477e597c4e4fcd66522c96a5ad87127901a705cc7cfdb406",
+    "summarize-round.py": "sha256:ef8811a78c82a251d8879a53042f1bd523a0ff3545ecd1964157eec6a8e8de4f"
+  },
+  "_out_of_pipeline": {
+    "t1_only_auxiliary": [
+      "shenbi-market-radar",
+      "shenbi-sequel-writing"
+    ],
+    "t1_only_meta": [
+      "shenbi-writing-skills",
+      "using-shenbi"
+    ],
+    "t1_only_drafting_phase": [
+      "shenbi-foreshadowing-resolve"
+    ],
+    "_note": "These skills pass T1 but are not required by any T2 phase. They are auxiliary tools, meta/setup skills, or single-purpose drafting helpers."
   }
 }

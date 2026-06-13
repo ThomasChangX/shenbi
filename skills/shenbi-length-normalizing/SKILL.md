@@ -1,54 +1,59 @@
 ---
 name: shenbi-length-normalizing
-description: Use when a chapter's word count falls outside the target range defined in novel.json and needs compression or expansion to match
+description: Use when a chapter falls below 3000 words (needs expansion) or exceeds 10000 words (needs compression)
 ---
 
 # 字数治理
 
-HARD-GATE: 如果归一化后正文长度 < 原始长度的 25%，拒绝归一化（原章节结构无法支撑目标字数）。
+HARD-GATE: 正文 < 3000 字 → 触发扩写，必须达到 ≥ 3000 字。正文 > 10000 字 → 触发压缩，压缩后不得 < 3000 字且不得 < 原始长度的 25%（取更严格者）。3000-10000 字不触发。
 
 ## 流程
 
 ```dot
 digraph length_normalizing {
-    "Read chapter content + novel.json (chapter_word_count)" -> "Calculate current word count";
-    "Calculate current word count" -> "Within target range?";
-    "Within target range?" -> "Done" [label="yes"];
-    "Within target range?" -> "Expand or compress?" [label="no"];
-    "Expand or compress?" -> "Compress: trim redundant prose" [label="over"];
-    "Expand or compress?" -> "Expand: enrich existing descriptions" [label="under"];
-    "Compress: trim redundant prose" -> "Post-normalization > 25% original?";
-    "Expand: enrich existing descriptions" -> "Output normalized chapter";
-    "Post-normalization > 25% original?" -> "Output normalized chapter" [label="yes"];
-    "Post-normalization > 25% original?" -> "REJECT: chapter structure cannot support target length" [label="no"];
+    "Read chapter content" -> "Calculate current word count";
+    "Calculate current word count" -> "Word count < 3000?";
+    "Word count < 3000?" -> "Expand: enrich descriptions + deepen content" [label="yes"];
+    "Word count < 3000?" -> "Word count > 10000?" [label="no"];
+    "Word count > 10000?" -> "Done — within acceptable range" [label="no (3000-10000)"];
+    "Word count > 10000?" -> "Compress: trim redundant prose + merge descriptions" [label="yes"];
+    "Expand: enrich descriptions + deepen content" -> "Output normalized chapter";
+    "Compress: trim redundant prose + merge descriptions" -> "Compressed ≥ 3000 AND ≥ 25% original?";
+    "Compressed ≥ 3000 AND ≥ 25% original?" -> "Output normalized chapter" [label="yes"];
+    "Compressed ≥ 3000 AND ≥ 25% original?" -> "REJECT: surface compression cannot achieve target without structural damage" [label="no"];
 }
 ```
 
 ## 数据契约
 
-- **Reads:** `chapters/chapter-N.md`, `novel.json` (target_word_count), `genre-config.json`
+- **Reads:** `chapters/chapter-N.md`, `novel.json`
 - **Writes:** none (edits chapter in-place)
 - **Updates:** `chapters/chapter-N.md`
 
 ## 铁律
 
 1. **不改变叙事内容** — 压缩/扩写不能增删事件、改变角色行为、影响伏笔
-2. **软区间优先** — target_word_count ± 15% 是软区间，± 30% 是硬上限
-3. **25% 底线** — 压缩后 < 25% 原始长度 → 章节需要重写，不做表面压缩
-4. **保持声音指纹** — 扩写不能引入 AI 味句式
+2. **3000 字扩写线** — 正文 < 3000 字触发扩写，必须达到 ≥ 3000 字
+3. **10000 字压缩线** — 正文 > 10000 字触发压缩。3000-10000 为可接受范围，不触发任何操作
+4. **压缩双底线** — 压缩后必须同时满足 ≥ 3000 字且 ≥ 原始长度的 25%。违反任一 → 拒绝压缩
+5. **保持声音指纹** — 扩写/压缩不能引入 AI 味句式
 
 ## 压缩策略
 
 - 合并功能重复的描写
 - 剪除冗余修饰（删形容词不删信息）
 - 压缩过渡段落
+- 合并相邻的同类场景描述
+
+注意：表面压缩安全范围约为原始长度的 15-20%。超过此范围需要结构性编辑（拆分章节、合并场景），不在本 skill 范围内。
 
 ## 扩写策略
 
 - 展开角色内心活动
-- 丰富环境描写
+- 丰富环境描写（感官细节）
 - 深化对话潜台词
-- 增加感官细节
+- 增加场景过渡的衔接段落
+- 扩充关键决策时刻的心理过程
 
 ## 输出格式
 
@@ -62,9 +67,10 @@ digraph length_normalizing {
 ## 归一化报告
 
 **原始字数**: N
-**目标区间**: [X, Y] (soft: ±15%, hard: ±30%)
-**归一化后字数**: M (变化: +N/-N, X%)
-**策略**: 压缩 / 扩写
+**触发条件**: N < 3000（扩写）/ N > 10000（压缩）
+**归一化后字数**: M (变化: ±Z, ±X%)
+**策略**: 扩写 / 压缩
+**底线检查**: M ≥ 3000 ✓/✗ | M ≥ 25%×N ✓/✗（压缩时）
 - 段落处理: N处
 - 用词调整: N处
 - 总字数变化: +N/-N (X%)
@@ -76,20 +82,18 @@ digraph length_normalizing {
 ## 字数归一化汇总
 
 **章节**: 第N章
-**触发原因**: [超出软区间 / 低于硬下限 / 平台要求]
+**触发原因**: 正文 < 3000（扩写）/ 正文 > 10000（压缩）
 
 ### 字数对比
 
-| 阶段 | 字数 | 与目标差距 |
-|------|------|-----------|
-| 原始 | N | +/-X% |
-| 目标 | M | 0% (基准) |
-| 软上限 | M×1.15 | +15% |
-| 硬上限 | M×1.30 | +30% |
-| 软下限 | M×0.85 | -15% |
-| 硬下限 | M×0.70 | -30% |
-| 25% 底线 | 原始×0.25 | (保护阈值) |
-| 归一化后 | K | +/-X% |
+| 阶段 | 字数 | 说明 |
+|------|------|------|
+| 原始 | N | < 3000 扩写 / > 10000 压缩 |
+| 扩写线 | 3000 | 低于此触发扩写 |
+| 可接受区间 | 3000-10000 | 不触发任何操作 |
+| 压缩线 | 10000 | 超过此触发压缩 |
+| 25% 底线 | N×0.25 | 压缩时结构保护阈值 |
+| 归一化后 | K | 扩写：K ≥ 3000；压缩：K ≥ max(3000, N×0.25) |
 
 ### 策略应用
 
@@ -102,7 +106,9 @@ digraph length_normalizing {
 - [ ] 事件序列未变
 - [ ] 角色行为未变
 - [ ] 伏笔提及未变
-- [ ] 25% 底线已满足（或已触发 REJECT）
+- [ ] 3000 字底线已满足
+- [ ] 25% 底线已满足
+- [ ] 两条底线均满足（或已触发 REJECT）
 ```
 
 ## Anti-Rationalization

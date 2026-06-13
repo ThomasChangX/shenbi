@@ -1,8 +1,11 @@
+# OS / Editor
 .DS_Store
 *.swp
 *.swo
 *~
-.node_modules/
+
+# Dependencies
+node_modules/
 .env
 .env.local
 
@@ -11,15 +14,18 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Gate system artifacts
-*.bak
-.token-hashes.json
-progress.json
+# IDE
+.idea/
+.vscode/
 
-# Round output (generated per-round, keep template)
-tests/rounds/round-*/meta.json
-tests/rounds/round-*/novel-output/
-tests/rounds/round-*/skill-traces/
-tests/rounds/round-*/t1-reports/
-tests/rounds/round-*/summary.json
-tests/rounds/round-*/enhancement-signals.json
+# Backup files
+*.bak
+
+# Round artifacts — entire real rounds are test-run state, regenerated each run.
+# Only the TEMPLATE is tracked. Pattern matches round-NNN-YYYY-MM-DD only.
+tests/rounds/round-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+
+# Per-skill test outputs (regenerated per test run, not source)
+tests/tiers/t1-skill/*/bug-hunt/bug-hunt-report.md
+tests/tiers/t1-skill/*/clean/clean-report.md
+tests/tiers/t1-skill/*/generative/generative-report.md

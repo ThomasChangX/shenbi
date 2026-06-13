@@ -4,7 +4,7 @@
 `skills/shenbi-review-highpoint/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 17 at `drafts/chapter-17.md`.
+A novel project exists with drafted chapter 17 at `tests/fixtures/chapter-draft-example.md`.
 
 ## Agent Task
 Run shenbi-review-highpoint audit on chapter 17. Produce a complete highpoint audit report including:
@@ -15,4 +15,4 @@ Run shenbi-review-highpoint audit on chapter 17. Produce a complete highpoint au
 5. Overall emotional arc assessment
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-17.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`

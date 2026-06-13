@@ -4,7 +4,7 @@
 `skills/shenbi-anti-detect/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-5.md` that is known to contain AI markers from the drafting process. An initial AI marker audit has been run, identifying several marker points in the text.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md` that is known to contain AI markers from the drafting process. An initial AI marker audit has been run, identifying several marker points in the text.
 
 ## Agent Task
 Run shenbi-anti-detect on the chapter with known AI markers. The agent must:
@@ -16,4 +16,4 @@ Run shenbi-anti-detect on the chapter with known AI markers. The agent must:
 6. Produce a before/after audit comparison with per-marker-type breakdown
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-5.md` with known AI markers
+Drafted chapter from `tests/fixtures/chapter-draft-example.md` with known AI markers

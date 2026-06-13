@@ -4,10 +4,10 @@
 `skills/shenbi-style-learning/SKILL.md`
 
 ## Test Setup
-A novel project exists with reference writing samples at `samples/reference-texts/`. The agent has run style learning on the reference texts and produced a style profile at `config/style_profile.md`.
+A novel project exists with reference writing samples at `tests/fixtures/samples/reference-texts/`. The agent has run style learning on the reference texts and produced a style profile at `tests/fixtures/style-profile-example.md`.
 
 ## Scenario
-The style learning pass has been completed. The produced style profile at `config/style_profile.md` contains subjective judgments mixed with objective statistics. Specifically:
+The style learning pass has been completed. The produced style profile at `tests/fixtures/style-profile-example.md` contains subjective judgments mixed with objective statistics. Specifically:
 
 1. **Subjective quality judgments**: The profile includes statements like:
    - "This writing demonstrates excellent use of short sentences for pacing"
@@ -23,8 +23,8 @@ The style learning pass has been completed. The produced style profile at `confi
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `config/style_profile.md`: throughout prose analysis sections | Subjective judgments — profile contains "excellent," "strong," "impressive," "weak" assessments instead of pure objective statistics | error |
-| `config/style_profile.md`: metrics section | Incomplete metrics — only 5 of 7 required statistical dimensions computed; missing dialogue-to-narrative ratio and paragraph length distribution | error |
+| `tests/fixtures/style-profile-example.md`: throughout prose analysis sections | Subjective judgments — profile contains "excellent," "strong," "impressive," "weak" assessments instead of pure objective statistics | error |
+| `tests/fixtures/style-profile-example.md`: metrics section | Incomplete metrics — only 5 of 7 required statistical dimensions computed; missing dialogue-to-narrative ratio and paragraph length distribution | error |
 
 ## Agent Task
 Run shenbi-style-learning quality check on the produced style profile. The agent must detect the subjective quality judgments (violating objectivity) and the missing statistical dimensions.

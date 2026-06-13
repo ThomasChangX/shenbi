@@ -50,7 +50,7 @@ digraph worldbuilding {
 | `world/story_bible.md` | 世界观圣经（散文，4段式） |
 | `world/rules.md` | 世界铁律（最多10条） |
 | `world/locations.md` | 初始地点图谱（3-5个核心地点） |
-| `truth/` (初始化) | 创建 `current_state.md`, `character_matrix.md`, `emotional_arcs.md`, `chapter_summaries.md` 的空模板（带 frontmatter，body 标记为待填充）。state-settling 首次运行时填充实际数据 |
+| `truth/` (初始化) | 创建 `current_state.md`, `character_matrix.md`, `emotional_arcs.md`, `chapter_summaries.md` 的空模板。每个文件的 YAML frontmatter 必须包含 `type`（truth）、`category`（state 或 character）、`status`（initialized）三个字段，body 标记为待填充。body header 用 `> 此文件由 state-settling 首次运行时填充实际数据。`。state-settling 首次运行时填充实际数据 |
 
 ### story_bible.md 结构
 

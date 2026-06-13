@@ -4,7 +4,7 @@
 `skills/shenbi-foundation-review/SKILL.md`
 
 ## Test Setup
-A novel project's foundation has been reviewed. The foundation review at `reviews/foundation-review.md` evaluates the project's core setup across 5 dimensions:
+A novel project's foundation has been reviewed. The foundation review at `tests/fixtures/report-example.txt` evaluates the project's core setup across 5 dimensions:
 1. Premise clarity (scored 18/25)
 2. Core conflict strength (scored 14/30)
 3. Character foundations (scored 20/25)
@@ -19,7 +19,7 @@ The foundation review produces a total score of 64 and fails to trigger the core
 
 | Location | Defect | Expected severity |
 |----------|--------|-------------------|
-| `reviews/foundation-review.md`: verdict section | Threshold enforcement failure — core-conflict score is 14/30 (below 18/30 threshold) but no core-conflict veto is triggered; the review gives a conditional pass instead of an unconditional fail | error |
+| `tests/fixtures/report-example.txt`: verdict section | Threshold enforcement failure — core-conflict score is 14/30 (below 18/30 threshold) but no core-conflict veto is triggered; the review gives a conditional pass instead of an unconditional fail | error |
 
 ## Agent Task
 Run shenbi-foundation-review quality check on the review output. The agent must detect that the core-conflict veto should have been triggered given the 14/30 score but was not applied.

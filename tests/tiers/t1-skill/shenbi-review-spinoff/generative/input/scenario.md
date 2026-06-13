@@ -4,7 +4,7 @@
 `skills/shenbi-review-spinoff/SKILL.md`
 
 ## Test Setup
-A spinoff novel project exists alongside a parent novel. The parent novel's chapter summaries at `truth/parent_chapter_summaries.md` record all events. Drafted spinoff chapter 6 at `drafts/spinoff-chapter-6.md`.
+A spinoff novel project exists alongside a parent novel. The parent novel's chapter summaries at `tests/fixtures/chapter-summaries-example.md` record all events. Drafted spinoff chapter 6 at `tests/fixtures/chapter-draft-example.md`.
 
 ## Agent Task
 Run shenbi-review-spinoff audit on spinoff chapter 6. Produce a complete spinoff audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-spinoff audit on spinoff chapter 6. Produce a complete spinoff
 4. Spinoff consistency check against parent world
 
 ## Seed Input
-Drafted spinoff chapter from `drafts/spinoff-chapter-6.md`, parent chapter summaries from `truth/parent_chapter_summaries.md`
+Drafted spinoff chapter from `tests/fixtures/chapter-draft-example.md`, parent chapter summaries from `tests/fixtures/chapter-summaries-example.md`

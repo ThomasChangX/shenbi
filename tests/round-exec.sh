@@ -86,29 +86,8 @@ echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
 
 mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,novel-output,skill-traces}
 
-# progress.json with full schema
-SKILL_COUNT=$(ls -d skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-SKILL_NAMES_FILE=$(mktemp)
-ls skills/ | grep -v '^\.' | sort > "$SKILL_NAMES_FILE"
-SKILL_LIST_JSON=$(python3 -c "import json;lines=open('${SKILL_NAMES_FILE}').read().strip().split('\n');print(json.dumps(lines))")
-rm "$SKILL_NAMES_FILE"
-
-cat > "${ROUND_DIR}/progress.json" << PROGEOF
-{
-  "round": "${ROUND_NUM}",
-  "tier": "${TIER}",
-  "test_cycle_phase": "generative",
-  "subagent_completion_count": 0,
-  "completed_skill_names": [],
-  "skills": {},
-  "remaining_generative": ${SKILL_LIST_JSON},
-  "remaining_bug_hunt": [],
-  "remaining_clean": [],
-  "gate_blockers": [],
-  "total_framework_skills": ${SKILL_COUNT},
-  "expected_chapters": ${EXPECTED_CHAPTERS}
-}
-PROGEOF
+# progress.json: written via update-progress.py single-writer (no direct edits)
+python3 tests/update-progress.py init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
 
 # Override tokens
 TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")

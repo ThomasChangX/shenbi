@@ -4,7 +4,7 @@
 `skills/shenbi-style-learning/SKILL.md`
 
 ## Test Setup
-A novel project exists with reference writing samples from the human author at `samples/reference-texts/`. There are 5 reference texts totaling approximately 30,000 words, sufficient for statistical analysis.
+A novel project exists with reference writing samples from the human author at `tests/fixtures/samples/reference-texts/`. There are 5 reference texts totaling approximately 30,000 words, sufficient for statistical analysis.
 
 ## Agent Task
 Run shenbi-style-learning on the reference texts to produce a style profile. The agent must:
@@ -15,4 +15,4 @@ Run shenbi-style-learning on the reference texts to produce a style profile. The
 5. Structure the profile for downstream skills (style-polishing, anti-detect) to reference
 
 ## Seed Input
-Reference writing samples from `samples/reference-texts/`
+Reference writing samples from `tests/fixtures/samples/reference-texts/`

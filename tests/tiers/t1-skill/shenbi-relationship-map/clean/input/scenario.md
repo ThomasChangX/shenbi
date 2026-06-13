@@ -5,7 +5,7 @@
 
 ## Test Setup
 A novel project exists with complete, correct relationship map output:
-- `characters/relationships.md` — every relationship has start state, turning points, expected end state, interest grounding, and information boundary records
+- `tests/fixtures/character-profile-example.md` — every relationship has start state, turning points, expected end state, interest grounding, and information boundary records
 - All relationship data exists only in relationships.md (no duplication in character cards)
 - Information asymmetries are tracked as dramatic tension sources
 - All referenced characters exist in character files

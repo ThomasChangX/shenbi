@@ -4,7 +4,7 @@
 `skills/shenbi-import-analysis/SKILL.md`
 
 ## Test Setup
-A novel manuscript exists at `chapters/` with 12 source chapters. The 8-pass import analysis pipeline has been correctly executed, producing output at `import/analysis/` (01_parse.md through 08_state.md).
+A novel manuscript exists at `tests/fixtures/chapters/` with 12 source chapters. The 8-pass import analysis pipeline has been correctly executed, producing output at `tests/fixtures/import/analysis/` (01_parse.md through 08_state.md).
 
 All output is correct:
 - Every extracted fact has a chapter.paragraph reference

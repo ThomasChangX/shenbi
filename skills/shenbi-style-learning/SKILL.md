@@ -7,23 +7,20 @@ description: Use when extracting a style fingerprint from existing chapters for 
 
 从现有章节提取风格指纹。负责句长/段长统计、TTR、高频模式、修辞特征。
 
-**纯统计，零 LLM。**
+**统计计算由 `compute_stats.py` 执行（确定性），LLM 只负责将统计结果转化为散文描述。**
 
 ## 流程
 
 ```dot
 digraph style_learning {
-    "Read source chapters" -> "Tokenize (per chapter + global)";
-    "Tokenize" -> "Compute sentence length distribution";
-    "Compute sentence length distribution" -> "Compute paragraph length distribution";
-    "Compute paragraph length distribution" -> "Compute TTR (type-token ratio)";
-    "Compute TTR" -> "Extract high-frequency n-grams (2/3/4-grams)";
-    "Extract n-grams" -> "Detect rhetorical patterns (parallelism, antithesis, repetition)";
-    "Detect rhetorical patterns" -> "Compute punctuation density (commas, periods, exclamations)";
-    "Compute punctuation density" -> "Compute connective density (然后/但是/于是/...)";
-    "Compute connective density" -> "Write to style/style_profile.md";
+    "Read source chapters" -> "Run compute_stats.py on chapter files";
+    "Run compute_stats.py on chapter files" -> "LLM reads JSON stats output";
+    "LLM reads JSON stats output" -> "LLM writes style_profile.md (stats + prose)";
+    "LLM writes style_profile.md (stats + prose)" -> "Done";
 }
 ```
+
+**第一步必须运行** `python3 skills/shenbi-style-learning/compute_stats.py <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
 
 ## 数据契约
 
@@ -33,7 +30,7 @@ digraph style_learning {
 
 ## 铁律
 
-1. **零 LLM 调用** — 所有指标都是统计结果，绝不调用语言模型进行"风格总结"
+1. **统计由脚本执行** — 所有指标由 `compute_stats.py` 计算，禁止 LLM 估算统计值。LLM 仅负责将脚本输出的 JSON 转为散文描述
 2. **统计而非评判** — 输出"是什么"，不输出"好不好"
 3. **样本量要求** — 至少 10 章有效样本；不足 10 章时明确标注"样本不足"
 4. **可重现** — 相同输入必须产生相同输出（无随机性）

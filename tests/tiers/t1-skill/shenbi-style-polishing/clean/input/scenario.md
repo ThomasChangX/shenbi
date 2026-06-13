@@ -4,7 +4,7 @@
 `skills/shenbi-style-polishing/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-7.md`. The chapter has been polished and the result is at `drafts/chapter-7-polished.md`. A polishing report is at `reports/chapter-7-polish-report.md`.
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md`. The chapter has been polished and the result is at `tests/fixtures/chapter-draft-example.md`. A polishing report is at `tests/fixtures/report-example.txt`.
 
 The polishing is fully correct:
 - All changes are purely prose style improvements (sentence rhythm, word choice, pacing of descriptions)

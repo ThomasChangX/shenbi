@@ -4,11 +4,11 @@
 `skills/shenbi-chapter-revision/SKILL.md`
 
 ## Test Setup
-A novel project exists with a drafted chapter at `drafts/chapter-12.md`. An audit produced two findings:
+A novel project exists with a drafted chapter at `tests/fixtures/chapter-draft-example.md`. An audit produced two findings:
 - Finding A1 (warning): Sword name mismatch — "Frostbite" in text vs "Frostveil" in truth file.
 - Finding A2 (warning): Time-of-day inconsistency — "afternoon crowds" but scene established as dawn.
 
-The revised chapter at `drafts/chapter-12-revised.md` is fully correct:
+The revised chapter at `tests/fixtures/chapter-draft-example.md` is fully correct:
 - Finding A1 fixed: sword name corrected to "Frostveil"
 - Finding A2 fixed: market description changed to "bustling with the first light of dawn"
 - No new plot elements, characters, or narrative threads introduced

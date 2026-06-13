@@ -4,7 +4,7 @@
 `skills/shenbi-foundation-review/SKILL.md`
 
 ## Test Setup
-A novel project's foundation has been reviewed at `reviews/foundation-review.md`. The review is fully correct:
+A novel project's foundation has been reviewed at `tests/fixtures/report-example.txt`. The review is fully correct:
 - Premise clarity: 21/25
 - Core conflict strength: 22/30
 - Character foundations: 20/25

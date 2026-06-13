@@ -4,7 +4,7 @@
 `skills/shenbi-sequel-writing/SKILL.md`
 
 ## Test Setup
-A novel project with 25 published chapters was paused after chapter 25. A breakpoint snapshot exists at `snapshots/chapter-025/`. Truth files and chapter summaries are available. No sequel writing has been started yet.
+A novel project with 25 published chapters was paused after chapter 25. A breakpoint snapshot exists at `tests/fixtures/snapshots/chapter-025/`. Truth files and chapter summaries are available. No sequel writing has been started yet.
 
 ## Agent Task
 Run shenbi-sequel-writing to resume the project from chapter 26. The agent must:
@@ -17,4 +17,4 @@ Run shenbi-sequel-writing to resume the project from chapter 26. The agent must:
 7. Continue writing from chapter 26
 
 ## Seed Input
-Breakpoint snapshot at `snapshots/chapter-025/` with 25 published chapters
+Breakpoint snapshot at `tests/fixtures/snapshots/chapter-025/` with 25 published chapters

@@ -4,7 +4,7 @@
 `skills/shenbi-snapshot-manage/SKILL.md`
 
 ## Test Setup
-A novel project has 11 truth files in the `truth/` directory and 20 completed chapters. The project is about to begin a major revision arc starting at chapter 18. A snapshot is needed to preserve the current state.
+A novel project has 11 truth files in the `tests/fixtures/truth/` directory and 20 completed chapters. The project is about to begin a major revision arc starting at chapter 18. A snapshot is needed to preserve the current state.
 
 ## Agent Task
 Run shenbi-snapshot-manage to create a snapshot before the revision arc. The agent must:
@@ -15,4 +15,4 @@ Run shenbi-snapshot-manage to create a snapshot before the revision arc. The age
 5. Support view and list operations on the created snapshot
 
 ## Seed Input
-Truth files from `truth/`, existing chapter drafts from `drafts/`
+Truth files from `tests/fixtures/truth/`, existing chapter drafts from `tests/fixtures/drafts/`

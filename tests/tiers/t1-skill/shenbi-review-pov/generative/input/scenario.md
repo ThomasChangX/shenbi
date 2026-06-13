@@ -4,7 +4,7 @@
 `skills/shenbi-review-pov/SKILL.md`
 
 ## Test Setup
-A novel project exists with drafted chapter 13 at `drafts/chapter-13.md`. The chapter is written in limited POV. Chapter summaries at `truth/chapter_summaries.md` record all events and who was present.
+A novel project exists with drafted chapter 13 at `tests/fixtures/chapter-draft-example.md`. The chapter is written in limited POV. Chapter summaries at `tests/fixtures/chapter-summaries-example.md` record all events and who was present.
 
 ## Agent Task
 Run shenbi-review-pov audit on chapter 13. Produce a complete POV audit report including:
@@ -14,4 +14,4 @@ Run shenbi-review-pov audit on chapter 13. Produce a complete POV audit report i
 4. Head-hopping detection (unauthorized POV switches)
 
 ## Seed Input
-Drafted chapter from `drafts/chapter-13.md`, chapter summaries from `truth/chapter_summaries.md`
+Drafted chapter from `tests/fixtures/chapter-draft-example.md`, chapter summaries from `tests/fixtures/chapter-summaries-example.md`

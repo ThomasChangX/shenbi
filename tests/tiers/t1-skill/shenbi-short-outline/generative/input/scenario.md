@@ -4,7 +4,7 @@
 `skills/shenbi-short-outline/SKILL.md`
 
 ## Test Setup
-A short novel project (15 chapters) has `novel.json` and `truth/author_intent.md` configured. No outline has been generated yet.
+A short novel project (15 chapters) has `tests/fixtures/novel-example.json` and `tests/fixtures/author-intent-example.md` configured. No outline has been generated yet.
 
 ## Agent Task
 Run shenbi-short-outline for the project. The agent must:
@@ -16,4 +16,4 @@ Run shenbi-short-outline for the project. The agent must:
 6. Create genuine reversal turning points
 
 ## Seed Input
-Project config at `novel.json` with `truth/author_intent.md` (15-chapter short novel)
+Project config at `tests/fixtures/novel-example.json` with `tests/fixtures/author-intent-example.md` (15-chapter short novel)

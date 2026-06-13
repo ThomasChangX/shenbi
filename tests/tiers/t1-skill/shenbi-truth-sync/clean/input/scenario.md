@@ -4,7 +4,7 @@
 `skills/shenbi-truth-sync/SKILL.md`
 
 ## Test Setup
-A novel project has chapters 1-18 completed. The truth sync scope is set to chapters 15-18. All chapter content in this scope is consistent with the existing truth files. The sync output at `sync/truth-sync-15-18.md` is fully correct:
+A novel project has chapters 1-18 completed. The truth sync scope is set to chapters 15-18. All chapter content in this scope is consistent with the existing truth files. The sync output at `tests/fixtures/report-example.txt` is fully correct:
 - All extracted facts faithfully represent chapter text
 - All conflicts between chapter text and truth files detected and flagged
 - Only changed portions updated (incremental)

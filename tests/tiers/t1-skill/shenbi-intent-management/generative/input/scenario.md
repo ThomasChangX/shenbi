@@ -8,7 +8,7 @@ A novel project is between chapters. The human author has just provided new crea
 - "I want the next arc to focus on the political intrigue in the capital. The main character should be forced to navigate court politics for the first time."
 - "Also, the subplot with the missing artifact needs to reach a turning point soon."
 
-Drift guidance at `guidance/drift-chapter-16.md` contains 4 warning-level items. The existing `truth/author_intent.md` contains the original creative vision.
+Drift guidance at `tests/fixtures/audit-report-example.md` contains 4 warning-level items. The existing `tests/fixtures/author-intent-example.md` contains the original creative vision.
 
 ## Agent Task
 Run shenbi-intent-management to update the project's current focus. The agent must:
@@ -20,4 +20,4 @@ Run shenbi-intent-management to update the project's current focus. The agent mu
 6. Follow YAML frontmatter schema for both files
 
 ## Seed Input
-Human input from conversation, drift guidance from `guidance/drift-chapter-16.md`, existing intent from `truth/author_intent.md`
+Human input from conversation, drift guidance from `tests/fixtures/audit-report-example.md`, existing intent from `tests/fixtures/author-intent-example.md`

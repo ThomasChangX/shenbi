@@ -4,7 +4,7 @@
 `skills/shenbi-foreshadowing-track/SKILL.md`
 
 ## Test Setup
-A novel project exists with correct foreshadowing tracking output for chapter 10 in `truth/pending_hooks.md`:
+A novel project exists with correct foreshadowing tracking output for chapter 10 in `tests/fixtures/pending-hooks-example.md`:
 - All 8 active hooks have been assessed in the tracking report — none skipped
 - Each state transition includes specific textual evidence from chapter 10
 - Core hooks (core_hook: true) are maintained — none abandoned

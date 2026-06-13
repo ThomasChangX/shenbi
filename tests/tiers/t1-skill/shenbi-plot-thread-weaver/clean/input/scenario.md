@@ -5,8 +5,8 @@
 
 ## Test Setup
 A novel project exists with complete, correct plot thread output:
-- `story/threads.md` — all threads with correct priorities, A-lines within max_gap, C-lines resolved within span
-- `story/thread-map.md` — every chapter advances at least one thread, subplot climaxes complement volume climaxes
+- `tests/fixtures/chapter-plan-example.md` — all threads with correct priorities, A-lines within max_gap, C-lines resolved within span
+- `tests/fixtures/chapter-plan-example.md` — every chapter advances at least one thread, subplot climaxes complement volume climaxes
 
 Every chapter advances at least one thread. A-lines don't exceed max_gap. C-lines resolve within their planned spans. Subplot climaxes complement volume climaxes. Thread crossings serve dramatic effect. Priority classifications are accurate.
 
