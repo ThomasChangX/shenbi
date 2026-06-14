@@ -46,11 +46,16 @@ P-1 的核心非动作：
 
 ### 加成项（5 项，编号 15-19，与必做项连续）
 
+> **术语注释**：以下文中的 `Q1=D`、`Q2=D`、`切法 D` 等标注指 brainstorming 阶段的"问题 N，方案 D"决策。完整决策记录见 conversation history（brainstorming 阶段）与对应 ADR。具体而言：
+> - `Q1=D` = validate-gate.py 拆分采用"机械拆分 + 所有非 P0 依赖的语义改善"（参考 ADR 0008）
+> - `Q2=D` = phantom rounds 归档采用"归档 + 每轮 README + 索引"（参考 ADR 命名约定）
+> - `切法 D` = 通用方案 D，泛指本轮迭代中"前向形式化验证"或"行业最佳实践"的方案选项
+
 15. pytest-benchmark（基准测试，回归检测）
-16. pip-audit / safety（CI 跑漏洞扫描）
+16. pip-audit（CI 跑漏洞扫描；safety 是同类替代品，本框架选 pip-audit 因其依赖较少且官方 PyPA 维护）
 17. SBOM 生成（CycloneDX，为未来产品发布准备）
 18. mkdocs-material 自动文档（API 文档从 Pydantic 与 docstring 生成）
-19. mutmut / cosmic-ray（mutation testing，验证测试质量）
+19. mutmut / cosmic-ray（mutation testing，验证测试质量。**注**：本项无独立 PR，作为 PR-16 (benchmark + audit + SBOM) 的延伸——配置 pyproject.toml 的 [tool.mutmut] 已在 PR-1 完成；运行基线 + 写入 `tests/baselines/mutation-score.txt` 是 PR-16 的一部分。Acceptance criteria 中"mutation score 基线建立"由 PR-16 满足。）
 
 ### 目录重命名
 
@@ -169,8 +174,8 @@ dependencies = [
     "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
-    "patch>=1.16",
-    "click>=8.1.7",
+    # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
+    # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
 ]
 
 [project.optional-dependencies]
@@ -386,7 +391,7 @@ CI 必须拆分为两个 pytest 调用：
 pytest -n auto -m "not last"
 
 # Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）
-pytest -n 1 -p no:xdist -m "last"
+pytest -p no:xdist -m "last"
 ```
 
 `ci.yml` 中 `quality` job 的 pytest 步骤改为：
@@ -396,7 +401,7 @@ pytest -n 1 -p no:xdist -m "last"
   run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
 
 - name: Run coverage threshold test (serial, last only)
-  run: uv run pytest -n 1 -p no:xdist -m "last"
+  run: uv run pytest -p no:xdist -m "last"
 ```
 
 dev 本地单跑 `pytest` 时（不传 `-n auto`），`@pytest.mark.last` 自然生效，无需拆分。
@@ -554,10 +559,10 @@ jobs:
       # xdist (-n auto) 忽略 @pytest.mark.last 顺序，必须拆分两步：
       # Step 1: 并行跑主测试（排除 last marker），生成 coverage.xml
       - name: Run tests (parallel, excluding last)
-        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml --cov-report=xml:tests/coverage/coverage.xml
       # Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）
       - name: Run coverage threshold test (serial, last only)
-        run: uv run pytest -n 1 -p no:xdist -m "last"
+        run: uv run pytest -p no:xdist -m "last"
 
   action-validation:
     runs-on: ubuntu-latest
@@ -658,7 +663,8 @@ repos:
       - id: yamllint
         args: [--strict]
         files: \.(yaml|yml)$
-        exclude: ^tests/rounds/archived/
+        # 同时排除已归档与未归档的 round 数据（避免 PR-8 与 PR-14 之间的窗口期失败）
+        exclude: ^tests/rounds/(archived/|round-[0-9]{3}-)
 
   # 所有 local hooks 合并到单一 - repo: local 块（业界惯例）
   - repo: local
