@@ -551,8 +551,13 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy .
       - run: uv run basedpyright  # 纯 Python，无 Node.js
-      - run: uv run pytest --hypothesis-profile=ci
-      # test_branch_coverage_meets_threshold 已在 pytest 内，自动校验 80% branch
+      # xdist (-n auto) 忽略 @pytest.mark.last 顺序，必须拆分两步：
+      # Step 1: 并行跑主测试（排除 last marker），生成 coverage.xml
+      - name: Run tests (parallel, excluding last)
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml
+      # Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）
+      - name: Run coverage threshold test (serial, last only)
+        run: uv run pytest -n 1 -p no:xdist -m "last"
 
   action-validation:
     runs-on: ubuntu-latest
@@ -582,6 +587,8 @@ jobs:
       - run: uv sync --frozen
       - run: uv run pip-audit
       - run: uv run cyclonedx-py environment -o sbom.cdx.json
+      # 注：dev deps 中 cyclonedx-bom>=4.0.0 包提供 cyclonedx-py CLI 入口
+      # （cyclonedx-bom 是包名，cyclonedx-py 是 console_script 名称）
       - uses: actions/upload-artifact@v4
         with: { name: sbom, path: sbom.cdx.json }
 ```
@@ -782,6 +789,14 @@ nav:
   - ADRs: adr/
   - API: api/
 ```
+
+**最小文档内容（PR-17 必须创建）**：`mkdocs build --strict` 在空 `docs/` 上会 fail。PR-17 必须同时创建：
+
+- `docs/index.md`：项目简介（P-1 + P0-P6 + T1-T3 + 20 万字小说目标，1 页）
+- `docs/architecture.md`：从 spec Section 1 提炼的架构概览（1 页）
+- `docs/adr/README.md`：ADR 索引（自动列出 0001-0009）
+
+其余 API 文档（`docs/api/`）由 mkdocstrings 自动生成，不需要手写。深度文档（开发指南、用户手册）留给后续 P 阶段或专门文档 PR。
 
 ### Group F: 重构（PR 12-13）
 
@@ -1255,7 +1270,13 @@ tests/
   benchmark/
 ```
 
-`baselines/` 由 `tests/regenerate-baselines.sh` 一次性生成（P-1 开始前）。
+**`baselines/` 生成**：`tests/regenerate-baselines.sh` 由 **PR-12（validate-gate.py 拆分）** 创建并运行。脚本流程：
+
+1. 在 PR-12 开始前，对当前 main 分支的 `validate-gate.py` 跑全部 G0-G7 + 所有 G4 checker（≥200 个调用组合），capture stdout 到 `tests/baselines/`。
+2. PR-12 完成后，跑同样的调用，对比新输出与 baseline（modulo timestamp），验证等价性。
+3. PR-12 提交时包含 baseline 文件（git tracked），未来 P0-P6 改 gate 行为时 baseline 更新作为单独 commit。
+
+脚本归属：PR-12。脚本路径：`tests/regenerate-baselines.sh`。
 
 ### 5.8 CI 测试矩阵
 
@@ -1280,17 +1301,19 @@ P-1 完成后，未来 P0-P6 的 PR 必须：
 
 ### 5.10 P-1 测试工作量
 
-- 写 conftest.py + sample tests：~50 tests，2 小时
-- 改写 test_integrity.py 为 pytest：~150 tests，4 小时
-- 异常类测试：~80 tests，3 小时
-- logging 测试：~30 tests，2 小时
-- gate 等价性测试：~60 tests（含 baseline 生成），4 小时
-- dispatcher 等价性测试：~40 tests，3 小时
-- round 归档验证：~10 tests，1 小时
-- 文档 + CI workflow 测试：~30 tests，2 小时
-- property/benchmark 基础设施：~20 tests，2 小时
+- 写 conftest.py + sample tests：~50 tests，3 小时
+- 改写 test_integrity.py 为 pytest：~150 tests，8 小时
+- 异常类测试：~80 tests，5 小时
+- logging 测试：~30 tests，3 小时
+- gate 等价性测试：~60 tests（含 baseline 生成），8 小时
+- dispatcher 等价性测试：~40 tests，5 小时
+- round 归档验证：~10 tests，2 小时
+- 文档 + CI workflow 测试：~30 tests，3 小时
+- property/benchmark 基础设施：~20 tests，3 小时
 
-**P-1 总测试数：~470 tests**，工时合计 23 小时（精确求和：2+4+3+2+4+3+1+2+2=23）。
+**P-1 总测试数：~470 tests**，工时合计 40 小时（精确求和：3+8+5+3+8+5+2+3+3=40）。
+
+> 上一版本估计 23 小时过于乐观（假设每测试 ~3 分钟，含 setup/review/debug）。修正后按每测试 ~5 分钟（含 baseline 对比、CI yaml 调试、property-based 反例 shrink）计算，~40 小时 ≈ 1 人周。
 
 ## Section 6: Rollout Strategy
 
