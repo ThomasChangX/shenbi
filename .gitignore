@@ -59,3 +59,6 @@ site/
 sbom.cdx.json
 .mutmut-cache
 !tests/coverage/.gitkeep
+
+# Worktrees (local isolated workspaces)
+.worktrees/
