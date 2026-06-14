@@ -110,6 +110,7 @@ convention = "google"
     "C401", "C416",
     "B007",
 ]
+"tests/exceptions.py" = ["D107", "D105", "N818"]
 
 [tool.mypy]
 python_version = "3.11"
