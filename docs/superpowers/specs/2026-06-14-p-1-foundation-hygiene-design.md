@@ -601,17 +601,6 @@ repos:
       - id: mypy
         additional_dependencies: [pydantic>=2.5]
         args: [--strict]
-  - repo: local
-    hooks:
-      # basedpyright 没有官方 pre-commit mirror（基于 Node.js 的 pyright mirror 不适用）
-      # 改用 local hook 调用 uv run basedpyright，版本由 uv.lock 锁定
-      - id: basedpyright
-        name: basedpyright (strict type check)
-        entry: uv run basedpyright
-        language: system
-        types: [python]
-        pass_filenames: false
-        # 校验整个仓库，不传文件名（pyright 自身管理 include/exclude）
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -628,9 +617,20 @@ repos:
         args: [--strict]
         files: \.(yaml|yml)$
         exclude: ^tests/rounds/archived/
-  
+
+  # 所有 local hooks 合并到单一 - repo: local 块（业界惯例）
   - repo: local
     hooks:
+      # basedpyright 没有官方 pre-commit mirror（基于 Node.js 的 pyright mirror 不适用）
+      # 改用 local hook 调用 uv run basedpyright，版本由 uv.lock 锁定
+      - id: basedpyright
+        name: basedpyright (strict type check)
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+        pass_filenames: false
+        # 校验整个仓库，不传文件名（basedpyright 自身管理 include/exclude）
+
       # P0 scaffolding：P-1 时点 skills/ 无 .yaml，tests/tiers/ 也不存在，
       # 此 hook 不会触发。P0 完成 skills/<name>/meta.yaml + scenarios/*.yaml 迁移后激活。
       - id: registry-lockfile-fresh
@@ -836,7 +836,7 @@ tests/rounds/archived/
 | Linter | ruff (strict) |
 | Formatter | ruff format |
 | 类型检查 | mypy + basedpyright (双重，均纯 Python) |
-| 测试框架 | pytest + 8 插件（cov / xdist / asyncio / timeout / benchmark / hypothesis / ordering / action-validator）|
+| 测试框架 | pytest + 7 插件（cov / xdist / asyncio / timeout / benchmark / hypothesis / ordering）|
 | 覆盖率门槛 | 90% line（pytest-cov 内置）+ 80% branch（自写测试强制） |
 | 日志 | structlog (JSON + console) |
 | CI 平台 | GitHub Actions（3 个 workflow 文件：ci / security / docs） |
@@ -856,7 +856,7 @@ tests/rounds/archived/
 Developer → Edit → git add
                       ↓
                   pre-commit hooks
-                  (ruff / mypy / basedpyright / check-yaml / detect-private-key)
+                  (ruff / mypy / basedpyright / check-yaml / detect-private-key / yamllint / action-validator)
                       ↓ (若失败，回到 edit)
                   git commit
                       ↓
@@ -1432,7 +1432,7 @@ shenbi/
 │       ├── 0000-template.md
 │       ├── 0001-pyproject-uv.md
 │       ├── 0002-ruff-strict.md
-│       ├── 0003-mypy-pyright-dual.md
+│       ├── 0003-mypy-basedpyright-dual.md
 │       ├── 0004-pytest-framework.md
 │       ├── 0005-structlog.md
 │       ├── 0006-typed-exceptions.md
@@ -1505,7 +1505,8 @@ shenbi/
 - [uv documentation](https://docs.astral.sh/uv/)
 - [ruff documentation](https://docs.astral.sh/ruff/)
 - [mypy strict mode](https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-strict)
-- [pyright strict mode](https://github.com/microsoft/pyright/blob/main/docs/configuration.md)
+- [basedpyright documentation](https://docs.basedpyright.com/latest/)
+- [pyright strict mode](https://github.com/microsoft/pyright/blob/main/docs/configuration.md) (basedpyright 上游，仅供配置参考)
 - [pytest documentation](https://docs.pytest.org/)
 - [Hypothesis documentation](https://hypothesis.readthedocs.io/)
 - [structlog documentation](https://www.structlog.org/)
