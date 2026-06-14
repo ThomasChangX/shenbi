@@ -35,7 +35,7 @@ P-1 的核心非动作：
 4. pytest 框架（pytest + 7 插件：cov / xdist / asyncio / timeout / benchmark / hypothesis / ordering）
 5. 改写 test_integrity.py 为 pytest 风格
 6. GitHub Actions CI（3 个 workflow：ci / security / docs，含 lint + type + test + coverage + branch coverage 阈值）
-7. pre-commit hooks（ruff/mypy/basedpyright + yamllint + action-validator + registry 自动 rebuild）
+7. pre-commit hooks（ruff/mypy/basedpyright + yamllint + registry 自动 rebuild）
 8. structlog 集成（取代所有 print，约 93 处）
 9. typed exception hierarchy + `error_guidance.py` + `recovery.py`
 10. ADR 模板 + 前 9 条 ADR
@@ -187,7 +187,6 @@ dev = [
     "ruff>=0.1.13", "pre-commit>=3.6.0", "pip-audit>=2.7.0",
     "cyclonedx-bom>=4.0.0", "mutmut>=3.0.0",
     "coverage>=7.4.0",        # 用于 branch coverage 阈值强制
-    "action-validator>=0.0.7",  # GitHub Actions YAML 校验
     "pytest-ordering>=0.6",    # @pytest.mark.last 用于 coverage threshold test
 ]
 docs = ["mkdocs>=1.5.3", "mkdocs-material>=9.5.4", "mkdocstrings[python]>=0.24.0"]
@@ -333,15 +332,28 @@ ignore_errors = true
 
 ```toml
 [tool.basedpyright]
-include = ["tests", "skills"]
-exclude = ["tests/rounds/archived", "**/__pycache__"]
-typeCheckMode = "strict"
+include = ["tests"]
+exclude = [
+    "tests/rounds/archived",
+    "tests/rounds/round-[0-9][0-9][0-9]-*",
+    "**/__pycache__",
+    # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
+    "tests/validate-gate.py",
+    "tests/scoring.py",
+    "tests/phase-runner.py",
+    "tests/summarize-round.py",
+    "tests/update-progress.py",
+    "tests/test_integrity.py",
+]
+typeCheckingMode = "strict"
 pythonVersion = "3.11"
 reportMissingTypeStubs = "warning"
 reportUnknownMemberType = "warning"
 ```
 
 **理由**：`pyright`（Microsoft）需要 Node.js 运行时。`basedpyright` 是 pure-Python fork，避免 Node.js 隐式依赖，更适合"现代 Python 单语言基线"。CI 与本地都通过 `uv run basedpyright` 调用，无外部依赖。
+
+**注**：basedpyright 的配置键是 `typeCheckingMode`（带 -ing）和 `exclude`（数组），不是 `typeCheckMode` 或 `ignoreFile`（这些是 pyright 旧版键名）。P-1.A 执行中发现并修复。
 
 ### Group B: 测试框架（PR 5-6）
 
@@ -574,10 +586,9 @@ jobs:
       - uses: astral-sh/setup-uv@v3
       - run: uv sync --frozen
       - name: Validate GitHub Actions YAML
-        run: |
-          for f in .github/workflows/*.yml; do
-            uv run action-validator "$f"
-          done
+        run: uv run yamllint --strict .github/workflows/
+      # 注：action-validator 是 Node.js 工具（PyPI 无 Python 包），
+      # yamllint 已覆盖 YAML 校验需求。
 ```
 
 ```yaml
@@ -692,13 +703,8 @@ repos:
         pass_filenames: false
         # stub 实现在 PR-1 占位阶段，输出警告即退出 0；P0 替换为真实 build
 
-      - id: action-validator
-        name: GitHub Actions YAML validation
-        entry: uv run action-validator
-        language: system
-        files: ^\.github/workflows/.*\.yml$
-        pass_filenames: true
-        # 版本由 uv.lock 锁定，无显式 rev 标签
+      # 注：原 spec 有 action-validator hook，但 PyPI 无此包（Node.js 工具）。
+      # yamllint 已覆盖 YAML 校验需求，故移除。
 ```
 
 ### Group D: 代码质量基础设施（PR 9-10）
@@ -906,7 +912,7 @@ tests/rounds/archived/
 | Python 版本 | 3.11 + 3.12 matrix |
 | 单测试超时 | 60s |
 | Coverage 报告 | term + html + xml |
-| CI YAML 校验 | action-validator + yamllint |
+| CI YAML 校验 | yamllint（覆盖 .github/workflows/ + .yaml/.yml 文件）|
 | 依赖更新 | Renovate（自动 PR）|
 
 ## Section 3: Data Flow
@@ -917,7 +923,7 @@ tests/rounds/archived/
 Developer → Edit → git add
                       ↓
                   pre-commit hooks
-                  (ruff + ruff-format / mypy / basedpyright / check-yaml / detect-private-key / yamllint / action-validator 等 12 hooks，详见 PR-8)
+                  (ruff + ruff-format / mypy / basedpyright / check-yaml / detect-private-key / yamllint 等 11 hooks，详见 PR-8)
                       ↓ (若失败，回到 edit)
                   git commit
                       ↓
