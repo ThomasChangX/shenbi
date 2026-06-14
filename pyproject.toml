@@ -1,0 +1,65 @@
+[project]
+name = "shenbi"
+version = "0.1.0"
+description = "Shenbi novel-writing AI skill framework"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "ThomasChangX" }]
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
+    "pyyaml>=6.0.1",
+    "structlog>=24.1.0",
+    # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
+    # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-timeout>=2.2.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-ordering>=0.6",
+    "hypothesis>=6.97.0",
+    "mypy>=1.8.0",
+    "basedpyright>=1.13.0",   # 纯 Python 的 pyright fork，避免 Node.js 依赖
+    "ruff>=0.1.13",
+    "pre-commit>=3.6.0",
+    "pip-audit>=2.7.0",
+    "cyclonedx-bom>=4.0.0",
+    "mutmut>=3.0.0",
+    "coverage>=7.4.0",
+]
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.5.4",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+# 注：[project.scripts] 暂不定义。
+# tests.gates.cli 和 tests.dispatcher.cli 由 P-1.B/P-1.C 创建。
+# 等 P-1.C PR-13 完成后再加 entry points。
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tests"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/" = "skills/"
+# 注：docs/adr/ 暂不 force-include（目录由 P-1.C PR-11 创建）。
+# P-1.C PR-11 完成后追加此行： "docs/adr/" = "docs/adr/"
+
+# Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-16)
+[tool.mutmut]
+paths-to-mutate = ["tests/exceptions.py", "tests/logging.py", "tests/gates/shared.py"]
+tests-dir = "tests/unit/"
+do-not-mutate = ["tests/rounds/archived/**"]
+# 注：上述路径在 P-1.A 时不存在（exceptions.py/logging.py 由 PR-9/10 创建，
+# gates/shared.py 由 PR-12 创建，tests/unit/ 由 PR-5 创建）。
+# PR-16 首次跑 mutmut 时验证配置生效。
