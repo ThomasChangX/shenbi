@@ -75,7 +75,7 @@ def main():
                 progress = json.load(f)
             for sn, sd in progress.get("skills", {}).items():
                 for tt, td in sd.items():
-                    if isinstance(td, dict) and td.get("status") == "DONE" and "score" in td:
+                    if isinstance(td, dict) and td.get("status") == "done" and "score" in td:
                         t1_from_progress[f"{sn}-{tt}"] = {
                             "score": td["score"],
                             "band": classify(td["score"]),

@@ -5,9 +5,12 @@ the main test run (which must NOT pass --no-cov). In CI, the main run is
 `pytest -n auto -m "not last"` and this test runs separately with --no-cov
 to avoid overwriting coverage.xml.
 
+Single-invocation guard: if --no-cov was NOT passed (i.e., cov plugin is
+still active), skip — coverage.xml would be stale or missing because
+pytest-cov writes reports at session teardown, after this test runs.
+
 Cobertura XML format: branch counts are attributes on the root <coverage>
-element (branches-valid, branches-covered) and on <package>/<class> elements
-(branch-rate). We parse the root attributes directly.
+element (branches-valid, branches-covered).
 """
 
 import xml.etree.ElementTree as ET
@@ -25,8 +28,14 @@ BRANCH_THRESHOLD_PCT = 0.5
 
 
 @pytest.mark.last
-def test_branch_coverage_meets_threshold() -> None:
+def test_branch_coverage_meets_threshold(request: pytest.FixtureRequest) -> None:
     """Branch coverage across the framework must meet the staged threshold."""
+    if not request.config.getoption("--no-cov", default=False):
+        pytest.skip(
+            "coverage threshold only enforced in the --no-cov second invocation; "
+            "run: pytest -m 'last' --no-cov"
+        )
+
     if not COVERAGE_XML.exists():
         pytest.fail(
             f"coverage.xml not found at {COVERAGE_XML}; ensure the main pytest run "
