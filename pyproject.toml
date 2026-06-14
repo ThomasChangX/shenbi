@@ -153,3 +153,22 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = "tests.rounds.archived.*"
 ignore_errors = true
+
+[tool.basedpyright]
+include = ["tests/_mypy_smoke_test.py"]
+exclude = [
+    "tests/rounds/archived",
+    "tests/rounds/round-[0-9][0-9][0-9]-*",
+    "**/__pycache__",
+    # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
+    "tests/validate-gate.py",
+    "tests/scoring.py",
+    "tests/phase-runner.py",
+    "tests/summarize-round.py",
+    "tests/update-progress.py",
+    "tests/test_integrity.py",
+]
+typeCheckingMode = "strict"
+pythonVersion = "3.11"
+reportMissingTypeStubs = "warning"
+reportUnknownMemberType = "warning"
