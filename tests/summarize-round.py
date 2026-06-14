@@ -80,7 +80,7 @@ def main():
                             "score": td["score"],
                             "band": classify(td["score"]),
                         }
-        except:
+        except Exception:
             pass
 
     if not summary_path.exists():

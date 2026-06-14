@@ -274,7 +274,7 @@ def main():
                         if gate_out.get("status") == "FAIL":
                             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
                             sys.exit(1)
-                    except:
+                    except Exception:
                         pass
 
     # Gate marker enforcement — MUST pass before scoring can proceed

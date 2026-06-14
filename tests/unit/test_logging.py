@@ -8,6 +8,11 @@ Business value: logging must produce correct structured output for both JSON
 
 Test isolation: structlog.configure() modifies global state. The
 isolate_structlog_config fixture saves and restores config around each test.
+
+Caching: configure_logging() sets cache_logger_on_first_use=True for production
+performance. Tests pass cache_logger_on_first_use=False to ensure the
+configured processor chain is always read fresh (not cached before capture
+processors are installed).
 """
 
 import json
@@ -36,16 +41,15 @@ def test_json_renderer_emits_dict_event_with_fields(
     isolate_structlog_config: None,
 ) -> None:
     """JSON renderer path produces a captured event dict with event name and bound fields."""
+    captured_entries: list[Any] = []
+
+    def capture(_logger: Any, _method: str, event_dict: Any) -> str:
+        captured_entries.append(event_dict)
+        return str(event_dict)
+
     with patch.dict(os.environ, {"SHENBI_LOG_FORMAT": "json"}):
-        configure_logging()
+        structlog.configure(processors=[capture], cache_logger_on_first_use=False)
         log = get_logger("test_capture")
-        captured_entries: list[Any] = []
-
-        def capture(_logger: Any, _method: str, event_dict: Any) -> str:
-            captured_entries.append(event_dict)
-            return str(event_dict)
-
-        structlog.configure(processors=[capture])
         log.info("user_action", user_id=42, action="login")
 
     assert len(captured_entries) == 1
@@ -59,16 +63,13 @@ def test_json_renderer_produces_parseable_json_string(
     isolate_structlog_config: None,
 ) -> None:
     """End-to-end: JSON renderer emits a string that json.loads can parse."""
+    captured_strings: list[str] = []
+
+    def capture_string(_logger: Any, _method: str, rendered: Any) -> Any:
+        captured_strings.append(rendered)
+        return rendered
+
     with patch.dict(os.environ, {"SHENBI_LOG_FORMAT": "json"}):
-        configure_logging()
-        log = get_logger("test_json_output")
-
-        captured_strings: list[str] = []
-
-        def capture_string(_logger: Any, _method: str, rendered: Any) -> Any:
-            captured_strings.append(rendered)
-            return rendered
-
         structlog.configure(
             processors=[
                 structlog.contextvars.merge_contextvars,
@@ -77,7 +78,9 @@ def test_json_renderer_produces_parseable_json_string(
                 structlog.processors.JSONRenderer(),
                 capture_string,
             ],
+            cache_logger_on_first_use=False,
         )
+        log = get_logger("test_json_output")
         log.info("test_event", key="value")
 
     assert len(captured_strings) == 1
