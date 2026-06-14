@@ -5,6 +5,9 @@ Business value: logging must produce correct structured output for both JSON
 - JSON renderer emits parseable JSON containing event + bound fields
 - The processor chain preserves context through rendering
 - Default format selection works without env var
+
+Test isolation: structlog.configure() modifies global state. The
+isolate_structlog_config fixture saves and restores config around each test.
 """
 
 import json
@@ -12,12 +15,26 @@ import os
 from typing import Any
 from unittest.mock import patch
 
+import pytest
 import structlog
 
 from tests.logging import configure_logging, get_logger
 
 
-def test_json_renderer_emits_dict_event_with_fields() -> None:
+@pytest.fixture()
+def isolate_structlog_config() -> Any:
+    """Save and restore structlog global config around each test."""
+    original_config = structlog.get_config()
+    original_env = dict(os.environ)
+    yield
+    structlog.configure(**original_config)
+    os.environ.clear()
+    os.environ.update(original_env)
+
+
+def test_json_renderer_emits_dict_event_with_fields(
+    isolate_structlog_config: None,
+) -> None:
     """JSON renderer path produces a captured event dict with event name and bound fields."""
     with patch.dict(os.environ, {"SHENBI_LOG_FORMAT": "json"}):
         configure_logging()
@@ -38,7 +55,9 @@ def test_json_renderer_emits_dict_event_with_fields() -> None:
     assert entry["action"] == "login"
 
 
-def test_json_renderer_produces_parseable_json_string() -> None:
+def test_json_renderer_produces_parseable_json_string(
+    isolate_structlog_config: None,
+) -> None:
     """End-to-end: JSON renderer emits a string that json.loads can parse."""
     with patch.dict(os.environ, {"SHENBI_LOG_FORMAT": "json"}):
         configure_logging()
@@ -68,7 +87,9 @@ def test_json_renderer_produces_parseable_json_string() -> None:
     assert parsed["level"] == "info"
 
 
-def test_console_format_is_default_when_env_unset() -> None:
+def test_console_format_is_default_when_env_unset(
+    isolate_structlog_config: None,
+) -> None:
     """Without SHENBI_LOG_FORMAT, configure_logging should not raise."""
     os.environ.pop("SHENBI_LOG_FORMAT", None)
     configure_logging()
@@ -76,7 +97,9 @@ def test_console_format_is_default_when_env_unset() -> None:
     assert log is not None
 
 
-def test_get_logger_returns_logger_with_standard_methods() -> None:
+def test_get_logger_returns_logger_with_standard_methods(
+    isolate_structlog_config: None,
+) -> None:
     """get_logger should return an object with standard log level methods."""
     configure_logging()
     log = get_logger("test_methods")

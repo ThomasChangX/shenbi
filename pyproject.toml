@@ -40,8 +40,8 @@ docs = [
 ]
 
 # 注：[project.scripts] 暂不定义。
-# tests.gates.cli 和 tests.dispatcher.cli 由 P-1.B/P-1.C 创建。
-# 等 P-1.C PR-13 完成后再加 entry points。
+# gates/cli.py 和 dispatcher/cli.py 当前 forward 到 legacy 脚本（subprocess）。
+# P-1.E 完成 Python 原生重写后再加 entry points。
 
 [build-system]
 requires = ["hatchling"]
@@ -52,8 +52,7 @@ packages = ["tests"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "skills/" = "skills/"
-# 注：docs/adr/ 暂不 force-include（目录由 P-1.C PR-11 创建）。
-# P-1.C PR-11 完成后追加此行： "docs/adr/" = "docs/adr/"
+"docs/adr/" = "docs/adr/"
 
 # Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-16)
 [tool.mutmut]
@@ -154,10 +153,6 @@ ignore_missing_imports = true
 module = "tests.gates.g4.*"
 disallow_untyped_defs = false
 
-[[tool.mypy.overrides]]
-module = "tests.rounds.archived.*"
-ignore_errors = true
-
 [tool.basedpyright]
 include = ["tests"]
 exclude = [
@@ -207,7 +202,10 @@ branch = true
 source = ["tests"]
 
 [tool.coverage.report]
-fail_under = 1  # P-1.B: staged ramp-up; PR-12 raises to 90
+# Staged ramp-up. Current line coverage ~10% (most framework code is legacy
+# untyped modules excluded from type checking). Raise as P-1.E refactors them.
+# Target: 30% after P-1.E, 60% after P-2, 90% after P-3.
+fail_under = 8
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
