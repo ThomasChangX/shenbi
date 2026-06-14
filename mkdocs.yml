@@ -12,6 +12,4 @@ plugins:
         python:
           options:
             show_source: true
-nav:
-  - Home: index.md
-  - ADRs: adr/
+

@@ -32,6 +32,7 @@ dev = [
     "cyclonedx-bom>=4.0.0",
     "mutmut>=3.0.0",
     "coverage>=7.4.0",
+    "yamllint>=1.33.0",
 ]
 docs = [
     "mkdocs>=1.5.3",
