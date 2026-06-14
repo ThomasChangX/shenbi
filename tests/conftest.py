@@ -30,9 +30,3 @@ def sample_worldbuilding_output(tmp_project_dir: Path) -> Path:
     (base / "world").mkdir()
     (base / "world" / "story_bible.md").write_text("# Bible\n## A\nx\n## B\nx\n## C\nx\n## D\nx\n")
     return base
-
-
-@pytest.fixture(autouse=True)
-def configure_logging() -> object:
-    """Configure structlog for tests (no-op until PR-9 adds structlog)."""
-    yield

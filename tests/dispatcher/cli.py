@@ -13,7 +13,7 @@ def main() -> int:
     """Forward to existing dispatch-subagent.sh."""
     script = Path(__file__).resolve().parent.parent / "dispatch-subagent.sh"
     result = subprocess.run(["bash", str(script), *sys.argv[1:]])
-    return int(result.returncode)  # type: ignore[no-any-return]
+    return result.returncode
 
 
 if __name__ == "__main__":

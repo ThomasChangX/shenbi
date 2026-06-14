@@ -1,6 +1,7 @@
 """Tests for typed exception hierarchy."""
 
-from tests.error_guidance import get_guidance
+from tests import exceptions as exc_mod
+from tests.error_guidance import ERROR_GUIDANCE, get_guidance
 from tests.exceptions import (
     FrameworkError,
     GateError,
@@ -86,3 +87,38 @@ class TestRecoveryStrategies:
 
     def test_tool_tamper_halt(self) -> None:
         assert RECOVERY_STRATEGIES["ToolTamperError"] == RecoveryStrategy.HALT
+
+
+class TestCatalogConsistency:
+    """All catalog keys must correspond to real exception classes.
+
+    Catches drift: if an exception class is renamed, the string-keyed dicts
+    would silently break without these checks.
+    """
+
+    def _exception_class_names(self) -> set[str]:
+        return {
+            name
+            for name, obj in vars(exc_mod).items()
+            if isinstance(obj, type) and issubclass(obj, Exception)
+        }
+
+    def test_all_guidance_keys_match_exception_classes(self) -> None:
+        class_names = self._exception_class_names()
+        missing = set(ERROR_GUIDANCE.keys()) - class_names
+        assert not missing, f"ERROR_GUIDANCE keys not found in exceptions.py: {missing}"
+
+    def test_all_recovery_keys_match_exception_classes(self) -> None:
+        class_names = self._exception_class_names()
+        missing = set(RECOVERY_STRATEGIES.keys()) - class_names
+        assert not missing, f"RECOVERY_STRATEGIES keys not found in exceptions.py: {missing}"
+
+    def test_every_guidance_has_nonempty_action(self) -> None:
+        for key, guidance in ERROR_GUIDANCE.items():
+            assert guidance.action, f"{key} has empty action"
+            assert guidance.explanation, f"{key} has empty explanation"
+
+    def test_every_key_in_guidance_has_recovery_strategy(self) -> None:
+        """Errors with guidance should also have a recovery strategy defined."""
+        guidance_only = set(ERROR_GUIDANCE.keys()) - set(RECOVERY_STRATEGIES.keys())
+        assert not guidance_only, f"Errors with guidance but no recovery strategy: {guidance_only}"

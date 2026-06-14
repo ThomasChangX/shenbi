@@ -5,7 +5,7 @@
 
 ## Context
 
-validate-gate.py is 3900+ lines monolithic. Need to split without behavior change.
+validate-gate.py is 4300+ lines monolithic. Need to split without behavior change.
 
 ## Decision
 

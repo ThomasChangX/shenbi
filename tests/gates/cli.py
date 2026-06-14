@@ -1,18 +1,23 @@
 """CLI entry point for gate validation.
 
-P-1.D creates this module as the future entry point.
-Currently forwards to the existing validate-gate.py main().
+P-1.D creates this module as the future entry point. Currently forwards to
+the existing validate-gate.py by subprocess (the hyphenated filename prevents
+direct import). Full modularization deferred to P-1.E.
 """
 
+import subprocess
 import sys
+from pathlib import Path
+
+VG_PATH = Path(__file__).resolve().parent.parent / "validate-gate.py"
 
 
 def main() -> int:
     """Forward to existing validate-gate.py CLI."""
-    from tests import validate_gate
-
-    result = validate_gate.main()
-    return int(result) if result else 0
+    result = subprocess.run(
+        [sys.executable, str(VG_PATH), *sys.argv[1:]],
+    )
+    return result.returncode
 
 
 if __name__ == "__main__":

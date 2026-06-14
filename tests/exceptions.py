@@ -20,8 +20,9 @@ class ShenbiError(Exception):
     ) -> None:
         super().__init__(message)
         self.message = message
-        self.cause = cause
         self.context = context
+        if cause is not None:
+            self.__cause__ = cause
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize for failure catalog and structured logging."""
@@ -29,8 +30,8 @@ class ShenbiError(Exception):
             "error_class": type(self).__name__,
             "message": self.message,
             "context": self.context,
-            "cause_class": type(self.cause).__name__ if self.cause else None,
-            "cause_message": str(self.cause) if self.cause else None,
+            "cause_class": type(self.__cause__).__name__ if self.__cause__ else None,
+            "cause_message": str(self.__cause__) if self.__cause__ else None,
         }
 
     def __str__(self) -> str:

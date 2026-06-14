@@ -26,9 +26,9 @@ jobs:
       - run: uv run mypy tests/
       - run: uv run basedpyright
       - name: Run tests (parallel, excluding last)
-        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
       - name: Run coverage threshold test (serial, last only)
-        run: uv run pytest -p no:xdist -m "last"
+        run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
   action-validation:
     runs-on: ubuntu-latest

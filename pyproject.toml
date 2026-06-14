@@ -70,6 +70,9 @@ target-version = "py311"
 extend-exclude = [
     "tests/rounds/archived",
     "tests/rounds/round-[0-9][0-9][0-9]-*",
+    # Skill-level Python utility scripts are governed by skill conventions, not
+    # the framework's tooling contract. Refactoring them is out of P-1 scope.
+    "skills",
 ]
 
 [tool.ruff.lint]
@@ -129,12 +132,10 @@ namespace_packages = true
 plugins = ["pydantic.mypy"]
 
 # P-1.A temporary overrides: legacy untyped code in tests/*.py
-# PR-12 (P-1.D) will add type hints and remove these overrides.
+# PR-12 (P-1.E) will add type hints and remove these overrides.
 [[tool.mypy.overrides]]
 module = [
     "tests.validate-gate",
-    "tests.gates.cli",
-    "tests.dispatcher.cli",
     "tests.scoring",
     "tests.phase-runner",
     "tests.summarize-round",
@@ -158,7 +159,7 @@ module = "tests.rounds.archived.*"
 ignore_errors = true
 
 [tool.basedpyright]
-include = ["tests/_mypy_smoke_test.py"]
+include = ["tests"]
 exclude = [
     "tests/rounds/archived",
     "tests/rounds/round-[0-9][0-9][0-9]-*",

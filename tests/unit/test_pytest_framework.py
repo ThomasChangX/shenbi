@@ -1,5 +1,6 @@
 """Verify pytest framework infrastructure works."""
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -7,9 +8,16 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 
-def test_conftest_fixtures_loadable(tmp_project_dir: object, configure_logging: object) -> None:
-    """All global fixtures defined in conftest.py should load."""
-    assert tmp_project_dir is not None
+def test_tmp_project_dir_fixture_creates_dir(tmp_project_dir: Path) -> None:
+    """tmp_project_dir should create and return an existing directory."""
+    assert tmp_project_dir.exists()
+    assert tmp_project_dir.is_dir()
+
+
+def test_sample_worldbuilding_fixture_writes_files(sample_worldbuilding_output: Path) -> None:
+    """sample_worldbuilding_output should produce novel.json and world/story_bible.md."""
+    assert (sample_worldbuilding_output / "novel.json").exists()
+    assert (sample_worldbuilding_output / "world" / "story_bible.md").exists()
 
 
 @pytest.mark.unit
