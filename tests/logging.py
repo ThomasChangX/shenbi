@@ -4,16 +4,20 @@ Provides configure_logging() and get_logger() for all framework tools.
 Output format controlled by SHENBI_LOG_FORMAT env var:
 - "json": JSON lines (production, CI)
 - "console": human-readable colored output (dev, default)
+
+All output goes to stderr (Unix convention: stdout is for data, stderr is
+for diagnostics/logs).
 """
 
 import os
+import sys
 from typing import Any, cast
 
 import structlog
 
 
 def configure_logging() -> None:
-    """Configure structlog with JSON or console renderer."""
+    """Configure structlog with JSON or console renderer, writing to stderr."""
     log_format = os.environ.get("SHENBI_LOG_FORMAT", "console")
     renderer: Any = (
         structlog.processors.JSONRenderer()
@@ -29,6 +33,7 @@ def configure_logging() -> None:
             structlog.processors.format_exc_info,
             renderer,
         ],
+        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
         cache_logger_on_first_use=True,
     )
 
