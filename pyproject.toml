@@ -133,6 +133,8 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = [
     "tests.validate-gate",
+    "tests.gates.cli",
+    "tests.dispatcher.cli",
     "tests.scoring",
     "tests.phase-runner",
     "tests.summarize-round",
