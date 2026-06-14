@@ -3,7 +3,7 @@
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -24,7 +24,11 @@ def load_rubric(rubric_path):
             # h3 sub-sections like "### Bug-Hunt Kill Switches" contain the actual kill switch items.
             if stripped.startswith("## ") and not stripped.startswith("### ") and in_kill_switch:
                 in_kill_switch = False
-            if in_kill_switch and ("total score = 0" in stripped.lower() or "phase = 0" in stripped.lower() or "pipeline = 0" in stripped.lower()):
+            if in_kill_switch and (
+                "total score = 0" in stripped.lower()
+                or "phase = 0" in stripped.lower()
+                or "pipeline = 0" in stripped.lower()
+            ):
                 ks_text = stripped.lstrip("- ").rstrip()
                 if ks_text not in kill_switches:
                     kill_switches.append(ks_text)
@@ -38,11 +42,13 @@ def load_rubric(rubric_path):
                         weight = int(cells[2].rstrip("%"))
                     except ValueError:
                         continue
-                    dimensions.append({
-                        "num": int(cells[0]),
-                        "name": cells[1],
-                        "weight": weight,
-                    })
+                    dimensions.append(
+                        {
+                            "num": int(cells[0]),
+                            "name": cells[1],
+                            "weight": weight,
+                        }
+                    )
             elif in_table and not stripped.startswith("|"):
                 in_table = False
     return dimensions, kill_switches
@@ -71,7 +77,9 @@ def load_applicability(rubric_path):
                         if test_type not in applicability:
                             applicability[test_type] = {}
                         cell_val = cells[i + 1] if i + 1 < len(cells) else "Yes"
-                        applicability[test_type][dim_scope] = cell_val.strip().lower().startswith("no") is False
+                        applicability[test_type][dim_scope] = (
+                            cell_val.strip().lower().startswith("no") is False
+                        )
     return applicability
 
 
@@ -83,6 +91,7 @@ def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
     out and renormalize weights.
     """
     import re
+
     if not test_type:
         return dimensions
     applicability = load_applicability(rubric_path)
@@ -99,9 +108,9 @@ def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
     excluded_nums = set()
     for scope, applies in applicable_scopes.items():
         if not applies:
-            nums = re.findall(r'dim\s+(\d+)', scope, re.IGNORECASE)
+            nums = re.findall(r"dim\s+(\d+)", scope, re.IGNORECASE)
             excluded_nums.update(int(n) for n in nums)
-            scope_nums = re.findall(r'#?(\d+)', scope)
+            scope_nums = re.findall(r"#?(\d+)", scope)
             excluded_nums.update(int(n) for n in scope_nums if int(n) <= 20)
     if not excluded_nums:
         return dimensions
@@ -140,22 +149,21 @@ def compute_score(dimensions, scores, kill_switch_triggered=False):
     if total_weight == 0:
         return 0
     if total_weight != 100:
-        print(f"WARNING: total dimension weight is {total_weight}% (expected 100%)", file=sys.stderr)
-    weighted_sum = sum(
-        scores.get(d["num"], 0) * d["weight"] for d in dimensions
-    )
+        print(
+            f"WARNING: total dimension weight is {total_weight}% (expected 100%)", file=sys.stderr
+        )
+    weighted_sum = sum(scores.get(d["num"], 0) * d["weight"] for d in dimensions)
     return round(weighted_sum / total_weight, 2)
 
 
 def classify(score):
     if score >= 90:
         return "PASS (excellent)"
-    elif score >= 75:
+    if score >= 75:
         return "PASS (acceptable)"
-    elif score >= 60:
+    if score >= 60:
         return "CONDITIONAL"
-    else:
-        return "FAIL"
+    return "FAIL"
 
 
 def check_gate_markers(rubric_path, test_type, round_dir):
@@ -200,8 +208,10 @@ def check_gate_markers(rubric_path, test_type, round_dir):
 
 def main():
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
-        print("Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]")
-        print("  scores.json format: {\"1\": 100, \"2\": 95, \"3\": 80, ...}")
+        print(
+            "Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]"
+        )
+        print('  scores.json format: {"1": 100, "2": 95, "3": 80, ...}')
         print("  --kill-switch: force final score to 0 (any kill switch triggered)")
         print("  --test-type: filter dimensions by applicability (renormalizes weights)")
         print("  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring")
@@ -212,12 +222,16 @@ def main():
     # --gate-only mode: run gate check, skip scoring entirely
     if "--gate-only" in sys.argv:
         import subprocess
-        idx = sys.argv.index("--gate-only"); gate_type = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "G2"
-        idx = sys.argv.index("--files") if "--files" in sys.argv else -1; files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
+
+        idx = sys.argv.index("--gate-only")
+        gate_type = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "G2"
+        idx = sys.argv.index("--files") if "--files" in sys.argv else -1
+        files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
         vg = str(Path(__file__).parent / "validate-gate.py")
-        result = subprocess.run([sys.executable, vg, gate_type, ",".join(files), ftype],
-                               capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
+        )
         print(result.stdout)
         sys.exit(0 if result.returncode == 0 else 1)
 
@@ -242,6 +256,7 @@ def main():
     # Gate integration: run pre-scoring dependency checks
     if tier:
         import subprocess
+
         vg = str(Path(__file__).parent / "validate-gate.py")
         if tier == "T1" and test_type:
             # G3: prerequisite check — extract skill_name from rubric path
@@ -249,14 +264,18 @@ def main():
             skill_name = rubric_p.parent.name if rubric_p.parent.parent.name == "t1-skill" else None
             if skill_name:
                 if round_dir:
-                    result = subprocess.run([sys.executable, vg, "G3", skill_name, test_type, round_dir],
-                                           capture_output=True, text=True)
+                    result = subprocess.run(
+                        [sys.executable, vg, "G3", skill_name, test_type, round_dir],
+                        capture_output=True,
+                        text=True,
+                    )
                     try:
                         gate_out = json.loads(result.stdout)
                         if gate_out.get("status") == "FAIL":
                             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
                             sys.exit(1)
-                    except: pass
+                    except:
+                        pass
 
     # Gate marker enforcement — MUST pass before scoring can proceed
     if test_type:
@@ -268,7 +287,7 @@ def main():
                     "status": "MARKER_MISSING",
                     "missing_markers": missing,
                     "message": f"Required gate markers not found: {', '.join(missing)}. "
-                               f"Run gates (G4/G6) with --round-dir before scoring.",
+                    f"Run gates (G4/G6) with --round-dir before scoring.",
                 }
                 print(json.dumps(err, indent=2, ensure_ascii=False))
                 sys.exit(3)
@@ -337,14 +356,18 @@ def main():
     result = {
         "_provenance": {
             "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "gate_markers_verified": bool(round_dir and test_type),
             "round_dir": str(round_dir) if round_dir else None,
             "scoring_tool": "scoring.py",
         },
         "dimensions": [
-            {"num": d["num"], "name": d["name"], "weight": d["weight"],
-             "score": scores.get(d["num"], 0)}
+            {
+                "num": d["num"],
+                "name": d["name"],
+                "weight": d["weight"],
+                "score": scores.get(d["num"], 0),
+            }
             for d in dimensions
         ],
         "kill_switch_triggered": kill_switch_triggered,

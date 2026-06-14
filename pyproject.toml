@@ -63,3 +63,50 @@ do-not-mutate = ["tests/rounds/archived/**"]
 # 注：上述路径在 P-1.A 时不存在（exceptions.py/logging.py 由 PR-9/10 创建，
 # gates/shared.py 由 PR-12 创建，tests/unit/ 由 PR-5 创建）。
 # PR-16 首次跑 mutmut 时验证配置生效。
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    "tests/rounds/archived",
+    "tests/rounds/round-[0-9][0-9][0-9]-*",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",
+    "I",
+    "N",
+    "B",
+    "A",
+    "C4",
+    "PIE", "RET", "SIM",
+    "PL",
+    "UP",
+    "RUF",
+    "D",
+]
+ignore = [
+    "D100", "D104",
+    "PLR0913",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# P-1.A: legacy code in tests/*.py has many style violations.
+# PR-12 (P-1.D) will refactor these files and remove the ignores.
+"tests/*.py" = [
+    "D103", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+]
