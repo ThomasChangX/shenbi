@@ -172,3 +172,42 @@ typeCheckingMode = "strict"
 pythonVersion = "3.11"
 reportMissingTypeStubs = "warning"
 reportUnknownMemberType = "warning"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests/unit", "tests/integration", "tests/property", "tests/benchmark"]
+addopts = [
+    "--strict-markers",
+    "--cov=tests",
+    "--cov-report=term-missing",
+    "--cov-report=html:tests/coverage",
+    "--cov-report=xml:tests/coverage/coverage.xml",
+    "--cov-branch",
+    "--timeout=60",
+    "--timeout-method=thread",
+    "--benchmark-min-rounds=5",
+    "--benchmark-warmup=on",
+]
+markers = [
+    "unit: fast unit tests",
+    "integration: cross-module tests",
+    "property: Hypothesis property-based tests",
+    "benchmark: pytest-benchmark performance tests",
+    "slow: > 5s tests",
+    "last: tests that must run after all others (e.g., coverage threshold)",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+branch = true
+source = ["tests"]
+
+[tool.coverage.report]
+fail_under = 1  # P-1.B: staged ramp-up; PR-12 raises to 90
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

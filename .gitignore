@@ -58,3 +58,4 @@ site/
 # SBOM and mutation testing
 sbom.cdx.json
 .mutmut-cache
+!tests/coverage/.gitkeep
