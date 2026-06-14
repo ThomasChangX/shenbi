@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv sync --frozen --extra dev
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy tests/
+      - run: uv run basedpyright
+      - name: Run tests (parallel, excluding last)
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+      - name: Run coverage threshold test (serial, last only)
+        run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
+
+  action-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen --extra dev
+      - name: Validate GitHub Actions YAML
+        run: uv run yamllint --strict .github/workflows/

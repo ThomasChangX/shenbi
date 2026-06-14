@@ -4,16 +4,16 @@
 Gates: G0 G1 G2 G3 G4 G5 G6 G7 G_TRANSITION G_DISPATCH G_RECONCILE
 Each gate function returns JSON via passed() or fail() helpers.
 """
+
+import fnmatch
+import hashlib
 import json
-import sys
 import os
 import re
-import hashlib
-import glob as gb
-import fnmatch
 import shutil
+import sys
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
 
 try:
     import yaml
@@ -30,6 +30,7 @@ CHAPTER_WORD_CEILING = 10000
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def jload(p):
     """Load JSON file, returning parsed object."""
@@ -52,7 +53,8 @@ def yload(p):
 
 def word_count_md(fp):
     """Count Chinese characters in Markdown body (excluding frontmatter,
-    code blocks, and meta sections)."""
+    code blocks, and meta sections).
+    """
     c = Path(fp).read_text(encoding="utf-8")
     # Strip YAML frontmatter
     c = re.sub(r"^---\n.*?\n---\n", "", c, flags=re.DOTALL)
@@ -76,7 +78,7 @@ def fail(gid, checks, blocked, must_fix):
         {
             "gate": gid,
             "status": "FAIL",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "checks": checks,
             "blocked_action": blocked,
             "must_fix": must_fix,
@@ -92,7 +94,7 @@ def passed(gid, checks):
         {
             "gate": gid,
             "status": "PASS",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "checks": checks,
         },
         indent=2,
@@ -128,6 +130,7 @@ def _normalize_file_paths(file_paths):
         return [str(p) for p in file_paths]
     return []
 
+
 def write_gate_marker(gate, target, test_type, result_str, round_dir, file_paths=None):
     """Write a gate marker file if result is PASS and round_dir is provided."""
     if not round_dir:
@@ -149,7 +152,6 @@ def write_gate_marker(gate, target, test_type, result_str, round_dir, file_paths
         pass
 
 
-
 def unimplemented(gate_name, note=""):
     """Return UNIMPLEMENTED JSON string for stub gates."""
     return json.dumps(
@@ -157,7 +159,7 @@ def unimplemented(gate_name, note=""):
             "gate": gate_name,
             "status": "UNIMPLEMENTED",
             "note": note or f"{gate_name} not yet implemented — stub",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "checks": [],
         },
         indent=2,
@@ -167,7 +169,8 @@ def unimplemented(gate_name, note=""):
 
 def read_genre_config(project_dir):
     """Read genre-config.json from a project directory to get
-    fatigue_words, chapter_word, etc."""
+    fatigue_words, chapter_word, etc.
+    """
     gc_path = Path(project_dir) / "genre-config.json"
     if gc_path.exists():
         try:
@@ -178,9 +181,7 @@ def read_genre_config(project_dir):
 
 
 # Pre-compute the known skill names from the skills/ directory
-ALL_SKILLS = sorted(
-    d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists()
-)
+ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
 
 # Skills that have dedicated (non-generic) G4 generative checkers
 G4_CHECKER_SKILLS = {
@@ -208,14 +209,42 @@ G4_CHECKER_SKILLS = {
 
 # Default lists (used when genre-config.json doesn't provide them)
 FATIGUE_BASE = [
-    "突然", "猛地", "瞬间", "一股", "恐怖", "死死", "眼中闪过", "嘴角",
-    "冷冷", "淡淡", "微微一笑", "心中一动", "暗道", "不由得", "显然",
-    "似乎", "仿佛", "如同", "无比", "极致", "难以形容", "不可思议",
-    "前所未有", "令人发指", "震惊", "愣住", "呆住",
+    "突然",
+    "猛地",
+    "瞬间",
+    "一股",
+    "恐怖",
+    "死死",
+    "眼中闪过",
+    "嘴角",
+    "冷冷",
+    "淡淡",
+    "微微一笑",
+    "心中一动",
+    "暗道",
+    "不由得",
+    "显然",
+    "似乎",
+    "仿佛",
+    "如同",
+    "无比",
+    "极致",
+    "难以形容",
+    "不可思议",
+    "前所未有",
+    "令人发指",
+    "震惊",
+    "愣住",
+    "呆住",
 ]
 META_NARRATIVE = [
-    "让人感悟", "引人深思", "由此可见", "综上所述", "值得注意的是",
-    "不禁感慨", "不由得想到",
+    "让人感悟",
+    "引人深思",
+    "由此可见",
+    "综上所述",
+    "值得注意的是",
+    "不禁感慨",
+    "不由得想到",
 ]
 TRANSITION_SPECIFIC = ["不过", "此时", "突然", "终于", "于是"]
 
@@ -223,7 +252,8 @@ TRANSITION_SPECIFIC = ["不过", "此时", "突然", "终于", "于是"]
 def count_transition_words(content):
     """Count transition word occurrences.  '然' is handled specially to
     avoid double-counting with compounds like 然而/虽然/当然/自然/忽然
-    and to avoid double-counting with 突然 (which IS a transition word)."""
+    and to avoid double-counting with 突然 (which IS a transition word).
+    """
     tc = content.count("然")
     # Subtract compounds where 然 is NOT a standalone transition word
     tc -= content.count("虽然")
@@ -242,6 +272,7 @@ def count_transition_words(content):
 # ---------------------------------------------------------------------------
 # G0 — Environment Readiness (FULL)
 # ---------------------------------------------------------------------------
+
 
 def gate_G0(seed_file=None, round_dir=None):
     """G0: Round creation environment check."""
@@ -294,9 +325,7 @@ def gate_G0(seed_file=None, round_dir=None):
             if gc.exists():
                 try:
                     gc_data = jload(str(gc))
-                    default_w = gc_data.get("chapter_word", {}).get(
-                        "default", CHAPTER_WORD_FLOOR
-                    )
+                    default_w = gc_data.get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
                     break
                 except (json.JSONDecodeError, OSError):
                     pass
@@ -322,8 +351,7 @@ def gate_G0(seed_file=None, round_dir=None):
     if missing_dirs:
         return fail(
             "G0",
-            checks
-            + [{"id": "G0.4", "s": "FAIL", "r": f"dirs missing: {missing_dirs}"}],
+            checks + [{"id": "G0.4", "s": "FAIL", "r": f"dirs missing: {missing_dirs}"}],
             "round_creation",
             ["G0.4"],
         )
@@ -362,32 +390,33 @@ def gate_G0(seed_file=None, round_dir=None):
                 continue
             # Extract dimension names and standards from rubric table
             # Look for rows like: | N | Dimension Name | W% | Standard text |
-            for m in re.finditer(
-                r"\|\s*\d+\s*\|\s*([^|]+)\|\s*\d+%\s*\|\s*([^|]+)\|",
-                r_content
-            ):
+            for m in re.finditer(r"\|\s*\d+\s*\|\s*([^|]+)\|\s*\d+%\s*\|\s*([^|]+)\|", r_content):
                 dim_name = m.group(1).strip()
                 standard = m.group(2).strip()
                 # Check if the standard mentions specific requirements
                 # that should appear in SKILL.md
                 checks_to_verify = []
                 # Evidence citation: rubric requires file+line evidence
-                if re.search(r"evidence|file.*(?:path|line)|line\s*(?:number|ref)|"
-                             r"证据|行号|文件路径|引用.*格式|数据来源",
-                             standard, re.IGNORECASE):
+                if re.search(
+                    r"evidence|file.*(?:path|line)|line\s*(?:number|ref)|"
+                    r"证据|行号|文件路径|引用.*格式|数据来源",
+                    standard,
+                    re.IGNORECASE,
+                ):
                     checks_to_verify.append(
-                        ("evidence citation",
-                         r"证据格式|证据.*要求|文件路径.*行号|file.*path.*line|"
-                         r"数据来源.*文件|引用.*原文|evidence.*format")
+                        (
+                            "evidence citation",
+                            r"证据格式|证据.*要求|文件路径.*行号|file.*path.*line|"
+                            r"数据来源.*文件|引用.*原文|evidence.*format",
+                        )
                     )
                 # Numeric thresholds that must be in both rubric and SKILL.md
                 for tm in re.finditer(
                     r"([><]=?\s*\d+\.?\d*)\s*(%|章|字|词|urgency|chapters?)",
-                    standard, re.IGNORECASE
+                    standard,
+                    re.IGNORECASE,
                 ):
-                    checks_to_verify.append(
-                        (f"threshold {tm.group(0)}", re.escape(tm.group(0)))
-                    )
+                    checks_to_verify.append((f"threshold {tm.group(0)}", re.escape(tm.group(0))))
                 for check_desc, pattern in checks_to_verify:
                     if not re.search(pattern, s_content, re.IGNORECASE):
                         rubric_mismatches.append(
@@ -395,20 +424,24 @@ def gate_G0(seed_file=None, round_dir=None):
                             f"'{check_desc}' but SKILL.md lacks it"
                         )
     if rubric_mismatches:
-        checks.append({
-            "id": "G0.5b",
-            "s": "WARN",
-            "r": f"{len(rubric_mismatches)} rubric-SKILL.md mismatches: "
-                 f"{'; '.join(rubric_mismatches[:10])}"
-                 f"{'...' if len(rubric_mismatches) > 10 else ''}",
-            "note": "review mismatches and align rubric with SKILL.md; block if >20",
-        })
+        checks.append(
+            {
+                "id": "G0.5b",
+                "s": "WARN",
+                "r": f"{len(rubric_mismatches)} rubric-SKILL.md mismatches: "
+                f"{'; '.join(rubric_mismatches[:10])}"
+                f"{'...' if len(rubric_mismatches) > 10 else ''}",
+                "note": "review mismatches and align rubric with SKILL.md; block if >20",
+            }
+        )
     else:
-        checks.append({
-            "id": "G0.5b",
-            "s": "PASS",
-            "note": "rubric-SKILL.md consistency verified",
-        })
+        checks.append(
+            {
+                "id": "G0.5b",
+                "s": "PASS",
+                "note": "rubric-SKILL.md consistency verified",
+            }
+        )
 
     # G0.6 — novel-output writable
     no = PROJECT / "novel-output"
@@ -427,23 +460,22 @@ def gate_G0(seed_file=None, round_dir=None):
                 "round_creation",
                 ["G0.6"],
             )
-    else:
-        # novel-output doesn't exist yet; parent (PROJECT) must be writable
-        # so round-exec.sh can create it
-        if not os.access(str(PROJECT), os.W_OK):
-            return fail(
-                "G0",
-                checks
-                + [
-                    {
-                        "id": "G0.6",
-                        "s": "FAIL",
-                        "r": "PROJECT root not writable; cannot create novel-output/",
-                    }
-                ],
-                "round_creation",
-                ["G0.6"],
-            )
+    # novel-output doesn't exist yet; parent (PROJECT) must be writable
+    # so round-exec.sh can create it
+    elif not os.access(str(PROJECT), os.W_OK):
+        return fail(
+            "G0",
+            checks
+            + [
+                {
+                    "id": "G0.6",
+                    "s": "FAIL",
+                    "r": "PROJECT root not writable; cannot create novel-output/",
+                }
+            ],
+            "round_creation",
+            ["G0.6"],
+        )
     checks.append({"id": "G0.6", "s": "PASS"})
 
     # G0.7 — scoring.py self-test (manual verification)
@@ -451,9 +483,7 @@ def gate_G0(seed_file=None, round_dir=None):
     if scoring_py.exists():
         checks.append({"id": "G0.7", "s": "PASS", "note": "scoring.py exists"})
     else:
-        checks.append(
-            {"id": "G0.7", "s": "WARN", "r": "scoring.py not found"}
-        )
+        checks.append({"id": "G0.7", "s": "WARN", "r": "scoring.py not found"})
 
     # G0.8 — fixture reference integrity: scan all T1 generative scenarios
     # for references to tests/fixtures/ files; fail if any referenced fixture
@@ -476,11 +506,7 @@ def gate_G0(seed_file=None, round_dir=None):
             # and nested paths. Captures everything after tests/fixtures/
             # until a boundary character (whitespace, backtick, quote, newline, paren).
             refs = set(
-                m.group(0)
-                for m in re.finditer(
-                    r"tests/fixtures/[\w\-/]+(?:\.\w+)?",
-                    sc_content
-                )
+                m.group(0) for m in re.finditer(r"tests/fixtures/[\w\-/]+(?:\.\w+)?", sc_content)
             )
             for ref in refs:
                 fixture_path = PROJECT / ref
@@ -494,19 +520,24 @@ def gate_G0(seed_file=None, round_dir=None):
         )
         return fail(
             "G0",
-            checks + [{
-                "id": "G0.8",
-                "s": "FAIL",
-                "r": f"missing fixtures: {detail}",
-            }],
+            checks
+            + [
+                {
+                    "id": "G0.8",
+                    "s": "FAIL",
+                    "r": f"missing fixtures: {detail}",
+                }
+            ],
             "round_creation",
             ["G0.8: create missing fixture files listed above"],
         )
-    checks.append({
-        "id": "G0.8",
-        "s": "PASS",
-        "note": f"all scenario fixture references verified",
-    })
+    checks.append(
+        {
+            "id": "G0.8",
+            "s": "PASS",
+            "note": "all scenario fixture references verified",
+        }
+    )
 
     # G0.9 — scenario path purity: all test input paths must reference
     # tests/fixtures/ or skills/. Project-relative paths (drafts/, truth/,
@@ -529,9 +560,7 @@ def gate_G0(seed_file=None, round_dir=None):
                     continue
                 # Find ALL backtick-enclosed file paths (with extension).
                 # Directory paths are handled by G0.9c separately.
-                refs = set(re.findall(
-                    r"`([a-zA-Z][\w\-/]*\.[a-zA-Z]+)`", sc_content
-                ))
+                refs = set(re.findall(r"`([a-zA-Z][\w\-/]*\.[a-zA-Z]+)`", sc_content))
                 for ref in refs:
                     # Skip skill references (allowed)
                     if ref.startswith("skills/"):
@@ -541,9 +570,7 @@ def gate_G0(seed_file=None, round_dir=None):
                         continue
                     # Everything else is impure — project paths like
                     # drafts/, truth/, config/, chapters/, plans/, audits/
-                    impure_refs.setdefault(ref, []).append(
-                        f"{skill_dir.name}/{test_type}"
-                    )
+                    impure_refs.setdefault(ref, []).append(f"{skill_dir.name}/{test_type}")
     if impure_refs:
         detail = "; ".join(
             f"'{r}' → must use tests/fixtures/ (found in: {', '.join(skills[:3])})"
@@ -551,19 +578,24 @@ def gate_G0(seed_file=None, round_dir=None):
         )
         return fail(
             "G0",
-            checks + [{
-                "id": "G0.9",
-                "s": "FAIL",
-                "r": f"scenarios contain non-fixture paths: {detail}",
-            }],
+            checks
+            + [
+                {
+                    "id": "G0.9",
+                    "s": "FAIL",
+                    "r": f"scenarios contain non-fixture paths: {detail}",
+                }
+            ],
             "round_creation",
             ["G0.9: replace project paths with tests/fixtures/ equivalents"],
         )
-    checks.append({
-        "id": "G0.9",
-        "s": "PASS",
-        "note": "all scenario input paths reference tests/fixtures/",
-    })
+    checks.append(
+        {
+            "id": "G0.9",
+            "s": "PASS",
+            "note": "all scenario input paths reference tests/fixtures/",
+        }
+    )
 
     # G0.9c — directory path purity: scenarios must not reference
     # project-relative directory paths (truth/, snapshots/, drafts/,
@@ -583,34 +615,34 @@ def gate_G0(seed_file=None, round_dir=None):
                 except Exception:
                     continue
                 # Match backtick-enclosed directory paths (ending with /)
-                dirs = set(re.findall(
-                    r"`([a-zA-Z][\w\-/]+/)`?", sc_content
-                ))
+                dirs = set(re.findall(r"`([a-zA-Z][\w\-/]+/)`?", sc_content))
                 dirs = {d.rstrip("`") for d in dirs}
                 for d in dirs:
                     if d.startswith("tests/fixtures/") or d.startswith("skills/"):
                         continue
-                    impure_dirs.setdefault(d, []).append(
-                        f"{skill_dir.name}/{test_type}"
-                    )
+                    impure_dirs.setdefault(d, []).append(f"{skill_dir.name}/{test_type}")
     if impure_dirs:
         count = sum(len(v) for v in impure_dirs.values())
         detail = "; ".join(
             f"'{d}' → (found in: {', '.join(skills[:3])})"
             for d, skills in sorted(impure_dirs.items())
         )
-        checks.append({
-            "id": "G0.9c",
-            "s": "WARN",
-            "r": f"{count} non-fixture directory references found: {detail}",
-            "note": "not blocking; fix incrementally",
-        })
+        checks.append(
+            {
+                "id": "G0.9c",
+                "s": "WARN",
+                "r": f"{count} non-fixture directory references found: {detail}",
+                "note": "not blocking; fix incrementally",
+            }
+        )
     else:
-        checks.append({
-            "id": "G0.9c",
-            "s": "PASS",
-            "note": "all scenario directory paths reference tests/fixtures/",
-        })
+        checks.append(
+            {
+                "id": "G0.9c",
+                "s": "PASS",
+                "note": "all scenario directory paths reference tests/fixtures/",
+            }
+        )
 
     # G0.9b — SKILL.md purity: SKILL.md files must NOT contain
     # tests/fixtures/ references. Skills define what they read/write
@@ -633,24 +665,30 @@ def gate_G0(seed_file=None, round_dir=None):
             skill_fixture_leaks[skill_dir.name] = leaked
     if skill_fixture_leaks:
         detail = "; ".join(
-            f"{skill}: {', '.join(paths)}"
-            for skill, paths in sorted(skill_fixture_leaks.items())
+            f"{skill}: {', '.join(paths)}" for skill, paths in sorted(skill_fixture_leaks.items())
         )
         return fail(
             "G0",
-            checks + [{
-                "id": "G0.9b",
-                "s": "FAIL",
-                "r": f"SKILL.md files contain tests/fixtures/ paths (use project paths, not test paths): {detail}",
-            }],
+            checks
+            + [
+                {
+                    "id": "G0.9b",
+                    "s": "FAIL",
+                    "r": f"SKILL.md files contain tests/fixtures/ paths (use project paths, not test paths): {detail}",
+                }
+            ],
             "round_creation",
-            ["G0.9b: replace tests/fixtures/ paths in SKILL.md with project paths; move fixture mapping to scenario.md"],
+            [
+                "G0.9b: replace tests/fixtures/ paths in SKILL.md with project paths; move fixture mapping to scenario.md"
+            ],
         )
-    checks.append({
-        "id": "G0.9b",
-        "s": "PASS",
-        "note": "no SKILL.md files leak test fixture paths",
-    })
+    checks.append(
+        {
+            "id": "G0.9b",
+            "s": "PASS",
+            "note": "no SKILL.md files leak test fixture paths",
+        }
+    )
 
     # G0.10 — completed generative test count (must be >= 59 for full round;
     # WARN if fewer — allows incremental execution)
@@ -661,32 +699,40 @@ def gate_G0(seed_file=None, round_dir=None):
             generative_scores = list(t1_reports.glob("*-generative-scores.json"))
             count = len(generative_scores)
             if count < 59:
-                checks.append({
-                    "id": "G0.10",
-                    "s": "WARN",
-                    "r": f"generative tests: {count}/59 — {59 - count} remaining",
-                    "completed": count,
-                    "total": 59,
-                })
+                checks.append(
+                    {
+                        "id": "G0.10",
+                        "s": "WARN",
+                        "r": f"generative tests: {count}/59 — {59 - count} remaining",
+                        "completed": count,
+                        "total": 59,
+                    }
+                )
             else:
-                checks.append({
-                    "id": "G0.10",
-                    "s": "PASS",
-                    "completed": count,
-                    "total": 59,
-                })
+                checks.append(
+                    {
+                        "id": "G0.10",
+                        "s": "PASS",
+                        "completed": count,
+                        "total": 59,
+                    }
+                )
         else:
-            checks.append({
+            checks.append(
+                {
+                    "id": "G0.10",
+                    "s": "SKIP",
+                    "r": "t1-reports directory not found",
+                }
+            )
+    else:
+        checks.append(
+            {
                 "id": "G0.10",
                 "s": "SKIP",
-                "r": "t1-reports directory not found",
-            })
-    else:
-        checks.append({
-            "id": "G0.10",
-            "s": "SKIP",
-            "r": "no round_dir provided",
-        })
+                "r": "no round_dir provided",
+            }
+        )
 
     # G0.11 — fixture mirror integrity: fixtures that mirror project source
     # files must have matching content hashes. This catches the "fixture
@@ -708,26 +754,29 @@ def gate_G0(seed_file=None, round_dir=None):
         except Exception:
             continue
         if fh != sh:
-            stale_mirrors.append(
-                f"{fixture_rel} (fixture={fh[:12]}... != source={sh[:12]}...)"
-            )
+            stale_mirrors.append(f"{fixture_rel} (fixture={fh[:12]}... != source={sh[:12]}...)")
     if stale_mirrors:
         detail = "; ".join(stale_mirrors)
         return fail(
             "G0",
-            checks + [{
-                "id": "G0.11",
-                "s": "FAIL",
-                "r": f"stale fixtures — re-copy from source: {detail}",
-            }],
+            checks
+            + [
+                {
+                    "id": "G0.11",
+                    "s": "FAIL",
+                    "r": f"stale fixtures — re-copy from source: {detail}",
+                }
+            ],
             "round_creation",
             ["G0.11: cp <source> tests/fixtures/<name> to sync"],
         )
-    checks.append({
-        "id": "G0.11",
-        "s": "PASS",
-        "note": "mirror fixtures match source files",
-    })
+    checks.append(
+        {
+            "id": "G0.11",
+            "s": "PASS",
+            "note": "mirror fixtures match source files",
+        }
+    )
 
     # G0.12 — G4 checker coverage: every skill must have a G4 checker or
     # be explicitly exempted in tests/tiers/g4-exemptions.json
@@ -746,12 +795,14 @@ def gate_G0(seed_file=None, round_dir=None):
     # G0.12 verifies that the fallback exists (no skill returns UNIMPLEMENTED).
     dedicated_count = len(G4_CHECKER_SKILLS)
     generic_count = len(ALL_SKILLS) - dedicated_count
-    checks.append({
-        "id": "G0.12",
-        "s": "PASS",
-        "note": f"G4 coverage: {dedicated_count}/{len(ALL_SKILLS)} dedicated, "
-                f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
-    })
+    checks.append(
+        {
+            "id": "G0.12",
+            "s": "PASS",
+            "note": f"G4 coverage: {dedicated_count}/{len(ALL_SKILLS)} dedicated, "
+            f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
+        }
+    )
 
     return passed("G0", checks)
 
@@ -759,6 +810,7 @@ def gate_G0(seed_file=None, round_dir=None):
 # ---------------------------------------------------------------------------
 # G1 — Subagent Dispatch
 # ---------------------------------------------------------------------------
+
 
 def gate_G1(skill_name=None, input_files=None, round_dir=None):
     """G1: Pre-dispatch input validation."""
@@ -776,10 +828,14 @@ def gate_G1(skill_name=None, input_files=None, round_dir=None):
 
     # In-place modifying skills that need .bak creation
     inplace_skills = {
-        "shenbi-faction-builder", "shenbi-location-builder",
-        "shenbi-relationship-map", "shenbi-volume-outlining",
-        "shenbi-power-system", "shenbi-foreshadowing-track",
-        "shenbi-truth-sync", "shenbi-state-settling",
+        "shenbi-faction-builder",
+        "shenbi-location-builder",
+        "shenbi-relationship-map",
+        "shenbi-volume-outlining",
+        "shenbi-power-system",
+        "shenbi-foreshadowing-track",
+        "shenbi-truth-sync",
+        "shenbi-state-settling",
         "shenbi-genre-config",
     }
 
@@ -829,7 +885,7 @@ def gate_G1(skill_name=None, input_files=None, round_dir=None):
     if rd:
         lock_path = rd / ".gate-lock"
         if lock_path.exists():
-            age = datetime.now(timezone.utc).timestamp() - lock_path.stat().st_mtime
+            age = datetime.now(UTC).timestamp() - lock_path.stat().st_mtime
             if age <= 300:
                 mf.append({"id": "G1.5", "s": "FAIL", "r": f"lock active ({age:.0f}s old)"})
             else:
@@ -847,8 +903,13 @@ def gate_G1(skill_name=None, input_files=None, round_dir=None):
                 progress = jload(str(pp))
                 scoring_history = progress.get("scoring_history", [])
                 if isinstance(scoring_history, list):
-                    c.append({"id": "G1.6", "s": "PASS",
-                              "note": f"scoring_history: {len(scoring_history)} entries"})
+                    c.append(
+                        {
+                            "id": "G1.6",
+                            "s": "PASS",
+                            "note": f"scoring_history: {len(scoring_history)} entries",
+                        }
+                    )
                 else:
                     c.append({"id": "G1.6", "s": "WARN", "r": "scoring_history not a list"})
             except (json.JSONDecodeError, OSError):
@@ -862,14 +923,19 @@ def gate_G1(skill_name=None, input_files=None, round_dir=None):
         c.append({"id": "G1.0", "s": "SKIP", "r": "no input files"})
 
     if mf:
-        return fail("G1", c, "subagent_dispatch",
-                    [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])
+        return fail(
+            "G1",
+            c,
+            "subagent_dispatch",
+            [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf],
+        )
     return passed("G1", c)
 
 
 # ---------------------------------------------------------------------------
 # G2 — Write Verification (FULL)
 # ---------------------------------------------------------------------------
+
 
 def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
     """G2: Write verification. file_type: chapter|report|truth"""
@@ -908,32 +974,45 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
         # truth/, outline/, plans/, snapshots/ files must have frontmatter.
         # Creative output (chapters/, world/, review reports) is exempt.
         if fp.endswith(".md"):
-            must_have = any(
-                f"/{d}/" in fp for d in ["truth", "outline", "plans", "snapshots"]
-            ) or fp.endswith("plan.md") or fp.endswith("memo.md") or fp.endswith("map.md")
+            must_have = (
+                any(f"/{d}/" in fp for d in ["truth", "outline", "plans", "snapshots"])
+                or fp.endswith("plan.md")
+                or fp.endswith("memo.md")
+                or fp.endswith("map.md")
+            )
             try:
                 fm = yload(fp) if yaml else {}
                 has_fm = bool(fm)
                 if must_have and not has_fm:
                     mf.append(
-                        {"id": "G2.5", "file": fp, "s": "FAIL",
-                         "r": "structured data file requires YAML frontmatter"}
+                        {
+                            "id": "G2.5",
+                            "file": fp,
+                            "s": "FAIL",
+                            "r": "structured data file requires YAML frontmatter",
+                        }
                     )
                 else:
                     checks.append(
-                        {"id": "G2.5", "file": fp, "s": "PASS",
-                         "has_frontmatter": has_fm, "required": must_have}
+                        {
+                            "id": "G2.5",
+                            "file": fp,
+                            "s": "PASS",
+                            "has_frontmatter": has_fm,
+                            "required": must_have,
+                        }
                     )
             except Exception:
                 if must_have:
-                    mf.append(
-                        {"id": "G2.5", "file": fp, "s": "FAIL",
-                         "r": "YAML parse error"}
-                    )
+                    mf.append({"id": "G2.5", "file": fp, "s": "FAIL", "r": "YAML parse error"})
                 else:
                     checks.append(
-                        {"id": "G2.5", "file": fp, "s": "SKIP",
-                         "r": "YAML parse error on non-structured file"}
+                        {
+                            "id": "G2.5",
+                            "file": fp,
+                            "s": "SKIP",
+                            "r": "YAML parse error on non-structured file",
+                        }
                     )
 
         # Chapter-specific checks
@@ -957,9 +1036,7 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
 
             # G2.7 — word count ceiling
             is_important = _is_important_chapter(fp, project_dir)
-            ceiling = (
-                CHAPTER_WORD_CEILING if is_important else int(CHAPTER_WORD_FLOOR * 1.5)
-            )
+            ceiling = CHAPTER_WORD_CEILING if is_important else int(CHAPTER_WORD_FLOOR * 1.5)
             if wc > ceiling:
                 mf.append(
                     {
@@ -1019,14 +1096,10 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
                 old_lines = bak.read_text(encoding="utf-8").splitlines(keepends=True)
                 new_lines = content.splitlines(keepends=True)
                 diff = list(
-                    difflib.unified_diff(
-                        old_lines, new_lines, fromfile=str(bak), tofile=fp
-                    )
+                    difflib.unified_diff(old_lines, new_lines, fromfile=str(bak), tofile=fp)
                 )
                 # Only removals (lines starting with -) are violations
-                removals = [
-                    l for l in diff if l.startswith("-") and not l.startswith("---")
-                ]
+                removals = [l for l in diff if l.startswith("-") and not l.startswith("---")]
                 if removals:
                     mf.append(
                         {
@@ -1045,9 +1118,7 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
         sentence_enders = ("。", "！", "？", "…", "」", "』", '"', "）", ")", "---")
         ends_ok = last.endswith(sentence_enders) or last.startswith("#")
         if not ends_ok and last:
-            checks.append(
-                {"id": "G2.12", "file": fp, "s": "WARN", "r": "may be truncated"}
-            )
+            checks.append({"id": "G2.12", "file": fp, "s": "WARN", "r": "may be truncated"})
         else:
             checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
 
@@ -1064,7 +1135,8 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
 def _is_important_chapter(fp, project_dir):
     """Check if a chapter is flagged as important.
     Sources: (a) volume_map.md annotations (爆发段/高潮/卷首/卷末)
-             (b) chapter-N-plan.md section 1 '重要章' marker"""
+             (b) chapter-N-plan.md section 1 '重要章' marker
+    """
     if not project_dir:
         return False
     ch_num = re.search(r"chapter-(\d+)", str(fp))
@@ -1078,9 +1150,7 @@ def _is_important_chapter(fp, project_dir):
     vm = pd / "outline" / "volume_map.md"
     if vm.exists():
         vm_text = vm.read_text(encoding="utf-8")
-        patterns = [
-            rf"第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)"
-        ]
+        patterns = [rf"第{n}章.*(?:爆发|高潮|卷首|卷末|开篇|收官)"]
         if any(re.search(p, vm_text) for p in patterns):
             return True
 
@@ -1089,11 +1159,7 @@ def _is_important_chapter(fp, project_dir):
     if plan.exists():
         plan_text = plan.read_text(encoding="utf-8")
         # Read only up to section 2 (## 2.)
-        first_section = (
-            plan_text.split("## 2.")[0]
-            if "## 2." in plan_text
-            else plan_text[:500]
-        )
+        first_section = plan_text.split("## 2.")[0] if "## 2." in plan_text else plan_text[:500]
         if "重要章" in first_section:
             return True
 
@@ -1103,6 +1169,7 @@ def _is_important_chapter(fp, project_dir):
 # ---------------------------------------------------------------------------
 # G3 — Pre-Scoring Dependency Check
 # ---------------------------------------------------------------------------
+
 
 def gate_G3(skill_name=None, test_type=None, round_dir=None):
     """G3: Pre-scoring dependency check."""
@@ -1121,14 +1188,22 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
             deps = jload(str(deps_path))
             if isinstance(deps, dict):
                 skill_deps = deps.get(skill_name, {}) if skill_name else {}
-                prereqs = skill_deps.get("prerequisites", []) if isinstance(skill_deps, dict) else []
+                prereqs = (
+                    skill_deps.get("prerequisites", []) if isinstance(skill_deps, dict) else []
+                )
                 if not isinstance(prereqs, list):
                     prereqs = []
                 for prereq in prereqs:
                     rp = _find_report(reports_dir, prereq, test_type)
                     if not rp.exists():
-                        mf.append({"id": "G3.1", "file": str(rp), "s": "FAIL",
-                                   "r": f"missing t1-report for {prereq}"})
+                        mf.append(
+                            {
+                                "id": "G3.1",
+                                "file": str(rp),
+                                "s": "FAIL",
+                                "r": f"missing t1-report for {prereq}",
+                            }
+                        )
                     else:
                         c.append({"id": "G3.1", "file": str(rp), "s": "PASS"})
                 if not prereqs:
@@ -1152,8 +1227,15 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
                         if not isinstance(score, (int, float)):
                             score = 0
                         if score < threshold:
-                            mf.append({"id": "G3.2", "file": rp.name, "s": "FAIL",
-                                       "score": score, "threshold": threshold})
+                            mf.append(
+                                {
+                                    "id": "G3.2",
+                                    "file": rp.name,
+                                    "s": "FAIL",
+                                    "score": score,
+                                    "threshold": threshold,
+                                }
+                            )
                         else:
                             c.append({"id": "G3.2", "file": rp.name, "s": "PASS", "score": score})
                     except (json.JSONDecodeError, OSError):
@@ -1182,13 +1264,16 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
                     fp0 = str(output_files[0])
                     if "/truth/" in fp0 or "truth/" in fp0:
                         ftype = "truth"
-                    elif "/audits/" in fp0 or "audits/" in fp0:
-                        ftype = "report"
-                    elif "/plans/" in fp0 or "plans/" in fp0:
-                        ftype = "report"
-                    elif "/outline/" in fp0 or "outline/" in fp0:
-                        ftype = "report"
-                    elif "/context/" in fp0 or "context/" in fp0:
+                    elif (
+                        "/audits/" in fp0
+                        or "audits/" in fp0
+                        or "/plans/" in fp0
+                        or "plans/" in fp0
+                        or "/outline/" in fp0
+                        or "outline/" in fp0
+                        or "/context/" in fp0
+                        or "context/" in fp0
+                    ):
                         ftype = "report"
                 g2_raw = gate_G2(output_files, ftype, str(rd))
                 try:
@@ -1211,7 +1296,11 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
         try:
             progress = jload(str(pp))
             agent_trace = progress.get("agent_trace", {})
-            gen_agent = agent_trace.get(skill_name) if isinstance(agent_trace, dict) and skill_name else None
+            gen_agent = (
+                agent_trace.get(skill_name)
+                if isinstance(agent_trace, dict) and skill_name
+                else None
+            )
             scorer_agent = progress.get("current_scorer_agent")
             if gen_agent and scorer_agent and str(gen_agent) == str(scorer_agent):
                 mf.append({"id": "G3.4", "s": "FAIL", "r": "scorer agent same as generator"})
@@ -1240,16 +1329,14 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
             if scorer and str(scorer) in prior_agents:
                 mf.append({"id": "G3.5", "s": "FAIL", "r": "scorer already scored"})
             else:
-                c.append({"id": "G3.5", "s": "PASS",
-                          "note": f"{len(prior_agents)} prior scorers"})
+                c.append({"id": "G3.5", "s": "PASS", "note": f"{len(prior_agents)} prior scorers"})
         except (json.JSONDecodeError, OSError):
             c.append({"id": "G3.5", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.5", "s": "SKIP", "r": "no progress.json"})
 
     if mf:
-        return fail("G3", c, "scoring",
-                    [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])
+        return fail("G3", c, "scoring", [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])
     return passed("G3", c)
 
 
@@ -1260,10 +1347,11 @@ def gate_G3(skill_name=None, test_type=None, round_dir=None):
 # --- Generic G4 fallback checkers (replace UNIMPLEMENTED for skills without
 #     dedicated checkers) ---
 
+
 def g4_generic_generative(fps, rd=None):
     """Generic G4 for skills without specific checkers. Validates output exists, non-empty, has frontmatter."""
     c, mf = [], []
-    for fp_path in (fps or []):
+    for fp_path in fps or []:
         p = Path(fp_path)
         if not p.exists():
             mf.append(f"G4.gen.not_found:{fp_path}")
@@ -1299,7 +1387,7 @@ def g4_generic_generative(fps, rd=None):
 def g4_generic_bughunt(fps, rd=None):
     """Generic G4 for bug-hunt reports. Validates report format: detection summary table, file+line citations, rule names, false positive check."""
     c, mf = [], []
-    for fp_path in (fps or []):
+    for fp_path in fps or []:
         p = Path(fp_path)
         if not p.exists():
             mf.append(f"G4.bh.not_found:{fp_path}")
@@ -1316,15 +1404,19 @@ def g4_generic_bughunt(fps, rd=None):
         if not re.search(r"(?:L\d+|line\s+\d+|\:\d+|`[^`]+\.[a-z]+`)", content, re.IGNORECASE):
             mf.append(f"G4.bh.no_location_ref:{fp_path}")
         # Must have SKILL.md rule reference (Chinese or English patterns)
-        has_rule = bool(re.search(
-            r"铁律|Iron Rule|Iron Law|Violated Rule|SKILL\.md.*Rule|违反.*规则|SKILL\.md Rule",
-            content, re.IGNORECASE))
+        has_rule = bool(
+            re.search(
+                r"铁律|Iron Rule|Iron Law|Violated Rule|SKILL\.md.*Rule|违反.*规则|SKILL\.md Rule",
+                content,
+                re.IGNORECASE,
+            )
+        )
         if not has_rule:
             mf.append(f"G4.bh.no_rule_reference:{fp_path}")
         # Must have false positive check (flexible: markdown bold, colon, dash separators)
         if not re.search(r"False positives?[^0-9]*0|误报[^0-9]*0", content, re.IGNORECASE):
             mf.append(f"G4.bh.no_false_positive_check:{fp_path}")
-        if not mf or all(not x.startswith(f"G4.bh.") for x in mf):
+        if not mf or all(not x.startswith("G4.bh.") for x in mf):
             c.append({"id": f"G4.bh.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.bh", "s": "SKIP", "r": "no files"})
@@ -1336,7 +1428,7 @@ def g4_generic_bughunt(fps, rd=None):
 def g4_generic_clean(fps, rd=None):
     """Generic G4 for clean reports. Validates: per-file confirmation, zero issues assertion, no fabricated suggestions."""
     c, mf = [], []
-    for fp_path in (fps or []):
+    for fp_path in fps or []:
         p = Path(fp_path)
         if not p.exists():
             mf.append(f"G4.cl.not_found:{fp_path}")
@@ -1354,19 +1446,21 @@ def g4_generic_clean(fps, rd=None):
             mf.append(f"G4.cl.no_file_list:{fp_path}")
         # Must not have improvement suggestions (these = hallucinated defects)
         # Exclude negation contexts ("无改进建议", "no improvement suggestions")
-        suggestion_matches = re.findall(r"(?:改进建议|建议优化|improvement suggestion)", content, re.IGNORECASE)
+        suggestion_matches = re.findall(
+            r"(?:改进建议|建议优化|improvement suggestion)", content, re.IGNORECASE
+        )
         # Filter out negated mentions
         real_suggestions = []
         for m in suggestion_matches:
             # Check 10 chars before the match for negation
             idx = content.lower().index(m.lower()) if m.lower() in content.lower() else -1
             if idx >= 0:
-                before = content[max(0, idx-15):idx]
+                before = content[max(0, idx - 15) : idx]
                 if not re.search(r"无|不|no\s|not\s|without|没", before, re.IGNORECASE):
                     real_suggestions.append(m)
         if real_suggestions:
             mf.append(f"G4.cl.has_suggestions:{fp_path}:{real_suggestions}")
-        if not mf or all(not x.startswith(f"G4.cl.") for x in mf):
+        if not mf or all(not x.startswith("G4.cl.") for x in mf):
             c.append({"id": f"G4.cl.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.cl", "s": "SKIP", "r": "no files"})
@@ -1412,6 +1506,7 @@ def gate_G4(skill_name, test_type, file_paths, round_dir=None):
 
 
 # --- g4_worldbuilding (FULL) ---
+
 
 def g4_worldbuilding(fps, rd=None):
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
@@ -1466,13 +1561,9 @@ def g4_worldbuilding(fps, rd=None):
         bullet_density = total_bullets / total_lines
 
         if len(sections) < 4:
-            mf.append(
-                f"G4.sb.sections:found_{len(sections)}_need_4"
-            )
+            mf.append(f"G4.sb.sections:found_{len(sections)}_need_4")
         if bullet_density > 0.05:
-            mf.append(
-                f"G4.sb.bullet_density:{bullet_density:.1%}"
-            )
+            mf.append(f"G4.sb.bullet_density:{bullet_density:.1%}")
         if len(sections) >= 4 and bullet_density <= 0.05:
             c.append({"id": "G4.sb", "s": "PASS", "sections": len(sections)})
     else:
@@ -1483,16 +1574,12 @@ def g4_worldbuilding(fps, rd=None):
     if rp.exists():
         rc = rp.read_text(encoding="utf-8")
         # Support both Chinese and Arabic numerals
-        rule_count = len(
-            re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc)
-        )
+        rule_count = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
         testable = len(re.findall(r"可测试标准|验证条件", rc))
         if rule_count < 1 or rule_count > 10:
             mf.append(f"G4.rules.count:{rule_count}")
         if testable < rule_count:
-            mf.append(
-                f"G4.rules.testable:{testable}<{rule_count}"
-            )
+            mf.append(f"G4.rules.testable:{testable}<{rule_count}")
         if 1 <= rule_count <= 10 and testable >= rule_count:
             c.append({"id": "G4.rules", "s": "PASS", "count": rule_count})
     else:
@@ -1543,6 +1630,7 @@ def g4_worldbuilding(fps, rd=None):
 
 # --- g4_character_design (FULL) ---
 
+
 def g4_character_design(fps, rd=None):
     """Character-design: frontmatter fields, voice_profile arrays, relationship pairs."""
     c = []
@@ -1574,7 +1662,11 @@ def g4_character_design(fps, rd=None):
                 "voice_profile",
             ]
             for f in required_fields:
-                if f not in fm or (isinstance(fm[f], (list, dict)) and not fm[f]) or (isinstance(fm[f], str) and not fm[f].strip()):
+                if (
+                    f not in fm
+                    or (isinstance(fm[f], (list, dict)) and not fm[f])
+                    or (isinstance(fm[f], str) and not fm[f].strip())
+                ):
                     mf.append(f"G4.protag.missing_{f}:{fp}")
                 else:
                     c.append({"id": f"G4.protag.{f}", "s": "PASS"})
@@ -1633,9 +1725,11 @@ def g4_character_design(fps, rd=None):
 
 # --- g4_chapter_drafting (FULL) ---
 
+
 def g4_chapter_drafting(fps, rd=None):
     """Chapter-drafting: PRE/POST check blocks, transition density,
-    fatigue words, meta-narrative, word count."""
+    fatigue words, meta-narrative, word count.
+    """
     c = []
     mf = []
 
@@ -1652,13 +1746,13 @@ def g4_chapter_drafting(fps, rd=None):
         if "## PRE_WRITE_CHECK" not in content:
             mf.append(f"G4.pre_check:{fp}")
         else:
-            c.append({"id": f"G4.pre_check", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.pre_check", "file": fp, "s": "PASS"})
 
         # POST_WRITE_SELF_CHECK
         if "## POST_WRITE_SELF_CHECK" not in content:
             mf.append(f"G4.post_check:{fp}")
         else:
-            c.append({"id": f"G4.post_check", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.post_check", "file": fp, "s": "PASS"})
 
         # Transition word density ≤ 1/3000
         tc = count_transition_words(content)
@@ -1723,42 +1817,57 @@ def g4_chapter_drafting(fps, rd=None):
                         try:
                             other_content = other.read_text(encoding="utf-8")
                             other_fp = _text_fingerprint(other_content)
-                            overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+                            overlap = len(this_fingerprint & other_fp) / max(
+                                len(this_fingerprint), 1
+                            )
                             max_overlap = max(max_overlap, overlap)
                         except (OSError, UnicodeDecodeError) as e:
                             print(f"G4.cd warn: cannot read {other}: {e}", file=sys.stderr)
                     if max_overlap > 0.40:
                         mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
                     else:
-                        c.append({"id": "G4.cd.content_uniqueness", "file": fp, "s": "PASS",
-                                   "max_overlap": f"{max_overlap:.0%}"})
-
+                        c.append(
+                            {
+                                "id": "G4.cd.content_uniqueness",
+                                "file": fp,
+                                "s": "PASS",
+                                "max_overlap": f"{max_overlap:.0%}",
+                            }
+                        )
 
         # G4.cd.scene_concreteness: at least 1 paragraph of >=200 CJK chars of visual narrative
-        paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
+        paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
         visual_p_count = 0
         for p in paragraphs:
-            if p.startswith('#') or p.startswith('##') or p.startswith('>') or p.startswith('---'):
+            if p.startswith("#") or p.startswith("##") or p.startswith(">") or p.startswith("---"):
                 continue
-            cjk_in_p = len(re.findall(r'[\u4e00-\u9fff\u3400-\u4dbf]', p))
-            has_vn = bool(re.search(r'(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)', p))
-            has_di = bool(re.search(r'[「\u201c].*?[」\u201d]', p))
+            cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
+            has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
+            has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
             if cjk_in_p >= 200 and (has_vn or has_di):
                 visual_p_count += 1
         if visual_p_count < 1:
             mf.append(f"G4.cd.no_visual_scene:{fp}")
         else:
-            c.append({"id": "G4.cd.scene_concreteness", "file": fp, "s": "PASS",
-                       "visual_paragraphs": visual_p_count})
+            c.append(
+                {
+                    "id": "G4.cd.scene_concreteness",
+                    "file": fp,
+                    "s": "PASS",
+                    "visual_paragraphs": visual_p_count,
+                }
+            )
 
         # G4.cd.chapter_end_hook: last paragraph contains unresolved tension
         if paragraphs:
             last_p = paragraphs[-1]
-            if not last_p.startswith('##') and not last_p.startswith('>'):
-                cjk_last = len(re.findall(r'[\u4e00-\u9fff\u3400-\u4dbf]', last_p))
+            if not last_p.startswith("##") and not last_p.startswith(">"):
+                cjk_last = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", last_p))
                 if cjk_last >= 30:
-                    has_q = bool(re.search(r'[？?]', last_p))
-                    has_t = bool(re.search(r'(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)', last_p))
+                    has_q = bool(re.search(r"[？?]", last_p))
+                    has_t = bool(
+                        re.search(r"(但|然而|却|不过|还|仍|依然|尚未|未解|不知|等待)", last_p)
+                    )
                     if not (has_q or has_t):
                         mf.append(f"G4.cd.no_hook:{fp}")
                     else:
@@ -1770,6 +1879,7 @@ def g4_chapter_drafting(fps, rd=None):
 
 
 # ---- G4: Remaining skill checker functions ----
+
 
 def g4_story_architecture(fps, rd=None):
     """Story architecture: story_frame frontmatter conflicts, volume_map Objective+KR."""
@@ -1801,7 +1911,9 @@ def g4_story_architecture(fps, rd=None):
         volumes = re.findall(r"## 第[一二三四五六七八九十\d]+卷", content)
         volumes_with_obj = 0
         for vol_match in re.finditer(
-            r"## 第[一二三四五六七八九十\d]+卷[：:].*?\n(?=## 第[一二三四五六七八九十\d]+卷|\Z)", content, re.DOTALL
+            r"## 第[一二三四五六七八九十\d]+卷[：:].*?\n(?=## 第[一二三四五六七八九十\d]+卷|\Z)",
+            content,
+            re.DOTALL,
         ):
             vol_text = vol_match.group()
             has_obj = bool(re.search(r"\*\*Objective\*\*", vol_text))
@@ -1813,8 +1925,14 @@ def g4_story_architecture(fps, rd=None):
         elif volumes_with_obj < 1:
             mf.append(f"G4.volumes.obj_kr:{volumes_with_obj}/{len(volumes)}")
         else:
-            c.append({"id": "G4.volumes", "s": "PASS", "count": len(volumes),
-                       "with_obj_kr": volumes_with_obj})
+            c.append(
+                {
+                    "id": "G4.volumes",
+                    "s": "PASS",
+                    "count": len(volumes),
+                    "with_obj_kr": volumes_with_obj,
+                }
+            )
     else:
         mf.append("G4.volumes.not_found")
 
@@ -1836,7 +1954,8 @@ def g4_story_architecture(fps, rd=None):
 
 def g4_power_system(fps, rd=None):
     """Power system: level table (>=5 rows), advancement rules, ability boundaries,
-    cost mechanism, power ceiling, cross-level combat reference."""
+    cost mechanism, power ceiling, cross-level combat reference.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -1891,7 +2010,8 @@ def g4_power_system(fps, rd=None):
 
 def g4_faction_builder(fps, rd=None):
     """Faction builder: >= 2 factions each with hierarchy, internal conflicts,
-    cross-faction relations, interest-driven behavior."""
+    cross-faction relations, interest-driven behavior.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -1908,9 +2028,7 @@ def g4_faction_builder(fps, rd=None):
         else:
             c.append({"id": "G4.factions.count", "s": "PASS", "count": len(factions)})
             valid = 0
-            for match in re.finditer(
-                r"## 势力[：:].*?\n(?=## 势力|\Z)", content, re.DOTALL
-            ):
+            for match in re.finditer(r"## 势力[：:].*?\n(?=## 势力|\Z)", content, re.DOTALL):
                 faction_text = match.group()
                 has_hierarchy = bool(re.search(r"层级结构|### 层级", faction_text))
                 has_internal = bool(re.search(r"内部矛盾|### 内部", faction_text))
@@ -1930,7 +2048,8 @@ def g4_faction_builder(fps, rd=None):
 
 def g4_location_builder(fps, rd=None):
     """Location builder: each location has layout (>=200 chars), atmosphere (>=150 chars),
-    functional events."""
+    functional events.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -1946,16 +2065,18 @@ def g4_location_builder(fps, rd=None):
             mf.append("G4.lb.no_locations")
         else:
             valid = 0
-            for match in re.finditer(
-                r"## 地点[：:].*?\n(?=## 地点|\Z)", content, re.DOTALL
-            ):
+            for match in re.finditer(r"## 地点[：:].*?\n(?=## 地点|\Z)", content, re.DOTALL):
                 loc_text = match.group()
                 layout_match = re.search(
-                    r"###\s*(?:\d+\.?\s*)?(?:布局描述|空间布局)\n(.*?)(?=###|\Z)", loc_text, re.DOTALL
+                    r"###\s*(?:\d+\.?\s*)?(?:布局描述|空间布局)\n(.*?)(?=###|\Z)",
+                    loc_text,
+                    re.DOTALL,
                 )
                 layout_len = len(layout_match.group(1).strip()) if layout_match else 0
                 atmo_match = re.search(
-                    r"###\s*(?:\d+\.?\s*)?(?:氛围锚点|感官锚点)\n(.*?)(?=###|\Z)", loc_text, re.DOTALL
+                    r"###\s*(?:\d+\.?\s*)?(?:氛围锚点|感官锚点)\n(.*?)(?=###|\Z)",
+                    loc_text,
+                    re.DOTALL,
                 )
                 atmo_len = len(atmo_match.group(1).strip()) if atmo_match else 0
                 has_events = bool(re.search(r"### 功能事件", loc_text))
@@ -1964,8 +2085,9 @@ def g4_location_builder(fps, rd=None):
             if valid < len(locations):
                 mf.append(f"G4.lb.complete:{valid}/{len(locations)}")
             else:
-                c.append({"id": "G4.lb", "s": "PASS",
-                           "locations": len(locations), "complete": valid})
+                c.append(
+                    {"id": "G4.lb", "s": "PASS", "locations": len(locations), "complete": valid}
+                )
 
     if mf:
         return fail("G4-location-builder", c, "scoring", mf)
@@ -1974,7 +2096,8 @@ def g4_location_builder(fps, rd=None):
 
 def g4_relationship_map(fps, rd=None):
     """Relationship map: >= 3 pairs, each with interest foundation, info boundary enum,
-    evolution trajectory."""
+    evolution trajectory.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -2024,7 +2147,8 @@ def g4_relationship_map(fps, rd=None):
 
 def g4_pacing_design(fps, rd=None):
     """Pacing design: 4-beat cycle, 3-line ratio table (QUEST/FIRE/CONSTELLATION),
-    >= 6 scene types, monotony detection rules."""
+    >= 6 scene types, monotony detection rules.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -2060,8 +2184,7 @@ def g4_pacing_design(fps, rd=None):
         if unique_scenes < 6:
             mf.append(f"G4.pd.scene_types:{unique_scenes}<6")
         else:
-            c.append({"id": "G4.pd.scene_types", "s": "PASS",
-                       "types": unique_scenes})
+            c.append({"id": "G4.pd.scene_types", "s": "PASS", "types": unique_scenes})
 
         # 单调性检测规则 (only check for the specific term)
         if "单调性" not in content:
@@ -2094,8 +2217,7 @@ def g4_plot_thread_weaver(fps, rd=None):
         if not lines_found:
             mf.append("G4.pt.lines:missing_A/B/C")
         else:
-            c.append({"id": "G4.pt.lines", "s": "PASS",
-                       "found": lines_found[:3]})
+            c.append({"id": "G4.pt.lines", "s": "PASS", "found": lines_found[:3]})
 
         # 线索推进表 (table format)
         table_rows = len(re.findall(r"^\|.+\|$", content, re.MULTILINE))
@@ -2117,7 +2239,8 @@ def g4_plot_thread_weaver(fps, rd=None):
 
 def g4_genre_config(fps, rd=None):
     """Genre config: valid JSON, fatigue_words array, audit_dimensions >= 5,
-    chapter_word.default >= 1000."""
+    chapter_word.default >= 1000.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -2134,9 +2257,7 @@ def g4_genre_config(fps, rd=None):
             # fatigue_words array
             fw = data.get("fatigueWords") or data.get("fatigue_words") or {}
             if isinstance(fw, dict):
-                has_words = any(
-                    isinstance(v, list) and len(v) > 0 for v in fw.values()
-                )
+                has_words = any(isinstance(v, list) and len(v) > 0 for v in fw.values())
                 if has_words:
                     c.append({"id": "G4.gc.fatigue_words", "s": "PASS"})
                 else:
@@ -2147,16 +2268,12 @@ def g4_genre_config(fps, rd=None):
                 mf.append("G4.gc.fatigue_words:missing")
 
             # audit_dimensions >= 5
-            ad = (data.get("auditDimensions") or
-                  data.get("audit_dimensions") or {})
-            ad_count = len(ad) if isinstance(ad, dict) else (
-                len(ad) if isinstance(ad, list) else 0
-            )
+            ad = data.get("auditDimensions") or data.get("audit_dimensions") or {}
+            ad_count = len(ad) if isinstance(ad, dict) else (len(ad) if isinstance(ad, list) else 0)
             if ad_count < 5:
                 mf.append(f"G4.gc.audit_dimensions:{ad_count}<5")
             else:
-                c.append({"id": "G4.gc.audit_dimensions", "s": "PASS",
-                           "count": ad_count})
+                c.append({"id": "G4.gc.audit_dimensions", "s": "PASS", "count": ad_count})
 
             # chapter_word.default (optional: SKILL.md schema has pacing but not chapter_word;
             # if present, validate it; if absent, skip without failing)
@@ -2166,11 +2283,15 @@ def g4_genre_config(fps, rd=None):
                 if cw_default < 1000:
                     mf.append(f"G4.gc.chapter_word:{cw_default}<1000")
                 else:
-                    c.append({"id": "G4.gc.chapter_word", "s": "PASS",
-                               "default": cw_default})
+                    c.append({"id": "G4.gc.chapter_word", "s": "PASS", "default": cw_default})
             else:
-                c.append({"id": "G4.gc.chapter_word", "s": "SKIP",
-                           "note": "chapter_word field not present (optional)"})
+                c.append(
+                    {
+                        "id": "G4.gc.chapter_word",
+                        "s": "SKIP",
+                        "note": "chapter_word field not present (optional)",
+                    }
+                )
 
         except (json.JSONDecodeError, OSError):
             mf.append("G4.gc.invalid_json")
@@ -2182,7 +2303,8 @@ def g4_genre_config(fps, rd=None):
 
 def g4_volume_outlining(fps, rd=None):
     """Volume outlining: Objective (binary), 3-5 KRs, tension curve,
-    >= 1 cross-volume bridge hook."""
+    >= 1 cross-volume bridge hook.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -2193,9 +2315,13 @@ def g4_volume_outlining(fps, rd=None):
         mf.append("G4.vo.not_found")
     else:
         content = vm.read_text(encoding="utf-8")
-        vol_sections = list(re.finditer(
-            r"## 第[一二三四五六七八九十\d]+卷[：:].*?\n(?=## 第[一二三四五六七八九十\d]+卷|\Z)", content, re.DOTALL
-        ))
+        vol_sections = list(
+            re.finditer(
+                r"## 第[一二三四五六七八九十\d]+卷[：:].*?\n(?=## 第[一二三四五六七八九十\d]+卷|\Z)",
+                content,
+                re.DOTALL,
+            )
+        )
         if not vol_sections:
             mf.append("G4.vo.no_volumes")
         else:
@@ -2235,11 +2361,12 @@ def g4_volume_outlining(fps, rd=None):
 
 def g4_chapter_planning(fps, rd=None):
     """Chapter planning: 8 numbered sections (## 1. to ## 8.), golden-3 rules,
-    section 4 has 关键抉择, section 5 has hook operation names."""
+    section 4 has 关键抉择, section 5 has hook operation names.
+    """
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.cp.not_found:{fp}")
@@ -2271,8 +2398,14 @@ def g4_chapter_planning(fps, rd=None):
             else:
                 c.append({"id": f"G4.cp.golden_{n}", "file": fp, "s": "PASS"})
         else:
-            c.append({"id": "G4.cp.golden", "file": fp, "s": "SKIP",
-                       "r": f"N={n}, golden-3 only for N=1,2,3"})
+            c.append(
+                {
+                    "id": "G4.cp.golden",
+                    "file": fp,
+                    "s": "SKIP",
+                    "r": f"N={n}, golden-3 only for N=1,2,3",
+                }
+            )
 
         # Section 5: 关键抉择 (per SKILL.md, section 5 is key decision)
         s5_match = re.search(r"## 5\..*?\n(?=## 6\.|\Z)", content, re.DOTALL)
@@ -2290,8 +2423,7 @@ def g4_chapter_planning(fps, rd=None):
         if not found_ops:
             mf.append(f"G4.cp.s7_hook_ops:{fp}")
         else:
-            c.append({"id": "G4.cp.s7_hook_ops", "file": fp, "s": "PASS",
-                       "ops": found_ops})
+            c.append({"id": "G4.cp.s7_hook_ops", "file": fp, "s": "PASS", "ops": found_ops})
 
     if not fps:
         c.append({"id": "G4.cp", "s": "SKIP", "r": "no files"})
@@ -2303,7 +2435,8 @@ def g4_chapter_planning(fps, rd=None):
 
 def g4_foreshadowing_track(fps, rd=None):
     """Foreshadowing track: >= 1 hook state change or last_reinforced update,
-    chapter refs, core_hook silence <= max_gap."""
+    chapter refs, core_hook silence <= max_gap.
+    """
     c = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
@@ -2315,10 +2448,12 @@ def g4_foreshadowing_track(fps, rd=None):
     else:
         content = ph.read_text(encoding="utf-8")
         # >= 1 hook state change or last_reinforced update
-        has_changes = bool(re.search(
-            r"状态.*→|操作|PLANTED|RELEVANT|TRIGGERED|RESOLVED|REINFORCE|last_reinforced",
-            content
-        ))
+        has_changes = bool(
+            re.search(
+                r"状态.*→|操作|PLANTED|RELEVANT|TRIGGERED|RESOLVED|REINFORCE|last_reinforced",
+                content,
+            )
+        )
         if not has_changes:
             mf.append("G4.ft.no_changes")
         else:
@@ -2329,12 +2464,16 @@ def g4_foreshadowing_track(fps, rd=None):
         if not tracking_sections:
             mf.append("G4.ft.chapter_refs")
         else:
-            c.append({"id": "G4.ft.chapter_refs", "s": "PASS",
-                       "refs": len(tracking_sections)})
+            c.append({"id": "G4.ft.chapter_refs", "s": "PASS", "refs": len(tracking_sections)})
 
         # core_hook silence <= max_gap (requires LLM judgment, deferred)
-        c.append({"id": "G4.ft.core_silence", "s": "PASS",
-                   "note": "core_hook gap check requires LLM judgment"})
+        c.append(
+            {
+                "id": "G4.ft.core_silence",
+                "s": "PASS",
+                "note": "core_hook gap check requires LLM judgment",
+            }
+        )
 
     if mf:
         return fail("G4-foreshadowing-track", c, "scoring", mf)
@@ -2346,7 +2485,7 @@ def g4_context_composing(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.cc.not_found:{fp}")
@@ -2373,8 +2512,15 @@ def g4_context_composing(fps, rd=None):
         if not p1_content or not p2_content:
             mf.append(f"G4.cc.p1p2_empty:{fp}")
         else:
-            c.append({"id": "G4.cc.p1p2", "file": fp, "s": "PASS",
-                       "p1_len": len(p1_content), "p2_len": len(p2_content)})
+            c.append(
+                {
+                    "id": "G4.cc.p1p2",
+                    "file": fp,
+                    "s": "PASS",
+                    "p1_len": len(p1_content),
+                    "p2_len": len(p2_content),
+                }
+            )
 
     if not fps:
         c.append({"id": "G4.cc", "s": "SKIP", "r": "no files"})
@@ -2389,7 +2535,7 @@ def g4_foreshadowing_plant(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.fp.not_found:{fp}")
@@ -2418,8 +2564,14 @@ def g4_foreshadowing_plant(fps, rd=None):
 
         for h in hooks:
             hid = h.get("id", "?")
-            required = ["type", "dimension", "subtlety", "cultivation_interval",
-                        "max_distance", "escalation_curve"]
+            required = [
+                "type",
+                "dimension",
+                "subtlety",
+                "cultivation_interval",
+                "max_distance",
+                "escalation_curve",
+            ]
             for f in required:
                 if f not in h:
                     mf.append(f"G4.fp.{hid}.missing_{f}")
@@ -2429,12 +2581,13 @@ def g4_foreshadowing_plant(fps, rd=None):
 
             if h.get("type") == "SMOKESCREEN":
                 notes = h.get("notes", "")
-                if len(notes) < 50 or not re.search(r'如果|若|when|if|则|then', notes):
+                if len(notes) < 50 or not re.search(r"如果|若|when|if|则|then", notes):
                     mf.append(f"G4.fp.{hid}.smokescreen_no_exit")
 
         # plant+reinforce+trigger+resolve ops <= 8
-        total_ops = sum(1 for h in hooks
-                        if h.get("operation") in ("plant", "reinforce", "trigger", "resolve"))
+        total_ops = sum(
+            1 for h in hooks if h.get("operation") in ("plant", "reinforce", "trigger", "resolve")
+        )
         if total_ops > 8:
             mf.append(f"G4.fp.ops:{total_ops}>8")
         else:
@@ -2453,7 +2606,7 @@ def g4_state_settling(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.ss.not_found:{fp}")
@@ -2474,13 +2627,13 @@ def g4_state_settling(fps, rd=None):
                 c.append({"id": "G4.ss.characters", "file": fp, "s": "PASS"})
 
         if "chapter_summaries" in str(fp):
-            if not re.search(r'## 第\d+章', content):
+            if not re.search(r"## 第\d+章", content):
                 mf.append(f"G4.ss.no_chapter_summary:{fp}")
             else:
                 c.append({"id": "G4.ss.summaries", "file": fp, "s": "PASS"})
 
         if "emotional_arcs" in str(fp):
-            if not re.search(r'### 第\d+章', content):
+            if not re.search(r"### 第\d+章", content):
                 mf.append(f"G4.ss.no_emotional_arc:{fp}")
             else:
                 c.append({"id": "G4.ss.arcs", "file": fp, "s": "PASS"})
@@ -2510,7 +2663,7 @@ def g4_style_polishing(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.sp.not_found:{fp}")
@@ -2534,8 +2687,15 @@ def g4_style_polishing(fps, rd=None):
                 if ratio < 0.85 or ratio > 1.15:
                     mf.append(f"G4.sp.word_ratio:{fp}:{ratio:.2f}")
                 else:
-                    c.append({"id": "G4.sp.word_ratio", "file": fp, "s": "PASS",
-                               "before": wc_before, "after": wc_after})
+                    c.append(
+                        {
+                            "id": "G4.sp.word_ratio",
+                            "file": fp,
+                            "s": "PASS",
+                            "before": wc_before,
+                            "after": wc_after,
+                        }
+                    )
 
     if not fps:
         c.append({"id": "G4.sp", "s": "SKIP", "r": "no files"})
@@ -2550,7 +2710,7 @@ def g4_anti_detect(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.ad.not_found:{fp}")
@@ -2565,11 +2725,11 @@ def g4_anti_detect(fps, rd=None):
 
         # Check for applied techniques (table rows or numbered list)
         # Only search within the 改写报告 section to avoid false positives
-        report_match = re.search(r'## 改写报告(.+?)(?=\n## |\Z)', content, re.DOTALL)
+        report_match = re.search(r"## 改写报告(.+?)(?=\n## |\Z)", content, re.DOTALL)
         report_section = report_match.group(1) if report_match else ""
         has_techniques = bool(
-            re.search(r'^\|.*\|.*\|', report_section, re.MULTILINE) or
-            re.search(r'^\d+[\.\)、]\s', report_section, re.MULTILINE)
+            re.search(r"^\|.*\|.*\|", report_section, re.MULTILINE)
+            or re.search(r"^\d+[\.\)、]\s", report_section, re.MULTILINE)
         )
 
         if has_techniques:
@@ -2594,7 +2754,7 @@ def g4_length_normalizing(fps, rd=None):
     c = []
     mf = []
 
-    for fp in (fps or []):
+    for fp in fps or []:
         pf = Path(fp)
         if not pf.exists():
             mf.append(f"G4.ln.not_found:{fp}")
@@ -2609,11 +2769,21 @@ def g4_length_normalizing(fps, rd=None):
         c.append({"id": "G4.ln.report", "file": fp, "s": "PASS"})
 
         # Detect "no normalization needed" case
-        no_action = ("不触发" in content or "无需归一化" in content or
-                     "within acceptable range" in content.lower())
+        no_action = (
+            "不触发" in content
+            or "无需归一化" in content
+            or "within acceptable range" in content.lower()
+        )
         if no_action:
-            c.append({"id": "G4.ln.word_count", "file": fp, "s": "PASS",
-                      "wc": wc, "note": "no normalization needed"})
+            c.append(
+                {
+                    "id": "G4.ln.word_count",
+                    "file": fp,
+                    "s": "PASS",
+                    "wc": wc,
+                    "note": "no normalization needed",
+                }
+            )
             continue
 
         # Expansion or compression was applied — enforce word count
@@ -2646,27 +2816,30 @@ def gate_G4_clean(file_paths):
 # G5 — T2 Phase
 # ---------------------------------------------------------------------------
 
+
 def _text_fingerprint(text, min_len=50):
-    body = re.sub(r'^---.*?---', '', text, flags=re.DOTALL)
-    paragraphs = body.split(chr(10)+chr(10))
+    body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
+    paragraphs = body.split(chr(10) + chr(10))
     hashes = set()
     for p in paragraphs:
         p = p.strip()
-        if not p or p.startswith('#') or p.startswith('>'):
+        if not p or p.startswith("#") or p.startswith(">"):
             continue
-        if 'PRE_WRITE_CHECK' in p or 'POST_WRITE_SELF_CHECK' in p:
+        if "PRE_WRITE_CHECK" in p or "POST_WRITE_SELF_CHECK" in p:
             continue
-        cjk = len(re.findall(r'[一-鿿]', p))
+        cjk = len(re.findall(r"[一-鿿]", p))
         if cjk >= min_len:
             hashes.add(hash(p))
     return hashes
+
 
 def gate_G5(phase_name=None, round_dir=None, project_dir=None):
     """G5: T2 Phase check."""
     c, mf = [], []
     deps = jload(TESTS / "tiers" / "deps.json")
     phase_data = deps.get("t2-phases", {}).get(phase_name)
-    if not phase_data: return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
+    if not phase_data:
+        return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
     acceptance = jload(TESTS / "tiers" / "acceptance.json")
     threshold = acceptance.get("t2", 94)
     prereqs = phase_data.get("prerequisites", [])
@@ -2698,13 +2871,26 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
 
     # G5.2: handoff integrity — parse SKILL.md Reads vs upstream Writes+Updates
     for i in range(1, len(prereqs)):
-        up, down = prereqs[i-1], prereqs[i]
-        us_md = (SKILLS / up / "SKILL.md").read_text() if (SKILLS / up / "SKILL.md").exists() else ""
-        ds_md = (SKILLS / down / "SKILL.md").read_text() if (SKILLS / down / "SKILL.md").exists() else ""
-        us_outs = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*(?:Writes|Updates):\*\*\s*(.*)', us_md))))
-        ds_ins = set(re.findall(r'`([^`]+)`', '\n'.join(re.findall(r'\*\*Reads:\*\*\s*(.*)', ds_md))))
+        up, down = prereqs[i - 1], prereqs[i]
+        us_md = (
+            (SKILLS / up / "SKILL.md").read_text() if (SKILLS / up / "SKILL.md").exists() else ""
+        )
+        ds_md = (
+            (SKILLS / down / "SKILL.md").read_text()
+            if (SKILLS / down / "SKILL.md").exists()
+            else ""
+        )
+        us_outs = set(
+            re.findall(
+                r"`([^`]+)`", "\n".join(re.findall(r"\*\*(?:Writes|Updates):\*\*\s*(.*)", us_md))
+            )
+        )
+        ds_ins = set(
+            re.findall(r"`([^`]+)`", "\n".join(re.findall(r"\*\*Reads:\*\*\s*(.*)", ds_md)))
+        )
         missing = ds_ins - us_outs
-        if missing: mf.append(f"G5.2:handoff:{up}->{down}:missing={list(missing)}")
+        if missing:
+            mf.append(f"G5.2:handoff:{up}->{down}:missing={list(missing)}")
 
     # G5.3: cross-skill conflict detection (char roles, numerics, terminology)
     if project_dir:
@@ -2718,8 +2904,8 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
             for cf in char_dir.rglob("*.md"):
                 try:
                     ct = cf.read_text()
-                    nms = re.findall(r'^name:\s*(\S+)', ct, re.MULTILINE)
-                    rms = re.findall(r'^role:\s*(\S+)', ct, re.MULTILINE)
+                    nms = re.findall(r"^name:\s*(\S+)", ct, re.MULTILINE)
+                    rms = re.findall(r"^role:\s*(\S+)", ct, re.MULTILINE)
                     for nm in nms:
                         if nm not in char_data:
                             char_data[nm] = []
@@ -2743,7 +2929,7 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
         if outline_dir.exists():
             output_files.extend(list(outline_dir.rglob("*.md"))[:3])
         numeric_registry = {}  # canonical_key -> set of (file, value)
-        num_pat = re.compile(r'(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)')
+        num_pat = re.compile(r"(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:
                 ct = wf.read_text()[:5000]
@@ -2752,10 +2938,10 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
                     unit = m.group(2)
                     # extract nearby context as concept key (up to 20 chars before number)
                     start = max(0, m.start() - 20)
-                    ctx = ct[start:m.start()]
+                    ctx = ct[start : m.start()]
                     # normalize to a short key
-                    key_words = re.findall(r'[一-鿿]{2,}', ctx)
-                    ckey = '_'.join(key_words[-2:]) if key_words else f"ctx_{abs(hash(ctx)) % 1000}"
+                    key_words = re.findall(r"[一-鿿]{2,}", ctx)
+                    ckey = "_".join(key_words[-2:]) if key_words else f"ctx_{abs(hash(ctx)) % 1000}"
                     ckey = f"{ckey}_{unit}"
                     if ckey not in numeric_registry:
                         numeric_registry[ckey] = []
@@ -2768,8 +2954,14 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
                 conflicts.append(f"numeric:{key}:{dict(entries)}")
 
         # C. Terminology consistency — mixed term variants
-        term_pairs = [("灵能", "灵力"), ("位面", "次元"), ("伏笔", "伏线"),
-                       ("庶民", "平民"), ("庶民", "百姓"), ("穿越者", "穿越客")]
+        term_pairs = [
+            ("灵能", "灵力"),
+            ("位面", "次元"),
+            ("伏笔", "伏线"),
+            ("庶民", "平民"),
+            ("庶民", "百姓"),
+            ("穿越者", "穿越客"),
+        ]
         if char_dir and char_dir.exists():
             sample_text = ""
             for cf in list(char_dir.rglob("*.md"))[:6]:
@@ -2786,21 +2978,19 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
         if conflicts:
             mf.extend([f"G5.3:{x}" for x in conflicts[:10]])
         else:
-            c.append({"id": "G5.3", "s": "PASS",
-                       "note": "no cross-skill conflicts detected"})
+            c.append({"id": "G5.3", "s": "PASS", "note": "no cross-skill conflicts detected"})
     else:
         c.append({"id": "G5.3", "s": "SKIP", "r": "need project_dir for this check"})
 
     # G5.4: expected outputs
     for pattern in phase_data.get("expected_outputs", []):
-        if '*' in pattern:
+        if "*" in pattern:
             pd = Path(project_dir) if project_dir else PROJECT
             matches = list(pd.rglob(pattern))
             if not matches:
                 mf.append(f"G5.4:{pattern}:no_matches")
             else:
-                c.append({"id": "G5.4", "pattern": pattern, "s": "PASS",
-                           "matches": len(matches)})
+                c.append({"id": "G5.4", "pattern": pattern, "s": "PASS", "matches": len(matches)})
         elif project_dir:
             p = Path(project_dir) / pattern
             if not p.exists():
@@ -2808,29 +2998,32 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
             else:
                 c.append({"id": "G5.4", "pattern": pattern, "s": "PASS"})
 
-
     # G5.5 checker → file pattern mapping (each checker only validates semantically relevant files)
     G5_CHECKER_GLOBS = {
-        "shenbi-worldbuilding":       ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
-        "shenbi-power-system":        ["world/power_system.md"],
-        "shenbi-faction-builder":     ["world/factions.md", "world/faction-relations.md"],
-        "shenbi-location-builder":    ["world/locations.md"],
-        "shenbi-character-design":    ["characters/*.md", "characters/**/*.md"],
-        "shenbi-relationship-map":    ["characters/relationships.md", "truth/character_matrix.md"],
-        "shenbi-story-architecture":  ["outline/story_frame.md", "outline/volume_map.md", "outline/rhythm_principles.md"],
-        "shenbi-volume-outlining":    ["outline/volume_map.md"],
-        "shenbi-genre-config":        ["genre-config.json"],
-        "shenbi-pacing-design":       ["outline/rhythm_principles.md"],
-        "shenbi-plot-thread-weaver":  ["outline/thread_map.md"],
-        "shenbi-chapter-planning":    ["plans/*.md"],
-        "shenbi-chapter-drafting":    ["chapters/*.md"],
+        "shenbi-worldbuilding": ["novel.json", "genre-config.json", "world/*.md", "truth/*.md"],
+        "shenbi-power-system": ["world/power_system.md"],
+        "shenbi-faction-builder": ["world/factions.md", "world/faction-relations.md"],
+        "shenbi-location-builder": ["world/locations.md"],
+        "shenbi-character-design": ["characters/*.md", "characters/**/*.md"],
+        "shenbi-relationship-map": ["characters/relationships.md", "truth/character_matrix.md"],
+        "shenbi-story-architecture": [
+            "outline/story_frame.md",
+            "outline/volume_map.md",
+            "outline/rhythm_principles.md",
+        ],
+        "shenbi-volume-outlining": ["outline/volume_map.md"],
+        "shenbi-genre-config": ["genre-config.json"],
+        "shenbi-pacing-design": ["outline/rhythm_principles.md"],
+        "shenbi-plot-thread-weaver": ["outline/thread_map.md"],
+        "shenbi-chapter-planning": ["plans/*.md"],
+        "shenbi-chapter-drafting": ["chapters/*.md"],
         "shenbi-foreshadowing-plant": ["truth/pending_hooks.md"],
         "shenbi-foreshadowing-track": ["truth/pending_hooks.md"],
-        "shenbi-context-composing":   ["context/*.md"],
-        "shenbi-state-settling":      ["truth/*.md"],
-        "shenbi-style-polishing":     ["chapters/*.md"],
-        "shenbi-anti-detect":         ["chapters/*.md"],
-        "shenbi-length-normalizing":  ["chapters/*.md"],
+        "shenbi-context-composing": ["context/*.md"],
+        "shenbi-state-settling": ["truth/*.md"],
+        "shenbi-style-polishing": ["chapters/*.md"],
+        "shenbi-anti-detect": ["chapters/*.md"],
+        "shenbi-length-normalizing": ["chapters/*.md"],
     }
 
     def _g5_file_matches_glob(file_path, project_dir, patterns):
@@ -2847,7 +3040,7 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
     if phase_outputs and project_dir:
         pd = Path(project_dir)
         for pattern in phase_outputs:
-            if '*' in pattern:
+            if "*" in pattern:
                 for fp in pd.rglob(pattern):
                     if fp.suffix == ".md":
                         # Run G4 check for every prerequisite skill on each output file
@@ -2862,8 +3055,14 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
                                 if g4_data.get("status") == "FAIL":
                                     mf.append(f"G5.5:{fp.name}:G4_fail:{pr}")
                             except Exception:
-                                c.append({"id": "G5.5", "file": str(fp), "s": "WARN",
-                                           "r": f"G4-{pr} check unavailable"})
+                                c.append(
+                                    {
+                                        "id": "G5.5",
+                                        "file": str(fp),
+                                        "s": "WARN",
+                                        "r": f"G4-{pr} check unavailable",
+                                    }
+                                )
         if not any(x.startswith("G5.5:") for x in mf):
             c.append({"id": "G5.5", "s": "PASS", "note": "G4 regression check on outputs"})
     else:
@@ -2878,6 +3077,7 @@ def gate_G5(phase_name=None, round_dir=None, project_dir=None):
 # G6 — T3 Pipeline
 # ---------------------------------------------------------------------------
 
+
 def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
     """G6: T3 Pipeline check."""
     c, mf = [], []
@@ -2890,7 +3090,11 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
     nj = pd / "novel.json"
     target_words = jload(str(nj)).get("target_words", 100000) if nj.exists() else 100000
     gc = pd / "genre-config.json"
-    default_w = jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR) if gc.exists() else CHAPTER_WORD_FLOOR
+    default_w = (
+        jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
+        if gc.exists()
+        else CHAPTER_WORD_FLOOR
+    )
     expected = -(-target_words // default_w)
     min_chapters = int(-(-(expected * min_ratio) // 1))
     chapters = []
@@ -2899,57 +3103,63 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         chapters = sorted(ch_dir.glob("chapter-*.md"))
         if len(chapters) < min_chapters:
             mf.append(f"G6.1:{len(chapters)}<{min_chapters}(ceil({expected}*{min_ratio}))")
-        else: c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
+        else:
+            c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
         # G6.2: no gaps
         nums = []
         for ch in chapters:
-            m = re.search(r'chapter-(\d+)', ch.name)
-            if m: nums.append(int(m.group(1)))
-        if nums and sorted(nums) != list(range(min(nums), max(nums)+1)):
+            m = re.search(r"chapter-(\d+)", ch.name)
+            if m:
+                nums.append(int(m.group(1)))
+        if nums and sorted(nums) != list(range(min(nums), max(nums) + 1)):
             mf.append("G6.2:chapter_gaps")
-        else: c.append({"id": "G6.2", "s": "PASS"})
+        else:
+            c.append({"id": "G6.2", "s": "PASS"})
         # G6.3: each chapter passes G4 chapter-drafting
         for ch in chapters:
             try:
                 g4r = json.loads(gate_G4("shenbi-chapter-drafting", "generative", [str(ch)]))
-                if g4r.get("status") == "FAIL": mf.append(f"G6.3:{ch.name}")
+                if g4r.get("status") == "FAIL":
+                    mf.append(f"G6.3:{ch.name}")
             except Exception as e:
                 mf.append(f"G6.3:{ch.name}:exception={e}")
-        if not any(x.startswith("G6.3:") for x in mf): c.append({"id": "G6.3", "s": "PASS"})
-    else: mf.append("G6.1:no_chapters_dir")
+        if not any(x.startswith("G6.3:") for x in mf):
+            c.append({"id": "G6.3", "s": "PASS"})
+    else:
+        mf.append("G6.1:no_chapters_dir")
 
     # G6.4: cross-chapter continuity (character positions, timeline, information state)
     if chapters:
         g64_violations = []
         # A. Timeline monotonicity: extract day/date references, ensure non-decreasing
         timeline = []  # (chapter_num, value, type, context)
-        day_pat = re.compile(r'第\s*(\d+)\s*(?:天|日|夜)')
-        date_pat = re.compile(r'(\d+)\s*月\s*(\d+)\s*[日号]')
-        stage_pat = re.compile(r'(?:阶段|第)\s*(\d+)\s*(?:阶段|步|回合)')
+        day_pat = re.compile(r"第\s*(\d+)\s*(?:天|日|夜)")
+        date_pat = re.compile(r"(\d+)\s*月\s*(\d+)\s*[日号]")
+        stage_pat = re.compile(r"(?:阶段|第)\s*(\d+)\s*(?:阶段|步|回合)")
         for ch in chapters:
-            cn_match = re.search(r'chapter-(\d+)', ch.name)
+            cn_match = re.search(r"chapter-(\d+)", ch.name)
             if not cn_match:
                 continue
             cn = int(cn_match.group(1))
             ct = ch.read_text()[:5000]
             for m in day_pat.finditer(ct):
-                timeline.append((cn, int(m.group(1)), 'day'))
+                timeline.append((cn, int(m.group(1)), "day"))
             for m in date_pat.finditer(ct):
-                timeline.append((cn, int(m.group(1)) * 100 + int(m.group(2)), 'date'))
+                timeline.append((cn, int(m.group(1)) * 100 + int(m.group(2)), "date"))
             for m in stage_pat.finditer(ct):
-                timeline.append((cn, int(m.group(1)), 'stage'))
+                timeline.append((cn, int(m.group(1)), "stage"))
         for i in range(1, len(timeline)):
-            pc, pv, pt = timeline[i-1]
+            pc, pv, pt = timeline[i - 1]
             cc, cv, ct2 = timeline[i]
             if pt == ct2 and cv < pv and cc >= pc:
                 g64_violations.append(f"timeline_regression:ch{pc}->ch{cc}:{pv}->{cv}({pt})")
         # B. Information state: "remembered/recalled/想起" in ch N should not reference items first introduced in ch >N
         # Track when named entities/events are first introduced
         intro_map = {}  # entity_key -> first_chapter_seen
-        entity_pat = re.compile(r'(?:灵能\S+|位面\S+|金手指|革命|起义|矿场|据点)')
-        know_pat = re.compile(r'(?:知道|明白|意识到|了解|学会|懂得|掌握|想起|回忆)')
+        entity_pat = re.compile(r"(?:灵能\S+|位面\S+|金手指|革命|起义|矿场|据点)")
+        know_pat = re.compile(r"(?:知道|明白|意识到|了解|学会|懂得|掌握|想起|回忆)")
         for ch in chapters:
-            cn_match = re.search(r'chapter-(\d+)', ch.name)
+            cn_match = re.search(r"chapter-(\d+)", ch.name)
             if not cn_match:
                 continue
             cn = int(cn_match.group(1))
@@ -2960,16 +3170,24 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
                     intro_map[e] = cn
             # Check for knowledge assertions about entities not yet introduced
             for know_m in know_pat.finditer(ct):
-                post_ctx = ct[know_m.end():know_m.end()+50]
+                post_ctx = ct[know_m.end() : know_m.end() + 50]
                 ref_entities = set(m.group(0) for m in entity_pat.finditer(post_ctx))
                 for re_ent in ref_entities:
                     if re_ent in intro_map and intro_map[re_ent] > cn:
-                        g64_violations.append(f"future_knowledge:ch{cn}:knows_{re_ent}_intro_ch{intro_map[re_ent]}")
+                        g64_violations.append(
+                            f"future_knowledge:ch{cn}:knows_{re_ent}_intro_ch{intro_map[re_ent]}"
+                        )
         if g64_violations:
             mf.extend([f"G6.4:{v}" for v in g64_violations[:10]])
         else:
-            c.append({"id": "G6.4", "s": "PASS", "chapters": len(chapters),
-                       "note": "timeline and info-state ok"})
+            c.append(
+                {
+                    "id": "G6.4",
+                    "s": "PASS",
+                    "chapters": len(chapters),
+                    "note": "timeline and info-state ok",
+                }
+            )
     else:
         c.append({"id": "G6.4", "s": "SKIP", "r": "need chapters/ for continuity check"})
 
@@ -2977,7 +3195,7 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
     if chapters:
         ch_types = []  # (ch_num, type, dialogue_pct)
         for ch in chapters:
-            cn_match = re.search(r'chapter-(\d+)', ch.name)
+            cn_match = re.search(r"chapter-(\d+)", ch.name)
             if not cn_match:
                 continue
             cn = int(cn_match.group(1))
@@ -2985,7 +3203,8 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
             # Strip frontmatter and meta sections (reuse word_count_md approach)
             body = ct
             for tag_pat in [
-                r"^---\n.*?\n---\n", r"```.*?```",
+                r"^---\n.*?\n---\n",
+                r"```.*?```",
                 r"## PRE_WRITE_CHECK.*?(?=## |\Z)",
                 r"## POST_WRITE_SELF_CHECK.*?(?=## |\Z)",
                 r"## 润色说明.*?(?=## |\Z)",
@@ -2994,43 +3213,58 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
             ]:
                 body = re.sub(tag_pat, "", body, flags=re.DOTALL)
             # Classify chapter type by markers
-            action_count = len(re.findall(r'(?:爆炸|战斗|攻击|闪避|格挡|冲锋|斩杀|灵力爆发|拳|剑|刀|枪)', body))
-            dialogue_chars = len(re.findall(r'[""][^""]*[""]', body)) + len(re.findall(r'「[^」]*」', body))
-            body_chars = len(re.findall(r'[一-鿿]', body))
+            action_count = len(
+                re.findall(r"(?:爆炸|战斗|攻击|闪避|格挡|冲锋|斩杀|灵力爆发|拳|剑|刀|枪)", body)
+            )
+            dialogue_chars = len(re.findall(r'[""][^""]*[""]', body)) + len(
+                re.findall(r"「[^」]*」", body)
+            )
+            body_chars = len(re.findall(r"[一-鿿]", body))
             dialogue_pct = (dialogue_chars / body_chars * 100) if body_chars > 0 else 0
-            inner_mono = len(re.findall(r'(?:心想|暗想|暗道|心说|默念|内心)', body))
-            scene_breaks = len(re.findall(r'^---\s*$', body, re.MULTILINE))
+            inner_mono = len(re.findall(r"(?:心想|暗想|暗道|心说|默念|内心)", body))
+            scene_breaks = len(re.findall(r"^---\s*$", body, re.MULTILINE))
             # Classify
             if action_count > 15 and dialogue_pct < 30:
-                cht = 'action'
+                cht = "action"
             elif dialogue_pct > 35:
-                cht = 'dialogue'
+                cht = "dialogue"
             elif inner_mono > 8:
-                cht = 'introspection'
+                cht = "introspection"
             elif scene_breaks >= 2:
-                cht = 'transition'
+                cht = "transition"
             else:
-                cht = 'narrative'
-            ch_types.append({'ch': cn, 'type': cht, 'dialogue_pct': round(dialogue_pct, 1)})
+                cht = "narrative"
+            ch_types.append({"ch": cn, "type": cht, "dialogue_pct": round(dialogue_pct, 1)})
         # Check >=4 consecutive same type
         consec = 1
         for i in range(1, len(ch_types)):
-            if ch_types[i]['type'] == ch_types[i-1]['type']:
+            if ch_types[i]["type"] == ch_types[i - 1]["type"]:
                 consec += 1
                 if consec >= 4:
-                    mf.append(f"G6.5:4_consecutive_{ch_types[i]['type']}:ch{ch_types[i-3]['ch']}-ch{ch_types[i]['ch']}")
+                    mf.append(
+                        f"G6.5:4_consecutive_{ch_types[i]['type']}:ch{ch_types[i - 3]['ch']}-ch{ch_types[i]['ch']}"
+                    )
             else:
                 consec = 1
         # Volume tension curve check (buildup/rising/climax/resolution]
         # Scan chapter types for tension arc pattern
-        type_seq = ''.join(t['type'][0] for t in ch_types)  # a/d/i/t/n
+        type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
         tension_phases = []
-        action_density = [(t['ch'], sum(1 for x in ch_types[max(0,i-2):min(len(ch_types),i+3)] if x['type']=='action')) for i, t in enumerate(ch_types)]
+        action_density = [
+            (
+                t["ch"],
+                sum(
+                    1
+                    for x in ch_types[max(0, i - 2) : min(len(ch_types), i + 3)]
+                    if x["type"] == "action"
+                ),
+            )
+            for i, t in enumerate(ch_types)
+        ]
         peaks = [ch for ch, d in action_density if d >= 3]
         if len(ch_types) >= 8 and not peaks:
             mf.append("G6.5:no_action_peaks")
-        c.append({"id": "G6.5", "s": "PASS", "ch_types": ch_types,
-                   "action_peaks": len(peaks)})
+        c.append({"id": "G6.5", "s": "PASS", "ch_types": ch_types, "action_peaks": len(peaks)})
     else:
         c.append({"id": "G6.5", "s": "SKIP", "r": "need chapters/ for pacing check"})
 
@@ -3041,17 +3275,17 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         # Parse YAML-like hook entries (after "## hooks" section)
         hooks_section = hook_text.split("## hooks")[-1] if "## hooks" in hook_text else hook_text
         # Extract hook blocks using regex
-        hook_blocks = re.split(r'\n- id:', hooks_section)
-        hook_blocks = ['id:' + b for b in hook_blocks if b.strip()]
+        hook_blocks = re.split(r"\n- id:", hooks_section)
+        hook_blocks = ["id:" + b for b in hook_blocks if b.strip()]
         total_hooks = len(hook_blocks)
         unresolved = 0
         exceeded = []
         planted_chapters = []
         for block in hook_blocks:
-            hid_m = re.search(r'id:\s*(\S+)', block)
-            state_m = re.search(r'state:\s*(\S+)', block)
-            maxd_m = re.search(r'max_distance:\s*(\d+)', block)
-            plant_m = re.search(r'plant_chapter:\s*(\d+)', block)
+            hid_m = re.search(r"id:\s*(\S+)", block)
+            state_m = re.search(r"state:\s*(\S+)", block)
+            maxd_m = re.search(r"max_distance:\s*(\d+)", block)
+            plant_m = re.search(r"plant_chapter:\s*(\d+)", block)
             hid = hid_m.group(1) if hid_m else "??"
             state = state_m.group(1) if state_m else "??"
             if state != "RESOLVED" and state != "resolved":
@@ -3075,14 +3309,22 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
                 mf.append(f"G6.7:low_hook_density:{density:.1f}/chapter")
         # Unresolved at end
         if unresolved > 0:
-            c.append({"id": "G6.7", "s": "PASS", "total_hooks": total_hooks,
-                       "unresolved": unresolved, "exceeded": len(exceeded),
-                       "density": round(density, 2) if chapters else None})
+            c.append(
+                {
+                    "id": "G6.7",
+                    "s": "PASS",
+                    "total_hooks": total_hooks,
+                    "unresolved": unresolved,
+                    "exceeded": len(exceeded),
+                    "density": round(density, 2) if chapters else None,
+                }
+            )
         else:
-            c.append({"id": "G6.7", "s": "PASS", "total_hooks": total_hooks,
-                       "all_resolved": True})
+            c.append({"id": "G6.7", "s": "PASS", "total_hooks": total_hooks, "all_resolved": True})
     else:
-        c.append({"id": "G6.7", "s": "SKIP", "r": "need truth/pending_hooks.md for foreshadowing check"})
+        c.append(
+            {"id": "G6.7", "s": "SKIP", "r": "need truth/pending_hooks.md for foreshadowing check"}
+        )
 
     # G6.8: character voice consistency (voice_profile + catchphrase check)
     char_dir6 = pd / "characters"
@@ -3091,30 +3333,34 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         for cf in char_dir6.rglob("*.md"):
             try:
                 ct = cf.read_text()
-                nm_m = re.search(r'^name:\s*(\S+)', ct, re.MULTILINE)
+                nm_m = re.search(r"^name:\s*(\S+)", ct, re.MULTILINE)
                 if not nm_m:
                     continue
                 cname = nm_m.group(1)
-                has_vp = 'voice_profile:' in ct
+                has_vp = "voice_profile:" in ct
                 cps = []
                 if has_vp:
                     # Extract catchphrases
-                    cp_section = ct[ct.index('voice_profile:'):] if 'voice_profile:' in ct else ''
+                    cp_section = ct[ct.index("voice_profile:") :] if "voice_profile:" in ct else ""
                     cps = re.findall(r'"([^"]{2,30})"', cp_section)
-                char_voice[cname] = {'has_voice_profile': has_vp, 'catchphrases': cps, 'file': cf.name}
+                char_voice[cname] = {
+                    "has_voice_profile": has_vp,
+                    "catchphrases": cps,
+                    "file": cf.name,
+                }
             except Exception:
                 pass
         # Ghost detection: character appears in chapters but no voice_profile
         for ch in chapters[:15]:  # sample up to 15 chapters
             ct = ch.read_text()[:5000]
             for cname, vdata in char_voice.items():
-                if not vdata['has_voice_profile'] and cname in ct and len(cname) >= 2:
+                if not vdata["has_voice_profile"] and cname in ct and len(cname) >= 2:
                     mf.append(f"G6.8:ghost_voice:{cname}:in_{ch.name}:no_voice_profile")
         # Catchphrase matching
         for cname, vdata in char_voice.items():
-            if vdata['catchphrases'] and vdata['has_voice_profile']:
+            if vdata["catchphrases"] and vdata["has_voice_profile"]:
                 found_any = False
-                for cp in vdata['catchphrases'][:3]:  # check top 3 catchphrases
+                for cp in vdata["catchphrases"][:3]:  # check top 3 catchphrases
                     for ch in chapters[:15]:
                         if cp in ch.read_text()[:5000]:
                             found_any = True
@@ -3122,10 +3368,21 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
                     if found_any:
                         break
                 if not found_any:
-                    c.append({"id": "G6.8", "s": "WARN",
-                               "r": f"{cname}:catchphrases_not_found_in_chapters"})
-        c.append({"id": "G6.8", "s": "PASS", "chars_with_voice": sum(1 for v in char_voice.values() if v['has_voice_profile']),
-                   "chars_total": len(char_voice)})
+                    c.append(
+                        {
+                            "id": "G6.8",
+                            "s": "WARN",
+                            "r": f"{cname}:catchphrases_not_found_in_chapters",
+                        }
+                    )
+        c.append(
+            {
+                "id": "G6.8",
+                "s": "PASS",
+                "chars_with_voice": sum(1 for v in char_voice.values() if v["has_voice_profile"]),
+                "chars_total": len(char_voice),
+            }
+        )
     else:
         c.append({"id": "G6.8", "s": "SKIP", "r": "need characters/ and chapters/ for voice check"})
 
@@ -3136,20 +3393,21 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         # Extract numerical constraints: "不超过N人", "至少N个", "≥N", "≤N", "N天内", "N章内"
         constraints = []
         num_const_pat = re.compile(
-            r'(?:不超过|不超|最多|至多|至少|不少于|≥|≤|\>|\<|等于)\s*(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百|天|日|小时|分钟|年|月)?',
-            re.MULTILINE
+            r"(?:不超过|不超|最多|至多|至少|不少于|≥|≤|\>|\<|等于)\s*(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百|天|日|小时|分钟|年|月)?",
+            re.MULTILINE,
         )
         for m in num_const_pat.finditer(rules_text):
             val = int(m.group(1))
             # get surrounding context for keyword
             ctx_start = max(0, m.start() - 40)
-            ctx = rules_text[ctx_start:m.end() + 40].replace('\n', ' ')
+            ctx = rules_text[ctx_start : m.end() + 40].replace("\n", " ")
             # Determine constraint type from full match text
             op_full = m.group(0)
-            is_upper_bound = any(x in op_full for x in ['不超过', '不超', '最多', '至多', '≤'])
-            is_lower_bound = any(x in op_full for x in ['至少', '不少于', '≥'])
-            constraints.append({'val': val, 'ctx': ctx[:80],
-                                'upper': is_upper_bound, 'lower': is_lower_bound})
+            is_upper_bound = any(x in op_full for x in ["不超过", "不超", "最多", "至多", "≤"])
+            is_lower_bound = any(x in op_full for x in ["至少", "不少于", "≥"])
+            constraints.append(
+                {"val": val, "ctx": ctx[:80], "upper": is_upper_bound, "lower": is_lower_bound}
+            )
         # Scan chapters for violations of simple numerical constraints
         # Pre-read chapter contents for performance (avoid re-reading per constraint)
         ch_contents = []
@@ -3159,24 +3417,33 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
             except Exception:
                 ch_contents.append((ch.name, ""))
         for const in constraints[:10]:  # limit to 10 constraints for performance
-            val = const['val']
-            ctx = const['ctx']
-            if '人' in ctx or '个' in ctx:
+            val = const["val"]
+            ctx = const["ctx"]
+            if "人" in ctx or "个" in ctx:
                 # Look for related scenes in chapters with higher counts
-                key_words = re.findall(r'[一-鿿]{2,}', ctx.split(str(val))[0]) if str(val) in ctx else []
+                key_words = (
+                    re.findall(r"[一-鿿]{2,}", ctx.split(str(val))[0]) if str(val) in ctx else []
+                )
                 for kw in key_words[:3]:
                     for ch_name, ct in ch_contents:
                         # Find numeric patterns near the keyword
-                        for nm in re.finditer(rf'{re.escape(kw)}\D{{0,20}}(\d+)\s*(?:人|个|名)', ct):
+                        for nm in re.finditer(
+                            rf"{re.escape(kw)}\D{{0,20}}(\d+)\s*(?:人|个|名)", ct
+                        ):
                             found_val = int(nm.group(1))
-                            if const['upper'] and found_val > val:
+                            if const["upper"] and found_val > val:
                                 mf.append(f"G6.9:limit_exceeded:{kw}:{found_val}>{val}:{ch_name}")
-                            elif const['lower'] and found_val < val:
+                            elif const["lower"] and found_val < val:
                                 mf.append(f"G6.9:below_minimum:{kw}:{found_val}<{val}:{ch_name}")
         c.append({"id": "G6.9", "s": "PASS", "constraints_extracted": len(constraints)})
     else:
-        c.append({"id": "G6.9", "s": "SKIP",
-                   "r": "need world/rules.md and chapters/ for world rule compliance"})
+        c.append(
+            {
+                "id": "G6.9",
+                "s": "SKIP",
+                "r": "need world/rules.md and chapters/ for world rule compliance",
+            }
+        )
 
     # G6.10: style consistency — read style_profile.md, sample chapters vs ranges
     style_path = pd / "config" / "style_profile.md"
@@ -3184,40 +3451,47 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         style_text = style_path.read_text()
         # Extract target ranges
         ranges = {}
-        sent_pat = re.search(r'(?:句长|句子长度).*?(\d+\.?\d*)\s*(?:[-\~—到至])\s*(\d+\.?\d*)', style_text)
-        para_pat = re.search(r'(?:段长|段落).*?(\d+\.?\d*)\s*(?:[-\~—到至])\s*(\d+\.?\d*)', style_text)
-        dia_pat = re.search(r'(?:对白占比|对话占比).*?(\d+\.?\d*)\s*%?\s*(?:[-\~—到至])\s*(\d+\.?\d*)\s*%?', style_text)
+        sent_pat = re.search(
+            r"(?:句长|句子长度).*?(\d+\.?\d*)\s*(?:[-\~—到至])\s*(\d+\.?\d*)", style_text
+        )
+        para_pat = re.search(
+            r"(?:段长|段落).*?(\d+\.?\d*)\s*(?:[-\~—到至])\s*(\d+\.?\d*)", style_text
+        )
+        dia_pat = re.search(
+            r"(?:对白占比|对话占比).*?(\d+\.?\d*)\s*%?\s*(?:[-\~—到至])\s*(\d+\.?\d*)\s*%?",
+            style_text,
+        )
         if sent_pat:
-            ranges['sent_lo'] = float(sent_pat.group(1))
-            ranges['sent_hi'] = float(sent_pat.group(2))
+            ranges["sent_lo"] = float(sent_pat.group(1))
+            ranges["sent_hi"] = float(sent_pat.group(2))
         if para_pat:
-            ranges['para_lo'] = float(para_pat.group(1))
-            ranges['para_hi'] = float(para_pat.group(2))
+            ranges["para_lo"] = float(para_pat.group(1))
+            ranges["para_hi"] = float(para_pat.group(2))
         if dia_pat:
-            ranges['dia_lo'] = float(dia_pat.group(1))
-            ranges['dia_hi'] = float(dia_pat.group(2))
+            ranges["dia_lo"] = float(dia_pat.group(1))
+            ranges["dia_hi"] = float(dia_pat.group(2))
         # If explicit ranges missing, use per-chapter table values
         if not ranges:
             # Try per-chapter table: | 章节 | 字数 | ... | 平均句长 | 平均段长(句) |
-            for line in style_text.split('\n'):
-                cells = [c.strip() for c in line.split('|') if c.strip()]
-                if len(cells) >= 5 and cells[0].startswith('第'):
+            for line in style_text.split("\n"):
+                cells = [c.strip() for c in line.split("|") if c.strip()]
+                if len(cells) >= 5 and cells[0].startswith("第"):
                     try:
                         avg_sent = float(cells[-2]) if len(cells) >= 6 else None
                         avg_para = float(cells[-1]) if len(cells) >= 6 else None
-                        if avg_sent and 'sent_lo' not in ranges:
-                            ranges['sent_lo'] = avg_sent * 0.6
-                            ranges['sent_hi'] = avg_sent * 1.4
-                        if avg_para and 'para_lo' not in ranges:
-                            ranges['para_lo'] = max(1, avg_para * 0.5)
-                            ranges['para_hi'] = avg_para * 1.5
+                        if avg_sent and "sent_lo" not in ranges:
+                            ranges["sent_lo"] = avg_sent * 0.6
+                            ranges["sent_hi"] = avg_sent * 1.4
+                        if avg_para and "para_lo" not in ranges:
+                            ranges["para_lo"] = max(1, avg_para * 0.5)
+                            ranges["para_hi"] = avg_para * 1.5
                     except ValueError:
                         pass
                     break
         # Sample chapters and check style
         if ranges:
             outliers = []
-            for ch in chapters[:min(10, len(chapters))]:
+            for ch in chapters[: min(10, len(chapters))]:
                 ct = ch.read_text()
                 body = ct
                 # Strip frontmatter
@@ -3232,32 +3506,55 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
                 ]:
                     body = re.sub(tag_rx, "", body, flags=re.DOTALL)
                 # Approx sentence count from punctuation
-                sent_marks = len(re.findall(r'[。！？\.!\?]', body))
+                sent_marks = len(re.findall(r"[。！？\.!\?]", body))
                 # Approx paragraph count from double newlines
-                paras = len(re.findall(r'\n\s*\n', body)) + 1
-                ch_chars = len(re.findall(r'[一-鿿]', body))
+                paras = len(re.findall(r"\n\s*\n", body)) + 1
+                ch_chars = len(re.findall(r"[一-鿿]", body))
                 # Count dialogue chars (between 「」 or "")
-                dia_chars = len(re.findall(r'「[^」]*」', body)) + len(re.findall(r'"[^"]*"', body))
+                dia_chars = len(re.findall(r"「[^」]*」", body)) + len(re.findall(r'"[^"]*"', body))
                 if paras > 0 and ch_chars > 0:
                     avg_sent_ch = ch_chars / max(sent_marks, 1)
                     avg_para_ch = ch_chars / max(paras, 1)
                     dia_pct_ch = (dia_chars / ch_chars * 100) if ch_chars > 0 else 0
-                    if 'sent_lo' in ranges and (avg_sent_ch < ranges['sent_lo'] or avg_sent_ch > ranges['sent_hi']):
+                    if "sent_lo" in ranges and (
+                        avg_sent_ch < ranges["sent_lo"] or avg_sent_ch > ranges["sent_hi"]
+                    ):
                         outliers.append(f"sentence:{ch.name}:avg={avg_sent_ch:.1f}")
-                    if 'para_lo' in ranges and (avg_para_ch < ranges['para_lo'] or avg_para_ch > ranges['para_hi']):
+                    if "para_lo" in ranges and (
+                        avg_para_ch < ranges["para_lo"] or avg_para_ch > ranges["para_hi"]
+                    ):
                         outliers.append(f"paragraph:{ch.name}:avg={avg_para_ch:.1f}")
-                    if 'dia_lo' in ranges and (dia_pct_ch < ranges['dia_lo'] or dia_pct_ch > ranges['dia_hi']):
+                    if "dia_lo" in ranges and (
+                        dia_pct_ch < ranges["dia_lo"] or dia_pct_ch > ranges["dia_hi"]
+                    ):
                         outliers.append(f"dialogue:{ch.name}:pct={dia_pct_ch:.1f}%")
             if outliers:
                 mf.extend([f"G6.10:{o}" for o in outliers[:8]])
             else:
-                c.append({"id": "G6.10", "s": "PASS", "ranges": ranges,
-                           "chapters_sampled": min(10, len(chapters))})
+                c.append(
+                    {
+                        "id": "G6.10",
+                        "s": "PASS",
+                        "ranges": ranges,
+                        "chapters_sampled": min(10, len(chapters)),
+                    }
+                )
         else:
-            c.append({"id": "G6.10", "s": "SKIP", "r": "could not extract style ranges from style_profile.md"})
+            c.append(
+                {
+                    "id": "G6.10",
+                    "s": "SKIP",
+                    "r": "could not extract style ranges from style_profile.md",
+                }
+            )
     else:
-        c.append({"id": "G6.10", "s": "SKIP",
-                   "r": "need config/style_profile.md and chapters/ for style check"})
+        c.append(
+            {
+                "id": "G6.10",
+                "s": "SKIP",
+                "r": "need config/style_profile.md and chapters/ for style check",
+            }
+        )
 
     # G6.11: volume boundary adherence — read volume_map.md, verify chapter coverage
     vm_path = pd / "outline" / "volume_map.md"
@@ -3265,60 +3562,89 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         vm_text = vm_path.read_text()
         # Extract volume-chapter mappings: "第一卷", "第X卷", "Volume N", chapter ranges
         volumes = []
-        vol_pat = re.compile(r'(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))')
-        ch_range_pat = re.compile(r'(?:第\s*(\d+)\s*[章節].*?(?:第\s*(\d+)\s*[章節]|(\d+)\s*[章節]))')
+        vol_pat = re.compile(r"(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))")
+        ch_range_pat = re.compile(
+            r"(?:第\s*(\d+)\s*[章節].*?(?:第\s*(\d+)\s*[章節]|(\d+)\s*[章節]))"
+        )
         # Simpler: find "第X章" to "第Y章" or "Chapter X-Y" patterns
-        range_pat = re.compile(r'(?:chapters?|第)\s*(\d+)\s*[-—\-到至]\s*(\d+)')
+        range_pat = re.compile(r"(?:chapters?|第)\s*(\d+)\s*[-—\-到至]\s*(\d+)")
         for m in vol_pat.finditer(vm_text):
             vnum = m.group(1) or m.group(2)
             # Find the nearest chapter range after this volume header
-            rem = vm_text[m.end():m.end()+300]
+            rem = vm_text[m.end() : m.end() + 300]
             rm = range_pat.search(rem)
             if rm:
                 start_ch = int(rm.group(1))
                 end_ch = int(rm.group(2))
-                volumes.append({'vol': vnum, 'start': start_ch, 'end': end_ch})
+                volumes.append({"vol": vnum, "start": start_ch, "end": end_ch})
         # Deduplicate volumes by name (keep first occurrence)
         seen_vols = set()
         deduped = []
         for vol in volumes:
-            if vol['vol'] not in seen_vols:
-                seen_vols.add(vol['vol'])
+            if vol["vol"] not in seen_vols:
+                seen_vols.add(vol["vol"])
                 deduped.append(vol)
         volumes = deduped
         if volumes and chapters:
             # Verify chapters exist for each volume
             for vol in volumes:
-                ch_in_vol = [ch for ch in chapters
-                             if vol['start'] <= int(re.search(r'chapter-(\d+)', ch.name).group(1)) <= vol['end']]
+                ch_in_vol = [
+                    ch
+                    for ch in chapters
+                    if vol["start"]
+                    <= int(re.search(r"chapter-(\d+)", ch.name).group(1))
+                    <= vol["end"]
+                ]
                 if not ch_in_vol:
-                    mf.append(f"G6.11:no_chapters:vol{vol['vol']}:range={vol['start']}-{vol['end']}")
+                    mf.append(
+                        f"G6.11:no_chapters:vol{vol['vol']}:range={vol['start']}-{vol['end']}"
+                    )
                 # Check volume-ending hook: last chapter should have >=1 tangible hook (except final volume)
-                is_final = (vol == volumes[-1])
+                is_final = vol == volumes[-1]
                 if not is_final and ch_in_vol:
-                    last_ch = sorted(ch_in_vol, key=lambda c: int(re.search(r'chapter-(\d+)', c.name).group(1)))[-1]
+                    last_ch = sorted(
+                        ch_in_vol, key=lambda c: int(re.search(r"chapter-(\d+)", c.name).group(1))
+                    )[-1]
                     last_ct = last_ch.read_text()
-                    hook_markers = ['伏笔', '暗示', '悬念', '未解', '待续', '将', '预告', '铺垫']
+                    hook_markers = ["伏笔", "暗示", "悬念", "未解", "待续", "将", "预告", "铺垫"]
                     if not any(h in last_ct[-1000:] for h in hook_markers):
                         mf.append(f"G6.11:no_ending_hook:vol{vol['vol']}:ch={last_ch.name}")
-            c.append({"id": "G6.11", "s": "PASS", "volumes": len(volumes),
-                       "chapters_total": len(chapters)})
+            c.append(
+                {
+                    "id": "G6.11",
+                    "s": "PASS",
+                    "volumes": len(volumes),
+                    "chapters_total": len(chapters),
+                }
+            )
         elif volumes:
-            c.append({"id": "G6.11", "s": "PASS", "volumes": len(volumes),
-                       "note": "no chapters/ to verify"})
+            c.append(
+                {
+                    "id": "G6.11",
+                    "s": "PASS",
+                    "volumes": len(volumes),
+                    "note": "no chapters/ to verify",
+                }
+            )
         else:
             c.append({"id": "G6.11", "s": "SKIP", "r": "no volume ranges found in volume_map.md"})
     else:
-        c.append({"id": "G6.11", "s": "SKIP",
-                   "r": "need outline/volume_map.md for volume boundary check"})
+        c.append(
+            {
+                "id": "G6.11",
+                "s": "SKIP",
+                "r": "need outline/volume_map.md for volume boundary check",
+            }
+        )
 
     # G6.6: ghost character detection
     cm_path = pd / "truth" / "character_matrix.md"
     if cm_path.exists() and chapters:
         dead_chars = set()
-        for line in cm_path.read_text().split('\n'):
-            m = re.match(r'\|\s*(\S+?)\s*\|.*死亡', line)
-            if m: dead_chars.add(m.group(1))
+        for line in cm_path.read_text().split("\n"):
+            m = re.match(r"\|\s*(\S+?)\s*\|.*死亡", line)
+            if m:
+                dead_chars.add(m.group(1))
         ghosts_found = []
         for ch in chapters:
             content = ch.read_text()
@@ -3330,34 +3656,48 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         else:
             c.append({"id": "G6.6", "s": "PASS"})
     else:
-        c.append({"id": "G6.6", "s": "SKIP", "r": "need character_matrix.md and chapters/ for ghost check"})
+        c.append(
+            {
+                "id": "G6.6",
+                "s": "SKIP",
+                "r": "need character_matrix.md and chapters/ for ghost check",
+            }
+        )
 
     # G6.12: sensitive word scan (standalone token detection to avoid substring false positives)
     sw_path = FIXTURES / "sensitive_words.txt"
     if sw_path.exists() and chapters:
-        sensitive = [l.strip() for l in sw_path.read_text().split('\n') if l.strip() and not l.startswith('#')]
+        sensitive = [
+            l.strip()
+            for l in sw_path.read_text().split("\n")
+            if l.strip() and not l.startswith("#")
+        ]
         sw_found = []
         for ch in chapters:
             content = ch.read_text()
             for word in sensitive:
                 # Only flag as standalone token (surrounded by whitespace/punctuation),
                 # not as substring of other words
-                if re.search(rf'(?:^|[^\w]){re.escape(word)}(?:$|[^\w])', content):
+                if re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content):
                     sw_found.append(f"{word}:{ch.name}")
         if sw_found:
             mf.extend([f"G6.12:{s}" for s in sw_found])
         else:
             c.append({"id": "G6.12", "s": "PASS"})
     else:
-        c.append({"id": "G6.12", "s": "SKIP", "note": "sensitive_words.txt missing — round INCOMPLETE"})
+        c.append(
+            {"id": "G6.12", "s": "SKIP", "note": "sensitive_words.txt missing — round INCOMPLETE"}
+        )
 
-    if mf: return fail("G6", c, "scoring", mf)
+    if mf:
+        return fail("G6", c, "scoring", mf)
     return passed("G6", c)
 
 
 # ---------------------------------------------------------------------------
 # G7 — Round Close Validation (FULL)
 # ---------------------------------------------------------------------------
+
 
 def gate_G7(round_dir):
     """G7: Round close validation."""
@@ -3492,10 +3832,10 @@ def gate_G7(round_dir):
                 for prefix in ("G4-", "G6-"):
                     if stem.startswith(prefix):
                         gate_id = prefix.rstrip("-")
-                        rest = stem[len(prefix):]
+                        rest = stem[len(prefix) :]
                         for tt in ("-generative", "-bug-hunt", "-clean"):
                             if rest.endswith(tt):
-                                target = rest[:-len(tt)]
+                                target = rest[: -len(tt)]
                                 test_type = tt[1:]
                                 break
                         break
@@ -3511,7 +3851,9 @@ def gate_G7(round_dir):
                         mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
                 elif gate_id == "G6":
                     proj_dir = str(rd / "project-output")
-                    rerun = json.loads(gate_G6(pipeline_name=target, round_dir=str(rd), project_dir=proj_dir))
+                    rerun = json.loads(
+                        gate_G6(pipeline_name=target, round_dir=str(rd), project_dir=proj_dir)
+                    )
                     if rerun.get("status") == "FAIL":
                         mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
             except Exception as e:
@@ -3559,10 +3901,15 @@ def gate_G7(round_dir):
                     # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
                     dims = data.get("dimensions", [])
                     if dims:
-                        vec = tuple((d.get("num"), d.get("score", 0)) for d in sorted(dims, key=lambda x: x.get("num", 0)))
+                        vec = tuple(
+                            (d.get("num"), d.get("score", 0))
+                            for d in sorted(dims, key=lambda x: x.get("num", 0))
+                        )
                     else:
                         # Raw score file: {"1": 90, "2": 95, ...}
-                        vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
+                        vec = tuple(
+                            sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit())
+                        )
                     if vec not in score_vectors:
                         score_vectors[vec] = []
                     score_vectors[vec].append(score_file.stem)
@@ -3570,11 +3917,13 @@ def gate_G7(round_dir):
                 pass
         for vec, names in score_vectors.items():
             if len(names) >= 3:
-                pattern_warnings.append({
-                    "type": "DUPLICATE_PATTERN",
-                    "severity": "warn",
-                    "message": f"{len(names)} skills share identical score vector in {reports_dir_name}",
-                })
+                pattern_warnings.append(
+                    {
+                        "type": "DUPLICATE_PATTERN",
+                        "severity": "warn",
+                        "message": f"{len(names)} skills share identical score vector in {reports_dir_name}",
+                    }
+                )
     if pattern_warnings:
         for pw in pattern_warnings:
             c.append({"id": "G7.15", "s": "WARN", **pw})
@@ -3599,7 +3948,9 @@ def gate_G7(round_dir):
                 if not g6_markers:
                     mf.append(f"G7.16:pipeline:{pipe_name}:no_G6_marker")
             if not any(x.startswith("G7.16:") for x in mf):
-                c.append({"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"})
+                c.append(
+                    {"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"}
+                )
         except (json.JSONDecodeError, OSError):
             pass
 
@@ -3607,11 +3958,13 @@ def gate_G7(round_dir):
     audit_warnings = []
     for check in c:
         if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
-            audit_warnings.append({
-                "type": check.get("type", check["id"]),
-                "severity": check.get("severity", "warn"),
-                "message": check.get("message", check.get("detail", "")),
-            })
+            audit_warnings.append(
+                {
+                    "type": check.get("type", check["id"]),
+                    "severity": check.get("severity", "warn"),
+                    "message": check.get("message", check.get("detail", "")),
+                }
+            )
     if audit_warnings and summary_path.exists():
         try:
             s = jload(str(summary_path))
@@ -3629,6 +3982,7 @@ def gate_G7(round_dir):
 # ---------------------------------------------------------------------------
 # G_TRANSITION — Phase Switch Gate (FULL)
 # ---------------------------------------------------------------------------
+
 
 def gate_G_TRANSITION(from_phase, to_phase, round_dir):
     """G_TRANSITION: Phase switching gate."""
@@ -3709,6 +4063,7 @@ def gate_G_TRANSITION(from_phase, to_phase, round_dir):
 # G_DISPATCH — Phase Completion Gate (FULL)
 # ---------------------------------------------------------------------------
 
+
 def gate_G_DISPATCH(phase, round_dir):
     """G_DISPATCH: Phase completion gate."""
     rd = Path(round_dir)
@@ -3765,13 +4120,16 @@ def gate_G_DISPATCH(phase, round_dir):
 # G_RECONCILE — Mid-Execution Consistency Check
 # ---------------------------------------------------------------------------
 
+
 def gate_G_RECONCILE(round_dir=None):
     """G_RECONCILE: Mid-execution filesystem consistency check."""
     c, mf = [], []
     rd = Path(round_dir) if round_dir else None
-    if not rd: return fail("G_RECONCILE", [], "reconcile", ["no_round_dir"])
+    if not rd:
+        return fail("G_RECONCILE", [], "reconcile", ["no_round_dir"])
     pp = rd / "progress.json"
-    if not pp.exists(): return fail("G_RECONCILE", [], "reconcile", ["no_progress"])
+    if not pp.exists():
+        return fail("G_RECONCILE", [], "reconcile", ["no_progress"])
     progress = jload(str(pp))
     skills = progress.get("skills", {})
     # GR.1: DONE skills have t1-reports/ files
@@ -3781,7 +4139,8 @@ def gate_G_RECONCILE(round_dir=None):
         for tt, td in sd.items():
             if isinstance(td, dict) and td.get("status") == "DONE":
                 report = _find_report(rd / "t1-reports", sn, tt)
-                if not report.exists(): mf.append(f"GR.1:{sn}-{tt}:no_report")
+                if not report.exists():
+                    mf.append(f"GR.1:{sn}-{tt}:no_report")
     # GR.2: reports on disk have DONE status in progress
     # Use robust rsplit to handle skill names with hyphens (e.g. shenbi-story-architecture)
     # and test_types with hyphens (e.g. bug-hunt)
@@ -3800,22 +4159,30 @@ def gate_G_RECONCILE(round_dir=None):
                     matched = True
                     td = skills.get(candidate_skill, {}).get(candidate_tt, {})
                     if isinstance(td, dict) and td.get("status") != "DONE":
-                        mf.append(f"GR.2:{rp.stem}:status={td.get('status','?')}")
+                        mf.append(f"GR.2:{rp.stem}:status={td.get('status', '?')}")
                     break
             if not matched:
-                c.append({"id": "GR.2", "file": rp.name, "s": "SKIP",
-                           "r": "cannot parse skill/test_type from filename"})
+                c.append(
+                    {
+                        "id": "GR.2",
+                        "file": rp.name,
+                        "s": "SKIP",
+                        "r": "cannot parse skill/test_type from filename",
+                    }
+                )
 
     # GR.3 / GR.4 — deferred
     c.append({"id": "GR.3", "s": "PASS", "note": "cross-file hash check deferred"})
     c.append({"id": "GR.4", "s": "PASS", "note": "agent trace consistency deferred"})
-    if mf: return fail("G_RECONCILE", c, "reconcile", mf)
+    if mf:
+        return fail("G_RECONCILE", c, "reconcile", mf)
     return passed("G_RECONCILE", c)
 
 
 # ---------------------------------------------------------------------------
 # main() CLI
 # ---------------------------------------------------------------------------
+
 
 def main():
     if len(sys.argv) < 2:
@@ -3923,10 +4290,23 @@ def main():
     else:
         print(
             json.dumps(
-                {"status": "UNKNOWN_GATE", "gate": gate, "valid_gates": [
-                    "G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7",
-                    "G_TRANSITION", "G_DISPATCH", "G_RECONCILE",
-                ]},
+                {
+                    "status": "UNKNOWN_GATE",
+                    "gate": gate,
+                    "valid_gates": [
+                        "G0",
+                        "G1",
+                        "G2",
+                        "G3",
+                        "G4",
+                        "G5",
+                        "G6",
+                        "G7",
+                        "G_TRANSITION",
+                        "G_DISPATCH",
+                        "G_RECONCILE",
+                    ],
+                },
                 indent=2,
                 ensure_ascii=False,
             )

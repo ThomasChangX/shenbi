@@ -2,26 +2,29 @@
 """Aggregate per-skill scores into a round summary with band breakdown."""
 
 import json
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 
 def classify(score):
     if score >= 90:
         return "pass_excellent"
-    elif score >= 75:
+    if score >= 75:
         return "pass_acceptable"
-    elif score >= 60:
+    if score >= 60:
         return "conditional"
-    else:
-        return "fail"
+    return "fail"
 
 
 def classify_scores(scores_dict):
     bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
     for name, entry in scores_dict.items():
-        score = entry if isinstance(entry, (int, float)) else entry.get("score", entry.get("re_score", 0))
+        score = (
+            entry
+            if isinstance(entry, (int, float))
+            else entry.get("score", entry.get("re_score", 0))
+        )
         bands[classify(score)] += 1
     return bands
 
@@ -29,7 +32,11 @@ def classify_scores(scores_dict):
 def below_threshold(scores_dict, threshold):
     result = []
     for name, entry in scores_dict.items():
-        score = entry if isinstance(entry, (int, float)) else entry.get("score", entry.get("re_score", 0))
+        score = (
+            entry
+            if isinstance(entry, (int, float))
+            else entry.get("score", entry.get("re_score", 0))
+        )
         if score < threshold:
             result.append(name)
     return result
@@ -45,8 +52,9 @@ def main():
 
     # G7: Round close validation
     vg = str(Path(__file__).parent / "validate-gate.py")
-    g7_result = subprocess.run([sys.executable, vg, "G7", str(round_dir)],
-                               capture_output=True, text=True)
+    g7_result = subprocess.run(
+        [sys.executable, vg, "G7", str(round_dir)], capture_output=True, text=True
+    )
     try:
         g7_out = json.loads(g7_result.stdout)
         if g7_out.get("status") == "FAIL":
@@ -67,9 +75,13 @@ def main():
                 progress = json.load(f)
             for sn, sd in progress.get("skills", {}).items():
                 for tt, td in sd.items():
-                    if isinstance(td, dict) and td.get("status") == "DONE" and "score" in td:
-                        t1_from_progress[f"{sn}-{tt}"] = {"score": td["score"], "band": classify(td["score"])}
-        except: pass
+                    if isinstance(td, dict) and td.get("status") == "done" and "score" in td:
+                        t1_from_progress[f"{sn}-{tt}"] = {
+                            "score": td["score"],
+                            "band": classify(td["score"]),
+                        }
+        except Exception:
+            pass
 
     if not summary_path.exists():
         print(f"No summary.json found in {round_dir}")
@@ -156,7 +168,9 @@ def main():
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    parts = [f"T1: {t1_bands['pass_excellent']}ex {t1_bands['pass_acceptable']}ok {t1_bands['conditional']}cond {t1_bands['fail']}fail"]
+    parts = [
+        f"T1: {t1_bands['pass_excellent']}ex {t1_bands['pass_acceptable']}ok {t1_bands['conditional']}cond {t1_bands['fail']}fail"
+    ]
     if t2_bands:
         parts.append(f"T2: {t2_bands['pass_excellent']}ex")
     if t3_bands:

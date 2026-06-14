@@ -1,0 +1,48 @@
+---
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.13
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [pydantic>=2.5]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: detect-private-key
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [--strict]
+        files: \.(yaml|yml)$
+        exclude: ^tests/rounds/(archived/|round-[0-9]{3}-)
+
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: basedpyright (strict type check)
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: registry-lockfile-fresh
+        name: registry.lock.json freshness (P0 scaffolding, no-op in P-1)
+        entry: tests/build_registry.py
+        language: system
+        files: ^(skills/.*\.yaml|tests/tiers/.*\.yaml)$
+        pass_filenames: false

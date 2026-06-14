@@ -7,17 +7,14 @@ Usage:
     update-progress.py validate <round_dir>
     update-progress.py rebuild-queues <round_dir>
 """
+
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 SKILLS = PROJECT / "skills"
-ALL_SKILLS = sorted(
-    d.name for d in SKILLS.iterdir()
-    if d.is_dir() and (d / "SKILL.md").exists()
-)
+ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
 
 
 def load(round_dir):
@@ -74,9 +71,7 @@ def validate_internal(progress, label="validate"):
     all_remaining_from_queues = remaining_gen | remaining_bug | remaining_cln
 
     if expected_pending and not all_remaining_from_queues:
-        issues.append(
-            f"expected {len(expected_pending)} remaining skills but all queues are empty"
-        )
+        issues.append(f"expected {len(expected_pending)} remaining skills but all queues are empty")
 
     if expected_pending and all_remaining_from_queues:
         queue_diff = expected_pending - all_remaining_from_queues
@@ -95,7 +90,14 @@ def cmd_init(round_dir, tier, expected_chapters=None):
     pp = rd / "progress.json"
 
     if pp.exists():
-        print(json.dumps({"status": "error", "message": "progress.json already exists — use validate instead"}))
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "message": "progress.json already exists — use validate instead",
+                }
+            )
+        )
         sys.exit(1)
 
     total = len(ALL_SKILLS)
@@ -121,8 +123,16 @@ def cmd_init(round_dir, tier, expected_chapters=None):
         "expected_chapters": expected_chapters,
     }
     save(round_dir, out)
-    print(json.dumps({"status": "ok", "action": "init", "total_skills": total,
-                       "expected_chapters": expected_chapters}))
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "action": "init",
+                "total_skills": total,
+                "expected_chapters": expected_chapters,
+            }
+        )
+    )
 
 
 def cmd_mark_done(round_dir, skill, test_type, score, note=None):
@@ -140,7 +150,8 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
         if not isinstance(sdata, dict):
             continue
         if all(
-            isinstance(sdata.get(tt, {}), dict) and sdata.get(tt, {}).get("status") in ("done", "skip")
+            isinstance(sdata.get(tt, {}), dict)
+            and sdata.get(tt, {}).get("status") in ("done", "skip")
             for tt in ("generative", "bug-hunt", "clean")
         ):
             genuinely_done.add(sn)
@@ -149,15 +160,27 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
     progress["subagent_completion_count"] = progress.get("subagent_completion_count", 0) + 1
 
     all_skills = set(ALL_SKILLS)
-    pending_gen = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("generative", {}), dict)
-                                and sdata.get("generative", {}).get("status") in ("done", "skip")}
-    pending_bug = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("bug-hunt", {}), dict)
-                                and sdata.get("bug-hunt", {}).get("status") in ("done", "skip")}
-    pending_cln = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("clean", {}), dict)
-                                and sdata.get("clean", {}).get("status") in ("done", "skip")}
+    pending_gen = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("generative", {}), dict)
+        and sdata.get("generative", {}).get("status") in ("done", "skip")
+    }
+    pending_bug = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("bug-hunt", {}), dict)
+        and sdata.get("bug-hunt", {}).get("status") in ("done", "skip")
+    }
+    pending_cln = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("clean", {}), dict)
+        and sdata.get("clean", {}).get("status") in ("done", "skip")
+    }
 
     progress["remaining_generative"] = sorted(pending_gen)
     progress["remaining_bug_hunt"] = sorted(pending_bug)
@@ -167,8 +190,18 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
     if issues:
         print(json.dumps({"status": "warn", "action": "mark-done", "consistency_issues": issues}))
     save(round_dir, progress)
-    print(json.dumps({"status": "ok", "skill": skill, "test_type": test_type, "score": score,
-                       "genuinely_done": len(gd), "remaining_gen": len(pending_gen)}))
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "skill": skill,
+                "test_type": test_type,
+                "score": score,
+                "genuinely_done": len(gd),
+                "remaining_gen": len(pending_gen),
+            }
+        )
+    )
 
 
 def cmd_validate(round_dir):
@@ -196,33 +229,53 @@ def cmd_rebuild_queues(round_dir):
     skills = progress.get("skills", {})
     all_skills = set(ALL_SKILLS)
 
-    pending_gen = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("generative", {}), dict)
-                                and sdata.get("generative", {}).get("status") in ("done", "skip")}
-    pending_bug = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("bug-hunt", {}), dict)
-                                and sdata.get("bug-hunt", {}).get("status") in ("done", "skip")}
-    pending_cln = all_skills - {s for s, sdata in skills.items()
-                                if isinstance(sdata, dict) and isinstance(sdata.get("clean", {}), dict)
-                                and sdata.get("clean", {}).get("status") in ("done", "skip")}
+    pending_gen = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("generative", {}), dict)
+        and sdata.get("generative", {}).get("status") in ("done", "skip")
+    }
+    pending_bug = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("bug-hunt", {}), dict)
+        and sdata.get("bug-hunt", {}).get("status") in ("done", "skip")
+    }
+    pending_cln = all_skills - {
+        s
+        for s, sdata in skills.items()
+        if isinstance(sdata, dict)
+        and isinstance(sdata.get("clean", {}), dict)
+        and sdata.get("clean", {}).get("status") in ("done", "skip")
+    }
 
     progress["remaining_generative"] = sorted(pending_gen)
     progress["remaining_bug_hunt"] = sorted(pending_bug)
     progress["remaining_clean"] = sorted(pending_cln)
 
     genuinely_done = all_skills - pending_gen - pending_bug - pending_cln
-    genuinely_done = {s for s in all_skills
-                      if s not in pending_gen and s not in pending_bug and s not in pending_cln}
+    genuinely_done = {
+        s
+        for s in all_skills
+        if s not in pending_gen and s not in pending_bug and s not in pending_cln
+    }
     progress["completed_skill_names"] = sorted(genuinely_done)
 
     save(round_dir, progress)
-    print(json.dumps({
-        "status": "ok", "action": "rebuild-queues",
-        "remaining_gen": len(pending_gen),
-        "remaining_bug": len(pending_bug),
-        "remaining_clean": len(pending_cln),
-        "genuinely_done": len(genuinely_done),
-    }))
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "action": "rebuild-queues",
+                "remaining_gen": len(pending_gen),
+                "remaining_bug": len(pending_bug),
+                "remaining_clean": len(pending_cln),
+                "genuinely_done": len(genuinely_done),
+            }
+        )
+    )
 
 
 def main():
@@ -244,8 +297,10 @@ def main():
             try:
                 ec = int(args[idx + 1])
             except ValueError:
-                print(f"ERROR: --expected-chapters value '{args[idx + 1]}' is not an integer",
-                      file=sys.stderr)
+                print(
+                    f"ERROR: --expected-chapters value '{args[idx + 1]}' is not an integer",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
             args = [a for i, a in enumerate(args) if i not in (idx, idx + 1)]
         cmd_init(args[0], args[1] if len(args) > 1 else "T1", ec)

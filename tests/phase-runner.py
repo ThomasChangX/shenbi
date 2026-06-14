@@ -9,10 +9,11 @@ Usage:
     phase-runner.py post-score <phase> <scores-file> --round-dir <dir>
     phase-runner.py finalize <phase> --round-dir <dir> --project-dir <dir>
 """
+
 import json
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 TESTS = Path(__file__).resolve().parent
@@ -38,7 +39,7 @@ def save_state(round_dir, state):
 
 
 def now_iso():
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def run_gate(gate, args):
@@ -46,7 +47,9 @@ def run_gate(gate, args):
     vg = str(TESTS / "validate-gate.py")
     r = subprocess.run(
         [sys.executable, vg, gate] + args,
-        capture_output=True, text=True, timeout=60,
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
     try:
         return json.loads(r.stdout)
@@ -57,10 +60,14 @@ def run_gate(gate, args):
 def require_state(state, expected, action):
     """Exit with error if state is not one of the expected states."""
     if state["state"] not in expected:
-        print(json.dumps({
-            "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
-            "phase": state["phase"],
-        }))
+        print(
+            json.dumps(
+                {
+                    "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
+                    "phase": state["phase"],
+                }
+            )
+        )
         sys.exit(1)
 
 
@@ -87,21 +94,30 @@ def cmd_pre_skill(phase, skill, round_dir):
     # Validate skill exists
     skill_path = PROJECT / "skills" / skill / "SKILL.md"
     if not skill_path.exists():
-        print(json.dumps({"status": "error", "phase": phase, "skill": skill, 
-                          "message": f"SKILL.md not found: {skill_path}"}))
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "phase": phase,
+                    "skill": skill,
+                    "message": f"SKILL.md not found: {skill_path}",
+                }
+            )
+        )
         sys.exit(1)
     # Extract data contract for dispatcher guidance
     skill_md = skill_path.read_text(encoding="utf-8")
     import re as _re
-    reads = _re.findall(r'\*\*Reads:\*\*\s*(.*)', skill_md)
-    writes = _re.findall(r'\*\*Writes:\*\*\s*(.*)', skill_md)
-    updates = _re.findall(r'\*\*Updates:\*\*\s*(.*)', skill_md)
+
+    reads = _re.findall(r"\*\*Reads:\*\*\s*(.*)", skill_md)
+    writes = _re.findall(r"\*\*Writes:\*\*\s*(.*)", skill_md)
+    updates = _re.findall(r"\*\*Updates:\*\*\s*(.*)", skill_md)
     read_files = []
     for line in reads:
-        read_files.extend(_re.findall(r'`([^`]+)`', line))
+        read_files.extend(_re.findall(r"`([^`]+)`", line))
     write_files = []
     for line in writes + updates:
-        write_files.extend(_re.findall(r'`([^`]+)`', line))
+        write_files.extend(_re.findall(r"`([^`]+)`", line))
     step = {
         "action": "pre-skill",
         "skill": skill,
@@ -113,12 +129,18 @@ def cmd_pre_skill(phase, skill, round_dir):
     }
     state["steps"].append(step)
     save_state(round_dir, state)
-    print(json.dumps({
-        "status": "ok", "phase": phase, "skill": skill,
-        "action": "execute_skill",
-        "reads": read_files,
-        "writes": write_files,
-    }))
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "phase": phase,
+                "skill": skill,
+                "action": "execute_skill",
+                "reads": read_files,
+                "writes": write_files,
+            }
+        )
+    )
 
 
 def cmd_post_skill(phase, skill, round_dir, project_dir):
@@ -144,7 +166,11 @@ def cmd_post_skill(phase, skill, round_dir, project_dir):
     if g4_status == "FAIL":
         print(json.dumps({"status": "blocked", "phase": phase, "skill": skill, "g4": g4}))
         sys.exit(1)
-    print(json.dumps({"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status}))
+    print(
+        json.dumps(
+            {"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status}
+        )
+    )
 
 
 def cmd_pre_score(phase, round_dir):
@@ -159,11 +185,15 @@ def cmd_pre_score(phase, round_dir):
         if not marker.exists():
             missing.append(skill)
     if missing:
-        print(json.dumps({
-            "status": "blocked",
-            "phase": phase,
-            "missing_markers": [f"G4-{s}-generative" for s in missing],
-        }))
+        print(
+            json.dumps(
+                {
+                    "status": "blocked",
+                    "phase": phase,
+                    "missing_markers": [f"G4-{s}-generative" for s in missing],
+                }
+            )
+        )
         sys.exit(1)
     proj_dir = Path(round_dir) / "project-output"
     for pattern in phase_data.get("expected_outputs", []):
@@ -171,10 +201,9 @@ def cmd_pre_score(phase, round_dir):
             if not list(proj_dir.rglob(pattern)):
                 print(json.dumps({"status": "blocked", "phase": phase, "missing_output": pattern}))
                 sys.exit(1)
-        else:
-            if not (proj_dir / pattern).exists():
-                print(json.dumps({"status": "blocked", "phase": phase, "missing_output": pattern}))
-                sys.exit(1)
+        elif not (proj_dir / pattern).exists():
+            print(json.dumps({"status": "blocked", "phase": phase, "missing_output": pattern}))
+            sys.exit(1)
     state["state"] = "skills_done"
     save_state(round_dir, state)
     print(json.dumps({"status": "ok", "phase": phase, "state": "skills_done"}))
@@ -184,7 +213,15 @@ def cmd_post_score(phase, scores_file, round_dir):
     state = load_state(round_dir, phase)
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
-        print(json.dumps({"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"}))
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "phase": phase,
+                    "message": f"Scores file not found: {scores_file}",
+                }
+            )
+        )
         sys.exit(1)
     scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
@@ -216,7 +253,11 @@ def cmd_finalize(phase, round_dir, project_dir):
     marker_dir = Path(round_dir) / "gate-markers"
     for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
-            print(json.dumps({"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}))
+            print(
+                json.dumps(
+                    {"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}
+                )
+            )
             sys.exit(1)
     state["state"] = "finalized"
     state["steps"].append(step)
