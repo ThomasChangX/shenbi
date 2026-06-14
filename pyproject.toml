@@ -110,3 +110,46 @@ convention = "google"
     "C401", "C416",
     "B007",
 ]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+no_implicit_reexport = true
+namespace_packages = true
+plugins = ["pydantic.mypy"]
+
+# P-1.A temporary overrides: legacy untyped code in tests/*.py
+# PR-12 (P-1.D) will add type hints and remove these overrides.
+[[tool.mypy.overrides]]
+module = [
+    "tests.validate-gate",
+    "tests.scoring",
+    "tests.phase-runner",
+    "tests.summarize-round",
+    "tests.update-progress",
+    "tests.test_integrity",
+]
+ignore_errors = true
+
+# Third-party stubs
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
+# Forward declarations (no-op until modules exist)
+[[tool.mypy.overrides]]
+module = "tests.gates.g4.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "tests.rounds.archived.*"
+ignore_errors = true
