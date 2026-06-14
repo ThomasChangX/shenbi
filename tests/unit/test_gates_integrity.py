@@ -8,8 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-VG = Path(__file__).resolve().parent / "validate-gate.py"
-TESTS = Path(__file__).resolve().parent
+VG = Path(__file__).resolve().parent.parent / "validate-gate.py"
+TESTS = Path(__file__).resolve().parent.parent
 
 
 class TestGateMarkers(unittest.TestCase):
@@ -174,8 +174,8 @@ class TestGateMarkers(unittest.TestCase):
             self.assertFalse(marker_dir.exists(), "G2 should not create gate-markers")
 
 
-SC = Path(__file__).resolve().parent / "scoring.py"
-PR = Path(__file__).resolve().parent / "phase-runner.py"
+SC = Path(__file__).resolve().parent.parent / "scoring.py"
+PR = Path(__file__).resolve().parent.parent / "phase-runner.py"
 
 
 def run_py(script, args):

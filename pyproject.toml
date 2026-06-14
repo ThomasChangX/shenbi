@@ -136,7 +136,7 @@ module = [
     "tests.phase-runner",
     "tests.summarize-round",
     "tests.update-progress",
-    "tests.test_integrity",
+    "tests.unit.test_gates_integrity",
 ]
 ignore_errors = true
 
@@ -166,7 +166,7 @@ exclude = [
     "tests/phase-runner.py",
     "tests/summarize-round.py",
     "tests/update-progress.py",
-    "tests/test_integrity.py",
+    "tests/unit/test_gates_integrity.py",
 ]
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
