@@ -358,7 +358,8 @@ addopts = [
     "--cov-report=html:tests/coverage",
     "--cov-report=xml:tests/coverage/coverage.xml",
     "--cov-branch",
-    "-n=auto",
+    # 注：-n=auto 不在 addopts，避免本地默认并行与 @pytest.mark.last 冲突。
+    # CI 在 ci.yml 中显式传 -n auto。
     "--timeout=60",
     "--timeout-method=thread",
     "--benchmark-min-rounds=5",
@@ -398,13 +399,15 @@ pytest -p no:xdist -m "last"
 
 ```yaml
 - name: Run tests (parallel, excluding last)
-  run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+  run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml
 
 - name: Run coverage threshold test (serial, last only)
   run: uv run pytest -p no:xdist -m "last"
 ```
 
-dev 本地单跑 `pytest` 时（不传 `-n auto`），`@pytest.mark.last` 自然生效，无需拆分。
+dev 本地单跑 `pytest` 时（addopts 默认不含 `-n=auto`，见下方"addopts 与 -n=auto 取舍"），`@pytest.mark.last` 自然生效，无需拆分。但本地若想模拟 CI 并行行为，可手动加 `-n auto` 并按上述两步拆分。
+
+**addopts 与 `-n=auto` 取舍**：pyproject.toml 的 `[tool.pytest.ini_options] addopts` **不含** `-n=auto`（避免本地默认并行影响 `@pytest.mark.last`）。CI 在 `ci.yml` 中显式传 `-n auto`。本地 dev 默认串行，需要并行时手动加。
 
 ```toml
 [tool.coverage.run]
@@ -494,7 +497,7 @@ def test_branch_coverage_meets_threshold():
 
 **Exit code 兼容性**：
 
-pytest 内置 exit codes：0 (success)、1 (test fail)、2 (interrupted)、5 (no tests collected)。Shenbi 的 exit codes（Section 4.5）：0/1/2/3/4/5。当 pytest 作为子进程被 Shenbi CLI 调用时，**外层 Shenbi CLI 的 exit code 覆盖 pytest 的**（外层捕获 pytest exit code 并翻译为 Shenbi code）。文档明确：
+pytest 内置 exit codes：0 (success)、1 (test fail)、2 (interrupted)、5 (no tests collected)。Shenbi 的 exit codes（详见下方"Exit code 兼容性"段）：0/1/2/3/4/5。当 pytest 作为子进程被 Shenbi CLI 调用时，**外层 Shenbi CLI 的 exit code 覆盖 pytest 的**（外层捕获 pytest exit code 并翻译为 Shenbi code）。文档明确：
 
 ```
 Shenbi CLI exit codes（权威）：
@@ -559,7 +562,7 @@ jobs:
       # xdist (-n auto) 忽略 @pytest.mark.last 顺序，必须拆分两步：
       # Step 1: 并行跑主测试（排除 last marker），生成 coverage.xml
       - name: Run tests (parallel, excluding last)
-        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml --cov-report=xml:tests/coverage/coverage.xml
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml
       # Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last"
