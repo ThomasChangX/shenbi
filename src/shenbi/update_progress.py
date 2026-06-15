@@ -11,6 +11,7 @@ Usage:
 import json
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
@@ -22,35 +23,35 @@ SKILLS = PROJECT / "skills"
 ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
 
 
-def load(round_dir):
+def load(round_dir: str) -> dict[str, Any]:
     pp = Path(round_dir) / "progress.json"
     if not pp.exists():
         emit_json({"error": "progress.json not found", "round_dir": str(round_dir)})
         sys.exit(1)
-    return json.loads(pp.read_text(encoding="utf-8"))
+    return cast(dict[str, Any], json.loads(pp.read_text(encoding="utf-8")))
 
 
-def save(round_dir, data):
+def save(round_dir: str, data: dict[str, Any]) -> None:
     pp = Path(round_dir) / "progress.json"
     pp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
 
-def validate_internal(progress, label="validate"):
+def validate_internal(progress: dict[str, Any], label: str = "validate") -> tuple[list[str], set[str], dict[str, int]]:
     """Return (issues, genuinely_done_set)."""
-    issues = []
+    issues: list[str] = []
     completed = set(progress.get("completed_skill_names", []))
     skills = progress.get("skills", {})
-    total = progress.get("total_framework_skills", len(ALL_SKILLS))
+    _total = progress.get("total_framework_skills", len(ALL_SKILLS))
 
-    genuinely_done = set()
-    partly_done = {}
+    genuinely_done: set[str] = set()
+    partly_done: dict[str, int] = {}
     for sn, sd in skills.items():
         if not isinstance(sd, dict):
             continue
         done_count = 0
         for tt in ("generative", "bug-hunt", "clean"):
-            td = sd.get(tt, {})
-            if isinstance(td, dict) and td.get("status") in ("done", "skip"):
+            td = cast(dict[str, Any], sd.get(tt, {}))
+            if td.get("status") in ("done", "skip"):
                 done_count += 1
         if done_count == 3:
             genuinely_done.add(sn)
@@ -89,7 +90,7 @@ def validate_internal(progress, label="validate"):
     return issues, genuinely_done, partly_done
 
 
-def cmd_init(round_dir, tier, expected_chapters=None):
+def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) -> None:
     rd = Path(round_dir)
     rd.mkdir(parents=True, exist_ok=True)
     pp = rd / "progress.json"
@@ -106,7 +107,7 @@ def cmd_init(round_dir, tier, expected_chapters=None):
     for sub in ["gate-markers", "phase-state"]:
         (rd / sub).mkdir(parents=True, exist_ok=True)
 
-    out = {
+    out: dict[str, Any] = {
         "round": Path(round_dir).name.split("-")[1] if "round-" in str(round_dir) else "???",
         "tier": tier,
         "test_cycle_phase": "generative",
@@ -124,7 +125,7 @@ def cmd_init(round_dir, tier, expected_chapters=None):
     emit_json({"status": "ok", "action": "init", "total_skills": total, "expected_chapters": expected_chapters})
 
 
-def cmd_mark_done(round_dir, skill, test_type, score, note=None):
+def cmd_mark_done(round_dir: str, skill: str, test_type: str, score: float, note: str | None = None) -> None:
     progress = load(round_dir)
     skills = progress.setdefault("skills", {})
     sd = skills.setdefault(skill, {})
@@ -134,7 +135,7 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
         entry["note"] = str(note)
     sd[test_type] = entry
 
-    genuinely_done = set()
+    genuinely_done: set[str] = set()
     for sn, sdata in skills.items():
         if not isinstance(sdata, dict):
             continue
@@ -175,21 +176,21 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
     progress["remaining_bug_hunt"] = sorted(pending_bug)
     progress["remaining_clean"] = sorted(pending_cln)
 
-    issues, gd, pd = validate_internal(progress)
+    issues, gd, _pd = validate_internal(progress)
     if issues:
         emit_json({"status": "warn", "action": "mark-done", "consistency_issues": issues})
     save(round_dir, progress)
     emit_json({"status": "ok", "skill": skill, "test_type": test_type, "score": score, "genuinely_done": len(gd), "remaining_gen": len(pending_gen)})
 
 
-def cmd_validate(round_dir):
+def cmd_validate(round_dir: str) -> None:
     progress = load(round_dir)
     issues, gd, pd = validate_internal(progress)
-    total = progress.get("total_framework_skills", len(ALL_SKILLS))
+    _total = progress.get("total_framework_skills", len(ALL_SKILLS))
 
-    result = {
+    result: dict[str, Any] = {
         "status": "fail" if issues else "ok",
-        "total_skills": total,
+        "total_skills": _total,
         "genuinely_done": len(gd),
         "partly_done": {k: v for k, v in pd.items()},
         "remaining_gen": len(progress.get("remaining_generative", [])),
@@ -202,7 +203,7 @@ def cmd_validate(round_dir):
     sys.exit(0 if not issues else 1)
 
 
-def cmd_rebuild_queues(round_dir):
+def cmd_rebuild_queues(round_dir: str) -> None:
     progress = load(round_dir)
     skills = progress.get("skills", {})
     all_skills = set(ALL_SKILLS)
@@ -245,7 +246,7 @@ def cmd_rebuild_queues(round_dir):
     emit_json({"status": "ok", "action": "rebuild-queues", "remaining_gen": len(pending_gen), "remaining_bug": len(pending_bug), "remaining_clean": len(pending_cln), "genuinely_done": len(genuinely_done)})
 
 
-def main():
+def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
         log.info("usage", message="Usage: update-progress.py <command> [args...]\nCommands: init mark-done validate rebuild-queues")
@@ -255,7 +256,7 @@ def main():
     args = sys.argv[2:]
 
     if cmd == "init":
-        ec = None
+        ec: int | None = None
         if "--expected-chapters" in args:
             idx = args.index("--expected-chapters")
             if idx + 1 >= len(args):
