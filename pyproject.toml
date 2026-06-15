@@ -113,7 +113,23 @@ convention = "google"
     "C401", "C416",
     "B007",
 ]
-"tests/exceptions.py" = ["D107", "D105", "N818"]
+# P-1.E temporary: moved legacy code now at src/shenbi/*.py inherits the
+# same suppression set as tests/*.py. Removed module-by-module in PR-25
+# (Cluster 03) as type annotations and cleanup land.
+"src/shenbi/*.py" = [
+    "D103", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+]
+"src/shenbi/exceptions.py" = ["D107", "D105", "N818"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -143,6 +159,12 @@ module = [
     "tests.unit.test_gates_integrity",
 ]
 ignore_errors = true
+
+# Pytest decorators (@pytest.fixture) are untyped; relax strict-mode check
+# for test files so mypy doesn't false-positive on standard pytest usage.
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_decorators = false
 
 # Third-party stubs
 [[tool.mypy.overrides]]

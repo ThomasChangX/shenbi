@@ -20,7 +20,7 @@ from unittest.mock import patch
 import pytest
 import structlog
 
-from tests.logging import configure_logging, get_logger
+from shenbi.logging import configure_logging, get_logger
 
 
 @pytest.fixture()
