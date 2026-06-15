@@ -74,7 +74,7 @@ echo "=== Creating round ${ROUND_NUM}: ${MODEL} / ${TIER} ==="
 
 # G0: Environment readiness check
 echo "=== G0: Environment Check ==="
-G0_RESULT=$(python3 tests/validate-gate.py G0 "${SEED_FILE:-outline-example.md}" 2>&1) || true
+G0_RESULT=$(uv run shenbi-validate G0 "${SEED_FILE:-outline-example.md}" 2>&1) || true
 G0_STATUS=$(echo "$G0_RESULT" | python3 -c "import sys,json;print(json.load(sys.stdin).get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
 if [ "$G0_STATUS" != "PASS" ]; then
     echo "G0 FAILED:"
@@ -87,7 +87,7 @@ echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
 mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,novel-output,skill-traces}
 
 # progress.json: written via update-progress.py single-writer (no direct edits)
-python3 tests/update-progress.py init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
+uv run shenbi-progress init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
 
 # Override tokens
 TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")

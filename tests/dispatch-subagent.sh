@@ -1,7 +1,7 @@
 #!/bin/bash
 # dispatch-subagent.sh <skill_name> <test_type> <round_dir> [subagent_prompt]
 # Wraps subagent dispatch for scoring independence (G3.4).
-# 
+#
 # Two modes:
 #   --codex          Uses Codex CLI subagent (production)
 #   --internal       Internal isolation scoring (development fallback)
@@ -53,7 +53,7 @@ except Exception:
 
 # G1: Pre-dispatch input validation
 echo "=== G1: Input Validation ==="
-G1_RESULT=$(python3 "${SCRIPT_DIR}/validate-gate.py" G1 "$SKILL" "$INPUT_FILES" "$ROUND_DIR" 2>&1) || true
+G1_RESULT=$(uv run shenbi-validate G1 "$SKILL" "$INPUT_FILES" "$ROUND_DIR" 2>&1) || true
 G1_STATUS=$(echo "$G1_RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
 if [ "$G1_STATUS" != "PASS" ]; then
     echo "G1 FAILED:"
@@ -82,7 +82,7 @@ except Exception:
 # Runs in both codex and --internal modes (the skill execution happened earlier).
 if [ -n "$OUTPUT_FILES" ]; then
     echo "=== G2: Output Validation ==="
-    G2_RESULT=$(python3 "${SCRIPT_DIR}/validate-gate.py" G2 "$OUTPUT_FILES" "$FILE_TYPE" "$ROUND_DIR" "$PROJECT_DIR" 2>&1) || true
+    G2_RESULT=$(uv run shenbi-validate G2 "$OUTPUT_FILES" "$FILE_TYPE" "$ROUND_DIR" "$PROJECT_DIR" 2>&1) || true
     G2_STATUS=$(echo "$G2_RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
     if [ "$G2_STATUS" != "PASS" ]; then
         echo "G2 FAILED:"
@@ -157,7 +157,7 @@ json.dump(obj, open('${SCORES_FILE}', 'w'))
 "
     rm -f "${RAW_OUT}"
     # Compute final score via scoring.py (enforces gate markers, REJECT, etc.)
-    SCORE_OUTPUT=$(python3 "${SCRIPT_DIR}/scoring.py" \
+    SCORE_OUTPUT=$(uv run shenbi-score \
         "${RUBRIC_PATH}" \
         "${SCORES_FILE}" \
         --test-type "${TEST_TYPE}" \
@@ -170,7 +170,7 @@ json.dump(obj, open('${SCORES_FILE}', 'w'))
         exit $SCORING_EXIT
     fi
     FINAL_SCORE=$(echo "$SCORE_OUTPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('final_score', 0))")
-    python3 "${SCRIPT_DIR}/update-progress.py" mark-done "${ROUND_DIR}" "${SKILL}" "${TEST_TYPE}" "${FINAL_SCORE}"
+    uv run shenbi-progress mark-done "${ROUND_DIR}" "${SKILL}" "${TEST_TYPE}" "${FINAL_SCORE}"
     echo "$SCORE_OUTPUT"
 elif [ "$MODE" = "codex-api" ]; then
     echo "ERROR: codex-api mode not implemented (use codex CLI or --internal)" >&2
@@ -192,9 +192,9 @@ else
     echo "    1. Score outputs against rubric using the saved prompt"
     echo "    2. Write scores JSON to: ${SCORES_FILE}"
     echo "       Format: {\"1\": <int>, \"2\": <int>, ...} for all rubric dimensions"
-    echo "    3. python3 tests/scoring.py ${RUBRIC_PATH} ${SCORES_FILE} \\"
+    echo "    3. uv run shenbi-score ${RUBRIC_PATH} ${SCORES_FILE} \\"
     echo "           --test-type ${TEST_TYPE} --round-dir ${ROUND_DIR} --subagent"
-    echo "    4. python3 tests/update-progress.py mark-done ${ROUND_DIR} ${SKILL} ${TEST_TYPE} <final_score>"
+    echo "    4. uv run shenbi-progress mark-done ${ROUND_DIR} ${SKILL} ${TEST_TYPE} <final_score>"
     echo ""
     echo "  Scoring will REJECT (exit 2) if dimensions are missing."
 fi

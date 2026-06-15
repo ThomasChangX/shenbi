@@ -25,11 +25,11 @@ shenbi/
 ### Key Commands
 
 - `bash tests/round-exec.sh <model> T1` — Create a new test round; runs G0 environment check.
-- `python3 tests/validate-gate.py G0 <seed>` — Gate 0: seed exists, UTF-8, skill dirs present.
-- `python3 tests/validate-gate.py G2 <files> <type>` — Gate 2: output file validation (UTF-8, word count, placeholders).
-- `python3 tests/validate-gate.py G4 <skill> <files>` — Gate 4: skill-specific structural validation.
-- `python3 tests/scoring.py <rubric> <scores.json> --test-type generative` — Score output against rubric; exit 0=success, 2=validation failure.
-- `python3 tests/summarize-round.py <round_dir>` — Aggregate round scores; runs G7 close validation.
+- `uv run shenbi-validate G0 <seed>` — Gate 0: seed exists, UTF-8, skill dirs present.
+- `uv run shenbi-validate G2 <files> <type>` — Gate 2: output file validation (UTF-8, word count, placeholders).
+- `uv run shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural validation.
+- `uv run shenbi-score <rubric> <scores.json> --test-type generative` — Score output against rubric; exit 0=success, 2=validation failure.
+- `uv run shenbi-summarize <round_dir>` — Aggregate round scores; runs G7 close validation.
 - `bash tests/round-exec.sh --validate <round_dir>` — Post-round integrity check.
 
 ### Skill Authoring
