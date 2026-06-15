@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from shenbi.logging import get_logger
+from pathlib import Path
 
 log = get_logger(__name__)
 

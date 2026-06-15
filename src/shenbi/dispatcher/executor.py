@@ -83,7 +83,7 @@ def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
         capture_output=True,
         text=True,
     )
-    return json.loads(result.stdout)
+    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
@@ -103,7 +103,7 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
         capture_output=True,
         text=True,
     )
-    return json.loads(result.stdout)
+    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def detect_mode() -> str:
