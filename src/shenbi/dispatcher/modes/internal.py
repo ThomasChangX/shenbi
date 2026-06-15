@@ -1,11 +1,13 @@
 """Internal development fallback mode."""
 
+from __future__ import annotations
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
 
-def dispatch_internal(skill, test_type, round_dir, prompt, agent_id):
+def dispatch_internal(skill: str, test_type: str, round_dir: Path, prompt: str, agent_id: str) -> int:
     """Development fallback: prints dispatcher instructions for manual completion."""
     scores_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent.json"
     prompt_file = round_dir / "skill-traces" / f"{skill}-{test_type}-prompt.md"

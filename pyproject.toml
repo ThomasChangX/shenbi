@@ -204,15 +204,7 @@ plugins = ["pydantic.mypy"]
 # PR-12 (P-1.E) will add type hints and remove these overrides.
 [[tool.mypy.overrides]]
 module = [
-    "tests.validate-gate",
     "shenbi.gates",
-    "shenbi.dispatcher",
-    "shenbi.dispatcher.cli",
-    "shenbi.dispatcher.executor",
-    "shenbi.dispatcher.modes",
-    "shenbi.dispatcher.modes.codex",
-    "shenbi.dispatcher.modes.codex_api",
-    "shenbi.dispatcher.modes.internal",
     "tests.unit.test_gates_integrity",
 ]
 ignore_errors = true
@@ -235,12 +227,6 @@ exclude = [
     "tests/rounds/round-[0-9][0-9][0-9]-*",
     "**/__pycache__",
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
-    "tests/validate-gate.py",
-    "src/shenbi/dispatcher",
-    "src/shenbi/dispatcher/cli.py",
-    "src/shenbi/dispatcher/executor.py",
-    "src/shenbi/dispatcher/modes",
-    "src/shenbi/dispatcher/modes/*.py",
     "tests/unit/test_gates_integrity.py",
 ]
 typeCheckingMode = "strict"

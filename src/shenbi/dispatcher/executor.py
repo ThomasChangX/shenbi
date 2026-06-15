@@ -4,6 +4,9 @@ PR-20 (P-1.E): Python translation of tests/dispatch-subagent.sh (203 lines).
 Replaces shell script with typed, loggable Python.
 """
 
+from __future__ import annotations
+from typing import Any
+
 import json
 import os
 import re
@@ -20,12 +23,12 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PROJECT_DIR = REPO_ROOT
 
 
-def generate_agent_id(round_dir, skill, test_type):
+def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
     """Generate unique agent ID for this dispatch."""
     return f"{round_dir.name}-{skill}-{test_type}-{uuid.uuid4().hex[:8]}"
 
 
-def derive_file_type(skill):
+def derive_file_type(skill: str) -> str:
     """Derive FILE_TYPE from skill name."""
     chapter_skills = {
         "shenbi-chapter-drafting",
@@ -45,7 +48,7 @@ def derive_file_type(skill):
     return "chapter"
 
 
-def derive_input_files(skill):
+def derive_input_files(skill: str) -> list[str]:
     """Parse SKILL.md to extract Reads."""
     skill_md = PROJECT_DIR / "skills" / skill / "SKILL.md"
     if not skill_md.exists():
@@ -58,7 +61,7 @@ def derive_input_files(skill):
     return files
 
 
-def derive_output_files(skill):
+def derive_output_files(skill: str) -> list[str]:
     """Parse SKILL.md to extract Writes + Updates."""
     skill_md = PROJECT_DIR / "skills" / skill / "SKILL.md"
     if not skill_md.exists():
@@ -72,7 +75,7 @@ def derive_output_files(skill):
     return files
 
 
-def run_g1(skill, inputs, round_dir):
+def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
     """Run G1 gate via shenbi-validate entry point."""
     inputs_json = json.dumps(inputs)
     result = subprocess.run(
@@ -83,7 +86,7 @@ def run_g1(skill, inputs, round_dir):
     return json.loads(result.stdout)
 
 
-def run_g2(outputs, file_type, round_dir):
+def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
     """Run G2 gate via shenbi-validate entry point."""
     output_files = ",".join(outputs)
     result = subprocess.run(
@@ -103,7 +106,7 @@ def run_g2(outputs, file_type, round_dir):
     return json.loads(result.stdout)
 
 
-def detect_mode():
+def detect_mode() -> str:
     """Detect dispatch mode (codex, codex-api, or internal)."""
     if shutil.which("codex"):
         return "codex"
@@ -112,7 +115,7 @@ def detect_mode():
     return "internal"
 
 
-def dispatch(skill, test_type, round_dir, prompt):
+def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     """Main dispatch entry point."""
     agent_id = generate_agent_id(round_dir, skill, test_type)
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)

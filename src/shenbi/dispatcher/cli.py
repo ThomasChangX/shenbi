@@ -3,6 +3,8 @@
 PR-20 (P-1.E): Python translation of tests/dispatch-subagent.sh main().
 """
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 
@@ -11,7 +13,7 @@ from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
 
-def main():
+def main() -> int:
     """Forward to dispatcher executor."""
     configure_logging()
     if len(sys.argv) < 4:

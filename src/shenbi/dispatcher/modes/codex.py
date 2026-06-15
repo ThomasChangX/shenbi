@@ -1,5 +1,7 @@
 """Codex CLI dispatch mode."""
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -13,7 +15,7 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
-def dispatch_codex(skill, test_type, round_dir, prompt, agent_id):
+def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, agent_id: str) -> int:
     """Dispatch via codex CLI."""
     if not prompt:
         raise SubAgentProtocolError("codex mode requires non-empty prompt")
