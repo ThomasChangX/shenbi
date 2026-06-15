@@ -194,7 +194,7 @@ source = ["src/shenbi"]
 # Staged ramp-up. Current line coverage ~10% (most framework code is legacy
 # untyped modules excluded from type checking). Raise as P-1.E refactors them.
 # Target: 30% after P-1.E, 60% after P-2, 90% after P-3.
-fail_under = 8
+fail_under = 90
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
