@@ -207,7 +207,6 @@ module = [
     "tests.validate-gate",
     "shenbi.gates",
     "shenbi.gates.cli",
-    "shenbi.gates.shared",
     "shenbi.gates.g0",
     "shenbi.gates.g1",
     "shenbi.gates.g2",
@@ -256,7 +255,6 @@ exclude = [
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
     "tests/validate-gate.py",
     "src/shenbi/gates/cli.py",
-    "src/shenbi/gates/shared.py",
     "src/shenbi/gates/g0.py",
     "src/shenbi/gates/g1.py",
     "src/shenbi/gates/g2.py",

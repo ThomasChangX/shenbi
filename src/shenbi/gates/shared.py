@@ -8,6 +8,7 @@ import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -22,12 +23,12 @@ CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
 
-def jload(p):
+def jload(p: str | Path) -> Any:
     """Load JSON file, returning parsed object."""
     return json.loads(Path(p).read_text(encoding="utf-8"))
 
 
-def yload(p):
+def yload(p: str | Path) -> Any:
     """Load YAML frontmatter or full YAML from a file."""
     if yaml is None:
         raise RuntimeError("PyYAML is not installed. Run: pip install pyyaml")
@@ -41,7 +42,7 @@ def yload(p):
     return yaml.safe_load(content) or {}
 
 
-def word_count_md(fp):
+def word_count_md(fp: str | Path) -> int:
     """Count Chinese characters in Markdown body (excluding frontmatter,
     code blocks, and meta sections).
     """
@@ -62,7 +63,7 @@ def word_count_md(fp):
     return len(re.findall(r"[一-鿿]", c))
 
 
-def fail(gid, checks, blocked, must_fix):
+def fail(gid: str, checks: list[str], blocked: str, must_fix: list[str]) -> str:
     """Return FAIL JSON string."""
     return json.dumps(
         {
@@ -78,7 +79,7 @@ def fail(gid, checks, blocked, must_fix):
     )
 
 
-def passed(gid, checks):
+def passed(gid: str, checks: list[str]) -> str:
     """Return PASS JSON string."""
     return json.dumps(
         {
@@ -92,7 +93,7 @@ def passed(gid, checks):
     )
 
 
-def _find_report(reports_dir, skill_name, test_type=None):
+def _find_report(reports_dir: str | Path, skill_name: str, test_type: str | None = None) -> Path | None:
     """Find a report file with flexible naming convention.
 
     Tries: <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
@@ -110,7 +111,7 @@ def _find_report(reports_dir, skill_name, test_type=None):
     return None
 
 
-def _normalize_file_paths(file_paths):
+def _normalize_file_paths(file_paths: str | list[str] | tuple[str, ...] | None) -> list[str]:
     """Accept list or comma-separated string, return list of Path strings."""
     if file_paths is None:
         return []
@@ -121,7 +122,7 @@ def _normalize_file_paths(file_paths):
     return []
 
 
-def write_gate_marker(gate, target, test_type, result_str, round_dir, file_paths=None):
+def write_gate_marker(gate: str, target: str, test_type: str, result_str: str, round_dir: str | None, file_paths: list[str] | None = None) -> None:
     """Write a gate marker file if result is PASS and round_dir is provided."""
     if not round_dir:
         return
@@ -142,7 +143,7 @@ def write_gate_marker(gate, target, test_type, result_str, round_dir, file_paths
         pass
 
 
-def unimplemented(gate_name, note=""):
+def unimplemented(gate_name: str, note: str = "") -> str:
     """Return UNIMPLEMENTED JSON string for stub gates."""
     return json.dumps(
         {
@@ -157,7 +158,7 @@ def unimplemented(gate_name, note=""):
     )
 
 
-def read_genre_config(project_dir):
+def read_genre_config(project_dir: str | Path) -> dict[str, Any]:
     """Read genre-config.json from a project directory to get
     fatigue_words, chapter_word, etc.
     """
@@ -239,7 +240,7 @@ META_NARRATIVE = [
 TRANSITION_SPECIFIC = ["不过", "此时", "突然", "终于", "于是"]
 
 
-def count_transition_words(content):
+def count_transition_words(content: str) -> int:
     """Count transition word occurrences.  '然' is handled specially to
     avoid double-counting with compounds like 然而/虽然/当然/自然/忽然
     and to avoid double-counting with 突然 (which IS a transition word).
