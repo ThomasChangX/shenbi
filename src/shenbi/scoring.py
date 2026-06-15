@@ -5,6 +5,7 @@ import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
@@ -12,10 +13,17 @@ from shenbi.logging import configure_logging, get_logger
 log = get_logger(__name__)
 
 
-def load_rubric(rubric_path):
+class Dimension(TypedDict):
+    """A single rubric dimension with number, name, and weight percentage."""
+    num: int
+    name: str
+    weight: int
+
+
+def load_rubric(rubric_path: str) -> tuple[list[Dimension], list[str]]:
     """Parse rubric.md to extract dimensions with weights and kill switches."""
-    dimensions = []
-    kill_switches = []
+    dimensions: list[Dimension] = []
+    kill_switches: list[str] = []
     in_table = False
     in_kill_switch = False
     with open(rubric_path) as f:
@@ -59,9 +67,9 @@ def load_rubric(rubric_path):
     return dimensions, kill_switches
 
 
-def load_applicability(rubric_path):
+def load_applicability(rubric_path: str) -> dict[str, dict[str, bool]]:
     """Parse rubric.md to extract dimension applicability by test type."""
-    applicability = {}
+    applicability: dict[str, dict[str, bool]] = {}
     in_applicability = False
     header_dims = []
     with open(rubric_path) as f:
@@ -88,7 +96,9 @@ def load_applicability(rubric_path):
     return applicability
 
 
-def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
+def filter_dimensions_by_test_type(
+    dimensions: list[Dimension], rubric_path: str, test_type: str | None
+) -> list[Dimension]:
     """Remove dimensions not applicable to the given test type.
 
     Strategy: Build an exclusion set of dimension numbers from rows
@@ -110,7 +120,7 @@ def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
     if type_key not in applicability:
         return dimensions
     applicable_scopes = applicability[type_key]
-    excluded_nums = set()
+    excluded_nums: set[int] = set()
     for scope, applies in applicable_scopes.items():
         if not applies:
             nums = re.findall(r"dim\s+(\d+)", scope, re.IGNORECASE)
@@ -123,9 +133,11 @@ def filter_dimensions_by_test_type(dimensions, rubric_path, test_type):
     return filtered if filtered else dimensions
 
 
-def validate_scores(scores, dimensions):
+def validate_scores(
+    scores: dict[int, Any], dimensions: list[Dimension]
+) -> tuple[bool, list[str]]:
     """Validate scores against rubric dimensions. Returns (is_valid, errors)."""
-    errors = []
+    errors: list[str] = []
     if not scores:
         errors.append("REJECT: scores is empty — no dimensions scored")
         return False, errors
@@ -146,7 +158,9 @@ def validate_scores(scores, dimensions):
     return is_valid, errors
 
 
-def compute_score(dimensions, scores, kill_switch_triggered=False):
+def compute_score(
+    dimensions: list[Dimension], scores: dict[int, Any], kill_switch_triggered: bool = False
+) -> float:
     """Compute weighted score from dimension scores. Kill switch overrides to 0."""
     if kill_switch_triggered:
         return 0
@@ -155,11 +169,11 @@ def compute_score(dimensions, scores, kill_switch_triggered=False):
         return 0
     if total_weight != 100:
         log.warning("weight_mismatch", total_weight=total_weight, expected=100)
-    weighted_sum = sum(scores.get(d["num"], 0) * d["weight"] for d in dimensions)
+    weighted_sum: float = sum(float(scores.get(d["num"], 0)) * d["weight"] for d in dimensions)
     return round(weighted_sum / total_weight, 2)
 
 
-def classify(score):
+def classify(score: float | int) -> str:
     if score >= 90:
         return "PASS (excellent)"
     if score >= 75:
@@ -169,14 +183,16 @@ def classify(score):
     return "FAIL"
 
 
-def check_gate_markers(rubric_path, test_type, round_dir):
+def check_gate_markers(
+    rubric_path: str, test_type: str | None, round_dir: str | None
+) -> list[str]:
     """Verify required gate markers exist. Returns list of missing marker descriptions."""
     if not round_dir:
         return []
     rd = Path(round_dir)
     marker_dir = rd / "gate-markers"
     rubric_p = Path(rubric_path)
-    missing = []
+    missing: list[str] = []
 
     if "t1-skill" in rubric_p.parts:
         idx = rubric_p.parts.index("t1-skill")
@@ -209,7 +225,7 @@ def check_gate_markers(rubric_path, test_type, round_dir):
     return missing
 
 
-def main():
+def main() -> dict[str, Any]:
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
         usage = """Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]
@@ -232,11 +248,11 @@ def main():
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
         vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
-        result = subprocess.run(
+        proc_result = subprocess.run(
             [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
         )
-        emit_json(json.loads(result.stdout))
-        sys.exit(0 if result.returncode == 0 else 1)
+        emit_json(json.loads(proc_result.stdout))
+        sys.exit(0 if proc_result.returncode == 0 else 1)
 
     rubric_path = sys.argv[1]
     dimensions, kill_switches = load_rubric(rubric_path)
@@ -244,7 +260,7 @@ def main():
     kill_switch_triggered = "--kill-switch" in sys.argv
     test_type = None
     tier = None
-    phase = None
+    _phase = None
     round_dir = None
     for i, arg in enumerate(sys.argv):
         if arg == "--test-type" and i + 1 < len(sys.argv):
@@ -254,7 +270,7 @@ def main():
         if arg == "--tier" and i + 1 < len(sys.argv):
             tier = sys.argv[i + 1]
         if arg == "--phase" and i + 1 < len(sys.argv):
-            phase = sys.argv[i + 1]
+            _phase = sys.argv[i + 1]
 
     # Gate integration: run pre-scoring dependency checks
     if tier:
@@ -267,13 +283,13 @@ def main():
             skill_name = rubric_p.parent.name if rubric_p.parent.parent.name == "t1-skill" else None
             if skill_name:
                 if round_dir:
-                    result = subprocess.run(
+                    gate_result = subprocess.run(
                         [sys.executable, vg, "G3", skill_name, test_type, round_dir],
                         capture_output=True,
                         text=True,
                     )
                     try:
-                        gate_out = json.loads(result.stdout)
+                        gate_out = json.loads(gate_result.stdout)
                         if gate_out.get("status") == "FAIL":
                             emit_json(gate_out)
                             sys.exit(1)
@@ -312,8 +328,8 @@ def main():
         for d in dimensions:
             while True:
                 try:
-                    val = input(f"  {d['num']}. {d['name']} [{d['weight']}%] (0-100): ")
-                    val = int(val)
+                    raw_val = input(f"  {d['num']}. {d['name']} [{d['weight']}%] (0-100): ")
+                    val = int(raw_val)
                     if 0 <= val <= 100:
                         scores[d["num"]] = val
                         break
@@ -354,7 +370,7 @@ def main():
             log.error("validation_error", error=str(e))
 
     final = compute_score(dimensions, scores, kill_switch_triggered)
-    result = {
+    result: dict[str, Any] = {
         "_provenance": {
             "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
             "timestamp": datetime.now(UTC).isoformat(),

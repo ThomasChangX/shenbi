@@ -205,7 +205,6 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = [
     "tests.validate-gate",
-    "shenbi.scoring",
     "shenbi.phase_runner",
     "shenbi.summarize_round",
     "shenbi.update_progress",
@@ -260,7 +259,6 @@ exclude = [
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
     "tests/validate-gate.py",
     "src/shenbi/gates/cli.py",
-    "src/shenbi/scoring.py",
     "src/shenbi/phase_runner.py",
     "src/shenbi/summarize_round.py",
     "src/shenbi/update_progress.py",
