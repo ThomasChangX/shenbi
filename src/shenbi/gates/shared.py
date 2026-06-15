@@ -4,6 +4,11 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E). All gate modules
 import these helpers to keep behavior identical to the legacy monolith.
 """
 
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
+
 import json
 import re
 from datetime import UTC, datetime

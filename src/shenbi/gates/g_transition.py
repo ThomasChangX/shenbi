@@ -3,6 +3,11 @@
 Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 """
 
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
+
 import json
 from pathlib import Path
 from typing import Any

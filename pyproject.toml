@@ -113,8 +113,78 @@ convention = "google"
 # P-1.E temporary: moved legacy code now at src/shenbi/*.py inherits the
 # same suppression set as tests/*.py. Removed module-by-module in PR-25
 # (Cluster 03) as type annotations and cleanup land.
+"src/shenbi/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+    "I001",
+]
 # P-1.E PR-19: per-gate modules extracted from validate-gate.py carry the
 # same legacy-untyped status. Removed in PR-25 (Cluster 03 cleanup).
+"src/shenbi/gates/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901", "PLW0603",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+    "I001",
+]
+"src/shenbi/gates/g4/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901", "PLW0603",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+    "I001",
+]
+"src/shenbi/dispatcher/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901", "PLW0603",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+    "I001",
+]
+"src/shenbi/dispatcher/modes/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901", "PLW0603",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+    "I001",
+]
 "src/shenbi/exceptions.py" = ["D107", "D105", "N818"]
 "src/shenbi/skill_utils/*.py" = [
     "D103", "D101", "D102", "D205", "D415",

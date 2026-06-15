@@ -5,7 +5,6 @@ Replaces shell script with typed, loggable Python.
 """
 
 from __future__ import annotations
-from typing import Any
 
 import json
 import os
@@ -14,6 +13,7 @@ import shutil
 import subprocess
 import uuid
 from pathlib import Path
+from typing import Any
 
 from shenbi.logging import get_logger
 

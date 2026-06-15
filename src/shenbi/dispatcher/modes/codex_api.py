@@ -1,6 +1,7 @@
 """Codex API dispatch mode (currently unimplemented)."""
 
 from __future__ import annotations
+
 from typing import Any, NoReturn
 
 from shenbi.exceptions import DispatcherError

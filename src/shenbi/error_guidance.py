@@ -4,6 +4,11 @@ Maps error class names to explanation + suggested action + doc URL.
 Consumed by CLI boundary to display actionable error messages.
 """
 
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
+
 from typing import NamedTuple
 
 

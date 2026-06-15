@@ -3,6 +3,11 @@
 P-1.C defines interfaces; P-3 (failure catalog) implements recovery logic.
 """
 
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
+
 from enum import Enum
 
 

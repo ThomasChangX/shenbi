@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from shenbi.logging import get_logger
 from pathlib import Path
+
+from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
