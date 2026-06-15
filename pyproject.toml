@@ -57,14 +57,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/shenbi"]
 
-# Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-16)
+# Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-23)
 [tool.mutmut]
-paths-to-mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py"]
+paths-to-mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py", "src/shenbi/gates/shared.py"]
 tests-dir = "tests/unit/"
 do-not-mutate = ["tests/rounds/archived/**"]
-# 注：上述路径在 P-1.A 时不存在（exceptions.py/logging.py 由 PR-9/10 创建，
-# gates/shared.py 由 PR-12 创建，tests/unit/ 由 PR-5 创建）。
-# PR-16 首次跑 mutmut 时验证配置生效。
 
 [tool.ruff]
 line-length = 100
