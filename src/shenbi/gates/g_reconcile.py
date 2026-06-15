@@ -31,7 +31,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G_RECONCILE(round_dir=None):
+def gate_G_RECONCILE(round_dir: str | None = None) -> str:
     """G_RECONCILE: Mid-execution filesystem consistency check."""
     c, mf = [], []
     rd = Path(round_dir) if round_dir else None

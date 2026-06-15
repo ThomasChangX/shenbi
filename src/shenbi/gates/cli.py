@@ -53,7 +53,7 @@ SHORT_MAP = {
 }
 
 
-def main():
+def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
         usage = """Usage: shenbi-validate <GATE> [args...]

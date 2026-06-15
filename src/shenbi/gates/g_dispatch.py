@@ -32,7 +32,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G_DISPATCH(phase, round_dir):
+def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
     """G_DISPATCH: Phase completion gate."""
     rd = Path(round_dir)
     pp = rd / "progress.json"

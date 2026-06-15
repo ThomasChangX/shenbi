@@ -32,7 +32,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G_TRANSITION(from_phase, to_phase, round_dir):
+def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     """G_TRANSITION: Phase switching gate."""
     c = []
     mf = []
