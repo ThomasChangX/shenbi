@@ -39,7 +39,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G1(skill_name=None, input_files=None, round_dir=None):
+def gate_G1(skill_name: str | None = None, input_files: str | None = None, round_dir: str | None = None) -> str:
     """G1: Pre-dispatch input validation."""
     c = []
     mf = []

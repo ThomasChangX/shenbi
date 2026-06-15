@@ -38,7 +38,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
+def gate_G2(file_paths: str, file_type: str = "chapter", round_dir: str | None = None, project_dir: str | None = None) -> str:
     """G2: Write verification. file_type: chapter|report|truth"""
     checks = []
     mf = []
@@ -233,7 +233,7 @@ def gate_G2(file_paths, file_type="chapter", round_dir=None, project_dir=None):
     return passed("G2", checks)
 
 
-def _is_important_chapter(fp, project_dir):
+def _is_important_chapter(fp: str, project_dir: str) -> bool:
     """Check if a chapter is flagged as important.
     Sources: (a) volume_map.md annotations (爆发段/高潮/卷首/卷末)
              (b) chapter-N-plan.md section 1 '重要章' marker

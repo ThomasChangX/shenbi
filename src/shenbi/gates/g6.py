@@ -33,7 +33,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
+def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None) -> str:
     """G6: T3 Pipeline check."""
     c, mf = [], []
     deps = jload(TESTS / "tiers" / "deps.json")
@@ -61,7 +61,7 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         else:
             c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
         # G6.2: no gaps
-        nums = []
+        _nums = []
         for ch in chapters:
             m = re.search(r"chapter-(\d+)", ch.name)
             if m:
@@ -205,9 +205,9 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
                 consec = 1
         # Volume tension curve check (buildup/rising/climax/resolution]
         # Scan chapter types for tension arc pattern
-        type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
-        tension_phases = []
-        action_density = [
+        _type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
+        _tension_phases = []
+        action__density = [
             (
                 t["ch"],
                 sum(
@@ -259,7 +259,7 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
             mf.extend([f"G6.7:max_distance_exceeded:{x}" for x in exceeded])
         # Hook density
         if chapters:
-            density = total_hooks / max(len(chapters), 1)
+            _density = total_hooks / max(len(chapters), 1)
             if density > 3:
                 mf.append(f"G6.7:high_hook_density:{density:.1f}/chapter")
             elif density < 0.3:
@@ -520,7 +520,7 @@ def gate_G6(pipeline_name=None, round_dir=None, project_dir=None):
         # Extract volume-chapter mappings: "第一卷", "第X卷", "Volume N", chapter ranges
         volumes = []
         vol_pat = re.compile(r"(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))")
-        ch_range_pat = re.compile(
+        _ch_range_pat = re.compile(
             r"(?:第\s*(\d+)\s*[章節].*?(?:第\s*(\d+)\s*[章節]|(\d+)\s*[章節]))"
         )
         # Simpler: find "第X章" to "第Y章" or "Chapter X-Y" patterns

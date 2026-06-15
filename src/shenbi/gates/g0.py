@@ -35,7 +35,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G0(seed_file=None, round_dir=None):
+def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     """G0: Round creation environment check."""
     checks = []
 

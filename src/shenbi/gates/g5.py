@@ -34,7 +34,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def _text_fingerprint(text, min_len=50):
+def _text_fingerprint(text: str, min_len: int = 50) -> str:
     body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
     paragraphs = body.split(chr(10) + chr(10))
     hashes = set()
@@ -50,7 +50,7 @@ def _text_fingerprint(text, min_len=50):
     return hashes
 
 
-def gate_G5(phase_name=None, round_dir=None, project_dir=None):
+def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None) -> str:
     """G5: T2 Phase check."""
     c, mf = [], []
     deps = jload(TESTS / "tiers" / "deps.json")

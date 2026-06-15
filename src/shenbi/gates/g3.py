@@ -32,7 +32,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G3(skill_name=None, test_type=None, round_dir=None):
+def gate_G3(skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None) -> str:
     """G3: Pre-scoring dependency check."""
     c = []
     mf = []

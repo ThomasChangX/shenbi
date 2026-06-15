@@ -38,7 +38,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G7(round_dir):
+def gate_G7(round_dir: str) -> str:
     """G7: Round close validation."""
     c = []
     mf = []
@@ -242,7 +242,7 @@ def gate_G7(round_dir):
                 data = jload(str(score_file))
                 if isinstance(data, dict):
                     # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
-                    dims = data.get("dimensions", [])
+                    _dims = data.get("dimensions", [])
                     if dims:
                         vec = tuple(
                             (d.get("num"), d.get("score", 0))
