@@ -231,6 +231,7 @@ exclude = [
     "**/__pycache__",
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
     "tests/validate-gate.py",
+    "src/shenbi/gates/cli.py",
     "src/shenbi/scoring.py",
     "src/shenbi/phase_runner.py",
     "src/shenbi/summarize_round.py",

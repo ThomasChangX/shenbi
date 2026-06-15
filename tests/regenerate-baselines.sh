@@ -1,9 +1,9 @@
 #!/bin/bash
-# Capture current validate-gate.py outputs as baseline for differential testing.
-# Run BEFORE PR-19's modularization. Re-run after to verify equivalence.
+# Capture current shenbi-validate outputs as baseline for differential testing.
+# Originally run BEFORE PR-19's modularization. Re-run after to verify equivalence.
 set -euo pipefail
 
-VG="uv run python tests/validate-gate.py"
+VG="uv run shenbi-validate"
 OUT=tests/baselines/gate-outputs
 
 mkdir -p "$OUT"
@@ -16,11 +16,11 @@ $VG G2 "tests/fixtures/novel-example.json" json > "$OUT/G2-internal.json" 2>&1 |
 $VG G2 "tests/fixtures/chapter-7-example.md" chapter > "$OUT/G2-chapter.json" 2>&1 || true
 $VG G2 "tests/fixtures/truth-current_state.md" truth > "$OUT/G2-truth.json" 2>&1 || true
 
-# G4 per skill -- only the 23 skills that have G4 checkers (grep ^def g4_),
-# not all 58 skill dirs. Iterating all 58 produces noise (error responses for
-# skills without checkers) and the loose fixture match can pair a checker with
-# the wrong fixture.
-for skill in $(grep "^def g4_" tests/validate-gate.py | sed 's/^def g4_//; s/(.*//'); do
+# G4 per skill -- the 20 skills with dedicated G4 checkers in src/shenbi/gates/g4/
+# (plus 3 generic_* fallbacks that don't apply here). Iterating all 58 skill dirs
+# produces noise (error responses for skills without checkers).
+G4_SKILLS="anti_detect chapter_drafting chapter_planning character_design context_composing faction_builder foreshadowing_plant foreshadowing_track genre_config length_normalizing location_builder pacing_design plot_thread_weaver power_system relationship_map state_settling story_architecture style_polishing volume_outlining worldbuilding"
+for skill in $G4_SKILLS; do
     # Skip generic checkers -- they take a fixture list, not a single skill fixture.
     case "$skill" in
         generic_*) continue ;;

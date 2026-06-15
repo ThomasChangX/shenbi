@@ -8,17 +8,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-VG = Path(__file__).resolve().parent.parent / "validate-gate.py"
 TESTS = Path(__file__).resolve().parent.parent
 
 
 class TestGateMarkers(unittest.TestCase):
-    """Test that validate-gate.py writes gate marker files on PASS."""
+    """Test that shenbi-validate writes gate marker files on PASS."""
 
     def _run_vg(self, *args):
-        """Run validate-gate.py as subprocess, return (stdout, stderr, returncode)."""
+        """Run shenbi-validate as subprocess, return (stdout, stderr, returncode)."""
         result = subprocess.run(
-            [os.environ.get("PYTHON", "python3"), str(VG)] + list(args),
+            ["uv", "run", "shenbi-validate"] + list(args),
             capture_output=True,
             text=True,
         )
@@ -182,6 +181,16 @@ def run_py(script, args):
     """Run a Python script as subprocess, return (rc, stdout, stderr)."""
     result = subprocess.run(
         [os.environ.get("PYTHON", "python3"), str(script)] + list(args),
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, result.stdout.strip(), result.stderr.strip()
+
+
+def run_validate(args):
+    """Run shenbi-validate entry point as subprocess, return (rc, stdout, stderr)."""
+    result = subprocess.run(
+        ["uv", "run", "shenbi-validate"] + list(args),
         capture_output=True,
         text=True,
     )
@@ -508,7 +517,7 @@ class TestG7AuditChecks(unittest.TestCase):
         """G7.16 should detect phases with scores but state not finalized."""
         self._make_summary(t2={"genesis": {"generative": 95}})
         # Don't create phase state file — should be detected
-        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        rc, stdout, stderr = run_validate(["G7", str(self.round_dir)])
         result = json.loads(stdout)
         self.assertEqual(result["status"], "FAIL")
         must_fix = result.get("must_fix", [])
@@ -520,7 +529,7 @@ class TestG7AuditChecks(unittest.TestCase):
     def test_g716_missing_gate(self):
         """G7.16 should detect T3 pipelines missing gate markers."""
         self._make_summary(t3={"long-form": {"generative": 95}})
-        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        rc, stdout, stderr = run_validate(["G7", str(self.round_dir)])
         result = json.loads(stdout)
         self.assertEqual(result["status"], "FAIL")
         must_fix = result.get("must_fix", [])
@@ -534,7 +543,7 @@ class TestG7AuditChecks(unittest.TestCase):
         self._make_summary(t2={"genesis": 95}, t3={"long-form": 95})
         self._make_phase_state("genesis", "finalized")
         self._make_marker("G6", "long-form", "generative")
-        rc, stdout, stderr = run_py(VG, ["G7", str(self.round_dir)])
+        rc, stdout, stderr = run_validate(["G7", str(self.round_dir)])
         result = json.loads(stdout)
         # Should NOT have G7.16 violations
         must_fix = result.get("must_fix", [])
@@ -625,7 +634,7 @@ class TestIntegration(unittest.TestCase):
         state = {"phase": "genesis", "state": "scored", "steps": []}
         (self.round_dir / "phase-state" / "genesis.json").write_text(json.dumps(state))
 
-        rc, out, err = run_py(VG, ["G7", str(self.round_dir)])
+        rc, out, err = run_validate(["G7", str(self.round_dir)])
         result = json.loads(out)
         self.assertEqual(result["status"], "FAIL")
         must_fix = result.get("must_fix", [])
