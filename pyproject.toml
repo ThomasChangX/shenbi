@@ -49,7 +49,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tests"]
+packages = ["src/shenbi"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "skills/" = "skills/"
@@ -57,7 +57,7 @@ packages = ["tests"]
 
 # Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-16)
 [tool.mutmut]
-paths-to-mutate = ["tests/exceptions.py", "tests/logging.py", "tests/gates/shared.py"]
+paths-to-mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py"]
 tests-dir = "tests/unit/"
 do-not-mutate = ["tests/rounds/archived/**"]
 # 注：上述路径在 P-1.A 时不存在（exceptions.py/logging.py 由 PR-9/10 创建，
@@ -178,7 +178,7 @@ minversion = "8.0"
 testpaths = ["tests/unit", "tests/integration", "tests/property", "tests/benchmark"]
 addopts = [
     "--strict-markers",
-    "--cov=tests",
+    "--cov=shenbi",
     "--cov-report=term-missing",
     "--cov-report=html:tests/coverage",
     "--cov-report=xml:tests/coverage/coverage.xml",
@@ -200,7 +200,7 @@ asyncio_mode = "auto"
 
 [tool.coverage.run]
 branch = true
-source = ["tests"]
+source = ["src/shenbi"]
 
 [tool.coverage.report]
 # Staged ramp-up. Current line coverage ~10% (most framework code is legacy
