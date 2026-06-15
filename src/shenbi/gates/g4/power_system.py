@@ -1,5 +1,7 @@
 """G4 checker for shenbi-power-system."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_power_system(fps, rd=None):
+def g4_power_system(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Power system: level table (>=5 rows), advancement rules, ability boundaries,
     cost mechanism, power ceiling, cross-level combat reference.
     """

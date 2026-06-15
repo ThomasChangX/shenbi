@@ -1,5 +1,7 @@
 """G4 checker for shenbi-plot-thread-weaver."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_plot_thread_weaver(fps, rd=None):
+def g4_plot_thread_weaver(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Plot thread weaver: A/B/C lines, thread advancement table, blank detection."""
     c = []
     mf = []

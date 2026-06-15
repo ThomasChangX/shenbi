@@ -1,5 +1,7 @@
 """G4 checker for shenbi-worldbuilding."""
 
+from __future__ import annotations
+from typing import Any
 import json
 import re
 from pathlib import Path
@@ -35,7 +37,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_worldbuilding(fps, rd=None):
+def g4_worldbuilding(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
     c = []
     mf = []

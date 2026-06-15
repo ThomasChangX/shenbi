@@ -1,5 +1,7 @@
 """G4 checker for shenbi-context-composing."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_context_composing(fps, rd=None):
+def g4_context_composing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Context composing: P1-P7 labels present, P1+P2 non-empty."""
     c = []
     mf = []

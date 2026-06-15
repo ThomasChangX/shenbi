@@ -1,5 +1,7 @@
 """G4 checker for shenbi-pacing-design."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_pacing_design(fps, rd=None):
+def g4_pacing_design(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Pacing design: 4-beat cycle, 3-line ratio table (QUEST/FIRE/CONSTELLATION),
     >= 6 scene types, monotony detection rules.
     """

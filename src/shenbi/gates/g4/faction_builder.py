@@ -1,5 +1,7 @@
 """G4 checker for shenbi-faction-builder."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_faction_builder(fps, rd=None):
+def g4_faction_builder(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Faction builder: >= 2 factions each with hierarchy, internal conflicts,
     cross-faction relations, interest-driven behavior.
     """

@@ -1,5 +1,7 @@
 """G4 checker for shenbi-state-settling."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_state_settling(fps, rd=None):
+def g4_state_settling(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """State settling: current_state has position, char_matrix has characters, summaries appended, emotional arcs."""
     c = []
     mf = []

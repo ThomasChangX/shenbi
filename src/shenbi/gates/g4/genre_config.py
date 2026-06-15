@@ -1,5 +1,7 @@
 """G4 checker for shenbi-genre-config."""
 
+from __future__ import annotations
+from typing import Any
 import json
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_genre_config(fps, rd=None):
+def g4_genre_config(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Genre config: valid JSON, fatigue_words array, audit_dimensions >= 5,
     chapter_word.default >= 1000.
     """

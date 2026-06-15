@@ -1,5 +1,7 @@
 """G4 checker for shenbi-anti-detect."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_anti_detect(fps, rd=None):
+def g4_anti_detect(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Anti-detect: 改写报告 block present, applied techniques listed."""
     c = []
     mf = []

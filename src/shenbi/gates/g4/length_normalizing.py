@@ -1,5 +1,7 @@
 """G4 checker for shenbi-length-normalizing."""
 
+from __future__ import annotations
+from typing import Any
 from pathlib import Path
 
 try:
@@ -33,7 +35,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_length_normalizing(fps, rd=None):
+def g4_length_normalizing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Length normalizing: checks per new SKILL.md thresholds.
     - 3000-10000 range: report only, no chapter body → skip word count check
     - <3000 expansion: chapter body ≥ 3000 words

@@ -1,5 +1,7 @@
 """G4 checker for shenbi-style-polishing."""
 
+from __future__ import annotations
+from typing import Any
 from pathlib import Path
 
 try:
@@ -33,7 +35,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_style_polishing(fps, rd=None):
+def g4_style_polishing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Style polishing: 润色说明 block present, word count change ratio check."""
     c = []
     mf = []

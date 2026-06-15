@@ -1,5 +1,7 @@
 """G4 checker for shenbi-story-architecture."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_story_architecture(fps, rd=None):
+def g4_story_architecture(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Story architecture: story_frame frontmatter conflicts, volume_map Objective+KR."""
     c = []
     mf = []

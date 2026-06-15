@@ -1,5 +1,7 @@
 """G4 checker for shenbi-foreshadowing-plant."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_foreshadowing_plant(fps, rd=None):
+def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 8, SMOKESCREEN check."""
     c = []
     mf = []

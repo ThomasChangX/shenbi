@@ -1,5 +1,7 @@
 """G4 checker for shenbi-foreshadowing-track."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_foreshadowing_track(fps, rd=None):
+def g4_foreshadowing_track(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Foreshadowing track: >= 1 hook state change or last_reinforced update,
     chapter refs, core_hook silence <= max_gap.
     """

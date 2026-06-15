@@ -1,5 +1,7 @@
 """G4 checker for shenbi-volume-outlining."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -34,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_volume_outlining(fps, rd=None):
+def g4_volume_outlining(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Volume outlining: Objective (binary), 3-5 KRs, tension curve,
     >= 1 cross-volume bridge hook.
     """

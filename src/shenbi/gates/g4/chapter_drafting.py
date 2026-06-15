@@ -1,5 +1,7 @@
 """G4 checker for shenbi-chapter-drafting."""
 
+from __future__ import annotations
+from typing import Any
 import re
 from pathlib import Path
 
@@ -36,7 +38,7 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
-def g4_chapter_drafting(fps, rd=None):
+def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     """Chapter-drafting: PRE/POST check blocks, transition density,
     fatigue words, meta-narrative, word count.
     """
