@@ -40,9 +40,15 @@ docs = [
     "mkdocstrings[python]>=0.24.0",
 ]
 
-# 注：[project.scripts] 暂不定义。
-# gates/cli.py 和 dispatcher/cli.py 当前 forward 到 legacy 脚本（subprocess）。
-# P-1.E 完成 Python 原生重写后再加 entry points。
+[project.scripts]
+# 6 entry points land in PR-18. shenbi-generate-plugins added in PR-45
+# (Cluster 07) when src/shenbi/plugins/generate.py is created.
+shenbi-validate = "shenbi.gates.cli:main"
+shenbi-dispatch = "shenbi.dispatcher.cli:main"
+shenbi-score = "shenbi.scoring:main"
+shenbi-summarize = "shenbi.summarize_round:main"
+shenbi-progress = "shenbi.update_progress:main"
+shenbi-phase = "shenbi.phase_runner:main"
 
 [build-system]
 requires = ["hatchling"]
