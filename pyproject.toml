@@ -160,6 +160,7 @@ module = [
     "shenbi.update_progress",
     "shenbi.gates",
     "shenbi.gates.cli",
+    "shenbi.gates.shared",
     "shenbi.dispatcher",
     "shenbi.dispatcher.cli",
     "tests.unit.test_gates_integrity",
@@ -194,6 +195,7 @@ exclude = [
     "src/shenbi/phase_runner.py",
     "src/shenbi/summarize_round.py",
     "src/shenbi/update_progress.py",
+    "src/shenbi/gates/shared.py",
     "tests/unit/test_gates_integrity.py",
 ]
 typeCheckingMode = "strict"

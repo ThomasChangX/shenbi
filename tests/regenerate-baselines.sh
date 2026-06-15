@@ -3,7 +3,7 @@
 # Run BEFORE PR-19's modularization. Re-run after to verify equivalence.
 set -euo pipefail
 
-VG="python3 tests/validate-gate.py"
+VG="uv run python tests/validate-gate.py"
 OUT=tests/baselines/gate-outputs
 
 mkdir -p "$OUT"
