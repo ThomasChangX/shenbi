@@ -131,6 +131,21 @@ convention = "google"
     "C401", "C416",
     "B007",
 ]
+# P-1.E PR-19: per-gate modules extracted from validate-gate.py carry the
+# same legacy-untyped status. Removed in PR-25 (Cluster 03 cleanup).
+"src/shenbi/gates/*.py" = [
+    "D103", "D101", "D102", "D205", "D415",
+    "E501", "E741", "E722",
+    "F841",
+    "N802", "N806", "N999",
+    "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004",
+    "PLC0415", "PLW1510", "PLW2901", "PLW0603",
+    "PIE810",
+    "RUF001", "RUF003", "RUF005", "RUF059",
+    "SIM102", "SIM105",
+    "C401", "C416",
+    "B007",
+]
 "src/shenbi/exceptions.py" = ["D107", "D105", "N818"]
 
 [tool.mypy]
@@ -161,6 +176,17 @@ module = [
     "shenbi.gates",
     "shenbi.gates.cli",
     "shenbi.gates.shared",
+    "shenbi.gates.g0",
+    "shenbi.gates.g1",
+    "shenbi.gates.g2",
+    "shenbi.gates.g3",
+    "shenbi.gates.g4",
+    "shenbi.gates.g5",
+    "shenbi.gates.g6",
+    "shenbi.gates.g7",
+    "shenbi.gates.g_transition",
+    "shenbi.gates.g_dispatch",
+    "shenbi.gates.g_reconcile",
     "shenbi.dispatcher",
     "shenbi.dispatcher.cli",
     "tests.unit.test_gates_integrity",
@@ -196,6 +222,17 @@ exclude = [
     "src/shenbi/summarize_round.py",
     "src/shenbi/update_progress.py",
     "src/shenbi/gates/shared.py",
+    "src/shenbi/gates/g0.py",
+    "src/shenbi/gates/g1.py",
+    "src/shenbi/gates/g2.py",
+    "src/shenbi/gates/g3.py",
+    "src/shenbi/gates/g4",
+    "src/shenbi/gates/g5.py",
+    "src/shenbi/gates/g6.py",
+    "src/shenbi/gates/g7.py",
+    "src/shenbi/gates/g_transition.py",
+    "src/shenbi/gates/g_dispatch.py",
+    "src/shenbi/gates/g_reconcile.py",
     "tests/unit/test_gates_integrity.py",
 ]
 typeCheckingMode = "strict"
