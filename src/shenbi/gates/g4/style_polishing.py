@@ -35,9 +35,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_style_polishing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_style_polishing(fps: list[str], rd: str | None = None) -> str:
     """Style polishing: 润色说明 block present, word count change ratio check."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

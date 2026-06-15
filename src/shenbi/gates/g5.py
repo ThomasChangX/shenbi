@@ -34,7 +34,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def _text_fingerprint(text: str, min_len: int = 50) -> str:
+def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
     paragraphs = body.split(chr(10) + chr(10))
     hashes = set()

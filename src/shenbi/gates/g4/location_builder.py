@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_location_builder(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_location_builder(fps: list[str], rd: str | None = None) -> str:
     """Location builder: each location has layout (>=200 chars), atmosphere (>=150 chars),
     functional events.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

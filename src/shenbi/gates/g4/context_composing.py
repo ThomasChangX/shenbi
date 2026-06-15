@@ -36,9 +36,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_context_composing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_context_composing(fps: list[str], rd: str | None = None) -> str:
     """Context composing: P1-P7 labels present, P1+P2 non-empty."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

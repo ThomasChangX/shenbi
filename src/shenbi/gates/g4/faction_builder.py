@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_faction_builder(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_faction_builder(fps: list[str], rd: str | None = None) -> str:
     """Faction builder: >= 2 factions each with hierarchy, internal conflicts,
     cross-faction relations, interest-driven behavior.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

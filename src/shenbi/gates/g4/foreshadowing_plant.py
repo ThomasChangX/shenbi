@@ -36,9 +36,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
     """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 8, SMOKESCREEN check."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:
@@ -54,8 +54,8 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> dict[str, A
         except Exception:
             mf.append(f"G4.fp.read_error:{fp}")
             continue
+        hooks: list[dict[str, Any]] = []
         hooks_match = re.search(r"## hooks\s*\n(.*?)(?=\n## |\Z)", content, re.DOTALL)
-        hooks = []
         if hooks_match:
             try:
                 hooks = yaml.safe_load(hooks_match.group(1)) if yaml else []

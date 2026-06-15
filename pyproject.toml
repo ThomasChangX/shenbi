@@ -206,8 +206,6 @@ plugins = ["pydantic.mypy"]
 module = [
     "tests.validate-gate",
     "shenbi.gates",
-    "shenbi.gates.g4",
-    "shenbi.gates.g4.*",
     "shenbi.dispatcher",
     "shenbi.dispatcher.cli",
     "shenbi.dispatcher.executor",
@@ -230,11 +228,6 @@ disallow_untyped_decorators = false
 module = "yaml"
 ignore_missing_imports = true
 
-# Forward declarations (no-op until modules exist)
-[[tool.mypy.overrides]]
-module = "shenbi.gates.g4.*"
-disallow_untyped_defs = false
-
 [tool.basedpyright]
 include = ["tests", "src/shenbi"]
 exclude = [
@@ -243,8 +236,6 @@ exclude = [
     "**/__pycache__",
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
     "tests/validate-gate.py",
-    "src/shenbi/gates/g4",
-    "src/shenbi/gates/g4/*.py",
     "src/shenbi/dispatcher",
     "src/shenbi/dispatcher/cli.py",
     "src/shenbi/dispatcher/executor.py",

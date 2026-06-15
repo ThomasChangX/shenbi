@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_relationship_map(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
     """Relationship map: >= 3 pairs, each with interest foundation, info boundary enum,
     evolution trajectory.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

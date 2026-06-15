@@ -35,13 +35,13 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_length_normalizing(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_length_normalizing(fps: list[str], rd: str | None = None) -> str:
     """Length normalizing: checks per new SKILL.md thresholds.
     - 3000-10000 range: report only, no chapter body → skip word count check
     - <3000 expansion: chapter body ≥ 3000 words
     - >10000 compression: chapter body ≥ 3000 AND ≥ 25% original
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

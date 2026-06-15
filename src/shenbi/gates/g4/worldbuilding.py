@@ -37,9 +37,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_worldbuilding(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_worldbuilding(fps: list[str], rd: str | None = None) -> str:
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
 

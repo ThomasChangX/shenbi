@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_volume_outlining(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_volume_outlining(fps: list[str], rd: str | None = None) -> str:
     """Volume outlining: Objective (binary), 3-5 KRs, tension curve,
     >= 1 cross-volume bridge hook.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

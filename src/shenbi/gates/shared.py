@@ -63,7 +63,7 @@ def word_count_md(fp: str | Path) -> int:
     return len(re.findall(r"[一-鿿]", c))
 
 
-def fail(gid: str, checks: list[str], blocked: str, must_fix: list[str]) -> str:
+def fail(gid: str, checks: list[dict[str, Any]], blocked: str, must_fix: list[str]) -> str:
     """Return FAIL JSON string."""
     return json.dumps(
         {
@@ -79,7 +79,7 @@ def fail(gid: str, checks: list[str], blocked: str, must_fix: list[str]) -> str:
     )
 
 
-def passed(gid: str, checks: list[str]) -> str:
+def passed(gid: str, checks: list[dict[str, Any]]) -> str:
     """Return PASS JSON string."""
     return json.dumps(
         {

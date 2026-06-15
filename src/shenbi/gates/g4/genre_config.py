@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_genre_config(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_genre_config(fps: list[str], rd: str | None = None) -> str:
     """Genre config: valid JSON, fatigue_words array, audit_dimensions >= 5,
     chapter_word.default >= 1000.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

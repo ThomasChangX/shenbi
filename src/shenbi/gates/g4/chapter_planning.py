@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_chapter_planning(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_chapter_planning(fps: list[str], rd: str | None = None) -> str:
     """Chapter planning: 8 numbered sections (## 1. to ## 8.), golden-3 rules,
     section 4 has 关键抉择, section 5 has hook operation names.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

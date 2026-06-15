@@ -36,9 +36,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_anti_detect(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_anti_detect(fps: list[str], rd: str | None = None) -> str:
     """Anti-detect: 改写报告 block present, applied techniques listed."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_foreshadowing_track(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_foreshadowing_track(fps: list[str], rd: str | None = None) -> str:
     """Foreshadowing track: >= 1 hook state change or last_reinforced update,
     chapter refs, core_hook silence <= max_gap.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

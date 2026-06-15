@@ -38,11 +38,11 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
-def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
     """Chapter-drafting: PRE/POST check blocks, transition density,
     fatigue words, meta-narrative, word count.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:

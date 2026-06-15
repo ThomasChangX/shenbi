@@ -37,7 +37,7 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_generic_generative(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_generic_generative(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for skills without specific checkers. Validates output exists, non-empty, has frontmatter."""
     c, mf = [], []
     for fp_path in fps or []:
@@ -73,7 +73,7 @@ def g4_generic_generative(fps: list[str], rd: str | None = None) -> dict[str, An
     return passed("G4-generic-gen", c)
 
 
-def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for bug-hunt reports. Validates report format: detection summary table, file+line citations, rule names, false positive check."""
     c, mf = [], []
     for fp_path in fps or []:
@@ -114,7 +114,7 @@ def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return passed("G4-bug-hunt", c)
 
 
-def g4_generic_clean(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_generic_clean(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for clean reports. Validates: per-file confirmation, zero issues assertion, no fabricated suggestions."""
     c, mf = [], []
     for fp_path in fps or []:
@@ -158,7 +158,7 @@ def g4_generic_clean(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return passed("G4-clean", c)
 
 
-def gate_G4(skill_name: str, test_type: str, file_paths: list[str], round_dir: str | None = None) -> dict[str, Any]:
+def gate_G4(skill_name: str, test_type: str, file_paths: list[str], round_dir: str | None = None) -> str:
     """G4: Route to the correct per-skill checker."""
     if test_type == "bug-hunt":
         return g4_generic_bughunt(file_paths, round_dir)
@@ -217,11 +217,11 @@ def gate_G4(skill_name: str, test_type: str, file_paths: list[str], round_dir: s
     return g4_generic_generative(file_paths, round_dir)
 
 
-def gate_G4_bughunt(file_paths: list[str]) -> dict[str, Any]:
+def gate_G4_bughunt(file_paths: list[str]) -> str:
     """G4.b: Bug-hunt checks (delegates to generic checker)."""
     return g4_generic_bughunt(file_paths)
 
 
-def gate_G4_clean(file_paths: list[str]) -> dict[str, Any]:
+def gate_G4_clean(file_paths: list[str]) -> str:
     """G4.c: Clean checks (delegates to generic checker)."""
     return g4_generic_clean(file_paths)

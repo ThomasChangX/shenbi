@@ -36,11 +36,11 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_power_system(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_power_system(fps: list[str], rd: str | None = None) -> str:
     """Power system: level table (>=5 rows), advancement rules, ability boundaries,
     cost mechanism, power ceiling, cross-level combat reference.
     """
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
     project_dir = str(Path(fps[0]).parent.parent) if fps else ""
     pd = Path(project_dir)

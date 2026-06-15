@@ -36,9 +36,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def g4_character_design(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+def g4_character_design(fps: list[str], rd: str | None = None) -> str:
     """Character-design: frontmatter fields, voice_profile arrays, relationship pairs."""
-    c = []
+    c: list[dict[str, Any]] = []
     mf = []
 
     for fp in fps or []:
