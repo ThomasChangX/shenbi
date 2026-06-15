@@ -77,7 +77,7 @@ def gate_G0(seed_file=None, round_dir=None):
 
     # G0.3 — expected_chapters = ceil(target_words / genre_config.chapter_word.default)
     default_w = CHAPTER_WORD_FLOOR
-    novel_output = PROJECT / "novel-output"
+    novel_output = PROJECT / "skill-output"
     if novel_output.exists():
         for proj_dir in novel_output.iterdir():
             if not proj_dir.is_dir():
@@ -204,8 +204,8 @@ def gate_G0(seed_file=None, round_dir=None):
             }
         )
 
-    # G0.6 — novel-output writable
-    no = PROJECT / "novel-output"
+    # G0.6 — skill-output writable
+    no = PROJECT / "skill-output"
     if no.exists():
         if not os.access(str(no), os.W_OK):
             return fail(
@@ -215,13 +215,13 @@ def gate_G0(seed_file=None, round_dir=None):
                     {
                         "id": "G0.6",
                         "s": "FAIL",
-                        "r": "novel-output/ not writable",
+                        "r": "skill-output/ not writable",
                     }
                 ],
                 "round_creation",
                 ["G0.6"],
             )
-    # novel-output doesn't exist yet; parent (PROJECT) must be writable
+    # skill-output doesn't exist yet; parent (PROJECT) must be writable
     # so round-exec.sh can create it
     elif not os.access(str(PROJECT), os.W_OK):
         return fail(
@@ -231,7 +231,7 @@ def gate_G0(seed_file=None, round_dir=None):
                 {
                     "id": "G0.6",
                     "s": "FAIL",
-                    "r": "PROJECT root not writable; cannot create novel-output/",
+                    "r": "PROJECT root not writable; cannot create skill-output/",
                 }
             ],
             "round_creation",

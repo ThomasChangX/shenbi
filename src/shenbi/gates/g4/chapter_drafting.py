@@ -81,9 +81,9 @@ def g4_chapter_drafting(fps, rd=None):
         # Fatigue words ≤ 3 (from genre-config.json if available)
         # Determine project dir from file path
         proj_dir = pf.parent
-        while proj_dir.name != "novel-output" and proj_dir.parent != proj_dir:
+        while proj_dir.name != "skill-output" and proj_dir.parent != proj_dir:
             proj_dir = proj_dir.parent
-        project_root = proj_dir.parent if proj_dir.name == "novel-output" else pf.parent
+        project_root = proj_dir.parent if proj_dir.name == "skill-output" else pf.parent
         gc = read_genre_config(str(project_root))
         fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
         fatigue_hits = sum(content.count(w) for w in fatigue_list)

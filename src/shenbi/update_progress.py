@@ -103,7 +103,7 @@ def cmd_init(round_dir, tier, expected_chapters=None):
     total = len(ALL_SKILLS)
     if expected_chapters is None:
         expected_chapters = 67  # default; G0.3 will recalculate
-    for sub in ["t1-reports", "t2-reports", "t3-reports", "novel-output", "skill-traces"]:
+    for sub in ["t1-reports", "t2-reports", "t3-reports", "skill-output", "skill-traces"]:
         (rd / sub).mkdir(parents=True, exist_ok=True)
     for sub in ["gate-markers", "phase-state"]:
         (rd / sub).mkdir(parents=True, exist_ok=True)

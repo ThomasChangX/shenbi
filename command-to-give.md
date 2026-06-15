@@ -41,7 +41,7 @@ bash tests/round-exec.sh claude T1
 **Generative 协议**:
 1. 读 `tests/tiers/t1-skill/<skill>/generative/input/scenario.md`
 2. 读 `skills/<skill>/SKILL.md`
-3. 执行 skill。输出到 `novel-output/<skill>/`
+3. 执行 skill。输出到 `skill-output/<skill>/`
 4. 跑 `uv run shenbi-validate G2 <files> <FILE_TYPE> <round_dir>`（FILE_TYPE 从 skill 推导：chapter-drafting/style-polishing → `chapter`，state-settling/foreshadowing → `truth`，其余默认 `chapter`）
 5. 跑 `uv run shenbi-validate G4 <skill> <files> <round_dir>`
 6. **只在 G2 和 G4 都通过后**，新开独立 subagent 评分（使用 `bash tests/dispatch-subagent.sh <skill> generative <round_dir> "<prompt>"`）。**Dispatcher 不得评分。** 评分 subagent 只接收 rubric 路径和输出文件路径，不接收生成过程上下文。评分 subagent 的输出格式必须是：`{"1": 90, "2": 85, ...}`（仅整数键映射到 0-100 分数，无其他字段）。
@@ -56,17 +56,17 @@ bash tests/round-exec.sh claude T1
 
 **Bug-Hunt 协议**:
 1. 读 `tests/tiers/t1-skill/<skill>/bug-hunt/input/scenario.md`
-2. 复制 generative 产出到 `novel-output/<skill>-bughunt/`
+2. 复制 generative 产出到 `skill-output/<skill>-bughunt/`
 3. 按 scenario 描述向副本注入缺陷
 4. 运行 skill 的 review 模式检测缺陷
-5. 报告写到 `novel-output/<skill>-bughunt/bug-hunt-report.md`。**报告必须包含**：缺陷是否检出、检出位置(文件+行号)、违反的 SKILL.md 规则名、引用证据
+5. 报告写到 `skill-output/<skill>-bughunt/bug-hunt-report.md`。**报告必须包含**：缺陷是否检出、检出位置(文件+行号)、违反的 SKILL.md 规则名、引用证据
 6. 新开 subagent 评分。评分 subagent 输出格式：`{"1": 90, "2": 85, ...}`（仅整数键）。kill switch：未检出 planted defect → 0。证据缺行号 → 0。规则名错误 → 0。跑 `uv run shenbi-score <rubric> <scores.json> --test-type bug-hunt`，验证规则同 generative。
 
 **Clean 协议**:
 1. 读 `tests/tiers/t1-skill/<skill>/clean/input/scenario.md`
-2. 复制 generative 产出到 `novel-output/<skill>-clean/`
+2. 复制 generative 产出到 `skill-output/<skill>-clean/`
 3. 运行 review 模式（输入无缺陷）
-4. 报告写到 `novel-output/<skill>-clean/clean-report.md`。**报告必须包含**：逐文件确认、零问题声明
+4. 报告写到 `skill-output/<skill>-clean/clean-report.md`。**报告必须包含**：逐文件确认、零问题声明
 5. 新开 subagent 评分。评分 subagent 输出格式：`{"1": 90, "2": 85, ...}`（仅整数键）。kill switch：任何幻觉缺陷 → 0。"改进建议" = 幻觉缺陷。跳过文件 → 输出完整性 0。跑 `uv run shenbi-score <rubric> <scores.json> --test-type clean`，验证规则同 generative。
 
 ### 第四步：增强

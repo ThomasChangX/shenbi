@@ -79,7 +79,7 @@ def gate_G7(round_dir):
             pass
 
     # G7.5 — template placeholder detection
-    no_dir = rd / "novel-output"
+    no_dir = rd / "skill-output"
     if no_dir.exists():
         placeholders = []
         for f in no_dir.rglob("*.md"):
@@ -95,7 +95,7 @@ def gate_G7(round_dir):
         else:
             c.append({"id": "G7.5", "s": "PASS"})
     else:
-        c.append({"id": "G7.5", "s": "SKIP", "r": "novel-output/ not found"})
+        c.append({"id": "G7.5", "s": "SKIP", "r": "skill-output/ not found"})
 
     # G7.6 — truth files: status != pending (YAML parse, exact match)
     # Walk one level deeper to find project subdirectories

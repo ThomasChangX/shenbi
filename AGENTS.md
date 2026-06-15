@@ -8,7 +8,7 @@ shenbi/
 ├── tests/
 │   ├── tiers/               # T1-skill, T2-phase, T3-pipeline test cases + rubrics
 │   ├── fixtures/            # Isolated test inputs (real skill output, no hand-crafted mocks)
-│   ├── rounds/              # Per-round output: novel-output/, skill-traces/, tN-reports/
+│   ├── rounds/              # Per-round output: skill-output/, skill-traces/, tN-reports/
 │   ├── scoring.py           # Rubric-based 0–100 scorer
 │   ├── validate-gate.py     # G0–G7 gate enforcement
 │   ├── round-exec.sh        # Round creation + G0 validation

@@ -30,7 +30,7 @@ if [ "${1:-}" = "--validate" ]; then
   TIER_LOWER=$(echo "$TIER_TARGET" | tr '[:upper:]' '[:lower:]')
   REPORT_DIR="${TIER_LOWER}-reports"
 
-  for subdir in novel-output "$REPORT_DIR" skill-traces; do
+  for subdir in skill-output "$REPORT_DIR" skill-traces; do
     COUNT=$(find "${ROUND_DIR}/${subdir}" -type f 2>/dev/null | wc -l)
     if [ "$COUNT" -eq 0 ]; then
       echo "FAIL: ${subdir}/ is empty (no output generated)"
@@ -84,7 +84,7 @@ fi
 EXPECTED_CHAPTERS=$(echo "$G0_RESULT" | python3 -c "import sys,json;d=json.load(sys.stdin);print([c for c in d.get('checks',[]) if c.get('id')=='G0.3'][0].get('expected_chapters','N/A'))" 2>/dev/null || echo "N/A")
 echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
 
-mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,novel-output,skill-traces}
+mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,skill-output,skill-traces}
 
 # progress.json: written via update-progress.py single-writer (no direct edits)
 uv run shenbi-progress init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
