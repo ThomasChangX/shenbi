@@ -16,6 +16,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -64,14 +65,7 @@ def run_gate(gate, args):
 def require_state(state, expected, action):
     """Exit with error if state is not one of the expected states."""
     if state["state"] not in expected:
-        print(
-            json.dumps(
-                {
-                    "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
-                    "phase": state["phase"],
-                }
-            )
-        )
+        emit_json({"error": f"Cannot {action}: state is '{state['state']}', expected {expected}", "phase": state["phase"]})
         sys.exit(1)
 
 
@@ -84,11 +78,11 @@ def cmd_start(phase, round_dir, project_dir):
         state["state"] = "started"
         state["steps"].append(step)
         save_state(round_dir, state)
-        print(json.dumps({"status": "ok", "phase": phase, "state": "started", "g5": "PASS"}))
+        emit_json({"status": "ok", "phase": phase, "state": "started", "g5": "PASS"})
     else:
         state["steps"].append({**step, "g5_must_fix": g5.get("must_fix", [])})
         save_state(round_dir, state)
-        print(json.dumps({"status": "blocked", "phase": phase, "g5": g5}))
+        emit_json({"status": "blocked", "phase": phase, "g5": g5})
         sys.exit(1)
 
 
@@ -98,16 +92,7 @@ def cmd_pre_skill(phase, skill, round_dir):
     # Validate skill exists
     skill_path = PROJECT / "skills" / skill / "SKILL.md"
     if not skill_path.exists():
-        print(
-            json.dumps(
-                {
-                    "status": "error",
-                    "phase": phase,
-                    "skill": skill,
-                    "message": f"SKILL.md not found: {skill_path}",
-                }
-            )
-        )
+        emit_json({"status": "error", "phase": phase, "skill": skill, "message": f"SKILL.md not found: {skill_path}"})
         sys.exit(1)
     # Extract data contract for dispatcher guidance
     skill_md = skill_path.read_text(encoding="utf-8")
@@ -133,18 +118,7 @@ def cmd_pre_skill(phase, skill, round_dir):
     }
     state["steps"].append(step)
     save_state(round_dir, state)
-    print(
-        json.dumps(
-            {
-                "status": "ok",
-                "phase": phase,
-                "skill": skill,
-                "action": "execute_skill",
-                "reads": read_files,
-                "writes": write_files,
-            }
-        )
-    )
+    emit_json({"status": "ok", "phase": phase, "skill": skill, "action": "execute_skill", "reads": read_files, "writes": write_files})
 
 
 def cmd_post_skill(phase, skill, round_dir, project_dir):
@@ -168,13 +142,9 @@ def cmd_post_skill(phase, skill, round_dir, project_dir):
     state["steps"].append(step)
     save_state(round_dir, state)
     if g4_status == "FAIL":
-        print(json.dumps({"status": "blocked", "phase": phase, "skill": skill, "g4": g4}))
+        emit_json({"status": "blocked", "phase": phase, "skill": skill, "g4": g4})
         sys.exit(1)
-    print(
-        json.dumps(
-            {"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status}
-        )
-    )
+    emit_json({"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status})
 
 
 def cmd_pre_score(phase, round_dir):
@@ -189,43 +159,27 @@ def cmd_pre_score(phase, round_dir):
         if not marker.exists():
             missing.append(skill)
     if missing:
-        print(
-            json.dumps(
-                {
-                    "status": "blocked",
-                    "phase": phase,
-                    "missing_markers": [f"G4-{s}-generative" for s in missing],
-                }
-            )
-        )
+        emit_json({"status": "blocked", "phase": phase, "missing_markers": [f"G4-{s}-generative" for s in missing]})
         sys.exit(1)
     proj_dir = Path(round_dir) / "project-output"
     for pattern in phase_data.get("expected_outputs", []):
         if "*" in pattern:
             if not list(proj_dir.rglob(pattern)):
-                print(json.dumps({"status": "blocked", "phase": phase, "missing_output": pattern}))
+                emit_json({"status": "blocked", "phase": phase, "missing_output": pattern})
                 sys.exit(1)
         elif not (proj_dir / pattern).exists():
-            print(json.dumps({"status": "blocked", "phase": phase, "missing_output": pattern}))
+            emit_json({"status": "blocked", "phase": phase, "missing_output": pattern})
             sys.exit(1)
     state["state"] = "skills_done"
     save_state(round_dir, state)
-    print(json.dumps({"status": "ok", "phase": phase, "state": "skills_done"}))
+    emit_json({"status": "ok", "phase": phase, "state": "skills_done"})
 
 
 def cmd_post_score(phase, scores_file, round_dir):
     state = load_state(round_dir, phase)
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
-        print(
-            json.dumps(
-                {
-                    "status": "error",
-                    "phase": phase,
-                    "message": f"Scores file not found: {scores_file}",
-                }
-            )
-        )
+        emit_json({"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"})
         sys.exit(1)
     scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
@@ -236,7 +190,7 @@ def cmd_post_score(phase, scores_file, round_dir):
     state["steps"].append(step)
     state["state"] = "scored"
     save_state(round_dir, state)
-    print(json.dumps({"status": "ok", "phase": phase, "state": "scored"}))
+    emit_json({"status": "ok", "phase": phase, "state": "scored"})
 
 
 def cmd_finalize(phase, round_dir, project_dir):
@@ -251,29 +205,24 @@ def cmd_finalize(phase, round_dir, project_dir):
     if g5.get("status") != "PASS":
         state["steps"].append({**step, "g5_must_fix": g5.get("must_fix", [])})
         save_state(round_dir, state)
-        print(json.dumps({"status": "blocked", "phase": phase, "g5": g5}))
+        emit_json({"status": "blocked", "phase": phase, "g5": g5})
         sys.exit(1)
     deps = load_deps()
     marker_dir = Path(round_dir) / "gate-markers"
     for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
-            print(
-                json.dumps(
-                    {"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}
-                )
-            )
+            emit_json({"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"})
             sys.exit(1)
     state["state"] = "finalized"
     state["steps"].append(step)
     save_state(round_dir, state)
-    print(json.dumps({"status": "ok", "phase": phase, "state": "finalized"}))
+    emit_json({"status": "ok", "phase": phase, "state": "finalized"})
 
 
 def main():
     configure_logging()
     if len(sys.argv) < 2:
-        print("Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]")
-        print("Commands: start pre-skill post-skill pre-score post-score finalize")
+        log.info("usage", message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -285,7 +234,7 @@ def main():
             if idx + 1 < len(args):
                 return args[idx + 1]
         if required:
-            print(f"Missing required flag: {flag}")
+            log.error("missing_required_flag", flag=flag)
             sys.exit(1)
         return None
 
@@ -311,7 +260,7 @@ def main():
         phase = args[0]
         cmd_finalize(phase, round_dir, project_dir)
     else:
-        print(f"Unknown command: {cmd}")
+        log.error("unknown_command", command=cmd)
         sys.exit(1)
 
 

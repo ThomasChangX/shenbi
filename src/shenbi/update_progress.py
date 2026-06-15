@@ -12,6 +12,7 @@ import json
 import sys
 from pathlib import Path
 
+from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -24,7 +25,7 @@ ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKI
 def load(round_dir):
     pp = Path(round_dir) / "progress.json"
     if not pp.exists():
-        print(json.dumps({"error": "progress.json not found", "round_dir": str(round_dir)}))
+        emit_json({"error": "progress.json not found", "round_dir": str(round_dir)})
         sys.exit(1)
     return json.loads(pp.read_text(encoding="utf-8"))
 
@@ -94,14 +95,7 @@ def cmd_init(round_dir, tier, expected_chapters=None):
     pp = rd / "progress.json"
 
     if pp.exists():
-        print(
-            json.dumps(
-                {
-                    "status": "error",
-                    "message": "progress.json already exists — use validate instead",
-                }
-            )
-        )
+        emit_json({"status": "error", "message": "progress.json already exists — use validate instead"})
         sys.exit(1)
 
     total = len(ALL_SKILLS)
@@ -127,16 +121,7 @@ def cmd_init(round_dir, tier, expected_chapters=None):
         "expected_chapters": expected_chapters,
     }
     save(round_dir, out)
-    print(
-        json.dumps(
-            {
-                "status": "ok",
-                "action": "init",
-                "total_skills": total,
-                "expected_chapters": expected_chapters,
-            }
-        )
-    )
+    emit_json({"status": "ok", "action": "init", "total_skills": total, "expected_chapters": expected_chapters})
 
 
 def cmd_mark_done(round_dir, skill, test_type, score, note=None):
@@ -192,20 +177,9 @@ def cmd_mark_done(round_dir, skill, test_type, score, note=None):
 
     issues, gd, pd = validate_internal(progress)
     if issues:
-        print(json.dumps({"status": "warn", "action": "mark-done", "consistency_issues": issues}))
+        emit_json({"status": "warn", "action": "mark-done", "consistency_issues": issues})
     save(round_dir, progress)
-    print(
-        json.dumps(
-            {
-                "status": "ok",
-                "skill": skill,
-                "test_type": test_type,
-                "score": score,
-                "genuinely_done": len(gd),
-                "remaining_gen": len(pending_gen),
-            }
-        )
-    )
+    emit_json({"status": "ok", "skill": skill, "test_type": test_type, "score": score, "genuinely_done": len(gd), "remaining_gen": len(pending_gen)})
 
 
 def cmd_validate(round_dir):
@@ -224,7 +198,7 @@ def cmd_validate(round_dir):
     }
     if issues:
         result["issues"] = issues
-    print(json.dumps(result, indent=2))
+    emit_json(result)
     sys.exit(0 if not issues else 1)
 
 
@@ -268,25 +242,13 @@ def cmd_rebuild_queues(round_dir):
     progress["completed_skill_names"] = sorted(genuinely_done)
 
     save(round_dir, progress)
-    print(
-        json.dumps(
-            {
-                "status": "ok",
-                "action": "rebuild-queues",
-                "remaining_gen": len(pending_gen),
-                "remaining_bug": len(pending_bug),
-                "remaining_clean": len(pending_cln),
-                "genuinely_done": len(genuinely_done),
-            }
-        )
-    )
+    emit_json({"status": "ok", "action": "rebuild-queues", "remaining_gen": len(pending_gen), "remaining_bug": len(pending_bug), "remaining_clean": len(pending_cln), "genuinely_done": len(genuinely_done)})
 
 
 def main():
     configure_logging()
     if len(sys.argv) < 2:
-        print("Usage: update-progress.py <command> [args...]")
-        print("Commands: init mark-done validate rebuild-queues")
+        log.info("usage", message="Usage: update-progress.py <command> [args...]\nCommands: init mark-done validate rebuild-queues")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -297,15 +259,12 @@ def main():
         if "--expected-chapters" in args:
             idx = args.index("--expected-chapters")
             if idx + 1 >= len(args):
-                print("ERROR: --expected-chapters requires a value", file=sys.stderr)
+                log.error("missing_flag_value", flag="--expected-chapters")
                 sys.exit(1)
             try:
                 ec = int(args[idx + 1])
             except ValueError:
-                print(
-                    f"ERROR: --expected-chapters value '{args[idx + 1]}' is not an integer",
-                    file=sys.stderr,
-                )
+                log.error("invalid_flag_value", flag="--expected-chapters", value=args[idx + 1])
                 sys.exit(1)
             args = [a for i, a in enumerate(args) if i not in (idx, idx + 1)]
         cmd_init(args[0], args[1] if len(args) > 1 else "T1", ec)
@@ -321,7 +280,7 @@ def main():
     elif cmd == "rebuild-queues":
         cmd_rebuild_queues(args[0])
     else:
-        print(f"Unknown command: {cmd}")
+        log.error("unknown_command", command=cmd)
         sys.exit(1)
 
 

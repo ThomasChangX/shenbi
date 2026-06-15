@@ -13,8 +13,8 @@ def dispatch_internal(skill, test_type, round_dir, prompt, agent_id):
     prompt_file.write_text(prompt)
 
     log.info("internal_mode_prompt_saved", path=str(prompt_file))
-    print("=== Internal Mode: Dispatcher completes scoring manually ===")
-    print(f"Prompt saved: {prompt_file}")
-    print(f"Scores file target: {scores_file}")
-    print(f"Agent ID: {agent_id}")
+    log.info("internal_mode_banner", message="=== Internal Mode: Dispatcher completes scoring manually ===")
+    log.info("prompt_saved", path=str(prompt_file))
+    log.info("scores_file_target", path=str(scores_file))
+    log.info("agent_id", agent_id=agent_id)
     return 0

@@ -11,6 +11,7 @@ conventions.
 import json
 import sys
 
+from shenbi.cli_utils import emit_json
 from shenbi.gates.g0 import gate_G0
 from shenbi.gates.g1 import gate_G1
 from shenbi.gates.g2 import gate_G2
@@ -55,16 +56,17 @@ SHORT_MAP = {
 def main():
     configure_logging()
     if len(sys.argv) < 2:
-        print("Usage: shenbi-validate <GATE> [args...]")
-        print()
-        print("Gates: G0 G1 G2 G3 G4 G5 G6 G7 G_TRANSITION G_DISPATCH G_RECONCILE")
-        print()
-        print("Examples:")
-        print("  shenbi-validate G0 outline-example.md")
-        print("  shenbi-validate G2 path/to/file.md,path/to/file2.md chapter")
-        print("  shenbi-validate G4 chapter-drafting path/to/file.md")
-        print("  shenbi-validate G4 worldbuilding path/to/file1,path/to/file2")
-        print("  shenbi-validate G7 tests/rounds/round-003-2026-01-01")
+        usage = """Usage: shenbi-validate <GATE> [args...]
+
+Gates: G0 G1 G2 G3 G4 G5 G6 G7 G_TRANSITION G_DISPATCH G_RECONCILE
+
+Examples:
+  shenbi-validate G0 outline-example.md
+  shenbi-validate G2 path/to/file.md,path/to/file2.md chapter
+  shenbi-validate G4 chapter-drafting path/to/file.md
+  shenbi-validate G4 worldbuilding path/to/file1,path/to/file2
+  shenbi-validate G7 tests/rounds/round-003-2026-01-01"""
+        log.info("usage", message=usage)
         return 1
 
     gate = sys.argv[1]
@@ -123,10 +125,18 @@ def main():
     elif gate == "G_RECONCILE":
         result = gate_G_RECONCILE(arg(0))
     else:
-        print(f"Unknown gate: {gate}", file=sys.stderr)
+        log.error("unknown_gate", gate=gate)
         return 1
 
-    print(result)
+    if isinstance(result, str):
+        try:
+            emit_json(json.loads(result))
+        except (json.JSONDecodeError, ValueError):
+            emit_json({"result": result})
+    elif isinstance(result, (dict, list)):
+        emit_json(result)
+    else:
+        emit_json({"result": result})
     # Legacy validate-gate.py returns 0 for all known gates regardless of PASS/FAIL.
     # Preserve that contract so shell callers that check $? see no behavior change.
     return 0

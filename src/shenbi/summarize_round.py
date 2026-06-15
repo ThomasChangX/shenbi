@@ -49,7 +49,7 @@ def below_threshold(scores_dict, threshold):
 def main():
     configure_logging()
     if len(sys.argv) < 2:
-        print("Usage: summarize-round.py <round-dir>")
+        log.info("usage", message="Usage: summarize-round.py <round-dir>")
         sys.exit(1)
 
     round_dir = Path(sys.argv[1])
@@ -63,13 +63,13 @@ def main():
     try:
         g7_out = json.loads(g7_result.stdout)
         if g7_out.get("status") == "FAIL":
-            print(f"G7 FAILED: {json.dumps(g7_out, indent=2, ensure_ascii=False)}")
-            print("Fix G7 issues before closing round.")
+            log.error("g7_failed", g7_result=g7_out)
+            log.error("g7_fix_required", message="Fix G7 issues before closing round.")
             sys.exit(1)
         else:
-            print(f"G7: {g7_out.get('status')}")
+            log.info("g7_status", status=g7_out.get("status"))
     except Exception as e:
-        print(f"G7 check skipped: {e}")
+        log.warning("g7_skipped", error=str(e))
 
     # Read progress.json for additional score data
     progress_path = round_dir / "progress.json"
@@ -89,7 +89,7 @@ def main():
             pass
 
     if not summary_path.exists():
-        print(f"No summary.json found in {round_dir}")
+        log.error("summary_not_found", round_dir=str(round_dir))
         sys.exit(1)
 
     with open(summary_path) as f:
@@ -180,7 +180,7 @@ def main():
         parts.append(f"T2: {t2_bands['pass_excellent']}ex")
     if t3_bands:
         parts.append(f"T3: {t3_bands['pass_excellent']}ex")
-    print(f"Round summary: {' | '.join(parts)}")
+    log.info("round_summary", summary=" | ".join(parts))
 
 
 if __name__ == "__main__":

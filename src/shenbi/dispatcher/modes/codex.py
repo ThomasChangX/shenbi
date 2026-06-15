@@ -6,6 +6,7 @@ import re
 import subprocess
 from pathlib import Path
 
+from shenbi.cli_utils import emit_json
 from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
 
@@ -71,5 +72,5 @@ def dispatch_codex(skill, test_type, round_dir, prompt, agent_id):
         ["uv", "run", "shenbi-progress", "mark-done", str(round_dir), skill, test_type, str(final)],
         check=True,
     )
-    print(result.stdout)
+    emit_json(json.loads(result.stdout))
     return 0

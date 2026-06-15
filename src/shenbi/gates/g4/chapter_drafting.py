@@ -1,14 +1,12 @@
 """G4 checker for shenbi-chapter-drafting."""
 
 import re
-import sys
 from pathlib import Path
 
 try:
     import yaml
 except ImportError:
     yaml = None
-
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
     CHAPTER_WORD_CEILING,
@@ -33,6 +31,9 @@ from shenbi.gates.shared import (  # noqa: F401
     write_gate_marker,
     yload,
 )
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 
 
 def g4_chapter_drafting(fps, rd=None):
@@ -133,7 +134,7 @@ def g4_chapter_drafting(fps, rd=None):
                             )
                             max_overlap = max(max_overlap, overlap)
                         except (OSError, UnicodeDecodeError) as e:
-                            print(f"G4.cd warn: cannot read {other}: {e}", file=sys.stderr)
+                            log.warning("file_read_failed", file=str(other), error=str(e))
                     if max_overlap > 0.40:
                         mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
                     else:

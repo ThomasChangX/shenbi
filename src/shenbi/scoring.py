@@ -6,6 +6,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -153,9 +154,7 @@ def compute_score(dimensions, scores, kill_switch_triggered=False):
     if total_weight == 0:
         return 0
     if total_weight != 100:
-        print(
-            f"WARNING: total dimension weight is {total_weight}% (expected 100%)", file=sys.stderr
-        )
+        log.warning("weight_mismatch", total_weight=total_weight, expected=100)
     weighted_sum = sum(scores.get(d["num"], 0) * d["weight"] for d in dimensions)
     return round(weighted_sum / total_weight, 2)
 
@@ -213,15 +212,14 @@ def check_gate_markers(rubric_path, test_type, round_dir):
 def main():
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
-        print(
-            "Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]"
-        )
-        print('  scores.json format: {"1": 100, "2": 95, "3": 80, ...}')
-        print("  --kill-switch: force final score to 0 (any kill switch triggered)")
-        print("  --test-type: filter dimensions by applicability (renormalizes weights)")
-        print("  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring")
-        print("  --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring")
-        print("  Or: scoring.py <rubric.md> --interactive")
+        usage = """Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]
+  scores.json format: {"1": 100, "2": 95, "3": 80, ...}
+  --kill-switch: force final score to 0 (any kill switch triggered)
+  --test-type: filter dimensions by applicability (renormalizes weights)
+  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring
+  --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring
+  Or: scoring.py <rubric.md> --interactive"""
+        log.info("usage", message=usage)
         sys.exit(1)
 
     # --gate-only mode: run gate check, skip scoring entirely
@@ -237,7 +235,7 @@ def main():
         result = subprocess.run(
             [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
         )
-        print(result.stdout)
+        emit_json(json.loads(result.stdout))
         sys.exit(0 if result.returncode == 0 else 1)
 
     rubric_path = sys.argv[1]
@@ -277,7 +275,7 @@ def main():
                     try:
                         gate_out = json.loads(result.stdout)
                         if gate_out.get("status") == "FAIL":
-                            print(json.dumps(gate_out, indent=2, ensure_ascii=False))
+                            emit_json(gate_out)
                             sys.exit(1)
                     except Exception:
                         pass
@@ -294,25 +292,23 @@ def main():
                     "message": f"Required gate markers not found: {', '.join(missing)}. "
                     f"Run gates (G4/G6) with --round-dir before scoring.",
                 }
-                print(json.dumps(err, indent=2, ensure_ascii=False))
+                emit_json(err)
                 sys.exit(3)
 
     if sys.argv[2] == "--interactive":
         scores = {}
-        print(f"Scoring: {rubric_path}")
-        print(f"Found {len(dimensions)} dimensions")
+        log.info("scoring_start", rubric=rubric_path)
+        log.info("dimensions_loaded", count=len(dimensions))
         if kill_switches:
-            print(f"Kill switches ({len(kill_switches)}):")
+            log.info("kill_switches_count", count=len(kill_switches))
             for ks in kill_switches:
-                print(f"  - {ks}")
-            print()
+                log.info("kill_switch_item", switch=ks)
             try:
                 ks_input = input("Kill switch triggered? (y/n): ").strip().lower()
                 if ks_input == "y":
                     kill_switch_triggered = True
             except EOFError:
                 pass
-        print()
         for d in dimensions:
             while True:
                 try:
@@ -321,11 +317,11 @@ def main():
                     if 0 <= val <= 100:
                         scores[d["num"]] = val
                         break
-                    print("    Must be 0-100")
+                    log.info("invalid_score_range", message="Must be 0-100")
                 except ValueError:
-                    print("    Enter a number")
+                    log.info("invalid_score_type", message="Enter a number")
                 except EOFError:
-                    print("\n    Input ended. Using 0 for remaining dimensions.")
+                    log.info("interactive_prompt_ended", action="using_zero_for_remaining")
                     break
         # Fill any missing dimensions with 0
         for d in dimensions:
@@ -350,12 +346,12 @@ def main():
             "expected_dimensions": [{"num": d["num"], "name": d["name"]} for d in dimensions],
             "received_keys": sorted(scores.keys()) if scores else [],
         }
-        print(json.dumps(err_result, indent=2, ensure_ascii=False))
+        emit_json(err_result)
         sys.exit(2)
 
     if validation_errors:
         for e in validation_errors:
-            print(e, file=sys.stderr)
+            log.error("validation_error", error=str(e))
 
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result = {
@@ -381,7 +377,7 @@ def main():
         "classification": classify(final),
     }
 
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    emit_json(result)
     return result
 
 
