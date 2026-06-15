@@ -1,0 +1,82 @@
+"""G4 checker for shenbi-location-builder."""
+
+import re
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+from shenbi.gates.shared import (  # noqa: F401
+    ALL_SKILLS,
+    CHAPTER_WORD_CEILING,
+    CHAPTER_WORD_FLOOR,
+    FATIGUE_BASE,
+    FIXTURES,
+    G4_CHECKER_SKILLS,
+    META_NARRATIVE,
+    PROJECT,
+    SKILLS,
+    TESTS,
+    TRANSITION_SPECIFIC,
+    _find_report,
+    _normalize_file_paths,
+    count_transition_words,
+    fail,
+    jload,
+    passed,
+    read_genre_config,
+    unimplemented,
+    word_count_md,
+    write_gate_marker,
+    yload,
+)
+
+
+def g4_location_builder(fps, rd=None):
+    """Location builder: each location has layout (>=200 chars), atmosphere (>=150 chars),
+    functional events.
+    """
+    c = []
+    mf = []
+    project_dir = str(Path(fps[0]).parent.parent) if fps else ""
+    pd = Path(project_dir)
+
+    loc_path = pd / "world" / "locations.md"
+    if not loc_path.exists():
+        mf.append("G4.locations.not_found")
+    else:
+        content = loc_path.read_text(encoding="utf-8")
+        locations = re.findall(r"## 地点[：:]", content)
+        if not locations:
+            mf.append("G4.lb.no_locations")
+        else:
+            valid = 0
+            for match in re.finditer(r"## 地点[：:].*?\n(?=## 地点|\Z)", content, re.DOTALL):
+                loc_text = match.group()
+                layout_match = re.search(
+                    r"###\s*(?:\d+\.?\s*)?(?:布局描述|空间布局)\n(.*?)(?=###|\Z)",
+                    loc_text,
+                    re.DOTALL,
+                )
+                layout_len = len(layout_match.group(1).strip()) if layout_match else 0
+                atmo_match = re.search(
+                    r"###\s*(?:\d+\.?\s*)?(?:氛围锚点|感官锚点)\n(.*?)(?=###|\Z)",
+                    loc_text,
+                    re.DOTALL,
+                )
+                atmo_len = len(atmo_match.group(1).strip()) if atmo_match else 0
+                has_events = bool(re.search(r"### 功能事件", loc_text))
+                if layout_len >= 200 and atmo_len >= 150 and has_events:
+                    valid += 1
+            if valid < len(locations):
+                mf.append(f"G4.lb.complete:{valid}/{len(locations)}")
+            else:
+                c.append(
+                    {"id": "G4.lb", "s": "PASS", "locations": len(locations), "complete": valid}
+                )
+
+    if mf:
+        return fail("G4-location-builder", c, "scoring", mf)
+    return passed("G4-location-builder", c)
