@@ -15,6 +15,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
@@ -25,29 +26,29 @@ TESTS = Path(__file__).resolve().parents[2] / "tests"
 PROJECT = TESTS.parent
 
 
-def load_deps():
+def load_deps() -> Any:
     return json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
 
 
-def load_state(round_dir, phase):
+def load_state(round_dir: str, phase: str) -> dict[str, Any]:
     state_file = Path(round_dir) / "phase-state" / f"{phase}.json"
     if state_file.exists():
-        return json.loads(state_file.read_text(encoding="utf-8"))
+        return cast(dict[str, Any], json.loads(state_file.read_text(encoding="utf-8")))
     return {"phase": phase, "state": "created", "steps": []}
 
 
-def save_state(round_dir, state):
+def save_state(round_dir: str, state: dict[str, Any]) -> None:
     state_dir = Path(round_dir) / "phase-state"
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file = state_dir / f"{state['phase']}.json"
     state_file.write_text(json.dumps(state, indent=2, ensure_ascii=False))
 
 
-def now_iso():
+def now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def run_gate(gate, args):
+def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     """Run a gate via validate-gate.py, return parsed JSON."""
     vg = str(TESTS / "validate-gate.py")
     r = subprocess.run(
@@ -57,19 +58,19 @@ def run_gate(gate, args):
         timeout=60,
     )
     try:
-        return json.loads(r.stdout)
+        return cast(dict[str, Any], json.loads(r.stdout))
     except (json.JSONDecodeError, ValueError):
         return {"status": "FAIL", "raw_stdout": r.stdout, "raw_stderr": r.stderr}
 
 
-def require_state(state, expected, action):
+def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
     """Exit with error if state is not one of the expected states."""
     if state["state"] not in expected:
         emit_json({"error": f"Cannot {action}: state is '{state['state']}', expected {expected}", "phase": state["phase"]})
         sys.exit(1)
 
 
-def cmd_start(phase, round_dir, project_dir):
+def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["created"], "start")
     g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
@@ -86,7 +87,7 @@ def cmd_start(phase, round_dir, project_dir):
         sys.exit(1)
 
 
-def cmd_pre_skill(phase, skill, round_dir):
+def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "pre-skill")
     # Validate skill exists
@@ -101,10 +102,10 @@ def cmd_pre_skill(phase, skill, round_dir):
     reads = _re.findall(r"\*\*Reads:\*\*\s*(.*)", skill_md)
     writes = _re.findall(r"\*\*Writes:\*\*\s*(.*)", skill_md)
     updates = _re.findall(r"\*\*Updates:\*\*\s*(.*)", skill_md)
-    read_files = []
+    read_files: list[str] = []
     for line in reads:
         read_files.extend(_re.findall(r"`([^`]+)`", line))
-    write_files = []
+    write_files: list[str] = []
     for line in writes + updates:
         write_files.extend(_re.findall(r"`([^`]+)`", line))
     step = {
@@ -121,9 +122,10 @@ def cmd_pre_skill(phase, skill, round_dir):
     emit_json({"status": "ok", "phase": phase, "skill": skill, "action": "execute_skill", "reads": read_files, "writes": write_files})
 
 
-def cmd_post_skill(phase, skill, round_dir, project_dir):
+def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "post-skill")
+    assert project_dir is not None
     proj = Path(project_dir)
     output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
     g2_status = "SKIP"
@@ -147,13 +149,13 @@ def cmd_post_skill(phase, skill, round_dir, project_dir):
     emit_json({"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status})
 
 
-def cmd_pre_score(phase, round_dir):
+def cmd_pre_score(phase: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "pre-score")
     deps = load_deps()
     phase_data = deps.get("t2-phases", {}).get(phase, {})
     marker_dir = Path(round_dir) / "gate-markers"
-    missing = []
+    missing: list[str] = []
     for skill in phase_data.get("prerequisites", []):
         marker = marker_dir / f"G4-{skill}-generative.json"
         if not marker.exists():
@@ -175,13 +177,13 @@ def cmd_pre_score(phase, round_dir):
     emit_json({"status": "ok", "phase": phase, "state": "skills_done"})
 
 
-def cmd_post_score(phase, scores_file, round_dir):
+def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
         emit_json({"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"})
         sys.exit(1)
-    scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    _scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
         "action": "post-score",
         "timestamp": now_iso(),
@@ -193,7 +195,7 @@ def cmd_post_score(phase, scores_file, round_dir):
     emit_json({"status": "ok", "phase": phase, "state": "scored"})
 
 
-def cmd_finalize(phase, round_dir, project_dir):
+def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["scored"], "finalize")
     g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
@@ -219,7 +221,7 @@ def cmd_finalize(phase, round_dir, project_dir):
     emit_json({"status": "ok", "phase": phase, "state": "finalized"})
 
 
-def main():
+def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
         log.info("usage", message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize")
@@ -228,7 +230,7 @@ def main():
     cmd = sys.argv[1]
     args = sys.argv[2:]
 
-    def find_flag(flag, required=True):
+    def find_flag(flag: str, required: bool = True) -> str | None:
         if flag in args:
             idx = args.index(flag)
             if idx + 1 < len(args):
@@ -239,6 +241,7 @@ def main():
         return None
 
     round_dir = find_flag("--round-dir")
+    assert round_dir is not None
     project_dir = find_flag("--project-dir", required=False)
 
     if cmd == "start":
