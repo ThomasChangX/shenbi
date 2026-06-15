@@ -137,11 +137,6 @@ plugins = ["pydantic.mypy"]
 
 # P-1.A temporary overrides: legacy untyped code in tests/*.py
 # PR-12 (P-1.E) will add type hints and remove these overrides.
-[[tool.mypy.overrides]]
-module = [
-]
-ignore_errors = true
-
 # Pytest decorators (@pytest.fixture) are untyped; relax strict-mode check
 # for test files so mypy doesn't false-positive on standard pytest usage.
 [[tool.mypy.overrides]]
