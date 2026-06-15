@@ -4,6 +4,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 """
 
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -33,7 +34,8 @@ from shenbi.gates.shared import (  # noqa: F401
 
 def gate_G_RECONCILE(round_dir: str | None = None) -> str:
     """G_RECONCILE: Mid-execution filesystem consistency check."""
-    c, mf = [], []
+    c: list[Any] = []
+    mf: list[Any] = []
     rd = Path(round_dir) if round_dir else None
     if not rd:
         return fail("G_RECONCILE", [], "reconcile", ["no_round_dir"])
@@ -49,7 +51,7 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
         for tt, td in sd.items():
             if isinstance(td, dict) and td.get("status") == "DONE":
                 report = _find_report(rd / "t1-reports", sn, tt)
-                if not report.exists():
+                if not report or not report.exists():
                     mf.append(f"GR.1:{sn}-{tt}:no_report")
     # GR.2: reports on disk have DONE status in progress
     # Use robust rsplit to handle skill names with hyphens (e.g. shenbi-story-architecture)

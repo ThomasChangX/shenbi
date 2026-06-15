@@ -7,6 +7,7 @@ import json
 import shutil
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -41,8 +42,8 @@ from shenbi.gates.shared import (  # noqa: F401
 
 def gate_G1(skill_name: str | None = None, input_files: str | None = None, round_dir: str | None = None) -> str:
     """G1: Pre-dispatch input validation."""
-    c = []
-    mf = []
+    c: list[Any] = []
+    mf: list[Any] = []
 
     # Normalize input_files (accept list or comma-separated string)
     if isinstance(input_files, str):

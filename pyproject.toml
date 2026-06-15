@@ -144,12 +144,6 @@ module = ["tests.*"]
 disallow_untyped_decorators = false
 
 # Third-party stubs
-
-# P-1.E ongoing: gates package has partially annotated modules.
-# Full cleanup deferred to PR-26.
-[[tool.mypy.overrides]]
-module = ["shenbi.gates.*"]
-ignore_errors = true
 [[tool.mypy.overrides]]
 module = "yaml"
 ignore_missing_imports = true

@@ -53,7 +53,7 @@ SHORT_MAP = {
 }
 
 
-def main() -> None:
+def main() -> int:
     configure_logging()
     if len(sys.argv) < 2:
         usage = """Usage: shenbi-validate <GATE> [args...]
@@ -72,14 +72,15 @@ Examples:
     gate = sys.argv[1]
     args = sys.argv[2:]
 
-    def arg(i, default=None):
+    def arg(i: int, default: str | None = None) -> str | None:
         return args[i] if i < len(args) else default
 
+    result: object = None
     if gate == "G0":
         result = gate_G0(seed_file=arg(0), round_dir=arg(1))
 
     elif gate == "G1":
-        files_raw = arg(1, "[]")
+        files_raw = arg(1, "[]") or "[]"
         try:
             input_files = json.loads(files_raw)
         except (json.JSONDecodeError, ValueError):
@@ -87,8 +88,9 @@ Examples:
         result = gate_G1(skill_name=arg(0), input_files=input_files, round_dir=arg(2))
 
     elif gate == "G2":
-        files = arg(0, "").split(",") if arg(0) else []
-        ftype = arg(1, "chapter")
+        a0 = arg(0) or ""
+        files = a0.split(",") if a0 else []
+        ftype = arg(1, "chapter") or "chapter"
         rd = arg(2, None)
         pd = arg(3, None)
         result = gate_G2(files, ftype, rd, pd)
@@ -97,8 +99,9 @@ Examples:
         result = gate_G3(arg(0), arg(1), arg(2))
 
     elif gate == "G4":
-        skill_or_type = arg(0, "")
-        file_list = arg(1, "").split(",") if arg(1) else []
+        skill_or_type = arg(0, "") or ""
+        a1 = arg(1)
+        file_list = a1.split(",") if a1 else []
         rd = arg(2, None)
 
         if skill_or_type in ("bughunt", "bug-hunt"):
@@ -115,27 +118,25 @@ Examples:
     elif gate == "G6":
         pipeline_name = arg(0)
         result = gate_G6(pipeline_name, arg(1), arg(2))
-        write_gate_marker("G6", pipeline_name, "generative", result, arg(1))
+        write_gate_marker("G6", pipeline_name or "", "generative", result, arg(1))
     elif gate == "G7":
-        result = gate_G7(arg(0))
+        result = gate_G7(arg(0) or "")
     elif gate == "G_TRANSITION":
-        result = gate_G_TRANSITION(arg(0), arg(1), arg(2))
+        result = gate_G_TRANSITION(arg(0) or "", arg(1) or "", arg(2) or "")
     elif gate == "G_DISPATCH":
-        result = gate_G_DISPATCH(arg(0), arg(1))
+        result = gate_G_DISPATCH(arg(0) or "", arg(1) or "")
     elif gate == "G_RECONCILE":
-        result = gate_G_RECONCILE(arg(0))
+        result = gate_G_RECONCILE(arg(0) or "")
     else:
         log.error("unknown_gate", gate=gate)
         return 1
 
-    if isinstance(result, str):
-        try:
-            emit_json(json.loads(result))
-        except (json.JSONDecodeError, ValueError):
-            emit_json({"result": result})
-    elif isinstance(result, (dict, list)):
-        emit_json(result)
-    else:
+    # Gate functions return JSON strings; emit via emit_json to keep stdout
+    # machine-readable. If a future gate returns a non-JSON string, wrap it.
+    assert isinstance(result, str)
+    try:
+        emit_json(json.loads(result))
+    except (json.JSONDecodeError, ValueError):
         emit_json({"result": result})
     # Legacy validate-gate.py returns 0 for all known gates regardless of PASS/FAIL.
     # Preserve that contract so shell callers that check $? see no behavior change.

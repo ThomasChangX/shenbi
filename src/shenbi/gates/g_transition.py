@@ -5,6 +5,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 
 import json
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -35,7 +36,7 @@ from shenbi.gates.shared import (  # noqa: F401
 def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     """G_TRANSITION: Phase switching gate."""
     c = []
-    mf = []
+    mf: list[Any] = []
     rd = Path(round_dir)
     pp = rd / "progress.json"
 

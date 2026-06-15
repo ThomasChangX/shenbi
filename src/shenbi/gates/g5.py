@@ -7,6 +7,7 @@ import fnmatch
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -52,7 +53,8 @@ def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
 
 def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None) -> str:
     """G5: T2 Phase check."""
-    c, mf = [], []
+    c: list[Any] = []
+    mf: list[Any] = []
     deps = jload(TESTS / "tiers" / "deps.json")
     phase_data = deps.get("t2-phases", {}).get(phase_name)
     if not phase_data:
@@ -117,7 +119,7 @@ def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project
         # A. Character name/role conflicts — same name, different role across files
         char_dir = pd5 / "characters"
         if char_dir.exists():
-            char_data = {}  # name -> [(file, role)]
+            char_data: dict[str, list[tuple[str, str]]] = {}  # name -> [(file, role)]
             for cf in char_dir.rglob("*.md"):
                 try:
                     ct = cf.read_text()
@@ -138,14 +140,14 @@ def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project
 
         # B. Numeric consistency — compare numbers with units across output files
         world_dir = pd5 / "world"
-        output_files = []
+        output_files: list[Path] = []
         if world_dir.exists():
             output_files.extend(world_dir.rglob("*.md"))
         # also scan outline files
         outline_dir = pd5 / "outline"
         if outline_dir.exists():
             output_files.extend(list(outline_dir.rglob("*.md"))[:3])
-        numeric_registry = {}  # canonical_key -> set of (file, value)
+        numeric_registry: dict[str, list[tuple[str, int]]] = {}  # canonical_key -> set of (file, value)
         num_pat = re.compile(r"(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:
@@ -161,14 +163,15 @@ def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project
                     ckey = "_".join(key_words[-2:]) if key_words else f"ctx_{abs(hash(ctx)) % 1000}"
                     ckey = f"{ckey}_{unit}"
                     if ckey not in numeric_registry:
-                        numeric_registry[ckey] = []
-                    numeric_registry[ckey].append((wf.name, val))
+                        numeric_registry[ckey] = [(wf.name, val)]
+                    else:
+                        numeric_registry[ckey].append((wf.name, val))
             except Exception:
                 pass
-        for key, entries in numeric_registry.items():
-            unique = set(v for _, v in entries)
-            if len(unique) > 1 and len(entries) >= 2:
-                conflicts.append(f"numeric:{key}:{dict(entries)}")
+        for key, num_entries in numeric_registry.items():
+            unique = {v for _, v in num_entries}
+            if len(unique) > 1 and len(num_entries) >= 2:
+                conflicts.append(f"numeric:{key}:{dict(num_entries)}")
 
         # C. Terminology consistency — mixed term variants
         term_pairs = [
@@ -243,7 +246,7 @@ def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project
         "shenbi-length-normalizing": ["chapters/*.md"],
     }
 
-    def _g5_file_matches_glob(file_path, project_dir, patterns):
+    def _g5_file_matches_glob(file_path: str, project_dir: str, patterns: list[str]) -> bool:
         """Check if file_path (relative to project_dir) matches any of the given glob patterns."""
         try:
             rel = Path(file_path).relative_to(project_dir)

@@ -98,14 +98,15 @@ def _find_report(reports_dir: str | Path, skill_name: str, test_type: str | None
 
     Tries: <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
     """
+    rd = Path(reports_dir)
     if test_type:
-        path = reports_dir / f"{skill_name}-{test_type}-scores.json"
+        path = rd / f"{skill_name}-{test_type}-scores.json"
         if path.exists():
             return path
-        path = reports_dir / f"{skill_name}-{test_type}.json"
+        path = rd / f"{skill_name}-{test_type}.json"
         if path.exists():
             return path
-    path = reports_dir / f"{skill_name}.json"
+    path = rd / f"{skill_name}.json"
     if path.exists():
         return path
     return None
@@ -117,9 +118,8 @@ def _normalize_file_paths(file_paths: str | list[str] | tuple[str, ...] | None) 
         return []
     if isinstance(file_paths, str):
         return [p.strip() for p in file_paths.split(",") if p.strip()]
-    if isinstance(file_paths, (list, tuple)):
-        return [str(p) for p in file_paths]
-    return []
+    # list or tuple — exhaustive after str and None checks above
+    return [str(p) for p in file_paths]
 
 
 def write_gate_marker(gate: str, target: str, test_type: str, result_str: str, round_dir: str | None, file_paths: list[str] | None = None) -> None:
@@ -165,7 +165,8 @@ def read_genre_config(project_dir: str | Path) -> dict[str, Any]:
     gc_path = Path(project_dir) / "genre-config.json"
     if gc_path.exists():
         try:
-            return jload(str(gc_path))
+            data: dict[str, Any] = jload(str(gc_path))
+            return data
         except (json.JSONDecodeError, OSError):
             return {}
     return {}

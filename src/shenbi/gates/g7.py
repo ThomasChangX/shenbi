@@ -6,6 +6,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -187,7 +188,7 @@ def gate_G7(round_dir: str) -> str:
                 if gate_id == "G4":
                     from shenbi.gates.g4 import gate_G4
 
-                    rerun = json.loads(gate_G4(target, test_type, files_checked, str(rd)))
+                    rerun = json.loads(gate_G4(target, test_type or "", files_checked, str(rd)))
                     if rerun.get("status") == "FAIL":
                         mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
                 elif gate_id == "G6":
@@ -236,13 +237,13 @@ def gate_G7(round_dir: str) -> str:
         reports_dir = rd / reports_dir_name
         if not reports_dir.exists():
             continue
-        score_vectors = {}
+        score_vectors: dict[tuple[Any, ...], list[str]] = {}
         for score_file in reports_dir.glob("*-generative-scores.json"):
             try:
                 data = jload(str(score_file))
                 if isinstance(data, dict):
                     # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
-                    _dims = data.get("dimensions", [])
+                    dims = data.get("dimensions", [])
                     if dims:
                         vec = tuple(
                             (d.get("num"), d.get("score", 0))
@@ -312,8 +313,8 @@ def gate_G7(round_dir: str) -> str:
         try:
             s = jload(str(summary_path))
             s["audit_warnings"] = audit_warnings
-            with open(str(summary_path), "w") as f:
-                json.dump(s, f, indent=2, ensure_ascii=False)
+            with summary_path.open("w") as sf:
+                json.dump(s, sf, indent=2, ensure_ascii=False)
         except Exception:
             pass
 

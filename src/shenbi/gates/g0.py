@@ -8,6 +8,7 @@ import json
 import os
 import re
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -37,7 +38,7 @@ from shenbi.gates.shared import (  # noqa: F401
 
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     """G0: Round creation environment check."""
-    checks = []
+    checks: list[dict[str, Any]] = []
 
     # G0.1 — seed file existence, readability, UTF-8
     if seed_file:
@@ -102,8 +103,8 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     )
 
     # G0.4 — skill directory validation
-    missing_dirs = []
-    missing_md = []
+    missing_dirs: list[str] = []
+    missing_md: list[str] = []
     for d in SKILLS.iterdir():
         if not d.is_dir() or d.name.startswith("_"):
             continue
@@ -251,7 +252,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # does not exist. This prevents the "fill during iterative rounds" gap
     # where scenarios reference fixtures that were never created.
     t1_skill_dir = TESTS / "tiers" / "t1-skill"
-    missing_fixtures = {}
+    missing_fixtures: dict[str, list[str]] = {}
     if t1_skill_dir.exists():
         for skill_dir in sorted(t1_skill_dir.iterdir()):
             if not skill_dir.is_dir() or skill_dir.name.startswith("_"):
@@ -306,7 +307,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # T1 isolation testing impossible. This rule prevents the "scenario
     # references project paths that don't exist" failure mode.
     allowed_prefixes = ("tests/fixtures/", "skills/")
-    impure_refs = {}
+    impure_refs: dict[str, list[str]] = {}
     if t1_skill_dir.exists():
         for skill_dir in sorted(t1_skill_dir.iterdir()):
             if not skill_dir.is_dir() or skill_dir.name.startswith("_"):
@@ -362,7 +363,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # project-relative directory paths (truth/, snapshots/, drafts/,
     # import/, etc.) as input sources. Only tests/fixtures/ dirs allowed.
     # Matches paths ending with / that don't start with allowed prefixes.
-    impure_dirs = {}
+    impure_dirs: dict[str, list[str]] = {}
     if t1_skill_dir.exists():
         for skill_dir in sorted(t1_skill_dir.iterdir()):
             if not skill_dir.is_dir() or skill_dir.name.startswith("_"):

@@ -5,6 +5,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 
 import json
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -34,8 +35,8 @@ from shenbi.gates.shared import (  # noqa: F401
 
 def gate_G3(skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None) -> str:
     """G3: Pre-scoring dependency check."""
-    c = []
-    mf = []
+    c: list[Any] = []
+    mf: list[Any] = []
     rd = Path(round_dir) if round_dir else None
 
     if not rd or not rd.exists():
@@ -56,7 +57,7 @@ def gate_G3(skill_name: str | None = None, test_type: str | None = None, round_d
                     prereqs = []
                 for prereq in prereqs:
                     rp = _find_report(reports_dir, prereq, test_type)
-                    if not rp.exists():
+                    if not rp or not rp.exists():
                         mf.append(
                             {
                                 "id": "G3.1",

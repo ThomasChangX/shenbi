@@ -6,6 +6,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -38,11 +39,18 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G2(file_paths: str, file_type: str = "chapter", round_dir: str | None = None, project_dir: str | None = None) -> str:
+def gate_G2(file_paths: str | list[str] | None, file_type: str = "chapter", round_dir: str | None = None, project_dir: str | None = None) -> str:
     """G2: Write verification. file_type: chapter|report|truth"""
-    checks = []
-    mf = []
-    for fp in file_paths or []:
+    checks: list[dict[str, Any]] = []
+    mf: list[dict[str, Any]] = []
+    fps: list[str]
+    if isinstance(file_paths, str):
+        fps = [p.strip() for p in file_paths.split(",") if p.strip()]
+    elif file_paths is None:
+        fps = []
+    else:
+        fps = list(file_paths)
+    for fp in fps:
         p = Path(fp)
         # G2.1 — exists
         if not p.exists():
@@ -136,7 +144,7 @@ def gate_G2(file_paths: str, file_type: str = "chapter", round_dir: str | None =
                 checks.append({"id": "G2.6", "file": fp, "s": "PASS", "word_count": wc})
 
             # G2.7 — word count ceiling
-            is_important = _is_important_chapter(fp, project_dir)
+            is_important = _is_important_chapter(fp, project_dir or "")
             ceiling = CHAPTER_WORD_CEILING if is_important else int(CHAPTER_WORD_FLOOR * 1.5)
             if wc > ceiling:
                 mf.append(

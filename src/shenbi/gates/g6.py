@@ -6,6 +6,7 @@ Extracted from tests/validate-gate.py in PR-19 (P-1.E).
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (  # noqa: F401
     ALL_SKILLS,
@@ -61,7 +62,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         else:
             c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
         # G6.2: no gaps
-        _nums = []
+        nums: list[int] = []
         for ch in chapters:
             m = re.search(r"chapter-(\d+)", ch.name)
             if m:
@@ -122,9 +123,9 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
             cn = int(cn_match.group(1))
             ct = ch.read_text()[:3000]
             entities = set(m.group(0) for m in entity_pat.finditer(ct))
-            for e in entities:
-                if e not in intro_map:
-                    intro_map[e] = cn
+            for ent in entities:
+                if ent not in intro_map:
+                    intro_map[ent] = cn
             # Check for knowledge assertions about entities not yet introduced
             for know_m in know_pat.finditer(ct):
                 post_ctx = ct[know_m.end() : know_m.end() + 50]
@@ -150,7 +151,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
 
     # G6.5: pacing rhythm — classify chapters, check variety and tension curve
     if chapters:
-        ch_types = []  # (ch_num, type, dialogue_pct)
+        ch_types: list[dict[str, Any]] = []  # (ch_num, type, dialogue_pct)
         for ch in chapters:
             cn_match = re.search(r"chapter-(\d+)", ch.name)
             if not cn_match:
@@ -206,8 +207,8 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         # Volume tension curve check (buildup/rising/climax/resolution]
         # Scan chapter types for tension arc pattern
         _type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
-        _tension_phases = []
-        action__density = [
+        tension_phases: list[str] = []
+        action_density = [
             (
                 t["ch"],
                 sum(
@@ -259,7 +260,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
             mf.extend([f"G6.7:max_distance_exceeded:{x}" for x in exceeded])
         # Hook density
         if chapters:
-            _density = total_hooks / max(len(chapters), 1)
+            density = total_hooks / max(len(chapters), 1)
             if density > 3:
                 mf.append(f"G6.7:high_hook_density:{density:.1f}/chapter")
             elif density < 0.3:
@@ -286,7 +287,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
     # G6.8: character voice consistency (voice_profile + catchphrase check)
     char_dir6 = pd / "characters"
     if char_dir6.exists() and chapters:
-        char_voice = {}  # name -> voice_data
+        char_voice: dict[str, dict[str, Any]] = {}  # name -> voice_data
         for cf in char_dir6.rglob("*.md"):
             try:
                 ct = cf.read_text()
@@ -348,7 +349,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
     if rules_path.exists() and chapters:
         rules_text = rules_path.read_text()
         # Extract numerical constraints: "不超过N人", "至少N个", "≥N", "≤N", "N天内", "N章内"
-        constraints = []
+        constraints: list[dict[str, Any]] = []
         num_const_pat = re.compile(
             r"(?:不超过|不超|最多|至多|至少|不少于|≥|≤|\>|\<|等于)\s*(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百|天|日|小时|分钟|年|月)?",
             re.MULTILINE,
@@ -518,7 +519,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
     if vm_path.exists():
         vm_text = vm_path.read_text()
         # Extract volume-chapter mappings: "第一卷", "第X卷", "Volume N", chapter ranges
-        volumes = []
+        volumes: list[dict[str, Any]] = []
         vol_pat = re.compile(r"(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))")
         _ch_range_pat = re.compile(
             r"(?:第\s*(\d+)\s*[章節].*?(?:第\s*(\d+)\s*[章節]|(\d+)\s*[章節]))"
@@ -536,7 +537,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
                 volumes.append({"vol": vnum, "start": start_ch, "end": end_ch})
         # Deduplicate volumes by name (keep first occurrence)
         seen_vols = set()
-        deduped = []
+        deduped: list[dict[str, Any]] = []
         for vol in volumes:
             if vol["vol"] not in seen_vols:
                 seen_vols.add(vol["vol"])
@@ -545,23 +546,26 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         if volumes and chapters:
             # Verify chapters exist for each volume
             for vol in volumes:
+                vol_start = int(vol["start"])
+                vol_end = int(vol["end"])
                 ch_in_vol = [
                     ch
                     for ch in chapters
-                    if vol["start"]
-                    <= int(re.search(r"chapter-(\d+)", ch.name).group(1))
-                    <= vol["end"]
+                    if (cn_m := re.search(r"chapter-(\d+)", ch.name))
+                    and vol_start <= int(cn_m.group(1)) <= vol_end
                 ]
                 if not ch_in_vol:
                     mf.append(
-                        f"G6.11:no_chapters:vol{vol['vol']}:range={vol['start']}-{vol['end']}"
+                        f"G6.11:no_chapters:vol{vol['vol']}:range={vol_start}-{vol_end}"
                     )
                 # Check volume-ending hook: last chapter should have >=1 tangible hook (except final volume)
                 is_final = vol == volumes[-1]
                 if not is_final and ch_in_vol:
-                    last_ch = sorted(
-                        ch_in_vol, key=lambda c: int(re.search(r"chapter-(\d+)", c.name).group(1))
-                    )[-1]
+                    def _ch_num(c: Path) -> int:
+                        m = re.search(r"chapter-(\d+)", c.name)
+                        return int(m.group(1)) if m else 0
+
+                    last_ch = sorted(ch_in_vol, key=_ch_num)[-1]
                     last_ct = last_ch.read_text()
                     hook_markers = ["伏笔", "暗示", "悬念", "未解", "待续", "将", "预告", "铺垫"]
                     if not any(h in last_ct[-1000:] for h in hook_markers):
