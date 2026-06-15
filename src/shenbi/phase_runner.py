@@ -16,7 +16,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-TESTS = Path(__file__).resolve().parent
+TESTS = Path(__file__).resolve().parents[2] / "tests"
 PROJECT = TESTS.parent
 
 

@@ -51,7 +51,7 @@ def main():
     summary_path = round_dir / "summary.json"
 
     # G7: Round close validation
-    vg = str(Path(__file__).parent / "validate-gate.py")
+    vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
     g7_result = subprocess.run(
         [sys.executable, vg, "G7", str(round_dir)], capture_output=True, text=True
     )

@@ -184,7 +184,7 @@ def check_gate_markers(rubric_path, test_type, round_dir):
                 missing.append(f"G4-{skill_name}-{test_type}")
 
     elif "t2-phase" in rubric_p.parts:
-        deps_path = Path(__file__).parent / "tiers" / "deps.json"
+        deps_path = Path(__file__).resolve().parents[2] / "tests" / "tiers" / "deps.json"
         if deps_path.exists():
             deps = json.loads(deps_path.read_text(encoding="utf-8"))
             idx = rubric_p.parts.index("t2-phase")
@@ -228,7 +228,7 @@ def main():
         idx = sys.argv.index("--files") if "--files" in sys.argv else -1
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
-        vg = str(Path(__file__).parent / "validate-gate.py")
+        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         result = subprocess.run(
             [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
         )
@@ -257,7 +257,7 @@ def main():
     if tier:
         import subprocess
 
-        vg = str(Path(__file__).parent / "validate-gate.py")
+        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         if tier == "T1" and test_type:
             # G3: prerequisite check — extract skill_name from rubric path
             rubric_p = Path(rubric_path)

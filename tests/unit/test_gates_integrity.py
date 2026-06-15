@@ -174,8 +174,8 @@ class TestGateMarkers(unittest.TestCase):
             self.assertFalse(marker_dir.exists(), "G2 should not create gate-markers")
 
 
-SC = Path(__file__).resolve().parent.parent / "scoring.py"
-PR = Path(__file__).resolve().parent.parent / "phase-runner.py"
+SC = Path(__file__).resolve().parents[2] / "src" / "shenbi" / "scoring.py"
+PR = Path(__file__).resolve().parents[2] / "src" / "shenbi" / "phase_runner.py"
 
 
 def run_py(script, args):

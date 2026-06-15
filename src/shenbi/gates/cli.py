@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VG_PATH = Path(__file__).resolve().parent.parent / "validate-gate.py"
+VG_PATH = Path(__file__).resolve().parents[3] / "tests" / "validate-gate.py"
 
 
 def main() -> int:

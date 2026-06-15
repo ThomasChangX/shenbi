@@ -152,10 +152,14 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = [
     "tests.validate-gate",
-    "tests.scoring",
-    "tests.phase-runner",
-    "tests.summarize-round",
-    "tests.update-progress",
+    "shenbi.scoring",
+    "shenbi.phase_runner",
+    "shenbi.summarize_round",
+    "shenbi.update_progress",
+    "shenbi.gates",
+    "shenbi.gates.cli",
+    "shenbi.dispatcher",
+    "shenbi.dispatcher.cli",
     "tests.unit.test_gates_integrity",
 ]
 ignore_errors = true
@@ -173,21 +177,21 @@ ignore_missing_imports = true
 
 # Forward declarations (no-op until modules exist)
 [[tool.mypy.overrides]]
-module = "tests.gates.g4.*"
+module = "shenbi.gates.g4.*"
 disallow_untyped_defs = false
 
 [tool.basedpyright]
-include = ["tests"]
+include = ["tests", "src/shenbi"]
 exclude = [
     "tests/rounds/archived",
     "tests/rounds/round-[0-9][0-9][0-9]-*",
     "**/__pycache__",
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
     "tests/validate-gate.py",
-    "tests/scoring.py",
-    "tests/phase-runner.py",
-    "tests/summarize-round.py",
-    "tests/update-progress.py",
+    "src/shenbi/scoring.py",
+    "src/shenbi/phase_runner.py",
+    "src/shenbi/summarize_round.py",
+    "src/shenbi/update_progress.py",
     "tests/unit/test_gates_integrity.py",
 ]
 typeCheckingMode = "strict"
