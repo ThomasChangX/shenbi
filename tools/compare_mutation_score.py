@@ -23,6 +23,7 @@ def parse_score(baseline_text: str) -> dict[str, float]:
 
 
 def main() -> int:
+    """Run mutmut and compare to baseline; exit 1 if any module drops > threshold."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline", required=True, type=Path)
     parser.add_argument(
@@ -42,7 +43,9 @@ def main() -> int:
         print("Baseline file has no parseable scores", file=sys.stderr)
         return 2
 
-    result = subprocess.run(["uv", "run", "mutmut", "results"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["uv", "run", "mutmut", "results"], check=False, capture_output=True, text=True
+    )
     if result.returncode != 0:
         print(f"mutmut results failed: {result.stderr}", file=sys.stderr)
         return 2
@@ -55,7 +58,8 @@ def main() -> int:
         drop = baseline_score - current
         if drop > args.threshold:
             print(
-                f"REGRESSION: {module} dropped {drop:.1f}% (baseline {baseline_score}, current {current})"
+                f"REGRESSION: {module} dropped {drop:.1f}% "
+                f"(baseline {baseline_score}, current {current})"
             )
             failed = True
         else:

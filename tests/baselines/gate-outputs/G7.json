@@ -1,11 +1,12 @@
 {
   "gate": "G7",
   "status": "FAIL",
-  "timestamp": "2026-06-15T15:25:36.096180+00:00",
+  "timestamp": "2026-06-15T15:40:33.430165+00:00",
   "checks": [
     {
       "id": "G7.5",
-      "s": "PASS"
+      "s": "SKIP",
+      "r": "skill-output/ not found"
     },
     {
       "id": "G7.6",
