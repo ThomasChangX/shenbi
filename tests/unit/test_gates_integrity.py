@@ -1,5 +1,7 @@
 """Test gate marker writing for integrity verification."""
 
+from __future__ import annotations
+
 import json
 import os
 import shutil
