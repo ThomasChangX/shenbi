@@ -16,6 +16,10 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from shenbi.logging import configure_logging, get_logger
+
+log = get_logger(__name__)
+
 TESTS = Path(__file__).resolve().parents[2] / "tests"
 PROJECT = TESTS.parent
 
@@ -266,6 +270,7 @@ def cmd_finalize(phase, round_dir, project_dir):
 
 
 def main():
+    configure_logging()
     if len(sys.argv) < 2:
         print("Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]")
         print("Commands: start pre-skill post-skill pre-score post-score finalize")

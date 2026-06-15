@@ -178,9 +178,20 @@ PR = Path(__file__).resolve().parents[2] / "src" / "shenbi" / "phase_runner.py"
 
 
 def run_py(script, args):
-    """Run a Python script as subprocess, return (rc, stdout, stderr)."""
+    """Run a Python script as subprocess, return (rc, stdout, stderr).
+
+    Uses `-m shenbi.<name>` invocation so Python doesn't add src/shenbi/ to
+    sys.path (which would shadow stdlib `logging` with shenbi.logging).
+    """
+    script_path = Path(script)
+    parts = list(script_path.with_suffix("").parts)
+    try:
+        src_idx = parts.index("src")
+        module = ".".join(parts[src_idx + 1:])
+    except ValueError:
+        module = script_path.stem
     result = subprocess.run(
-        [os.environ.get("PYTHON", "python3"), str(script)] + list(args),
+        ["uv", "run", "python", "-m", module] + list(args),
         capture_output=True,
         text=True,
     )

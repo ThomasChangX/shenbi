@@ -6,6 +6,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from shenbi.logging import configure_logging, get_logger
+
+log = get_logger(__name__)
+
 
 def classify(score):
     if score >= 90:
@@ -43,6 +47,7 @@ def below_threshold(scores_dict, threshold):
 
 
 def main():
+    configure_logging()
     if len(sys.argv) < 2:
         print("Usage: summarize-round.py <round-dir>")
         sys.exit(1)

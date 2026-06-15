@@ -6,6 +6,10 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from shenbi.logging import configure_logging, get_logger
+
+log = get_logger(__name__)
+
 
 def load_rubric(rubric_path):
     """Parse rubric.md to extract dimensions with weights and kill switches."""
@@ -207,6 +211,7 @@ def check_gate_markers(rubric_path, test_type, round_dir):
 
 
 def main():
+    configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
         print(
             "Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]"

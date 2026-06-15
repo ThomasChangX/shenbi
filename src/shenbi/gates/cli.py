@@ -23,6 +23,9 @@ from shenbi.gates.g_dispatch import gate_G_DISPATCH
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 from shenbi.gates.g_transition import gate_G_TRANSITION
 from shenbi.gates.shared import write_gate_marker
+from shenbi.logging import configure_logging, get_logger
+
+log = get_logger(__name__)
 
 # Shorthand skill name -> full shenbi-* name. Mirrors legacy validate-gate.py.
 SHORT_MAP = {
@@ -50,6 +53,7 @@ SHORT_MAP = {
 
 
 def main():
+    configure_logging()
     if len(sys.argv) < 2:
         print("Usage: shenbi-validate <GATE> [args...]")
         print()

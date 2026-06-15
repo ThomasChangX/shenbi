@@ -12,6 +12,10 @@ import json
 import sys
 from pathlib import Path
 
+from shenbi.logging import configure_logging, get_logger
+
+log = get_logger(__name__)
+
 PROJECT = Path(__file__).resolve().parents[2]
 SKILLS = PROJECT / "skills"
 ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
@@ -279,6 +283,7 @@ def cmd_rebuild_queues(round_dir):
 
 
 def main():
+    configure_logging()
     if len(sys.argv) < 2:
         print("Usage: update-progress.py <command> [args...]")
         print("Commands: init mark-done validate rebuild-queues")
