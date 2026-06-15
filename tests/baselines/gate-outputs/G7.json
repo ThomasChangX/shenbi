@@ -1,0 +1,60 @@
+{
+  "gate": "G7",
+  "status": "FAIL",
+  "timestamp": "2026-06-15T14:55:44.825558+00:00",
+  "checks": [
+    {
+      "id": "G7.5",
+      "s": "PASS"
+    },
+    {
+      "id": "G7.6",
+      "s": "SKIP",
+      "r": "truth/ not found"
+    },
+    {
+      "id": "G7.7",
+      "s": "PASS",
+      "note": "CHANGELOG exists and writable"
+    },
+    {
+      "id": "G7.2",
+      "s": "PASS",
+      "note": "skill-traces check deferred"
+    },
+    {
+      "id": "G7.3",
+      "s": "PASS",
+      "note": "t1-reports check deferred"
+    },
+    {
+      "id": "G7.4",
+      "s": "PASS",
+      "note": "expected outputs sampled"
+    },
+    {
+      "id": "G7.8",
+      "s": "PASS",
+      "note": "gate_blockers check deferred"
+    },
+    {
+      "id": "G7.13",
+      "s": "SKIP",
+      "r": "no gate-markers directory"
+    },
+    {
+      "id": "G7.14",
+      "s": "PASS",
+      "note": "timeline consistent"
+    },
+    {
+      "id": "G7.15",
+      "s": "PASS",
+      "note": "no duplicate patterns"
+    }
+  ],
+  "blocked_action": "round_close",
+  "must_fix": [
+    "G7.1:summary.json_not_found"
+  ]
+}

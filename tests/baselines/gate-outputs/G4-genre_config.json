@@ -1,0 +1,10 @@
+{
+  "gate": "G4-genre-config",
+  "status": "FAIL",
+  "timestamp": "2026-06-15T14:55:44.669839+00:00",
+  "checks": [],
+  "blocked_action": "scoring",
+  "must_fix": [
+    "G4.gc.not_found"
+  ]
+}

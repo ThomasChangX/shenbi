@@ -1,0 +1,81 @@
+{
+  "gate": "G0",
+  "status": "PASS",
+  "timestamp": "2026-06-15T14:55:44.403648+00:00",
+  "checks": [
+    {
+      "id": "G0.1",
+      "s": "PASS"
+    },
+    {
+      "id": "G0.2",
+      "s": "PASS",
+      "target_words": 200000
+    },
+    {
+      "id": "G0.3",
+      "s": "PASS",
+      "expected_chapters": 67,
+      "chapter_word_default": 3000
+    },
+    {
+      "id": "G0.4",
+      "s": "PASS",
+      "skills_count": 59
+    },
+    {
+      "id": "G0.5",
+      "s": "PASS",
+      "note": "sampled"
+    },
+    {
+      "id": "G0.5b",
+      "s": "PASS",
+      "note": "rubric-SKILL.md consistency verified"
+    },
+    {
+      "id": "G0.6",
+      "s": "PASS"
+    },
+    {
+      "id": "G0.7",
+      "s": "WARN",
+      "r": "scoring.py not found"
+    },
+    {
+      "id": "G0.8",
+      "s": "PASS",
+      "note": "all scenario fixture references verified"
+    },
+    {
+      "id": "G0.9",
+      "s": "PASS",
+      "note": "all scenario input paths reference tests/fixtures/"
+    },
+    {
+      "id": "G0.9c",
+      "s": "PASS",
+      "note": "all scenario directory paths reference tests/fixtures/"
+    },
+    {
+      "id": "G0.9b",
+      "s": "PASS",
+      "note": "no SKILL.md files leak test fixture paths"
+    },
+    {
+      "id": "G0.10",
+      "s": "SKIP",
+      "r": "no round_dir provided"
+    },
+    {
+      "id": "G0.11",
+      "s": "PASS",
+      "note": "mirror fixtures match source files"
+    },
+    {
+      "id": "G0.12",
+      "s": "PASS",
+      "note": "G4 coverage: 20/59 dedicated, 39/59 generic fallback"
+    }
+  ]
+}

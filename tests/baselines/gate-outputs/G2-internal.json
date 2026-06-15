@@ -1,0 +1,38 @@
+{
+  "gate": "G2",
+  "status": "PASS",
+  "timestamp": "2026-06-15T14:55:44.448868+00:00",
+  "checks": [
+    {
+      "id": "G2.1",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.2",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.3",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.4",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.10",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.12",
+      "file": "tests/fixtures/novel-example.json",
+      "s": "WARN",
+      "r": "may be truncated"
+    }
+  ]
+}

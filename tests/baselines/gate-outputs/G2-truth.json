@@ -1,0 +1,40 @@
+{
+  "gate": "G2",
+  "status": "PASS",
+  "timestamp": "2026-06-15T14:55:44.537392+00:00",
+  "checks": [
+    {
+      "id": "G2.1",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.2",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.3",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.5",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "PASS",
+      "has_frontmatter": true,
+      "required": false
+    },
+    {
+      "id": "G2.10",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.12",
+      "file": "tests/fixtures/truth-current_state.md",
+      "s": "WARN",
+      "r": "may be truncated"
+    }
+  ]
+}
