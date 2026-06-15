@@ -5,13 +5,14 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
 
 
-def classify(score):
+def classify(score: float | int) -> str:
     if score >= 90:
         return "pass_excellent"
     if score >= 75:
@@ -21,9 +22,9 @@ def classify(score):
     return "fail"
 
 
-def classify_scores(scores_dict):
+def classify_scores(scores_dict: dict[str, int | float | dict[str, Any]]) -> dict[str, int]:
     bands = {"pass_excellent": 0, "pass_acceptable": 0, "conditional": 0, "fail": 0}
-    for name, entry in scores_dict.items():
+    for _name, entry in scores_dict.items():
         score = (
             entry
             if isinstance(entry, (int, float))
@@ -33,8 +34,10 @@ def classify_scores(scores_dict):
     return bands
 
 
-def below_threshold(scores_dict, threshold):
-    result = []
+def below_threshold(
+    scores_dict: dict[str, int | float | dict[str, Any]], threshold: float | int
+) -> list[str]:
+    result: list[str] = []
     for name, entry in scores_dict.items():
         score = (
             entry
@@ -46,7 +49,7 @@ def below_threshold(scores_dict, threshold):
     return result
 
 
-def main():
+def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
         log.info("usage", message="Usage: summarize-round.py <round-dir>")
@@ -73,7 +76,7 @@ def main():
 
     # Read progress.json for additional score data
     progress_path = round_dir / "progress.json"
-    t1_from_progress = {}
+    t1_from_progress: dict[str, dict[str, Any]] = {}
     if progress_path.exists():
         try:
             with open(progress_path) as f:
@@ -83,7 +86,7 @@ def main():
                     if isinstance(td, dict) and td.get("status") == "done" and "score" in td:
                         t1_from_progress[f"{sn}-{tt}"] = {
                             "score": td["score"],
-                            "band": classify(td["score"]),
+                            "band": classify(td["score"] if isinstance(td["score"], (int, float)) else 0),
                         }
         except Exception:
             pass
@@ -95,8 +98,8 @@ def main():
     with open(summary_path) as f:
         summary = json.load(f)
 
-    tier_target = summary.get("tier_target", "T1")
-    next_actions = []
+    _tier_target = summary.get("tier_target", "T1")
+    next_actions: list[str] = []
 
     # T1 scores
     t1 = summary.get("t1_scores", {})
