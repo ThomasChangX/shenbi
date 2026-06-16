@@ -56,7 +56,9 @@ def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     return hashes
 
 
-def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None) -> str:
+def gate_G5(
+    phase_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None
+) -> str:
     """G5: T2 Phase check."""
     c: list[Any] = []
     mf: list[Any] = []
@@ -152,7 +154,9 @@ def gate_G5(phase_name: str | None = None, round_dir: str | None = None, project
         outline_dir = pd5 / "outline"
         if outline_dir.exists():
             output_files.extend(list(outline_dir.rglob("*.md"))[:3])
-        numeric_registry: dict[str, list[tuple[str, int]]] = {}  # canonical_key -> set of (file, value)
+        numeric_registry: dict[
+            str, list[tuple[str, int]]
+        ] = {}  # canonical_key -> set of (file, value)
         num_pat = re.compile(r"(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:

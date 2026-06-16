@@ -45,12 +45,16 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G1(skill_name: str | None = None, input_files: str | None = None, round_dir: str | None = None) -> str:
+def gate_G1(
+    skill_name: str | None = None,
+    input_files: str | list[str] | None = None,
+    round_dir: str | None = None,
+) -> str:
     """G1: Pre-dispatch input validation."""
     c: list[Any] = []
     mf: list[Any] = []
 
-    # Normalize input_files (accept list or comma-separated string)
+    # Normalize input_files (accept JSON string, list, or comma-separated string)
     if isinstance(input_files, str):
         try:
             input_files = json.loads(input_files)

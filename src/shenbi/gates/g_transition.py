@@ -41,7 +41,7 @@ from shenbi.gates.shared import (  # noqa: F401
 def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     """G_TRANSITION: Phase switching gate."""
     c = []
-    mf: list[Any] = []
+    mf: list[Any] = []  # TODO post-PR-25: wire failure accumulation; dead today.
     rd = Path(round_dir)
     pp = rd / "progress.json"
 

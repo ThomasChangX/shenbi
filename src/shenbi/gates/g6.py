@@ -39,7 +39,9 @@ from shenbi.gates.shared import (  # noqa: F401
 )
 
 
-def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None) -> str:
+def gate_G6(
+    pipeline_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None
+) -> str:
     """G6: T3 Pipeline check."""
     c, mf = [], []
     deps = jload(TESTS / "tiers" / "deps.json")
@@ -59,6 +61,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
     expected = -(-target_words // default_w)
     min_chapters = int(-(-(expected * min_ratio) // 1))
     chapters = []
+    nums: list[int] = []
     ch_dir = pd / "chapters"
     if ch_dir.exists():
         chapters = sorted(ch_dir.glob("chapter-*.md"))
@@ -67,7 +70,6 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         else:
             c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
         # G6.2: no gaps
-        nums: list[int] = []
         for ch in chapters:
             m = re.search(r"chapter-(\d+)", ch.name)
             if m:
@@ -212,7 +214,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         # Volume tension curve check (buildup/rising/climax/resolution]
         # Scan chapter types for tension arc pattern
         _type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
-        tension_phases: list[str] = []
+        tension_phases: list[str] = []  # TODO post-PR-25: populate from _type_seq; dead today.
         action_density = [
             (
                 t["ch"],
@@ -264,6 +266,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
         if exceeded:
             mf.extend([f"G6.7:max_distance_exceeded:{x}" for x in exceeded])
         # Hook density
+        density: float | None = None
         if chapters:
             density = total_hooks / max(len(chapters), 1)
             if density > 3:
@@ -279,7 +282,7 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
                     "total_hooks": total_hooks,
                     "unresolved": unresolved,
                     "exceeded": len(exceeded),
-                    "density": round(density, 2) if chapters else None,
+                    "density": round(density, 2) if density is not None else None,
                 }
             )
         else:
@@ -560,12 +563,11 @@ def gate_G6(pipeline_name: str | None = None, round_dir: str | None = None, proj
                     and vol_start <= int(cn_m.group(1)) <= vol_end
                 ]
                 if not ch_in_vol:
-                    mf.append(
-                        f"G6.11:no_chapters:vol{vol['vol']}:range={vol_start}-{vol_end}"
-                    )
+                    mf.append(f"G6.11:no_chapters:vol{vol['vol']}:range={vol_start}-{vol_end}")
                 # Check volume-ending hook: last chapter should have >=1 tangible hook (except final volume)
                 is_final = vol == volumes[-1]
                 if not is_final and ch_in_vol:
+
                     def _ch_num(c: Path) -> int:
                         m = re.search(r"chapter-(\d+)", c.name)
                         return int(m.group(1)) if m else 0

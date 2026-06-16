@@ -13,17 +13,33 @@ Usage:
 import json
 import math
 import sys
+from typing import Any
 from collections import Counter, defaultdict
 from pathlib import Path
 
 
 PATTERNS = [
-    "引入", "升级", "转折", "揭示", "决战", "沉淀",
-    "日常", "训练", "探索", "阴谋", "逃亡", "回忆", "总结",
+    "引入",
+    "升级",
+    "转折",
+    "揭示",
+    "决战",
+    "沉淀",
+    "日常",
+    "训练",
+    "探索",
+    "阴谋",
+    "逃亡",
+    "回忆",
+    "总结",
 ]
 
 MAX_CONSECUTIVE = {
-    "决战": 2, "转折": 2, "升级": 4, "日常": 3, "训练": 3,
+    "决战": 2,
+    "转折": 2,
+    "升级": 4,
+    "日常": 3,
+    "训练": 3,
 }
 DEFAULT_MAX_CONSECUTIVE = 3
 
@@ -73,7 +89,14 @@ def compute_entropy(patterns):
         if count > 0:
             p = count / n
             term = -p * math.log2(p)
-            terms.append({"pattern": pattern, "count": count, "frequency": round(p, 4), "p_log2p": round(term, 4)})
+            terms.append(
+                {
+                    "pattern": pattern,
+                    "count": count,
+                    "frequency": round(p, 4),
+                    "p_log2p": round(term, 4),
+                }
+            )
             entropy += term
         else:
             terms.append({"pattern": pattern, "count": 0, "frequency": 0, "p_log2p": 0})
@@ -94,8 +117,13 @@ def check_distribution(patterns, recent_n):
         return None
     recent = patterns[-recent_n:]
     unique = len(set(recent))
-    required = DISTRIBUTION_MIN.get(recent_n, recent_n // 2)
-    return {"window": recent_n, "unique_patterns": unique, "required": required, "pass": unique >= required}
+    required: int = DISTRIBUTION_MIN.get(recent_n) or (recent_n // 2)
+    return {
+        "window": recent_n,
+        "unique_patterns": unique,
+        "required": required,
+        "pass": unique >= required,
+    }
 
 
 def check_consecutive_warnings(consecutive):
@@ -104,9 +132,13 @@ def check_consecutive_warnings(consecutive):
     for pattern, max_run in consecutive.items():
         threshold = MAX_CONSECUTIVE.get(pattern, DEFAULT_MAX_CONSECUTIVE)
         if max_run > threshold:
-            warnings.append({"pattern": pattern, "max_run": max_run, "threshold": threshold, "level": "high"})
+            warnings.append(
+                {"pattern": pattern, "max_run": max_run, "threshold": threshold, "level": "high"}
+            )
         elif max_run == threshold:
-            warnings.append({"pattern": pattern, "max_run": max_run, "threshold": threshold, "level": "med"})
+            warnings.append(
+                {"pattern": pattern, "max_run": max_run, "threshold": threshold, "level": "med"}
+            )
     return warnings
 
 
@@ -115,9 +147,9 @@ def compute_transition_matrix(patterns):
     matrix = defaultdict(lambda: defaultdict(int))
     for i in range(len(patterns) - 1):
         matrix[patterns[i]][patterns[i + 1]] += 1
-    rows = []
+    rows: list[dict[str, Any]] = []
     for p1 in PATTERNS:
-        row = {"from": p1, "to": {}}
+        row: dict[str, Any] = {"from": p1, "to": {}}
         for p2 in PATTERNS:
             count = matrix.get(p1, {}).get(p2, 0)
             row["to"][p2] = count
@@ -145,8 +177,12 @@ def main():
             h, terms = compute_entropy(patterns[-w:])
             label, desc = classify_entropy(h)
             entropy_vals[f"window_{w}"] = {
-                "chapters": f"{chapters[-w].get('num', '?')}-{chapters[-1].get('num', '?')}" if chapters else "?",
-                "entropy": h, "rating": label, "description": desc,
+                "chapters": f"{chapters[-w].get('num', '?')}-{chapters[-1].get('num', '?')}"
+                if chapters
+                else "?",
+                "entropy": h,
+                "rating": label,
+                "description": desc,
             }
             entropy_terms[f"window_{w}"] = terms
     distribution = {}
@@ -158,8 +194,11 @@ def main():
     result = {
         "sample": {"chapters": n},
         "pattern_distribution": [
-            {"pattern": p, "count": pattern_counts.get(p, 0),
-             "ratio": round(pattern_counts.get(p, 0) / n, 3) if n > 0 else 0}
+            {
+                "pattern": p,
+                "count": pattern_counts.get(p, 0),
+                "ratio": round(pattern_counts.get(p, 0) / n, 3) if n > 0 else 0,
+            }
             for p in PATTERNS
         ],
         "max_consecutive": [{"pattern": p, "max_run": consecutive.get(p, 0)} for p in PATTERNS],

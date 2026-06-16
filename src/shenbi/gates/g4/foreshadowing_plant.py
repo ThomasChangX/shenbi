@@ -58,9 +58,8 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
         hooks_match = re.search(r"## hooks\s*\n(.*?)(?=\n## |\Z)", content, re.DOTALL)
         if hooks_match:
             try:
-                hooks = yaml.safe_load(hooks_match.group(1)) if yaml else []
-                if not isinstance(hooks, list):
-                    hooks = []
+                loaded: Any = yaml.safe_load(hooks_match.group(1)) if yaml else []
+                hooks = loaded if isinstance(loaded, list) else []
             except Exception:
                 pass
 

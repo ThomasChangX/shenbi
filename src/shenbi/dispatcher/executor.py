@@ -55,7 +55,7 @@ def derive_input_files(skill: str) -> list[str]:
         return []
     content = skill_md.read_text(encoding="utf-8")
     reads_match = re.findall(r"\*\*Reads:\*\*\s*(.*)", content)
-    files = []
+    files: list[str] = []
     for line in reads_match:
         files.extend(re.findall(r"`([^`]+)`", line))
     return files
@@ -69,7 +69,7 @@ def derive_output_files(skill: str) -> list[str]:
     content = skill_md.read_text(encoding="utf-8")
     writes = re.findall(r"\*\*Writes:\*\*\s*(.*)", content)
     updates = re.findall(r"\*\*Updates:\*\*\s*(.*)", content)
-    files = []
+    files: list[str] = []
     for line in writes + updates:
         files.extend(re.findall(r"`([^`]+)`", line))
     return files

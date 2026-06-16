@@ -98,7 +98,9 @@ def passed(gid: str, checks: list[dict[str, Any]]) -> str:
     )
 
 
-def _find_report(reports_dir: str | Path, skill_name: str, test_type: str | None = None) -> Path | None:
+def _find_report(
+    reports_dir: str | Path, skill_name: str, test_type: str | None = None
+) -> Path | None:
     """Find a report file with flexible naming convention.
 
     Tries: <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
@@ -117,7 +119,9 @@ def _find_report(reports_dir: str | Path, skill_name: str, test_type: str | None
     return None
 
 
-def _normalize_file_paths(file_paths: str | list[str] | tuple[str, ...] | None) -> list[str]:
+def _normalize_file_paths(
+    file_paths: str | list[str] | tuple[str, ...] | None,
+) -> list[str]:
     """Accept list or comma-separated string, return list of Path strings."""
     if file_paths is None:
         return []
@@ -127,7 +131,14 @@ def _normalize_file_paths(file_paths: str | list[str] | tuple[str, ...] | None) 
     return [str(p) for p in file_paths]
 
 
-def write_gate_marker(gate: str, target: str, test_type: str, result_str: str, round_dir: str | None, file_paths: list[str] | None = None) -> None:
+def write_gate_marker(
+    gate: str,
+    target: str,
+    test_type: str,
+    result_str: str,
+    round_dir: str | None,
+    file_paths: list[str] | None = None,
+) -> None:
     """Write a gate marker file if result is PASS and round_dir is provided."""
     if not round_dir:
         return

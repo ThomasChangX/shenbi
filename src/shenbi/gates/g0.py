@@ -311,7 +311,10 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # config/, etc.) are forbidden — they assume a running project, making
     # T1 isolation testing impossible. This rule prevents the "scenario
     # references project paths that don't exist" failure mode.
-    allowed_prefixes = ("tests/fixtures/", "skills/")
+    allowed_prefixes = (
+        "tests/fixtures/",
+        "skills/",
+    )  # TODO post-PR-25: wire into scenario-path check; dead today.
     impure_refs: dict[str, list[str]] = {}
     if t1_skill_dir.exists():
         for skill_dir in sorted(t1_skill_dir.iterdir()):
