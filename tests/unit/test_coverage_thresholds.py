@@ -25,11 +25,11 @@ BRANCH_THRESHOLD_PCT = 80
 
 @pytest.mark.last
 @pytest.mark.xfail(
-    strict=True,
+    strict=False,
     reason=(
-        "Plan 4 PR-28~32 must raise branch coverage from current ~2% to 80%. "
-        "Remove this xfail in the same Plan 4 PR that crosses the threshold; "
-        "strict=True means an unexpected XPASS will also fail."
+        "Phase 2 (PR-52~54) must raise branch coverage to ~60-65%; Phase 3 (PR-55~56) "
+        "finishes to 80%. strict=False allows gradual approach without XPASS failures. "
+        "PR-56 removes this xfail entirely."
     ),
 )
 def test_branch_coverage_meets_threshold(request: pytest.FixtureRequest) -> None:

@@ -306,15 +306,10 @@ branch = true
 source = ["src/shenbi"]
 
 [tool.coverage.report]
-# Staged ramp-up. Current line coverage ~1% (most framework code is legacy
-# untyped modules). Target trajectory: 90% after P-3.
-#
-# P-1.E PR-26 NOTE: fail_under is set to the CURRENT actual coverage (1%)
-# so regressions are caught without putting main red. Plan 4 PR-28~32 will
-# raise coverage to ~90% — at that point, fail_under must be restored to 90
-# in the SAME Plan 4 PR that removes the density test xfail. Setting
-# fail_under=90 today would block all merges until Plan 4 lands.
-fail_under = 1
+# Staged ramp-up. Phase 1 (PR-48~51) added happy-path tests raising coverage
+# to ~25%. Target trajectory: 90% after PR-56.
+# PR-54 raises to 55; PR-56 raises to 90.
+fail_under = 25
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
