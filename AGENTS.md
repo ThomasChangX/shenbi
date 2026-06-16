@@ -4,33 +4,50 @@
 
 ```
 shenbi/
-├── skills/                  # 59 novel-writing AI skills (SKILL.md each)
-├── tests/
-│   ├── tiers/               # T1-skill, T2-phase, T3-pipeline test cases + rubrics
-│   ├── fixtures/            # Isolated test inputs (real skill output, no hand-crafted mocks)
-│   ├── rounds/              # Per-round output: skill-output/, skill-traces/, tN-reports/
-│   ├── scoring.py           # Rubric-based 0–100 scorer
-│   ├── validate-gate.py     # G0–G7 gate enforcement
-│   ├── round-exec.sh        # Round creation + G0 validation
-│   ├── phase-runner.py      # T2/T3 phase state machine
-│   ├── summarize-round.py   # Round aggregation + G7 close validation
-│   └── dispatch-subagent.sh # Subagent dispatch wrapper (G1→G2 gating)
-├── docs/superpowers/        # Specs (specs/) and implementation plans (plans/)
-├── outline-example.md       # Seed novel concept (星火燃穹)
-├── CLAUDE.md / GEMINI.md    # Agent entry points
-├── command-to-give.md       # Full execution protocol
-└── goal-prompt.md           # Long-running goal definition
+├── src/shenbi/             # Framework runtime code
+│   ├── exceptions.py       # Typed exception hierarchy
+│   ├── logging.py          # structlog configuration
+│   ├── scoring.py          # Rubric-based 0-100 scorer
+│   ├── phase_runner.py     # T2/T3 phase state machine
+│   ├── summarize_round.py  # Round aggregation + G7 close
+│   ├── update_progress.py  # progress.json single-writer
+│   ├── gates/              # G0-G7 gate enforcement
+│   ├── dispatcher/         # Sub-agent dispatch
+│   └── skill_utils/        # Skill Python helpers
+├── tests/                  # Test code only (unit, integration, property, benchmark)
+│   ├── rounds/             # Active + archived rounds
+│   ├── fixtures/           # Real skill outputs (no mocks)
+│   └── baselines/          # Differential testing baselines
+├── skills/                 # 58 functional (shenbi-*) + 1 meta (using-shenbi) = 59 total
+├── docs/                   # Documentation, ADRs, specs, plans
+├── .github/workflows/      # CI: ci, security, docs, codeql, release
+├── pyproject.toml          # PEP 621 + tool config
+├── uv.lock                 # Locked deps with hashes
+├── justfile                # Task runner (just check, just test, etc.)
+├── CLAUDE.md / GEMINI.md / AGENTS.md  # Multi-agent entry points
+└── command-to-give.md      # Execution protocol
 ```
 
 ### Key Commands
 
-- `bash tests/round-exec.sh <model> T1` — Create a new test round; runs G0 environment check.
-- `uv run shenbi-validate G0 <seed>` — Gate 0: seed exists, UTF-8, skill dirs present.
-- `uv run shenbi-validate G2 <files> <type>` — Gate 2: output file validation (UTF-8, word count, placeholders).
-- `uv run shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural validation.
-- `uv run shenbi-score <rubric> <scores.json> --test-type generative` — Score output against rubric; exit 0=success, 2=validation failure.
-- `uv run shenbi-summarize <round_dir>` — Aggregate round scores; runs G7 close validation.
-- `bash tests/round-exec.sh --validate <round_dir>` — Post-round integrity check.
+Use entry points (not `python3 tests/X.py`):
+
+- `just check` — Run all CI checks locally
+- `just test` — Fast unit tests only
+- `shenbi-validate G0 <seed>` — Gate 0: environment check
+- `shenbi-validate G2 <files> <type>` — Gate 2: output validation
+- `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check
+- `shenbi-score <rubric> <scores.json> --test-type generative` — Score output
+- `shenbi-summarize <round_dir>` — Aggregate round scores + G7 close
+- `shenbi-progress init <round_dir> <tier>` — Initialize progress.json
+- `shenbi-phase start <phase> --round-dir <dir>` — Phase state machine
+- `shenbi-dispatch <skill> <test_type> <round_dir> <prompt>` — Sub-agent dispatch
+
+Or via `just`:
+- `just gate G0 outline-example.md`
+- `just dispatch shenbi-worldbuilding generative /tmp/round "prompt"`
+
+Install: `uv sync --group dev` (PEP 735 dependency groups, not extras).
 
 ### Skill Authoring
 
@@ -42,7 +59,7 @@ Critical skills include DOT flowcharts for authoritative process definition and 
 
 ### Testing
 
-Three-tier framework: **T1** per-skill (generative/bug-hunt/clean), **T2** phase chains, **T3** end-to-end pipelines. All scored 0–100 via `scoring.py` with `--test-type` dimension filtering.
+Three-tier framework: **T1** per-skill (generative/bug-hunt/clean), **T2** phase chains, **T3** end-to-end pipelines. All scored 0–100 via `shenbi-score` with `--test-type` dimension filtering.
 
 Thresholds: **≥94** for tier advancement, **≥90** for individual test pass, **100** as convergence target. Gates G0–G7 enforce quality at every stage—no gate can be skipped. Scoring MUST use an independent subagent (G3.4); dispatcher-scored results are invalid.
 
@@ -61,4 +78,4 @@ chore: add round output patterns to .gitignore
 
 ### Python Conventions
 
-Scripts under `tests/` use Python 3, `pathlib.Path` for file I/O, `json` for structured output. Gate functions return `passed()`/`fail()` helpers. Keep gate checkers idempotent—every function is a pure validation with no side effects on output files.
+Framework code under `src/shenbi/` uses Python 3.11+, `pathlib.Path` for file I/O, `json` for structured output. Gate functions return `passed()`/`fail()` helpers. Keep gate checkers idempotent—every function is a pure validation with no side effects on output files. No `print()` in framework code; use structlog.
