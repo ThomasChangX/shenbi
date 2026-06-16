@@ -1,0 +1,41 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --extra dev
+      - name: Generate SBOM (CycloneDX)
+        run: uv run cyclonedx-py environment -o sbom.cdx.json
+      - name: Build sdist and wheel
+        run: uv build
+      - name: Generate changelog for tag
+        id: changelog
+        run: |
+          prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$prev_tag" ]; then
+            notes=$(git log --format='- %s (%h)' ${prev_tag}..HEAD)
+          else
+            # First release: cap to recent 100 commits, not full history
+            notes=$(git log --format='- %s (%h)' -n 100)
+          fi
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$notes" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.changelog.outputs.notes }}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            sbom.cdx.json
