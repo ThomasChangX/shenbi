@@ -266,7 +266,20 @@ reportUnknownMemberType = "warning"
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["tests/unit", "tests/integration", "tests/property", "tests/benchmark"]
+testpaths = ["tests"]
+norecursedirs = [
+    "tests/rounds",
+    "tests/fixtures",
+    "tests/baselines",
+    "tests/coverage",
+    "tests/tiers",
+    "tests/dispatcher",
+    "tests/benchmarks",
+    "tests/pressure-tests",
+    "tests/skill-behavior",
+    "tests/skill-triggering",
+    ".hypothesis",
+]
 addopts = [
     "--strict-markers",
     "--cov=shenbi",
