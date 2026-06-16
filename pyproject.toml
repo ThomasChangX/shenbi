@@ -43,14 +43,13 @@ docs = [
 ]
 
 [project.scripts]
-# 6 entry points land in PR-18. shenbi-generate-plugins added in PR-45
-# (Cluster 07) when src/shenbi/plugins/generate.py is created.
 shenbi-validate = "shenbi.gates.cli:main"
 shenbi-dispatch = "shenbi.dispatcher.cli:main"
 shenbi-score = "shenbi.scoring:main"
 shenbi-summarize = "shenbi.summarize_round:main"
 shenbi-progress = "shenbi.update_progress:main"
 shenbi-phase = "shenbi.phase_runner:main"
+shenbi-generate-plugins = "shenbi.plugins.generate:main"
 
 [build-system]
 requires = ["hatchling"]

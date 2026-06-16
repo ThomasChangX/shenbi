@@ -66,6 +66,19 @@ Target density: 0.10 tests/LOC (1 test per 10 framework LOC).
 
 The Shenbi wheel contains only `src/shenbi/` (framework runtime). Skills under `skills/` are repo assets, not installable. Users needing skills should `git clone`, not `pip install`.
 
+## Plugin Manifests
+
+The four platform plugin manifests (`.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.opencode/`) are generated from a single source: `plugins/master.json`.
+
+When adding or removing a skill:
+
+1. Add or remove the skill directory under `skills/`.
+2. Add or remove its path in `plugins/master.json` (`skills` array).
+3. Run `shenbi-generate-plugins` (or `uv run shenbi-generate-plugins`).
+4. Commit `plugins/master.json` plus all regenerated manifest files.
+
+CI verifies the manifests are up to date; an ungenerated change fails the `plugin-manifest-freshness` job.
+
 ## Questions?
 
 Open a GitHub Discussion.

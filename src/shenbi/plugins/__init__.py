@@ -1,0 +1,1 @@
+"""Plugin manifest generator package."""
