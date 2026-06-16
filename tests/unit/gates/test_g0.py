@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 from shenbi.gates.g0 import gate_G0
 
 
@@ -62,3 +64,70 @@ class TestG0SeedFile:
         )
         result = _result_dict(gate_G0(seed_file=str(seed)))
         assert "G0.2" not in result.get("must_fix", [])
+
+
+@pytest.mark.unit
+class TestG0HappyPath:
+    """Happy-path tests for G0.3-G0.9 — each exercises one check on valid input."""
+
+    def test_g03_expected_chapters_via_genre_config(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """G0.3 reads chapter_word.default from PROJECT/skill-output/<proj>/genre-config.json."""
+        from shenbi.gates import g0 as g0_mod
+
+        skill_output = tmp_path / "skill-output" / "proj"
+        skill_output.mkdir(parents=True)
+        (skill_output / "genre-config.json").write_text(
+            json.dumps({"chapter_word": {"default": 5000}}), encoding="utf-8"
+        )
+        monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：10000\n", encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g03 = next((c for c in result["checks"] if c["id"] == "G0.3"), None)
+        assert g03 is not None, "G0.3 not emitted (earlier check may have short-circuited)"
+        assert g03["s"] == "PASS"
+        assert g03["expected_chapters"] == 2  # ceil(10000/5000)
+
+    def test_g04_passes_on_clean_repo(self, tmp_path: Path) -> None:
+        """G0.4 PASSes against the repo's real skills/ tree.
+
+        Note: when seed_file=None the gate SHORT-CIRCUITS at G0.1 and never
+        reaches G0.4 (see src/shenbi/gates/g0.py line 62 — returns passed()
+        immediately after appending the G0.1 SKIP check). To exercise G0.4
+        we must pass a real seed_file so the gate walks past G0.1/G0.2/G0.3.
+        ALL_SKILLS and SKILLS are module-level constants in shared.py
+        pointing at the actual repo layout, so G0.4 inspects the real
+        skills/ tree regardless of monkeypatch.
+        """
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# Novel\n\n目标字数：5000\n\n## Setup\n" + ("内容 " * 200),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g04 = next(
+            (c for c in result["checks"] if c["id"] == "G0.4"),
+            None,
+        )
+        assert g04 is not None, "G0.4 check not emitted (earlier check may have short-circuited)"
+        assert g04["s"] == "PASS"
+
+    def test_g06_passes_when_skill_output_writable(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """G0.6 PASSes when PROJECT root is writable."""
+        from shenbi.gates import g0 as g0_mod
+
+        monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g06 = next(
+            (c for c in result["checks"] if c["id"] == "G0.6"),
+            None,
+        )
+        assert g06 is not None, "G0.6 check not emitted (earlier check may have short-circuited)"
+        assert g06["s"] == "PASS"

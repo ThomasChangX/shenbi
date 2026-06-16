@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 from shenbi.gates.g_dispatch import gate_G_DISPATCH
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 from shenbi.gates.g_transition import gate_G_TRANSITION
@@ -58,3 +60,30 @@ class TestGTransition:
         result_str = gate_G_TRANSITION("a", "b", str(round_dir))
         assert isinstance(result_str, str)
         assert json.loads(result_str)
+
+
+@pytest.mark.unit
+def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
+    """GD.1 PASS when completed_skill_names ⊇ ALL_SKILLS."""
+    from shenbi.gates.shared import ALL_SKILLS
+
+    _, round_dir = make_project(progress={"completed_skill_names": sorted(ALL_SKILLS)})
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_when_progress_missing(tmp_path: Path) -> None:
+    """Missing progress.json -> FAIL with GD.0:no_progress in must_fix."""
+    result = _result_dict(gate_G_DISPATCH("drafting", str(tmp_path / "empty")))
+    assert result["status"] == "FAIL"
+    assert any("GD.0" in mf for mf in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_when_skills_incomplete(make_project) -> None:
+    """completed_skill_names missing some -> FAIL with GD.1 listing missing."""
+    _, round_dir = make_project(progress={"completed_skill_names": []})
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GD.1" in mf for mf in result.get("must_fix", []))
