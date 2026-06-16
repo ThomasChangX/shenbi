@@ -62,3 +62,5 @@ sbom.cdx.json
 # Worktrees (local isolated workspaces)
 .worktrees/
 mutants/
+.cache/
+.hypothesis/
