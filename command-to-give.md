@@ -1,5 +1,7 @@
 在 /Users/xiaotiac/Documents/GitHub/shenbi 根目录，按 docs/superpowers/plans/2026-06-11-test-framework.md 执行测试轮次。
 
+> **Quick reference**: All commands have `just` shortcuts. Run `just --list` for the full list. Key commands: `just check`, `just test`, `just gate G0 <seed>`, `just dispatch <skill> <type> <round> <prompt>`.
+
 ## 可靠性边界
 
 **在这个边界内，框架输出可信。边界外不承诺。**
@@ -129,7 +131,7 @@ T3 不使用 phase-runner.py。G6 gate marker 是评分的前置条件。
 ```bash
 uv run shenbi-summarize <round_dir>
 uv run shenbi-validate G7 <round_dir>
-python3 tests/round-exec.sh --validate <round_dir>
+bash tests/round-exec.sh --validate <round_dir>
 ```
 
 ## 阈值
