@@ -13,38 +13,23 @@ import re
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
+from shenbi.gates.shared import (
     CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
     word_count_md,
-    write_gate_marker,
     yload,
 )
 
 
-def gate_G2(file_paths: str | list[str] | None, file_type: str = "chapter", round_dir: str | None = None, project_dir: str | None = None) -> str:
+def gate_G2(
+    file_paths: str | list[str] | None,
+    file_type: str = "chapter",
+    round_dir: str | None = None,
+    project_dir: str | None = None,
+) -> str:
     """G2: Write verification. file_type: chapter|report|truth"""
     checks: list[dict[str, Any]] = []
     mf: list[dict[str, Any]] = []
@@ -95,7 +80,7 @@ def gate_G2(file_paths: str | list[str] | None, file_type: str = "chapter", roun
                 or fp.endswith("map.md")
             )
             try:
-                fm = yload(fp) if yaml else {}
+                fm = yload(fp)
                 has_fm = bool(fm)
                 if must_have and not has_fm:
                     mf.append(

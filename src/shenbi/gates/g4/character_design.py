@@ -5,33 +5,9 @@ from typing import Any
 import re
 from pathlib import Path
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+from shenbi.gates.shared import (
     fail,
-    jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
     yload,
 )
 
@@ -47,7 +23,7 @@ def g4_character_design(fps: list[str], rd: str | None = None) -> str:
         # protagonist.md checks
         if "protagonist" in str(fp) and pf.suffix == ".md":
             try:
-                fm = yload(str(pf)) if yaml else {}
+                fm = yload(str(pf))
             except Exception:
                 mf.append(f"G4.protag.yaml_error:{fp}")
                 continue

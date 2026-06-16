@@ -10,34 +10,9 @@ from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+from shenbi.gates.shared import (
     fail,
-    jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 
@@ -162,7 +137,9 @@ def g4_generic_clean(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-clean", c)
 
 
-def gate_G4(skill_name: str, test_type: str, file_paths: list[str], round_dir: str | None = None) -> str:
+def gate_G4(
+    skill_name: str, test_type: str, file_paths: list[str], round_dir: str | None = None
+) -> str:
     """G4: Route to the correct per-skill checker."""
     if test_type == "bug-hunt":
         return g4_generic_bughunt(file_paths, round_dir)

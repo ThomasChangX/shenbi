@@ -22,14 +22,3 @@ context can be recovered.
     files: ^(skills/.*\.yaml|tests/tiers/.*\.yaml)$
     pass_filenames: false
   ```
-
-## post-PR-25: narrow basedpyright gates/ executionEnvironment
-
-- **Deferred in:** post-PR-25 fix commit (`4d78fd9`)
-- **Why deferred:** The "preferred" fix (rewriting `jload`/`yload` to
-  return narrower types and using inline `# pyright: ignore` on the
-  remaining call sites) touches 102 call sites across all gate modules.
-  Too invasive for the post-PR-25 fix commit, which was already
-  correcting a misleading "all pass" claim.
-- **What to do:** See `docs/basedpyright-overrides.md` for the full plan.
-- **Revisit by:** 2026-09-01.

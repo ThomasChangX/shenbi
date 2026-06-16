@@ -12,33 +12,18 @@ import json
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
+from shenbi.gates.shared import (
     TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+    find_report,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 
-def gate_G3(skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None) -> str:
+def gate_G3(
+    skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None
+) -> str:
     """G3: Pre-scoring dependency check."""
     c: list[Any] = []
     mf: list[Any] = []
@@ -53,28 +38,24 @@ def gate_G3(skill_name: str | None = None, test_type: str | None = None, round_d
     if deps_path.exists():
         try:
             deps = jload(str(deps_path))
-            if isinstance(deps, dict):
-                skill_deps = deps.get(skill_name, {}) if skill_name else {}
-                prereqs = (
-                    skill_deps.get("prerequisites", []) if isinstance(skill_deps, dict) else []
-                )
-                if not isinstance(prereqs, list):
-                    prereqs = []
-                for prereq in prereqs:
-                    rp = _find_report(reports_dir, prereq, test_type)
-                    if not rp or not rp.exists():
-                        mf.append(
-                            {
-                                "id": "G3.1",
-                                "file": str(rp),
-                                "s": "FAIL",
-                                "r": f"missing t1-report for {prereq}",
-                            }
-                        )
-                    else:
-                        c.append({"id": "G3.1", "file": str(rp), "s": "PASS"})
-                if not prereqs:
-                    c.append({"id": "G3.1", "s": "SKIP", "r": "no prerequisites"})
+            skill_deps: dict[str, Any] = deps.get(skill_name, {}) if skill_name else {}
+            prereqs_raw = skill_deps.get("prerequisites", [])
+            prereqs: list[str] = prereqs_raw if isinstance(prereqs_raw, list) else []
+            for prereq in prereqs:
+                rp = find_report(reports_dir, prereq, test_type)
+                if not rp or not rp.exists():
+                    mf.append(
+                        {
+                            "id": "G3.1",
+                            "file": str(rp),
+                            "s": "FAIL",
+                            "r": f"missing t1-report for {prereq}",
+                        }
+                    )
+                else:
+                    c.append({"id": "G3.1", "file": str(rp), "s": "PASS"})
+            if not prereqs:
+                c.append({"id": "G3.1", "s": "SKIP", "r": "no prerequisites"})
         except (json.JSONDecodeError, OSError):
             mf.append({"id": "G3.1", "s": "FAIL", "r": "deps.json invalid"})
     else:

@@ -11,29 +11,11 @@ log = get_logger(__name__)
 import json
 from pathlib import Path
 
-from shenbi.gates.shared import (  # noqa: F401
+from shenbi.gates.shared import (
     ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 

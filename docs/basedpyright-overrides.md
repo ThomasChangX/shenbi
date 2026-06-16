@@ -1,87 +1,84 @@
-# basedpyright executionEnvironments — Design Notes
+# basedpyright Configuration — Design Notes
 
-`pyproject.toml` declares three `executionEnvironments` entries that
-relax strict-mode diagnostics for specific subdirectories. This file
-explains the rationale, the trade-off, and the path to removing each
-override.
+`pyproject.toml` configures basedpyright in strict mode with two
+categories of relaxation:
 
-## Summary
+1. **Per-directory `executionEnvironments`** for `tests/` and
+   `src/shenbi/skill_utils/` — mirrors mypy's existing overrides.
+2. **Project-level rule downgrades** for the Unknown-family rules.
+
+## Project-level rule downgrades
+
+```toml
+reportMissingTypeStubs = "warning"
+reportUnknownMemberType = "warning"
+reportUnknownVariableType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownParameterType = "warning"
+```
+
+### Why
+
+Gates load heterogeneous external data (`progress.json`, `deps.json`,
+`summary.json`, score files, YAML frontmatter) via `jload`/`yload`
+which return `dict[str, Any]`. Value access on `dict[str, Any]`
+produces `Any`, which strict mode flags as Unknown. These are noise,
+not bugs — the type system cannot know the shape of arbitrary JSON
+without schema validation.
+
+Real type errors are still caught by rules that remain as errors:
+- `reportArgumentType` — passing wrong type to typed parameter
+- `reportPossiblyUnboundVariable` — using potentially undefined variable
+- `reportIndexIssue` — invalid dict/list indexing
+- `reportUnnecessaryIsInstance` — redundant type narrowing
+- `reportAttributeAccessIssue` — accessing non-existent attribute
+
+### Alternative considered: TypedDicts
+
+The "textbook proper" fix would be to define TypedDicts for each JSON
+shape and validate at boundaries. Rejected for this codebase because:
+
+1. **9+ distinct JSON shapes** (progress, deps, acceptance, genre-config,
+   novel, summary, score files, exempt_data, markers) each with nested
+   fields — high upfront cost.
+2. **Schemas are evolving** as the framework develops — TypedDicts would
+   require ongoing maintenance to track schema changes.
+3. **`cast()` at every `jload` boundary** adds boilerplate without
+   runtime validation (TypedDicts are erased at runtime).
+
+If the project later adopts Pydantic for runtime-validated models at
+boundaries, these rules can be re-tightened to error.
+
+## executionEnvironments
 
 | Root | Disabled rules | Why |
 |---|---|---|
-| `tests` | reportUnused*, reportUnknown*, reportPrivateUsage, reportMissingParameterType | Industry norm: test code uses fixtures, Mock, dynamic setattr that are inherently untyped. Real-bug rules (reportPossiblyUnboundVariable, reportArgumentType, reportIndexIssue) remain on. |
-| `src/shenbi/skill_utils` | reportUnknown*, reportPrivateUsage, reportMissingTypeStubs | Mirrors mypy's existing `ignore_errors = true` for `shenbi.skill_utils.*` (PR-27 deferral). Annotation + tests for these scripts is a follow-up. |
-| `src/shenbi/gates` | reportUnusedImport, reportPrivateUsage, reportUnusedVariable, reportUnusedFunction, reportUnknownVariableType, reportUnknownArgumentType, reportUnknownParameterType, reportUnknownLambdaType, reportUnknownMemberType | Router re-export pattern + jload/yload Any + dead stub variables. See below. |
+| `tests` | reportUnused*, reportUnknown*, reportPrivateUsage, reportMissingParameterType | Industry norm: test code uses fixtures, Mock, dynamic setattr that are inherently untyped. |
+| `src/shenbi/skill_utils` | reportUnknown*, reportPrivateUsage, reportMissingTypeStubs | Mirrors mypy's `ignore_errors = true` for `shenbi.skill_utils.*` (PR-27 deferral). |
 
-## gates/ override — full rationale
+## What was removed (post-PR-25 follow-up)
 
-The `src/shenbi/gates` override is the broadest and the most likely to mask
-future real bugs. Three categories of justification:
+The original post-PR-25 fix added a third executionEnvironment for
+`src/shenbi/gates/` that broadly suppressed 9 diagnostic categories.
+This was a deferral, not a fix. The deferral has been resolved:
 
-### 1. Router re-export pattern (reportUnusedImport)
+1. **jload/yload narrowed** from `Any` to `dict[str, Any]` with
+   runtime `isinstance` checks that fail loud on non-dict JSON/YAML.
+2. **587 unused imports removed** — gate modules no longer re-export
+   30+ symbols from `shared.py` that nobody imports from them.
+3. **Private helpers renamed** — `_find_report` → `find_report`,
+   `_normalize_file_paths` → `normalize_file_paths`. Cross-module
+   helpers shouldn't pretend to be private.
+4. **Dead code deleted** — `allowed_prefixes` (g0), `tension_phases`
+   (g6), `mf` (g_transition), `_text_fingerprint` (moved from g5 to
+   chapter_drafting where it's actually used).
+5. **Redundant `isinstance(x, dict)` checks removed** — now that
+   jload/yload guarantee dict, these were provably unnecessary.
+6. **Dead `try: import yaml` blocks removed** from 21 gate modules —
+   yaml is a hard dependency, and `yload` handles it internally.
+7. **Dead `yload(...) if yaml else {}` guards removed** — same reason.
 
-Every gate module (`g0.py`, `g1.py`, …, `g_transition.py`) re-exports
-symbols from `shared.py` so callers can do
-`from shenbi.gates.g4.generic import X`. The re-exports are marked with
-`# noqa: F401` (ruff respects this), but basedpyright does not recognize
-this comment.
-
-**Alternative considered:** Add `__all__` to each gate module listing
-every re-exported symbol. Rejected because maintaining `__all__` across
-32 modules is high-churn and easily forgotten.
-
-### 2. jload/yload return Any (reportUnknownMemberType, reportUnknown*)
-
-`shared.py` defines `jload(p) -> Any` and `yload(p) -> Any` because
-`json.load` and `yaml.safe_load` are inherently untyped. Callers then
-do `.get(...)`, `[key]`, iteration, etc. — all of which propagate the
-`Unknown` taint to the result.
-
-There are **102 jload/yload call sites** across gates/. Narrowing each
-one inline is impractical.
-
-### 3. Dead stub variables (reportUnusedVariable, reportUnusedFunction)
-
-Three known stubs are tracked with `# TODO post-PR-25:` comments:
-- `g0.py` — `allowed_prefixes`
-- `g6.py` — `tension_phases`
-- `g_transition.py` — `mf`
-
-Plus three router helpers that basedpyright doesn't see cross-module
-usage for:
-- `shared.py` — `_find_report`, `_normalize_file_paths`
-- `g5.py` — `_text_fingerprint`
-
-## Plan to remove the gates/ override
-
-The principled end-state is:
-
-1. Rewrite `jload`/`yload` signatures:
-   ```python
-   def jload(p: str | Path) -> dict[str, Any] | list[Any]: ...
-   def yload(p: str | Path) -> dict[str, Any]: ...
-   ```
-   This narrows the Any-taint at the source.
-
-2. Add `__all__` to each gate module so re-exports are recognized.
-   (Or switch to explicit `from shenbi.gates.shared import X` in each
-   caller, dropping the re-export pattern entirely. Design decision.)
-
-3. Wire or delete the three dead stubs.
-
-4. Drop the `src/shenbi/gates` executionEnvironment.
-
-## Why this was deferred from post-PR-25
-
-The post-PR-25 fix commit (`4d78fd9`) was already correcting a misleading
-"all pass" claim from PR-25. Adding the 102-call-site refactor on top
-would have inflated the commit beyond review. The cheaper option
-(broad override + tracking doc + revisit date) was chosen.
-
-**Revisit by:** 2026-09-01.
-
-## Related
-
-- `docs/roadmap.md` — entry tracking this deferral
-- `pyproject.toml` — the override declarations
-- PR-27 commit — mypy `ignore_errors` for skill_utils (parallel pattern)
+The `src/shenbi/gates` executionEnvironment is gone. Gates are now
+checked under the same strict-mode rules as the rest of `src/shenbi/`,
+with only the project-level Unknown-family downgrade applying.

@@ -14,33 +14,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+from shenbi.gates.shared import (
+    normalize_file_paths,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
     yload,
 )
 
@@ -60,7 +38,7 @@ def gate_G1(
             input_files = json.loads(input_files)
         except (json.JSONDecodeError, ValueError):
             pass
-    fps = _normalize_file_paths(input_files)
+    fps = normalize_file_paths(input_files)
     rd = Path(round_dir) if round_dir else None
 
     # In-place modifying skills that need .bak creation
@@ -99,7 +77,7 @@ def gate_G1(
         # G1.3 — YAML frontmatter parses successfully
         if fp.endswith(".md"):
             try:
-                fm = yload(fp) if yaml else {}
+                fm = yload(fp)
                 c.append({"id": "G1.3", "file": fp, "s": "PASS", "has_fm": bool(fm)})
             except Exception:
                 mf.append({"id": "G1.3", "file": fp, "s": "FAIL", "r": "YAML parse error"})

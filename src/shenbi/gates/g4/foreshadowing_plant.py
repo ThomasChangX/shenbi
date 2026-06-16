@@ -5,34 +5,11 @@ from typing import Any
 import re
 from pathlib import Path
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
+import yaml
 
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
-    TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+from shenbi.gates.shared import (
     fail,
-    jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 
@@ -58,7 +35,7 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
         hooks_match = re.search(r"## hooks\s*\n(.*?)(?=\n## |\Z)", content, re.DOTALL)
         if hooks_match:
             try:
-                loaded: Any = yaml.safe_load(hooks_match.group(1)) if yaml else []
+                loaded: Any = yaml.safe_load(hooks_match.group(1))
                 hooks = loaded if isinstance(loaded, list) else []
             except Exception:
                 pass

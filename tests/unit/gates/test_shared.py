@@ -5,9 +5,9 @@ Business rules under test:
 - word_count_md: CJK character counting (excludes code blocks/frontmatter)
 - passed/fail JSON formatters
 - write_gate_marker: persists PASS results only
-- _normalize_file_paths: list/string normalization
+- normalize_file_paths: list/string normalization
 - count_transition_words: avoids double-counting 然 compounds
-- _find_report: flexible filename matching
+- find_report: flexible filename matching
 - read_genre_config: returns {} on missing/corrupt
 """
 
@@ -19,11 +19,11 @@ from pathlib import Path
 import pytest
 
 from shenbi.gates.shared import (
-    _find_report,
-    _normalize_file_paths,
     count_transition_words,
     fail,
+    find_report,
     jload,
+    normalize_file_paths,
     passed,
     read_genre_config,
     word_count_md,
@@ -172,9 +172,7 @@ class TestWriteGateMarker:
     def test_no_op_when_round_dir_none(self, tmp_path: Path) -> None:
         """Without --round-dir, no marker is written (markers are opt-in)."""
         # Should not raise
-        write_gate_marker(
-            "G0", "f.md", "generative", passed("G0", []), None, ["f.md"]
-        )
+        write_gate_marker("G0", "f.md", "generative", passed("G0", []), None, ["f.md"])
 
 
 # --- TestNormalizeFilePaths ----------------------------------------------
@@ -182,23 +180,23 @@ class TestWriteGateMarker:
 
 class TestNormalizeFilePaths:
     def test_returns_empty_list_for_none(self) -> None:
-        assert _normalize_file_paths(None) == []
+        assert normalize_file_paths(None) == []
 
     def test_splits_comma_separated_string(self) -> None:
-        result = _normalize_file_paths("a.md, b.md, c.md")
+        result = normalize_file_paths("a.md, b.md, c.md")
         assert result == ["a.md", "b.md", "c.md"]
 
     def test_passes_through_list_unchanged(self) -> None:
-        result = _normalize_file_paths(["a.md", "b.md"])
+        result = normalize_file_paths(["a.md", "b.md"])
         assert result == ["a.md", "b.md"]
 
     def test_converts_tuple_to_list_of_strings(self) -> None:
-        result = _normalize_file_paths(("a.md", "b.md"))
+        result = normalize_file_paths(("a.md", "b.md"))
         assert result == ["a.md", "b.md"]
         assert isinstance(result, list)
 
     def test_strips_whitespace_in_string_split(self) -> None:
-        result = _normalize_file_paths("  a.md  ,  b.md  ")
+        result = normalize_file_paths("  a.md  ,  b.md  ")
         assert result == ["a.md", "b.md"]
 
 
@@ -242,31 +240,31 @@ class TestFindReport:
     def test_finds_skill_test_type_scores_variant(self, tmp_path: Path) -> None:
         """Preferred form: <skill>-<test_type>-scores.json."""
         (tmp_path / "shenbi-x-generative-scores.json").write_text("{}", encoding="utf-8")
-        result = _find_report(tmp_path, "shenbi-x", "generative")
+        result = find_report(tmp_path, "shenbi-x", "generative")
         assert result is not None
         assert result.name == "shenbi-x-generative-scores.json"
 
     def test_falls_back_to_skill_test_type_json(self, tmp_path: Path) -> None:
         (tmp_path / "shenbi-x-bug-hunt.json").write_text("{}", encoding="utf-8")
-        result = _find_report(tmp_path, "shenbi-x", "bug-hunt")
+        result = find_report(tmp_path, "shenbi-x", "bug-hunt")
         assert result is not None
         assert result.name == "shenbi-x-bug-hunt.json"
 
     def test_falls_back_to_skill_json_only(self, tmp_path: Path) -> None:
         (tmp_path / "shenbi-x.json").write_text("{}", encoding="utf-8")
-        result = _find_report(tmp_path, "shenbi-x", "generative")
+        result = find_report(tmp_path, "shenbi-x", "generative")
         assert result is not None
         assert result.name == "shenbi-x.json"
 
     def test_returns_none_when_no_match(self, tmp_path: Path) -> None:
-        assert _find_report(tmp_path, "missing-skill", "generative") is None
+        assert find_report(tmp_path, "missing-skill", "generative") is None
 
     def test_returns_none_when_test_type_none_and_only_typed_files_exist(
         self, tmp_path: Path
     ) -> None:
         (tmp_path / "shenbi-x-generative-scores.json").write_text("{}", encoding="utf-8")
         # When test_type is None, only the bare <skill>.json is searched
-        assert _find_report(tmp_path, "shenbi-x", None) is None
+        assert find_report(tmp_path, "shenbi-x", None) is None
 
 
 # --- TestReadGenreConfig -------------------------------------------------

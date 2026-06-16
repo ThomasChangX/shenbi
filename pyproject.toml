@@ -262,7 +262,19 @@ exclude = [
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
 reportMissingTypeStubs = "warning"
+# Unknown-family rules downgraded to warning for JSON/YAML dict access.
+# Gates load heterogeneous external data (progress.json, deps.json, etc.)
+# via jload/yload returning dict[str, Any]. Value access propagates Any,
+# which strict mode flags as Unknown. These rules catch noise, not bugs —
+# real type errors are still caught by reportArgumentType,
+# reportPossiblyUnboundVariable, reportIndexIssue, reportUnnecessaryIsInstance.
+# TypedDicts at boundaries would be the "proper" fix but require ongoing
+# schema maintenance that doesn't suit this project's evolution stage.
 reportUnknownMemberType = "warning"
+reportUnknownVariableType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownParameterType = "warning"
 
 # Per-directory overrides via executionEnvironments (basedpyright's
 # supported mechanism — [[tool.basedpyright.overrides]] is not recognized).
@@ -273,10 +285,6 @@ executionEnvironments = [
 
   # skill_utils/: mirrors mypy ignore_errors for shenbi.skill_utils.* (PR-27).
   { root = "src/shenbi/skill_utils", reportUnknownVariableType = "none", reportUnknownParameterType = "none", reportUnknownLambdaType = "none", reportUnknownArgumentType = "none", reportUnknownMemberType = "none", reportMissingParameterType = "none", reportPrivateUsage = "none", reportMissingTypeStubs = "none" },
-
-  # gates/: router re-export pattern + jload/yload Any-taint + 3 dead stubs.
-  # Revisit by 2026-09-01 — see docs/basedpyright-overrides.md.
-  { root = "src/shenbi/gates", reportUnusedImport = "none", reportPrivateUsage = "none", reportUnusedVariable = "none", reportUnusedFunction = "none", reportUnknownVariableType = "none", reportUnknownArgumentType = "none", reportUnknownParameterType = "none", reportUnknownLambdaType = "none", reportUnknownMemberType = "none" },
 ]
 
 [tool.pytest.ini_options]

@@ -28,23 +28,34 @@ CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
 
-def jload(p: str | Path) -> Any:
-    """Load JSON file, returning parsed object."""
-    return json.loads(Path(p).read_text(encoding="utf-8"))
+def jload(p: str | Path) -> dict[str, Any]:
+    """Load a JSON file as a dict.
+
+    All call sites in shenbi.gates treat the result as a dict (`.get`,
+    indexing by str key). JSON files that aren't objects are treated as
+    malformed and raise ValueError — failing loud beats silent AttributeError
+    downstream.
+    """
+    data = json.loads(Path(p).read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{p}: expected JSON object, got {type(data).__name__}")
+    return data
 
 
-def yload(p: str | Path) -> Any:
-    """Load YAML frontmatter or full YAML from a file."""
+def yload(p: str | Path) -> dict[str, Any]:
+    """Load YAML frontmatter or full YAML from a file as a dict."""
     if yaml is None:
         raise RuntimeError("PyYAML is not installed. Run: pip install pyyaml")
     with open(p, encoding="utf-8") as f:
         content = f.read()
     if content.startswith("---"):
         parts = content.split("---", 2)
-        if len(parts) > 1:
-            return yaml.safe_load(parts[1]) or {}
-        return {}
-    return yaml.safe_load(content) or {}
+        data = yaml.safe_load(parts[1]) or {} if len(parts) > 1 else {}
+    else:
+        data = yaml.safe_load(content) or {}
+    if not isinstance(data, dict):
+        raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
+    return data
 
 
 def word_count_md(fp: str | Path) -> int:
@@ -98,7 +109,7 @@ def passed(gid: str, checks: list[dict[str, Any]]) -> str:
     )
 
 
-def _find_report(
+def find_report(
     reports_dir: str | Path, skill_name: str, test_type: str | None = None
 ) -> Path | None:
     """Find a report file with flexible naming convention.
@@ -119,7 +130,7 @@ def _find_report(
     return None
 
 
-def _normalize_file_paths(
+def normalize_file_paths(
     file_paths: str | list[str] | tuple[str, ...] | None,
 ) -> list[str]:
     """Accept list or comma-separated string, return list of Path strings."""

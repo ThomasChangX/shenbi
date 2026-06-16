@@ -14,46 +14,15 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
+from shenbi.gates.shared import (
     PROJECT,
     SKILLS,
     TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
+    find_report,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
-
-
-def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
-    body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
-    paragraphs = body.split(chr(10) + chr(10))
-    hashes = set()
-    for p in paragraphs:
-        p = p.strip()
-        if not p or p.startswith("#") or p.startswith(">"):
-            continue
-        if "PRE_WRITE_CHECK" in p or "POST_WRITE_SELF_CHECK" in p:
-            continue
-        cjk = len(re.findall(r"[一-鿿]", p))
-        if cjk >= min_len:
-            hashes.add(hash(p))
-    return hashes
 
 
 def gate_G5(
@@ -85,7 +54,7 @@ def gate_G5(
         if pr in summary_data:
             score = summary_data[pr].get("generative", 0)
         else:
-            report = _find_report(rd / "t1-reports", pr, "generative") if rd else None
+            report = find_report(rd / "t1-reports", pr, "generative") if rd else None
             if report and report.exists():
                 rdata = jload(str(report))
                 score = rdata.get("final_score", rdata.get("score", 0))

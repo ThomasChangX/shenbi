@@ -13,29 +13,14 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import (  # noqa: F401
-    ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
+from shenbi.gates.shared import (
     CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
     FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
     PROJECT,
-    SKILLS,
     TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 
@@ -214,7 +199,6 @@ def gate_G6(
         # Volume tension curve check (buildup/rising/climax/resolution]
         # Scan chapter types for tension arc pattern
         _type_seq = "".join(t["type"][0] for t in ch_types)  # a/d/i/t/n
-        tension_phases: list[str] = []  # TODO post-PR-25: populate from _type_seq; dead today.
         action_density = [
             (
                 t["ch"],

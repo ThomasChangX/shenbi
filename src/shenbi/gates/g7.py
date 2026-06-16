@@ -13,33 +13,12 @@ import os
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
-from shenbi.gates.shared import (  # noqa: F401
+from shenbi.gates.shared import (
     ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
-    CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
-    G4_CHECKER_SKILLS,
-    META_NARRATIVE,
-    PROJECT,
-    SKILLS,
     TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
     yload,
 )
 
@@ -115,8 +94,8 @@ def gate_G7(round_dir: str) -> str:
         pending = []
         for f in truth_dir.glob("*.md"):
             try:
-                fm = yload(str(f)) if yaml else {}
-                if isinstance(fm, dict) and fm.get("status") == "pending":
+                fm = yload(str(f))
+                if fm.get("status") == "pending":
                     pending.append(f.name)
             except Exception:
                 pass
@@ -246,22 +225,19 @@ def gate_G7(round_dir: str) -> str:
         for score_file in reports_dir.glob("*-generative-scores.json"):
             try:
                 data = jload(str(score_file))
-                if isinstance(data, dict):
-                    # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
-                    dims = data.get("dimensions", [])
-                    if dims:
-                        vec = tuple(
-                            (d.get("num"), d.get("score", 0))
-                            for d in sorted(dims, key=lambda x: x.get("num", 0))
-                        )
-                    else:
-                        # Raw score file: {"1": 90, "2": 95, ...}
-                        vec = tuple(
-                            sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit())
-                        )
-                    if vec not in score_vectors:
-                        score_vectors[vec] = []
-                    score_vectors[vec].append(score_file.stem)
+                # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}
+                dims = data.get("dimensions", [])
+                if dims:
+                    vec = tuple(
+                        (d.get("num"), d.get("score", 0))
+                        for d in sorted(dims, key=lambda x: x.get("num", 0))
+                    )
+                else:
+                    # Raw score file: {"1": 90, "2": 95, ...}
+                    vec = tuple(sorted((k, v) for k, v in data.items() if k.lstrip("-").isdigit()))
+                if vec not in score_vectors:
+                    score_vectors[vec] = []
+                score_vectors[vec].append(score_file.stem)
             except Exception:
                 pass
         for vec, names in score_vectors.items():

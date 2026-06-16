@@ -15,29 +15,16 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.gates.shared import (  # noqa: F401
+from shenbi.gates.shared import (
     ALL_SKILLS,
-    CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
-    FATIGUE_BASE,
-    FIXTURES,
     G4_CHECKER_SKILLS,
-    META_NARRATIVE,
     PROJECT,
     SKILLS,
     TESTS,
-    TRANSITION_SPECIFIC,
-    _find_report,
-    _normalize_file_paths,
-    count_transition_words,
     fail,
     jload,
     passed,
-    read_genre_config,
-    unimplemented,
-    word_count_md,
-    write_gate_marker,
-    yload,
 )
 
 
@@ -311,10 +298,6 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # config/, etc.) are forbidden — they assume a running project, making
     # T1 isolation testing impossible. This rule prevents the "scenario
     # references project paths that don't exist" failure mode.
-    allowed_prefixes = (
-        "tests/fixtures/",
-        "skills/",
-    )  # TODO post-PR-25: wire into scenario-path check; dead today.
     impure_refs: dict[str, list[str]] = {}
     if t1_skill_dir.exists():
         for skill_dir in sorted(t1_skill_dir.iterdir()):
