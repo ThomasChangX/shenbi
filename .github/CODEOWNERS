@@ -1,0 +1,12 @@
+# Default owner
+*                       @ThomasChangX
+
+# Framework code
+src/shenbi/             @ThomasChangX
+tests/                  @ThomasChangX
+
+# Documentation
+docs/                   @ThomasChangX
+
+# Skills (per-domain ownership as project grows)
+skills/                 @ThomasChangX
