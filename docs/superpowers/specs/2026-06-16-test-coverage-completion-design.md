@@ -324,8 +324,8 @@ Tests:
 
 | Metric | After Phase 1 | After Phase 2 |
 |---|---|---|
-| Test functions | ~490 | ~613 |
-| Test density | ~0.079 | ~0.098 |
+| Test functions | ~490 | ~619 |
+| Test density | ~0.079 | ~0.099 |
 | Line coverage (est.) | ~35-40% | ~70-75% |
 | Branch coverage (est.) | ~25% | ~60-65% |
 
@@ -397,14 +397,14 @@ uv run pytest tests/unit/test_test_density.py -v  # must PASS, not xfail
 
 | Metric | After Phase 2 | After Phase 3 |
 |---|---|---|
-| Test functions | ~613 | ~668 |
-| Test density | ~0.098 | ~0.107 |
+| Test functions | ~619 | ~674 |
+| Test density | ~0.099 | ~0.108 |
 | Line coverage | ~70-75% | ≥90% |
 | Branch coverage | ~60-65% | ≥80% |
 | xfail count | 2 | 0 |
 | `fail_under` | 55 | 90 |
 
-**Margin**: 668 functions / 6232 LOC = 0.107. This gives 7 functions of headroom above the 0.10 floor, absorbing minor LOC growth from bug fixes.
+**Margin**: 674 functions / 6232 LOC = 0.108. This gives 50 functions of headroom above the 624 minimum (0.10 × 6232), absorbing minor LOC growth from bug fixes.
 
 ## PR Dependency Graph
 
@@ -471,9 +471,9 @@ After PR-56 merges:
 | Phase | PRs | New functions | Est. effort |
 |---|---|---|---|
 | Phase 1 | PR-48, 49, 50, 50b, 51 | ~110 | 3-4 days |
-| Phase 2 | PR-52, 53, 54 | ~123 | 3-4 days |
+| Phase 2 | PR-52, 53, 54 | ~129 | 3-4 days |
 | Phase 3 | PR-55, 56 | ~55 | 2-3 days |
-| **Total** | **10 PRs** | **~288** | **8-11 days** |
+| **Total** | **10 PRs** | **~294** | **8-11 days** |
 
 ## References
 
