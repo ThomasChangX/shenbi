@@ -23,6 +23,7 @@ dev = [
     "pytest-timeout>=2.2.0",
     "pytest-benchmark>=4.0.0",
     "pytest-ordering>=0.6",
+    "pytest-randomly>=3.15.0",
     "hypothesis>=6.97.0",
     "mypy>=1.8.0",
     "basedpyright>=1.13.0",   # 纯 Python 的 pyright fork，避免 Node.js 依赖
