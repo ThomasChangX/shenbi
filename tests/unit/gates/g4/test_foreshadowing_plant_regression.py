@@ -31,7 +31,11 @@ def test_hooks_section_with_dict_yaml_instead_of_list_does_not_crash(
     )
     result_str = g4_foreshadowing_plant([str(hooks_file)])
     parsed = json.loads(result_str)
-    assert "status" in parsed
+    # Strong assertions: gate must produce structured G4 output, not just
+    # any JSON-parseable string.
+    assert parsed["status"] in {"PASS", "FAIL"}, "gate must complete, not raise"
+    assert parsed["gate"] == "G4-foreshadowing-plant"
+    assert isinstance(parsed["checks"], list)
 
 
 def test_hooks_section_with_scalar_yaml_instead_of_list_does_not_crash(
@@ -47,4 +51,6 @@ def test_hooks_section_with_scalar_yaml_instead_of_list_does_not_crash(
     )
     result_str = g4_foreshadowing_plant([str(hooks_file)])
     parsed = json.loads(result_str)
-    assert "status" in parsed
+    assert parsed["status"] in {"PASS", "FAIL"}, "gate must complete, not raise"
+    assert parsed["gate"] == "G4-foreshadowing-plant"
+    assert isinstance(parsed["checks"], list)

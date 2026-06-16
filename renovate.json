@@ -39,10 +39,9 @@
     }
   ],
   "vulnerabilityAlerts": {
+    "description": "Security fixes require human review — patches can carry breaking API changes that CI cannot detect",
     "enabled": true,
     "labels": ["security"],
-    "automerge": true,
-    "automergeType": "pr",
-    "automergeStrategy": "squash"
+    "automerge": false
   }
 }

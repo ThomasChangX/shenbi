@@ -266,41 +266,16 @@ reportUnknownMemberType = "warning"
 
 # Per-directory overrides via executionEnvironments (basedpyright's
 # supported mechanism — [[tool.basedpyright.overrides]] is not recognized).
-# Order matters: more specific roots first, the project root applies
-# anything not matched above.
-# See cluster-05 post-PR-25 review for the per-category rationale.
-
-# Test code: pytest fixtures, Mock objects, dynamic setattr, and helper
-# functions are inherently untyped by design. Strict-mode noise on these
-# does not reflect real bugs (reportPossiblyUnboundVariable,
-# reportArgumentType, reportIndexIssue still catch). Industry norm:
-# tests/ runs standard, not strict.
-# Router/re-export modules under gates/: imports marked `# noqa: F401`
-# are intentional re-exports (gate modules aggregate symbols from
-# gates/shared.py so callers can `from shenbi.gates.g4.generic import X`).
-# ruff respects `# noqa: F401`; basedpyright does not.
+# Rationale and revisit plan: docs/basedpyright-overrides.md
 executionEnvironments = [
+  # tests/: industry-norm relaxation for test code (Mock, fixtures, dynamic setattr).
   { root = "tests", reportUnusedVariable = "none", reportUnusedFunction = "none", reportUnusedImport = "none", reportUnknownVariableType = "none", reportUnknownLambdaType = "none", reportUnknownParameterType = "none", reportUnknownArgumentType = "none", reportUnknownMemberType = "none", reportMissingParameterType = "none", reportPrivateUsage = "none" },
 
-  # skill_utils/ scripts (PR-27): mypy has `ignore_errors = true` for
-  # shenbi.skill_utils.* (annotation + tests deferred to follow-up).
-  # Mirror that here so basedpyright and mypy agree. See
-  # [[tool.mypy.overrides]] above.
+  # skill_utils/: mirrors mypy ignore_errors for shenbi.skill_utils.* (PR-27).
   { root = "src/shenbi/skill_utils", reportUnknownVariableType = "none", reportUnknownParameterType = "none", reportUnknownLambdaType = "none", reportUnknownArgumentType = "none", reportUnknownMemberType = "none", reportMissingParameterType = "none", reportPrivateUsage = "none", reportMissingTypeStubs = "none" },
 
-  # gates/: imports marked `# noqa: F401` are intentional re-exports;
-  # gate modules also legitimately call shared.py's _find_report /
-  # _normalize_file_paths helpers (these are project-internal by
-  # convention, not Python-private). reportUnknown* noise stems from
-  # jload/yload helpers returning Any (JSON/YAML dicts are inherently
-  # heterogeneous); narrowing requires rewriting those signatures, which
-  # is deferred to a follow-up. reportUnused{Variable,Function} are
-  # disabled because gates/ has 3 known stubs (allowed_prefixes,
-  # tension_phases, mf) tracked for follow-up, plus 3 router helpers
-  # (_find_report, _normalize_file_paths, _text_fingerprint) that
-  # basedpyright doesn't see cross-module usage for.
-  # Real-bug rules (reportPossiblyUnboundVariable, reportArgumentType,
-  # reportIndexIssue) remain on.
+  # gates/: router re-export pattern + jload/yload Any-taint + 3 dead stubs.
+  # Revisit by 2026-09-01 — see docs/basedpyright-overrides.md.
   { root = "src/shenbi/gates", reportUnusedImport = "none", reportPrivateUsage = "none", reportUnusedVariable = "none", reportUnusedFunction = "none", reportUnknownVariableType = "none", reportUnknownArgumentType = "none", reportUnknownParameterType = "none", reportUnknownLambdaType = "none", reportUnknownMemberType = "none" },
 ]
 

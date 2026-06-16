@@ -17,6 +17,21 @@ jobs:
           python-version: "3.13"
       - run: pip install pre-commit
       - run: pre-commit autoupdate
+      - name: Verify updated hooks work (tolerate autofix, block on real failure)
+        run: |
+          set +e
+          pre-commit run --all-files
+          rc=$?
+          set -e
+          # 0 = clean; 1 = hooks autofixed files (expected on autoupdate,
+          # those changes get included in the PR); >1 = real failure
+          # indicating the new hook revs are incompatible — block PR creation.
+          if [ $rc -gt 1 ]; then
+            echo "::error::pre-commit verification failed (exit $rc)"
+            echo "::error::new hook revs are incompatible — PR will not be created"
+            exit $rc
+          fi
+          echo "Verification passed (exit $rc; autofixes included in PR)"
       - name: Create PR if changes
         uses: peter-evans/create-pull-request@v6
         with:

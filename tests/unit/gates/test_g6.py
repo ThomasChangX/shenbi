@@ -48,15 +48,20 @@ class TestG6PipelineCheck:
         After fix: `nums` initializes at outer scope, `density` is Optional.
         """
         round_dir = tmp_path / "round"
-        truth_dir = round_dir / "truth"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        truth_dir = project_dir / "truth"
         truth_dir.mkdir(parents=True)
         (truth_dir / "pending_hooks.md").write_text(
             "## hooks\n\n- id: hook-001\n  state: PENDING\n  max_distance: 5\n  plant_chapter: 1\n",
             encoding="utf-8",
         )
-        result_str = gate_G6("long-form", str(round_dir), str(tmp_path))
+        result_str = gate_G6("long-form", str(round_dir), str(project_dir))
         parsed = json.loads(result_str)
-        assert "status" in parsed
+        # Strong assertions: gate must complete structured output.
+        assert parsed["status"] in {"PASS", "FAIL"}, "gate must complete, not raise"
+        assert parsed["gate"] == "G6"
+        assert isinstance(parsed["checks"], list)
 
     def test_g67_density_is_none_when_no_chapters(self, tmp_path: Path) -> None:
         """Regression: density reported as None when chapters/ is absent
@@ -64,15 +69,22 @@ class TestG6PipelineCheck:
         reads density). Before fix: density was unbound → NameError.
         """
         round_dir = tmp_path / "round"
-        truth_dir = round_dir / "truth"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        truth_dir = project_dir / "truth"
         truth_dir.mkdir(parents=True)
         (truth_dir / "pending_hooks.md").write_text(
             "## hooks\n\n- id: hook-001\n  state: PENDING\n",
             encoding="utf-8",
         )
-        result_str = gate_G6("long-form", str(round_dir), str(tmp_path))
+        result_str = gate_G6("long-form", str(round_dir), str(project_dir))
         parsed = json.loads(result_str)
-        checks = parsed.get("checks", [])
+        assert parsed["status"] in {"PASS", "FAIL"}, "gate must complete, not raise"
+        assert parsed["gate"] == "G6"
+        checks = parsed["checks"]
+        # The G6.7 hook-density check MUST run when truth/pending_hooks.md
+        # exists — that's the branch where density was previously unbound.
         g67 = next((c for c in checks if c.get("id") == "G6.7"), None)
-        if g67 is not None and "density" in g67:
-            assert g67["density"] is None
+        assert g67 is not None, "G6.7 must execute when pending_hooks.md exists"
+        assert "density" in g67, "G6.7 must include density field even when chapters absent"
+        assert g67["density"] is None, "density must be None when chapters/ is absent"

@@ -8,6 +8,8 @@ on:
 
 jobs:
   analyze:
+    # Skip draft PRs — they're not ready for review, no point burning CI
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     permissions:
       actions: read

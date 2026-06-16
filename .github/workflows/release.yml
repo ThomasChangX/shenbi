@@ -21,12 +21,17 @@ jobs:
       - name: Generate changelog for tag
         id: changelog
         run: |
-          prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          if [ -n "$prev_tag" ]; then
-            notes=$(git log --format='- %s (%h)' ${prev_tag}..HEAD)
-          else
-            # First release: cap to recent 100 commits, not full history
+          # Guard against first-commit-ever tag (HEAD^ doesn't exist)
+          if ! git rev-parse --verify HEAD^ >/dev/null 2>&1; then
             notes=$(git log --format='- %s (%h)' -n 100)
+          else
+            prev_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+            if [ -n "$prev_tag" ]; then
+              notes=$(git log --format='- %s (%h)' ${prev_tag}..HEAD)
+            else
+              # First release tag: cap to recent 100 commits
+              notes=$(git log --format='- %s (%h)' -n 100)
+            fi
           fi
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$notes" >> $GITHUB_OUTPUT
