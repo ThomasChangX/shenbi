@@ -39,10 +39,3 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-
-      - id: registry-lockfile-fresh
-        name: registry.lock.json freshness (P0 scaffolding, no-op in P-1)
-        entry: tests/build_registry.py
-        language: system
-        files: ^(skills/.*\.yaml|tests/tiers/.*\.yaml)$
-        pass_filenames: false
