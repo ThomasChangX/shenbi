@@ -14,27 +14,79 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: ["3.11", "3.12"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    # 3.13 allow-failure during rollout (spec Risk table).
+    # Windows allow-failure until @pytest.mark.skip_on_windows marker is
+    # registered (spec OQ-1; deferred to a follow-up source-code PR).
+    continue-on-error: ${{ matrix.python-version == '3.13' || matrix.os == 'windows-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - run: uv python install ${{ matrix.python-version }}
+      - name: Verify uv.lock is up to date
+        run: uv lock --check
       - run: uv sync --frozen --extra dev
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy tests/
+      - run: uv run mypy src/shenbi/
       - run: uv run basedpyright
       - name: Run tests (parallel, excluding last)
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency review (license + vulnerability)
+        uses: actions/dependency-review-action@v4
+
   action-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
       - run: uv sync --frozen --extra dev
       - name: Validate GitHub Actions YAML
         run: uv run yamllint --strict .github/workflows/
+
+  mutation-testing:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --extra dev
+      - name: Run mutation testing
+        run: |
+          # mutmut 3.x reads source_paths from [tool.mutmut] config;
+          # per-file CLI scoping is not supported (no --paths-to-mutate
+          # or --use-cache flags in 3.x). Changed-file detection only
+          # decides whether to run mutmut at all.
+          BASE="origin/${{ github.event.pull_request.base.ref }}"
+          CHANGED=$(git diff --name-only "${BASE}...HEAD" \
+            -- 'src/shenbi/')
+          if [ -z "$CHANGED" ]; then
+            echo "No Python changes; skipping mutation testing"
+            exit 0
+          fi
+          uv run mutmut run
+      - name: Compare to baseline (blocks on regression > 5%)
+        run: |
+          # compare_mutation_score.py runs 'mutmut results' internally
+          # and parses output; it only accepts --baseline and --threshold
+          # (Plan 2 PR-23). No --current flag exists.
+          uv run python tools/compare_mutation_score.py \
+            --baseline tests/baselines/mutation-score.txt
