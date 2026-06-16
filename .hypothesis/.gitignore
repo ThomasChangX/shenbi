@@ -1,0 +1,7 @@
+# Hypothesis caches are machine-specific
+cache/
+
+# Examples ARE committed — they capture discovered counterexamples
+# and replay them on every run, ensuring regression detection.
+!examples/
+!examples/**
