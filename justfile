@@ -55,7 +55,7 @@ build:
 # Clean all build artifacts
 clean:
     rm -rf dist/ build/ src/shenbi.egg-info/
-    rm -rf tests/coverage/
+    rm -rf tests/coverage/ site/ .cache/
     rm -rf .pytest_cache .ruff_cache .mypy_cache .basedpyright_cache
 
 # Pre-commit run on all files

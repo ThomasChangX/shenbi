@@ -17,14 +17,19 @@ log = structlog.get_logger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MASTER_PATH = REPO_ROOT / "plugins" / "master.json"
 
+REQUIRED_FIELDS = {"name", "version", "description", "author", "skills", "platforms"}
+
 
 def load_master() -> dict[str, Any]:
-    """Load master.json (structural validation is a future enhancement)."""
+    """Load master.json with upfront structural validation."""
     if not MASTER_PATH.exists():
         raise FileNotFoundError(f"Master plugin file not found: {MASTER_PATH}")
     data = json.loads(MASTER_PATH.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"{MASTER_PATH}: expected JSON object, got {type(data).__name__}")
+    missing = REQUIRED_FIELDS - data.keys()
+    if missing:
+        raise ValueError(f"{MASTER_PATH}: missing required fields: {sorted(missing)}")
     return cast(dict[str, Any], data)
 
 
@@ -62,18 +67,23 @@ def gen_cursor(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]
     return out
 
 
+def _js_string(s: str) -> str:
+    """Escape a Python string for a JS single-quoted literal."""
+    return s.replace("\\", "\\\\").replace("'", "\\'")
+
+
 def gen_opencode(master: dict[str, Any], config: dict[str, Any]) -> str:
     """OpenCode uses an ES module (export default) with single-quoted strings."""
     lines = [
         "export default {",
-        f"  name: '{master['name']}',",
-        f"  version: '{master['version']}',",
-        f"  description: '{master['description']}',",
-        f"  author: '{master['author']}',",
+        f"  name: '{_js_string(str(master['name']))}',",
+        f"  version: '{_js_string(str(master['version']))}',",
+        f"  description: '{_js_string(str(master['description']))}',",
+        f"  author: '{_js_string(str(master['author']))}',",
         "  skills: [",
     ]
     for skill in master["skills"]:
-        lines.append(f"    '{skill}',")
+        lines.append(f"    '{_js_string(str(skill))}',")
     lines[-1] = lines[-1].rstrip(",")
     lines.append("  ]")
     lines.append("};")

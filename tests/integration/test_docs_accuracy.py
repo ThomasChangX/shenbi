@@ -32,7 +32,7 @@ ALLOWED_MISSING: set[str] = {
     "plans/chapter-N-plan.md",
 }
 
-CODESPAN_PATTERN = re.compile(r"`([\w][\w./-]*\.\w+)`")
+CODESPAN_PATTERN = re.compile(r"`([.\w][\w./-]*\.\w+)`")
 HISTORICAL_PATH_PATTERN = re.compile(r"tests/rounds/round-\d+")
 
 
