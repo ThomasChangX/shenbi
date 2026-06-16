@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --frozen --extra docs
+      - run: uv sync --frozen --group docs
       - run: uv run mkdocs build --strict
       - uses: actions/upload-artifact@v4
         with:
@@ -26,5 +26,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --frozen --extra docs
+      - run: uv sync --frozen --group docs
       - run: uv run mkdocs gh-deploy --force

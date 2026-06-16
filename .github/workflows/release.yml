@@ -13,7 +13,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --frozen --group dev
       - name: Generate SBOM (CycloneDX)
         run: uv run cyclonedx-py environment -o sbom.cdx.json
       - name: Build sdist and wheel

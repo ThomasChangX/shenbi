@@ -14,7 +14,7 @@ dependencies = [
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
@@ -26,7 +26,7 @@ dev = [
     "pytest-randomly>=3.15.0",
     "hypothesis>=6.97.0",
     "mypy>=1.8.0",
-    "basedpyright>=1.13.0",   # 纯 Python 的 pyright fork，避免 Node.js 依赖
+    "basedpyright>=1.13.0",
     "ruff>=0.1.13",
     "pre-commit>=3.6.0",
     "pip-audit>=2.7.0",
@@ -34,10 +34,11 @@ dev = [
     "mutmut>=3.0.0",
     "coverage>=7.4.0",
     "yamllint>=1.33.0",
+    "git-cliff>=2.4.0",
 ]
 docs = [
     "mkdocs>=1.5.3",
-    "mkdocs-material>=9.5.4",
+    "mkdocs-material[imaging]>=9.5.4",
     "mkdocstrings[python]>=0.24.0",
 ]
 
