@@ -195,6 +195,8 @@ If any checker violates the contract (e.g., raises on empty input), PR-49 fixes 
 
 All tests use **direct import** (not subprocess), consistent with PR-32's pattern. Fast, debuggable, no subprocess overhead.
 
+**Test markers**: all new test functions must be decorated with `@pytest.mark.unit` so they're included in `just test` (which runs `-m "unit"`). Test classes can use `@pytest.mark.unit` at class level.
+
 **Note on `test_doc_links.py`**: this existing test parametrizes over all `*.md` files, producing hundreds of test cases when `markdown-link-check` is installed (CI only). These cases count as 1 test function toward the density metric (density counts `def test_*` functions, not parametrized cases). No changes needed to this test.
 
 **G4 checker import pattern**: the parametrized harness imports all 21 checkers explicitly (not dynamically). Each import is a single line: `from shenbi.gates.g4.worldbuilding import g4_worldbuilding`. Explicit imports enable IDE navigation and catch import errors at collection time.
@@ -341,8 +343,8 @@ Phases 1+2 cover business logic paths. Phase 3 targets the long tail — rare co
 
 **Step 1**: Generate detailed coverage report after Phase 2 merge:
 ```bash
-uv run pytest --cov=src/shenbi --cov-branch --cov-report=html:tests/coverage
-uv run pytest --cov=src/shenbi --cov-branch --cov-report=term-missing
+uv run pytest --cov=src/shenbi --cov-branch \
+    --cov-report=term-missing --cov-report=html:tests/coverage
 ```
 
 **Step 2**: For each module below 90% line / 80% branch, write targeted tests:
