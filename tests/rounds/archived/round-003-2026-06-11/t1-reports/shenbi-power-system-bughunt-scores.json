@@ -1,0 +1,74 @@
+{
+  "skill": "shenbi-power-system",
+  "test_type": "bug-hunt",
+  "date": "2026-06-12",
+  "scorer": "independent-rescore",
+  "rubric_version": "tests/tiers/t1-skill/shenbi-power-system/rubric.md",
+
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 90,
+      "weight": 0.10,
+      "weighted": 9.00,
+      "notes": "Report covers key SKILL.md sections (advancement rules, cost table, recovery rates) but does not explicitly document a systematic section-by-section audit trail."
+    },
+    "2_output_completeness": {
+      "score": 95,
+      "weight": 0.05,
+      "weighted": 4.75,
+      "notes": "All required sections present: Detection Summary table, individual detection entries with defect description, location(file+line), violated rule, evidence, severity."
+    },
+    "3_cost_enforcement": {
+      "score": 95,
+      "weight": 0.20,
+      "weighted": 19.00,
+      "notes": "All 3 planted defects found with file+line evidence. Rule identification correct: 铁律一(能力必有代价) for cost defects, 铁律五(能力有边界) for recovery rate omission."
+    },
+    "4_ceiling_definition": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 15.00,
+      "notes": "Explicit false positive check conducted. Confirmed no clean content was incorrectly flagged. All other level transitions and cost rows verified clean."
+    },
+    "5_level_gap_significance": {
+      "score": 95,
+      "weight": 0.15,
+      "weighted": 14.25,
+      "notes": "Rule names match SKILL.md. 铁律一:能力必有代价 (Detections 1-2), 铁律五:能力有边界 (Detection 3). Exact rule name cores present."
+    },
+    "6_boundary_clarity": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 15.00,
+      "notes": "All evidence citations include exact file path and line numbers: L70-72, L202, L214. Direct inline quotes from source material included."
+    },
+    "7_protagonist_constraint": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 9.50,
+      "notes": "All planted defects detected with file+line evidence. Rule identification accurate."
+    },
+    "8_milestone_alignment": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 9.50,
+      "notes": "All planted defects detected with file+line evidence. Rule identification accurate."
+    }
+  },
+
+  "total_score": 96.0,
+  "grade": "PASS",
+  "kill_switch_triggered": false,
+
+  "checks": {
+    "line_numbers_present": true,
+    "exact_skill_md_rule_names_used": true,
+    "false_positive_check_present": true
+  },
+  "rule_names_used": [
+    "铁律一：能力必有代价",
+    "铁律五：能力有边界"
+  ],
+
+  "flags": []
+}

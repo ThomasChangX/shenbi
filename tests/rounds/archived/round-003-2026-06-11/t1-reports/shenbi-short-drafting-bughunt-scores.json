@@ -1,0 +1,13 @@
+{
+  "1": 90,
+  "2": 95,
+  "3": 95,
+  "4": 100,
+  "5": 95,
+  "6": 95,
+  "7": 95,
+  "_final": 95.5,
+  "_band": "PASS",
+  "_kill_switch": false,
+  "_notes": "Strongest multi-defect report: 3 defects all detected with precise line numbers. Detailed evidence sections per defect with sub-headings. Anti-rationalization table referenced. Explicit false positive analysis. Timeline-based evidence for sequential violation."
+}

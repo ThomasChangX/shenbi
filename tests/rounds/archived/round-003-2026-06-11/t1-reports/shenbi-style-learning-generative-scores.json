@@ -1,0 +1,18 @@
+{
+  "skill": "shenbi-style-learning",
+  "test_type": "generative",
+  "scored_at": "2026-06-12",
+  "kill_switch_triggered": false,
+  "dimensions": {
+    "1_instruction_adherence": {"score": 90, "weight": 0.10, "rationale": "All sections executed. Statistical profile computed across 5 chapters. Each dimension documented with specific metrics. Sample size warning prominently displayed."},
+    "2_output_completeness": {"score": 90, "weight": 0.05, "rationale": "Two files: style_profile.md (comprehensive) and _summary.md (overview). Profile covers 9 dimensions: sentence length, paragraph length, TTR, bigrams, rhetoric, punctuation, connectives, dialogue, synthesis."},
+    "3_reproducibility": {"score": 80, "weight": 0.25, "rationale": "Method described as '纯统计（零 LLM）— Python 正则分词 + 描述性统计'. Claims purely computational approach with no LLM inference. However, no actual code or script is included in the output. The method is described in prose but not executable from the output alone. Reproducibility is asserted, not demonstrated."},
+    "4_statistical_validity": {"score": 80, "weight": 0.20, "rationale": "Sample size warning clearly stated: '5章样本 < 推荐值10章。以下统计量存在不稳定性'. Limitations section flags TTR instability, rhetoric detection incompleteness. However, exact numbers (TTR=0.0685, 1322 sentences) are presented without confidence intervals. The warning exists but precision signals don't match the acknowledged instability."},
+    "5_objectivity": {"score": 90, "weight": 0.15, "rationale": "Explicit: '不评估质量，只统计是什么'. Report avoids value judgments. Synthesis section ('计算式叙述者') is descriptive characterization, not quality assessment. The output consistently describes patterns without labeling them good or bad."},
+    "6_completeness_of_metrics": {"score": 90, "weight": 0.15, "rationale": "Seven+ statistical dimensions computed: (1) sentence length distribution with histogram, (2) paragraph length distribution, (3) TTR, (4) high-frequency bigrams, (5) rhetoric patterns, (6) punctuation density, (7) connective word density, plus (8) dialogue density. Exceeds the 7-dimension requirement."},
+    "7_downstream_usability": {"score": 80, "weight": 0.10, "rationale": "Profile is structured for reference by other skills — sequel-writing's pre-writing-report cites the style fingerprint (句长20.0, TTR 0.0685, 破折号32.8/千字). However, the profile is a narrative statistical report, not a machine-readable data structure. Downstream skills must parse markdown to extract specific metrics."}
+  },
+  "final_score": 84.5,
+  "grade": "PASS (acceptable)",
+  "notes": "Solid statistical profile with comprehensive metric coverage. '纯统计 zero LLM' claim is methodologically sound but unverifiable without code. The sample size warning is properly prominent. TTR=0.0685 is character-level, not word-level — this should be clarified but the报告 correctly labels it as字符级TTR."
+}

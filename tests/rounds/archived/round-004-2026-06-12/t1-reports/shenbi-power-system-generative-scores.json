@@ -1,0 +1,64 @@
+{
+  "dimensions": [
+    {
+      "num": 1,
+      "name": "Instruction adherence",
+      "weight": 10,
+      "score": 100
+    },
+    {
+      "num": 2,
+      "name": "Output completeness",
+      "weight": 5,
+      "score": 100
+    },
+    {
+      "num": 3,
+      "name": "Cost enforcement",
+      "weight": 20,
+      "score": 100
+    },
+    {
+      "num": 4,
+      "name": "Ceiling definition",
+      "weight": 15,
+      "score": 100
+    },
+    {
+      "num": 5,
+      "name": "Level gap significance",
+      "weight": 15,
+      "score": 100
+    },
+    {
+      "num": 6,
+      "name": "Boundary clarity",
+      "weight": 15,
+      "score": 100
+    },
+    {
+      "num": 7,
+      "name": "Protagonist constraint",
+      "weight": 10,
+      "score": 100
+    },
+    {
+      "num": 8,
+      "name": "Milestone alignment",
+      "weight": 10,
+      "score": 100
+    }
+  ],
+  "kill_switch_triggered": false,
+  "kill_switches": [
+    "Missed planted defect (false negative) → total score = 0",
+    "HARD-GATE violation → total score = 0",
+    "Any hallucinated defect (false positive) → total score = 0"
+  ],
+  "final_score": 100.0,
+  "classification": "PASS (excellent)",
+  "skill": "shenbi-power-system",
+  "test_type": "generative",
+  "date": "2026-06-12",
+  "scorer": "independent"
+}

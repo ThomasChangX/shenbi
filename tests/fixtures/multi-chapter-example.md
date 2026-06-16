@@ -1,6 +1,6 @@
 # 多章合集：星火燃穹（短稿版）第1-5章
 
-**来源**: `tests/rounds/round-003-2026-06-11/novel-output/shenbi-short-drafting/short/`
+**来源**: `tests/rounds/round-003-2026-06-11/skill-output/shenbi-short-drafting/short/`
 **生成日期**: 2026-06-11
 **章数**: 5
 **总字数**: 24,180（目标每章≥3000字）

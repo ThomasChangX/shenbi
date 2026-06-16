@@ -1,0 +1,75 @@
+{
+  "skill": "shenbi-short-outline",
+  "test_type": "bug-hunt",
+  "date": "2026-06-12",
+  "scorer": "independent-rescore",
+  "rubric_version": "tests/tiers/t1-skill/shenbi-short-outline/rubric.md",
+
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 90,
+      "weight": 0.10,
+      "weighted": 9.00,
+      "notes": "Report follows detection workflow checking chapter tasks, act proportioning, and process compliance. Does not explicitly enumerate which SKILL.md sections were audited."
+    },
+    "2_output_completeness": {
+      "score": 95,
+      "weight": 0.05,
+      "weighted": 4.75,
+      "notes": "All required sections present. Detection Summary and three individual detection entries all complete with required fields."
+    },
+    "3_3_step_enforcement": {
+      "score": 95,
+      "weight": 0.20,
+      "weighted": 19.00,
+      "notes": "All 3 planted defects found with file+line evidence. Three distinct rule violations identified: dead chapter (铁律四:每章有任务), act proportion (铁律五:故事弧清晰), skipped review step (铁律一:三步流程不可跳)."
+    },
+    "4_chapter_task_completeness": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 15.00,
+      "notes": "Explicit false positive check conducted. Chapters 1-9 and 11-15 verified to have substantive thread advancement. Thread configuration (1+1+1) verified. Only Chapter 10 correctly flagged. No false positives."
+    },
+    "5_act_proportioning": {
+      "score": 90,
+      "weight": 0.15,
+      "weighted": 13.50,
+      "notes": "Rules correctly identified by SKILL.md names: 铁律四:每章有任务 for dead chapter, 铁律一:三步流程不可跳 for skipped review step. 铁律五:故事弧清晰 for act proportion is reasonable - the 20/60/20 split originates from 三幕结构 section but 铁律五 governs story arc clarity overall. Closest applicable 铁律 correctly chosen."
+    },
+    "6_no_dead_chapters": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 15.00,
+      "notes": "All evidence citations include exact file path and line numbers: L50-51, L79, L82-85. Direct inline quotes from source material provided. Line numbers verified against source files."
+    },
+    "7_thread_limit_compliance": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 9.50,
+      "notes": "All planted defects detected with file+line evidence. Rule identification correct."
+    },
+    "8_turning_point_quality": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 9.50,
+      "notes": "All planted defects detected with file+line evidence. Rule identification correct."
+    }
+  },
+
+  "total_score": 95.3,
+  "grade": "PASS",
+  "kill_switch_triggered": false,
+
+  "checks": {
+    "line_numbers_present": true,
+    "exact_skill_md_rule_names_used": true,
+    "false_positive_check_present": true
+  },
+  "rule_names_used": [
+    "铁律一：三步流程不可跳",
+    "铁律四：每章有任务",
+    "铁律五：故事弧清晰"
+  ],
+
+  "flags": []
+}

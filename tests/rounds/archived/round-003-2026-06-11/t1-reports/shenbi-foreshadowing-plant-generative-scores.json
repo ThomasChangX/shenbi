@@ -1,0 +1,64 @@
+{
+  "test": "shenbi-foreshadowing-plant",
+  "test_type": "generative",
+  "round": "round-003-2026-06-11",
+  "output_file": "tests/rounds/round-003-2026-06-11/novel-output/shenbi-foreshadowing-plant/truth/pending_hooks.md",
+  "rubric_file": "tests/tiers/t1-skill/shenbi-foreshadowing-plant/rubric.md",
+  "kill_switch_triggered": false,
+  "kill_switch_detail": "No HARD-GATE violation detected. Budget 3/8 within limit. All required metadata present. SMOKESCREEN has exit strategy. No duplication or contradiction with existing hooks.",
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted_contribution": 9.5,
+      "rationale": "Every DOT flow step executed: read plan (3 OPEN items → 3 hooks planted), read existing hooks (cross-thread dependency table references all 6 prior hooks), checked density budget (3/8), designed plantings, assigned types/dimensions, set metadata, set escalation curves, checked dependencies, appended hooks in correct YAML format, output 种植汇总. All five 铁律 followed. 种植指南 applied: subtlety ranges correct (0.55 core, 0.40 smokescreen, 0.80 side-shadow), planting positions follow scene-type guidance. Minor deduction (-5): genre-config.json listed in data contract Reads but its consumption not explicitly evidenced in output. The chapter plan file is also not named, though its use is clearly demonstrated by the 3 hooks matching chapter 5 scene content."
+    },
+    "2_output_completeness": {
+      "score": 100,
+      "weight": 0.05,
+      "weighted_contribution": 5.0,
+      "rationale": "All required output sections present: YAML-format hooks array appended to pending_hooks.md, 种植汇总 header with chapter/file/count, 已种植项 table, 密度核算 table. Additionally exceeds requirements with four bonus sections: 种植位置分析 (scene-type appropriateness), 本章未种植项 (transparent deferral rationale), 跨线程依赖检查 (formal dependency verification), 烟雾弹退出策略确认 (exit strategy confirmation). No omissions."
+    },
+    "3_budget_enforcement": {
+      "score": 100,
+      "weight": 0.20,
+      "weighted_contribution": 20.0,
+      "rationale": "Density budget explicitly tracked: 3 plant operations, 0 reinforce, 0 trigger, 0 resolve. Total 3/8 — well within the ≤8 per-chapter limit. The 本章未种植项 section demonstrates active budget awareness by documenting deferred items (种子三 → Ch11, 金手指实验 → Ch7, 外部势力揭示 → Ch9-11) with explicit reasons. No violation; score unaffected."
+    },
+    "4_metadata_completeness": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted_contribution": 15.0,
+      "rationale": "All three hooks have complete metadata: id, content, state, operation, type, dimension, subtlety, plant_chapter, cultivation_interval, last_reinforced, max_distance, escalation_curve, depends_on, core_hook, promoted, notes. Critically, depends_on is NEVER omitted: hook-ch5-001 has [], hook-ch5-002 correctly references [hook-ch1-001], hook-ch5-003 has []. All values are type-appropriate (subtlety in 0.0-1.0, curves in valid set, dimensions in valid set, types in valid set)."
+    },
+    "5_smokescreen_accountability": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted_contribution": 15.0,
+      "rationale": "hook-ch5-002 (SMOKESCREEN) has a comprehensive exit strategy documented in two places: (a) the hook's notes field with timing (Ch17), method (齐管事 executed + 林烽 learns truth via third party), reader experience design (Ch5-16 suspicion → Ch17 reversal → cognitive upgrade), and narrative function (anonymous ledger for Ch12 entry, comprador case study); (b) the dedicated 烟雾弹退出策略确认 section that redundantly confirms the same strategy. This is the most thoroughly documented exit strategy among the hooks — exemplary."
+    },
+    "6_existing_hook_awareness": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted_contribution": 15.0,
+      "rationale": "Strong evidence of existing hook consultation: (a) overview table integrates all 9 hooks (6 existing + 3 new) with correct IDs and states; (b) 跨线程依赖检查 table verifies hook-ch5-002's dependency on hook-ch1-001 (PLANTED Ch1, status confirmed); (c) no duplicated hook IDs (new ones use hook-ch5-xxx prefix); (d) no contradictory content — hook-ch5-002's debt-system reference respects hook-ch1-001's established framing of催收as systematic oppression; (e) 本章未种植项 section shows awareness of what already exists and intentionally avoids overlap. Zero duplication, zero contradiction."
+    },
+    "7_strategic_placement": {
+      "score": 100,
+      "weight": 0.10,
+      "weighted_contribution": 10.0,
+      "rationale": "Dedicated 种植位置分析 section provides scene-type appropriateness rationale for every hook: hook-ch5-001 in 日常对话 (best position — reader relaxed), hook-ch5-002 in 冲突-对话 (dialogue suitable for information-type hooks with dual function), hook-ch5-003 in 日常过渡 (transition passages suitable for atmosphere-type hooks without consuming narrative focus). Aligns with SKILL.md 种植指南: uses 日常段落 for emotional hooks, 对话段落 for information hooks, avoids 章节末尾高潮段 entirely. The strategic reasoning is explicit and sound for each placement."
+    },
+    "8_type_dimension_classification": {
+      "score": 100,
+      "weight": 0.10,
+      "weighted_contribution": 10.0,
+      "rationale": "All three hooks classified per taxonomy: hook-ch5-001 GENUINE/CHARACTER (personal past, emotional anchor — correct), hook-ch5-002 SMOKESCREEN/STRUCTURAL (systemic misdirection about comprador class — correct), hook-ch5-003 SIDE_SHADOW/SYMBOLIC (background atmosphere, gear symbol as resistance emblem — correct). Types cover all three categories (GENUINE/SMOKESCREEN/SIDE_SHADOW). Dimensions span CHARACTER/STRUCTURAL/SYMBOLIC. Classifications are internally consistent with hook content and escalation plans."
+    }
+  },
+  "final_score": 99.5,
+  "rating": "PASS",
+  "rating_band": "90-100",
+  "scored_at": "2026-06-12",
+  "scorer_notes": "Output is exemplary across all dimensions. The single minor deduction (-5 on dimension 1) flags that genre-config.json consumption is not explicitly evidenced, though web novel genre awareness is demonstrated implicitly. All kill switches checked — no HARD-GATE violations, no budget violations, no metadata omissions, no dependency omissions, no smokescreen without exit strategy. The output exceeds the SKILL.md template by adding four analysis sections (placement analysis, deferred items, dependency verification, smokescreen confirmation) that strengthen accountability without violating any constraints."
+}

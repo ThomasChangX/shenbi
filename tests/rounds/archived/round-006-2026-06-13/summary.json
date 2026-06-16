@@ -1,0 +1,324 @@
+{
+  "round": "006",
+  "model": "claude",
+  "tier_target": "T1",
+  "t1_scores": {
+    "shenbi-anti-detect": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-canon-import": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-chapter-drafting": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-chapter-pattern": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-chapter-planning": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-chapter-revision": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-character-design": {
+      "generative": 95.5,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-character-extraction": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-context-composing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-drift-guidance": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-faction-builder": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-foreshadowing-plant": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-foreshadowing-resolve": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-foreshadowing-track": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-foundation-review": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-genre-config": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-import-analysis": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-intent-management": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-length-normalizing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-location-builder": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-market-radar": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-pacing-design": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-plot-thread-weaver": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-power-system": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-relationship-map": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-anti-ai": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-character": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-continuity": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-dialogue": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-era": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-fanfic": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-foreshadowing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-highpoint": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-long-span": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-memo-compliance": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-motivation": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-pacing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-pov": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-reader-pull": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-sensitivity": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-spinoff": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-texture": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-world-rules": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-sequel-writing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-short-drafting": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-short-outline": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-short-packaging": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-snapshot-manage": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-state-settling": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-story-architecture": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-style-learning": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-style-polishing": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-truth-sync": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-volume-consolidation": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-volume-outlining": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-world-extraction": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-worldbuilding": {
+      "generative": 94.5,
+      "bug-hunt": 95.25,
+      "clean": 97.25
+    },
+    "shenbi-writing-skills": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "using-shenbi": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    }
+  },
+  "t2_scores": {},
+  "t3_scores": {},
+  "kill_switches": [],
+  "enhancement_signals": [],
+  "band_breakdown": {
+    "pass_excellent": 0,
+    "pass_acceptable": 0,
+    "conditional": 0,
+    "fail": 0
+  },
+  "next_actions": [
+    "T2 genesis phase requires G5 file handoff setup (T1 reports at expected paths, missing files like outline/story_frame.md, truth/author_intent.md)",
+    "T2/T3 pipeline execution pending G5 gate resolution",
+    "Novel at 56K CJK chars, requires ~144K more for 200K target (expand chapters to 3-4x current depth)"
+  ],
+  "audit_warnings": [
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-worldbuilding-generative-scores.json:older_than_G4-shenbi-short-drafting-clean.json"
+    }
+  ]
+}

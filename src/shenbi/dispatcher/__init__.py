@@ -1,6 +1,5 @@
-"""Shenbi sub-agent dispatcher package scaffold.
+"""Shenbi sub-agent dispatcher package.
 
-P-1.D creates this package structure. The actual Python rewrite of
-dispatch-subagent.sh is deferred to P-1.E. Until then, tests/dispatcher/cli.py
-shells out to the legacy bash script.
+dispatcher/cli.py is the command-line interface; dispatcher/executor.py
+implements the dispatch logic.
 """

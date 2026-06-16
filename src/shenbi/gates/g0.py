@@ -1,6 +1,6 @@
 """G0: pre-execution environment gate.
 
-Extracted from tests/validate-gate.py in PR-19 (P-1.E).
+Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
 from shenbi.logging import get_logger
@@ -15,6 +15,11 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.g0_purity import (
+    check_scenario_dir_purity,
+    check_scenario_file_purity,
+    check_skill_md_purity,
+)
 from shenbi.gates.shared import (
     ALL_SKILLS,
     CHAPTER_WORD_FLOOR,
@@ -293,155 +298,19 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         }
     )
 
-    # G0.9 — scenario path purity: all test input paths must reference
-    # tests/fixtures/ or skills/. Project-relative paths (drafts/, truth/,
-    # config/, etc.) are forbidden — they assume a running project, making
-    # T1 isolation testing impossible. This rule prevents the "scenario
-    # references project paths that don't exist" failure mode.
-    impure_refs: dict[str, list[str]] = {}
-    if t1_skill_dir.exists():
-        for skill_dir in sorted(t1_skill_dir.iterdir()):
-            if not skill_dir.is_dir() or skill_dir.name.startswith("_"):
-                continue
-            for test_type in ("generative", "bug-hunt", "clean"):
-                scenario = skill_dir / test_type / "input" / "scenario.md"
-                if not scenario.exists():
-                    continue
-                try:
-                    sc_content = scenario.read_text(encoding="utf-8")
-                except Exception:
-                    continue
-                # Find ALL backtick-enclosed file paths (with extension).
-                # Directory paths are handled by G0.9c separately.
-                refs = set(re.findall(r"`([a-zA-Z][\w\-/]*\.[a-zA-Z]+)`", sc_content))
-                for ref in refs:
-                    # Skip skill references (allowed)
-                    if ref.startswith("skills/"):
-                        continue
-                    # Skip already-validated fixture references
-                    if ref.startswith("tests/fixtures/"):
-                        continue
-                    # Everything else is impure — project paths like
-                    # drafts/, truth/, config/, chapters/, plans/, audits/
-                    impure_refs.setdefault(ref, []).append(f"{skill_dir.name}/{test_type}")
-    if impure_refs:
-        detail = "; ".join(
-            f"'{r}' → must use tests/fixtures/ (found in: {', '.join(skills[:3])})"
-            for r, skills in sorted(impure_refs.items())
-        )
-        return fail(
-            "G0",
-            checks
-            + [
-                {
-                    "id": "G0.9",
-                    "s": "FAIL",
-                    "r": f"scenarios contain non-fixture paths: {detail}",
-                }
-            ],
-            "round_creation",
-            ["G0.9: replace project paths with tests/fixtures/ equivalents"],
-        )
-    checks.append(
-        {
-            "id": "G0.9",
-            "s": "PASS",
-            "note": "all scenario input paths reference tests/fixtures/",
-        }
-    )
+    # G0.9 / G0.9c / G0.9b: scenario and SKILL.md path purity checks
+    # (extracted to g0_purity.py for file-length compliance)
+    purity_checks, fail_reason, must_fix = check_scenario_file_purity(t1_skill_dir)
+    if fail_reason:
+        return fail("G0", checks + purity_checks, "round_creation", must_fix)
+    checks.extend(purity_checks)
 
-    # G0.9c — directory path purity: scenarios must not reference
-    # project-relative directory paths (truth/, snapshots/, drafts/,
-    # import/, etc.) as input sources. Only tests/fixtures/ dirs allowed.
-    # Matches paths ending with / that don't start with allowed prefixes.
-    impure_dirs: dict[str, list[str]] = {}
-    if t1_skill_dir.exists():
-        for skill_dir in sorted(t1_skill_dir.iterdir()):
-            if not skill_dir.is_dir() or skill_dir.name.startswith("_"):
-                continue
-            for test_type in ("generative", "bug-hunt", "clean"):
-                scenario = skill_dir / test_type / "input" / "scenario.md"
-                if not scenario.exists():
-                    continue
-                try:
-                    sc_content = scenario.read_text(encoding="utf-8")
-                except Exception:
-                    continue
-                # Match backtick-enclosed directory paths (ending with /)
-                dirs = set(re.findall(r"`([a-zA-Z][\w\-/]+/)`?", sc_content))
-                dirs = {d.rstrip("`") for d in dirs}
-                for d in dirs:
-                    if d.startswith("tests/fixtures/") or d.startswith("skills/"):
-                        continue
-                    impure_dirs.setdefault(d, []).append(f"{skill_dir.name}/{test_type}")
-    if impure_dirs:
-        count = sum(len(v) for v in impure_dirs.values())
-        detail = "; ".join(
-            f"'{d}' → (found in: {', '.join(skills[:3])})"
-            for d, skills in sorted(impure_dirs.items())
-        )
-        checks.append(
-            {
-                "id": "G0.9c",
-                "s": "WARN",
-                "r": f"{count} non-fixture directory references found: {detail}",
-                "note": "not blocking; fix incrementally",
-            }
-        )
-    else:
-        checks.append(
-            {
-                "id": "G0.9c",
-                "s": "PASS",
-                "note": "all scenario directory paths reference tests/fixtures/",
-            }
-        )
+    checks.extend(check_scenario_dir_purity(t1_skill_dir))
 
-    # G0.9b — SKILL.md purity: SKILL.md files must NOT contain
-    # tests/fixtures/ references. Skills define what they read/write
-    # in project terms; scenario files are the only place where test
-    # fixture paths belong. A skill hardcoding test fixture paths is
-    # a leaky abstraction that breaks the skill's portability.
-    skill_fixture_leaks = {}
-    for skill_dir in SKILLS.iterdir():
-        if not skill_dir.is_dir():
-            continue
-        skill_md = skill_dir / "SKILL.md"
-        if not skill_md.exists():
-            continue
-        try:
-            sk_content = skill_md.read_text(encoding="utf-8")
-        except Exception:
-            continue
-        leaked = re.findall(r"tests/fixtures/[\w\-/]+", sk_content)
-        if leaked:
-            skill_fixture_leaks[skill_dir.name] = leaked
-    if skill_fixture_leaks:
-        detail = "; ".join(
-            f"{skill}: {', '.join(paths)}" for skill, paths in sorted(skill_fixture_leaks.items())
-        )
-        return fail(
-            "G0",
-            checks
-            + [
-                {
-                    "id": "G0.9b",
-                    "s": "FAIL",
-                    "r": f"SKILL.md files contain tests/fixtures/ paths (use project paths, not test paths): {detail}",
-                }
-            ],
-            "round_creation",
-            [
-                "G0.9b: replace tests/fixtures/ paths in SKILL.md with project paths; move fixture mapping to scenario.md"
-            ],
-        )
-    checks.append(
-        {
-            "id": "G0.9b",
-            "s": "PASS",
-            "note": "no SKILL.md files leak test fixture paths",
-        }
-    )
+    purity_checks, fail_reason, must_fix = check_skill_md_purity(SKILLS)
+    if fail_reason:
+        return fail("G0", checks + purity_checks, "round_creation", must_fix)
+    checks.extend(purity_checks)
 
     # G0.10 — completed generative test count (must be >= 59 for full round;
     # WARN if fewer — allows incremental execution)

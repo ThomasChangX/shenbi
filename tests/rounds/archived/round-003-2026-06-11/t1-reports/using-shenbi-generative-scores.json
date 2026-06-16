@@ -1,0 +1,18 @@
+{
+  "skill": "using-shenbi",
+  "test_type": "generative",
+  "scored_at": "2026-06-12",
+  "kill_switch_triggered": false,
+  "dimensions": {
+    "1_instruction_adherence": {"score": 85, "weight": 0.10, "rationale": "SKILL.md sections for skill creation followed: frontmatter (name+description), DOT flowchart, data contract, hard rules, calculation model, output format, summary, anti-rationalization table."},
+    "2_output_completeness": {"score": 85, "weight": 0.05, "rationale": "Two output files: _summary.md (routing decision rationale) and shenbi-word-budget/SKILL.md (the created skill). Summary documents the routing process."},
+    "3_trigger_accuracy": {"score": 80, "weight": 0.25, "rationale": "Routing logic is sound: '字数调整' → shenbi-length-normalizing identified but insufficient for cross-chapter scope → shenbi-writing-skills invoked to create new skill. The decision tree is documented. However, only one routing scenario is demonstrated — coverage of the full trigger map is not shown."},
+    "4_1pct_rule_compliance": {"score": 75, "weight": 0.20, "rationale": "Summary claims 1% rule verification but provides no actual metrics. Justification '任何包含目标字数的长篇小说项目都需要此功能' is conceptual rather than empirical. No frequency analysis or trigger-probability calculation is shown."},
+    "5_hard_gate_enforcement": {"score": 80, "weight": 0.20, "rationale": "Output explicitly checks HARD-GATE compliance: '此技能属于管理技能，不违反无基础不写作的硬门禁.' Shows awareness of gate. However, the gate check is self-reported rather than systematically verified against the complete gate rule set."},
+    "6_full_skill_list_coverage": {"score": 65, "weight": 0.10, "rationale": "Only one routing scenario demonstrated. The claim 'Can route to all 59 skills' is not substantiated by the output. Coverage of the full skill list is an aspiration, not a demonstrated capability in this test output."},
+    "7_red_flag_detection": {"score": 75, "weight": 0.10, "rationale": "Routing logic shows awareness of boundary cases (distinguishing single-chapter word adjustment from cross-chapter budgeting). However, explicit red-flag conditions (e.g., prerequisite violations, circular dependencies) are not demonstrated in the output."}
+  },
+  "final_score": 77.5,
+  "grade": "PASS (acceptable)",
+  "notes": "The created shenbi-word-budget SKILL.md is well-structured and follows project conventions (DOT flowchart, data contract, hard rules, calculation model, anti-rationalization table). However, the routing demonstration is limited to a single scenario. The 1% rule and full skill coverage claims are asserted rather than demonstrated. The trigger accuracy is sound for the demonstrated path but unvalidated for the broader trigger map."
+}

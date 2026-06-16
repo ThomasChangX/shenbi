@@ -1,0 +1,21 @@
+{
+  "fatigue_words": {
+    "zh-CN": [
+      "眼中闪过", "嘴角上扬", "冷哼一声", "心中一惊",
+      "目光闪烁", "身形一晃", "猛然间", "刹那间",
+      "不可思议", "难以置信", "不由得", "忍不住",
+      "淡淡道", "冷冷道", "缓缓道", "沉声道",
+      "就在此时", "突然之间", "电光石火", "说时迟那时快"
+    ],
+    "description_en": "Common AI-pattern fatigue words in Chinese web novel prose"
+  },
+  "audit_dimensions": {
+    "activated_by_default": ["character", "continuity", "sensitivity"],
+    "conditional": ["anti-ai", "era", "dialogue", "foreshadowing", "motivation", "pacing", "pov", "reader-pull", "highpoint", "texture", "world-rules", "memo-compliance", "long-span", "fanfic", "spinoff"]
+  },
+  "pacing_rules": {
+    "chapter_words": {"default": 3000, "min": 2000, "max": 5000},
+    "volume_chapters": {"default": 10, "min": 6, "max": 15},
+    "act_proportions": {"act1": 0.25, "act2": 0.50, "act3": 0.25}
+  }
+}

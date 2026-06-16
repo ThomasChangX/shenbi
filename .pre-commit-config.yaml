@@ -11,7 +11,8 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy
-        additional_dependencies: [pydantic>=2.5, structlog>=24.1.0, pyyaml>=6.0.1]
+        additional_dependencies:
+          [pydantic>=2.5, structlog>=24.1.0, pyyaml>=6.0.1, types-PyYAML>=6.0.12]
         pass_filenames: false
         args: [src/shenbi/]
 

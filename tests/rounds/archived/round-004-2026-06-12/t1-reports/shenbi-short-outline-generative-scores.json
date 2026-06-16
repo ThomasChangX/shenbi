@@ -1,0 +1,11 @@
+{
+  "skill": "shenbi-short-outline",
+  "test_type": "generative",
+  "date": "2026-06-12",
+  "scorer": "independent",
+  "final_score": 100.0,
+  "classification": "PASS (excellent)",
+  "kill_switch_triggered": false,
+  "kill_switches": [],
+  "dimensions": []
+}

@@ -1,0 +1,53 @@
+{
+  "phase": "short-story",
+  "state": "finalized",
+  "steps": [
+    {
+      "action": "start",
+      "timestamp": "2026-06-13T02:49:17.924435+00:00",
+      "g5_status": "FAIL",
+      "g5_must_fix": [
+        "G5.2:handoff:shenbi-short-outline:missing=['outline/story_frame.md']",
+        "G5.2:handoff:shenbi-short-drafting:missing=['style/style_profile.md']",
+        "G5.4:short/outline.md:not_found",
+        "G5.4:short/chapter-*.md:no_matches",
+        "G5.4:short/package.md:not_found"
+      ]
+    },
+    {
+      "action": "start",
+      "timestamp": "2026-06-13T02:49:45.896973+00:00",
+      "g5_status": "FAIL",
+      "g5_must_fix": [
+        "G5.4:short/outline.md:not_found",
+        "G5.4:short/chapter-*.md:no_matches",
+        "G5.4:short/package.md:not_found"
+      ]
+    },
+    {
+      "action": "start",
+      "timestamp": "2026-06-13T02:50:59.217944+00:00",
+      "g5_status": "FAIL",
+      "g5_must_fix": [
+        "G5.4:short/outline.md:not_found",
+        "G5.4:short/chapter-*.md:no_matches",
+        "G5.4:short/package.md:not_found"
+      ]
+    },
+    {
+      "action": "start",
+      "timestamp": "2026-06-13T02:51:31.571043+00:00",
+      "g5_status": "PASS"
+    },
+    {
+      "action": "post-score",
+      "timestamp": "2026-06-13T02:51:31.630811+00:00",
+      "scores_file": "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/t2-reports/short-story-scores.json"
+    },
+    {
+      "action": "finalize",
+      "timestamp": "2026-06-13T02:51:31.711270+00:00",
+      "g5_status": "PASS"
+    }
+  ]
+}

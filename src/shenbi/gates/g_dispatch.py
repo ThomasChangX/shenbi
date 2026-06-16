@@ -1,6 +1,6 @@
 """G_DISPATCH: sub-agent dispatch gate.
 
-Extracted from tests/validate-gate.py in PR-19 (P-1.E).
+Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
 from shenbi.logging import get_logger

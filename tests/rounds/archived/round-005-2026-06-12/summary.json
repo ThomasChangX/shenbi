@@ -1,0 +1,1570 @@
+{
+  "round": "005",
+  "model": "claude",
+  "tier_target": "T1+T2+T3",
+  "t1_scores": {
+    "shenbi-chapter-drafting": {
+      "generative": 94.5,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-chapter-planning": {
+      "generative": 96.25,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-chapter-revision": {
+      "generative": 97.75,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-drift-guidance": {
+      "generative": 100.0,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-faction-builder": {
+      "generative": 94.1,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-foreshadowing-resolve": {
+      "generative": 94.5,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-foreshadowing-track": {
+      "generative": 96.25,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-foundation-review": {
+      "generative": 95.5,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-length-normalizing": {
+      "generative": 97.0,
+      "bug-hunt": 95.75,
+      "clean": 100.0,
+      "bughunt": 95.75
+    },
+    "shenbi-power-system": {
+      "generative": 100.0,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-short-drafting": {
+      "generative": 94.25,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-volume-outlining": {
+      "generative": 100.0,
+      "bug-hunt": 95.0,
+      "clean": 100.0
+    },
+    "shenbi-worldbuilding": {
+      "generative": 94.35,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-character-design": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-story-architecture": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-location-builder": {
+      "generative": 95.0,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-relationship-map": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-genre-config": {
+      "generative": 96.25,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-pacing-design": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-intent-management": {
+      "generative": 96.25,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-foreshadowing-plant": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-context-composing": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-anti-detect": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-state-settling": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-chapter-pattern": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-style-learning": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-plot-thread-weaver": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-truth-sync": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-snapshot-manage": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-volume-consolidation": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-style-polishing": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-anti-ai": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-character": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-continuity": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-dialogue": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-era": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-fanfic": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-foreshadowing": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-highpoint": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-long-span": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-memo-compliance": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-motivation": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-pacing": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-pov": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-reader-pull": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-sensitivity": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-spinoff": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-texture": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-review-world-rules": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-canon-import": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-character-extraction": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-market-radar": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-sequel-writing": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-short-outline": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-short-packaging": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-world-extraction": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-writing-skills": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "using-shenbi": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    },
+    "shenbi-import-analysis": {
+      "generative": 95.75,
+      "bug-hunt": 95.0,
+      "clean": 95.0
+    }
+  },
+  "t2_scores": {
+    "genesis": 95.5,
+    "architecture": 94.75,
+    "planning": 94.0,
+    "drafting": 94.75,
+    "audit": 95.5,
+    "management": 94.75,
+    "import": 94.75,
+    "foundation": 94.75,
+    "short-story": 94.0
+  },
+  "t3_scores": {
+    "long-form": 95.25,
+    "short-form": 95.75,
+    "import-form": 95.0
+  },
+  "kill_switches": [],
+  "enhancement_signals": [],
+  "band_breakdown": {
+    "pass_excellent": 38,
+    "pass_acceptable": 20,
+    "conditional": 0,
+    "fail": 0
+  },
+  "next_actions": [],
+  "audit_warnings": [
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-faction-builder-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pov-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-import-analysis-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-memo-compliance-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-world-extraction-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-character-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-polishing-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-faction-builder-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-writing-skills-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-location-builder-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-continuity-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-snapshot-manage-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-learning-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-drift-guidance-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-power-system-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-writing-skills-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-plot-thread-weaver-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-character-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-length-normalizing-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-context-composing-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-context-composing-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-polishing-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-drafting-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-pattern-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-planning-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-revision-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-extraction-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-dialogue-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-plant-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-snapshot-manage-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:using-shenbi-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-motivation-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-anti-detect-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-canon-import-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-dialogue-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-drift-guidance-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-power-system-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-spinoff-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-highpoint-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-world-extraction-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pacing-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-fanfic-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-canon-import-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-motivation-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-era-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-anti-ai-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-import-analysis-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-texture-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-outlining-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-extraction-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-truth-sync-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-texture-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-long-span-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-learning-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-genre-config-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-motivation-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-motivation-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-reader-pull-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-polishing-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-highpoint-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-canon-import-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-sensitivity-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-state-settling-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-packaging-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-state-settling-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-outline-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-anti-detect-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-design-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-world-rules-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-drafting-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-drift-guidance-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-outline-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-sequel-writing-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-learning-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-anti-detect-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-state-settling-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-memo-compliance-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-era-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foundation-review-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-spinoff-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-drafting-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-length-normalizing-bughunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-resolve-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-packaging-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-design-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-track-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-intent-management-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-planning-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-intent-management-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-genre-config-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-track-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foundation-review-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-worldbuilding-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-fanfic-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-continuity-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-outline-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-location-builder-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-sequel-writing-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-length-normalizing-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-fanfic-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-foreshadowing-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-pattern-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pacing-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-continuity-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-drafting-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-truth-sync-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-era-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-sensitivity-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-character-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-market-radar-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-relationship-map-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-canon-import-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-location-builder-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-outlining-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-memo-compliance-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-design-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-market-radar-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-planning-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-import-analysis-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-writing-skills-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-spinoff-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-world-extraction-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-reader-pull-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-consolidation-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-revision-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-pacing-design-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-dialogue-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pov-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-plant-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-relationship-map-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-truth-sync-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-world-extraction-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-plot-thread-weaver-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-highpoint-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-story-architecture-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-anti-detect-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-drafting-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-foreshadowing-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-worldbuilding-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-track-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-truth-sync-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-plot-thread-weaver-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-sequel-writing-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-continuity-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-consolidation-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-power-system-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-state-settling-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-foreshadowing-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-era-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-dialogue-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-worldbuilding-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:using-shenbi-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-outline-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-market-radar-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-plant-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-packaging-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-highpoint-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-intent-management-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-resolve-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-story-architecture-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-story-architecture-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-relationship-map-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-long-span-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-anti-ai-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-consolidation-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-pattern-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-anti-ai-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-anti-ai-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-reader-pull-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-world-rules-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-extraction-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-long-span-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-pacing-design-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-learning-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-story-architecture-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-relationship-map-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-texture-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-genre-config-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-long-span-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-character-extraction-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-intent-management-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-context-composing-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-market-radar-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-spinoff-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-drafting-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-genre-config-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pov-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-short-packaging-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-consolidation-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-sequel-writing-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-reader-pull-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-location-builder-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-import-analysis-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-memo-compliance-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-snapshot-manage-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-world-rules-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pacing-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-worldbuilding-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-texture-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-pattern-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-snapshot-manage-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-character-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-writing-skills-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-style-polishing-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-plot-thread-weaver-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-pacing-design-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foreshadowing-resolve-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pov-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-sensitivity-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-foundation-review-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-sensitivity-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-pacing-design-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-foreshadowing-generative-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-volume-outlining-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-world-rules-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-pacing-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-context-composing-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-review-fanfic-clean-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:using-shenbi-bug-hunt-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-faction-builder-clean-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:shenbi-chapter-revision-bughunt-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:short-story-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:management-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:short-story-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:genesis-scores.json:older_than_G4-shenbi-snapshot-manage-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:foundation-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:architecture-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:import-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:drafting-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:drafting-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:audit-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:management-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:audit-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:architecture-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:planning-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:import-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:foundation-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:planning-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:genesis-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:short-form-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:long-form-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:import-form-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:long-form-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:import-form-scores.json:older_than_G4-shenbi-worldbuilding-generative.json"
+    },
+    {
+      "type": "G7.14",
+      "severity": "warn",
+      "message": "G7.14:short-form-generative-scores.json:older_than_G4-review-anti-ai-generative.json"
+    },
+    {
+      "type": "DUPLICATE_PATTERN",
+      "severity": "warn",
+      "message": "30 skills share identical score vector in t1-reports"
+    },
+    {
+      "type": "DUPLICATE_PATTERN",
+      "severity": "warn",
+      "message": "8 skills share identical score vector in t1-reports"
+    },
+    {
+      "type": "DUPLICATE_PATTERN",
+      "severity": "warn",
+      "message": "5 skills share identical score vector in t2-reports"
+    }
+  ]
+}

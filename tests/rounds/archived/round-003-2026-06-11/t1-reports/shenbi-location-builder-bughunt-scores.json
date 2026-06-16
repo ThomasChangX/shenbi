@@ -1,0 +1,13 @@
+{
+  "1": 90,
+  "2": 95,
+  "3": 95,
+  "4": 95,
+  "6": 95,
+  "7": 95,
+  "8": 95,
+  "_final": 94.41,
+  "_band": "PASS",
+  "_kill_switch": false,
+  "_notes": "Dim 5 (Prose format) exempt for bug-hunt per rubric — renormalized final. Line numbers present: 铁脊城.md L18, 锻钢城.md L18 for contradictory travel times, L16-L18 in both files for nearest landmark/distance/travel time, L49-L52 in both for geographic position. Rule 铁律二: 空间一致性 exactly matches SKILL.md L33. Evidence includes physics calculation (40km/3days = 0.6km/h impossible for mounted travel) and cross-location field comparison. False positive check verifies: distance (40km) consistent, direction (N/S) consistent, terrain consistent, sensory counts valid, all other fields match."
+}

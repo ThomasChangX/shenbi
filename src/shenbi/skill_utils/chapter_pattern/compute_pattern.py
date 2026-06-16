@@ -54,7 +54,7 @@ ENTROPY_THRESHOLDS = [
 ]
 
 
-def compute_consecutive(patterns):
+def compute_consecutive(patterns: list[str]) -> dict[str, int]:
     """Compute longest consecutive runs per pattern and overall."""
     runs = defaultdict(list)
     current_pattern = None
@@ -76,13 +76,13 @@ def compute_consecutive(patterns):
     return result
 
 
-def compute_entropy(patterns):
+def compute_entropy(patterns: list[str]) -> tuple[float, list[dict[str, Any]]]:
     """Compute Shannon entropy H = -Σ(p_i × log₂(p_i))."""
     n = len(patterns)
     if n == 0:
         return 0.0, []
     counter = Counter(patterns)
-    terms = []
+    terms: list[dict[str, Any]] = []
     entropy = 0.0
     for pattern in PATTERNS:
         count = counter.get(pattern, 0)
@@ -100,18 +100,18 @@ def compute_entropy(patterns):
             entropy += term
         else:
             terms.append({"pattern": pattern, "count": 0, "frequency": 0, "p_log2p": 0})
-    terms.sort(key=lambda x: -x["count"])
+    terms.sort(key=lambda x: x["count"], reverse=True)
     return round(entropy, 4), terms
 
 
-def classify_entropy(h):
+def classify_entropy(h: float) -> tuple[str, str]:
     for threshold, label, desc in ENTROPY_THRESHOLDS:
         if h > threshold:
             return label, desc
     return "严重单调", "几乎单一模式"
 
 
-def check_distribution(patterns, recent_n):
+def check_distribution(patterns: list[str], recent_n: int) -> dict[str, Any] | None:
     """Check if recent-N distribution meets minimum pattern coverage."""
     if len(patterns) < recent_n:
         return None
@@ -126,7 +126,7 @@ def check_distribution(patterns, recent_n):
     }
 
 
-def check_consecutive_warnings(consecutive):
+def check_consecutive_warnings(consecutive: dict[str, int]) -> list[dict[str, Any]]:
     """Check consecutive runs against thresholds."""
     warnings = []
     for pattern, max_run in consecutive.items():
@@ -142,22 +142,23 @@ def check_consecutive_warnings(consecutive):
     return warnings
 
 
-def compute_transition_matrix(patterns):
+def compute_transition_matrix(patterns: list[str]) -> list[dict[str, Any]]:
     """Build pattern transition matrix."""
-    matrix = defaultdict(lambda: defaultdict(int))
+    matrix: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
     for i in range(len(patterns) - 1):
         matrix[patterns[i]][patterns[i + 1]] += 1
     rows: list[dict[str, Any]] = []
     for p1 in PATTERNS:
         row: dict[str, Any] = {"from": p1, "to": {}}
         for p2 in PATTERNS:
-            count = matrix.get(p1, {}).get(p2, 0)
+            inner = matrix.get(p1)
+            count = inner.get(p2, 0) if inner else 0
             row["to"][p2] = count
         rows.append(row)
     return rows
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2 or sys.argv[1] == "-":
         data = json.load(sys.stdin)
     else:
@@ -208,7 +209,7 @@ def main():
         "distribution_coverage": distribution,
         "transition_matrix": compute_transition_matrix(patterns),
     }
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    sys.stdout.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-"""Shenbi gate validation package scaffold.
+"""Shenbi gate validation package.
 
-P-1.D creates this package structure. The actual per-gate split (g0.py, g1.py,
-... g7.py) is deferred to P-1.E. Until then, tests/gates/cli.py forwards to
-the legacy tests/validate-gate.py.
+Per-gate modules (g0.py through g7.py, g_dispatch.py, g_reconcile.py,
+g_transition.py) implement the G0-G7 gate enforcement. G4 skill-specific
+checkers live under g4/.
 """

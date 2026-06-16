@@ -1,0 +1,19 @@
+{
+  "skill": "shenbi-state-settling",
+  "test_type": "generative",
+  "scored_at": "2026-06-12",
+  "kill_switch_triggered": false,
+  "dimensions": {
+    "1_instruction_adherence": {"score": 90, "weight": 0.10, "rationale": "All sections executed. Human-gate template with explicit signature block. All 9 change categories evaluated. Cross-file consistency verification performed."},
+    "2_output_completeness": {"score": 90, "weight": 0.05, "rationale": "state-settling-gate.md with 21 change entries across 9 categories plus cross-file consistency table (10 checks). 7 truth files generated."},
+    "3_extraction_accuracy": {"score": 85, "weight": 0.20, "rationale": "Most changes have chapter/paragraph evidence. '可能变更' annotation shows honesty about sparse evidence. Some entries are interpretive characterizations rather than raw extraction (e.g., '画饼型社交策略')."},
+    "4_category_completeness": {"score": 95, "weight": 0.15, "rationale": "All 9 categories evaluated: position (3), resource (8), relationship (4), emotion (1 tracing 9 states), information (7), plot (5), time (2), body (2), behavior (3). Complete coverage."},
+    "5_certainty_distinction": {"score": 80, "weight": 0.15, "rationale": "One item tagged '可能变更' (external force hints). Several other items also involve inference from sparse evidence but are presented as direct. More items should carry confidence tags."},
+    "6_incremental_correctness": {"score": 75, "weight": 0.15, "rationale": "Truth files are generated de novo rather than demonstrating incremental appending. truth/ files contain only Chapter 1 state, created from scratch. No append-without-rewrite evidence."},
+    "7_human_gate": {"score": 85, "weight": 0.10, "rationale": "Explicit '审批签名（human partner）: ___________  日期: ___________' signature block. Clear AI-draft vs human-approval separation. Gate structurally enforced."},
+    "8_cross_reference_consistency": {"score": 80, "weight": 0.10, "rationale": "10 verification checks. Four inconsistencies found between truth fixtures (锈泥巷) and multi-chapter (矿区): currency, missing characters, different chapter scene, different hook trigger. Correctly identified but resolution assumes '以多章版本为准' without human decision."}
+  },
+  "final_score": 84.5,
+  "grade": "PASS (acceptable)",
+  "notes": "Strong category completeness and human gate. Weakness: truth files generated de novo rather than incrementally appended; version conflicts between锈泥巷 and矿区 fixtures resolved by assumption rather than human judgment."
+}

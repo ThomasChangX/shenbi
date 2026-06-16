@@ -1,6 +1,6 @@
 """Shared helpers for gate validation.
 
-Extracted from tests/validate-gate.py in PR-19 (P-1.E). All gate modules
+Gate validation logic (originally extracted from tests/validate-gate.py in PR-19). All gate modules
 import these helpers to keep behavior identical to the legacy monolith.
 """
 
@@ -18,7 +18,7 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 PROJECT = Path(__file__).resolve().parents[3]
 SKILLS = PROJECT / "skills"
