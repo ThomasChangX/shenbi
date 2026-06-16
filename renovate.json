@@ -6,22 +6,43 @@
   "packageRules": [
     {
       "groupName": "ruff",
-      "matchPackagePatterns": ["ruff"]
+      "matchDepPatterns": ["ruff"]
     },
     {
       "groupName": "pytest",
-      "matchPackagePatterns": ["pytest"]
+      "matchDepPatterns": ["pytest"]
     },
     {
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "Patch updates can automerge after CI passes",
+      "matchUpdateTypes": ["patch"],
       "automerge": true,
       "automergeType": "pr",
       "automergeStrategy": "squash"
     },
     {
+      "description": "Minor updates require human review (may include behavioral changes)",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "labels": ["minor-bump"]
+    },
+    {
+      "description": "Major updates require human review and labels",
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "labels": ["major-bump"]
+    },
+    {
+      "description": "Pre-commit hook revs updated weekly",
+      "matchManagers": ["pre-commit"],
+      "automerge": false,
+      "labels": ["pre-commit"]
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "automerge": true,
+    "automergeType": "pr",
+    "automergeStrategy": "squash"
+  }
 }
