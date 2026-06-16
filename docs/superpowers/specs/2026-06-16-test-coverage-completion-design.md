@@ -195,6 +195,10 @@ If any checker violates the contract (e.g., raises on empty input), PR-49 fixes 
 
 All tests use **direct import** (not subprocess), consistent with PR-32's pattern. Fast, debuggable, no subprocess overhead.
 
+**Note on `test_doc_links.py`**: this existing test parametrizes over all `*.md` files, producing hundreds of test cases when `markdown-link-check` is installed (CI only). These cases count as 1 test function toward the density metric (density counts `def test_*` functions, not parametrized cases). No changes needed to this test.
+
+**G4 checker import pattern**: the parametrized harness imports all 21 checkers explicitly (not dynamically). Each import is a single line: `from shenbi.gates.g4.worldbuilding import g4_worldbuilding`. Explicit imports enable IDE navigation and catch import errors at collection time.
+
 ## Phase 1: Critical-Path Tests (PR-48 ~ PR-51)
 
 **Goal**: Every gate function, dispatcher, plugin generator, and skill_utils module has happy-path test coverage. After Phase 1, the goal-prompt.md pipeline exercises only tested code paths.
@@ -254,13 +258,16 @@ Tests:
 
 **Done criteria**: every public function in skill_utils has at least one test calling it with realistic chapter data and verifying the return type.
 
-### PR-51: Threshold bump (no new tests)
+### PR-51: Threshold bump + xfail strict relaxation (no new tests)
 
 - `fail_under`: 1 → 25
+- **Change both xfails from `strict=True` to `strict=False`** — prevents XPASS failures when Phase 3 gradually crosses thresholds
 - Branch coverage xfail reason updated: "Phase 2 will raise to 50"
 - Density xfail reason updated: "Phase 2 will deliver remaining functions to hit 0.10"
 - Verify full suite passes at new threshold
 - **If suite fails at fail_under=25**: do NOT lower the threshold. Instead, add tests to the modules dragging coverage down. The threshold is a ratchet, not a suggestion.
+
+**Why strict→non-strict now**: both `test_branch_coverage_meets_threshold` and `test_density_meets_threshold` currently use `strict=True`. With strict mode, the moment Phase 3 tests push density past 0.10 or branch coverage past 80%, the xfail test XPASSES → CI red → merge blocked. Switching to `strict=False` allows gradual approach. PR-56 removes both xfails entirely once thresholds are genuinely met.
 
 ### Phase 1 totals
 
@@ -275,7 +282,7 @@ Tests:
 
 **Goal**: Every error-handling branch, edge case, and defensive code path tested.
 
-### PR-52: Gate error paths (~88 new functions)
+### PR-52: Gate error paths (~94 new functions)
 
 | Module | New functions | Error paths covered |
 |---|---|---|
@@ -455,7 +462,7 @@ After PR-56 merges:
 6. **G4 parametrized harness** covers all 21 checkers for 7 common patterns (147 cases)
 7. **`just check` passes** including coverage + density threshold tests (no xfail, no `-m "not last"` exclusion for coverage)
 8. **No `# pragma: no cover`** without an inline reason comment
-9. **≥5 property-based tests** in `tests/property/` covering gate invariants
+9. **Property-based tests present** in `tests/property/` covering gate invariants (target: ~5 functions)
 
 ## Estimated Effort
 
