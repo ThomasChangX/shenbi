@@ -4,7 +4,9 @@
 
 **Goal:** Raise `src/shenbi/` coverage from ~3% line / ~25% branch / 0.061 density to ≥90% line / ≥80% branch / ≥0.10 density by adding ~294 test functions across 10 PRs in 3 phases, then enforce thresholds permanently (remove both xfail markers, set `fail_under = 90`).
 
-**Architecture:** Direct-import unit tests (no subprocess). Shared fixture factory `make_project` in `tests/unit/gates/conftest.py` returns `(project_dir, round_dir)` tuple matching real gate signatures. G4 checkers tested via parametrized harness (7 functions × 21 checkers = 147 cases) plus bespoke error-path tests. skill_utils tested via realistic chapter fixtures. Property-based tests (Hypothesis) cover invariant verification in Phase 3. Threshold ratcheting: `fail_under` 1→25→55→90, xfail `strict=True`→`strict=False`→removed.
+**Architecture:** Direct-import unit tests (no subprocess). Shared fixture factory `make_project` in `tests/unit/gates/conftest.py` returns `(project_dir, round_dir)` tuple matching real gate signatures. G4 checkers tested via parametrized harness (7 functions × 20 dedicated checkers = 140 cases; `src/shenbi/gates/g4/generic.py` provides `g4_generic_generative/_bughunt/_clean` router variants that are not part of the parametrized matrix) plus bespoke error-path tests. skill_utils tested via realistic chapter fixtures. Property-based tests (Hypothesis) cover invariant verification in Phase 3. Threshold ratcheting: `fail_under` 1→25→55→90, xfail `strict=True`→`strict=False`→removed.
+
+> **Reviewer's note (Round-1 critical pass):** every gate signature cited in this plan has been verified against `src/shenbi/gates/*.py` as of 2026-06-17. `gate_G_TRANSITION` requires `(from_phase, to_phase, round_dir)`; `gate_G_RECONCILE` requires `progress.json` with a `skills` map at the round_dir root. The spec (`docs/superpowers/specs/2026-06-16-test-coverage-completion-design.md`) incorrectly states "21 checkers / 147 cases" — actual count is 20 dedicated checkers (matches `G4_CHECKER_SKILLS` in `src/shenbi/gates/shared.py:206`); this plan corrects the count to 20/140 and flags the spec for follow-up.
 
 **Tech Stack:** Python 3.11, pytest 8.x, pytest-cov, Hypothesis 6.97+, coverage.py with branch tracking. Tests run via `just test` (`pytest -m "unit"`). Source under `src/shenbi/`, tests under `tests/unit/`, `tests/property/`.
 
@@ -26,7 +28,7 @@ tests/unit/gates/
 ├── g4/
 │   ├── __init__.py                   # PR-49: empty package marker
 │   ├── conftest.py                   # PR-49: skill-output sample fixtures
-│   └── test_common.py                # PR-49: parametrized harness (7 fn × 21 checkers)
+│   └── test_common.py                # PR-49: parametrized harness (7 fn × 20 checkers = 140 cases)
 tests/unit/
 ├── test_dispatcher_executor.py       # PR-50: dispatcher happy path
 ├── test_plugins_generate.py          # PR-50: plugin manifest generator happy path
@@ -65,7 +67,7 @@ tests/property/
 ### Source files under test (no modifications in Phase 1-2; Phase 3 may add `# pragma: no cover` with inline reasons only for genuinely unreachable code)
 
 - `src/shenbi/gates/g0.py`, `g0_purity.py`, `g1.py`, `g2.py`, `g3.py`, `g5.py`, `g6.py`, `g6_checks.py`, `g7.py`, `g_dispatch.py`, `g_reconcile.py`, `g_transition.py`, `shared.py`
-- `src/shenbi/gates/g4/*.py` (21 checkers)
+- `src/shenbi/gates/g4/*.py` (20 dedicated checkers + `generic.py` router with `g4_generic_{generative,bughunt,clean}` variants)
 - `src/shenbi/dispatcher/executor.py`, `cli.py`
 - `src/shenbi/plugins/generate.py`
 - `src/shenbi/skill_utils/chapter_pattern/compute_pattern.py`
@@ -210,7 +212,7 @@ Expected: collection succeeds, no import errors.
 
 - [ ] **Step 3: Expand `test_g0.py` happy-path coverage**
 
-Add ~6 new functions (total target: 12 happy-path tests covering G0.1 through G0.12). Append to existing `tests/unit/gates/test_g0.py`:
+Add ~6 new functions (total target: 12 happy-path tests covering G0.1 through G0.12). Append to existing `tests/unit/gates/test_g0.py`. The existing file already imports `gate_G0`, `Path`, `json`, `Any`, `_result_dict` — reuse them.
 
 ```python
 import pytest
@@ -221,9 +223,11 @@ class TestG0HappyPath:
     def test_g03_expected_chapters_via_genre_config(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """G0.3 reads chapter_word.default from genre-config.json."""
+        """G0.3 reads chapter_word.default from PROJECT/skill-output/<proj>/genre-config.json."""
         from shenbi.gates import g0 as g0_mod
 
+        # Gate iterates PROJECT/skill-output/<proj>/genre-config.json. Set PROJECT
+        # to tmp_path so the gate reads our fixture.
         skill_output = tmp_path / "skill-output" / "proj"
         skill_output.mkdir(parents=True)
         (skill_output / "genre-config.json").write_text(
@@ -238,12 +242,29 @@ class TestG0HappyPath:
         assert g03["s"] == "PASS"
         assert g03["expected_chapters"] == 2  # ceil(10000/5000)
 
-    def test_g04_passes_when_all_skills_have_skill_md(self) -> None:
-        """G0.4 PASSes by default — repo's skills/ all have SKILL.md."""
-        result = _result_dict(gate_G0(seed_file=None))
-        g04 = next(c for c in result["checks"] if c["id"] in ("G0.4", "G0.1"))
-        # When seed is None, only G0.1 SKIP is emitted; verify no crash.
-        assert result["status"] == "PASS"
+    def test_g04_passes_on_clean_repo(self, tmp_path: Path) -> None:
+        """G0.4 PASSes against the repo's real skills/ tree.
+
+        Note: when seed_file=None the gate SHORT-CIRCUITS at G0.1 and never
+        reaches G0.4 (see src/shenbi/gates/g0.py line 56 — returns passed()
+        immediately after appending the G0.1 SKIP check). To exercise G0.4 we
+        must pass a real seed_file so the gate walks past G0.1/G0.2/G0.3.
+        ALL_SKILLS and SKILLS are module-level constants in shared.py
+        pointing at the actual repo layout, so G0.4 inspects the real
+        skills/ tree regardless of monkeypatch.
+        """
+        seed = tmp_path / "seed.md"
+        seed.write_text(
+            "# Novel\n\n目标字数：5000\n\n## Setup\n" + ("内容 " * 200),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g04 = next(
+            (c for c in result["checks"] if c["id"] == "G0.4"),
+            None,
+        )
+        assert g04 is not None, "G0.4 check not emitted (earlier check may have short-circuited)"
+        assert g04["s"] == "PASS"
 
     def test_g06_passes_when_skill_output_writable(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -255,24 +276,51 @@ class TestG0HappyPath:
         seed = tmp_path / "seed.md"
         seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
         result = _result_dict(gate_G0(seed_file=str(seed)))
-        # G0.6 may not appear if earlier check fails; that's OK — verify no crash
-        assert "checks" in result
+        g06 = next(
+            (c for c in result["checks"] if c["id"] == "G0.6"),
+            None,
+        )
+        assert g06 is not None, "G0.6 check not emitted (earlier check may have short-circuited)"
+        assert g06["s"] == "PASS"
 ```
 
-Add 4 more happy-path tests covering: G0.5 sampled rubric PASS, G0.7 scoring.py exists, G0.8 no missing fixtures (default repo state), G0.9/G0.9c/G0.9b scenario purity on clean repo.
+Verified against `src/shenbi/gates/g0.py`:
+- G0.3 reads `PROJECT / "skill-output" / <proj_dir> / "genre-config.json"` (line 79-89), field `chapter_word.default`, emits `expected_chapters = ceil(target_words / default_w)`.
+- G0.4 (line 102) iterates `ALL_SKILLS` from `shared.py` (auto-discovered from `PROJECT/skills/`); emits PASS with `skills_count` when every skill dir has `SKILL.md`.
+- G0.6 (line 205) checks `PROJECT` writability; emits PASS at end if no earlier branch failed.
+
+Avoid the brittle `next(...)` without default — it raises `StopIteration` if the check is absent, masking the real assertion.
+
+Add 4 more happy-path tests covering: G0.5 sampled rubric PASS, G0.7 scoring.py exists, G0.8 no missing fixtures (default repo state), G0.9/G0.9c/G0.9b scenario purity on clean repo. Use the same `next(..., None)` + explicit assertion pattern.
 
 - [ ] **Step 4: Create `test_g0_purity.py`**
 
-Write `tests/unit/gates/test_g0_purity.py` with 5 tests for the extracted purity helpers:
+Write `tests/unit/gates/test_g0_purity.py` with 5 tests for the extracted purity helpers. **Read `src/shenbi/gates/g0_purity.py` first** — the functions take *skill-dir trees*, not single scenario files:
 
 ```python
-"""Unit tests for g0_purity: G0.9/G0.9c/G0.9b scenario file purity."""
+"""Unit tests for g0_purity: G0.9/G0.9c/G0.9b scenario path purity.
+
+Function contracts (verified against src/shenbi/gates/g0_purity.py):
+
+- check_scenario_file_purity(t1_skill_dir: Path)
+    → tuple[list[dict], str | None, list[str]]
+    Iterates t1_skill_dir/<skill_name>/<test_type>/input/scenario.md
+    looking for backtick-quoted file refs NOT starting with
+    `skills/` or `tests/fixtures/`.
+
+- check_scenario_dir_purity(t1_skill_dir: Path)
+    → list[dict]  # note: NOT a tuple
+    Same iteration as above; checks backtick-quoted directory refs.
+
+- check_skill_md_purity(skills_dir: Path)
+    → tuple[list[dict], str | None, list[str]]
+    Iterates skills_dir/<skill_name>/SKILL.md looking for leaked
+    `tests/fixtures/...` paths (those should be in scenario.md, not SKILL.md).
+"""
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -283,57 +331,106 @@ from shenbi.gates.g0_purity import (
 )
 
 
+def _build_t1_skill_dir(
+    tmp_path: Path, skill_name: str, scenario_body: str
+) -> Path:
+    """Build a t1-style skill dir tree with one scenario.md under generative/input/."""
+    t1_root = tmp_path / "t1-skills"
+    scenario = (
+        t1_root
+        / skill_name
+        / "generative"
+        / "input"
+        / "scenario.md"
+    )
+    scenario.parent.mkdir(parents=True)
+    scenario.write_text(scenario_body, encoding="utf-8")
+    return t1_root
+
+
 @pytest.mark.unit
-def test_check_scenario_file_purity_passes_on_clean_md(tmp_path: Path) -> None:
-    """Clean scenario.md with no forbidden sections returns PASS checks."""
-    scenario = tmp_path / "scenario.md"
-    scenario.write_text("# Scenario\n\n标准内容。\n", encoding="utf-8")
-    checks, fail_reason, must_fix = check_scenario_file_purity(scenario)
+def test_check_scenario_file_purity_passes_when_all_refs_use_tests_fixtures(
+    tmp_path: Path,
+) -> None:
+    """Scenario referencing tests/fixtures/ paths → PASS."""
+    t1 = _build_t1_skill_dir(
+        tmp_path,
+        "shenbi-worldbuilding",
+        "# Scenario\n\nReads: `tests/fixtures/seed.md`.\n",
+    )
+    checks, fail_reason, must_fix = check_scenario_file_purity(t1)
     assert fail_reason is None
     assert must_fix == []
     assert all(c["s"] == "PASS" for c in checks)
 
 
 @pytest.mark.unit
-def test_check_scenario_file_purity_fails_on_meta_narrative(tmp_path: Path) -> None:
-    """Scenario containing '让人感悟' triggers FAIL."""
-    scenario = tmp_path / "scenario.md"
-    scenario.write_text("# Scenario\n\n让人感悟的内容。\n", encoding="utf-8")
-    checks, fail_reason, must_fix = check_scenario_file_purity(scenario)
-    assert fail_reason is not None or any(c["s"] == "FAIL" for c in checks)
+def test_check_scenario_file_purity_fails_on_project_relative_refs(
+    tmp_path: Path,
+) -> None:
+    """Scenario referencing project/seed.md (not tests/fixtures/) → FAIL."""
+    t1 = _build_t1_skill_dir(
+        tmp_path,
+        "shenbi-worldbuilding",
+        "# Scenario\n\nReads: `project/seed.md`.\n",
+    )
+    checks, fail_reason, must_fix = check_scenario_file_purity(t1)
+    assert fail_reason is not None
+    assert any(c["s"] == "FAIL" for c in checks)
+    assert must_fix  # non-empty must_fix list
 
 
 @pytest.mark.unit
-def test_check_scenario_dir_purity_skips_when_missing(tmp_path: Path) -> None:
-    """Missing tier dir returns SKIP check, no crash."""
-    checks, fail_reason, must_fix = check_scenario_dir_purity(tmp_path / "nonexistent")
-    assert any(c["s"] == "SKIP" for c in checks)
+def test_check_scenario_dir_purity_passes_when_no_dirs_referenced(
+    tmp_path: Path,
+) -> None:
+    """Scenario with no directory refs → returns list with single PASS check."""
+    t1 = _build_t1_skill_dir(
+        tmp_path,
+        "shenbi-worldbuilding",
+        "# Scenario\n\nNo directory refs here.\n",
+    )
+    result = check_scenario_dir_purity(t1)  # returns list, not tuple
+    assert isinstance(result, list)
+    assert any(c["s"] == "PASS" for c in result)
 
 
 @pytest.mark.unit
-def test_check_skill_md_purity_passes_on_valid_skill_md(tmp_path: Path) -> None:
-    """SKILL.md without template placeholders passes."""
-    skill_md = tmp_path / "SKILL.md"
-    skill_md.write_text(
-        "---\nname: test-skill\ndescription: trigger only\n---\n\n# Test Skill\n",
+def test_check_skill_md_purity_passes_when_no_fixture_leak(
+    tmp_path: Path,
+) -> None:
+    """SKILL.md without tests/fixtures/ paths → PASS."""
+    skills = tmp_path / "skills"
+    skill_dir = skills / "shenbi-test-skill"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: shenbi-test-skill\ndescription: trigger only\n---\n\n# Test\n",
         encoding="utf-8",
     )
-    checks, fail_reason, must_fix = check_skill_md_purity(skill_md)
+    checks, fail_reason, must_fix = check_skill_md_purity(skills)
     assert fail_reason is None
+    assert must_fix == []
 
 
 @pytest.mark.unit
-def test_check_skill_md_purity_fails_on_template_placeholder(tmp_path: Path) -> None:
-    """SKILL.md with '{{...}}' placeholder triggers FAIL."""
-    skill_md = tmp_path / "SKILL.md"
-    skill_md.write_text(
-        "---\nname: test\ndescription: x\n---\n\n# {{TEMPLATE}}\n", encoding="utf-8"
+def test_check_skill_md_purity_fails_when_skill_md_leaks_fixture_path(
+    tmp_path: Path,
+) -> None:
+    """SKILL.md mentioning tests/fixtures/foo.md → FAIL."""
+    skills = tmp_path / "skills"
+    skill_dir = skills / "shenbi-leaky-skill"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: shenbi-leaky-skill\ndescription: x\n---\n\n"
+        "# Leaky\n\nReads tests/fixtures/seed.md for examples.\n",
+        encoding="utf-8",
     )
-    checks, fail_reason, must_fix = check_skill_md_purity(skill_md)
-    assert fail_reason is not None or any(c["s"] == "FAIL" for c in checks)
+    checks, fail_reason, must_fix = check_skill_md_purity(skills)
+    assert fail_reason is not None
+    assert any(c["s"] == "FAIL" for c in checks)
 ```
 
-If `check_scenario_file_purity` raises on the meta-narrative input instead of returning FAIL, document the actual behavior in the test and assert that behavior (test pins current behavior, per Non-Goal #3 of spec).
+The earlier draft of this step passed single files to functions that expect skill-dir trees and unpacked the wrong tuple shape; that would have raised `ValueError`/`AttributeError` at collection time. Verified against `src/shenbi/gates/g0_purity.py:13,58,103`.
 
 - [ ] **Step 5: Expand `test_g1.py` with 5 happy-path tests**
 
@@ -458,16 +555,86 @@ Add tests for: sufficient chapter count PASS, no continuity violations, hook den
 
 - [ ] **Step 11: Expand `test_g7.py` with 10 happy-path tests**
 
-Add: valid summary PASS, truth files consistent, changelog writable, gate markers consistent, no hallucinated skills, full coverage of summary fields, template-placeholder-free summary, no pending hooks after settling, marker re-run idempotent, summary references valid chapters.
+`gate_G7(round_dir: str) -> str` reads `summary.json` and `progress.json` from round_dir and checks: G7.1 hallucinated skills, G7.2 summary coverage, G7.3 template placeholders, G7.4 truth files pending, G7.5 changelog writable, G7.6 marker consistency. Each test below exercises one aspect using `make_project` to build the round_dir state.
+
+```python
+@pytest.mark.unit
+def test_g7_passes_when_summary_has_only_known_skills(make_project) -> None:
+    """G7.1 PASSes when summary.json's t1_scores keys ⊆ ALL_SKILLS."""
+    _, round_dir = make_project(
+        summary={"t1_scores": {"shenbi-worldbuilding": {"score": 85}}},
+    )
+    result = _result_dict(gate_G7(str(round_dir)))
+    g71 = next((c for c in result["checks"] if c["id"] == "G7.1"), None)
+    if g71:  # gate may not emit if earlier check short-circuits
+        assert g71["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g7_emits_valid_json_for_empty_round(tmp_path: Path) -> None:
+    """Empty round_dir → FAIL JSON, no exception."""
+    result = _result_dict(gate_G7(str(tmp_path / "empty")))
+    assert result["gate"] == "G7"
+    assert "status" in result
+```
+
+Remaining 8 tests follow the same `make_project` + `_result_dict` + per-check-extraction pattern. Categories (each = 1 test):
+
+- **valid summary PASS**: full summary.json with all expected fields → overall PASS or only soft WARNs.
+- **truth files consistent**: summary's `truth_files_after` matches files on disk → no G7.4 must_fix.
+- **changelog writable**: round_dir parent writable → G7.5 PASS (use `tmp_path` which is writable).
+- **gate markers consistent**: pre-populate `gate-markers/` with non-contrictory marker JSONs → no G7.6 must_fix.
+- **no hallucinated skills**: summary's t1_scores keys ⊆ ALL_SKILLS → G7.1 PASS.
+- **full coverage of summary fields**: summary includes `t1_scores`, `t2_results`, `t3_results` → G7.2 PASS.
+- **template-placeholder-free summary**: summary text without `{{...}}` → G7.3 PASS.
+- **marker re-run idempotent**: invoking gate twice produces same status.
+
+For each: read `src/shenbi/gates/g7.py` lines 26-150 to confirm the exact field names and check IDs the gate emits. Use the `next(..., None)` + assertion pattern from PR-48 Step 3 to avoid StopIteration on absent checks.
 
 - [ ] **Step 12: Expand `test_g_dispatch.py` with 3 happy-path tests**
 
-Add: valid progress.json PASS, queue ready for next phase, phase dispatchable.
+`gate_G_DISPATCH(phase: str, round_dir: str) -> str` checks `progress.json["completed_skill_names"]` against `ALL_SKILLS` (GD.1) and emits the queue for the next phase (GD.2). Tests:
+
+```python
+@pytest.mark.unit
+def test_g_dispatch_passes_when_all_skills_completed(make_project) -> None:
+    """GD.1 PASS when completed_skill_names ⊇ ALL_SKILLS."""
+    from shenbi.gates.shared import ALL_SKILLS
+    _, round_dir = make_project(
+        progress={"completed_skill_names": sorted(ALL_SKILLS)}
+    )
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_when_progress_missing(tmp_path: Path) -> None:
+    """Missing progress.json → FAIL with GD.0:no_progress_file."""
+    result = _result_dict(gate_G_DISPATCH("drafting", str(tmp_path / "empty")))
+    assert result["status"] == "FAIL"
+    assert any("GD.0" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_when_skills_incomplete(make_project) -> None:
+    """completed_skill_names missing some → FAIL with GD.1 listing missing."""
+    _, round_dir = make_project(progress={"completed_skill_names": []})
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GD.1" in mf for mf in result["must_fix"])
+```
 
 - [ ] **Step 13: Create `test_g_reconcile.py` with 5 happy-path tests**
 
 ```python
-"""Unit tests for G_RECONCILE: cross-skill score reconciliation."""
+"""Unit tests for G_RECONCILE: cross-skill score reconciliation.
+
+G_RECONCILE reads `progress.json` from round_dir and iterates
+`progress["skills"][<skill>][<test_type>]["status"]`. Only skills whose
+status == "DONE" require a matching report file under t1-reports/.
+Report file naming: `<skill>-<test_type>-scores.json` (see
+`find_report` in `src/shenbi/gates/shared.py`).
+"""
 
 from __future__ import annotations
 
@@ -480,66 +647,85 @@ import pytest
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 
 
-def _result(result_str: str) -> dict[str, Any]:
+def _result_dict(result_str: str) -> dict[str, Any]:
     return json.loads(result_str)
 
 
 @pytest.mark.unit
-def test_g_reconcile_passes_when_all_t1_reports_consistent(
+def test_g_reconcile_passes_when_done_skills_have_reports(
     make_project,
 ) -> None:
-    """All T1 reports present, scores match → PASS."""
-    project_dir, round_dir = make_project(
+    """DONE skills with matching t1-reports → PASS."""
+    _, round_dir = make_project(
+        progress={
+            "skills": {
+                "shenbi-worldbuilding": {"generative": {"status": "DONE"}},
+                "shenbi-chapter-drafting": {"generative": {"status": "DONE"}},
+            }
+        },
         t1_reports={
-            "shenbi-worldbuilding": {"score": 85, "status": "PASS"},
-            "shenbi-chapter-drafting": {"score": 80, "status": "PASS"},
-        }
+            "shenbi-worldbuilding": {"score": 85},
+            "shenbi-chapter-drafting": {"score": 80},
+        },
     )
-    result = _result(gate_G_RECONCILE(str(round_dir)))
-    assert result["status"] in ("PASS", "FAIL")  # verify it ran
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["status"] == "PASS"
+    assert result["must_fix"] == []
 
 
 @pytest.mark.unit
-def test_g_reconcile_skips_when_no_reports(make_project) -> None:
-    """Missing t1-reports dir produces graceful SKIP or FAIL, not crash."""
-    project_dir, round_dir = make_project()
-    result = _result(gate_G_RECONCILE(str(round_dir)))
-    assert "status" in result
+def test_g_reconcile_passes_when_no_done_skills(make_project) -> None:
+    """progress.json present but no skill has status=DONE → PASS (nothing to verify)."""
+    _, round_dir = make_project(progress={"skills": {}})
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["status"] == "PASS"
 
 
 @pytest.mark.unit
-def test_g_reconcile_detects_missing_skill_report(make_project) -> None:
-    """Required skill report missing → FAIL with skill name in must_fix."""
-    project_dir, round_dir = make_project(
-        t1_reports={"shenbi-worldbuilding": {"score": 85}}
+def test_g_reconcile_skips_when_no_progress(make_project) -> None:
+    """Missing progress.json → FAIL with no_progress in must_fix."""
+    _, round_dir = make_project()  # no progress.json
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert "no_progress" in result["must_fix"]
+
+
+@pytest.mark.unit
+def test_g_reconcile_fails_when_done_skill_lacks_report(make_project) -> None:
+    """DONE skill without matching t1-report → FAIL with GR.1 reason."""
+    _, round_dir = make_project(
+        progress={
+            "skills": {
+                "shenbi-worldbuilding": {"generative": {"status": "DONE"}},
+            }
+        },
+        # No t1_reports — report file missing.
     )
-    result = _result(gate_G_RECONCILE(str(round_dir)))
-    assert "status" in result
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GR.1" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
 def test_g_reconcile_returns_valid_json_for_empty_round(tmp_path: Path) -> None:
-    """Empty round_dir produces valid JSON, not exception."""
-    result = _result(gate_G_RECONCILE(str(tmp_path / "empty")))
-    assert "gate" in result
-    assert "status" in result
-
-
-@pytest.mark.unit
-def test_g_reconcile_accepts_path_or_str(make_project) -> None:
-    """Gate accepts both Path and str forms."""
-    _, round_dir = make_project()
-    result_str = gate_G_RECONCILE(str(round_dir))
-    result_path = gate_G_RECONCILE(round_dir)
-    assert json.loads(result_str)["gate"] == json.loads(result_path)["gate"]
+    """Non-existent round_dir → FAIL JSON with no_round_dir, no exception."""
+    result = _result_dict(gate_G_RECONCILE(str(tmp_path / "empty")))
+    assert result["gate"] == "G_RECONCILE"
+    assert result["status"] == "FAIL"
+    assert "no_progress" in result["must_fix"]
 ```
 
-If `gate_G_RECONCILE` does not exist yet (check `src/shenbi/gates/g_reconcile.py` first), replace `from shenbi.gates.g_reconcile import gate_G_RECONCILE` with whatever the actual entry function is named. If the module doesn't exist, skip this file and note in the commit message.
+Verified against `src/shenbi/gates/g_reconcile.py`: entry function is `gate_G_RECONCILE(round_dir: str | None = None) -> str`. Gate returns `fail(...)` with `"no_round_dir"` when round_dir is falsy, `"no_progress"` when `progress.json` missing, and iterates `progress["skills"][<name>][<test_type>]["status"] == "DONE"` to find required reports via `find_report(rd / "t1-reports", sn, tt)`.
 
 - [ ] **Step 14: Create `test_g_transition.py` with 4 happy-path tests**
 
 ```python
-"""Unit tests for G_TRANSITION: phase transition gate."""
+"""Unit tests for G_TRANSITION: phase transition gate.
+
+G_TRANSITION signature: gate_G_TRANSITION(from_phase, to_phase, round_dir).
+Gate reads `progress.get(f"remaining_{from_phase}", [])` from progress.json
+in round_dir. PASS when that list is empty.
+"""
 
 from __future__ import annotations
 
@@ -552,38 +738,48 @@ import pytest
 from shenbi.gates.g_transition import gate_G_TRANSITION
 
 
-def _result(s: str) -> dict[str, Any]:
-    return json.loads(s)
+def _result_dict(result_str: str) -> dict[str, Any]:
+    return json.loads(result_str)
 
 
 @pytest.mark.unit
-def test_g_transition_passes_when_queue_empty_and_no_blockers(make_project) -> None:
-    """Empty remaining queue, no blockers → PASS."""
-    _, round_dir = make_project(progress={"phase": "drafting", "queue": []})
-    result = _result(gate_G_TRANSITION(str(round_dir)))
-    assert result["status"] in ("PASS", "FAIL")
+def test_g_transition_passes_when_remaining_queue_empty(make_project) -> None:
+    """remaining_drafting = [] → PASS transition drafting → review."""
+    _, round_dir = make_project(progress={"remaining_drafting": []})
+    result = _result_dict(gate_G_TRANSITION("drafting", "review", str(round_dir)))
+    assert result["status"] == "PASS"
 
 
 @pytest.mark.unit
-def test_g_transition_fails_when_queue_not_empty(make_project) -> None:
-    _, round_dir = make_project(progress={"phase": "drafting", "queue": ["skill-x"]})
-    result = _result(gate_G_TRANSITION(str(round_dir)))
-    assert "status" in result
+def test_g_transition_fails_when_remaining_queue_not_empty(make_project) -> None:
+    """remaining_drafting non-empty → FAIL with GT.1 reason."""
+    _, round_dir = make_project(
+        progress={"remaining_drafting": ["shenbi-chapter-drafting"]}
+    )
+    result = _result_dict(gate_G_TRANSITION("drafting", "review", str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GT.1" in mf for mf in result.get("must_fix", []))
 
 
 @pytest.mark.unit
 def test_g_transition_fails_when_progress_missing(tmp_path: Path) -> None:
-    result = _result(gate_G_TRANSITION(str(tmp_path / "empty")))
-    assert "status" in result
+    """Missing progress.json → FAIL with GT.0:no_progress_file."""
+    result = _result_dict(
+        gate_G_TRANSITION("drafting", "review", str(tmp_path / "empty"))
+    )
+    assert result["status"] == "FAIL"
+    assert any("GT.0" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
-def test_g_transition_accepts_path_or_str(make_project) -> None:
-    _, round_dir = make_project()
-    assert json.loads(gate_G_TRANSITION(round_dir))["gate"] == "G_TRANSITION"
+def test_g_transition_returns_gate_field(make_project) -> None:
+    """Every response (PASS or FAIL) includes gate == 'G_TRANSITION'."""
+    _, round_dir = make_project(progress={"remaining_drafting": []})
+    result = _result_dict(gate_G_TRANSITION("drafting", "review", str(round_dir)))
+    assert result["gate"] == "G_TRANSITION"
 ```
 
-Same note as Step 13: verify the actual module/function name first.
+Verified against `src/shenbi/gates/g_transition.py`: signature is `gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str`. Returns `fail("G_TRANSITION", [], "phase_transition", ["GT.0:no_progress_file"])` when progress.json missing; checks `progress.get(f"remaining_{from_phase}", [])` for the queue.
 
 - [ ] **Step 15: Expand `test_shared.py` with 4 happy-path tests**
 
@@ -614,7 +810,7 @@ git commit -m "feat(P-1.E PR-48): add fixture factory + gate happy-path tests (~
 
 ---
 
-### Task 2: PR-49 — G4 contract verify + parametrized common harness (7 new functions, 147 cases)
+### Task 2: PR-49 — G4 contract verify + parametrized common harness (7 new functions, 140 cases)
 
 **Files:**
 - Create: `tests/unit/gates/g4/__init__.py`
@@ -623,7 +819,7 @@ git commit -m "feat(P-1.E PR-48): add fixture factory + gate happy-path tests (~
 
 - [ ] **Step 1: Document the G4 checker contract**
 
-First, verify the actual checker count: `ls src/shenbi/gates/g4/g4_*.py | wc -l`. The spec says 21; `G4_CHECKER_SKILLS` in `shared.py` lists 20. Update the list below to match the real count. The parametrized cases = 7 × (actual checker count).
+First, verify the actual checker count: `grep -c '^    "shenbi-' src/shenbi/gates/shared.py` (counts entries in `G4_CHECKER_SKILLS`). As of 2026-06-17 this is **20 dedicated checkers**. `src/shenbi/gates/g4/generic.py` exists separately and provides `g4_generic_generative`, `g4_generic_bughunt`, `g4_generic_clean` router variants — these are intentionally excluded from the parametrized matrix because they're not in `G4_CHECKER_SKILLS`.
 
 Write `tests/unit/gates/g4/README.md` (this is documentation, not code — keeps the contract visible):
 
@@ -639,7 +835,7 @@ Every `g4_<skill>()` function in `src/shenbi/gates/g4/` must satisfy:
 5. **Empty fps**: returns status="FAIL" or PASS-with-WARN (never crashes)
 6. **Non-existent file in fps**: returns status="FAIL" with descriptive "r" field
 
-## Checkers covered (21)
+## Checkers covered (20 dedicated, matches G4_CHECKER_SKILLS in shared.py)
 
 shenbi-anti-detect, shenbi-chapter-drafting, shenbi-chapter-planning,
 shenbi-character-design, shenbi-context-composing, shenbi-faction-builder,
@@ -648,6 +844,10 @@ shenbi-length-normalizing, shenbi-location-builder, shenbi-pacing-design,
 shenbi-plot-thread-weaver, shenbi-power-system, shenbi-relationship-map,
 shenbi-state-settling, shenbi-story-architecture, shenbi-style-polishing,
 shenbi-volume-outlining, shenbi-worldbuilding
+
+Note: `src/shenbi/gates/g4/generic.py` exposes `g4_generic_generative/_bughunt/_clean`
+router variants used by skills without dedicated checkers. These are not parametrized
+here because they are not in `G4_CHECKER_SKILLS`.
 ```
 
 - [ ] **Step 2: Verify each checker satisfies the contract**
@@ -671,7 +871,7 @@ CHECKER_SKILLS = [
     "shenbi-plot-thread-weaver", "shenbi-power-system", "shenbi-relationship-map",
     "shenbi-state-settling", "shenbi-story-architecture", "shenbi-style-polishing",
     "shenbi-volume-outlining", "shenbi-worldbuilding",
-]
+]  # 20 entries — matches G4_CHECKER_SKILLS in src/shenbi/gates/shared.py
 
 @pytest.mark.unit
 @pytest.mark.parametrize("skill", CHECKER_SKILLS)
@@ -694,7 +894,7 @@ def g4_<skill>(fps: list[str], rd: str | None = None) -> str:
     # ... existing logic
 ```
 
-Delete `test_contract.py` after all 20 pass.
+Delete `test_contract.py` after all 20 pass. **Note**: spec Non-Goal #3 says "no gate logic changes". Adding an empty-input guard is technically a defensive fix, not a logic change — the guard returns the same FAIL signal the rest of the function would produce on missing files. If reviewer disagrees, gate-keep via a separate PR linked from this plan; do not silently bundle source changes with test PRs.
 
 - [ ] **Step 3: Create `g4/__init__.py` and `g4/conftest.py`**
 
@@ -737,10 +937,12 @@ def empty_skill_output(tmp_path: Path) -> Path:
 `tests/unit/gates/g4/test_common.py`:
 
 ```python
-"""Parametrized G4 harness: 7 test functions × 21 checkers = 147 cases.
+"""Parametrized G4 harness: 7 test functions × 20 dedicated checkers = 140 cases.
 
 Each test exercises one aspect of the G4 checker contract (see README.md).
-All cases use direct import; no subprocess.
+All cases use direct import; no subprocess. Generic router variants in
+src/shenbi/gates/g4/generic.py (g4_generic_generative/_bughunt/_clean) are
+not part of this matrix — they're not in G4_CHECKER_SKILLS.
 """
 
 from __future__ import annotations
@@ -840,25 +1042,25 @@ def test_fail_includes_must_fix_when_applicable(skill: str, tmp_path) -> None:
         assert isinstance(result["must_fix"], list)
 ```
 
-- [ ] **Step 5: Run harness — expect 147 cases collected**
+- [ ] **Step 5: Run harness — expect 140 cases collected**
 
 Run: `uv run pytest tests/unit/gates/g4/test_common.py --collect-only -q | tail -5`
-Expected: `147 tests collected`.
+Expected: `140 tests collected` (7 functions × 20 checkers).
 
 - [ ] **Step 6: Run harness**
 
 Run: `uv run pytest tests/unit/gates/g4/test_common.py -v --no-cov`
-Expected: all PASS (or xfail with documented reason). If any FAIL, fix the violating checker per Step 2.
+Expected: all 140 PASS. If any FAIL, fix the violating checker per Step 2.
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add tests/unit/gates/g4/ src/shenbi/gates/g4/
-git commit -m "feat(P-1.E PR-49): G4 parametrized harness — 7 fn × 21 checkers = 147 cases
+git commit -m "feat(P-1.E PR-49): G4 parametrized harness — 7 fn × 20 checkers = 140 cases
 
-- tests/unit/gates/g4/test_common.py: 7 contract checks × 21 skills
+- tests/unit/gates/g4/test_common.py: 7 contract checks × 20 dedicated skills
 - Fixes any G4 checker violating the empty-input contract
-- All 147 cases pass via direct import (no subprocess)
+- All 140 cases pass via direct import (no subprocess)
 - Documented contract in tests/unit/gates/g4/README.md"
 ```
 
@@ -1090,11 +1292,12 @@ def test_compute_consecutive_detects_single_run() -> None:
 
 
 @pytest.mark.unit
-def test_compute_consecutive_resets_on_change() -> None:
-    result = compute_consecutive(["A", "A", "B", "A"])
-    # "A" appears in two runs: length 2 and length 1; max is 2
-    # NOTE: "A" not in PATTERNS so result["A"] won't exist. Use a valid pattern:
-    pass  # remove and use real patterns
+def test_compute_consecutive_resets_max_run_on_pattern_change() -> None:
+    """When a pattern repeats, breaks, then repeats, compute_consecutive
+    keeps the longest run length per pattern (not the total count)."""
+    result = compute_consecutive(["引入", "引入", "转折", "引入"])
+    assert result["引入"] == 2  # longest run of 引入 is 2, not 3
+    assert result["转折"] == 1
 
 
 @pytest.mark.unit
@@ -1105,7 +1308,7 @@ def test_compute_consecutive_handles_single_pattern() -> None:
 
 @pytest.mark.unit
 def test_compute_entropy_is_zero_for_single_repeated_pattern() -> None:
-    entropy, dist = compute_entropy(["引入"] * 10)
+    entropy, _ = compute_entropy(["引入"] * 10)
     assert entropy == pytest.approx(0.0, abs=0.01)
 
 
@@ -1116,10 +1319,10 @@ def test_compute_entropy_is_high_for_uniform_distribution() -> None:
 
 
 @pytest.mark.unit
-def test_compute_entropy_distribution_sums_to_one() -> None:
+def test_compute_entropy_distribution_freqs_sum_to_one() -> None:
     _, dist = compute_entropy(["引入", "转折", "引入"])
-    total = sum(d["pct"] for d in dist)
-    assert total == pytest.approx(100.0, abs=0.1)
+    total = sum(d["frequency"] for d in dist if d["count"] > 0)
+    assert total == pytest.approx(1.0, abs=0.01)
 
 
 @pytest.mark.unit
@@ -1141,23 +1344,38 @@ def test_classify_entropy_returns_healthy_for_mid_range() -> None:
 
 
 @pytest.mark.unit
-def test_check_distribution_returns_min_coverage_status() -> None:
-    """Sparse pattern set: check_distribution flags missing categories."""
-    result = check_distribution(["引入", "转折"])
-    assert isinstance(result, dict) or isinstance(result, list) or isinstance(result, tuple)
+def test_check_distribution_returns_none_when_patterns_below_window() -> None:
+    """Fewer patterns than recent_n → returns None."""
+    result = check_distribution(["引入", "转折"], recent_n=5)
+    assert result is None
 
 
 @pytest.mark.unit
-def test_compute_transition_matrix_returns_square_dict() -> None:
+def test_check_distribution_returns_pass_when_unique_meets_required() -> None:
+    """Sufficient unique patterns in window → pass=True."""
+    patterns = ["引入", "升级", "转折", "揭示", "决战"]
+    result = check_distribution(patterns, recent_n=5)
+    assert result is not None
+    assert result["unique_patterns"] >= result["required"]
+    assert result["pass"] is True
+
+
+@pytest.mark.unit
+def test_compute_transition_matrix_returns_list_of_row_dicts() -> None:
+    """compute_transition_matrix returns list[dict] keyed by 'from'/'to'."""
     patterns = ["引入", "升级", "转折", "升级"]
     matrix = compute_transition_matrix(patterns)
-    assert isinstance(matrix, dict)
+    assert isinstance(matrix, list)
+    assert len(matrix) == len(PATTERNS)
+    assert all("from" in row and "to" in row for row in matrix)
 
 
 @pytest.mark.unit
 def test_compute_transition_matrix_handles_empty() -> None:
     matrix = compute_transition_matrix([])
-    assert isinstance(matrix, dict)
+    assert isinstance(matrix, list)
+    # Still emits one row per PATTERNS entry, all zero counts.
+    assert len(matrix) == len(PATTERNS)
 
 
 @pytest.mark.unit
@@ -1173,7 +1391,14 @@ def test_patterns_constant_has_13_entries() -> None:
     assert len(PATTERNS) == 13
 ```
 
-Before writing `test_compute_consecutive_resets_on_change`, read the actual `compute_consecutive` function — note that it only tracks patterns in the `PATTERNS` constant. Adjust the test to use real patterns. Remove tests that reference non-existent functions (verify each function exists in compute_pattern.py first).
+Verified against `src/shenbi/skill_utils/chapter_pattern/compute_pattern.py`:
+- `PATTERNS` has 13 entries: 引入, 升级, 转折, 揭示, 决战, 沉淀, 日常, 训练, 探索, 阴谋, 逃亡, 回忆, 总结.
+- `compute_consecutive` returns `dict[str, int]` keyed by pattern, value = longest run.
+- `compute_entropy([])` returns `(0.0, [])` (early return).
+- `compute_entropy` distribution dicts use key `"frequency"` (not `"pct"`).
+- `classify_entropy` uses strict `>` against thresholds [2.5, 2.0, 1.5, 1.0, 0.0].
+- `check_distribution(patterns, recent_n)` returns `None` when `len(patterns) < recent_n`, else a dict with `unique_patterns`, `required`, `pass`.
+- `compute_transition_matrix` returns `list[dict[str, Any]]` with one row per PATTERNS entry, each row has `"from"` and `"to"` keys.
 
 - [ ] **Step 3: Write `test_compute_stats.py` (20 functions)**
 
@@ -1397,7 +1622,24 @@ git commit -m "feat(P-1.E PR-50b): skill_utils happy-path tests (35 fn)
 
 - [ ] **Step 1: Change density xfail strict=True → strict=False**
 
-In `tests/unit/test_test_density.py`, change line 51:
+In `tests/unit/test_test_density.py`, change both the file docstring and the `@pytest.mark.xfail` decorator. The current docstring references "Cluster 04 (Plan 4 PR-28~32)" — update it to reference this plan's phases.
+
+Updated docstring:
+
+```python
+"""Enforce test density floor per README Threshold Justification.
+
+Metric: test_function_count / framework_loc
+Target: >= 0.10 (1 test function per 10 LOC of framework code).
+
+This plan (docs/superpowers/plans/2026-06-16-test-coverage-completion.md)
+delivers the test volume in three phases. Until Phase 3 completes, the
+assertion is xfail(strict=False) — strict=False lets density cross 0.10
+without XPASS-turned-failure. PR-56 removes the xfail entirely.
+"""
+```
+
+Updated decorator (around line 51 of the current file):
 
 ```python
 @pytest.mark.xfail(
@@ -1450,11 +1692,11 @@ Expected: `XFAIL` (xfailed, not xpassed). If XPASS, density has already crossed 
 
 - [ ] **Step 5: Run full suite at new threshold**
 
-Run: `uv run pytest -m "unit" --no-cov 2>&1 | tail -5`
+Run: `uv run pytest -m "unit" 2>&1 | tail -5`
 Expected: all tests PASS. Coverage line at bottom: `FAIL Required test coverage of 25.0% not reached. Coverage: XX.XX%` — if coverage is below 25%, **do not lower the threshold**. Instead, identify the module dragging coverage down via:
 
 ```bash
-uv run pytest --cov=src/shenbi --cov-branch --cov-report=term-missing -m "unit" --no-cov 2>&1 | grep -E "^src/shenbi.*0%" | head -20
+uv run pytest --cov=src/shenbi --cov-branch --cov-report=term-missing -m "unit" 2>&1 | grep -E "^src/shenbi.*0%" | head -20
 ```
 
 Add targeted happy-path tests to the lowest-coverage module. The threshold is a ratchet.
@@ -1491,7 +1733,7 @@ Expected: density ≥ 0.075 (up from 0.061).
 
 - [ ] **Step 3: Check coverage delta**
 
-Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit" --no-cov 2>&1 | tail -3`
+Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit" 2>&1 | tail -3`
 Expected: line coverage ≥ 25%, branch coverage ≥ 10%.
 
 ---
@@ -1575,11 +1817,13 @@ Tests for: missing progress.json → FAIL, invalid JSON in progress.json → FAI
 
 - [ ] **Step 9: Add error-path tests to `test_g_reconcile.py` (3 new functions)**
 
-Tests for: missing T1 report for required skill → FAIL, status mismatch between T1 reports → FAIL, score inconsistent with status → FAIL.
+Tests for: missing T1 report for a DONE skill → FAIL with `GR.1:<skill>-<test_type>:no_report` in must_fix; progress.json with skills map referencing unknown skill → handled gracefully (no `AttributeError`, no crash); malformed progress.json (not a dict) → caught by `jload` raising `ValueError`, propagates as exception (current behavior — pin it; spec Non-Goal #3).
+
+Note: the gate does NOT inspect score-vs-status consistency (it only checks file existence for DONE skills), so "score inconsistent with status" is not a meaningful test category and is omitted.
 
 - [ ] **Step 10: Add error-path tests to `test_g_transition.py` (4 new functions)**
 
-Tests for: missing progress.json → FAIL, remaining queue not empty → FAIL, gate blockers present → FAIL, unknown phase in progress.json → FAIL.
+Tests for: missing progress.json → FAIL with `GT.0:no_progress_file`; `remaining_{from_phase}` non-empty → FAIL with `GT.1:...`; malformed JSON in progress.json → FAIL with `GT.0:progress_json_invalid` (gate catches `JSONDecodeError`/`OSError`); gate handles unknown `from_phase` gracefully (returns PASS if `remaining_<unknown>` is empty, FAIL if non-empty — pin current behavior).
 
 - [ ] **Step 11: Add error-path tests to `test_shared.py` (8 new functions)**
 
@@ -1821,6 +2065,9 @@ git commit -m "feat(P-1.E PR-53): G4 bespoke checker error-path tests (25 fn)
 - [ ] **Step 1: Add 5 error-path tests to `test_dispatcher_executor.py`**
 
 ```python
+import subprocess
+
+
 @pytest.mark.unit
 def test_derive_input_files_returns_empty_for_skill_without_reads_section() -> None:
     """Skill with no '**Reads:**' line returns empty list."""
@@ -1839,19 +2086,28 @@ def test_run_g1_handles_subprocess_failure(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_dispatch_aborts_when_skill_not_found(tmp_path: Path) -> None:
-    """Unknown skill name → abort with log, no subprocess."""
+def test_dispatch_returns_nonzero_when_g1_fails(tmp_path: Path) -> None:
+    """dispatch() returns a non-zero exit code when G1 rejects the input.
+    Signature is dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int."""
     from shenbi.dispatcher.executor import dispatch
-    # Adjust to actual dispatch signature
-    result = dispatch(["shenbi-nonexistent"], round_dir=tmp_path)
-    assert isinstance(result, dict) or result is None
+    # Unknown skill → derive_input_files returns [] → G1 should fail → dispatch returns non-zero.
+    rc = dispatch("shenbi-nonexistent-skill-xyz", "generative", tmp_path, "test prompt")
+    assert isinstance(rc, int)
+    assert rc != 0
 
 
 @pytest.mark.unit
-def test_dispatch_with_empty_skill_list_is_noop(tmp_path: Path) -> None:
+def test_dispatch_runs_full_flow_for_known_skill(tmp_path: Path) -> None:
+    """dispatch() with valid skill returns 0 (success) when subprocess is mocked."""
     from shenbi.dispatcher.executor import dispatch
-    result = dispatch([], round_dir=tmp_path)
-    assert result is None or isinstance(result, dict)
+    with patch("shenbi.dispatcher.executor.subprocess.run") as mock_run:
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=["cmd"], returncode=0, stdout=b"", stderr=b""
+        )
+        rc = dispatch(
+            "shenbi-worldbuilding", "generative", tmp_path, "do work"
+        )
+    assert rc == 0
 
 
 @pytest.mark.unit
@@ -1860,6 +2116,8 @@ def test_derive_output_files_handles_skill_with_only_updates() -> None:
     files = derive_output_files("shenbi-state-settling")
     assert isinstance(files, list)
 ```
+
+Verified against `src/shenbi/dispatcher/executor.py`: `dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int`. Returns the subprocess exit code. The plan's earlier draft called `dispatch([...], round_dir=...)` — that was wrong (positional skill list + missing test_type/prompt).
 
 - [ ] **Step 2: Add 5 error-path tests to `test_plugins_generate.py`**
 
@@ -1958,7 +2216,7 @@ Expected: ~619 functions, all PASS or XFAIL.
 
 - [ ] **Step 2: Coverage check**
 
-Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit" --no-cov 2>&1 | tail -3`
+Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit" 2>&1 | tail -3`
 Expected: line ≥ 55%, branch ≥ 35%.
 
 ---
@@ -2062,15 +2320,11 @@ from shenbi.gates.shared import (
 @settings(max_examples=200, deadline=None)
 @pytest.mark.unit
 @pytest.mark.property
-def test_word_count_md_always_non_negative(content: str) -> None:
+def test_word_count_md_always_non_negative(content: str, tmp_path: Path) -> None:
     """word_count_md returns >= 0 for any input (Chinese chars counted)."""
-    tmp = Path("/tmp/property-test.md")  # word_count_md reads from file path
-    try:
-        tmp.write_text(content, encoding="utf-8")
-        assert word_count_md(str(tmp)) >= 0
-    finally:
-        if tmp.exists():
-            tmp.unlink()
+    tmp = tmp_path / "property-test.md"  # isolated per-test, no /tmp race
+    tmp.write_text(content, encoding="utf-8")
+    assert word_count_md(str(tmp)) >= 0
 
 
 @given(st.lists(st.text(min_size=0, max_size=100), max_size=20))
@@ -2125,7 +2379,7 @@ Expected: all PASS. Density now ≥ ~0.098.
 
 - [ ] **Step 6: Check coverage progress**
 
-Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit or property" --no-cov 2>&1 | tail -3`
+Run: `uv run pytest --cov=src/shenbi --cov-branch -m "unit or property" 2>&1 | tail -3`
 Expected: line ≥ 80%, branch ≥ 70%.
 
 If any module is still below 85% line / 75% branch, write 2-3 more targeted tests for that module. Repeat until thresholds met.
@@ -2160,7 +2414,7 @@ Run:
 
 ```bash
 uv run pytest --cov=src/shenbi --cov-branch \
-    --cov-report=term-missing -m "unit or property" --no-cov 2>&1 | tee /tmp/phase3-coverage.txt
+    --cov-report=term-missing -m "unit or property" 2>&1 | tee /tmp/phase3-coverage.txt
 ```
 
 Identify any remaining modules below 90% line / 80% branch.
@@ -2181,7 +2435,7 @@ if not isinstance(data, (dict, list)):
     raise TypeError("unreachable")
 ```
 
-**Target**: ≤3% of lines excluded via `pragma: no cover`. If plateau persists below 90%, audit for dead code and delete it (spec Non-Goal #3: no gate logic changes; but deleting unreachable code is allowed).
+**Target**: ≤3% of lines excluded via `pragma: no cover`. If plateau persists below 90%, **do not** silently delete code: spec Non-Goal #3 ("no gate logic changes") is interpreted strictly here to mean *no source lines deleted in test PRs*. Instead, file a separate tracking issue listing candidate-dead-code locations with their coverage evidence, and let a follow-up source PR debate the deletions. This keeps test PRs scoped to test-only diffs and preserves reviewability.
 
 - [ ] **Step 3: Verify density crosses 0.10**
 
@@ -2308,7 +2562,7 @@ For each of the 9 acceptance criteria from the spec:
 3. `uv run pytest tests/unit/test_test_density.py --no-cov -v` → PASSED (no xfail)
 4. Test count ≥ 624 (verify via density test output)
 5. Every `src/shenbi/*.py` module has a corresponding test file (manual check)
-6. `uv run pytest tests/unit/gates/g4/test_common.py --collect-only -q | wc -l` → ≥147
+6. `uv run pytest tests/unit/gates/g4/test_common.py --collect-only -q | wc -l` → ≥140
 7. `just check` → PASS
 8. `grep -r "pragma: no cover" src/shenbi/ | wc -l` → small number, each with inline reason
 9. `ls tests/property/gates/test_gate_invariants.py` → exists
@@ -2325,12 +2579,12 @@ Edit `docs/superpowers/specs/2026-06-16-test-coverage-completion-design.md`:
 
 ## Self-Review Notes
 
-After writing this plan, I checked against the spec:
+After writing this plan, I checked against the spec and against actual source.
 
 **Spec coverage**:
 - ✅ All 10 PRs (PR-48 through PR-56) covered as Tasks 1-10
 - ✅ Fixture factory with `(project_dir, round_dir)` tuple (PR-48 Step 1)
-- ✅ G4 parametrized harness 7×21=147 cases (PR-49 Step 4)
+- ✅ G4 parametrized harness 7×20=140 cases (PR-49 Step 4; corrected from spec's "21/147" which double-counts `generic.py`)
 - ✅ skill_utils PR-50b explicitly called out as mathematically required
 - ✅ xfail `strict=True`→`strict=False` in PR-51, removed in PR-56
 - ✅ `fail_under` 1→25→55→90 ratchet across PR-51/54/56
@@ -2338,25 +2592,65 @@ After writing this plan, I checked against the spec:
 - ✅ Property-based tests in PR-55 (5 functions)
 - ✅ All acceptance criteria from spec verified in Phase 3 Final Verification
 
+**Gate signature verification (Round-1 critical pass, 2026-06-17)**:
+- ✅ `gate_G0(seed_file: str | None, round_dir: str | None) -> str` — `src/shenbi/gates/g0.py:36`
+- ✅ `gate_G_RECONCILE(round_dir: str | None = None) -> str` — `src/shenbi/gates/g_reconcile.py:22`. Reads `progress["skills"][<name>][<test_type>]["status"]`; checks DONE skills have report files.
+- ✅ `gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str` — `src/shenbi/gates/g_transition.py:21`. Reads `progress[f"remaining_{from_phase}"]`.
+- ✅ `dispatch(skill, test_type, round_dir, prompt) -> int` — `src/shenbi/dispatcher/executor.py`
+- ✅ `g4_<skill>(fps: list[str], rd: str | None = None) -> str` — uniform signature across 20 dedicated checkers (verified via grep). `generic.py` router variants (`g4_generic_generative/_bughunt/_clean`) intentionally excluded from parametrized matrix.
+- ✅ `compute_entropy([])` returns `(0.0, [])` — early return at line 82
+- ✅ `compute_transition_matrix(patterns)` returns `list[dict[str, Any]]` (one row per PATTERNS entry) — not dict
+- ✅ `check_distribution(patterns, recent_n)` returns `dict | None` — takes 2 args, not 1
+- ✅ `PATTERNS` = 13 entries (引入, 升级, 转折, 揭示, 决战, 沉淀, 日常, 训练, 探索, 阴谋, 逃亡, 回忆, 总结)
+- ✅ `pytest.mark.property` and `pytest.mark.last` already registered in `pyproject.toml [tool.pytest.ini_options] markers`
+
+**Helper naming**:
+- New G4 / G_RECONCILE / G_TRANSITION test files define a local `_result_dict` helper (renamed from earlier `_result` to match the convention used by every existing gate test file — `tests/unit/gates/test_g0.py` through `test_g7.py`).
+
 **Placeholder scan**:
 - ⚠️ "Write 5 more happy-path tests covering..." appears in PR-48 Steps 5-8, 11, 15. These are intentional — the test pattern is established in earlier steps, and the spec defines exactly what each test should cover. Engineers following TDD per-test will write these naturally.
 - ⚠️ PR-52 Steps 1-13 describe test categories without showing every test body. Same rationale — the test pattern is established; the spec defines the business meaning; engineers write tests one at a time.
 
 **Type consistency**:
 - `make_project` returns `tuple[Path, Path]` consistently across all uses
-- `_result_dict` / `_result` helpers used consistently within files (named per existing file convention)
-- Gate function signatures: `gate_G0(seed_file: str | None, round_dir: str | None)` matches actual source
+- `_result_dict` helper used uniformly across all gate test files (existing and new)
+- All gate signatures verified against source (see above)
 
-**Risk: gate module names**: `g_reconcile` and `g_transition` are referenced from spec but I did not verify these files exist. PR-48 Steps 13-14 include a note: "If the module doesn't exist, skip this file and note in the commit message." Engineer should run `ls src/shenbi/gates/g_*.py` at start of PR-48 to verify.
+**Known approximations (call for engineer judgement during execution)**:
+- The per-step function counts in PR-48 Steps 3, 10, 15 and PR-52 Step 1 (~6, ~4, ~4, ~15) sum to ~73 and ~99 respectively, but commit messages approximate as "+55" and "+94". The discrepancy is intentional slack — engineers should add tests until `just check` passes at the new threshold, not until the per-step count is hit. Density is the floor, not the ceiling.
+- File-structure block target counts (e.g. `test_g0.py: 6→18`) are the *final* count after both PR-48 (happy paths) and PR-52 (error paths) land. They are not per-PR.
+- Spec says `~553 LOC` for skill_utils; actual is `609 LOC` (compute_pattern.py 216 + compute_stats.py 393). Spec LOC figure is stale; this doesn't change the plan's logic since skill_utils is still tested in PR-50b regardless of exact LOC.
 
 ---
 
 ## Execution Handoff
 
-**Plan complete and saved to `docs/superpowers/plans/2026-06-16-test-coverage-completion.md`. Two execution options:**
+**Plan complete and saved to `docs/superpowers/plans/2026-06-16-test-coverage-completion.md`.**
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task (PR), review between tasks, fast iteration. Best for this plan because each PR is independent (parallelizable within phases) and benefits from fresh context.
+### Recommended approach: Subagent-Driven Development
 
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints. Best if you want to maintain full context across PRs.
+Use `superpowers:subagent-driven-development`. Dispatch a fresh subagent per task (PR), review between tasks, fast iteration. Best for this plan because each PR is independent within its phase (PR-48 and PR-50b can run in parallel; PR-49 can run in parallel with PR-50) and benefits from fresh context.
 
-**Which approach?**
+### Phase boundaries (must be sequential)
+
+- **Phase 1 (PR-48 → PR-51)**: must complete in order. PR-48 establishes `make_project` fixture consumed by every later gate test. PR-49 needs `tests/unit/gates/g4/` package created in PR-48 Step 1's `conftest.py` work (actually PR-49 creates `g4/__init__.py` itself, so PR-49 only depends on the parent `tests/unit/gates/conftest.py` from PR-48). PR-50 and PR-50b are independent of each other and of PR-49 — they can be parallelized. PR-51 must come after PR-48 + PR-50 + PR-50b because `fail_under = 25` presumes their coverage contribution.
+- **Phase 2 (PR-52 → PR-54)**: PR-52 depends on PR-48 (expansions append to same files). PR-53 depends on PR-49 (g4/ package must exist). PR-54 depends on PR-50 (modifies dispatcher tests) and bumps `fail_under` to 55 — must run after PR-52 and PR-53.
+- **Phase 3 (PR-55 → PR-56)**: PR-55 is data-driven (starts with coverage report). PR-56 removes xfails — must run last.
+
+### Recovery protocol
+
+If a step fails:
+
+1. **Import errors during collection** → check whether `g4/__init__.py` was created (PR-49 Step 3). Re-run Step 3.
+2. **Test assertion mismatch with actual gate behavior** → pin current behavior in the test (per spec Non-Goal #3) and add `# pins current behavior` comment. File a separate ticket for the gate-logic bug.
+3. **`fail_under` not reached after PR** → do NOT lower the threshold. The plan's `Step 5` style debug command identifies the lowest-coverage module — add targeted tests there until threshold passes. The threshold is a ratchet.
+4. **xfail flips to xpass prematurely** → confirmed `strict=False` in PR-51 prevents CI red. Continue adding tests; remove xfail only in PR-56.
+5. **Hypothesis finds a counter-example** → the property test has surfaced a real bug. Pin the smallest failing case as a regression test, file a ticket for the underlying issue, then either narrow the Hypothesis strategy or mark the property `xfail` with a reason citing the ticket.
+
+### Rollback
+
+Each PR is a single commit (`feat(P-1.E PR-XX): ...`). To roll back a PR: `git revert <sha>`. Because PRs are ordered by dependency, rolling back PR-N requires also rolling back PR-(N+1..M) in the same phase. Cross-phase rollback is unnecessary — Phase 2 PRs do not modify Phase 1 test files in incompatible ways (they append, they don't rewrite).
+
+### Estimation
+
+Total effort: ~2-3 days for an engineer familiar with the codebase. Phase 1 is ~1 day (most tests are happy-path, snippets provided). Phase 2 is ~1 day (error-path tests require more source-reading). Phase 3 is ~0.5-1 day (data-driven, iterative).
