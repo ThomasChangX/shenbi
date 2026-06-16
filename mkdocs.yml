@@ -1,15 +1,67 @@
----
 site_name: Shenbi
+site_description: Novel-writing AI skill framework
+site_url: https://thomaschangx.github.io/shenbi/
+repo_url: https://github.com/ThomasChangX/shenbi
+repo_name: ThomasChangX/shenbi
+edit_uri: edit/main/docs/
+
 theme:
   name: material
+  language: zh
   features:
     - navigation.tabs
     - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
 plugins:
-  - search
+  - search:
+      lang:
+        - zh
+        - en
   - mkdocstrings:
       handlers:
         python:
           options:
             show_source: true
+            show_signature_annotations: true
+            separate_signature: true
+            show_category_heading: true
+            heading_level: 2
+            docstring_style: google
+  - social: {}
 
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - First novel: getting-started/first-novel.md
+      - Concepts: getting-started/concepts.md
+  - Skills:
+      - Index: skills/index.md
+  - Framework:
+      - Gates: framework/gates.md
+      - Scoring: framework/scoring.md
+      - Dispatcher: framework/dispatcher.md
+      - Logging: framework/logging.md
+  - API:
+      - Exceptions: api/exceptions.md
+      - Logging: api/logging.md
+  - Architecture Decisions: adr/index.md
