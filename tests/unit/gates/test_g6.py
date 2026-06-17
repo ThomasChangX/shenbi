@@ -288,3 +288,17 @@ def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
     g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
     assert g611 is not None
     assert g611["note"] == "no chapters/ to verify"
+
+@pytest.mark.unit
+def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
+    """volume_map.md without chapter ranges -> G6.11 SKIP."""
+    project_dir = tmp_path / "project"
+    outline = project_dir / "outline"
+    outline.mkdir(parents=True)
+    (outline / "volume_map.md").write_text("## 第一卷\nContent without ranges.\n", encoding="utf-8")
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
+    assert g611 is not None
+    assert g611["s"] == "SKIP"

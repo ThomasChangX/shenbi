@@ -202,3 +202,39 @@ class TestG7ErrorPaths:
         g77 = next((c for c in result["checks"] if c.get("id") == "G7.7"), None)
         assert g77 is not None
         assert g77["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_no_placeholders_passes(self, tmp_path: Path) -> None:
+        """skill-output/ with clean output files -> G7.5 PASS."""
+        round_dir = tmp_path / "round"
+        so = round_dir / "skill-output" / "proj"
+        so.mkdir(parents=True)
+        (so / "chapter.md").write_text("正文内容。已完成的内容。\n", encoding="utf-8")
+        result = _result_dict(gate_G7(str(round_dir)))
+        g75 = next((c for c in result["checks"] if c.get("id") == "G7.5"), None)
+        assert g75 is not None
+        assert g75["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_no_pending_truth_passes(self, tmp_path: Path) -> None:
+        """truth/ files without pending status -> G7.6 PASS."""
+        round_dir = tmp_path / "round"
+        truth = round_dir / "skill-output" / "proj" / "truth"
+        truth.mkdir(parents=True)
+        (truth / "current_state.md").write_text(
+            "---\nstatus: active\n---\n# Current State\n", encoding="utf-8"
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        g76 = next((c for c in result["checks"] if c.get("id") == "G7.6"), None)
+        assert g76 is not None
+        assert g76["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_g75_skips_when_no_skill_output(self, tmp_path: Path) -> None:
+        """No skill-output/ dir -> G7.5 SKIP."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        result = _result_dict(gate_G7(str(round_dir)))
+        g75 = next((c for c in result["checks"] if c.get("id") == "G7.5"), None)
+        assert g75 is not None
+        assert g75["s"] == "SKIP"
