@@ -121,3 +121,172 @@ class TestG2ErrorPaths:
             1 for c in result["checks"] if c.get("id") == "G2.1" and c.get("s") == "PASS"
         )
         assert pass_count == 2
+
+
+@pytest.mark.unit
+class TestG2WordCountChecks:
+    """G2.6-G2.7 word count floor/ceiling checks."""
+
+    def test_g26_fails_when_word_count_below_floor(self, tmp_path: Path) -> None:
+        """Chapter with < CHAPTER_WORD_FLOOR words -> G2.6 FAIL."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("短\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        assert any("G2.6" in mf for mf in result.get("must_fix", []))
+
+    def test_g27_passes_when_word_count_within_ceiling(self, tmp_path: Path) -> None:
+        """Chapter with word count between floor and ceiling -> G2.7 PASS."""
+        ch = tmp_path / "chapter-001.md"
+        # Write enough CJK to exceed CHAPTER_WORD_FLOOR but below ceiling
+        ch.write_text("# Chapter\n\n" + ("这是中文内容。\n" * 40), encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g27 = next((c for c in result["checks"] if c.get("id") == "G2.7"), None)
+        assert g27 is not None
+        assert g27["s"] == "PASS"
+
+    def test_g27_fails_when_word_count_exceeds_ceiling(self, tmp_path: Path) -> None:
+        """Non-important chapter > CHAPTER_WORD_FLOOR*1.5 (4500) -> G2.7 FAIL."""
+        ch = tmp_path / "chapter-001.md"
+        # CHAPTER_WORD_FLOOR=3000, ceiling for non-important = int(3000*1.5) = 4500
+        ch.write_text("# Chapter\n\n" + ("测" * 5500), encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        # G2.7 FAIL goes to must_fix, not checks
+        assert any("G2.7" in mf for mf in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+class TestG2CheckBlocks:
+    """G2.8-G2.9 pre/post write check blocks."""
+
+    def test_g28_fails_when_pre_write_check_missing(self, tmp_path: Path) -> None:
+        """Chapter without ## PRE_WRITE_CHECK -> G2.8 FAIL."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\n内容。\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        assert any("G2.8" in mf for mf in result.get("must_fix", []))
+
+    def test_g28_passes_when_pre_write_check_present(self, tmp_path: Path) -> None:
+        """Chapter with ## PRE_WRITE_CHECK -> G2.8 PASS."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\n## PRE_WRITE_CHECK\n内容。\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g28 = next((c for c in result["checks"] if c.get("id") == "G2.8"), None)
+        assert g28 is not None
+        assert g28["s"] == "PASS"
+
+    def test_g29_fails_when_post_write_check_missing(self, tmp_path: Path) -> None:
+        """Chapter without ## POST_WRITE_SELF_CHECK -> G2.9 FAIL."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\n## PRE_WRITE_CHECK\n内容。\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        assert any("G2.9" in mf for mf in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+class TestG2TemplatePlaceholder:
+    """G2.10 template placeholder detection."""
+
+    def test_g210_fails_when_placeholder_above_threshold(self, tmp_path: Path) -> None:
+        """File with >10% 待填充 lines -> G2.10 FAIL."""
+        ch = tmp_path / "chapter-001.md"
+        # 7 out of 10 lines contain 待填充 -> 70% > 10%
+        lines = [
+            ("待填充的内容待填充的内容待填充的内容。\n" if i % 2 == 1 else "这是正常内容。\n")
+            for i in range(10)
+        ]
+        ch.write_text("".join(lines), encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        assert any("G2.10" in mf for mf in result.get("must_fix", []))
+
+    def test_g210_passes_when_placeholder_below_threshold(self, tmp_path: Path) -> None:
+        """File with <10% 待填充 lines -> G2.10 PASS."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("这是完全正常的内容没有任何模板占位符。\n" * 20, encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g210 = next((c for c in result["checks"] if c.get("id") == "G2.10"), None)
+        assert g210 is not None
+        assert g210["s"] == "PASS"
+
+
+@pytest.mark.unit
+class TestG2TruthFileDiff:
+    """G2.11 truth file .bak comparison."""
+
+    def test_g211_fails_when_truth_file_has_removals(self, tmp_path: Path) -> None:
+        """Truth file with .bak showing removed lines -> G2.11 FAIL."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        truth = rd / "hooks.md"
+        truth.write_text("new line\n", encoding="utf-8")
+        bak = rd / "hooks.md.bak"
+        bak.write_text("old line that was removed\nanother line\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(truth)], "truth", str(rd)))
+        assert any("G2.11" in mf for mf in result.get("must_fix", []))
+
+    def test_g211_passes_when_bak_unchanged(self, tmp_path: Path) -> None:
+        """Truth file with identical .bak content -> G2.11 PASS."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        truth = rd / "hooks.md"
+        truth.write_text("same content\n", encoding="utf-8")
+        bak = rd / "hooks.md.bak"
+        bak.write_text("same content\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(truth)], "truth", str(rd)))
+        g211 = next((c for c in result["checks"] if c.get("id") == "G2.11"), None)
+        assert g211 is not None
+        assert g211["s"] == "PASS"
+
+
+@pytest.mark.unit
+class TestG2FileCompleteness:
+    """G2.12 sentence-final punctuation check."""
+
+    def test_g212_warns_when_file_truncated(self, tmp_path: Path) -> None:
+        """Chapter ending without punctuation -> G2.12 WARN."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\n内容正文\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g212 = next((c for c in result["checks"] if c.get("id") == "G2.12"), None)
+        assert g212 is not None
+        assert g212["s"] == "WARN"
+
+    def test_g212_passes_when_file_ends_with_punctuation(self, tmp_path: Path) -> None:
+        """Chapter ending with sentence-final punctuation -> G2.12 PASS."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\n内容正文。\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g212 = next((c for c in result["checks"] if c.get("id") == "G2.12"), None)
+        assert g212 is not None
+        assert g212["s"] == "PASS"
+
+    def test_g212_passes_when_ends_with_heading(self, tmp_path: Path) -> None:
+        """Chapter ending with a heading -> G2.12 PASS (heading is exempt)."""
+        ch = tmp_path / "chapter-001.md"
+        ch.write_text("# Chapter\n\nContent\n\n## Next Section\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(ch)], "chapter"))
+        g212 = next((c for c in result["checks"] if c.get("id") == "G2.12"), None)
+        assert g212 is not None
+        assert g212["s"] == "PASS"
+
+
+@pytest.mark.unit
+class TestG2YamlFrontmatter:
+    """G2.5 YAML frontmatter edge cases."""
+
+    def test_g25_skips_yaml_error_on_non_structured_file(self, tmp_path: Path) -> None:
+        """Non-structured .md file with YAML parse error -> G2.5 SKIP (not FAIL)."""
+        report = tmp_path / "report.md"
+        report.write_text("---\nbad: : yaml\n---\nContent\n", encoding="utf-8")
+        result = _result_dict(gate_G2([str(report)], "report"))
+        g25 = next((c for c in result["checks"] if c.get("id") == "G2.5"), None)
+        assert g25 is not None
+        assert g25["s"] == "SKIP"
+
+    def test_g24_passes_on_valid_json(self, tmp_path: Path) -> None:
+        """Valid JSON file -> G2.4 PASS in checks."""
+        jf = tmp_path / "data.json"
+        jf.write_text('{"key": "value"}', encoding="utf-8")
+        result = _result_dict(gate_G2([str(jf)], "report"))
+        g24 = next((c for c in result["checks"] if c.get("id") == "G2.4"), None)
+        assert g24 is not None
+        assert g24["s"] == "PASS"

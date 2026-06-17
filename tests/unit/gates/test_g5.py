@@ -169,3 +169,32 @@ class TestG5ErrorPaths:
         result = _result_dict(gate_G5("genesis", str(round_dir), str(project_dir)))
         assert result["status"] == "FAIL"
         assert any(mf.startswith("G5.3:term_mix") for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g5_conflict_detection_skips_without_project_dir(self, tmp_path: Path) -> None:
+        """G5.3 SKIPs when project_dir is None -> PASS with SKIP check."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        # genesis phase with report meeting threshold
+        (round_dir / "t1-reports").mkdir()
+        (round_dir / "t1-reports" / "shenbi-worldbuilding-generative-scores.json").write_text(
+            json.dumps({"final_score": 100}), encoding="utf-8"
+        )
+        result = _result_dict(gate_G5("genesis", str(round_dir), None))
+        g53 = next((c for c in result["checks"] if c.get("id") == "G5.3"), None)
+        assert g53 is not None
+        assert g53["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g5_glob_pattern_matching_passes(self, tmp_path: Path) -> None:
+        """G5.4 glob pattern finding existing files -> PASS."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        (project_dir / "outline").mkdir(parents=True)
+        (project_dir / "outline" / "volume_map.md").write_text("# Volume\n", encoding="utf-8")
+        (project_dir / "outline" / "story_frame.md").write_text("# Frame\n", encoding="utf-8")
+        result = _result_dict(gate_G5("architecture", str(round_dir), str(project_dir)))
+        g54 = [c for c in result["checks"] if c.get("id") == "G5.4"]
+        assert g54, "G5.4 checks should exist"
+        assert any(c["s"] == "PASS" for c in g54)
