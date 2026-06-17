@@ -95,3 +95,85 @@ class TestG3ErrorPaths:
         """All paths include ISO-8601 timestamp."""
         result = _result_dict(gate_G3(None, None, None))
         assert "timestamp" in result
+
+    @pytest.mark.unit
+    def test_g33_passes_with_valid_output_files(self, tmp_path: Path) -> None:
+        """progress.json with output_files that pass G2 -> G3.3 PASS.
+
+        G2 checks for chapter files need >3000 CJK chars + PRE/POST check blocks.
+        Files must use absolute paths so gate_G2 can find them.
+        """
+        rd = tmp_path / "round"
+        rd.mkdir()
+        ch = rd / "chapters" / "ch001.md"
+        ch.parent.mkdir()
+        ch.write_text("# Chapter\n\n" + ("字" * 3500) + "\n\n## PRE_WRITE_CHECK\n内容\n\n## POST_WRITE_SELF_CHECK\n内容\n", encoding="utf-8")
+        progress = {"skills": {"shenbi-worldbuilding": {"output_files": [str(ch)]}}}
+        (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
+        assert g33 is not None
+        assert g33["s"] == "PASS"
+
+
+    @pytest.mark.unit
+    def test_g33_skips_when_no_output_files(self, tmp_path: Path) -> None:
+        """progress.json without output_files -> G3.3 SKIP."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        progress = {"skills": {"shenbi-worldbuilding": {}}}
+        (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
+        assert g33 is not None
+        assert g33["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g33_skips_without_progress_json(self, tmp_path: Path) -> None:
+        """No progress.json -> G3.3 SKIP."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
+        assert g33 is not None
+        assert g33["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g34_fails_when_scorer_same_as_generator(self, tmp_path: Path) -> None:
+        """Same agent for gen and scoring -> G3.4 FAIL."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        progress = {
+            "agent_trace": {"shenbi-worldbuilding": "agent-01"},
+            "current_scorer_agent": "agent-01",
+        }
+        (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        # G3.4 FAIL goes to must_fix, not checks
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        assert any("G3.4" in mf for mf in result.get("must_fix", []))
+
+    @pytest.mark.unit
+    def test_g34_skips_without_progress_json(self, tmp_path: Path) -> None:
+        """No progress.json -> G3.4 SKIP."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        g34 = next((c for c in result["checks"] if c.get("id") == "G3.4"), None)
+        assert g34 is not None
+        assert g34["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g35_fails_when_scorer_already_scored(self, tmp_path: Path) -> None:
+        """Scorer already in scoring_history -> G3.5 FAIL."""
+        rd = tmp_path / "round"
+        rd.mkdir()
+        progress = {
+            "current_scorer_agent": "agent-02",
+            "scoring_history": ["agent-01", "agent-02"],
+        }
+        (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        # G3.5 FAIL goes to must_fix, not checks
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+        assert any("G3.5" in mf for mf in result.get("must_fix", []))
