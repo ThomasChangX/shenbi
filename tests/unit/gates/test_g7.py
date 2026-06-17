@@ -238,3 +238,38 @@ class TestG7ErrorPaths:
         g75 = next((c for c in result["checks"] if c.get("id") == "G7.5"), None)
         assert g75 is not None
         assert g75["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g7_g76_skips_when_no_truth_in_skill_output(self, tmp_path: Path) -> None:
+        """skill-output exists but truth subdir missing -> G7.6 SKIP."""
+        round_dir = tmp_path / "round"
+        so = round_dir / "skill-output" / "proj"
+        so.mkdir(parents=True)
+        result = _result_dict(gate_G7(str(round_dir)))
+        g76 = next((c for c in result["checks"] if c.get("id") == "G7.6"), None)
+        assert g76 is not None
+        assert g76["s"] == "SKIP"
+
+    @pytest.mark.unit
+    def test_g7_timeline_consistent_when_no_reports(self, tmp_path: Path) -> None:
+        """No t1/t2/t3-reports dirs -> G7.14 PASS."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        result = _result_dict(gate_G7(str(round_dir)))
+        g714 = next((c for c in result["checks"] if c.get("id") == "G7.14"), None)
+        assert g714 is not None
+        assert g714["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_g716_passes_when_no_t2_t3_scores(self, tmp_path: Path) -> None:
+        """summary.json without t2/t3 scores -> G7.16 PASS."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        (round_dir / "summary.json").write_text(
+            json.dumps({"t1_scores": {"skill-x": {"generative": 95}}}),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        g716 = next((c for c in result["checks"] if c.get("id") == "G7.16"), None)
+        assert g716 is not None
+        assert g716["s"] == "PASS"
