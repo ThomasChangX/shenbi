@@ -49,14 +49,6 @@ def count_test_functions() -> int:
     return total
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason=(
-        "Phase 2 (PR-52~54) must deliver remaining ~130 test functions to meet "
-        "0.10 density floor. strict=False allows gradual approach without "
-        "XPASS failures during Phase 3. PR-56 removes this xfail entirely."
-    ),
-)
 def test_density_meets_minimum() -> None:
     """Test density must be >= 0.10 (1 test per 10 framework LOC)."""
     framework_loc = count_framework_loc()
