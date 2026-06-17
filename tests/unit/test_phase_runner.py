@@ -33,6 +33,8 @@ from shenbi.phase_runner import (
     save_state,
 )
 
+pytestmark = pytest.mark.unit
+
 # --- Fixtures -------------------------------------------------------------
 
 
@@ -93,9 +95,7 @@ def fake_g5_fail(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 class TestLoadState:
-    def test_returns_default_created_state_when_no_state_file(
-        self, round_dir: Path
-    ) -> None:
+    def test_returns_default_created_state_when_no_state_file(self, round_dir: Path) -> None:
         state = load_state(str(round_dir), "design")
         assert state == {"phase": "design", "state": "created", "steps": []}
 
@@ -155,9 +155,7 @@ class TestNowIso:
 
 
 class TestRequireState:
-    def test_passes_silently_when_state_in_expected_list(
-        self, round_dir: Path
-    ) -> None:
+    def test_passes_silently_when_state_in_expected_list(self, round_dir: Path) -> None:
         state = {"phase": "design", "state": "started", "steps": []}
         # No exception, no exit
         require_state(state, ["started", "skills_done"], "test-action")
@@ -172,18 +170,14 @@ class TestRequireState:
         emitted = json.loads(capsys.readouterr().out)
         assert "Cannot start" in emitted["error"]
 
-    def test_error_message_includes_actual_state(
-        self, capsys: pytest.CaptureFixture[str]
-    ) -> None:
+    def test_error_message_includes_actual_state(self, capsys: pytest.CaptureFixture[str]) -> None:
         state = {"phase": "design", "state": "created", "steps": []}
         with pytest.raises(SystemExit):
             require_state(state, ["started"], "pre-skill")
         emitted = json.loads(capsys.readouterr().out)
         assert "created" in emitted["error"]
 
-    def test_error_message_lists_expected_states(
-        self, capsys: pytest.CaptureFixture[str]
-    ) -> None:
+    def test_error_message_lists_expected_states(self, capsys: pytest.CaptureFixture[str]) -> None:
         state = {"phase": "design", "state": "created", "steps": []}
         with pytest.raises(SystemExit):
             require_state(state, ["started", "skills_done"], "post-skill")
@@ -203,9 +197,7 @@ class TestCmdStart:
         state = load_state(str(round_dir), "design")
         assert state["state"] == "started"
 
-    def test_records_start_step_with_g5_status(
-        self, round_dir: Path, fake_g5_pass: None
-    ) -> None:
+    def test_records_start_step_with_g5_status(self, round_dir: Path, fake_g5_pass: None) -> None:
         cmd_start("design", str(round_dir), project_dir=None)
         state = load_state(str(round_dir), "design")
         assert any(s["action"] == "start" and s["g5_status"] == "PASS" for s in state["steps"])
@@ -428,9 +420,7 @@ class TestCmdPostSkill:
     ) -> None:
         project_dir = round_dir / "p"
         project_dir.mkdir()
-        monkeypatch.setattr(
-            phase_runner, "run_gate", lambda g, a: {"gate": g, "status": "PASS"}
-        )
+        monkeypatch.setattr(phase_runner, "run_gate", lambda g, a: {"gate": g, "status": "PASS"})
         with pytest.raises(SystemExit) as exc:
             cmd_post_skill("design", "shenbi-x", str(round_dir), str(project_dir))
         assert exc.value.code == 1
@@ -503,11 +493,7 @@ class TestCmdPreScore:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        deps = {
-            "t2-phases": {
-                "design": {"prerequisites": [], "expected_outputs": ["report.md"]}
-            }
-        }
+        deps = {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["report.md"]}}}
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         with pytest.raises(SystemExit) as exc:
             cmd_pre_score("design", str(round_dir))
@@ -524,11 +510,7 @@ class TestCmdPreScore:
         """Patterns containing '*' use rglob; presence of any match passes."""
         (round_dir / "project-output").mkdir()
         (round_dir / "project-output" / "ch-001.md").write_text("x", encoding="utf-8")
-        deps = {
-            "t2-phases": {
-                "design": {"prerequisites": [], "expected_outputs": ["ch-*.md"]}
-            }
-        }
+        deps = {"t2-phases": {"design": {"prerequisites": [], "expected_outputs": ["ch-*.md"]}}}
         monkeypatch.setattr(phase_runner, "load_deps", lambda: deps)
         cmd_pre_score("design", str(round_dir))
         state = load_state(str(round_dir), "design")
@@ -663,17 +645,13 @@ class TestCmdFinalize:
 
 
 class TestMainCli:
-    def test_exits_when_no_command_given(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_exits_when_no_command_given(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("sys.argv", ["phase-runner"])
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code == 1
 
-    def test_exits_when_round_dir_missing(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_exits_when_round_dir_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("sys.argv", ["phase-runner", "start", "design"])
         with pytest.raises(SystemExit) as exc:
             main()
@@ -742,22 +720,16 @@ class TestRunGateSubprocessContract:
             stdout = json.dumps({"gate": "G5", "status": "PASS"})
             stderr = ""
 
-        monkeypatch.setattr(
-            subprocess, "run", lambda *a, **kw: _FakeCompleted()
-        )
+        monkeypatch.setattr(subprocess, "run", lambda *a, **kw: _FakeCompleted())
         result = phase_runner.run_gate("G5", ["arg"])
         assert result["status"] == "PASS"
 
-    def test_returns_fail_dict_on_invalid_json(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_fail_dict_on_invalid_json(self, monkeypatch: pytest.MonkeyPatch) -> None:
         class _FakeCompleted:
             stdout = "not json"
             stderr = "error"
 
-        monkeypatch.setattr(
-            subprocess, "run", lambda *a, **kw: _FakeCompleted()
-        )
+        monkeypatch.setattr(subprocess, "run", lambda *a, **kw: _FakeCompleted())
         result = phase_runner.run_gate("G5", ["arg"])
         assert result["status"] == "FAIL"
         assert result["raw_stdout"] == "not json"

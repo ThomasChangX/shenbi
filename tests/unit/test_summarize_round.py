@@ -24,6 +24,8 @@ from shenbi.summarize_round import (
     main,
 )
 
+pytestmark = pytest.mark.unit
+
 # --- Fixtures -------------------------------------------------------------
 
 
@@ -140,10 +142,10 @@ class TestClassifyScores:
     def test_mixed_entries_classified_correctly(self) -> None:
         bands = classify_scores(
             {
-                "a": 95,                            # excellent
-                "b": {"score": 80},                 # acceptable
-                "c": 65,                            # conditional
-                "d": {"re_score": 30},              # fail
+                "a": 95,  # excellent
+                "b": {"score": 80},  # acceptable
+                "c": 65,  # conditional
+                "d": {"re_score": 30},  # fail
             }
         )
         assert bands == {
@@ -176,7 +178,11 @@ class TestBelowThreshold:
         assert below_threshold(scores, 60) == ["a"]
 
     def test_handles_mixed_int_and_dict_entries(self) -> None:
-        scores: dict[str, int | float | dict[str, Any]] = {"a": 30, "b": {"score": 90}, "c": {"re_score": 20}}
+        scores: dict[str, int | float | dict[str, Any]] = {
+            "a": 30,
+            "b": {"score": 90},
+            "c": {"re_score": 20},
+        }
         result = below_threshold(scores, 60)
         assert set(result) == {"a", "c"}
 
@@ -263,7 +269,10 @@ class TestMainT1Aggregation:
         monkeypatch.setattr("sys.argv", ["summarize-round", str(round_dir)])
         main()
         import typing
-        return typing.cast(dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8")))
+
+        return typing.cast(
+            dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
+        )
 
     def test_writes_band_breakdown_for_t1(
         self,
@@ -309,7 +318,9 @@ class TestMainT1Aggregation:
         mock_g7_pass: None,
     ) -> None:
         result = self._run(monkeypatch, round_dir)
-        assert any("T1 PASS (acceptable" in a and "shenbi-beta" in a for a in result["next_actions"])
+        assert any(
+            "T1 PASS (acceptable" in a and "shenbi-beta" in a for a in result["next_actions"]
+        )
 
     def test_next_actions_omits_fail_section_when_all_excellent(
         self,
@@ -318,9 +329,7 @@ class TestMainT1Aggregation:
         mock_g7_pass: None,
     ) -> None:
         summary = round_dir / "summary.json"
-        summary.write_text(
-            json.dumps({"t1_scores": {"a": 95, "b": 99}}), encoding="utf-8"
-        )
+        summary.write_text(json.dumps({"t1_scores": {"a": 95, "b": 99}}), encoding="utf-8")
         result = self._run(monkeypatch, round_dir)
         assert any("All skills PASS (excellent" in a for a in result["next_actions"])
         assert not any("T1 FAIL" in a for a in result["next_actions"])
@@ -338,7 +347,10 @@ class TestMainT2T3Aggregation:
         monkeypatch.setattr("sys.argv", ["summarize-round", str(round_dir)])
         main()
         import typing
-        return typing.cast(dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8")))
+
+        return typing.cast(
+            dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
+        )
 
     def test_t2_bands_written_when_t2_scores_present(
         self,
@@ -348,9 +360,7 @@ class TestMainT2T3Aggregation:
     ) -> None:
         summary = round_dir / "summary.json"
         summary.write_text(
-            json.dumps(
-                {"t1_scores": {"a": 95}, "t2_scores": {"phase-x": 85, "phase-y": 50}}
-            ),
+            json.dumps({"t1_scores": {"a": 95}, "t2_scores": {"phase-x": 85, "phase-y": 50}}),
             encoding="utf-8",
         )
         result = self._run(monkeypatch, round_dir)
@@ -376,9 +386,7 @@ class TestMainT2T3Aggregation:
     ) -> None:
         summary = round_dir / "summary.json"
         summary.write_text(
-            json.dumps(
-                {"t1_scores": {"a": 95}, "t3_scores": {"pipeline-x": 92}}
-            ),
+            json.dumps({"t1_scores": {"a": 95}, "t3_scores": {"pipeline-x": 92}}),
             encoding="utf-8",
         )
         result = self._run(monkeypatch, round_dir)
@@ -398,7 +406,10 @@ class TestMainTierReadiness:
         monkeypatch.setattr("sys.argv", ["summarize-round", str(round_dir)])
         main()
         import typing
-        return typing.cast(dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8")))
+
+        return typing.cast(
+            dict[str, Any], json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
+        )
 
     def test_t1_all_excellent_promotes_to_t2(
         self,
@@ -407,9 +418,7 @@ class TestMainTierReadiness:
         mock_g7_pass: None,
     ) -> None:
         summary = round_dir / "summary.json"
-        summary.write_text(
-            json.dumps({"t1_scores": {"a": 95, "b": 96}}), encoding="utf-8"
-        )
+        summary.write_text(json.dumps({"t1_scores": {"a": 95, "b": 96}}), encoding="utf-8")
         result = self._run(monkeypatch, round_dir)
         assert any("Ready for T2" in a for a in result["next_actions"])
 
@@ -483,13 +492,7 @@ class TestMainProgressIntegration:
         """
         (round_dir / "progress.json").write_text(
             json.dumps(
-                {
-                    "skills": {
-                        "shenbi-alpha": {
-                            "generative": {"status": "done", "score": 92}
-                        }
-                    }
-                }
+                {"skills": {"shenbi-alpha": {"generative": {"status": "done", "score": 92}}}}
             ),
             encoding="utf-8",
         )
@@ -507,13 +510,7 @@ class TestMainProgressIntegration:
     ) -> None:
         (round_dir / "progress.json").write_text(
             json.dumps(
-                {
-                    "skills": {
-                        "shenbi-alpha": {
-                            "generative": {"status": "pending", "score": 50}
-                        }
-                    }
-                }
+                {"skills": {"shenbi-alpha": {"generative": {"status": "pending", "score": 50}}}}
             ),
             encoding="utf-8",
         )

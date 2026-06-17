@@ -32,6 +32,8 @@ from shenbi.scoring import (
     validate_scores,
 )
 
+pytestmark = pytest.mark.unit
+
 # --- Fixtures --------------------------------------------------------------
 
 

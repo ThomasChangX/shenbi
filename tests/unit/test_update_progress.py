@@ -28,6 +28,8 @@ from shenbi.update_progress import (
     validate_internal,
 )
 
+pytestmark = pytest.mark.unit
+
 # --- Fixtures -------------------------------------------------------------
 
 
@@ -72,9 +74,7 @@ class TestLoad:
         emitted = json.loads(capsys.readouterr().out)
         assert "progress.json not found" in emitted["error"]
 
-    def test_returns_dict_with_required_keys(
-        self, initialized_round: Path
-    ) -> None:
+    def test_returns_dict_with_required_keys(self, initialized_round: Path) -> None:
         data = load(str(initialized_round))
         for key in (
             "completed_skill_names",
@@ -90,18 +90,14 @@ class TestLoad:
 
 
 class TestSave:
-    def test_writes_progress_json_with_indent(
-        self, round_dir: Path
-    ) -> None:
+    def test_writes_progress_json_with_indent(self, round_dir: Path) -> None:
         save(str(round_dir), {"tier": "T1", "skills": {}})
         text = (round_dir / "progress.json").read_text(encoding="utf-8")
         # indent=2 produces newlines + 2-space indent
         assert "\n" in text
         assert "  " in text
 
-    def test_overwrites_existing_progress(
-        self, round_dir: Path
-    ) -> None:
+    def test_overwrites_existing_progress(self, round_dir: Path) -> None:
         save(str(round_dir), {"v": 1})
         save(str(round_dir), {"v": 2})
         data = json.loads((round_dir / "progress.json").read_text(encoding="utf-8"))
@@ -239,9 +235,7 @@ class TestCmdInit:
         ]:
             assert (round_dir / sub).is_dir(), f"Missing subdir: {sub}"
 
-    def test_initial_remaining_generative_lists_all_skills(
-        self, round_dir: Path
-    ) -> None:
+    def test_initial_remaining_generative_lists_all_skills(self, round_dir: Path) -> None:
         cmd_init(str(round_dir), "T1")
         data = json.loads((round_dir / "progress.json").read_text(encoding="utf-8"))
         assert data["remaining_generative"] == ["shenbi-alpha", "shenbi-beta", "shenbi-gamma"]
@@ -284,17 +278,13 @@ class TestCmdInit:
 
 
 class TestCmdMarkDone:
-    def test_marks_skill_done_for_generative(
-        self, initialized_round: Path
-    ) -> None:
+    def test_marks_skill_done_for_generative(self, initialized_round: Path) -> None:
         cmd_mark_done(str(initialized_round), "shenbi-alpha", "generative", 90.0)
         data = load(str(initialized_round))
         assert data["skills"]["shenbi-alpha"]["generative"]["status"] == "done"
         assert data["skills"]["shenbi-alpha"]["generative"]["score"] == 90.0
 
-    def test_marks_skill_skip_with_note(
-        self, initialized_round: Path
-    ) -> None:
+    def test_marks_skill_skip_with_note(self, initialized_round: Path) -> None:
         """--note SKIP carries forward a previous cycle's result instead of
         re-running the test.
         """
@@ -306,24 +296,18 @@ class TestCmdMarkDone:
         assert entry["status"] == "skip"
         assert entry["note"] == "carry-forward"
 
-    def test_increments_subagent_completion_count(
-        self, initialized_round: Path
-    ) -> None:
+    def test_increments_subagent_completion_count(self, initialized_round: Path) -> None:
         cmd_mark_done(str(initialized_round), "shenbi-alpha", "generative", 90.0)
         cmd_mark_done(str(initialized_round), "shenbi-beta", "generative", 80.0)
         data = load(str(initialized_round))
         assert data["subagent_completion_count"] == 2
 
-    def test_skill_not_in_completed_until_all_three_done(
-        self, initialized_round: Path
-    ) -> None:
+    def test_skill_not_in_completed_until_all_three_done(self, initialized_round: Path) -> None:
         cmd_mark_done(str(initialized_round), "shenbi-alpha", "generative", 90.0)
         data = load(str(initialized_round))
         assert "shenbi-alpha" not in data["completed_skill_names"]
 
-    def test_skill_added_to_completed_when_all_three_done(
-        self, initialized_round: Path
-    ) -> None:
+    def test_skill_added_to_completed_when_all_three_done(self, initialized_round: Path) -> None:
         for tt in ("generative", "bug-hunt", "clean"):
             cmd_mark_done(str(initialized_round), "shenbi-alpha", tt, 90.0)
         data = load(str(initialized_round))
@@ -349,9 +333,7 @@ class TestCmdMarkDone:
         assert emitted["status"] == "ok"
         assert emitted["remaining_gen"] == 2  # 3 - 1
 
-    def test_score_stored_as_float(
-        self, initialized_round: Path
-    ) -> None:
+    def test_score_stored_as_float(self, initialized_round: Path) -> None:
         cmd_mark_done(str(initialized_round), "shenbi-alpha", "generative", 90)
         data = load(str(initialized_round))
         assert isinstance(data["skills"]["shenbi-alpha"]["generative"]["score"], float)
@@ -422,9 +404,7 @@ class TestCmdValidate:
 
 
 class TestCmdRebuildQueues:
-    def test_recomputes_pending_generative(
-        self, initialized_round: Path
-    ) -> None:
+    def test_recomputes_pending_generative(self, initialized_round: Path) -> None:
         cmd_mark_done(str(initialized_round), "shenbi-alpha", "generative", 90.0)
         # Corrupt the queue manually
         data = load(str(initialized_round))
@@ -435,9 +415,7 @@ class TestCmdRebuildQueues:
         assert "shenbi-alpha" not in data["remaining_generative"]
         assert "shenbi-beta" in data["remaining_generative"]
 
-    def test_recomputes_completed_skill_names(
-        self, initialized_round: Path
-    ) -> None:
+    def test_recomputes_completed_skill_names(self, initialized_round: Path) -> None:
         for tt in ("generative", "bug-hunt", "clean"):
             cmd_mark_done(str(initialized_round), "shenbi-alpha", tt, 90.0)
         # Wipe completed list
@@ -470,17 +448,13 @@ class TestCmdRebuildQueues:
 
 
 class TestMainCli:
-    def test_exits_when_no_command(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_exits_when_no_command(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("sys.argv", ["update-progress"])
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code == 1
 
-    def test_routes_init(
-        self, monkeypatch: pytest.MonkeyPatch, round_dir: Path
-    ) -> None:
+    def test_routes_init(self, monkeypatch: pytest.MonkeyPatch, round_dir: Path) -> None:
         monkeypatch.setattr(
             "sys.argv",
             ["update-progress", "init", str(round_dir), "T1"],
