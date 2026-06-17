@@ -208,3 +208,5 @@ class TestPerSkillG4Contract:
         first = _result_dict(checker([], None))
         second = _result_dict(checker([], None))
         assert first["status"] == second["status"]
+
+pytestmark = pytest.mark.unit

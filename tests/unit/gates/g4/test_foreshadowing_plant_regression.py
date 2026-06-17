@@ -16,6 +16,10 @@ import json
 from pathlib import Path
 
 from shenbi.gates.g4.foreshadowing_plant import g4_foreshadowing_plant
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 
 def test_hooks_section_with_dict_yaml_instead_of_list_does_not_crash(

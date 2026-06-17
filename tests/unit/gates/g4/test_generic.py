@@ -33,6 +33,40 @@ pytestmark = pytest.mark.unit
 # --- TestGenerativeChecker ----------------------------------------------
 
 
+@pytest.mark.unit
+class TestGenericEdgeCases:
+    """Tests for uncovered generic.py branches."""
+
+    def test_generative_passes_on_non_standard_extension(self, tmp_path: Path) -> None:
+        """Non-.md, non-.json file uses else branch -> PASS."""
+        f = tmp_path / "data.txt"
+        f.write_text("content here\n", encoding="utf-8")
+        result = _result_dict(g4_generic_generative([str(f)]))
+        assert result["status"] == "PASS"
+
+    def test_gate_G4_bughunt_delegates(self, tmp_path: Path) -> None:
+        """gate_G4_bughunt delegates to g4_generic_bughunt."""
+        from shenbi.gates.g4.generic import gate_G4_bughunt
+        f = tmp_path / "r.md"
+        f.write_text(
+            "# Bug\n## Detection\n\n`x.md:L1` violates 铁律.\nFalse positives: 0\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G4_bughunt([str(f)]))
+        assert result["status"] == "PASS"
+
+    def test_gate_G4_clean_delegates(self, tmp_path: Path) -> None:
+        """gate_G4_clean delegates to g4_generic_clean."""
+        from shenbi.gates.g4.generic import gate_G4_clean
+        f = tmp_path / "r.md"
+        f.write_text(
+            "# Clean\n## Files Checked\n\n- a.md\n\nZero issues.\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G4_clean([str(f)]))
+        assert result["status"] == "PASS"
+
+
 class TestGenerativeChecker:
     def test_skips_when_no_files_provided(self) -> None:
         result = _result_dict(g4_generic_generative([]))
