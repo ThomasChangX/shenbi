@@ -13,6 +13,8 @@ from shenbi.gates.g7 import gate_G7
 
 def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
+pytestmark = pytest.mark.unit
+
 
 
 class TestG7RoundClose:
@@ -186,3 +188,17 @@ class TestG7ErrorPaths:
         )
         result = _result_dict(gate_G7(str(round_dir)))
         assert any("G7.16:pipeline:pipeline-A:no_G6_marker" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g7_changelog_parent_writable_passes(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """CHANGELOG.md missing but parent writable -> G7.7 PASS with note."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        fake_tests = tmp_path / "fake-tests"
+        rounds_dir = fake_tests / "rounds"
+        rounds_dir.mkdir(parents=True)
+        monkeypatch.setattr("shenbi.gates.g7.TESTS", fake_tests)
+        result = _result_dict(gate_G7(str(round_dir)))
+        g77 = next((c for c in result["checks"] if c.get("id") == "G7.7"), None)
+        assert g77 is not None
+        assert g77["s"] == "PASS"

@@ -113,3 +113,23 @@ def test_run_g2_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
     from shenbi.dispatcher.executor import run_g2
     result = run_g2(["out.md"], "chapter", Path("/tmp"))
     assert result["status"] == "PASS"
+
+@pytest.mark.unit
+def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
+    """dispatch returns 0 when all gates pass and internal mode succeeds."""
+    import subprocess
+    from pathlib import Path
+
+    def mock_run(*a, **kw):
+        return type('R', (), {'stdout': '{"status": "PASS"}'})()
+    monkeypatch.setattr(subprocess, "run", mock_run)
+
+    from shenbi.dispatcher.executor import dispatch
+    import shenbi.dispatcher.executor as exec_mod
+    monkeypatch.setattr(exec_mod, "detect_mode", lambda: "internal")
+
+    import shenbi.dispatcher.modes.internal as internal_mod
+    monkeypatch.setattr(internal_mod, "dispatch_internal", lambda *a, **kw: 0)
+
+    result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
+    assert result == 0
