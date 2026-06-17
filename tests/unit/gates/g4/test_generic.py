@@ -20,9 +20,14 @@ from shenbi.gates.g4.generic import (
     gate_G4,
 )
 
+import pytest
+
 
 def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
+
+
+pytestmark = pytest.mark.unit
 
 
 # --- TestGenerativeChecker ----------------------------------------------
