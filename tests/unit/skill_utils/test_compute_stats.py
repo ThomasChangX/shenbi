@@ -243,3 +243,21 @@ def test_compute_ttr_punctuation_only_returns_zeros() -> None:
     assert ttr["global_ttr"] == 0
     assert ttr["sliding_ttr_mean"] == 0
     assert ttr["sliding_ttr_std"] == 0
+
+@pytest.mark.unit
+def test_compute_sentence_stats_empty_returns_zeros() -> None:
+    """compute_sentence_stats with empty list returns all zeros."""
+    from shenbi.skill_utils.style_learning.compute_stats import compute_sentence_stats
+    result = compute_sentence_stats([])
+    assert isinstance(result, dict)
+
+@pytest.mark.unit
+def test_read_chapters_from_directory_returns_md_files(tmp_path: Path) -> None:
+    """read_chapters reads .md files from a directory path."""
+    from shenbi.skill_utils.style_learning.compute_stats import read_chapters
+    ch_dir = tmp_path / "chapters"
+    ch_dir.mkdir()
+    (ch_dir / "ch001.md").write_text("正文内容。", encoding="utf-8")
+    result = read_chapters([str(ch_dir)])
+    assert "ch001.md" in result
+    assert "正文内容。" in result["ch001.md"]
