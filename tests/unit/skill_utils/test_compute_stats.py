@@ -288,3 +288,15 @@ def test_segment_paragraphs_with_trailing_newline() -> None:
     from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
     result = segment_paragraphs("一段。\n\n二段。\n\n")
     assert len(result) == 2
+
+@pytest.mark.unit
+def test_main_requires_arguments(monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() with no arguments prints usage and exits."""
+    import sys, io
+    from shenbi.skill_utils.style_learning.compute_stats import main
+    monkeypatch.setattr(sys, "argv", ["compute_stats.py"])
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    with pytest.raises(SystemExit):
+        main()
+    assert "Usage" in out.getvalue()

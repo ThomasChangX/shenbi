@@ -211,3 +211,17 @@ def test_check_consecutive_above_threshold_high_warning() -> None:
     consecutive = {"决战": 3}  # MAX_CONSECUTIVE for "决战" is 2, so 3 > 2
     warnings = check_consecutive_warnings(consecutive)
     assert any(w["level"] == "high" for w in warnings)
+
+@pytest.mark.unit
+def test_main_with_stdin_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() reads from stdin when argv[1] is '-'."""
+    import sys, io, json
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import main
+    data = json.dumps([{"num": 1, "pattern": "引入"}])
+    monkeypatch.setattr(sys, "argv", ["compute_pattern.py", "-"])
+    monkeypatch.setattr(sys, "stdin", io.StringIO(data))
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    main()
+    result = json.loads(out.getvalue())
+    assert result["sample"]["chapters"] == 1
