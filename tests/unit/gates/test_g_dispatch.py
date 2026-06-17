@@ -110,9 +110,7 @@ def test_g_dispatch_fails_on_non_dict_progress(make_project) -> None:
     """
     _, round_dir = make_project()
     (round_dir / "progress.json").write_text("[1, 2, 3]", encoding="utf-8")
-    import pytest as _pytest
-
-    with _pytest.raises((ValueError, json.JSONDecodeError)):
+    with pytest.raises((ValueError, json.JSONDecodeError)):
         # jload raises ValueError for non-dict; the gate does not catch ValueError,
         # so it propagates. pins current behavior.
         gate_G_DISPATCH("drafting", str(round_dir))

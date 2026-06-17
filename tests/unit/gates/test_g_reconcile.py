@@ -161,9 +161,7 @@ def test_g_reconcile_non_dict_progress_propagates_jload_error(make_project) -> N
     The gate does not catch ValueError, so it propagates rather than producing
     a FAIL result.
     """
-    import pytest as _pytest
-
     _, round_dir = make_project()
     (round_dir / "progress.json").write_text("[1, 2]", encoding="utf-8")
-    with _pytest.raises(ValueError):
+    with pytest.raises(ValueError):
         gate_G_RECONCILE(str(round_dir))  # pins current behavior
