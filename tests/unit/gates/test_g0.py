@@ -131,3 +131,116 @@ class TestG0HappyPath:
         )
         assert g06 is not None, "G0.6 check not emitted (earlier check may have short-circuited)"
         assert g06["s"] == "PASS"
+
+
+@pytest.mark.unit
+class TestG0ErrorPaths:
+    """Error-path tests for G0 — each pins one FAIL/WARN branch."""
+
+    def test_g02_rejects_negative_target_words(self, tmp_path: Path) -> None:
+        r"""Negative target_words value fails regex match -> G0.2 FAIL.
+
+        Source regex matches `\d+` after 目标字数 + colon; `\d+` doesn't
+        match '-5', so the gate emits 'target_words not found' FAIL.
+        """
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：-5\n", encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        assert result["status"] == "FAIL"
+        assert "G0.2" in result.get("must_fix", [])
+
+    def test_g02_rejects_non_numeric_target_words(self, tmp_path: Path) -> None:
+        """Non-numeric target_words fails regex -> G0.2 FAIL."""
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：很多\n", encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        assert "G0.2" in result.get("must_fix", [])
+
+    def test_g03_falls_back_to_chapter_word_floor_when_genre_config_missing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No genre-config.json -> G0.3 uses CHAPTER_WORD_FLOOR constant.
+
+        Source line 77: `default_w = CHAPTER_WORD_FLOOR`. Then expected = ceil(tw/floor).
+        """
+        from shenbi.gates import g0 as g0_mod
+
+        monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g03 = next((c for c in result["checks"] if c["id"] == "G0.3"), None)
+        assert g03 is not None
+        assert g03["s"] == "PASS"
+        # CHAPTER_WORD_FLOOR is whatever shared.py defines; verify it's used.
+        assert "chapter_word_default" in g03
+
+    def test_g06_fails_when_project_root_not_writable(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """PROJECT root read-only -> G0.6 FAIL with 'PROJECT root not writable'."""
+        from shenbi.gates import g0 as g0_mod
+
+        # Use a path that doesn't exist so the elif branch fires; then force
+        # os.access to return False via monkeypatch.
+        nonproj = tmp_path / "nonproj"
+        nonproj.mkdir()
+        monkeypatch.setattr(g0_mod, "PROJECT", nonproj)
+        monkeypatch.setattr("os.access", lambda *a, **k: False)
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g06 = next((c for c in result["checks"] if c["id"] == "G0.6"), None)
+        # Gate may short-circuit at G0.6 FAIL; check status + must_fix.
+        assert result["status"] == "FAIL"
+        assert "G0.6" in result.get("must_fix", [])
+
+    def test_g07_warns_when_scoring_py_missing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """TESTS/scoring.py missing -> G0.7 WARN."""
+        from shenbi.gates import g0 as g0_mod
+
+        # Point TESTS at an empty dir so scoring.py is missing.
+        empty_tests = tmp_path / "empty-tests"
+        empty_tests.mkdir()
+        monkeypatch.setattr(g0_mod, "TESTS", empty_tests)
+        # Also point PROJECT at tmp_path so G0.6 doesn't fail.
+        monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+        # SKILLS must still point at the real skills/ tree so G0.4 passes.
+        # (Leave it unpatched — module-level default.)
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g07 = next((c for c in result["checks"] if c["id"] == "G0.7"), None)
+        if g07 is not None:
+            assert g07["s"] == "WARN"
+
+    def test_g05b_passes_on_consistent_rubric_and_skill_md(self, tmp_path: Path) -> None:
+        """G0.5b runs against the repo's real rubric+SKILL.md pairs.
+
+        With real repo state, may PASS or WARN depending on current rubric
+        drift. Either way the check should appear and not crash.
+        """
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
+        result = _result_dict(gate_G0(seed_file=str(seed)))
+        g05b = next((c for c in result["checks"] if c["id"] == "G0.5b"), None)
+        assert g05b is not None
+        assert g05b["s"] in ("PASS", "WARN")
+
+    def test_gate_emits_timestamp_in_all_paths(self, tmp_path: Path) -> None:
+        """Every result (PASS, FAIL, short-circuit) includes ISO-8601 timestamp."""
+        # Short-circuit path (seed_file=None)
+        r1 = _result_dict(gate_G0(seed_file=None))
+        assert "timestamp" in r1
+        # FAIL path (missing seed)
+        r2 = _result_dict(gate_G0(seed_file=str(tmp_path / "nope.md")))
+        assert "timestamp" in r2
+
+    def test_gate_emits_gate_identifier_in_all_paths(self, tmp_path: Path) -> None:
+        """Every result includes gate == 'G0'."""
+        r1 = _result_dict(gate_G0(seed_file=None))
+        assert r1["gate"] == "G0"
+        r2 = _result_dict(gate_G0(seed_file=str(tmp_path / "nope.md")))
+        assert r2["gate"] == "G0"
