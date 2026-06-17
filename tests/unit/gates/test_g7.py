@@ -146,3 +146,43 @@ class TestG7ErrorPaths:
         result_str = gate_G7(str(round_dir))
         parsed = json.loads(result_str)
         assert "status" in parsed
+
+    @pytest.mark.unit
+    def test_g7_changelog_writable_passes(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """CHANGELOG.md exists and is writable -> G7.7 PASS."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        fake_tests = tmp_path / "fake-tests"
+        rounds_dir = fake_tests / "rounds"
+        rounds_dir.mkdir(parents=True)
+        (rounds_dir / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+        monkeypatch.setattr("shenbi.gates.g7.TESTS", fake_tests)
+        result = _result_dict(gate_G7(str(round_dir)))
+        g77 = next((c for c in result["checks"] if c.get("id") == "G7.7"), None)
+        assert g77 is not None
+        assert g77["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_phase_state_missing_fails(self, tmp_path: Path) -> None:
+        """summary.json with t2_scores but no phase-state file -> G7.16 FAIL."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        (round_dir / "summary.json").write_text(
+            json.dumps({"t2_scores": {"genesis": {"score": 95}}, "t3_scores": {}}),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        assert any("G7.16:phase:genesis:no_state_file" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g7_pipeline_missing_g6_marker_fails(self, tmp_path: Path) -> None:
+        """summary.json with t3_scores but no G6 marker -> G7.16 FAIL."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        (round_dir / "gate-markers").mkdir()
+        (round_dir / "summary.json").write_text(
+            json.dumps({"t2_scores": {}, "t3_scores": {"pipeline-A": {"score": 90}}}),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        assert any("G7.16:pipeline:pipeline-A:no_G6_marker" in mf for mf in result["must_fix"])

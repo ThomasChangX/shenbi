@@ -91,3 +91,25 @@ def test_detect_mode_returns_internal_fallback(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.delenv("CODEX_API_KEY", raising=False)
     from shenbi.dispatcher.executor import detect_mode as dm
     assert dm() == "internal"
+
+@pytest.mark.unit
+def test_run_g1_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
+    """run_g1 parses subprocess stdout JSON into a dict."""
+    import subprocess
+    def mock_run(*a, **kw):
+        return type('R', (), {'stdout': '{"status": "PASS"}'})()
+    monkeypatch.setattr(subprocess, "run", mock_run)
+    from shenbi.dispatcher.executor import run_g1
+    result = run_g1("skill-x", [], Path("/tmp"))
+    assert result["status"] == "PASS"
+
+@pytest.mark.unit
+def test_run_g2_returns_parsed_dict(monkeypatch: pytest.MonkeyPatch) -> None:
+    """run_g2 parses subprocess stdout JSON into a dict."""
+    import subprocess
+    def mock_run(*a, **kw):
+        return type('R', (), {'stdout': '{"status": "PASS"}'})()
+    monkeypatch.setattr(subprocess, "run", mock_run)
+    from shenbi.dispatcher.executor import run_g2
+    result = run_g2(["out.md"], "chapter", Path("/tmp"))
+    assert result["status"] == "PASS"

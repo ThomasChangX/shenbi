@@ -11,6 +11,10 @@ from shenbi.exceptions import (
     ShenbiError,
 )
 from shenbi.recovery import RECOVERY_STRATEGIES, RecoveryStrategy
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 
 class TestHierarchy:
