@@ -281,3 +281,10 @@ def test_read_chapters_from_file_path(tmp_path: Path) -> None:
     result = read_chapters([str(f)])
     assert "ch001.md" in result
     assert "正文内容。" in result["ch001.md"]
+
+@pytest.mark.unit
+def test_segment_paragraphs_with_trailing_newline() -> None:
+    """segment_paragraphs with trailing double newline -> 2 paragraphs."""
+    from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
+    result = segment_paragraphs("一段。\n\n二段。\n\n")
+    assert len(result) == 2
