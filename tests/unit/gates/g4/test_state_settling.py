@@ -1,0 +1,98 @@
+"""Bespoke error-path tests for g4_state_settling.
+
+state_settling dispatches checks based on filenames containing
+keywords: current_state, character_matrix, etc. Each test exercises
+one business rule by naming the test file appropriately.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from shenbi.gates.g4.state_settling import g4_state_settling
+
+
+def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
+    return json.loads(g4_state_settling(fps, rd))
+
+
+@pytest.mark.unit
+def test_fails_when_current_state_missing_position(tmp_path: Path) -> None:
+    """File named current_state without position markers -> FAIL G4.ss.no_position."""
+    f = tmp_path / "current_state.md"
+    f.write_text("# State\n\nNo position info.\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.no_position" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_passes_when_current_state_has_position(tmp_path: Path) -> None:
+    """File named current_state with ## 位置 -> PASS G4.ss.position."""
+    f = tmp_path / "current_state.md"
+    f.write_text("# State\n\n## 位置\n森林深处\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert any(c["id"] == "G4.ss.position" and c["s"] == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_fails_when_character_matrix_missing_chars(tmp_path: Path) -> None:
+    """File named character_matrix without character sections -> FAIL."""
+    f = tmp_path / "character_matrix.md"
+    f.write_text("# Matrix\nNo characters here.\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.no_characters" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_passes_when_character_matrix_has_chars(tmp_path: Path) -> None:
+    """File named character_matrix with ## 角色 -> PASS."""
+    f = tmp_path / "character_matrix.md"
+    f.write_text("# Matrix\n\n## 角色\n主角\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert any(c["id"] == "G4.ss.characters" and c["s"] == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_fails_when_pending_hooks_missing_state_keyword(tmp_path: Path) -> None:
+    """File named pending_hooks without 'state' keyword -> FAIL."""
+    f = tmp_path / "pending_hooks.md"
+    f.write_text("# Hooks\n\ndraft content\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.no_hook_state" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_fails_when_file_not_found(tmp_path: Path) -> None:
+    """Missing file -> FAIL G4.ss.not_found."""
+    result = _run([str(tmp_path / "nonexistent.md")])
+    assert result["status"] == "FAIL"
+    assert any("G4.ss.not_found" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_skips_on_empty_fps(tmp_path: Path) -> None:
+    """Empty fps list -> SKIP."""
+    result = _run([])
+    assert any(c["id"] == "G4.ss" and c["s"] == "SKIP" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
+    """current_state + character_matrix + pending_hooks all valid -> PASS."""
+    d = tmp_path / "sub"
+    d.mkdir()
+    cs = d / "current_state.md"
+    cs.write_text("## 位置变化\n移动\n", encoding="utf-8")
+    cm = d / "character_matrix.md"
+    cm.write_text("## 已登场角色\n英雄\n", encoding="utf-8")
+    ph = d / "pending_hooks.md"
+    ph.write_text("state: active\n", encoding="utf-8")
+    result = _run([str(cs), str(cm), str(ph)])
+    assert result["status"] == "PASS"
