@@ -284,3 +284,44 @@ class TestReadGenreConfig:
     def test_returns_empty_dict_on_invalid_json(self, tmp_path: Path) -> None:
         (tmp_path / "genre-config.json").write_text("not json", encoding="utf-8")
         assert read_genre_config(tmp_path) == {}
+
+
+class TestSharedErrorPaths:
+    """Error-path coverage for shared loaders (PR-52 Step 11).
+
+    Note: several Step-11 categories already exist above (find_report None,
+    normalize_file_paths None / comma string, write_gate_marker no round_dir),
+    so only the genuinely missing non-dict / primitive / empty-file cases are
+    added here to avoid duplication.
+    """
+
+    @pytest.mark.unit
+    def test_jload_raises_on_non_dict_json(self, tmp_path: Path) -> None:
+        """Array JSON should raise ValueError, not silently return."""
+        p = tmp_path / "array.json"
+        p.write_text("[1, 2, 3]", encoding="utf-8")
+        with pytest.raises(ValueError, match="expected JSON object"):
+            jload(str(p))
+
+    @pytest.mark.unit
+    def test_jload_raises_on_primitive_json(self, tmp_path: Path) -> None:
+        """A JSON string/primitive should raise ValueError, not silently return."""
+        p = tmp_path / "str.json"
+        p.write_text('"just a string"', encoding="utf-8")
+        with pytest.raises(ValueError):
+            jload(str(p))
+
+    @pytest.mark.unit
+    def test_yload_raises_on_non_dict_yaml(self, tmp_path: Path) -> None:
+        """A YAML list is not a mapping -> ValueError with expected YAML mapping."""
+        p = tmp_path / "list.yaml"
+        p.write_text("- item1\n- item2\n", encoding="utf-8")
+        with pytest.raises(ValueError, match="expected YAML mapping"):
+            yload(str(p))
+
+    @pytest.mark.unit
+    def test_yload_returns_empty_dict_for_empty_file(self, tmp_path: Path) -> None:
+        """An empty file parses to an empty dict (no error)."""
+        p = tmp_path / "empty.yaml"
+        p.write_text("", encoding="utf-8")
+        assert yload(str(p)) == {}

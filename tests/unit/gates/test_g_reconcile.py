@@ -106,3 +106,64 @@ def test_g_reconcile_returns_valid_json_for_empty_round(tmp_path: Path) -> None:
     assert result["gate"] == "G_RECONCILE"
     assert result["status"] == "FAIL"
     assert "no_progress" in result["must_fix"]
+
+
+@pytest.mark.unit
+def test_g_reconcile_unknown_skill_in_progress_handled_gracefully(make_project) -> None:
+    """progress.json skills map referencing an unknown skill name must not crash.
+
+
+    The gate iterates skills entries by status; an unknown skill name simply
+    never matches a real report, so it is skipped without AttributeError. We
+    assert the gate returns a parseable PASS (no DONE skill to verify).
+    """
+    _, round_dir = make_project(
+        progress={
+            "skills": {
+                "shenbi-totally-fake-skill": {"generative": {"status": "DONE"}},
+            }
+        },
+    )
+    # No report written for the unknown skill. The DONE branch looks for a
+    # report file; absence -> GR.1, but crucially no crash/AttributeError.
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["gate"] == "G_RECONCILE"
+    assert result["status"] == "FAIL"
+    assert any(
+        "GR.1:shenbi-totally-fake-skill-generative:no_report" in mf for mf in result["must_fix"]
+    )
+
+
+@pytest.mark.unit
+def test_g_reconcile_gr1_missing_report_carries_skill_and_test_type(make_project) -> None:
+    """GR.1 reason must embed both <skill> and <test_type> for traceability."""
+    _, round_dir = make_project(
+        progress={
+            "skills": {
+                "shenbi-worldbuilding": {
+                    "generative": {"status": "DONE"},
+                    "bug-hunt": {"status": "DONE"},
+                },
+            }
+        },
+    )
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    must_fix = result["must_fix"]
+    assert any(mf == "GR.1:shenbi-worldbuilding-generative:no_report" for mf in must_fix)
+    assert any(mf == "GR.1:shenbi-worldbuilding-bug-hunt:no_report" for mf in must_fix)
+
+
+@pytest.mark.unit
+def test_g_reconcile_non_dict_progress_propagates_jload_error(make_project) -> None:
+    """A progress.json that is valid JSON but not an object -> jload raises
+    ValueError (spec Non-Goal #3: pin current behavior; do not modify source).
+
+    The gate does not catch ValueError, so it propagates rather than producing
+    a FAIL result.
+    """
+    import pytest as _pytest
+
+    _, round_dir = make_project()
+    (round_dir / "progress.json").write_text("[1, 2]", encoding="utf-8")
+    with _pytest.raises(ValueError):
+        gate_G_RECONCILE(str(round_dir))  # pins current behavior

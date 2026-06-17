@@ -87,3 +87,45 @@ def test_g_dispatch_fails_when_skills_incomplete(make_project) -> None:
     result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
     assert result["status"] == "FAIL"
     assert any("GD.1" in mf for mf in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_on_invalid_json_progress(make_project, tmp_path: Path) -> None:
+    """progress.json that is not valid JSON -> FAIL with GD.0:progress_json_invalid."""
+    _, round_dir = make_project()
+    (round_dir / "progress.json").write_text("{not valid json", encoding="utf-8")
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GD.0:progress_json_invalid" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_on_non_dict_progress(make_project) -> None:
+    """progress.json holding a JSON array -> jload raises ValueError (caught) -> FAIL.
+
+    jload rejects non-objects; the gate catches JSONDecodeError/OSError but a
+    ValueError from jload propagates. We pin the gate completing a FAIL result
+    only if it does; here we assert it does NOT silently PASS — it either FAILs
+    or raises, never returns PASS.
+    """
+    _, round_dir = make_project()
+    (round_dir / "progress.json").write_text("[1, 2, 3]", encoding="utf-8")
+    import pytest as _pytest
+
+    with _pytest.raises((ValueError, json.JSONDecodeError)):
+        # jload raises ValueError for non-dict; the gate does not catch ValueError,
+        # so it propagates. pins current behavior.
+        gate_G_DISPATCH("drafting", str(round_dir))
+
+
+@pytest.mark.unit
+def test_g_dispatch_fails_when_completed_skill_names_key_absent(make_project) -> None:
+    """progress.json without completed_skill_names -> defaults to [] -> GD.1 FAIL.
+
+    A real progress.json for an in-flight phase has other keys but no
+    completed_skill_names yet; the gate must treat that as incomplete.
+    """
+    _, round_dir = make_project(progress={"remaining_drafting": ["shenbi-chapter-drafting"]})
+    result = _result_dict(gate_G_DISPATCH("drafting", str(round_dir)))
+    assert result["status"] == "FAIL"
+    assert any("GD.1" in mf for mf in result.get("must_fix", []))
