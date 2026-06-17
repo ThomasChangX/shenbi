@@ -120,3 +120,102 @@ def test_check_skill_md_purity_fails_when_skill_md_leaks_fixture_path(
     checks, fail_reason, must_fix = check_skill_md_purity(skills)
     assert fail_reason is not None
     assert any(c["s"] == "FAIL" for c in checks)
+
+
+# ---------------------------------------------------------------------------
+# Error-path tests (PR-52 Step 12)
+#
+# Verified against src/shenbi/gates/g0_purity.py: this module exposes only
+# three functions — check_scenario_file_purity, check_scenario_dir_purity,
+# check_skill_md_purity. It does NOT parse SKILL.md frontmatter or scan for
+# meta-narrative (those concepts live elsewhere), so the "stray meta-narrative"
+# and "broken frontmatter" categories are pinned to the module's actual
+# behavior (frontmatter-agnostic, meta-narrative-agnostic).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_scenario_file_placeholder_non_fixture_path_fails(tmp_path: Path) -> None:
+    """A scenario referencing a placeholder file path that is not under
+    tests/fixtures/ or skills/ -> check_scenario_file_purity FAILs.
+    """
+    t1 = _build_t1_skill_dir(
+        tmp_path,
+        "shenbi-worldbuilding",
+        "# Scenario\n\nReads placeholder output `output/seed.md`.\n",
+    )
+    checks, fail_reason, must_fix = check_scenario_file_purity(t1)
+    assert fail_reason is not None
+    assert any(c["s"] == "FAIL" for c in checks)
+    assert must_fix  # non-empty
+
+
+@pytest.mark.unit
+def test_scenario_dir_non_fixture_directory_warns(tmp_path: Path) -> None:
+    """A scenario referencing a directory path not under tests/fixtures/ or
+    skills/ -> check_scenario_dir_purity emits a WARN (not blocking).
+    """
+    t1 = _build_t1_skill_dir(
+        tmp_path,
+        "shenbi-worldbuilding",
+        "# Scenario\n\nRead all from `output/chapters/`.\n",
+    )
+    result = check_scenario_dir_purity(t1)
+    assert isinstance(result, list)
+    assert any(c["s"] == "WARN" for c in result)
+
+
+@pytest.mark.unit
+def test_missing_scenario_file_returns_pass(tmp_path: Path) -> None:
+    """When the t1 skill dir exists but has no scenario.md, there is nothing
+    impure to flag -> file purity returns PASS (no scenario to scan).
+    """
+    t1_root = tmp_path / "t1-skills"
+    skill_dir = t1_root / "shenbi-worldbuilding"
+    skill_dir.mkdir(parents=True)
+    # generative/input/ exists but no scenario.md
+    (skill_dir / "generative" / "input").mkdir(parents=True)
+    checks, fail_reason, must_fix = check_scenario_file_purity(t1_root)
+    assert fail_reason is None
+    assert must_fix == []
+    assert all(c["s"] == "PASS" for c in checks)
+
+
+@pytest.mark.unit
+def test_skill_md_meta_narrative_not_flagged_pins_behavior(tmp_path: Path) -> None:
+    """SKILL.md stray meta-narrative is NOT flagged by check_skill_md_purity.
+
+    Pins current behavior: this module only scans for tests/fixtures/ path
+    leaks, not for META_NARRATIVE phrases (which live in shared.py but are
+    not referenced here). A SKILL.md full of meta-narrative but free of
+    fixture leaks returns PASS.
+    """
+    skills = tmp_path / "skills"
+    skill_dir = skills / "shenbi-narrative-skill"
+    skill_dir.mkdir(parents=True)
+    body = (
+        "---\nname: shenbi-narrative-skill\ndescription: x\n---\n\n"
+        "# Skill\n\n由此可见，引人深思，让人感悟。综上所述，不禁感慨。\n"
+    )
+    (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
+    checks, fail_reason, must_fix = check_skill_md_purity(skills)
+    assert fail_reason is None  # pins current behavior: meta-narrative ignored
+    assert must_fix == []
+
+
+@pytest.mark.unit
+def test_skill_md_broken_frontmatter_not_flagged_pins_behavior(tmp_path: Path) -> None:
+    """SKILL.md with broken/malformed frontmatter is NOT flagged here.
+
+    Pins current behavior: check_skill_md_purity reads SKILL.md as plain
+    text and only greps for tests/fixtures/ paths; it does not parse YAML
+    frontmatter, so broken frontmatter is silently tolerated.
+    """
+    skills = tmp_path / "skills"
+    skill_dir = skills / "shenbi-broken-fm-skill"
+    skill_dir.mkdir(parents=True)
+    body = "---\nname: shenbi-broken-fm-skill\n  bad: : : indent\n  - broken yaml\n---\n\n# Body\n"
+    (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
+    checks, fail_reason, must_fix = check_skill_md_purity(skills)
+    assert fail_reason is None  # pins current behavior: frontmatter not parsed
+    assert must_fix == []

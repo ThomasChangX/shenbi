@@ -193,3 +193,53 @@ def test_compute_all_stats_returns_all_categories() -> None:
         "transition_density",
     ):
         assert key in stats, f"missing category: {key}"
+
+
+# ---------------------------------------------------------------------------
+# Error-path / edge-case tests (PR-52 Step 13)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_read_chapters_nonexistent_path_returns_empty(tmp_path: Path) -> None:
+    """A path that does not exist is skipped silently -> empty dict."""
+    texts = read_chapters([str(tmp_path / "does-not-exist.md")])
+    assert texts == {}
+
+
+@pytest.mark.unit
+def test_read_chapters_mixed_files_and_dirs(tmp_path: Path) -> None:
+    """A mix of a directory (read *.md) and a loose file -> both collected."""
+    (tmp_path / "part1.md").write_text("第一段正文。", encoding="utf-8")
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    (sub / "ch2.md").write_text("第二段正文。", encoding="utf-8")
+    (sub / "notes.txt").write_text("ignored", encoding="utf-8")  # non-md ignored in dir
+    loose = tmp_path / "loose.md"
+    loose.write_text("松散文件。", encoding="utf-8")
+    texts = read_chapters([str(sub), str(loose)])
+    assert "ch2.md" in texts
+    assert "loose.md" in texts
+    assert "notes.txt" not in texts  # directory glob is *.md only
+
+
+@pytest.mark.unit
+def test_compute_ngrams_text_shorter_than_n_returns_empty() -> None:
+    """Text with fewer than n characters yields no n-grams -> empty list."""
+    ngrams = compute_ngrams("一二三", n=5, min_count=1)
+    assert ngrams == []
+
+
+@pytest.mark.unit
+def test_segment_sentences_whitespace_only_returns_empty() -> None:
+    """Whitespace-only input produces no sentences (char_count stays 0)."""
+    assert segment_sentences("   \n   \t  ") == []
+
+
+@pytest.mark.unit
+def test_compute_ttr_punctuation_only_returns_zeros() -> None:
+    """Punctuation/space-only input has no content chars -> all-zero TTR."""
+    ttr = compute_ttr("。，！？；： \n")
+    assert ttr["global_ttr"] == 0
+    assert ttr["sliding_ttr_mean"] == 0
+    assert ttr["sliding_ttr_std"] == 0

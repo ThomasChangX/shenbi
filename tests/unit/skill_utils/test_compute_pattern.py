@@ -126,3 +126,65 @@ def test_compute_entropy_handles_empty_input() -> None:
 def test_patterns_constant_has_13_entries() -> None:
     """Spec: 13 narrative patterns."""
     assert len(PATTERNS) == 13
+
+
+# ---------------------------------------------------------------------------
+# Error-path / boundary tests (PR-52 Step 13)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_compute_entropy_single_element_list_is_zero() -> None:
+    """A single-pattern list (one chapter) has zero entropy."""
+    entropy, terms = compute_entropy(["引入"])
+    assert entropy == 0.0
+    assert terms  # still returns per-pattern terms
+
+
+@pytest.mark.unit
+def test_compute_consecutive_all_unique_patterns_yields_all_ones() -> None:
+    """All-unique patterns -> every pattern's max run is 0 except those present (run 1)."""
+    result = compute_consecutive(["引入", "升级", "转折", "决战"])
+    assert result["引入"] == 1
+    assert result["升级"] == 1
+    assert result["转折"] == 1
+    assert result["决战"] == 1
+    # Patterns never appearing have max run 0.
+    assert result["日常"] == 0
+
+
+@pytest.mark.unit
+def test_check_distribution_sparse_patterns_flagged() -> None:
+    """A window whose unique-pattern count is below required -> pass=False."""
+    # 5-chapter window, required for window 5 is 3 unique patterns.
+    patterns = ["引入", "引入", "引入", "引入", "引入"]  # only 1 unique
+    result = check_distribution(patterns, recent_n=5)
+    assert result is not None
+    assert result["unique_patterns"] == 1
+    assert result["required"] == 3
+    assert result["pass"] is False
+
+
+@pytest.mark.unit
+def test_compute_transition_matrix_single_element_has_no_transitions() -> None:
+    """A single-element list has no transitions -> all 'to' counts are 0."""
+    matrix = compute_transition_matrix(["引入"])
+    assert isinstance(matrix, list)
+    assert len(matrix) == len(PATTERNS)
+    yinru_row = next(r for r in matrix if r["from"] == "引入")
+    assert sum(yinru_row["to"].values()) == 0
+
+
+@pytest.mark.unit
+def test_classify_entropy_boundary_values() -> None:
+    """Thresholds are exclusive on the upper bound: classify returns the
+    lower bracket at an exact boundary value.
+
+    h > 2.5 -> 优秀; at h==2.5 it is 健康 (2.5 not > 2.5).
+    """
+    assert classify_entropy(2.6)[0] == "优秀"
+    assert classify_entropy(2.5)[0] == "健康"  # boundary falls through
+    assert classify_entropy(2.0)[0] == "轻度单调"  # 2.0 not > 2.0
+    assert classify_entropy(1.5)[0] == "中度单调"  # 1.5 not > 1.5
+    assert classify_entropy(1.0)[0] == "严重单调"  # 1.0 not > 1.0
+    assert classify_entropy(0.5)[0] == "严重单调"
