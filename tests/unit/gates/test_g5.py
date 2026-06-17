@@ -14,6 +14,8 @@ from shenbi.gates.g5 import gate_G5
 def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
 
+pytestmark = pytest.mark.unit
+
 
 class TestG5PhaseCheck:
     def test_emits_valid_json_for_valid_args(self, tmp_path: Path) -> None:
@@ -198,3 +200,19 @@ class TestG5ErrorPaths:
         g54 = [c for c in result["checks"] if c.get("id") == "G5.4"]
         assert g54, "G5.4 checks should exist"
         assert any(c["s"] == "PASS" for c in g54)
+
+    @pytest.mark.unit
+    def test_g5_none_round_dir_with_valid_phase(self) -> None:
+        """round_dir=None with valid phase -> no crash; gate runs with no summary."""
+        result = _result_dict(gate_G5("genesis", None, None))
+        assert "gate" in result
+        assert result["gate"] == "G5"
+
+    @pytest.mark.unit
+    def test_g5_corrupt_summary_json_falls_through(self, tmp_path: Path) -> None:
+        """Corrupt summary.json -> silently ignored, prereqs fall through."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        (round_dir / "summary.json").write_text("{invalid json", encoding="utf-8")
+        result = _result_dict(gate_G5("genesis", str(round_dir), None))
+        assert result["status"] in ("PASS", "FAIL")
