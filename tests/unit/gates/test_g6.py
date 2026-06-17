@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 from shenbi.gates.g6 import gate_G6
 
 
@@ -88,3 +90,181 @@ class TestG6PipelineCheck:
         assert g67 is not None, "G6.7 must execute when pending_hooks.md exists"
         assert "density" in g67, "G6.7 must include density field even when chapters absent"
         assert g67["density"] is None, "density must be None when chapters/ is absent"
+
+
+def _make_chapter(parent: Path, num: int, body: str) -> Path:
+    ch = parent / "chapters" / f"chapter-{num:03d}.md"
+    ch.parent.mkdir(parents=True, exist_ok=True)
+    ch.write_text(body, encoding="utf-8")
+    return ch
+
+
+class TestG6ErrorPaths:
+    """Gate-level error paths for G6 (PR-52 Step 6).
+
+    G6 reads tests/tiers/deps.json for t3-pipelines min_chapter_ratio and
+    derives expected chapter counts from project_dir/novel.json and
+    genre-config.json. Default min_ratio is 0.5. With default
+    target_words=100000 and chapter_word floor 3000, expected ~= 34 and
+    min_chapters ~= 17, so any small chapter set triggers G6.1.
+    """
+
+    @pytest.mark.unit
+    def test_g6_no_chapters_dir_fails(self, tmp_path: Path) -> None:
+        """A project_dir with no chapters/ directory -> G6.1:no_chapters_dir."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert result["status"] == "FAIL"
+        assert "G6.1:no_chapters_dir" in result["must_fix"]
+
+    @pytest.mark.unit
+    def test_g6_below_min_chapter_count_fails(self, tmp_path: Path) -> None:
+        """Fewer chapters than min_chapters -> G6.1:count<min reason."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)  # only 1 chapter
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any(mf.startswith("G6.1:") and "<" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_numbering_gap_warns(self, tmp_path: Path) -> None:
+        """Chapters 1 and 3 (missing 2) -> G6.2:chapter_gaps."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)
+        _make_chapter(project_dir, 3, "正文内容。" * 400)
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert "G6.2:chapter_gaps" in result["must_fix"]
+
+    @pytest.mark.unit
+    def test_g6_g4_failure_on_short_chapter(self, tmp_path: Path) -> None:
+        """A chapter under the 3000-char floor fails G4 -> G6.3:{ch.name}."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "短内容。")  # well below floor
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any(mf.startswith("G6.3:") for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_high_hook_density_warns(self, tmp_path: Path) -> None:
+        """Many hooks across few chapters -> G6.7:high_hook_density (>3/chapter)."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)
+        truth = project_dir / "truth"
+        truth.mkdir()
+        hooks = "## hooks\n"
+        for i in range(6):  # 6 hooks / 1 chapter = 6.0 > 3
+            hooks += f"\n- id: hook-{i:03d}\n  state: RESOLVED\n"
+        (truth / "pending_hooks.md").write_text(hooks, encoding="utf-8")
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any("G6.7:high_hook_density" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_low_hook_density_warns(self, tmp_path: Path) -> None:
+        """One hook across many chapters -> G6.7:low_hook_density (<0.3/chapter)."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        for i in range(1, 9):  # 8 chapters
+            _make_chapter(project_dir, i, "正文内容。" * 400)
+        truth = project_dir / "truth"
+        truth.mkdir()
+        (truth / "pending_hooks.md").write_text(
+            "## hooks\n\n- id: hook-001\n  state: RESOLVED\n", encoding="utf-8"
+        )
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any("G6.7:low_hook_density" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_hook_max_distance_exceeded_warns(self, tmp_path: Path) -> None:
+        """A hook planted early with a long-since-passed max_distance -> G6.7:max_distance_exceeded."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)
+        _make_chapter(project_dir, 10, "正文内容。" * 400)
+        truth = project_dir / "truth"
+        truth.mkdir()
+        (truth / "pending_hooks.md").write_text(
+            "## hooks\n\n- id: hook-001\n  state: PENDING\n  max_distance: 3\n  plant_chapter: 1\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any("G6.7:max_distance_exceeded" in mf for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_unresolved_hooks_reported_in_check(self, tmp_path: Path) -> None:
+        """Unresolved hooks surface in the G6.7 check dict (status may still be PASS)."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)
+        truth = project_dir / "truth"
+        truth.mkdir()
+        (truth / "pending_hooks.md").write_text(
+            "## hooks\n\n- id: hook-001\n  state: PENDING\n", encoding="utf-8"
+        )
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        g67 = next(c for c in result["checks"] if c.get("id") == "G6.7")
+        assert g67["unresolved"] >= 1
+
+    @pytest.mark.unit
+    def test_g6_volume_mismatch_fails(self, tmp_path: Path) -> None:
+        """A volume_map defining a range with no matching chapters -> G6.11:no_chapters."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。" * 400)
+        outline = project_dir / "outline"
+        outline.mkdir()
+        (outline / "volume_map.md").write_text(
+            "# Volume Map\n\n第一卷 chapters 100-110\n第二卷 chapters 200-210\n",
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any(mf.startswith("G6.11:no_chapters") for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_ghost_character_detected(self, tmp_path: Path) -> None:
+        """A dead character in character_matrix.md who still appears in a chapter -> G6.6."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。老王走了过来。\n")
+        truth = project_dir / "truth"
+        truth.mkdir()
+        (truth / "character_matrix.md").write_text(
+            "| 角色 | 状态 |\n| 老王 | 死亡 |\n", encoding="utf-8"
+        )
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any(mf.startswith("G6.6:老王") for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_sensitive_words_detected(self, tmp_path: Path) -> None:
+        """A chapter containing a sensitive-word token -> G6.12:{word}:{ch.name}."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        project_dir = tmp_path / "project"
+        _make_chapter(project_dir, 1, "正文内容。 台独 。\n")
+        result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])
+
+    @pytest.mark.unit
+    def test_g6_empty_chapters_yield_skip_for_continuity_and_pacing(self) -> None:
+        """Empty chapters list -> check_continuity and check_pacing both SKIP.
+        Exercised at the extracted-check level (G6.4/G6.5 delegates).
+        """
+        from shenbi.gates.g6_checks import check_continuity, check_pacing
+
+        cc, cmf = check_continuity([])
+        pc, pmf = check_pacing([])
+        assert any(c["s"] == "SKIP" and c["id"] == "G6.4" for c in cc)
+        assert any(c["s"] == "SKIP" and c["id"] == "G6.5" for c in pc)
