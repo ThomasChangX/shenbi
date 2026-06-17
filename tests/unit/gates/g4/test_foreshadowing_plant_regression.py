@@ -15,8 +15,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from shenbi.gates.g4.foreshadowing_plant import g4_foreshadowing_plant
 import pytest
+
+from shenbi.gates.g4.foreshadowing_plant import g4_foreshadowing_plant
 
 pytestmark = pytest.mark.unit
 

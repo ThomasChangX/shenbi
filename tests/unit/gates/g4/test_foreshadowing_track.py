@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_foreshadowing_track."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.foreshadowing_track import g4_foreshadowing_track
+
 
 def _setup(tmp_path: Path) -> tuple[Path, Path]:
     project_dir = tmp_path / "project"; sub_dir = project_dir / "skill-output"

@@ -13,14 +13,14 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 from shenbi.gates.g4.generic import (
     g4_generic_bughunt,
     g4_generic_clean,
     g4_generic_generative,
     gate_G4,
 )
-
-import pytest
 
 
 def _result_dict(result: str) -> dict[str, Any]:

@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_pacing_design."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.pacing_design import g4_pacing_design
+
 
 def _setup(tmp_path: Path) -> tuple[Path, Path]:
     project_dir = tmp_path / "project"; sub_dir = project_dir / "skill-output"

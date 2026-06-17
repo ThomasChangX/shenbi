@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_relationship_map."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.relationship_map import g4_relationship_map
+
 
 def _setup(tmp_path: Path) -> tuple[Path, Path]:
     project_dir = tmp_path / "project"; sub_dir = project_dir / "skill-output"

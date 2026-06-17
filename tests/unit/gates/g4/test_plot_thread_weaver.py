@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_plot_thread_weaver."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
+
 
 def _setup(tmp_path: Path) -> tuple[Path, Path]:
     project_dir = tmp_path / "project"

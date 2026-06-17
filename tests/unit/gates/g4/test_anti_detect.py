@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_anti_detect."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.anti_detect import g4_anti_detect
+
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
     return json.loads(g4_anti_detect(fps, rd))

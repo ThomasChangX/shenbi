@@ -1,10 +1,14 @@
 """Bespoke error-path tests for g4_faction_builder."""
 from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Any
+
 import pytest
+
 from shenbi.gates.g4.faction_builder import g4_faction_builder
+
 
 def _setup(tmp_path: Path) -> tuple[Path, Path]:
     project_dir = tmp_path / "project"
