@@ -273,3 +273,38 @@ class TestG7ErrorPaths:
         g716 = next((c for c in result["checks"] if c.get("id") == "G7.16"), None)
         assert g716 is not None
         assert g716["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_g715_passes_with_unique_vectors(self, tmp_path: Path) -> None:
+        """Score files with different score vectors -> G7.15 PASS."""
+        round_dir = tmp_path / "round"
+        reports = round_dir / "t1-reports"
+        reports.mkdir(parents=True)
+        (reports / "skill-a-generative-scores.json").write_text(
+            json.dumps({"dimensions": [{"num": 1, "score": 90}]}), encoding="utf-8"
+        )
+        (reports / "skill-b-generative-scores.json").write_text(
+            json.dumps({"dimensions": [{"num": 1, "score": 95}]}), encoding="utf-8"
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        g715 = next((c for c in result["checks"] if c.get("id") == "G7.15"), None)
+        assert g715 is not None
+        assert g715["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_g716_passes_with_phase_state(self, tmp_path: Path) -> None:
+        """summary.json with t2_scores and valid phase-state -> G7.16 PASS."""
+        round_dir = tmp_path / "round"
+        phase_state = round_dir / "phase-state"
+        phase_state.mkdir(parents=True)
+        (phase_state / "genesis.json").write_text(
+            json.dumps({"state": "finalized"}), encoding="utf-8"
+        )
+        (round_dir / "summary.json").write_text(
+            json.dumps({"t2_scores": {"genesis": {"score": 95}}, "t3_scores": {}}),
+            encoding="utf-8",
+        )
+        result = _result_dict(gate_G7(str(round_dir)))
+        g716 = next((c for c in result["checks"] if c.get("id") == "G7.16"), None)
+        assert g716 is not None
+        assert g716["s"] == "PASS"

@@ -196,3 +196,18 @@ def test_check_consecutive_equal_threshold_med_warning() -> None:
     consecutive = {"决战": 2}  # MAX_CONSECUTIVE for "决战" is 2
     warnings = check_consecutive_warnings(consecutive)
     assert any(w["level"] == "med" for w in warnings)
+
+@pytest.mark.unit
+def test_classify_entropy_zero_falls_through() -> None:
+    """classify_entropy(0) falls through all thresholds -> '严重单调'."""
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import classify_entropy
+    label, _ = classify_entropy(0.0)
+    assert label == "严重单调"
+
+@pytest.mark.unit
+def test_check_consecutive_above_threshold_high_warning() -> None:
+    """check_consecutive_warnings: max_run > threshold -> 'high' level."""
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import check_consecutive_warnings
+    consecutive = {"决战": 3}  # MAX_CONSECUTIVE for "决战" is 2, so 3 > 2
+    warnings = check_consecutive_warnings(consecutive)
+    assert any(w["level"] == "high" for w in warnings)
