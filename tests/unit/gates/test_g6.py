@@ -9,6 +9,8 @@ from typing import Any, cast
 import pytest
 
 from shenbi.gates.g6 import gate_G6
+pytestmark = pytest.mark.unit
+
 
 
 def _result_dict(result: str) -> dict[str, Any]:
@@ -270,3 +272,19 @@ class TestG6ErrorPaths:
         pc, pmf = check_pacing([])
         assert any(c["s"] == "SKIP" and c["id"] == "G6.4" for c in cc)
         assert any(c["s"] == "SKIP" and c["id"] == "G6.5" for c in pc)
+
+@pytest.mark.unit
+def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
+    """volume_map.md with volume ranges but no chapters/ -> G6.11 PASS with note."""
+    project_dir = tmp_path / "project"
+    outline = project_dir / "outline"
+    outline.mkdir(parents=True)
+    (outline / "volume_map.md").write_text(
+        "## 第一卷\nchapters 1-10\n", encoding="utf-8"
+    )
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
+    assert g611 is not None
+    assert g611["note"] == "no chapters/ to verify"
