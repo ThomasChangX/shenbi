@@ -309,7 +309,7 @@ source = ["src/shenbi"]
 # Staged ramp-up. Phase 1 (PR-48~51) added happy-path tests raising coverage
 # to ~25%. Target trajectory: 90% after PR-56.
 # PR-54 raises to 55; PR-56 raises to 90.
-fail_under = 70
+fail_under = 75
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
