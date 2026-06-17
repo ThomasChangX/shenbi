@@ -31,6 +31,8 @@ from shenbi.gates.shared import (
     yload,
 )
 
+pytestmark = pytest.mark.unit
+
 # --- TestJload -----------------------------------------------------------
 
 
@@ -325,3 +327,14 @@ class TestSharedErrorPaths:
         p = tmp_path / "empty.yaml"
         p.write_text("", encoding="utf-8")
         assert yload(str(p)) == {}
+
+    @pytest.mark.unit
+    def test_unimplemented_returns_valid_json(self) -> None:
+        """unimplemented returns a parseable UNIMPLEMENTED JSON string."""
+        from shenbi.gates.shared import unimplemented
+        result = unimplemented("G-TEST", "test note")
+        parsed = json.loads(result)
+        assert parsed["status"] == "UNIMPLEMENTED"
+        assert parsed["gate"] == "G-TEST"
+        assert "note" in parsed
+        assert "checks" in parsed
