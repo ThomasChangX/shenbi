@@ -114,8 +114,8 @@ def test_g_reconcile_unknown_skill_in_progress_handled_gracefully(make_project) 
 
 
     The gate iterates skills entries by status; an unknown skill name simply
-    never matches a real report, so it is skipped without AttributeError. We
-    assert the gate returns a parseable PASS (no DONE skill to verify).
+    never matches a real report, so it returns FAIL with GR.1 because the
+    DONE skill lacks a report. Crucially, no AttributeError or crash occurs.
     """
     _, round_dir = make_project(
         progress={

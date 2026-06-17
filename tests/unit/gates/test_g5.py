@@ -102,11 +102,12 @@ class TestG5ErrorPaths:
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         result = _result_dict(gate_G5("planning", str(round_dir), str(project_dir)))
-        # planning's prereqs all have SKILL.md; G5.2 may or may not flag.
-        # Assert the gate completed and any G5.2 entries are handoff-shaped.
-        for mf in result.get("must_fix", []):
-            if mf.startswith("G5.2:"):
-                assert "handoff:" in mf
+        # planning's prereqs all have SKILL.md; the reviewer confirmed the gate
+        # emits 2 real G5.2 handoff entries against an empty project_dir.
+        g52 = [m for m in result["must_fix"] if m.startswith("G5.2:")]
+        assert g52, "G5.2 handoff entries should be emitted"
+        for mf in g52:
+            assert "handoff:" in mf
         assert result["gate"] == "G5"
 
     @pytest.mark.unit
@@ -126,7 +127,9 @@ class TestG5ErrorPaths:
         assert any("G5.3:char_role_conflict:林青" in mf for mf in result["must_fix"])
 
     @pytest.mark.unit
-    def test_g5_numeric_inconsistency_detected(self, tmp_path: Path) -> None:
+    def test_g5_numeric_inconsistency_not_detected_pins_inert_behavior(
+        self, tmp_path: Path
+    ) -> None:
         r"""Numeric inconsistency detection: pins current behavior.
 
         The source num_pat regex is `(\d+)\s*(?:个|种|人|...)` — only ONE

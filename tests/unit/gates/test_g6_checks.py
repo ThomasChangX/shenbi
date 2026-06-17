@@ -127,7 +127,7 @@ def test_check_continuity_timeline_regression_detected(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_check_continuity_future_knowledge_detected(tmp_path: Path) -> None:
+def test_check_continuity_future_knowledge_not_detected_pins_inert_behavior(tmp_path: Path) -> None:
     r"""Future-knowledge check: pins current (inert) behavior.
 
     The check appends a future_knowledge violation only when

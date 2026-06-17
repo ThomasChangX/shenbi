@@ -128,7 +128,9 @@ class TestG6ErrorPaths:
         project_dir = tmp_path / "project"
         _make_chapter(project_dir, 1, "正文内容。" * 400)  # only 1 chapter
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
-        assert any(mf.startswith("G6.1:") and "<" in mf for mf in result["must_fix"])
+        # G6.1 below-min reason format: "G6.1:{len}<{min}(ceil({expected}*{ratio}))".
+        # "(ceil(" is unique to this reason (not present in no_chapters_dir).
+        assert any(mf.startswith("G6.1:") and "(ceil(" in mf for mf in result["must_fix"])
 
     @pytest.mark.unit
     def test_g6_numbering_gap_warns(self, tmp_path: Path) -> None:

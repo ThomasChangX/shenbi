@@ -101,12 +101,11 @@ def test_g_dispatch_fails_on_invalid_json_progress(make_project, tmp_path: Path)
 
 @pytest.mark.unit
 def test_g_dispatch_fails_on_non_dict_progress(make_project) -> None:
-    """progress.json holding a JSON array -> jload raises ValueError (caught) -> FAIL.
+    """progress.json holding a JSON array -> jload raises ValueError (not caught).
 
-    jload rejects non-objects; the gate catches JSONDecodeError/OSError but a
-    ValueError from jload propagates. We pin the gate completing a FAIL result
-    only if it does; here we assert it does NOT silently PASS — it either FAILs
-    or raises, never returns PASS.
+    jload raises ValueError for non-dict JSON; g_dispatch.py catches only
+    JSONDecodeError/OSError, so the ValueError propagates (spec Non-Goal #3:
+    do not modify source). The test pins that propagation.
     """
     _, round_dir = make_project()
     (round_dir / "progress.json").write_text("[1, 2, 3]", encoding="utf-8")

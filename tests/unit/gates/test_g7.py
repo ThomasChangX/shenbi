@@ -106,7 +106,11 @@ class TestG7ErrorPaths:
         monkeypatch.setattr("shenbi.gates.g7.TESTS", fake_tests)
         try:
             result = _result_dict(gate_G7(str(round_dir)))
-            assert any("G7.7:" in mf for mf in result["must_fix"])
+            # Tightened: this exercises the no-file + non-writable-parent branch
+            # (g7.py mf.append("G7.7:no_changelog_and_cannot_create")), not the
+            # changelog_not_writable branch the test name implies. Relies on
+            # chmod(0o555) being honored, which may not hold under root.
+            assert any("G7.7:no_changelog_and_cannot_create" in mf for mf in result["must_fix"])
         finally:
             # Restore writability so tmp_path cleanup can remove the dir.
             rounds_dir.chmod(0o755)
