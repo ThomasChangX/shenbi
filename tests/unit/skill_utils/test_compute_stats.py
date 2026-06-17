@@ -261,3 +261,23 @@ def test_read_chapters_from_directory_returns_md_files(tmp_path: Path) -> None:
     result = read_chapters([str(ch_dir)])
     assert "ch001.md" in result
     assert "正文内容。" in result["ch001.md"]
+
+@pytest.mark.unit
+def test_read_chapters_from_file_path(tmp_path: Path) -> None:
+    """read_chapters reads a single .md file from a file path."""
+    from shenbi.skill_utils.style_learning.compute_stats import read_chapters
+    f = tmp_path / "ch001.md"
+    f.write_text("正文内容。", encoding="utf-8")
+    result = read_chapters([str(f)])
+    assert "ch001.md" in result
+    assert "正文内容。" in result["ch001.md"]
+
+@pytest.mark.unit
+def test_read_chapters_from_file_path(tmp_path: Path) -> None:
+    """read_chapters reads a single .md file from a file path."""
+    from shenbi.skill_utils.style_learning.compute_stats import read_chapters
+    f = tmp_path / "ch001.md"
+    f.write_text("正文内容。", encoding="utf-8")
+    result = read_chapters([str(f)])
+    assert "ch001.md" in result
+    assert "正文内容。" in result["ch001.md"]

@@ -277,6 +277,8 @@ class TestG6ErrorPaths:
 def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
     """volume_map.md with volume ranges but no chapters/ -> G6.11 PASS with note."""
     project_dir = tmp_path / "project"
+    project_dir.mkdir()
+
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
     (outline / "volume_map.md").write_text(
@@ -293,6 +295,8 @@ def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
 def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
     """volume_map.md without chapter ranges -> G6.11 SKIP."""
     project_dir = tmp_path / "project"
+    project_dir.mkdir()
+
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
     (outline / "volume_map.md").write_text("## 第一卷\nContent without ranges.\n", encoding="utf-8")
@@ -302,3 +306,64 @@ def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
     g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
     assert g611 is not None
     assert g611["s"] == "SKIP"
+
+@pytest.mark.unit
+def test_g6_g61_passes_with_sufficient_chapters(tmp_path: Path) -> None:
+    """Enough chapters to meet G6.1 min requirement -> G6.1 PASS."""
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+
+    (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    (project_dir / "chapters").mkdir()
+    (project_dir / "chapters" / "chapter-001.md").write_text("# 第1章\n\n正文内容。\n", encoding="utf-8")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g61 = next((c for c in result["checks"] if c.get("id") == "G6.1"), None)
+    assert g61 is not None
+    assert g61["s"] == "PASS"
+
+@pytest.mark.unit
+def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
+    """character_matrix with no dead characters -> G6.6 PASS."""
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+
+    (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    (project_dir / "chapters").mkdir()
+    (project_dir / "chapters" / "chapter-002.md").write_text("# 第2章\n\n正文内容。\n", encoding="utf-8")
+    (project_dir / "chapters" / "chapter-003.md").write_text("# 第3章\n\n正文内容。\n", encoding="utf-8")
+    truth = project_dir / "truth"
+    truth.mkdir()
+    (truth / "character_matrix.md").write_text(
+        "| 角色 | 状态 |\n| 主角 | 存活 |\n", encoding="utf-8"
+    )
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g66 = next((c for c in result["checks"] if c.get("id") == "G6.6"), None)
+    assert g66 is not None
+    assert g66["s"] == "PASS"
+
+@pytest.mark.unit
+def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
+    """volume_map.md with ranges and chapters -> G6.11 PASS."""
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    ch_dir = project_dir / "chapters"
+    ch_dir.mkdir()
+    (ch_dir / "chapter-001.md").write_text("正文内容。\n", encoding="utf-8")
+    (ch_dir / "chapter-002.md").write_text("正文内容。\n", encoding="utf-8")
+    outline = project_dir / "outline"
+    outline.mkdir()
+    (outline / "volume_map.md").write_text("## 第一卷\nchapters 1-2\n", encoding="utf-8")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
+    assert g611 is not None
+    assert g611["s"] == "PASS"

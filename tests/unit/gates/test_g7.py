@@ -308,3 +308,21 @@ class TestG7ErrorPaths:
         g716 = next((c for c in result["checks"] if c.get("id") == "G7.16"), None)
         assert g716 is not None
         assert g716["s"] == "PASS"
+
+    @pytest.mark.unit
+    def test_g7_changelog_exists_not_writable_fails(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """CHANGELOG.md exists but read-only -> G7.7:changelog_not_writable."""
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        fake_tests = tmp_path / "fake-tests"
+        rounds_dir = fake_tests / "rounds"
+        rounds_dir.mkdir(parents=True)
+        changelog = rounds_dir / "CHANGELOG.md"
+        changelog.write_text("# Changelog\n", encoding="utf-8")
+        changelog.chmod(0o444)
+        monkeypatch.setattr("shenbi.gates.g7.TESTS", fake_tests)
+        try:
+            result = _result_dict(gate_G7(str(round_dir)))
+            assert any("changelog_not_writable" in mf for mf in result.get("must_fix", []))
+        finally:
+            changelog.chmod(0o644)
