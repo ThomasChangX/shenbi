@@ -244,3 +244,46 @@ class TestG0ErrorPaths:
         assert r1["gate"] == "G0"
         r2 = _result_dict(gate_G0(seed_file=str(tmp_path / "nope.md")))
         assert r2["gate"] == "G0"
+
+
+# ---------------------------------------------------------------------------
+# G0.10 generative-report-count branch coverage (PR-56 fill)
+# These reach G0.10 by using the REAL repo PROJECT (no monkeypatch) so G0.8
+# fixture-reference resolution against tests/fixtures/ succeeds.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g010_warns_when_fewer_than_59_generative_reports(tmp_path: Path) -> None:
+    """round_dir with < 59 generative reports -> G0.10 WARN (covers g0.py:318-332)."""
+    seed = tmp_path / "seed.md"
+    seed.write_text("目标字数：5000\n" + "正文内容。" * 200, encoding="utf-8")
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    reports = round_dir / "t1-reports"
+    reports.mkdir()
+    for i in range(3):
+        (reports / f"skill-{i:03d}-generative-scores.json").write_text("{}", encoding="utf-8")
+    result = _result_dict(gate_G0(seed_file=str(seed), round_dir=str(round_dir)))
+    g010 = next((c for c in result["checks"] if c.get("id") == "G0.10"), None)
+    assert g010 is not None, "G0.10 not reached — earlier check short-circuited"
+    assert g010["s"] == "WARN"
+    assert g010["completed"] == 3
+
+
+@pytest.mark.unit
+def test_g010_passes_when_59_or_more_generative_reports(tmp_path: Path) -> None:
+    """round_dir with >= 59 generative reports -> G0.10 PASS (covers g0.py:333-341)."""
+    seed = tmp_path / "seed.md"
+    seed.write_text("目标字数：5000\n" + "正文内容。" * 200, encoding="utf-8")
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    reports = round_dir / "t1-reports"
+    reports.mkdir()
+    for i in range(60):
+        (reports / f"skill-{i:03d}-generative-scores.json").write_text("{}", encoding="utf-8")
+    result = _result_dict(gate_G0(seed_file=str(seed), round_dir=str(round_dir)))
+    g010 = next((c for c in result["checks"] if c.get("id") == "G0.10"), None)
+    assert g010 is not None
+    assert g010["s"] == "PASS"
+    assert g010["completed"] == 60
