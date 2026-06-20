@@ -354,3 +354,36 @@ def test_is_important_chapter_via_plan_marker(tmp_path: Path) -> None:
     g27 = next((c for c in result["checks"] if c.get("id") == "G2.7"), None)
     assert g27 is not None
     assert g27.get("is_important") is True
+
+
+@pytest.mark.unit
+def test_g211_truth_file_with_removed_lines_fails(tmp_path: Path) -> None:
+    """A truth file whose .bak shows removed lines -> G2.11 FAIL (covers g2.py:190-211)."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    truth_dir = tmp_path / "truth"
+    truth_dir.mkdir(parents=True)
+    truth_f = truth_dir / "state.md"
+    truth_f.write_text("---\nstatus: active\n---\n# State\n新内容。\n", encoding="utf-8")
+    (truth_dir / "state.md.bak").write_text(
+        "---\nstatus: active\n---\n# State\n旧内容。\n", encoding="utf-8"
+    )
+    result = _result_dict(gate_G2([str(truth_f)], "truth", round_dir=str(rd)))
+    assert any("G2.11" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g211_truth_file_unchanged_passes(tmp_path: Path) -> None:
+    """A truth file identical to its .bak -> G2.11 PASS (covers g2.py:212-213)."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    truth_dir = tmp_path / "truth"
+    truth_dir.mkdir(parents=True)
+    content = "---\nstatus: active\n---\n# State\n不变。\n"
+    truth_f = truth_dir / "state.md"
+    truth_f.write_text(content, encoding="utf-8")
+    (truth_dir / "state.md.bak").write_text(content, encoding="utf-8")
+    result = _result_dict(gate_G2([str(truth_f)], "truth", round_dir=str(rd)))
+    g211 = next((c for c in result["checks"] if c.get("id") == "G2.11"), None)
+    assert g211 is not None
+    assert g211["s"] == "PASS"
