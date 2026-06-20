@@ -120,3 +120,82 @@ class TestG1ErrorPaths:
         )
         # Lock FAIL appears in must_fix (mf list), not checks.
         assert any("G1.5" in mf for mf in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g14_creates_bak_for_inplace_skill(tmp_path: Path) -> None:
+    """In-place skill + round_dir -> .bak created (covers g1.py:92-94)."""
+    src = tmp_path / "factions.json"
+    src.write_text('{"k": 1}', encoding="utf-8")
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-faction-builder",
+            input_files=[str(src)],
+            round_dir=str(round_dir),
+        )
+    )
+    assert (tmp_path / "factions.json.bak").exists()
+    assert any(c.get("id") == "G1.4" and c.get("s") == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_g15_passes_on_stale_lock(tmp_path: Path) -> None:
+    """A .gate-lock older than 300s -> G1.5 PASS (stale lock), covers g1.py:107."""
+    import os
+    import time
+
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    lock = round_dir / ".gate-lock"
+    lock.write_text("stale", encoding="utf-8")
+    old = time.time() - 400
+    os.utime(lock, (old, old))
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-worldbuilding",
+            input_files=None,
+            round_dir=str(round_dir),
+        )
+    )
+    g15 = next((c for c in result["checks"] if c.get("id") == "G1.5"), None)
+    assert g15 is not None and g15["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g16_passes_when_scoring_history_is_list(tmp_path: Path) -> None:
+    """progress.json with scoring_history as a list -> G1.6 PASS (covers g1.py:120-128)."""
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    (round_dir / "progress.json").write_text(
+        json.dumps({"scoring_history": [{"a": 1}, {"b": 2}]}), encoding="utf-8"
+    )
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-worldbuilding",
+            input_files=None,
+            round_dir=str(round_dir),
+        )
+    )
+    g16 = next((c for c in result["checks"] if c.get("id") == "G1.6"), None)
+    assert g16 is not None and g16["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g16_warns_when_scoring_history_not_a_list(tmp_path: Path) -> None:
+    """progress.json with scoring_history as a non-list -> G1.6 WARN (covers g1.py:129-130)."""
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    (round_dir / "progress.json").write_text(
+        json.dumps({"scoring_history": "not-a-list"}), encoding="utf-8"
+    )
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-worldbuilding",
+            input_files=None,
+            round_dir=str(round_dir),
+        )
+    )
+    g16 = next((c for c in result["checks"] if c.get("id") == "G1.6"), None)
+    assert g16 is not None and g16["s"] == "WARN"
