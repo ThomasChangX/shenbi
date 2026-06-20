@@ -9,8 +9,8 @@ from typing import Any, cast
 import pytest
 
 from shenbi.gates.g6 import gate_G6
-pytestmark = pytest.mark.unit
 
+pytestmark = pytest.mark.unit
 
 
 def _result_dict(result: str) -> dict[str, Any]:
@@ -273,6 +273,7 @@ class TestG6ErrorPaths:
         assert any(c["s"] == "SKIP" and c["id"] == "G6.4" for c in cc)
         assert any(c["s"] == "SKIP" and c["id"] == "G6.5" for c in pc)
 
+
 @pytest.mark.unit
 def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
     """volume_map.md with volume ranges but no chapters/ -> G6.11 PASS with note."""
@@ -281,15 +282,14 @@ def test_g611_passes_with_volume_map_and_no_chapters(tmp_path: Path) -> None:
 
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
-    (outline / "volume_map.md").write_text(
-        "## 第一卷\nchapters 1-10\n", encoding="utf-8"
-    )
+    (outline / "volume_map.md").write_text("## 第一卷\nchapters 1-10\n", encoding="utf-8")
     round_dir = tmp_path / "round"
     round_dir.mkdir()
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
     g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
     assert g611 is not None
     assert g611["note"] == "no chapters/ to verify"
+
 
 @pytest.mark.unit
 def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
@@ -307,6 +307,7 @@ def test_g6_volume_map_no_ranges_skips(tmp_path: Path) -> None:
     assert g611 is not None
     assert g611["s"] == "SKIP"
 
+
 @pytest.mark.unit
 def test_g6_g61_passes_with_sufficient_chapters(tmp_path: Path) -> None:
     """Enough chapters to meet G6.1 min requirement -> G6.1 PASS."""
@@ -316,13 +317,18 @@ def test_g6_g61_passes_with_sufficient_chapters(tmp_path: Path) -> None:
     project_dir.mkdir()
 
     (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
-    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text(
+        '{"chapter_word": {"default": 5000}}', encoding="utf-8"
+    )
     (project_dir / "chapters").mkdir()
-    (project_dir / "chapters" / "chapter-001.md").write_text("# 第1章\n\n正文内容。\n", encoding="utf-8")
+    (project_dir / "chapters" / "chapter-001.md").write_text(
+        "# 第1章\n\n正文内容。\n", encoding="utf-8"
+    )
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
     g61 = next((c for c in result["checks"] if c.get("id") == "G6.1"), None)
     assert g61 is not None
     assert g61["s"] == "PASS"
+
 
 @pytest.mark.unit
 def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
@@ -333,10 +339,16 @@ def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
     project_dir.mkdir()
 
     (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
-    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text(
+        '{"chapter_word": {"default": 5000}}', encoding="utf-8"
+    )
     (project_dir / "chapters").mkdir()
-    (project_dir / "chapters" / "chapter-002.md").write_text("# 第2章\n\n正文内容。\n", encoding="utf-8")
-    (project_dir / "chapters" / "chapter-003.md").write_text("# 第3章\n\n正文内容。\n", encoding="utf-8")
+    (project_dir / "chapters" / "chapter-002.md").write_text(
+        "# 第2章\n\n正文内容。\n", encoding="utf-8"
+    )
+    (project_dir / "chapters" / "chapter-003.md").write_text(
+        "# 第3章\n\n正文内容。\n", encoding="utf-8"
+    )
     truth = project_dir / "truth"
     truth.mkdir()
     (truth / "character_matrix.md").write_text(
@@ -347,6 +359,7 @@ def test_g6_g66_passes_when_no_ghosts(tmp_path: Path) -> None:
     assert g66 is not None
     assert g66["s"] == "PASS"
 
+
 @pytest.mark.unit
 def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
     """volume_map.md with ranges and chapters -> G6.11 PASS."""
@@ -355,7 +368,9 @@ def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
-    (project_dir / "genre-config.json").write_text('{"chapter_word": {"default": 5000}}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text(
+        '{"chapter_word": {"default": 5000}}', encoding="utf-8"
+    )
     ch_dir = project_dir / "chapters"
     ch_dir.mkdir()
     (ch_dir / "chapter-001.md").write_text("正文内容。\n", encoding="utf-8")
@@ -367,3 +382,142 @@ def test_g6_volume_boundary_passes_with_chapters(tmp_path: Path) -> None:
     g611 = next((c for c in result["checks"] if c.get("id") == "G6.11"), None)
     assert g611 is not None
     assert g611["s"] == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# G6.8 / G6.9 / G6.11 branch coverage (PR-56 coverage fill)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g68_ghost_voice_detected(tmp_path: Path) -> None:
+    """A character without a voice_profile who appears in a chapter -> G6.8:ghost_voice.
+
+    Covers the ghost-detection branch (g6.py:175-179): name >=2 chars, no
+    voice_profile, name substring present in a sampled chapter.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    _make_chapter(project_dir, 1, "老王走了过来。正文内容。" * 100)
+    char_dir = project_dir / "characters"
+    char_dir.mkdir()
+    (char_dir / "wang.md").write_text("name: 老王\n\n# 老王\n\n一个配角。\n", encoding="utf-8")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    assert any("G6.8:ghost_voice:老王" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g68_catchphrase_not_found_warns(tmp_path: Path) -> None:
+    """Character with a voice_profile whose catchphrase is absent from chapters -> G6.8 WARN.
+
+    Covers the catchphrase-not-found branch (g6.py:191-198).
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    _make_chapter(project_dir, 1, "主角说了一些普通的话。正文内容。" * 100)
+    char_dir = project_dir / "characters"
+    char_dir.mkdir()
+    (char_dir / "hero.md").write_text(
+        'name: 主角\nvoice_profile:\n  "专属口头禅"\n', encoding="utf-8"
+    )
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g68_warns = [c for c in result["checks"] if c.get("id") == "G6.8" and c.get("s") == "WARN"]
+    assert any("主角" in c.get("r", "") for c in g68_warns)
+
+
+@pytest.mark.unit
+def test_g68_voice_profile_pass_when_catchphrase_present(tmp_path: Path) -> None:
+    """Character whose catchphrase appears in a chapter -> no G6.8 WARN, PASS emitted.
+
+    Covers the found_any=True break (g6.py:187-190) and the trailing PASS check
+    (g6.py:199-206).
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    _make_chapter(project_dir, 1, "主角大喊：必胜口号。正文内容。" * 100)
+    char_dir = project_dir / "characters"
+    char_dir.mkdir()
+    (char_dir / "hero.md").write_text(
+        'name: 主角\nvoice_profile:\n  "必胜口号"\n', encoding="utf-8"
+    )
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g68 = [c for c in result["checks"] if c.get("id") == "G6.8"]
+    assert any(c.get("s") == "PASS" for c in g68)
+    assert not any(c.get("s") == "WARN" and "主角" in c.get("r", "") for c in g68)
+
+
+@pytest.mark.unit
+def test_g69_world_rule_limit_exceeded(tmp_path: Path) -> None:
+    """A chapter violating an upper-bound numerical rule -> G6.9:limit_exceeded.
+
+    Covers the constraint-extraction + chapter-scan violation branch
+    (g6.py:213-258). rules.md declares 队伍人数 不超过3人; a chapter states
+    队伍人数 reached 5人.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    _make_chapter(project_dir, 1, "队伍人数达到了5人。正文内容。" * 100)
+    world = project_dir / "world"
+    world.mkdir()
+    (world / "rules.md").write_text("# 世界规则\n\n队伍人数：不超过3人。\n", encoding="utf-8")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    assert any("G6.9:limit_exceeded" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g69_world_rule_pass_with_constraints_extracted(tmp_path: Path) -> None:
+    """rules.md with a constraint no chapter violates -> G6.9 PASS with count.
+
+    Covers the no-violation path and the PASS append (g6.py:259).
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    _make_chapter(project_dir, 1, "队伍人数3人。正文内容。" * 100)
+    world = project_dir / "world"
+    world.mkdir()
+    (world / "rules.md").write_text("# 世界规则\n\n队伍人数：不超过10人。\n", encoding="utf-8")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g69 = next((c for c in result["checks"] if c.get("id") == "G6.9"), None)
+    assert g69 is not None
+    assert g69["s"] == "PASS"
+    assert g69["constraints_extracted"] >= 1
+
+
+@pytest.mark.unit
+def test_g611_missing_ending_hook_on_non_final_volume(tmp_path: Path) -> None:
+    """A non-final volume whose last chapter lacks a hook marker -> G6.11:no_ending_hook.
+
+    Covers the nested _ch_num helper and ending-hook check (g6.py:319-329)
+    which only run for non-final volumes.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / "novel.json").write_text('{"target_words": 5000}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text(
+        '{"chapter_word": {"default": 5000}}', encoding="utf-8"
+    )
+    ch_dir = project_dir / "chapters"
+    ch_dir.mkdir()
+    # chapter-002 is vol 1's last chapter and contains no hook marker.
+    (ch_dir / "chapter-001.md").write_text("正文内容平淡结束。\n", encoding="utf-8")
+    (ch_dir / "chapter-002.md").write_text("正文内容平淡结束。\n", encoding="utf-8")
+    (ch_dir / "chapter-003.md").write_text("正文内容。\n", encoding="utf-8")
+    outline = project_dir / "outline"
+    outline.mkdir()
+    (outline / "volume_map.md").write_text(
+        "## 第一卷\nchapters 1-2\n## 第二卷\nchapters 3-3\n", encoding="utf-8"
+    )
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    assert any("G6.11:no_ending_hook" in mf for mf in result["must_fix"])
