@@ -128,3 +128,116 @@ def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path) -> None
     with pytest.raises(FileNotFoundError):
         load_master()
     gen_mod.MASTER_PATH = original  # restore
+
+
+# ---------------------------------------------------------------------------
+# load_master validation + generate_all/main branch coverage (PR-56 fill)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_load_master_raises_on_non_dict_master(tmp_path: Path, monkeypatch) -> None:
+    """master.json that parses to a non-object -> ValueError (expected JSON object)."""
+    from shenbi.plugins import generate as gen_mod
+
+    fake = tmp_path / "master.json"
+    fake.write_text("[1, 2, 3]", encoding="utf-8")
+    monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
+    with pytest.raises(ValueError, match="expected JSON object"):
+        gen_mod.load_master()
+
+
+@pytest.mark.unit
+def test_load_master_raises_on_missing_required_fields(tmp_path: Path, monkeypatch) -> None:
+    """master.json missing required fields -> ValueError listing them."""
+    import json as _json
+
+    from shenbi.plugins import generate as gen_mod
+
+    fake = tmp_path / "master.json"
+    fake.write_text(_json.dumps({"name": "x"}), encoding="utf-8")  # missing most fields
+    monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
+    with pytest.raises(ValueError, match="missing required fields"):
+        gen_mod.load_master()
+
+
+@pytest.mark.unit
+def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch) -> None:
+    """generate_all writes each platform manifest under REPO_ROOT/config.output.
+
+    Covers generate.py:103-126 (the full generation loop, both json and js
+    write branches) across all four generators.
+    """
+    import json as _json
+
+    from shenbi.plugins import generate as gen_mod
+
+    master_data = {
+        "name": "t",
+        "version": "0.1.0",
+        "description": "d",
+        "author": "a",
+        "skills": ["s1"],
+        "platforms": {
+            "claude-code": {
+                "format": "claude-code",
+                "output": ".claude-plugin/plugin.json",
+                "fields": {},
+            },
+            "codex-cli": {
+                "format": "codex-cli",
+                "output": ".codex-plugin/plugin.json",
+                "fields": {"marketplace": "mp", "type": "skill"},
+            },
+            "cursor": {
+                "format": "cursor",
+                "output": ".cursor-plugin/plugin.json",
+                "fields": {"pluginRoot": ".", "hooks": {}},
+            },
+            "opencode-js": {
+                "format": "opencode-js",
+                "output": ".opencode/plugin.ts",
+                "fields": {},
+            },
+        },
+    }
+    fake = tmp_path / "master.json"
+    fake.write_text(_json.dumps(master_data), encoding="utf-8")
+    monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
+    monkeypatch.setattr(gen_mod, "REPO_ROOT", tmp_path)
+    assert gen_mod.generate_all() == 0
+    assert (tmp_path / ".claude-plugin" / "plugin.json").exists()
+    assert (tmp_path / ".codex-plugin" / "plugin.json").exists()
+    assert (tmp_path / ".cursor-plugin" / "plugin.json").exists()
+    assert (tmp_path / ".opencode" / "plugin.ts").exists()
+
+
+@pytest.mark.unit
+def test_generate_all_unknown_format_returns_1(tmp_path: Path, monkeypatch) -> None:
+    """An unrecognized platform format -> generate_all returns 1 (covers 110-112)."""
+    import json as _json
+
+    from shenbi.plugins import generate as gen_mod
+
+    master_data = {
+        "name": "t",
+        "version": "0.1.0",
+        "description": "d",
+        "author": "a",
+        "skills": [],
+        "platforms": {"weird": {"format": "no-such-format", "output": "x/y.json"}},
+    }
+    fake = tmp_path / "master.json"
+    fake.write_text(_json.dumps(master_data), encoding="utf-8")
+    monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
+    monkeypatch.setattr(gen_mod, "REPO_ROOT", tmp_path)
+    assert gen_mod.generate_all() == 1
+
+
+@pytest.mark.unit
+def test_main_delegates_to_generate_all(monkeypatch) -> None:
+    """main() returns whatever generate_all returns (covers generate.py:130)."""
+    from shenbi.plugins import generate as gen_mod
+
+    monkeypatch.setattr(gen_mod, "generate_all", lambda: 42)
+    assert gen_mod.main() == 42
