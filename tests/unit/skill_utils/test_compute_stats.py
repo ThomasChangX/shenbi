@@ -244,17 +244,21 @@ def test_compute_ttr_punctuation_only_returns_zeros() -> None:
     assert ttr["sliding_ttr_mean"] == 0
     assert ttr["sliding_ttr_std"] == 0
 
+
 @pytest.mark.unit
 def test_compute_sentence_stats_empty_returns_zeros() -> None:
     """compute_sentence_stats with empty list returns all zeros."""
     from shenbi.skill_utils.style_learning.compute_stats import compute_sentence_stats
+
     result = compute_sentence_stats([])
     assert isinstance(result, dict)
+
 
 @pytest.mark.unit
 def test_read_chapters_from_directory_returns_md_files(tmp_path: Path) -> None:
     """read_chapters reads .md files from a directory path."""
     from shenbi.skill_utils.style_learning.compute_stats import read_chapters
+
     ch_dir = tmp_path / "chapters"
     ch_dir.mkdir()
     (ch_dir / "ch001.md").write_text("正文内容。", encoding="utf-8")
@@ -262,41 +266,53 @@ def test_read_chapters_from_directory_returns_md_files(tmp_path: Path) -> None:
     assert "ch001.md" in result
     assert "正文内容。" in result["ch001.md"]
 
+
 @pytest.mark.unit
 def test_read_chapters_from_file_path(tmp_path: Path) -> None:
     """read_chapters reads a single .md file from a file path."""
     from shenbi.skill_utils.style_learning.compute_stats import read_chapters
+
     f = tmp_path / "ch001.md"
     f.write_text("正文内容。", encoding="utf-8")
     result = read_chapters([str(f)])
     assert "ch001.md" in result
     assert "正文内容。" in result["ch001.md"]
 
-@pytest.mark.unit
-def test_read_chapters_from_file_path(tmp_path: Path) -> None:
-    """read_chapters reads a single .md file from a file path."""
-    from shenbi.skill_utils.style_learning.compute_stats import read_chapters
-    f = tmp_path / "ch001.md"
-    f.write_text("正文内容。", encoding="utf-8")
-    result = read_chapters([str(f)])
-    assert "ch001.md" in result
-    assert "正文内容。" in result["ch001.md"]
 
 @pytest.mark.unit
 def test_segment_paragraphs_with_trailing_newline() -> None:
     """segment_paragraphs with trailing double newline -> 2 paragraphs."""
     from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
+
     result = segment_paragraphs("一段。\n\n二段。\n\n")
     assert len(result) == 2
+
 
 @pytest.mark.unit
 def test_main_requires_arguments(monkeypatch: pytest.MonkeyPatch) -> None:
     """main() with no arguments prints usage and exits."""
-    import sys, io
+    import io
+    import sys
+
     from shenbi.skill_utils.style_learning.compute_stats import main
+
     monkeypatch.setattr(sys, "argv", ["compute_stats.py"])
     out = io.StringIO()
     monkeypatch.setattr(sys, "stdout", out)
     with pytest.raises(SystemExit):
         main()
     assert "Usage" in out.getvalue()
+
+
+@pytest.mark.unit
+def test_compute_connectives_nests_counts_under_category() -> None:
+    """Connective words nest their per-word counts under the matching category."""
+    result = compute_connectives("然而但是")
+    assert result["转折"]["然而"]["count"] == 1
+    assert result["转折"]["但是"]["count"] == 1
+
+
+@pytest.mark.unit
+def test_compute_connectives_returns_empty_dict_for_blank_text() -> None:
+    """Empty text short-circuits to an empty dict (no categories emitted)."""
+    assert compute_connectives("") == {}

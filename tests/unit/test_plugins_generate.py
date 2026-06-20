@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from shenbi.plugins.generate import (
@@ -96,7 +98,13 @@ def test_gen_opencode_returns_valid_es_module() -> None:
 @pytest.mark.unit
 def test_gen_opencode_escapes_special_chars() -> None:
     """gen_opencode properly escapes apostrophes and backslashes."""
-    master = {"name": "it's", "version": "0.1.0", "description": "a\\b", "author": "a", "skills": []}
+    master = {
+        "name": "it's",
+        "version": "0.1.0",
+        "description": "a\\b",
+        "author": "a",
+        "skills": [],
+    }
     result = gen_opencode(master, {})
     assert "it\\'s" in result
     assert "a\\\\b" in result
@@ -110,8 +118,10 @@ def test_load_master_with_valid_master_fails_on_bad_data(tmp_path: Path) -> None
     monkeypatch the MASTER_PATH to simulate errors.
     """
     import pytest
+
     from shenbi.plugins import generate as gen_mod
     from shenbi.plugins.generate import load_master
+
     original = gen_mod.MASTER_PATH
     # Test with non-existent path
     gen_mod.MASTER_PATH = tmp_path / "nonexistent.json"
