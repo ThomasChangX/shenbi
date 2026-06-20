@@ -316,3 +316,130 @@ def test_compute_connectives_nests_counts_under_category() -> None:
 def test_compute_connectives_returns_empty_dict_for_blank_text() -> None:
     """Empty text short-circuits to an empty dict (no categories emitted)."""
     assert compute_connectives("") == {}
+
+
+# ---------------------------------------------------------------------------
+# Branch coverage (PR-56 coverage fill)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_main_outputs_json_to_stdout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() with a readable chapter file emits full stats JSON to stdout.
+
+    Covers the main() body (compute_stats.py:369-389) excluding the --output
+    branch.
+    """
+    import io
+    import json
+    import sys
+
+    from shenbi.skill_utils.style_learning.compute_stats import main
+
+    ch = tmp_path / "ch1.md"
+    ch.write_text("这是一段测试正文内容。第二句话在这里。\n", encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", ["compute_stats.py", str(ch)])
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    main()
+    data = json.loads(out.getvalue())
+    assert data["sample"]["file_count"] == 1
+    assert "sentence_length" in data
+
+
+@pytest.mark.unit
+def test_main_writes_to_output_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() with --output writes stats to the named file and logs to stdout.
+
+    Covers compute_stats.py:385-387 (the output_path branch).
+    """
+    import io
+    import json
+    import sys
+
+    from shenbi.skill_utils.style_learning.compute_stats import main
+
+    ch = tmp_path / "ch1.md"
+    ch.write_text("测试正文内容。第二句。\n", encoding="utf-8")
+    out_file = tmp_path / "stats.json"
+    monkeypatch.setattr(sys, "argv", ["compute_stats.py", str(ch), "--output", str(out_file)])
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    main()
+    assert out_file.exists()
+    assert "Stats written to" in out.getvalue()
+    assert "sentence_length" in json.loads(out_file.read_text(encoding="utf-8"))
+
+
+@pytest.mark.unit
+def test_main_exits_when_no_readable_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() with a path to no readable files exits with an error.
+
+    Covers compute_stats.py:376-382 (empty-paths / no-readable-files branches).
+    """
+    import io
+    import sys
+
+    from shenbi.skill_utils.style_learning.compute_stats import main
+
+    missing = tmp_path / "nonexistent.md"
+    monkeypatch.setattr(sys, "argv", ["compute_stats.py", str(missing)])
+    err = io.StringIO()
+    monkeypatch.setattr(sys, "stderr", err)
+    with pytest.raises(SystemExit):
+        main()
+    assert "no readable files" in err.getvalue()
+
+
+@pytest.mark.unit
+def test_compute_ttr_sliding_window_for_long_text() -> None:
+    """Text with >1000 content chars triggers the sliding-window TTR loop.
+
+    Covers compute_stats.py:177-185 (the window iteration + non-empty
+    window_ttrs branch). Short texts skip the loop entirely.
+    """
+    text = "各种不同的文字内容用于测试滑窗。" * 80  # >1000 content chars
+    ttr = compute_ttr(text)
+    assert ttr["total_chars"] > 1000
+    # sliding stats come from actual windows, not the global fallback
+    assert isinstance(ttr["sliding_ttr_mean"], float)
+
+
+@pytest.mark.unit
+def test_compute_sentence_stats_populates_all_histogram_bins() -> None:
+    """Sentences spanning each length range populate every histogram bin.
+
+    Covers compute_stats.py:119-130 (the 11-20/21-30/31-50/51-80/81+ branches).
+    """
+    sentences = [("", n) for n in (5, 15, 25, 40, 65, 90)]
+    stats = compute_sentence_stats(sentences)
+    hist = stats["histogram"]
+    assert hist == {
+        "1-10": 1,
+        "11-20": 1,
+        "21-30": 1,
+        "31-50": 1,
+        "51-80": 1,
+        "81+": 1,
+    }
+
+
+@pytest.mark.unit
+def test_detect_rhetoric_counts_repetition() -> None:
+    """A phrase repeated 3+ times within 100 chars -> 反复 count > 0.
+
+    Covers compute_stats.py:271-276 (the repetition-detection inner branch).
+    """
+    result = detect_rhetoric("主角笑了主角笑了主角笑了。")
+    assert result["反复"] >= 1
+
+
+@pytest.mark.unit
+def test_segment_sentences_emits_trailing_sentence_without_terminator() -> None:
+    """Text not ending in a terminator still yields a final trailing sentence.
+
+    Covers compute_stats.py:69-73 (the post-loop `if current:` branch).
+    """
+    sents = segment_sentences("第一句。没有句号结尾")
+    assert len(sents) == 2
+    assert sents[1][0] == "没有句号结尾"
