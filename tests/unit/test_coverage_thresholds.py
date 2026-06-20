@@ -24,16 +24,11 @@ BRANCH_THRESHOLD_PCT = 80
 
 
 @pytest.mark.last
-@pytest.mark.xfail(
-    strict=False,
-    reason=(
-        "Phase 2 (PR-52~54) must raise branch coverage to ~60-65%; Phase 3 (PR-55~56) "
-        "finishes to 80%. strict=False allows gradual approach without XPASS failures. "
-        "PR-56 removes this xfail entirely."
-    ),
-)
 def test_branch_coverage_meets_threshold(request: pytest.FixtureRequest) -> None:
-    """Branch coverage across the framework must meet the staged threshold."""
+    """Branch coverage across the framework must meet the permanent >=80% floor.
+
+    P-1.E PR-56 removed the xfail after Phase 3 raised branch coverage past 80%.
+    """
     if not request.config.getoption("--no-cov", default=False):
         pytest.skip(
             "coverage threshold only enforced in the --no-cov second invocation; "

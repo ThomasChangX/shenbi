@@ -3,16 +3,13 @@
 Metric: test_function_count / framework_loc
 Target: >= 0.10 (1 test function per 10 LOC of framework code).
 
-This plan (docs/superpowers/plans/2026-06-16-test-coverage-completion.md)
-delivers the test volume in three phases. Until Phase 3 completes, the
-assertion is xfail(strict=False) — strict=False lets density cross 0.10
-without XPASS-turned-failure. PR-56 removes the xfail entirely.
+P-1.E PR-56: the threshold is now permanently enforced (Phase 3 delivered
+the required test volume). Density is computed from src/shenbi/ LOC and
+test-function count across tests/{unit,integration,property,benchmark}.
 """
 
 import ast
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FRAMEWORK_DIR = REPO_ROOT / "src" / "shenbi"
