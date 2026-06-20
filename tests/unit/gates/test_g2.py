@@ -290,3 +290,67 @@ class TestG2YamlFrontmatter:
         g24 = next((c for c in result["checks"] if c.get("id") == "G2.4"), None)
         assert g24 is not None
         assert g24["s"] == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# Branch coverage (PR-56 coverage fill)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g23_fails_on_non_utf8_file(tmp_path: Path) -> None:
+    """A non-UTF-8 file -> G2.3 FAIL (covers g2.py:60-62)."""
+    f = tmp_path / "bad.md"
+    f.write_bytes(b"\xff\xfe\x00invalid")
+    result = _result_dict(gate_G2([str(f)], "report"))
+    assert any("G2.3" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g25_fails_when_structured_file_lacks_frontmatter(tmp_path: Path) -> None:
+    """A truth/*.md without YAML frontmatter -> G2.5 FAIL (covers g2.py:86)."""
+    truth = tmp_path / "truth"
+    truth.mkdir()
+    f = truth / "current_state.md"
+    f.write_text("# State\n\nNo frontmatter here.\n", encoding="utf-8")
+    result = _result_dict(gate_G2([str(f)], "report"))
+    assert any("G2.5" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_is_important_chapter_via_volume_map_annotation(tmp_path: Path) -> None:
+    """A chapter flagged 重要 in volume_map.md -> is_important True (covers g2.py:248-254)."""
+    ch_dir = tmp_path / "chapters"
+    ch_dir.mkdir()
+    ch = ch_dir / "chapter-005.md"
+    ch.write_text(
+        "# 第5章\n\n## PRE_WRITE_CHECK\nx\n\n## POST_WRITE_SELF_CHECK\ny\n", encoding="utf-8"
+    )
+    outline = tmp_path / "outline"
+    outline.mkdir()
+    (outline / "volume_map.md").write_text("# Map\n\n第5章（爆发段）高潮场景。\n", encoding="utf-8")
+    result = _result_dict(gate_G2([str(ch)], "chapter", project_dir=str(tmp_path)))
+    g27 = next((c for c in result["checks"] if c.get("id") == "G2.7"), None)
+    assert g27 is not None
+    assert g27.get("is_important") is True
+    assert g27.get("ceiling") == 10000  # CHAPTER_WORD_CEILING
+
+
+@pytest.mark.unit
+def test_is_important_chapter_via_plan_marker(tmp_path: Path) -> None:
+    """A chapter whose plan marks it 重要章 -> is_important True (covers g2.py:256-263)."""
+    ch_dir = tmp_path / "chapters"
+    ch_dir.mkdir()
+    ch = ch_dir / "chapter-007.md"
+    ch.write_text("# 第7章\n\n## PRE_WRITE_CHECK\nx\n", encoding="utf-8")
+    plans = tmp_path / "plans"
+    plans.mkdir()
+    # _is_important_chapter builds the plan path as chapter-{n}-plan.md with
+    # unpadded int n (chapter-007.md -> n=7 -> chapter-7-plan.md).
+    (plans / "chapter-7-plan.md").write_text(
+        "# Plan\n\n## 1. 概述\n本章是重要章，关键转折。\n\n## 2. 细节\n", encoding="utf-8"
+    )
+    result = _result_dict(gate_G2([str(ch)], "chapter", project_dir=str(tmp_path)))
+    g27 = next((c for c in result["checks"] if c.get("id") == "G2.7"), None)
+    assert g27 is not None
+    assert g27.get("is_important") is True
