@@ -96,3 +96,30 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
     ph.write_text("state: active\n", encoding="utf-8")
     result = _run([str(cs), str(cm), str(ph)])
     assert result["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_passes_when_chapter_summaries_has_chapter_headings(tmp_path: Path) -> None:
+    """chapter_summaries with '## 第N章' -> PASS G4.ss.summaries (covers g4 40-43)."""
+    f = tmp_path / "chapter_summaries.md"
+    f.write_text("# Summaries\n\n## 第1章\n内容概括。\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert any(c["id"] == "G4.ss.summaries" and c["s"] == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_passes_when_emotional_arcs_has_chapter_headings(tmp_path: Path) -> None:
+    """emotional_arcs with '### 第N章' -> PASS G4.ss.arcs (covers g4 46-49)."""
+    f = tmp_path / "emotional_arcs.md"
+    f.write_text("# Arcs\n\n### 第1章\n情感变化。\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert any(c["id"] == "G4.ss.arcs" and c["s"] == "PASS" for c in result["checks"])
+
+
+@pytest.mark.unit
+def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> None:
+    """particle_ledger with '## 粒子账本' -> PASS G4.ss.particle_ledger (covers g4 52-55)."""
+    f = tmp_path / "particle_ledger.md"
+    f.write_text("# Ledger\n\n## 粒子账本\n- 粒子甲\n", encoding="utf-8")
+    result = _run([str(f)])
+    assert any(c["id"] == "G4.ss.particle_ledger" and c["s"] == "PASS" for c in result["checks"])

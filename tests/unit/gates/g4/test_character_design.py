@@ -137,3 +137,28 @@ def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
     result = _result(g4_character_design([str(protag)]))
     assert result["status"] == "FAIL"
     assert any(mf == "G4.cd.major_dir.not_found" for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Path) -> None:
+    """relationships.md with >=3 '## 关系对' and >=2 major chars -> both PASS.
+
+    Covers g4 lines 82-88 (relationships check) and 96 (major_chars PASS).
+    """
+    project_dir = tmp_path / "project"
+    sub = project_dir / "skill-output"
+    sub.mkdir(parents=True)
+    rel = sub / "relationships.md"
+    rel.write_text(
+        "# R\n\n## 关系对\n主角-反派\n\n## 关系对\n主角-导师\n\n## 关系对\n导师-反派\n",
+        encoding="utf-8",
+    )
+    major = project_dir / "characters" / "major"
+    major.mkdir(parents=True)
+    (major / "hero.md").write_text("# Hero\n", encoding="utf-8")
+    (major / "villain.md").write_text("# Villain\n", encoding="utf-8")
+    result = _result(g4_character_design([str(rel)]))
+    assert any(c.get("id") == "G4.rel.pairs" and c.get("s") == "PASS" for c in result["checks"])
+    assert any(
+        c.get("id") == "G4.cd.major_chars" and c.get("s") == "PASS" for c in result["checks"]
+    )

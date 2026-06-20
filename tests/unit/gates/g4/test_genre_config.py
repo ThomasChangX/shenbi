@@ -138,3 +138,53 @@ def test_fails_when_genre_config_not_found(tmp_path: Path) -> None:
     result = _result(g4_genre_config([str(marker)]))
     assert result["status"] == "FAIL"
     assert any(mf == "G4.gc.not_found" for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_passes_when_all_genre_config_fields_valid(tmp_path: Path) -> None:
+    """Valid genre-config.json (fatigue dict, audit>=5, chapter_word>=1000) -> PASS.
+
+    Covers the fatigue_words dict PASS branch (g4 37), chapter_word present
+    PASS (61), and the overall `return passed` (76).
+    """
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "genre-config.json").write_text(
+        json.dumps(
+            {
+                "fatigueWords": {"高频": ["突然", "猛地"]},
+                "auditDimensions": {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5},
+                "chapter_word": {"default": 3000},
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = _result(g4_genre_config([str(marker)]))
+    assert result["status"] == "PASS"
+    assert result.get("must_fix", []) == []
+
+
+@pytest.mark.unit
+def test_skips_chapter_word_when_absent(tmp_path: Path) -> None:
+    """genre-config without chapter_word -> G4.gc.chapter_word SKIP (covers g4 63-69)."""
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "genre-config.json").write_text(
+        json.dumps(
+            {
+                "fatigueWords": {"高频": ["突然"]},
+                "auditDimensions": {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5},
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = _result(g4_genre_config([str(marker)]))
+    cw = [c for c in result["checks"] if c.get("id") == "G4.gc.chapter_word"]
+    assert any(c.get("s") == "SKIP" for c in cw)
+
+
+@pytest.mark.unit
+def test_fails_when_genre_config_invalid_json(tmp_path: Path) -> None:
+    """Malformed genre-config.json -> G4.gc.invalid_json (covers g4 71-72)."""
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "genre-config.json").write_text("{broken", encoding="utf-8")
+    result = _result(g4_genre_config([str(marker)]))
+    assert any("G4.gc.invalid_json" in mf for mf in result["must_fix"])
