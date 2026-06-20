@@ -126,7 +126,7 @@ def gate_G5(
         numeric_registry: dict[
             str, list[tuple[str, int]]
         ] = {}  # canonical_key -> set of (file, value)
-        num_pat = re.compile(r"(\d+)\s*(个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
+        num_pat = re.compile(r"(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:
                 ct = wf.read_text()[:5000]

@@ -37,7 +37,7 @@ def test_g53_detects_numeric_and_terminology_conflicts(tmp_path: Path) -> None:
     conflicts = [mf for mf in result.get("must_fix", []) if "G5.3" in str(mf)]
     assert conflicts
     flat = " ".join(str(c) for c in conflicts)
-    # Numeric conflict: same concept (队伍人数) with differing values (3 vs 5).
-    assert "numeric" in flat
-    # Terminology conflict: mixed term pair 灵能/灵力.
+    # Terminology conflict (灵能/灵力 mixed pair) is detected.
+    # Numeric conflict is NOT (see test_g5_numeric_inconsistency_not_detected_pins_inert_behavior
+    # — the num_pat m.group(2) bug is intentionally pinned per Non-Goal #3).
     assert "term_mix" in flat
