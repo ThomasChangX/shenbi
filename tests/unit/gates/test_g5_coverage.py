@@ -37,4 +37,7 @@ def test_g53_detects_numeric_and_terminology_conflicts(tmp_path: Path) -> None:
     conflicts = [mf for mf in result.get("must_fix", []) if "G5.3" in str(mf)]
     assert conflicts
     flat = " ".join(str(c) for c in conflicts)
-    assert "numeric" in flat or "term_mix" in flat
+    # Numeric conflict: same concept (队伍人数) with differing values (3 vs 5).
+    assert "numeric" in flat
+    # Terminology conflict: mixed term pair 灵能/灵力.
+    assert "term_mix" in flat
