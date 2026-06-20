@@ -107,14 +107,18 @@ class TestG3ErrorPaths:
         rd.mkdir()
         ch = rd / "chapters" / "ch001.md"
         ch.parent.mkdir()
-        ch.write_text("# Chapter\n\n" + ("字" * 3500) + "\n\n## PRE_WRITE_CHECK\n内容\n\n## POST_WRITE_SELF_CHECK\n内容\n", encoding="utf-8")
+        ch.write_text(
+            "# Chapter\n\n"
+            + ("字" * 3500)
+            + "\n\n## PRE_WRITE_CHECK\n内容\n\n## POST_WRITE_SELF_CHECK\n内容\n",
+            encoding="utf-8",
+        )
         progress = {"skills": {"shenbi-worldbuilding": {"output_files": [str(ch)]}}}
         (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
         assert g33 is not None
         assert g33["s"] == "PASS"
-
 
     @pytest.mark.unit
     def test_g33_skips_when_no_output_files(self, tmp_path: Path) -> None:
@@ -177,3 +181,75 @@ class TestG3ErrorPaths:
         # G3.5 FAIL goes to must_fix, not checks
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         assert any("G3.5" in mf for mf in result.get("must_fix", []))
+
+
+# ---------------------------------------------------------------------------
+# Branch coverage (PR-56 coverage fill)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g32_compares_report_scores_against_threshold(tmp_path: Path) -> None:
+    """t1-reports with scores -> G3.2 PASS (>=threshold) and FAIL (<threshold).
+
+    Covers g3.py:88-94 (the score-comparison loop).
+    """
+    rd = tmp_path / "round"
+    rd.mkdir()
+    reports = rd / "t1-reports"
+    reports.mkdir()
+    (reports / "a-generative-scores.json").write_text(json.dumps({"score": 95}), encoding="utf-8")
+    (reports / "b-generative-scores.json").write_text(json.dumps({"score": 50}), encoding="utf-8")
+    result = _result_dict(gate_G3(None, "generative", str(rd)))
+    g32_pass = [c for c in result["checks"] if c.get("id") == "G3.2" and c.get("s") == "PASS"]
+    assert any(c.get("file") == "a-generative-scores.json" for c in g32_pass)
+    assert any("G3.2" in m and "b-generative-scores" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g33_runs_g2_when_output_files_present(tmp_path: Path) -> None:
+    """progress.json with output_files -> G3.3 runs gate_G2 (covers g3.py:132-160)."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    ch = tmp_path / "chapters" / "chapter-001.md"
+    ch.parent.mkdir(parents=True)
+    ch.write_text(
+        "# 第1章\n\n## PRE_WRITE_CHECK\nx\n\n## POST_WRITE_SELF_CHECK\ny\n", encoding="utf-8"
+    )
+    (rd / "progress.json").write_text(
+        json.dumps({"skills": {"shenbi-chapter-drafting": {"output_files": [str(ch)]}}}),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G3("shenbi-chapter-drafting", "generative", str(rd)))
+    # Short chapter fails G2 (word count < floor) -> G3.3 FAIL in must_fix.
+    assert any("G3.3" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g34_fails_when_scorer_agent_equals_generator(tmp_path: Path) -> None:
+    """agent_trace[skill] == current_scorer_agent -> G3.4 FAIL (covers g3.py:171)."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    (rd / "progress.json").write_text(
+        json.dumps(
+            {"agent_trace": {"shenbi-worldbuilding": "agent-9"}, "current_scorer_agent": "agent-9"}
+        ),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+    assert any("G3.4" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g35_fails_when_scorer_already_in_history(tmp_path: Path) -> None:
+    """current_scorer_agent present in scoring_history -> G3.5 FAIL (covers g3.py:183)."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    (rd / "progress.json").write_text(
+        json.dumps(
+            {"current_scorer_agent": "scorer-1", "scoring_history": [{"agent_id": "scorer-1"}]}
+        ),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G3(None, "generative", str(rd)))
+    assert any("G3.5" in m for m in result.get("must_fix", []))
