@@ -14,6 +14,7 @@ from shenbi.gates.g5 import gate_G5
 def _result_dict(result: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(result))
 
+
 pytestmark = pytest.mark.unit
 
 

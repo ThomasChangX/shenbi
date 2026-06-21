@@ -66,7 +66,12 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
 def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
     """Exit with error if state is not one of the expected states."""
     if state["state"] not in expected:
-        emit_json({"error": f"Cannot {action}: state is '{state['state']}', expected {expected}", "phase": state["phase"]})
+        emit_json(
+            {
+                "error": f"Cannot {action}: state is '{state['state']}', expected {expected}",
+                "phase": state["phase"],
+            }
+        )
         sys.exit(1)
 
 
@@ -93,7 +98,14 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     # Validate skill exists
     skill_path = PROJECT / "skills" / skill / "SKILL.md"
     if not skill_path.exists():
-        emit_json({"status": "error", "phase": phase, "skill": skill, "message": f"SKILL.md not found: {skill_path}"})
+        emit_json(
+            {
+                "status": "error",
+                "phase": phase,
+                "skill": skill,
+                "message": f"SKILL.md not found: {skill_path}",
+            }
+        )
         sys.exit(1)
     # Extract data contract for dispatcher guidance
     skill_md = skill_path.read_text(encoding="utf-8")
@@ -119,7 +131,16 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     }
     state["steps"].append(step)
     save_state(round_dir, state)
-    emit_json({"status": "ok", "phase": phase, "skill": skill, "action": "execute_skill", "reads": read_files, "writes": write_files})
+    emit_json(
+        {
+            "status": "ok",
+            "phase": phase,
+            "skill": skill,
+            "action": "execute_skill",
+            "reads": read_files,
+            "writes": write_files,
+        }
+    )
 
 
 def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | None) -> None:
@@ -161,7 +182,13 @@ def cmd_pre_score(phase: str, round_dir: str) -> None:
         if not marker.exists():
             missing.append(skill)
     if missing:
-        emit_json({"status": "blocked", "phase": phase, "missing_markers": [f"G4-{s}-generative" for s in missing]})
+        emit_json(
+            {
+                "status": "blocked",
+                "phase": phase,
+                "missing_markers": [f"G4-{s}-generative" for s in missing],
+            }
+        )
         sys.exit(1)
     proj_dir = Path(round_dir) / "project-output"
     for pattern in phase_data.get("expected_outputs", []):
@@ -181,7 +208,9 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
-        emit_json({"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"})
+        emit_json(
+            {"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"}
+        )
         sys.exit(1)
     _scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
@@ -213,7 +242,9 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     marker_dir = Path(round_dir) / "gate-markers"
     for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
-            emit_json({"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"})
+            emit_json(
+                {"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}
+            )
             sys.exit(1)
     state["state"] = "finalized"
     state["steps"].append(step)
@@ -224,7 +255,10 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
 def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
-        log.info("usage", message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize")
+        log.info(
+            "usage",
+            message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize",
+        )
         sys.exit(1)
 
     cmd = sys.argv[1]

@@ -1,4 +1,5 @@
 """Bespoke error-path tests for g4_plot_thread_weaver."""
+
 from __future__ import annotations
 
 import json
@@ -18,8 +19,10 @@ def _setup(tmp_path: Path) -> tuple[Path, Path]:
     marker.write_text("x", encoding="utf-8")
     return project_dir, marker
 
+
 def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
+
 
 @pytest.mark.unit
 def test_fails_when_thread_map_missing(tmp_path: Path) -> None:
@@ -29,6 +32,7 @@ def test_fails_when_thread_map_missing(tmp_path: Path) -> None:
     outline.mkdir(parents=True)
     result = _result(g4_plot_thread_weaver([str(marker)]))
     assert any("G4.thread.not_found" in mf for mf in result["must_fix"])
+
 
 @pytest.mark.unit
 def test_fails_when_no_lines(tmp_path: Path) -> None:
@@ -40,6 +44,7 @@ def test_fails_when_no_lines(tmp_path: Path) -> None:
     result = _result(g4_plot_thread_weaver([str(marker)]))
     assert any("G4.pt.lines" in mf for mf in result["must_fix"])
 
+
 @pytest.mark.unit
 def test_passes_with_valid_thread_map(tmp_path: Path) -> None:
     """thread_map.md with A/B/C, table, blank detection -> PASS."""
@@ -50,6 +55,8 @@ def test_passes_with_valid_thread_map(tmp_path: Path) -> None:
         "## A 长线\ncontent\n## B 中线\ncontent\n"
         "## C 短线\ncontent\n"
         "| col1 | col2 | col3 |\n| a | b | c |\n| d | e | f |\n"
-        "空白检测\n", encoding="utf-8")
+        "空白检测\n",
+        encoding="utf-8",
+    )
     result = _result(g4_plot_thread_weaver([str(marker)]))
     assert result["status"] == "PASS"

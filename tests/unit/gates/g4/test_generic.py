@@ -47,6 +47,7 @@ class TestGenericEdgeCases:
     def test_gate_G4_bughunt_delegates(self, tmp_path: Path) -> None:
         """gate_G4_bughunt delegates to g4_generic_bughunt."""
         from shenbi.gates.g4.generic import gate_G4_bughunt
+
         f = tmp_path / "r.md"
         f.write_text(
             "# Bug\n## Detection\n\n`x.md:L1` violates 铁律.\nFalse positives: 0\n",
@@ -58,6 +59,7 @@ class TestGenericEdgeCases:
     def test_gate_G4_clean_delegates(self, tmp_path: Path) -> None:
         """gate_G4_clean delegates to g4_generic_clean."""
         from shenbi.gates.g4.generic import gate_G4_clean
+
         f = tmp_path / "r.md"
         f.write_text(
             "# Clean\n## Files Checked\n\n- a.md\n\nZero issues.\n",
@@ -73,9 +75,7 @@ class TestGenerativeChecker:
         assert any(c["s"] == "SKIP" for c in result.get("checks", []))
 
     def test_fails_on_missing_file(self, tmp_path: Path) -> None:
-        result = _result_dict(
-            g4_generic_generative([str(tmp_path / "nonexistent.md")])
-        )
+        result = _result_dict(g4_generic_generative([str(tmp_path / "nonexistent.md")]))
         assert result["status"] == "FAIL"
         assert any("not_found" in m for m in result["must_fix"])
 
@@ -96,9 +96,7 @@ class TestGenerativeChecker:
 
     def test_passes_on_substantial_markdown(self, tmp_path: Path) -> None:
         f = tmp_path / "ok.md"
-        f.write_text(
-            "# Substantial document\n\n" + ("content line\n" * 10), encoding="utf-8"
-        )
+        f.write_text("# Substantial document\n\n" + ("content line\n" * 10), encoding="utf-8")
         result = _result_dict(g4_generic_generative([str(f)]))
         assert result["status"] == "PASS"
 
@@ -219,16 +217,13 @@ class TestCleanChecker:
         result = _result_dict(g4_generic_clean([str(f)]))
         assert result["status"] == "PASS"
 
-    def test_negated_suggestion_phrase_does_not_fail(
-        self, tmp_path: Path
-    ) -> None:
+    def test_negated_suggestion_phrase_does_not_fail(self, tmp_path: Path) -> None:
         """Phrases like '无改进建议' (no improvement suggestions) are negated
         and should NOT trigger the has_suggestions failure.
         """
         f = tmp_path / "r.md"
         f.write_text(
-            "# Clean Report\n\n## Files Checked\n\n- a.md\n\n"
-            "Zero issues. 无改进建议.\n",
+            "# Clean Report\n\n## Files Checked\n\n- a.md\n\nZero issues. 无改进建议.\n",
             encoding="utf-8",
         )
         result = _result_dict(g4_generic_clean([str(f)]))
@@ -258,21 +253,15 @@ class TestGateRouter:
         result = _result_dict(gate_G4("any-skill", "clean", [str(f)]))
         assert result["status"] == "PASS"
 
-    def test_falls_back_to_generic_generative_for_unknown_skill(
-        self, tmp_path: Path
-    ) -> None:
+    def test_falls_back_to_generic_generative_for_unknown_skill(self, tmp_path: Path) -> None:
         """Skills without a dedicated g4_<skill> checker use generative fallback."""
         f = tmp_path / "out.md"
         f.write_text("# Substantial output\n\n" + ("line\n" * 10), encoding="utf-8")
-        result = _result_dict(
-            gate_G4("shenbi-nonexistent-skill", "generative", [str(f)])
-        )
+        result = _result_dict(gate_G4("shenbi-nonexistent-skill", "generative", [str(f)]))
         # Should not crash; falls back to generic
         assert "status" in result
 
-    def test_routes_to_per_skill_checker_for_known_skill(
-        self, tmp_path: Path
-    ) -> None:
+    def test_routes_to_per_skill_checker_for_known_skill(self, tmp_path: Path) -> None:
         """Known skills (in G4_CHECKER_SKILLS) dispatch to their dedicated
         checker module.
         """

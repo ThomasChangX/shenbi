@@ -188,7 +188,7 @@ def run_py(script, args):
     parts = list(script_path.with_suffix("").parts)
     try:
         src_idx = parts.index("src")
-        module = ".".join(parts[src_idx + 1:])
+        module = ".".join(parts[src_idx + 1 :])
     except ValueError:
         module = script_path.stem
     result = subprocess.run(

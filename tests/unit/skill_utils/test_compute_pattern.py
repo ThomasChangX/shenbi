@@ -189,34 +189,45 @@ def test_classify_entropy_boundary_values() -> None:
     assert classify_entropy(1.0)[0] == "严重单调"  # 1.0 not > 1.0
     assert classify_entropy(0.5)[0] == "严重单调"
 
+
 @pytest.mark.unit
 def test_check_consecutive_equal_threshold_med_warning() -> None:
     """check_consecutive_warnings: max_run == threshold -> 'med' level warning."""
     from shenbi.skill_utils.chapter_pattern.compute_pattern import check_consecutive_warnings
+
     consecutive = {"决战": 2, "日常": 1}  # MAX_CONSECUTIVE for "决战" is 2
     warnings = check_consecutive_warnings(consecutive)
     assert any(w["level"] == "med" for w in warnings)
+
 
 @pytest.mark.unit
 def test_classify_entropy_zero_falls_through() -> None:
     """classify_entropy(0) falls through all thresholds -> '严重单调'."""
     from shenbi.skill_utils.chapter_pattern.compute_pattern import classify_entropy
+
     label, _ = classify_entropy(0.0)
     assert label == "严重单调"
+
 
 @pytest.mark.unit
 def test_check_consecutive_above_threshold_high_warning() -> None:
     """check_consecutive_warnings: max_run > threshold -> 'high' level."""
     from shenbi.skill_utils.chapter_pattern.compute_pattern import check_consecutive_warnings
+
     consecutive = {"决战": 3}  # MAX_CONSECUTIVE for "决战" is 2, so 3 > 2
     warnings = check_consecutive_warnings(consecutive)
     assert any(w["level"] == "high" for w in warnings)
 
+
 @pytest.mark.unit
 def test_main_with_stdin_json(monkeypatch: pytest.MonkeyPatch) -> None:
     """main() reads from stdin when argv[1] is '-'."""
-    import sys, io, json
+    import io
+    import json
+    import sys
+
     from shenbi.skill_utils.chapter_pattern.compute_pattern import main
+
     data = json.dumps([{"num": 1, "pattern": "引入"}])
     monkeypatch.setattr(sys, "argv", ["compute_pattern.py", "-"])
     monkeypatch.setattr(sys, "stdin", io.StringIO(data))

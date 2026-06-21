@@ -13,11 +13,14 @@ from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
 
+
 def main() -> int:
     """Forward to dispatcher executor."""
     configure_logging()
     if len(sys.argv) < 4:
-        log.info("usage", message=f"Usage: {sys.argv[0]} <skill_name> <test_type> <round_dir> [prompt]")
+        log.info(
+            "usage", message=f"Usage: {sys.argv[0]} <skill_name> <test_type> <round_dir> [prompt]"
+        )
         return 1
     skill = sys.argv[1]
     test_type = sys.argv[2]

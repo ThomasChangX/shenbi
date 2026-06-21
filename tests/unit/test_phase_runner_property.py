@@ -9,7 +9,11 @@ from hypothesis import strategies as st
 from shenbi.phase_runner import load_state, now_iso, save_state
 
 # Strategy for filesystem-safe phase names.
-_phase_name = st.text(alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-", min_size=1, max_size=20)
+_phase_name = st.text(
+    alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-",
+    min_size=1,
+    max_size=20,
+)
 
 
 @given(phase=_phase_name)

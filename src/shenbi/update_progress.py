@@ -36,7 +36,9 @@ def save(round_dir: str, data: dict[str, Any]) -> None:
     pp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
 
-def validate_internal(progress: dict[str, Any], label: str = "validate") -> tuple[list[str], set[str], dict[str, int]]:
+def validate_internal(
+    progress: dict[str, Any], label: str = "validate"
+) -> tuple[list[str], set[str], dict[str, int]]:
     """Return (issues, genuinely_done_set)."""
     issues: list[str] = []
     completed = set(progress.get("completed_skill_names", []))
@@ -96,7 +98,9 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
     pp = rd / "progress.json"
 
     if pp.exists():
-        emit_json({"status": "error", "message": "progress.json already exists — use validate instead"})
+        emit_json(
+            {"status": "error", "message": "progress.json already exists — use validate instead"}
+        )
         sys.exit(1)
 
     total = len(ALL_SKILLS)
@@ -122,10 +126,19 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
         "expected_chapters": expected_chapters,
     }
     save(round_dir, out)
-    emit_json({"status": "ok", "action": "init", "total_skills": total, "expected_chapters": expected_chapters})
+    emit_json(
+        {
+            "status": "ok",
+            "action": "init",
+            "total_skills": total,
+            "expected_chapters": expected_chapters,
+        }
+    )
 
 
-def cmd_mark_done(round_dir: str, skill: str, test_type: str, score: float, note: str | None = None) -> None:
+def cmd_mark_done(
+    round_dir: str, skill: str, test_type: str, score: float, note: str | None = None
+) -> None:
     progress = load(round_dir)
     skills = progress.setdefault("skills", {})
     sd = skills.setdefault(skill, {})
@@ -180,7 +193,16 @@ def cmd_mark_done(round_dir: str, skill: str, test_type: str, score: float, note
     if issues:
         emit_json({"status": "warn", "action": "mark-done", "consistency_issues": issues})
     save(round_dir, progress)
-    emit_json({"status": "ok", "skill": skill, "test_type": test_type, "score": score, "genuinely_done": len(gd), "remaining_gen": len(pending_gen)})
+    emit_json(
+        {
+            "status": "ok",
+            "skill": skill,
+            "test_type": test_type,
+            "score": score,
+            "genuinely_done": len(gd),
+            "remaining_gen": len(pending_gen),
+        }
+    )
 
 
 def cmd_validate(round_dir: str) -> None:
@@ -243,13 +265,25 @@ def cmd_rebuild_queues(round_dir: str) -> None:
     progress["completed_skill_names"] = sorted(genuinely_done)
 
     save(round_dir, progress)
-    emit_json({"status": "ok", "action": "rebuild-queues", "remaining_gen": len(pending_gen), "remaining_bug": len(pending_bug), "remaining_clean": len(pending_cln), "genuinely_done": len(genuinely_done)})
+    emit_json(
+        {
+            "status": "ok",
+            "action": "rebuild-queues",
+            "remaining_gen": len(pending_gen),
+            "remaining_bug": len(pending_bug),
+            "remaining_clean": len(pending_cln),
+            "genuinely_done": len(genuinely_done),
+        }
+    )
 
 
 def main() -> None:
     configure_logging()
     if len(sys.argv) < 2:
-        log.info("usage", message="Usage: update-progress.py <command> [args...]\nCommands: init mark-done validate rebuild-queues")
+        log.info(
+            "usage",
+            message="Usage: update-progress.py <command> [args...]\nCommands: init mark-done validate rebuild-queues",
+        )
         sys.exit(1)
 
     cmd = sys.argv[1]

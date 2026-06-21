@@ -106,6 +106,7 @@ def _run_framework_cli(args: list[str], env_log_format: str = "json") -> tuple[i
     and produce structured JSON when SHENBI_LOG_FORMAT=json.
     """
     import subprocess
+
     full_env = dict(os.environ)
     full_env["SHENBI_LOG_FORMAT"] = env_log_format
     result = subprocess.run(

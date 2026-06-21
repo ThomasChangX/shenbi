@@ -128,9 +128,7 @@ class TestPerSkillG4Contract:
         # PASS/FAIL results include timestamp; UNIMPLEMENTED does too
         assert "timestamp" in parsed
 
-    def test_emits_gate_identifier(
-        self, skill_name: str, module_path: str, func_name: str
-    ) -> None:
+    def test_emits_gate_identifier(self, skill_name: str, module_path: str, func_name: str) -> None:
         """Every result names its gate for downstream routing."""
         checker = _load_checker(module_path, func_name)
         parsed = _result_dict(checker([], None))
@@ -172,8 +170,7 @@ class TestPerSkillG4Contract:
         checker = _load_checker(module_path, func_name)
         f = tmp_path / "substantial.md"
         f.write_text(
-            "---\ntype: output\n---\n\n# Substantial Output\n\n"
-            + ("content line\n" * 20),
+            "---\ntype: output\n---\n\n# Substantial Output\n\n" + ("content line\n" * 20),
             encoding="utf-8",
         )
         parsed = _result_dict(checker([str(f)], None))
@@ -208,5 +205,6 @@ class TestPerSkillG4Contract:
         first = _result_dict(checker([], None))
         second = _result_dict(checker([], None))
         assert first["status"] == second["status"]
+
 
 pytestmark = pytest.mark.unit

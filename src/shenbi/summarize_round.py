@@ -86,7 +86,9 @@ def main() -> None:
                     if isinstance(td, dict) and td.get("status") == "done" and "score" in td:
                         t1_from_progress[f"{sn}-{tt}"] = {
                             "score": td["score"],
-                            "band": classify(td["score"] if isinstance(td["score"], (int, float)) else 0),
+                            "band": classify(
+                                td["score"] if isinstance(td["score"], (int, float)) else 0
+                            ),
                         }
         except Exception:
             pass

@@ -1,4 +1,5 @@
 """Bespoke error-path tests for g4_faction_builder."""
+
 from __future__ import annotations
 
 import json
@@ -18,8 +19,10 @@ def _setup(tmp_path: Path) -> tuple[Path, Path]:
     marker.write_text("x", encoding="utf-8")
     return project_dir, marker
 
+
 def _result(s: str) -> dict[str, Any]:
     return json.loads(s)
+
 
 @pytest.mark.unit
 def test_fails_when_factions_file_missing(tmp_path: Path) -> None:
@@ -27,6 +30,7 @@ def test_fails_when_factions_file_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     result = _result(g4_faction_builder([str(marker)]))
     assert any("G4.factions.not_found" in mf for mf in result["must_fix"])
+
 
 @pytest.mark.unit
 def test_fails_when_less_than_2_factions(tmp_path: Path) -> None:
@@ -37,6 +41,7 @@ def test_fails_when_less_than_2_factions(tmp_path: Path) -> None:
     (world / "factions.md").write_text("## 势力：光明会\n", encoding="utf-8")
     result = _result(g4_faction_builder([str(marker)]))
     assert any("G4.factions.count" in mf for mf in result["must_fix"])
+
 
 @pytest.mark.unit
 def test_passes_with_2_complete_factions(tmp_path: Path) -> None:

@@ -15,6 +15,7 @@ log = get_logger(__name__)
 
 class Dimension(TypedDict):
     """A single rubric dimension with number, name, and weight percentage."""
+
     num: int
     name: str
     weight: int
@@ -133,9 +134,7 @@ def filter_dimensions_by_test_type(
     return filtered if filtered else dimensions
 
 
-def validate_scores(
-    scores: dict[int, Any], dimensions: list[Dimension]
-) -> tuple[bool, list[str]]:
+def validate_scores(scores: dict[int, Any], dimensions: list[Dimension]) -> tuple[bool, list[str]]:
     """Validate scores against rubric dimensions. Returns (is_valid, errors)."""
     errors: list[str] = []
     if not scores:
@@ -183,9 +182,7 @@ def classify(score: float | int) -> str:
     return "FAIL"
 
 
-def check_gate_markers(
-    rubric_path: str, test_type: str | None, round_dir: str | None
-) -> list[str]:
+def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str | None) -> list[str]:
     """Verify required gate markers exist. Returns list of missing marker descriptions."""
     if not round_dir:
         return []
