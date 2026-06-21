@@ -1,16 +1,23 @@
 name: CodeQL
+# CodeQL via a custom workflow (security-and-quality suite) rather than
+# default-setup, because:
+#   - default-setup is security-only; this surfaces quality findings too
+#     (caught a real dead-code redefinition in update_progress.py).
+#   - default-setup and a custom CodeQL workflow are mutually exclusive
+#     (GitHub rejects the custom SARIF while default-setup is enabled), so
+#     default-setup is OFF and this is the sole mechanism.
+# Triggers on PUSH (full-ref scan), not pull_request, because PR-diff
+# analysis has a 300-file limit that large/foundational PRs exceed; a push
+# scan analyzes the entire ref and uploads all findings regardless of size.
 on:
-  pull_request:
-  workflow_dispatch:
+  push:
   schedule:
     - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
+  workflow_dispatch:
+
 jobs:
   analyze:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    # Non-blocking while we re-run with security-and-quality to recover the
-    # previously-unuploaded findings for triage.
-    continue-on-error: true
     permissions:
       actions: read
       contents: read

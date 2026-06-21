@@ -260,7 +260,6 @@ def cmd_rebuild_queues(round_dir: str) -> None:
     progress["remaining_bug_hunt"] = sorted(pending_bug)
     progress["remaining_clean"] = sorted(pending_cln)
 
-    genuinely_done = all_skills - pending_gen - pending_bug - pending_cln
     genuinely_done = {
         s
         for s in all_skills
