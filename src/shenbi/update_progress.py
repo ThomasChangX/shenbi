@@ -219,7 +219,7 @@ def cmd_validate(round_dir: str) -> None:
     _total = progress.get("total_framework_skills", len(ALL_SKILLS))
 
     result: dict[str, Any] = {
-        "status": "fail" if issues else "ok",
+        "status": CommandStatus.ERROR if issues else CommandStatus.OK,
         "total_skills": _total,
         "genuinely_done": len(gd),
         "partly_done": {k: v for k, v in pd.items()},

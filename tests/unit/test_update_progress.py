@@ -17,6 +17,7 @@ from typing import Any
 import pytest
 
 from shenbi import update_progress
+from shenbi.status import CommandStatus
 from shenbi.update_progress import (
     cmd_init,
     cmd_mark_done,
@@ -354,7 +355,7 @@ class TestCmdValidate:
         emitted = json.loads(capsys.readouterr().out)
         assert emitted["status"] == "ok"
 
-    def test_emits_fail_with_issues(
+    def test_emits_error_with_issues(
         self,
         initialized_round: Path,
         capsys: pytest.CaptureFixture[str],
@@ -367,7 +368,7 @@ class TestCmdValidate:
             cmd_validate(str(initialized_round))
         assert exc.value.code == 1
         emitted = json.loads(capsys.readouterr().out)
-        assert emitted["status"] == "fail"
+        assert emitted["status"] == CommandStatus.ERROR
         assert "issues" in emitted
 
     def test_includes_genuinely_done_count(

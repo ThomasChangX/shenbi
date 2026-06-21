@@ -52,3 +52,24 @@ def test_check_item_s_value_is_not_flagged() -> None:
 def test_non_status_string_is_not_flagged() -> None:
     src = 'd = {"name": "chapter-1"}\n'
     assert _violations_in(src, "src/shenbi/gates/g1.py") == []
+
+
+@pytest.mark.unit
+def test_ternary_status_value_is_flagged() -> None:
+    """Bare status literals inside a ternary value are emit sites too.
+
+    Regression for the Copilot review on PR #6: the lint previously only matched
+    ``ast.Constant`` values, so ``{"status": "PASS" if ok else "FAIL"}`` slipped
+    through. Both branches must be caught.
+    """
+    src = 'd = {"status": "PASS" if ok else "FAIL"}\n'
+    vios = _violations_in(src, "src/shenbi/gates/g1.py")
+    assert any("'PASS'" in v for v in vios)
+    assert any("'FAIL'" in v for v in vios)
+
+
+@pytest.mark.unit
+def test_ternary_status_assign_is_flagged() -> None:
+    """Same gap for ``d["state"] = ...`` assignments with a ternary RHS."""
+    src = 'd["state"] = "started" if x else "scored"\n'
+    assert _violations_in(src, "src/shenbi/phase_runner.py")

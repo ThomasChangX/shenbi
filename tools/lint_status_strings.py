@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Lint: no bare status-vocab string literal on a dict's "status" key outside status.py.
+"""Lint: no bare status-vocab string literal on a result-envelope key outside status.py.
 
-Enforces spec D3's "no bare status string-literals outside status.py" rule, scoped
-to the ``"status"`` dict key (the result-envelope emit site). This avoids false
-positives on check-item dicts like ``{"id": "G3.1", "s": "PASS"}`` (key "s") and
-on read-comparisons (``x == "FAIL"``), which are not emit sites.
+Enforces spec D3's "no bare status string-literals outside status.py" rule on the
+three result-envelope keys that carry status vocabulary — ``"status"``, ``"state"``,
+and ``"classification"`` (STATUS_KEYS). Values are scanned recursively, so bare
+literals inside ternaries / bool-op expressions (e.g. ``{"status": "PASS" if ok
+else "FAIL"}``) are caught too. This avoids false positives on check-item dicts
+like ``{"id": "G3.1", "s": "PASS"}`` (key "s") and on read-comparisons
+(``x == "FAIL"``), which are not emit sites.
 """
 
 from __future__ import annotations
@@ -31,6 +34,20 @@ def _is_status_key(node: object) -> bool:
     return isinstance(node, ast.Constant) and node.value in STATUS_KEYS
 
 
+def _status_literals(node: ast.AST) -> list[ast.Constant]:
+    """Collect bare status-vocab Constant literals anywhere in an expression.
+
+    Recursive so ternaries (``"PASS" if ok else "FAIL"``) and bool-op
+    expressions are covered — the value is already gated on the key being a
+    status/state/classification emit site, so every literal in it is an emit.
+    """
+    return [
+        sub
+        for sub in ast.walk(node)
+        if isinstance(sub, ast.Constant) and _is_status_value(sub.value)
+    ]
+
+
 class _Visitor(ast.NodeVisitor):
     def __init__(self, filename: str) -> None:
         self.filename = filename
@@ -39,19 +56,20 @@ class _Visitor(ast.NodeVisitor):
     def visit_Dict(self, node: ast.Dict) -> None:
         # node.keys may contain None (for ** unpacks); pair with values by index.
         for k, v in zip(node.keys, node.values, strict=False):
-            if _is_status_key(k) and isinstance(v, ast.Constant) and _is_status_value(v.value):
-                self.violations.append(
-                    f"{self.filename}:{v.lineno}: bare status string {v.value!r}"
-                )
+            if _is_status_key(k):
+                for lit in _status_literals(v):
+                    self.violations.append(
+                        f"{self.filename}:{lit.lineno}: bare status string {lit.value!r}"
+                    )
         self.generic_visit(node)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         # d["status"] = "PASS"  →  Subscript target keyed by "status"
-        if isinstance(node.value, ast.Constant) and _is_status_value(node.value.value):
-            for tgt in node.targets:
-                if isinstance(tgt, ast.Subscript) and _is_status_key(tgt.slice):
+        for tgt in node.targets:
+            if isinstance(tgt, ast.Subscript) and _is_status_key(tgt.slice):
+                for lit in _status_literals(node.value):
                     self.violations.append(
-                        f"{self.filename}:{node.lineno}: bare status string {node.value.value!r}"
+                        f"{self.filename}:{lit.lineno}: bare status string {lit.value!r}"
                     )
         self.generic_visit(node)
 
