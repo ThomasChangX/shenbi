@@ -60,6 +60,12 @@ def dag_key(path: str, registry: dict[str, Any]) -> str:
     (audits/chapter-N-*.md) must join under one edge, so the completeness check
     can see that a report is consumed downstream. Map any path to a declared
     glob it matches; else its parametric glob; else itself.
+
+    Trade-off: matching is glob-aware, so unrelated files that share a broad
+    declared glob (e.g. every ``truth/*.md`` file) collapse to one key and
+    over-connect in the DAG. Benign for the completeness check — it only
+    scrutinizes REPORT producers, which carry specific audit writes — but it
+    adds noise for future impact analysis.
     """
     for g in registry.get("globs", []):
         if fnmatch.fnmatch(path, g["pattern"]):
@@ -111,24 +117,27 @@ def verify_bijection(
     contracts: dict[str, dict[str, Any]],
     registry: dict[str, Any],
 ) -> None:
-    """Spec §5.4 round-trip self-check: every member write is emitted and every
-    emitted entry traces to a member write (bijection within the phase).
+    """Consistency guard (spec §5.4): ``generated`` must equal the normalized
+    writes+updates of the phase's members.
 
-    This catches GENERATOR bugs (a member write dropped, or a spurious entry),
-    not curated drift. Raises AssertionError on mismatch.
+    In ``main()`` this runs right after ``derive_expected_outputs``, so it
+    confirms the two stay coupled — guarding a future refactor that decouples
+    ``expected_outputs`` from member writes, or nondeterminism. It is NOT a
+    meaningful check for logic bugs shared with ``derive_expected_outputs``
+    (both iterate members identically, so they would drop the same write);
+    the real D4 drift guard is the idempotency CI check. Called directly with
+    an arbitrary ``generated`` it does verify the bijection. Raises on mismatch.
     """
     members: list[str] = phase.get("prerequisites", [])
-    expected = sorted(
-        {
-            normalize_to_glob(f, registry)
-            for s in members
-            for f in [
-                *contracts.get(s, {}).get("writes", []),
-                *contracts.get(s, {}).get("updates", []),
-            ]
-        }
-    )
-    assert generated == expected, f"bijection broken: {generated} != {expected}"
+    member_outputs = {
+        normalize_to_glob(f, registry)
+        for s in members
+        for f in [*contracts.get(s, {}).get("writes", []), *contracts.get(s, {}).get("updates", [])]
+    }
+    gen_set = set(generated)
+    missing = sorted(member_outputs - gen_set)
+    spurious = sorted(gen_set - member_outputs)
+    assert not missing and not spurious, f"bijection broken: missing={missing} spurious={spurious}"
 
 
 def render_body_view(skill: str, contract: dict[str, Any]) -> str:

@@ -82,3 +82,21 @@ def test_bijection_self_check_passes_when_complete() -> None:
     generated = derive_expected_outputs(phase, contracts, reg)
     # No raise == bijection holds (catches generator bugs, not curated drift).
     verify_bijection(generated, phase, contracts, reg)
+
+
+@pytest.mark.unit
+def test_bijection_self_check_rejects_dropped_member_write() -> None:
+    """verify_bijection raises when a member write is missing from generated."""
+    phase = {"prerequisites": ["A", "B"]}
+    contracts = {
+        "A": {"writes": ["novel.json"], "updates": [], "reads": []},
+        "B": {"writes": ["genre-config.json"], "updates": [], "reads": []},
+    }
+    reg = {
+        "concepts": [{"name": "novel.json"}, {"name": "genre-config.json"}],
+        "patterns": [],
+        "globs": [],
+    }
+    # Drop B's write -> the bijection is broken (member output not emitted).
+    with pytest.raises(AssertionError, match="genre-config"):
+        verify_bijection(["novel.json"], phase, contracts, reg)
