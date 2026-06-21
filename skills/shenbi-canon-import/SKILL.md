@@ -1,7 +1,23 @@
 ---
 name: shenbi-canon-import
-description: Use when importing source material for fanfic writing, extracting canon from existing works, or generating reference files for AU/OOC/CP fanfic modes
+description: "Use when importing source material for fanfic writing, extracting canon from existing works, or generating reference files for AU/OOC/CP fanfic modes"
+contract:
+  kind: artifact
+  reads:
+    - source_canon/*
+  writes:
+    - import/canon/*.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** source_canon/*
+- **Writes:** import/canon/*.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 正典导入
 
@@ -22,12 +38,6 @@ digraph canon_import {
     "Generate canon reference files" -> "Write to import/canon/";
 }
 ```
-
-## 数据契约
-
-- **Reads:** 原作（任意可读格式：txt / md / 章节摘录 / 维基）
-- **Writes:** `import/canon/` 下的 5 个 SECTION 文件
-- **Updates:** 无
 
 ## 铁律
 

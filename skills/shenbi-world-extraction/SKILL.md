@@ -1,7 +1,29 @@
 ---
 name: shenbi-world-extraction
-description: Use when reverse-extracting worldbuilding files from existing chapters, building story_bible/rules/locations/factions/power_system from an analyzed manuscript, or reconstructing a novel's setting from text
+description: "Use when reverse-extracting worldbuilding files from existing chapters, building story_bible/rules/locations/factions/power_system from an analyzed manuscript, or reconstructing a novel's setting from text"
+contract:
+  kind: artifact
+  reads:
+    - import/analysis/03_world.md
+    - chapters/*.md
+    - import/analysis/04_plot.md
+  writes:
+    - world/story_bible.md
+    - world/rules.md
+    - world/locations.md
+    - world/factions.md
+    - world/power_system.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** import/analysis/03_world.md, chapters/*.md, import/analysis/04_plot.md
+- **Writes:** world/story_bible.md, world/rules.md, world/locations.md, world/factions.md, world/power_system.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 世界观反向提取
 
@@ -25,12 +47,6 @@ digraph world_extraction {
     "Generate power_system.md" -> "Write to world/";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `import/analysis/03_world.md`, 源 `chapters/*.md`, `import/analysis/04_plot.md`
-- **Writes:** `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `world/factions.md`, `world/power_system.md`
-- **Updates:** 无
 
 ## 铁律
 
@@ -257,4 +273,3 @@ digraph world_extraction {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

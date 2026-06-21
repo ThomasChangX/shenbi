@@ -1,7 +1,25 @@
 ---
 name: shenbi-short-outline
-description: Use when outlining a short novel with fewer than 30 chapters, condensing the outline process for shorter works, or generating a fast outline for short-story publication
+description: "Use when outlining a short novel with fewer than 30 chapters, condensing the outline process for shorter works, or generating a fast outline for short-story publication"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - truth/author_intent.md
+    - outline/story_frame.md
+  writes:
+    - outline/short_story_map.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, truth/author_intent.md, outline/story_frame.md
+- **Writes:** outline/short_story_map.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 短篇大纲
 
@@ -20,12 +38,6 @@ digraph short_outline {
     "Step 1: Generate (revised generation)" -> "Step 2: Review";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `truth/author_intent.md`, `outline/story_frame.md` (if exists)
-- **Writes:** `outline/short_story_map.md`
-- **Updates:** 无
 
 ## 铁律
 

@@ -1,7 +1,25 @@
 ---
 name: shenbi-volume-outlining
-description: Use when designing a single volume's overall structure, planning a volume's per-chapter goals, building intra-volume tension curve, or designing cross-volume bridging
+description: "Use when designing a single volume's overall structure, planning a volume's per-chapter goals, building intra-volume tension curve, or designing cross-volume bridging"
+contract:
+  kind: artifact
+  reads:
+    - outline/story_frame.md
+    - outline/volume_map.md
+    - truth/author_intent.md
+  writes: []
+  updates:
+    - outline/volume_map.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** outline/story_frame.md, outline/volume_map.md, truth/author_intent.md
+- **Writes:** none
+- **Updates:** outline/volume_map.md
+
+<!-- END AUTO-GENERATED -->
 
 # 分卷大纲
 
@@ -24,12 +42,6 @@ digraph volume_outlining {
     "Human reviews" -> "Append to outline/volume_map.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `outline/story_frame.md`, `outline/volume_map.md` (existing), `truth/author_intent.md`
-- **Writes:** 无
-- **Updates:** `outline/volume_map.md`
 
 ## 铁律
 

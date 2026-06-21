@@ -14,22 +14,22 @@
         "shenbi-pacing-design"
       ],
       "expected_outputs": [
-        "novel.json",
-        "genre-config.json",
-        "world/story_bible.md",
-        "world/rules.md",
-        "world/locations.md",
-        "world/power_system.md",
-        "world/factions.md",
-        "world/faction-relations.md",
-        "characters/protagonist.md",
         "characters/major/*.md",
         "characters/minor/*.md",
+        "characters/protagonist.md",
         "characters/relationships.md",
-        "truth/current_state.md",
+        "genre-config.json",
+        "novel.json",
+        "outline/rhythm_principles.md",
+        "outline/story_frame.md",
+        "outline/volume_map.md",
+        "truth/*.md",
         "truth/character_matrix.md",
-        "truth/emotional_arcs.md",
-        "truth/chapter_summaries.md"
+        "world/factions.md",
+        "world/locations.md",
+        "world/power_system.md",
+        "world/rules.md",
+        "world/story_bible.md"
       ],
       "g4_checker": "shenbi-worldbuilding"
     },
@@ -42,11 +42,11 @@
         "shenbi-genre-config"
       ],
       "expected_outputs": [
-        "outline/story_frame.md",
-        "outline/volume_map.md",
+        "genre-config.json",
         "outline/rhythm_principles.md",
+        "outline/story_frame.md",
         "outline/thread_map.md",
-        "genre-config.json"
+        "outline/volume_map.md"
       ],
       "g4_checker": "shenbi-story-architecture"
     },
@@ -58,8 +58,7 @@
       ],
       "expected_outputs": [
         "plans/chapter-*-plan.md",
-        "truth/pending_hooks.md",
-        "context/chapter-*-context.md"
+        "truth/pending_hooks.md"
       ],
       "g4_checker": "shenbi-chapter-planning"
     },
@@ -74,11 +73,13 @@
       ],
       "expected_outputs": [
         "chapters/chapter-*.md",
-        "truth/current_state.md",
-        "truth/character_matrix.md",
-        "truth/emotional_arcs.md",
         "truth/chapter_summaries.md",
-        "truth/pending_hooks.md"
+        "truth/character_matrix.md",
+        "truth/current_state.md",
+        "truth/emotional_arcs.md",
+        "truth/particle_ledger.md",
+        "truth/pending_hooks.md",
+        "truth/subplot_board.md"
       ],
       "g4_checker": "shenbi-chapter-drafting"
     },
@@ -104,24 +105,24 @@
         "shenbi-review-spinoff"
       ],
       "expected_outputs": [
-        "audits/chapter-*-character.md",
-        "audits/chapter-*-continuity.md",
-        "audits/chapter-*-dialogue.md",
-        "audits/chapter-*-pacing.md",
-        "audits/chapter-*-anti-ai.md",
-        "audits/chapter-*-foreshadowing.md",
-        "audits/chapter-*-world-rules.md",
-        "audits/chapter-*-sensitivity.md",
-        "audits/chapter-*-memo-compliance.md",
-        "audits/chapter-*-motivation.md",
-        "audits/chapter-*-pov.md",
-        "audits/chapter-*-reader-pull.md",
-        "audits/chapter-*-highpoint.md",
-        "audits/chapter-*-texture.md",
-        "audits/chapter-*-long-span.md",
-        "audits/chapter-*-era.md",
-        "audits/chapter-*-fanfic.md",
-        "audits/chapter-*-spinoff.md"
+        "audits/chapter-N-anti-ai.md",
+        "audits/chapter-N-character.md",
+        "audits/chapter-N-continuity.md",
+        "audits/chapter-N-dialogue.md",
+        "audits/chapter-N-era.md",
+        "audits/chapter-N-fanfic.md",
+        "audits/chapter-N-foreshadowing.md",
+        "audits/chapter-N-highpoint.md",
+        "audits/chapter-N-long-span.md",
+        "audits/chapter-N-memo-compliance.md",
+        "audits/chapter-N-motivation.md",
+        "audits/chapter-N-pacing.md",
+        "audits/chapter-N-pov.md",
+        "audits/chapter-N-reader-pull.md",
+        "audits/chapter-N-sensitivity.md",
+        "audits/chapter-N-spinoff.md",
+        "audits/chapter-N-texture.md",
+        "audits/chapter-N-world-rules.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for review-character not yet implemented in validate-gate.py"
@@ -135,12 +136,14 @@
         "shenbi-volume-consolidation"
       ],
       "expected_outputs": [
-        "snapshots/*.json",
-        "truth/drift_guidance.md",
-        "truth/author_intent.md",
-        "truth/current_focus.md",
         "outline/chapter_patterns.md",
-        "volumes/volume-*-summary.md"
+        "snapshots/chapter-NNN/*",
+        "truth/audit_drift.md",
+        "truth/author_intent.md",
+        "truth/chapter_summaries.md",
+        "truth/current_focus.md",
+        "truth/drift_guidance.md",
+        "truth/volume_summaries.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for snapshot-manage not yet implemented in validate-gate.py"
@@ -153,11 +156,17 @@
         "shenbi-canon-import"
       ],
       "expected_outputs": [
+        "characters/major/*.md",
+        "characters/minor/*.md",
+        "characters/protagonist.md",
+        "characters/relationships.md",
         "import/analysis/*.md",
-        "characters/*.md",
-        "world/story_bible.md",
+        "import/canon/*.md",
+        "world/factions.md",
+        "world/locations.md",
+        "world/power_system.md",
         "world/rules.md",
-        "import/canon/*.md"
+        "world/story_bible.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for import-analysis not yet implemented in validate-gate.py"
@@ -170,10 +179,10 @@
         "shenbi-style-learning"
       ],
       "expected_outputs": [
+        "chapters/chapter-*.md",
         "foundation/review_report.md",
-        "chapters/chapter-*-revised.md",
-        "truth/*.md",
-        "config/style_profile.md"
+        "style/style_profile.md",
+        "truth/*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for foundation-review not yet implemented in validate-gate.py"
@@ -185,9 +194,9 @@
         "shenbi-short-packaging"
       ],
       "expected_outputs": [
-        "short/outline.md",
-        "short/chapter-*.md",
-        "short/package.md"
+        "chapters/chapter-*.md",
+        "import/packaging/*",
+        "outline/short_story_map.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for short-outline not yet implemented in validate-gate.py"

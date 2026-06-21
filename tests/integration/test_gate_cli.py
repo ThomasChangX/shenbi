@@ -372,6 +372,10 @@ class TestPhaseRunner(unittest.TestCase):
             "chapter_summaries.md",
         ]:
             (proj / "truth" / name).write_text("# content\n")
+        # outline files are genesis expected_outputs (story-architecture writes them)
+        (proj / "outline").mkdir(parents=True, exist_ok=True)
+        for name in ["story_frame.md", "volume_map.md", "rhythm_principles.md"]:
+            (proj / "outline" / name).write_text("# content\n")
 
     def test_start_creates_state_file(self):
         """Start command should create a phase state file."""

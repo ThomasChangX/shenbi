@@ -62,6 +62,27 @@ def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.Monke
 
 
 @pytest.mark.unit
+def test_derive_files_read_real_migrated_skill_contract() -> None:
+    """Post-migration, derive_* read the real frontmatter contract end-to-end."""
+    assert derive_input_files("shenbi-chapter-drafting") == [
+        "plans/chapter-N-plan.md",
+        "style/style_profile.md",
+        "genre-config.json",
+        "truth/audit_drift.md",
+    ]
+    # shenbi-state-settling: writes=[] + updates=7 truth files (all fold into outputs)
+    assert derive_output_files("shenbi-state-settling") == [
+        "truth/current_state.md",
+        "truth/particle_ledger.md",
+        "truth/character_matrix.md",
+        "truth/emotional_arcs.md",
+        "truth/subplot_board.md",
+        "truth/pending_hooks.md",
+        "truth/chapter_summaries.md",
+    ]
+
+
+@pytest.mark.unit
 def test_generate_agent_id_is_unique() -> None:
     round_dir = Path("/tmp/round-001")
     id1 = generate_agent_id(round_dir, "skill-x", "generative")

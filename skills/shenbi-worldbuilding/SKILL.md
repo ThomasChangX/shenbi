@@ -1,7 +1,28 @@
 ---
 name: shenbi-worldbuilding
-description: Use when creating a new novel's world, building story bible, or designing setting rules, geography, and social structure
+description: "Use when creating a new novel's world, building story bible, or designing setting rules, geography, and social structure"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+  writes:
+    - novel.json
+    - genre-config.json
+    - world/story_bible.md
+    - world/rules.md
+    - world/locations.md
+    - truth/*.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json
+- **Writes:** novel.json, genre-config.json, world/story_bible.md, world/rules.md, world/locations.md, truth/*.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 世界观构建
 
@@ -25,12 +46,6 @@ digraph worldbuilding {
 }
 ```
 
-## 数据契约
-
-- **Reads:** `novel.json` (if exists)
-- **Writes:** `novel.json`, `genre-config.json`, `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `truth/` (empty templates)
-- **Updates:** none (initial creation)
-
 ## 铁律
 
 1. **NO BULLET-POINT WORLDS** — 世界观以散文形式输出，不是表格、不是 schema、不是条目化 bullet。每个设定段落是一段连贯的叙述。
@@ -39,7 +54,7 @@ digraph worldbuilding {
 4. **去重原则** — 同一事实只出现在一个文件中。genre/core_concept/themes 只在 `novel.json` 定义。
 5. **项目目录初始化** — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。
 
-## 输出契约
+## 输出格式
 
 写以下文件到小说项目目录：
 

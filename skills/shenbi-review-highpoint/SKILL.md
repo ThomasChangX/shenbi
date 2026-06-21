@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-highpoint
-description: Use when a finished chapter needs a high-point audit (suppression-explosion, twist detection, climax keyword diversity, 爽点虚化)
+description: "Use when a finished chapter needs a high-point audit (suppression-explosion, twist detection, climax keyword diversity, 爽点虚化)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - plans/chapter-N-plan.md
+    - genre-config.json
+  writes:
+    - audits/chapter-N-highpoint.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, genre-config.json
+- **Writes:** audits/chapter-N-highpoint.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 高潮与爽点审计
 
@@ -28,12 +46,6 @@ digraph review_highpoint {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `plans/chapter-N-plan.md`, `genre-config.json`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -131,4 +143,3 @@ digraph review_highpoint {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

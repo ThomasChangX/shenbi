@@ -1,7 +1,25 @@
 ---
 name: shenbi-foreshadowing-track
-description: Use when a chapter has been drafted and state-settled, and foreshadowing hooks need their lifecycle states evaluated and updated
+description: "Use when a chapter has been drafted and state-settled, and foreshadowing hooks need their lifecycle states evaluated and updated"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - truth/pending_hooks.md
+    - truth/chapter_summaries.md
+  writes: []
+  updates:
+    - truth/pending_hooks.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Writes:** none
+- **Updates:** truth/pending_hooks.md
+
+<!-- END AUTO-GENERATED -->
 
 # 伏笔追踪
 
@@ -22,12 +40,6 @@ digraph foreshadowing_track {
     "Write updated hooks to truth/pending_hooks.md" -> "Output 追踪汇总";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`
-- **Writes:** none
-- **Updates:** `truth/pending_hooks.md`
 
 ## 铁律
 
@@ -124,4 +136,3 @@ digraph foreshadowing_track {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

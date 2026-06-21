@@ -1,7 +1,26 @@
 ---
 name: shenbi-plot-thread-weaver
-description: Use when coordinating multiple plot threads across the novel, planning thread crossing points, managing A/B/C line priorities, or designing climax windows for subplots
+description: "Use when coordinating multiple plot threads across the novel, planning thread crossing points, managing A/B/C line priorities, or designing climax windows for subplots"
+contract:
+  kind: artifact
+  reads:
+    - outline/story_frame.md
+    - outline/volume_map.md
+    - outline/rhythm_principles.md
+    - truth/pending_hooks.md
+  writes: []
+  updates:
+    - outline/thread_map.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md
+- **Writes:** none
+- **Updates:** outline/thread_map.md
+
+<!-- END AUTO-GENERATED -->
 
 # 剧情线索编织
 
@@ -23,12 +42,6 @@ digraph plot_thread_weaver {
     "Human reviews" -> "Write to outline/thread_map.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `outline/story_frame.md`, `outline/volume_map.md`, `outline/rhythm_principles.md`, `truth/pending_hooks.md` (if exists)
-- **Writes:** 无
-- **Updates:** `outline/thread_map.md`
 
 ## 铁律
 

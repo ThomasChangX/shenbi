@@ -1,7 +1,26 @@
 ---
 name: shenbi-review-spinoff
-description: Use when a finished chapter in a spinoff needs a main-story consistency audit (event conflict, future info leak, world rule consistency, hook isolation)
+description: "Use when a finished chapter in a spinoff needs a main-story consistency audit (event conflict, future info leak, world rule consistency, hook isolation)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - truth/parent_canon.md
+    - world/rules.md
+    - truth/pending_hooks.md
+  writes:
+    - audits/chapter-N-spinoff.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/parent_canon.md, world/rules.md, truth/pending_hooks.md
+- **Writes:** audits/chapter-N-spinoff.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 外传/衍生作品审计
 
@@ -29,12 +48,6 @@ digraph review_spinoff {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/parent_canon.md`, `world/rules.md`, `truth/pending_hooks.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -128,4 +141,3 @@ digraph review_spinoff {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

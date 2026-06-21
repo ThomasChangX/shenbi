@@ -1,7 +1,29 @@
 ---
 name: shenbi-review-world-rules
-description: Use when a finished chapter needs a world-rules consistency audit against power system, setting, and numerical records
+description: "Use when a finished chapter needs a world-rules consistency audit against power system, setting, and numerical records"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - world/rules.md
+    - world/power_system.md
+    - world/locations.md
+    - world/story_bible.md
+    - truth/chapter_summaries.md
+    - truth/current_state.md
+  writes:
+    - audits/chapter-N-world-rules.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, world/rules.md, world/power_system.md, world/locations.md, world/story_bible.md, truth/chapter_summaries.md, truth/current_state.md
+- **Writes:** audits/chapter-N-world-rules.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 世界规则审计
 
@@ -30,12 +52,6 @@ digraph review_world_rules {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `world/rules.md`, `world/power_system.md`, `world/locations.md`, `world/story_bible.md`, `truth/chapter_summaries.md`, `truth/current_state.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -126,4 +142,3 @@ digraph review_world_rules {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

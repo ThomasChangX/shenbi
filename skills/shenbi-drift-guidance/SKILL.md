@@ -1,7 +1,25 @@
 ---
 name: shenbi-drift-guidance
-description: Use when a chapter has completed all audits and results need to be conveyed to the next chapter's writing context
+description: "Use when a chapter has completed all audits and results need to be conveyed to the next chapter's writing context"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - audits/chapter-N-*.md
+  writes:
+    - truth/drift_guidance.md
+  updates:
+    - truth/audit_drift.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
+- **Writes:** truth/drift_guidance.md
+- **Updates:** truth/audit_drift.md
+
+<!-- END AUTO-GENERATED -->
 
 # 审计纠偏传导
 
@@ -18,12 +36,6 @@ digraph drift_guidance {
     "Write truth/audit_drift.md" -> "Report conduction summary";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, all audit reports for current chapter
-- **Writes:** 传导汇总（输出到 human partner）
-- **Updates:** `truth/audit_drift.md`
 
 ## 铁律
 

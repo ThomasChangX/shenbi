@@ -1,7 +1,27 @@
 ---
 name: shenbi-faction-builder
-description: Use when designing factions, organizations, power groups, political entities, sects, guilds, corporations, or any collective actor within a novel's world
+description: "Use when designing factions, organizations, power groups, political entities, sects, guilds, corporations, or any collective actor within a novel's world"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - world/story_bible.md
+    - world/rules.md
+    - characters/**/*.md
+    - outline/story_frame.md
+  writes: []
+  updates:
+    - world/factions.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, characters/**/*.md, outline/story_frame.md
+- **Writes:** none
+- **Updates:** world/factions.md
+
+<!-- END AUTO-GENERATED -->
 
 # 势力构建
 
@@ -23,12 +43,6 @@ digraph faction_builder {
     "Human reviews" -> "Append to world/factions.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `world/story_bible.md`, `world/rules.md`, `characters/**/*.md`, `outline/story_frame.md`
-- **Writes:** 无
-- **Updates:** `world/factions.md`
 
 ## 铁律
 

@@ -1,7 +1,26 @@
 ---
 name: shenbi-short-drafting
-description: Use when batch-generating all chapters of a short story at once, drafting the complete short novel in one go, or running generate → review → revise on a full manuscript
+description: "Use when batch-generating all chapters of a short story at once, drafting the complete short novel in one go, or running generate → review → revise on a full manuscript"
+contract:
+  kind: artifact
+  reads:
+    - outline/short_story_map.md
+    - truth/author_intent.md
+    - genre-config.json
+    - style/style_profile.md
+  writes:
+    - chapters/chapter-N.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** outline/short_story_map.md, truth/author_intent.md, genre-config.json, style/style_profile.md
+- **Writes:** chapters/chapter-N.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 短篇批量起草
 
@@ -20,12 +39,6 @@ digraph short_drafting {
     "All chapters passed?" -> "Step 3: Revise (re-revise failing chapters)" [label="no"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `outline/short_story_map.md`, `truth/author_intent.md`, `genre-config.json`, `style/style_profile.md` (if exists)
-- **Writes:** `chapters/chapter-N.md`（批量）
-- **Updates:** 无
 
 ## 铁律
 

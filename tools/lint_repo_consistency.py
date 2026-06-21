@@ -58,11 +58,14 @@ def find_body_contract_blocks(files: Iterable[File]) -> list[str]:
 
 
 def find_banned_synonyms(files: Iterable[File]) -> list[tuple[str, str]]:
-    """Return (path, synonym) for every banned terminology term found in a skill body."""
+    """Return (path, synonym) for every banned terminology term found in skill prose."""
     out: list[tuple[str, str]] = []
     for path, md in files:
+        # Strip backtick code/filename spans — terminology targets prose, not code
+        # references (e.g. `truth-files-reference.md` is a filename, not the synonym).
+        prose = re.sub(r"`[^`]*`", "", md)
         for syn in BANNED_SYNONYMS:
-            if syn in md.lower():
+            if syn in prose.lower():
                 out.append((path, syn))
     return out
 

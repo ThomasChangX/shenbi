@@ -1,7 +1,26 @@
 ---
 name: shenbi-story-architecture
-description: Use when designing the overall story structure, creating story frame, volume map, or defining core conflicts and objectives
+description: "Use when designing the overall story structure, creating story frame, volume map, or defining core conflicts and objectives"
+contract:
+  kind: artifact
+  reads:
+    - world/story_bible.md
+    - characters/**/*.md
+  writes:
+    - outline/story_frame.md
+    - outline/volume_map.md
+    - outline/rhythm_principles.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** world/story_bible.md, characters/**/*.md
+- **Writes:** outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 故事架构
 
@@ -21,12 +40,6 @@ digraph story_architecture {
 }
 ```
 
-## 数据契约
-
-- **Reads:** `world/story_bible.md`, `characters/**/*.md`
-- **Writes:** `outline/story_frame.md`, `outline/volume_map.md`, `outline/rhythm_principles.md`
-- **Updates:** none (initial creation)
-
 ## 铁律
 
 1. **双线必写** — story_frame.md 必须包含前台故事（读者每章看到的表面冲突）和后台故事（贯穿全书的暗线）
@@ -42,7 +55,7 @@ digraph story_architecture {
 | Personal | 主角内心的困境 | 身份认同、信任背叛 |
 | Deep | 全书探讨的主题问题 | 力量与自由的代价 |
 
-## 输出文件
+## 输出格式
 
 | 文件 | 内容 |
 |------|------|

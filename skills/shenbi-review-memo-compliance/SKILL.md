@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-memo-compliance
-description: Use when a finished chapter needs an 8-section chapter memo compliance audit against `plans/chapter-N-plan.md`
+description: "Use when a finished chapter needs an 8-section chapter memo compliance audit against `plans/chapter-N-plan.md`"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - plans/chapter-N-plan.md
+    - truth/pending_hooks.md
+  writes:
+    - audits/chapter-N-memo-compliance.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md
+- **Writes:** audits/chapter-N-memo-compliance.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 章节备忘合规审计
 
@@ -30,12 +48,6 @@ digraph review_memo_compliance {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `plans/chapter-N-plan.md`, `truth/pending_hooks.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -123,4 +135,3 @@ digraph review_memo_compliance {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

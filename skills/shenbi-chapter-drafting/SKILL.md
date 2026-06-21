@@ -1,7 +1,26 @@
 ---
 name: shenbi-chapter-drafting
-description: Use when writing chapter content, generating chapter text, or drafting a new chapter after planning is complete
+description: "Use when writing chapter content, generating chapter text, or drafting a new chapter after planning is complete"
+contract:
+  kind: artifact
+  reads:
+    - plans/chapter-N-plan.md
+    - style/style_profile.md
+    - genre-config.json
+    - truth/audit_drift.md
+  writes:
+    - chapters/chapter-N.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** plans/chapter-N-plan.md, style/style_profile.md, genre-config.json, truth/audit_drift.md
+- **Writes:** chapters/chapter-N.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 章节起草
 
@@ -29,12 +48,6 @@ digraph chapter_drafting {
     "Human reviews draft" -> "Revise and resubmit" [label="changes requested"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `plans/chapter-N-plan.md`, `style/style_profile.md`, `genre-config.json`, `truth/audit_drift.md`
-- **Writes:** `chapters/chapter-N.md`
-- **Updates:** none
 
 ## 铁律
 
@@ -66,7 +79,7 @@ PRE_WRITE_CHECK:
 4. **段落呼吸** — 长短交替，不让视觉节奏单调
 5. **对话指纹** — 角色说话必须匹配 voice_profile
 
-## 输出
+## 输出格式
 
 写 `chapters/chapter-N.md`：
 

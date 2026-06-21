@@ -1,7 +1,25 @@
 ---
 name: shenbi-snapshot-manage
-description: Use when creating chapter completion snapshots, viewing snapshot history, rolling back to a previous snapshot, or recovering novel state after a misstep
+description: "Use when creating chapter completion snapshots, viewing snapshot history, rolling back to a previous snapshot, or recovering novel state after a misstep"
+contract:
+  kind: artifact
+  reads:
+    - truth/*.md
+    - chapters/chapter-N.md
+    - characters/**/*.md
+  writes:
+    - snapshots/chapter-NNN/*
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/*.md, chapters/chapter-N.md, characters/**/*.md
+- **Writes:** snapshots/chapter-NNN/*
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 状态快照管理
 
@@ -23,12 +41,6 @@ digraph snapshot_manage {
 ```
 
 > **Note:** The DOT above shows the primary (create) flow. Other operations (view, rollback, list) are described procedurally below.
-
-## 数据契约
-
-- **Reads:** `truth/*.md`, `chapters/chapter-N.md`, `characters/**/*.md`
-- **Writes:** `snapshots/chapter-NNN/` (11 truth 文件副本 + 1 章节正文 + 1 manifest)
-- **Updates:** none (snapshots are append-only)
 
 ## 铁律
 

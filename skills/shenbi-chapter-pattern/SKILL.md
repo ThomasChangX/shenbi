@@ -1,7 +1,25 @@
 ---
 name: shenbi-chapter-pattern
-description: Use when classifying chapters by structural pattern, detecting pattern monotony across the novel, monitoring chapter type distribution, or preventing repetitive chapter structures
+description: "Use when classifying chapters by structural pattern, detecting pattern monotony across the novel, monitoring chapter type distribution, or preventing repetitive chapter structures"
+contract:
+  kind: report
+  reads:
+    - chapters/*.md
+    - truth/chapter_summaries.md
+    - genre-config.json
+  writes:
+    - outline/chapter_patterns.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/*.md, truth/chapter_summaries.md, genre-config.json
+- **Writes:** outline/chapter_patterns.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 章节模式检测
 
@@ -19,12 +37,6 @@ digraph chapter_pattern {
 ```
 
 **模式分类由 LLM 执行（判断性工作）。分类结果以 JSON 输入 `compute_pattern.py`（计算性工作），脚本输出熵、分布、连续运行等确定性分析。LLM 基于脚本输出撰写报告和建议。**
-
-## 数据契约
-
-- **Reads:** `chapters/*.md`, `truth/chapter_summaries.md`, `genre-config.json`
-- **Writes:** 模式分析报告
-- **Updates:** 无
 
 ## 铁律
 

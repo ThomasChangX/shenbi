@@ -1,7 +1,29 @@
 ---
 name: shenbi-state-settling
-description: Use when updating truth files after a chapter is drafted, extracting state changes, or settling world state
+description: "Use when updating truth files after a chapter is drafted, extracting state changes, or settling world state"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+  writes: []
+  updates:
+    - truth/current_state.md
+    - truth/particle_ledger.md
+    - truth/character_matrix.md
+    - truth/emotional_arcs.md
+    - truth/subplot_board.md
+    - truth/pending_hooks.md
+    - truth/chapter_summaries.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md
+- **Writes:** none
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/character_matrix.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+
+<!-- END AUTO-GENERATED -->
 
 # 状态结算
 
@@ -26,12 +48,6 @@ digraph state_settling {
     "Present changes to human" -> "Revise extraction" [label="corrections"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`
-- **Writes:** none
-- **Updates:** `truth/current_state.md`, `truth/particle_ledger.md`, `truth/character_matrix.md`, `truth/emotional_arcs.md`, `truth/subplot_board.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`
 
 ## 铁律
 

@@ -1,7 +1,27 @@
 ---
 name: shenbi-foundation-review
-description: Use when reviewing the complete worldbuilding + character + story architecture foundation before writing begins, or when a human partner asks for a quality assessment of story fundamentals
+description: "Use when reviewing the complete worldbuilding + character + story architecture foundation before writing begins, or when a human partner asks for a quality assessment of story fundamentals"
+contract:
+  kind: report
+  reads:
+    - world/*.md
+    - characters/**/*.md
+    - outline/*.md
+    - truth/current_state.md
+    - truth/chapter_summaries.md
+  writes:
+    - foundation/review_report.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** world/*.md, characters/**/*.md, outline/*.md, truth/current_state.md, truth/chapter_summaries.md
+- **Writes:** foundation/review_report.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 基础设定审核
 
@@ -27,12 +47,6 @@ digraph foundation_review {
     "Suggest specific fixes per dimension" -> "RETURN — concrete fix suggestions";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `world/*.md`, `characters/**/*.md`, `outline/*.md`, `truth/current_state.md`, `truth/chapter_summaries.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 

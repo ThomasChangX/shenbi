@@ -48,3 +48,19 @@ repos:
         language: system
         pass_filenames: false
         types: [python]
+      - id: lint-contracts
+        name: contract schema + completeness (spec §5.5)
+        entry: uv run python tools/lint_contracts.py
+        language: system
+        pass_filenames: false
+      - id: lint-repo-consistency
+        name: body-ban + loader-uniqueness + terminology (spec §5.5)
+        entry: uv run python tools/lint_repo_consistency.py
+        language: system
+        pass_filenames: false
+      - id: contract-sync-idempotency
+        name: contract-sync idempotency (spec §5.5)
+        entry: bash -c 'uv run shenbi-sync-contracts >/dev/null &&
+          git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/'
+        language: system
+        pass_filenames: false

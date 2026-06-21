@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-texture
-description: Use when a finished chapter needs a writing texture audit (流水账 detection, paragraph breathing, author preaching, segment length extremes)
+description: "Use when a finished chapter needs a writing texture audit (流水账 detection, paragraph breathing, author preaching, segment length extremes)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+    - plans/chapter-N-plan.md
+  writes:
+    - audits/chapter-N-texture.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json, plans/chapter-N-plan.md
+- **Writes:** audits/chapter-N-texture.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 写作质感审计
 
@@ -29,12 +47,6 @@ digraph review_texture {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `plans/chapter-N-plan.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -139,4 +151,3 @@ digraph review_texture {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

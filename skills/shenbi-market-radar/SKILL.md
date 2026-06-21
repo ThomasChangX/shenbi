@@ -1,7 +1,23 @@
 ---
 name: shenbi-market-radar
-description: Use when researching current platform trends, analyzing leaderboard data, evaluating genre opportunities, or seeking competitive positioning advice for a new novel
+description: "Use when researching current platform trends, analyzing leaderboard data, evaluating genre opportunities, or seeking competitive positioning advice for a new novel"
+contract:
+  kind: ephemeral
+  reads:
+    - novel.json
+    - genre-config.json
+  writes: []
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, genre-config.json
+- **Writes:** none
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 市场雷达
 
@@ -19,12 +35,6 @@ digraph market_radar {
     "Identify competitive works" -> "Present report to human";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json` (platform, genre), `genre-config.json`
-- **Writes:** market analysis report (presented to human, not stored in truth/)
-- **Updates:** none
 
 ## 铁律
 

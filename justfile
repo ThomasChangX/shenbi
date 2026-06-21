@@ -10,12 +10,16 @@ default:
 install group="dev":
     uv sync --group {{group}}
 
-# Run all checks (ruff + mypy + basedpyright + tests)
+# Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
 check:
+    uv run python tools/lint_status_strings.py
+    uv run python tools/lint_contracts.py
+    uv run python tools/lint_repo_consistency.py
     uv run ruff check .
     uv run ruff format --check .
     uv run mypy src/shenbi/
     uv run basedpyright
+    uv run shenbi-sync-contracts >/dev/null && git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
     uv run pytest -n auto -m "not last" --hypothesis-profile=ci
     uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 

@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-era
-description: Use when a finished chapter needs a historical era accuracy audit (period vocabulary, artifacts, locations)
+description: "Use when a finished chapter needs a historical era accuracy audit (period vocabulary, artifacts, locations)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+    - era-reference.md
+  writes:
+    - audits/chapter-N-era.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json, era-reference.md
+- **Writes:** audits/chapter-N-era.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 时代准确性审计
 
@@ -29,12 +47,6 @@ digraph review_era {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `era-reference.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -130,4 +142,3 @@ digraph review_era {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

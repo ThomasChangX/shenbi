@@ -1,7 +1,29 @@
 ---
 name: shenbi-chapter-planning
-description: Use when planning the next chapter, generating chapter memo, or deciding what should happen in an upcoming chapter
+description: "Use when planning the next chapter, generating chapter memo, or deciding what should happen in an upcoming chapter"
+contract:
+  kind: artifact
+  reads:
+    - truth/current_state.md
+    - truth/pending_hooks.md
+    - truth/chapter_summaries.md
+    - outline/volume_map.md
+    - outline/story_frame.md
+    - truth/current_focus.md
+    - truth/author_intent.md
+  writes:
+    - plans/chapter-N-plan.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
+- **Writes:** plans/chapter-N-plan.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 章节规划
 
@@ -22,12 +44,6 @@ digraph chapter_planning {
     "Human reviews" -> "Write plans/chapter-N-plan.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `truth/current_state.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`, `outline/volume_map.md`, `outline/story_frame.md`, `truth/current_focus.md`, `truth/author_intent.md`
-- **Writes:** `plans/chapter-N-plan.md`
-- **Updates:** none
 
 ## 铁律
 

@@ -1,7 +1,24 @@
 ---
 name: shenbi-chapter-revision
-description: Use when audit found issues in a chapter, fixing review feedback, or revising chapter content based on review results
+description: "Use when audit found issues in a chapter, fixing review feedback, or revising chapter content based on review results"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - audits/chapter-N-*.md
+  writes: []
+  updates:
+    - chapters/chapter-N.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
+- **Writes:** none
+- **Updates:** chapters/chapter-N.md
+
+<!-- END AUTO-GENERATED -->
 
 # 章节修订
 
@@ -24,12 +41,6 @@ digraph chapter_revision {
     "Passed?" -> "Revise again" [label="no - improved but not passing"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, audit report
-- **Writes:** none
-- **Updates:** `chapters/chapter-N.md`
 
 ## 铁律
 
@@ -67,7 +78,7 @@ digraph chapter_revision {
 2. **分数相同时选最新** — 同等分数下选最近一次修订（更贴近人类合作者的最新意图）
 3. **标记为 manual** — 回退后在章节文件中追加 `<!-- REVISION_FAILED: 3次修订未通过，已回退至最佳版本 -->`，通知人类合作者手动介入
 
-## 输出
+## 输出格式
 
 如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
 如果是 rewrite/rework：输出完整修订正文，人类批准后替换原章节文件。

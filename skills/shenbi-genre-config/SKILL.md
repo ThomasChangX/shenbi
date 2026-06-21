@@ -1,7 +1,24 @@
 ---
 name: shenbi-genre-config
-description: Use when configuring or updating genre rules, modifying fatigue word lists, calibrating pacing rules, defining chapter types, activating audit dimensions, or adding custom rules for a novel
+description: "Use when configuring or updating genre rules, modifying fatigue word lists, calibrating pacing rules, defining chapter types, activating audit dimensions, or adding custom rules for a novel"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - genre-config.json
+  writes: []
+  updates:
+    - genre-config.json
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, genre-config.json
+- **Writes:** none
+- **Updates:** genre-config.json
+
+<!-- END AUTO-GENERATED -->
 
 # 题材配置管理
 
@@ -20,12 +37,6 @@ digraph genre_config {
     "Human reviews" -> "Write to genre-config.json" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `genre-config.json` (existing)
-- **Writes:** 无
-- **Updates:** `genre-config.json`
 
 ## 铁律
 

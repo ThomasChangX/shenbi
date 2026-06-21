@@ -1,7 +1,26 @@
 ---
 name: shenbi-short-packaging
-description: Use when preparing a short story for publication, generating sales materials, writing the book blurb and selling points, or producing cover image prompts
+description: "Use when preparing a short story for publication, generating sales materials, writing the book blurb and selling points, or producing cover image prompts"
+contract:
+  kind: artifact
+  reads:
+    - outline/short_story_map.md
+    - chapters/*.md
+    - world/story_bible.md
+    - truth/author_intent.md
+  writes:
+    - import/packaging/*
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** outline/short_story_map.md, chapters/*.md, world/story_bible.md, truth/author_intent.md
+- **Writes:** import/packaging/*
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 短篇包装
 
@@ -20,12 +39,6 @@ digraph short_packaging {
     "Step 6: Human selects" -> "Write to import/packaging/";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `outline/short_story_map.md`, `chapters/*.md`, `world/story_bible.md`, `truth/author_intent.md`
-- **Writes:** `import/packaging/` 下的包装文件
-- **Updates:** 无
 
 ## 铁律
 

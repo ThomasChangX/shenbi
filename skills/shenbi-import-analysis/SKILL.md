@@ -1,7 +1,23 @@
 ---
 name: shenbi-import-analysis
-description: Use when ingesting an existing novel manuscript for analysis, parsing source chapters into structured data, or building the 8-pass reverse-engineering pipeline before downstream extraction
+description: "Use when ingesting an existing novel manuscript for analysis, parsing source chapters into structured data, or building the 8-pass reverse-engineering pipeline before downstream extraction"
+contract:
+  kind: artifact
+  reads:
+    - import/source/*.txt
+  writes:
+    - import/analysis/*.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** import/source/*.txt
+- **Writes:** import/analysis/*.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 导入分析
 
@@ -24,12 +40,6 @@ digraph import_analysis {
     "Pass 8: state reconstruction" -> "Write to import/analysis/";
 }
 ```
-
-## 数据契约
-
-- **Reads:** 源 `chapters/*.md`（或 `.txt`）
-- **Writes:** `import/analysis/` 下的 8 个分析文件
-- **Updates:** 无（导入阶段不修改源文件）
 
 ## 铁律
 

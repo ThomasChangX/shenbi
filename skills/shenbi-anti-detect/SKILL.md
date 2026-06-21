@@ -1,7 +1,24 @@
 ---
 name: shenbi-anti-detect
-description: Use when a chapter has been flagged by anti-AI audit for detectability markers that polishing alone cannot resolve
+description: "Use when a chapter has been flagged by anti-AI audit for detectability markers that polishing alone cannot resolve"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+  writes: []
+  updates:
+    - chapters/chapter-N.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json
+- **Writes:** none
+- **Updates:** chapters/chapter-N.md
+
+<!-- END AUTO-GENERATED -->
 
 # 反检测改写
 
@@ -21,12 +38,6 @@ digraph anti_detect {
     "Apply additional techniques" -> "Re-run anti-AI audit";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, anti-AI audit report
-- **Writes:** none (edits chapter in-place)
-- **Updates:** `chapters/chapter-N.md`
 
 ## 铁律
 

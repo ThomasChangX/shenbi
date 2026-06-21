@@ -1,7 +1,27 @@
 ---
 name: shenbi-sequel-writing
-description: Use when continuing a paused novel from a breakpoint snapshot, resuming writing after a break, reconstructing context for sequel chapters, or picking up an abandoned draft
+description: "Use when continuing a paused novel from a breakpoint snapshot, resuming writing after a break, reconstructing context for sequel chapters, or picking up an abandoned draft"
+contract:
+  kind: artifact
+  reads:
+    - snapshots/chapter-NNN/*
+    - truth/*.md
+    - outline/volume_map.md
+    - outline/thread_map.md
+  writes:
+    - chapters/chapter-N.md
+  updates:
+    - truth/*.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** snapshots/chapter-NNN/*, truth/*.md, outline/volume_map.md, outline/thread_map.md
+- **Writes:** chapters/chapter-N.md
+- **Updates:** truth/*.md
+
+<!-- END AUTO-GENERATED -->
 
 # 续篇写作
 
@@ -20,12 +40,6 @@ digraph sequel_writing {
     "Verify outline" -> "Continue writing (loop back to chapter-planning + drafting)";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `snapshots/chapter-NNN/` (breakpoint), `truth/*.md`, `outline/volume_map.md`, `outline/thread_map.md`
-- **Writes:** 新章节正文（与常规流程相同）
-- **Updates:** `truth/*.md`（通过 state-settling 增量更新）
 
 ## 铁律
 

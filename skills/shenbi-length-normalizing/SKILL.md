@@ -1,7 +1,24 @@
 ---
 name: shenbi-length-normalizing
-description: Use when a chapter falls below 3000 words (needs expansion) or exceeds 10000 words (needs compression)
+description: "Use when a chapter falls below 3000 words (needs expansion) or exceeds 10000 words (needs compression)"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - novel.json
+  writes: []
+  updates:
+    - chapters/chapter-N.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, novel.json
+- **Writes:** none
+- **Updates:** chapters/chapter-N.md
+
+<!-- END AUTO-GENERATED -->
 
 # 字数治理
 
@@ -23,12 +40,6 @@ digraph length_normalizing {
     "Compressed ≥ 3000 AND ≥ 25% original?" -> "REJECT: surface compression cannot achieve target without structural damage" [label="no"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `novel.json`
-- **Writes:** none (edits chapter in-place)
-- **Updates:** `chapters/chapter-N.md`
 
 ## 铁律
 

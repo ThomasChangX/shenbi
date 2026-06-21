@@ -1,7 +1,25 @@
 ---
 name: shenbi-intent-management
-description: Use when the author wants to set or update their creative intent, or before chapter-planning when current focus may have changed
+description: "Use when your human partner wants to set or update their creative intent, or before chapter-planning when current focus may have changed"
+contract:
+  kind: artifact
+  reads:
+    - truth/author_intent.md
+    - truth/audit_drift.md
+  writes: []
+  updates:
+    - truth/author_intent.md
+    - truth/current_focus.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/author_intent.md, truth/audit_drift.md
+- **Writes:** none
+- **Updates:** truth/author_intent.md, truth/current_focus.md
+
+<!-- END AUTO-GENERATED -->
 
 # 意图管理
 
@@ -20,12 +38,6 @@ digraph intent_management {
     "Present to human for approval" -> "Output 意图管理汇总";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `truth/author_intent.md`, `truth/audit_drift.md`
-- **Writes:** none
-- **Updates:** `truth/author_intent.md`, `truth/current_focus.md`
 
 ## 铁律
 
