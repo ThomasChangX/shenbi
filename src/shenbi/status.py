@@ -21,6 +21,10 @@ class GateStatus(StrEnum):
     FAIL = "FAIL"
     SKIP = "SKIP"
     WARN = "WARN"
+    # Stub gates (shared.unimplemented) emit this. Lives here — not borrowed from
+    # ScoringStatus — so a gate result envelope never carries a non-gate status
+    # and ``GateResult.status: GateStatus`` is a truthful type.
+    UNIMPLEMENTED = "UNIMPLEMENTED"
 
 
 class PhaseState(StrEnum):

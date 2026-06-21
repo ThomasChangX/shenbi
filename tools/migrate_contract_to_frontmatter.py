@@ -551,7 +551,14 @@ def _strip_body_contract(body: str) -> str:
 
 
 def migrate_skill(skill: str) -> bool:
-    """Rewrite one skill's frontmatter to add the contract; strip the body block."""
+    """Rewrite one skill's frontmatter to add the contract; strip the body block.
+
+    Idempotent: if the frontmatter already has a ``contract:`` block the skill
+    is already migrated, so return without rewriting. Without this guard,
+    ``_strip_body_contract`` would also match the auto-generated ``## 数据契约``
+    view (rendered by ``just generate``) and delete content up to the next ``##``
+    heading — corrupting already-migrated files on re-run.
+    """
     spec = CLASSIFICATION.get(skill)
     if spec is None:
         return False
@@ -561,6 +568,8 @@ def migrate_skill(skill: str) -> bool:
     if not m:
         return False
     fm = m.group(1)
+    if re.search(r"^contract:\s*$", fm, re.MULTILINE):
+        return True  # already migrated — no-op (spec §7.2 idempotency)
     name_m = re.search(r"^name:\s*(.+)$", fm, flags=re.MULTILINE)
     desc_m = re.search(r"^description:\s*(.+)$", fm, flags=re.MULTILINE)
     assert name_m and desc_m, skill

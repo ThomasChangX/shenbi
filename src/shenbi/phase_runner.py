@@ -150,9 +150,9 @@ def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | No
     g2_status = GateStatus.SKIP.value
     if output_files:
         g2 = run_gate("G2", [",".join(output_files), "chapter", str(round_dir)])
-        g2_status = g2.get("status", CommandStatus.ERROR.value)
+        g2_status = g2.get("status", GateStatus.FAIL.value)
     g4 = run_gate("G4", [skill, ",".join(output_files) if output_files else "", str(round_dir)])
-    g4_status = g4.get("status", CommandStatus.ERROR.value)
+    g4_status = g4.get("status", GateStatus.FAIL.value)
     step = {
         "action": "post-skill",
         "skill": skill,

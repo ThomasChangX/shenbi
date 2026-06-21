@@ -22,7 +22,7 @@ class TestGateStatusWireValues:
         assert str(GateStatus.PASS) == "PASS"
 
     def test_exhaustive_set(self) -> None:
-        assert {g.value for g in GateStatus} == {"PASS", "FAIL", "SKIP", "WARN"}
+        assert {g.value for g in GateStatus} == {"PASS", "FAIL", "SKIP", "WARN", "UNIMPLEMENTED"}
 
 
 @pytest.mark.unit
@@ -105,4 +105,7 @@ class TestSharedHelpersUseEnums:
         from shenbi.gates.shared import unimplemented
 
         result = json.loads(unimplemented("G9"))
-        assert result["status"] == ScoringStatus.UNIMPLEMENTED.value
+        # A gate result's UNIMPLEMENTED status is a GateStatus member (not
+        # borrowed from ScoringStatus) so the gate envelope stays self-typed.
+        assert result["status"] == GateStatus.UNIMPLEMENTED.value
+        assert result["status"] == "UNIMPLEMENTED"

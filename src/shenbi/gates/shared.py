@@ -5,7 +5,7 @@ import these helpers to keep behavior identical to the legacy monolith.
 """
 
 from shenbi.logging import get_logger
-from shenbi.status import GateResult, GateStatus, ScoringStatus
+from shenbi.status import GateResult, GateStatus
 
 log = get_logger(__name__)
 
@@ -170,7 +170,7 @@ def unimplemented(gate_name: str, note: str = "") -> str:
     return json.dumps(
         {
             "gate": gate_name,
-            "status": ScoringStatus.UNIMPLEMENTED,
+            "status": GateStatus.UNIMPLEMENTED,
             "note": note or f"{gate_name} not yet implemented — stub",
             "timestamp": datetime.now(UTC).isoformat(),
             "checks": [],
