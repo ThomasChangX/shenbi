@@ -20,6 +20,12 @@ jobs:
     # Windows allow-failure until @pytest.mark.skip_on_windows marker is
     # registered (spec OQ-1; deferred to a follow-up source-code PR).
     continue-on-error: ${{ matrix.python-version == '3.13' || matrix.os == 'windows-latest' }}
+    env:
+      # Default all file I/O and stdout to UTF-8 on every OS. The framework
+      # reads/writes CJK content; without this, Windows falls back to cp1252
+      # and crashes with UnicodeEncode/DecodeError. (Code also sets encoding=
+      # explicitly; this covers subprocesses and prints.)
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3

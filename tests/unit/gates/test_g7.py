@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any, cast
 
@@ -91,6 +92,7 @@ class TestG7ErrorPaths:
         result = _result_dict(gate_G7(str(round_dir)))
         assert any("G7.6:pending_truth" in mf for mf in result["must_fix"])
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="chmod permissions not honored on Windows")
     @pytest.mark.unit
     def test_g7_changelog_not_writable_fails(self, tmp_path: Path, monkeypatch) -> None:
         """When the CHANGELOG's parent dir exists but is not writable and the
@@ -314,6 +316,7 @@ class TestG7ErrorPaths:
         assert g716 is not None
         assert g716["s"] == "PASS"
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="chmod permissions not honored on Windows")
     @pytest.mark.unit
     def test_g7_changelog_exists_not_writable_fails(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

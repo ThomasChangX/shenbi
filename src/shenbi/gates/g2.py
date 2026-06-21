@@ -73,12 +73,10 @@ def gate_G2(
         # truth/, outline/, plans/, snapshots/ files must have frontmatter.
         # Creative output (chapters/, world/, review reports) is exempt.
         if fp.endswith(".md"):
-            must_have = (
-                any(f"/{d}/" in fp for d in ["truth", "outline", "plans", "snapshots"])
-                or fp.endswith("plan.md")
-                or fp.endswith("memo.md")
-                or fp.endswith("map.md")
-            )
+            _parts = set(Path(fp).parts)
+            must_have = any(
+                d in _parts for d in ["truth", "outline", "plans", "snapshots"]
+            ) or fp.endswith(("plan.md", "memo.md", "map.md"))
             try:
                 fm = yload(fp)
                 has_fm = bool(fm)

@@ -165,7 +165,7 @@ def write_gate_marker(
             "files_checked": [str(p) for p in (file_paths or [])],
         }
         marker_file = marker_dir / f"{gate}-{target}-{test_type}.json"
-        marker_file.write_text(json.dumps(marker, indent=2, ensure_ascii=False))
+        marker_file.write_text(json.dumps(marker, indent=2, ensure_ascii=False), encoding="utf-8")
     except (json.JSONDecodeError, OSError):
         pass
 
