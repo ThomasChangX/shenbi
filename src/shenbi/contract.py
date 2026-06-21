@@ -52,7 +52,10 @@ def load_registry() -> dict[str, Any]:
     """Load and return the canonical file registry as a dict."""
     if not REGISTRY_PATH.exists():
         raise ContractError("registry missing", registry=str(REGISTRY_PATH))
-    data = yaml.safe_load(REGISTRY_PATH.read_text(encoding="utf-8"))
+    try:
+        data = yaml.safe_load(REGISTRY_PATH.read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        raise ContractError("registry malformed YAML", registry=str(REGISTRY_PATH)) from e
     if not isinstance(data, dict):
         raise ContractError("registry malformed", registry=str(REGISTRY_PATH))
     return data
@@ -79,7 +82,10 @@ def _read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
     parts = text.split("---", 2)
     if len(parts) < 3:
         raise ContractError("frontmatter unterminated", skill=skill)
-    data = yaml.safe_load(parts[1]) or {}
+    try:
+        data = yaml.safe_load(parts[1]) or {}
+    except yaml.YAMLError as e:
+        raise ContractError("frontmatter malformed YAML", skill=skill) from e
     if not isinstance(data, dict):
         raise ContractError("frontmatter not a mapping", skill=skill)
     contract = data.get("contract")
