@@ -61,9 +61,13 @@ packages = ["src/shenbi"]
 
 # Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-23)
 [tool.mutmut]
-paths-to-mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py", "src/shenbi/gates/shared.py"]
-tests-dir = "tests/unit/"
-do-not-mutate = ["tests/rounds/archived/**"]
+# mutmut 3.x reads underscored keys; the prior hyphenated names
+# (paths-to-mutate / tests-dir / do-not-mutate) were silently ignored, so
+# mutmut mutated a default set and ran the whole suite (including integration
+# tests that subprocess-run gates needing skills/, which is absent in mutants/).
+paths_to_mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py", "src/shenbi/gates/shared.py"]
+pytest_add_cli_args_test_selection = ["tests/unit/"]
+do_not_mutate = ["tests/rounds/archived/**"]
 
 [tool.ruff]
 line-length = 100
