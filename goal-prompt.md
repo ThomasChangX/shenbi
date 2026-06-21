@@ -21,8 +21,8 @@
 - 9 个 T2 phase: `tests/tiers/t2-phase/<phase>/`
 - 3 个 T3 pipeline: `tests/tiers/t3-pipeline/<pipeline>/`
 - 115 个 fixture（83 文件 + 32 目录）: `tests/fixtures/`
-- 工具脚本: `tests/scoring.py`, `tests/validate-gate.py`, `tests/round-exec.sh`, `tests/summarize-round.py`, `tests/phase-runner.py`
-- 新增工具: `tests/update-progress.py`（progress.json 单写入入口）, `tests/dispatch-subagent.sh`（独立评分 dispatch）, `tests/lock-tool-hashes.sh`（工具哈希锁定）
+- 工具脚本（entry points）: `shenbi-score`, `shenbi-validate`, `shenbi-summarize`, `shenbi-phase`, `shenbi-progress`, `shenbi-dispatch`（源码在 `src/shenbi/`）
+- 辅助脚本: `tests/round-exec.sh`（round 创建 + G0 验证）, `tests/lock-tool-hashes.sh`（工具哈希锁定）
 - 接受阈值：T1≥94, T2≥94, T3≥94（`tests/tiers/acceptance.json`）
 - 执行协议: `command-to-give.md`
 
@@ -85,7 +85,7 @@
 1. **Tool Hash Lock**：`tests/tiers/deps.json` 的 `_tool_hashes` 锁定了 validate-gate.py、scoring.py、phase-runner.py、summarize-round.py 的 SHA256。**G0.13 在 round 创建时验证**（已实现），G7.17 在 round 关闭时重新验证。任何 mid-round 修改都会被检测到。修改工具后运行 `bash tests/lock-tool-hashes.sh`。
 2. **Gate Marker 强制**：scoring.py 在计算分数前必须检查 gate markers 存在（`--round-dir` 模式）。缺 marker → exit(3) `MARKER_MISSING`，拒绝评分。**G4 gate markers 覆盖 generative、bug-hunt、clean 三种测试类型。**
 3. **G7 Post-Round 审计**：summarize-round.py 必须运行 G7。G7 返回 FAIL（含 TOOL_TAMPER 或 GATE_MISMATCH）→ 拒绝生成 summary。
-4. **评分独立性**：Dispatcher 不得评分。scoring.py 的 `_provenance` 字段记录评分者身份（`scored_by`）和 gate markers 验证状态。使用 `bash tests/dispatch-subagent.sh` 进行独立 dispatch。
+4. **评分独立性**：Dispatcher 不得评分。`shenbi-score` 的 `_provenance` 字段记录评分者身份（`scored_by`）和 gate markers 验证状态。使用 `shenbi-dispatch` 进行独立 dispatch。
 5. **G0 强化阻断**：G0.5b（rubric-SKILL.md 对齐）和 G0.9c（scenario fixture 纯度）现在是 **FAIL 硬阻断**，不再是 WARN。
 6. **progress.json 一致性**：G0.14 验证 `completed_skill_names` 与 `skills` dict 一致。G0.15 验证 `remaining_*` 队列准确。G0.16 验证 summary.json 无预填充幻影分数。
-7. **单写入入口**：progress.json 只能通过 `tests/update-progress.py` 修改。禁止直接编辑。
+7. **单写入入口**：progress.json 只能通过 `shenbi-progress` 修改。禁止直接编辑。

@@ -20,7 +20,7 @@ digraph style_learning {
 }
 ```
 
-**第一步必须运行** `python3 skills/shenbi-style-learning/compute_stats.py <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
+**第一步必须运行** `python -m shenbi.skill_utils.style_learning <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
 
 ## 数据契约
 

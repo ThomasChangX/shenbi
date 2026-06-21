@@ -1,0 +1,41 @@
+name: Pre-commit autoupdate
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Monday 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  autoupdate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install pre-commit
+      - run: pre-commit autoupdate
+      - name: Verify updated hooks work (tolerate autofix, block on real failure)
+        run: |
+          set +e
+          pre-commit run --all-files
+          rc=$?
+          set -e
+          # 0 = clean; 1 = hooks autofixed files (expected on autoupdate,
+          # those changes get included in the PR); >1 = real failure
+          # indicating the new hook revs are incompatible — block PR creation.
+          if [ $rc -gt 1 ]; then
+            echo "::error::pre-commit verification failed (exit $rc)"
+            echo "::error::new hook revs are incompatible — PR will not be created"
+            exit $rc
+          fi
+          echo "Verification passed (exit $rc; autofixes included in PR)"
+      - name: Create PR if changes
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: pre-commit autoupdate"
+          title: "chore: pre-commit autoupdate"
+          branch: pre-commit-autoupdate
+          labels: dependencies, pre-commit

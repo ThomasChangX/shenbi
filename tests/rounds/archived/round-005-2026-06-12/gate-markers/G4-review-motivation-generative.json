@@ -1,0 +1,15 @@
+{
+  "gate": "G4-generic-gen",
+  "status": "PASS",
+  "timestamp": "2026-06-12T18:52:58.809100+00:00",
+  "checks": [
+    {
+      "id": "G4.gen.motivation-review-report.md",
+      "s": "PASS",
+      "size": 342
+    }
+  ],
+  "files_checked": [
+    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-review-motivation/motivation-review-report.md"
+  ]
+}

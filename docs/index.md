@@ -2,6 +2,6 @@
 
 Novel-writing AI skill framework.
 
-## Documentation
+[Get started](getting-started/installation.md) or read the [concepts](getting-started/concepts.md).
 
-- [Architecture Decision Records](adr/) — 9 decisions covering P-1 Foundation Hygiene
+See the [Contributing guide](https://github.com/ThomasChangX/shenbi/blob/main/CONTRIBUTING.md) and [Changelog](https://github.com/ThomasChangX/shenbi/blob/main/CHANGELOG.md).

@@ -850,7 +850,7 @@ tests/
 │       ├── t1-reports/
 │       ├── t2-reports/
 │       ├── t3-reports/
-│       ├── novel-output/
+│       ├── skill-output/  (renamed from novel-output/ in PR-22)
 │       ├── skill-traces/
 │       ├── enhancement-signals.json
 │       └── summary.json
@@ -870,7 +870,7 @@ tests/
 2. Run tests for the target tier.
 3. For each test: execute skill, capture output, score against rubric, generate skill trace.
 4. Aggregate into summary.json with all scores, kill-switch status, enhancement signals.
-5. Preserve novel-output/ for human review.
+5. Preserve skill-output/ for human review (renamed from novel-output/ in PR-22).
 6. If any score < 100: identify fixes, apply to SKILL.md or test cases, increment round.
 7. If all scores = 100: advance to next tier, or mark round as complete.
 8. Update CHANGELOG.md with round results, band breakdown, and fixes applied.

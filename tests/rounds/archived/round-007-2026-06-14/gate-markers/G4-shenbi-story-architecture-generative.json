@@ -1,0 +1,33 @@
+{
+  "gate": "G4-story-architecture",
+  "status": "PASS",
+  "timestamp": "2026-06-14T03:26:42.075793+00:00",
+  "checks": [
+    {
+      "id": "G4.sf.surface_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sf.personal_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sf.deep_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.volumes",
+      "s": "PASS",
+      "count": 6,
+      "with_obj_kr": 6
+    },
+    {
+      "id": "G4.sa.rhythm_principles",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "tests/rounds/round-007-2026-06-14/novel-output/shenbi-story-architecture/outline/story_frame.md",
+    "tests/rounds/round-007-2026-06-14/novel-output/shenbi-story-architecture/outline/volume_map.md"
+  ]
+}

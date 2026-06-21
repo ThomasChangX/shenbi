@@ -1,0 +1,14 @@
+{
+  "1": 90,
+  "2": 95,
+  "3": 95,
+  "4": 95,
+  "5": 95,
+  "6": 95,
+  "7": 95,
+  "8": 95,
+  "_final": 94.50,
+  "_band": "PASS",
+  "_kill_switch": false,
+  "_notes": "Line number present: defect at L200 (exact row). Rule 铁律一: 每章至少推进1条线索 exactly matches SKILL.md L35. Evidence includes adjacent chapter rows (L199 ch14, L201 ch16) as contrast, blank detection section L370-L373 (self-identifies ch15 as blank), and self-check of 99 other chapters. Cascade analysis of B4 max_gap exceeding P1 limit is bonus. False positive check verifies all non-ch15 chapters have thread coverage. Anti-rationalization table entry at SKILL.md L228 correctly cited."
+}

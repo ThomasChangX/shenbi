@@ -1,0 +1,75 @@
+{
+  "skill": "shenbi-faction-builder",
+  "test_type": "bug-hunt",
+  "date": "2026-06-12",
+  "scorer": "independent-rescore",
+  "rubric_version": "tests/tiers/t1-skill/shenbi-faction-builder/rubric.md",
+
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 90,
+      "weight": 0.10,
+      "weighted": 10.00,
+      "notes": "Report demonstrates systematic review of faction profile against SKILL.md rules and output format count rules. Does not explicitly trace through each SKILL.md section."
+    },
+    "2_output_completeness": {
+      "score": 95,
+      "weight": 0.05,
+      "weighted": 5.28,
+      "notes": "All required sections present. Detection documented with description, location(file+line), violated rule, evidence, severity, and false positive check."
+    },
+    "3_interest_driven_realism": {
+      "score": 95,
+      "weight": 0.20,
+      "weighted": 21.11,
+      "notes": "Planted defect found with file+line evidence (L38-46). Rule identification 铁律二:内部必有矛盾 correctly matches SKILL.md rule 2."
+    },
+    "4_internal_conflict": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 16.67,
+      "notes": "Explicit false positive check conducted. All other sections (层级结构, 跨势力动态, 利益驱动, 锚点角色) verified structurally valid. Output format count rules referenced for threshold verification."
+    },
+    "5_cross_faction_dynamics": {
+      "score": 95,
+      "weight": 0.15,
+      "weighted": 15.83,
+      "notes": "Rule 铁律二:内部必有矛盾 correctly identified by SKILL.md name. Rule application is direct - faction with zero internal conflict violates the requirement explicitly."
+    },
+    "6_anchor_character_consistency": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 16.67,
+      "notes": "Evidence citation includes exact file path (world/factions/meidelan-maiban.md) and line numbers (L38-46). Direct inline quotes from source material provided."
+    },
+    "7_behavioral_predictability": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 10.56,
+      "notes": "Planted defect detected with file+line evidence. Rule identification correct."
+    },
+    "8_prose_quality": {
+      "score": null,
+      "weight": 0.10,
+      "weighted": null,
+      "notes": "N/A exempted per rubric. Prose quality is a content-generation metric with no meaningful bug-hunt interpretation. Weights renormalized."
+    }
+  },
+
+  "total_score": 96.1,
+  "grade": "PASS",
+  "kill_switch_triggered": false,
+
+  "checks": {
+    "line_numbers_present": true,
+    "exact_skill_md_rule_names_used": true,
+    "false_positive_check_present": true
+  },
+  "rule_names_used": [
+    "铁律二：内部必有矛盾"
+  ],
+
+  "flags": [
+    "D8 (Prose quality) exempted per rubric - weights renormalized over remaining 90%"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "skill": "shenbi-worldbuilding",
+  "test_type": "bug-hunt",
+  "date": "2026-06-12",
+  "scorer": "independent-rescore",
+  "rubric_version": "tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md",
+
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 90,
+      "weight": 0.10,
+      "weighted": 10.00,
+      "notes": "Report follows a clear detection methodology. Reviews rules.md content against SKILL.md requirements. Does not explicitly enumerate which SKILL.md sections were audited."
+    },
+    "2_output_completeness": {
+      "score": 95,
+      "weight": 0.05,
+      "weighted": 5.28,
+      "notes": "All required sections present. Single detection comprehensively documented with description, location(file+line), violated rule, evidence, and false positive check."
+    },
+    "3_internal_consistency": {
+      "score": 95,
+      "weight": 0.15,
+      "weighted": 15.83,
+      "notes": "Planted defect (Rule 3 vs Rule 7 contradiction) found with file+line evidence (L31-33 vs L66-68). Rule identification 铁律三:世界铁律写在 rules.md is reasonable - contradictory rules violate rules.md as authoritative source."
+    },
+    "4_prose_quality": {
+      "score": null,
+      "weight": 0.10,
+      "weighted": null,
+      "notes": "N/A exempted per rubric. Prose quality is a content-generation metric with no meaningful bug-hunt interpretation. Weights renormalized."
+    },
+    "5_deduplication": {
+      "score": 100,
+      "weight": 0.10,
+      "weighted": 11.11,
+      "notes": "Explicit false positive check conducted. Remaining 8 rules verified self-consistent. Rule 1 distinguished from the contradiction. No clean content incorrectly flagged."
+    },
+    "6_hook_potential": {
+      "score": 90,
+      "weight": 0.15,
+      "weighted": 15.00,
+      "notes": "Rule 铁律三:世界铁律写在 rules.md correctly identified by SKILL.md name. Rule application is reasonable - contradiction undermines rules.md as authoritative reference."
+    },
+    "7_scalability": {
+      "score": 100,
+      "weight": 0.15,
+      "weighted": 16.67,
+      "notes": "Evidence includes exact file path (world/rules.md) and line numbers (L31-33, L66-68). Direct inline quotes from source material provided."
+    },
+    "8_rule_enforceability": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 10.56,
+      "notes": "Planted defect detected with file+line evidence. Rule identification correct."
+    },
+    "9_template_completeness": {
+      "score": 95,
+      "weight": 0.10,
+      "weighted": 10.56,
+      "notes": "Planted defect detected with file+line evidence. Rule identification correct."
+    }
+  },
+
+  "total_score": 95.0,
+  "grade": "PASS",
+  "kill_switch_triggered": false,
+
+  "checks": {
+    "line_numbers_present": true,
+    "exact_skill_md_rule_names_used": true,
+    "false_positive_check_present": true
+  },
+  "rule_names_used": [
+    "铁律三：世界铁律写在 rules.md"
+  ],
+
+  "flags": [
+    "D4 (Prose quality) exempted per rubric - weights renormalized over remaining 90%"
+  ]
+}

@@ -1,8 +1,10 @@
 """Tests for typed exception hierarchy."""
 
-from tests import exceptions as exc_mod
-from tests.error_guidance import ERROR_GUIDANCE, get_guidance
-from tests.exceptions import (
+import pytest
+
+from shenbi import exceptions as exc_mod
+from shenbi.error_guidance import ERROR_GUIDANCE, get_guidance
+from shenbi.exceptions import (
     FrameworkError,
     GateError,
     GateMarkerMissingError,
@@ -10,7 +12,9 @@ from tests.exceptions import (
     RegistryStaleError,
     ShenbiError,
 )
-from tests.recovery import RECOVERY_STRATEGIES, RecoveryStrategy
+from shenbi.recovery import RECOVERY_STRATEGIES, RecoveryStrategy
+
+pytestmark = pytest.mark.unit
 
 
 class TestHierarchy:

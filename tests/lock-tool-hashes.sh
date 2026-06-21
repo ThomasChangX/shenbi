@@ -10,14 +10,22 @@ from pathlib import Path
 project = Path('${PROJECT}')
 deps_path = project / 'tests' / 'tiers' / 'deps.json'
 deps = json.loads(deps_path.read_text(encoding='utf-8'))
-names = ['validate-gate.py', 'scoring.py', 'phase-runner.py', 'summarize-round.py']
+# PR-19 (P-1.E): validate-gate.py / scoring.py / phase-runner.py / summarize-round.py
+# moved to src/shenbi/. Hash the src/shenbi/ tree instead.
+tool_paths = [
+    'src/shenbi/gates/cli.py',
+    'src/shenbi/gates/shared.py',
+    'src/shenbi/scoring.py',
+    'src/shenbi/phase_runner.py',
+    'src/shenbi/summarize_round.py',
+]
 new = {}
-for n in names:
-    p = project / 'tests' / n
+for rel in tool_paths:
+    p = project / rel
     if p.exists():
         h = hashlib.sha256(p.read_bytes()).hexdigest()
-        new[n] = f'sha256:{h}'
-        print(f'  {n}: {h}')
+        new[rel] = f'sha256:{h}'
+        print(f'  {rel}: {h}')
 deps['_tool_hashes'] = new
 deps_path.write_text(json.dumps(deps, indent=2, ensure_ascii=False) + '\n')
 print('Done.')

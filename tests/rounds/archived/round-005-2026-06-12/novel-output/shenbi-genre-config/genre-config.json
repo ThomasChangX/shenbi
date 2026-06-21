@@ -1,0 +1,263 @@
+{
+  "version": "1.0",
+  "updated": "2026-06-13",
+  "fatigueWords": {
+    "禁用": [
+      "俊美",
+      "剑眉星目",
+      "邪魅一笑",
+      "恐怖如斯",
+      "倒吸一口凉气",
+      "嘴角微掀",
+      "美眸",
+      "凤眸",
+      "薄唇轻启",
+      "眸光微闪",
+      "不由得多看了几眼",
+      "心中一凛",
+      "旋即",
+      "顿时",
+      "立刻",
+      "忽然",
+      "便",
+      "不由",
+      "竟然",
+      "只见",
+      "当下"
+    ],
+    "慎用": [
+      "冷冷道",
+      "冷哼一声",
+      "眼中闪过一丝",
+      "不禁感慨",
+      "微微一愣",
+      "心中暗道",
+      "目光复杂",
+      "声音低沉",
+      "缓缓说道",
+      "沉默片刻"
+    ],
+    "替换建议": {
+      "俊美": [
+        "长相端正",
+        "五官分明",
+        "面部线条清晰"
+      ],
+      "剑眉星目": [
+        "眉骨突出眼神锐利",
+        "浓眉下有光"
+      ],
+      "邪魅一笑": [
+        "嘴角扯了一下",
+        "扯出一个笑来",
+        "似笑非笑地点点头"
+      ],
+      "恐怖如斯": [
+        "骇人",
+        "令人生畏",
+        "让人脊背发凉"
+      ],
+      "倒吸一口凉气": [
+        "抽了口气",
+        "喉咙发紧",
+        "呼吸一滞"
+      ],
+      "嘴角微掀": [
+        "嘴角动了动",
+        "扯了扯嘴角"
+      ],
+      "美眸": [
+        "眼睛",
+        "目光",
+        "眼神"
+      ],
+      "凤眸": [
+        "细长的眼睛",
+        "眼角微挑"
+      ],
+      "薄唇轻启": [
+        "张嘴要说",
+        "开口",
+        "嘴唇动了一下"
+      ],
+      "眸光微闪": [
+        "眼神闪了一下",
+        "目光有些躲闪",
+        "眼珠转了转"
+      ],
+      "不由得多看了几眼": [
+        "多看了两眼",
+        "忍不住又看了一眼"
+      ],
+      "心中一凛": [
+        "心里一紧",
+        "心猛地跳了一下"
+      ],
+      "旋即": [
+        "接着",
+        "随即"
+      ],
+      "顿时": [
+        "一下子",
+        "马上"
+      ],
+      "立刻": [
+        "马上",
+        "直接"
+      ],
+      "忽然": [
+        "突然",
+        "猛地",
+        "冷不丁"
+      ],
+      "便": [
+        "就",
+        "于是"
+      ],
+      "不由": [
+        "忍不住",
+        "不自觉地",
+        "下意识地"
+      ],
+      "竟然": [
+        "居然",
+        "出乎意料"
+      ],
+      "只见": [
+        ""
+      ],
+      "当下": [
+        "这时",
+        "此刻"
+      ],
+      "冷冷道": [
+        "说",
+        "声音很冷",
+        "语气冷硬"
+      ],
+      "冷哼一声": [
+        "从鼻子里哼了一声",
+        "冷嗤一声",
+        "\"哼\"了一声"
+      ],
+      "眼中闪过一丝": [
+        "眼神里有",
+        "眼底掠过一抹",
+        "目光中透出"
+      ],
+      "不禁感慨": [
+        "感叹",
+        "心里觉得"
+      ],
+      "微微一愣": [
+        "愣了一下",
+        "顿了一下",
+        "一时没反应过来"
+      ],
+      "心中暗道": [
+        "心想",
+        "心说"
+      ],
+      "目光复杂": [
+        "眼神有些复杂",
+        "不知道该用什么表情"
+      ],
+      "声音低沉": [
+        "声音压得很低",
+        "沉声"
+      ],
+      "缓缓说道": [
+        "慢慢说",
+        "不紧不慢地说",
+        "一字一顿地说"
+      ],
+      "沉默片刻": [
+        "安静了一会儿",
+        "顿了一下才开口"
+      ]
+    }
+  },
+  "pacing": {
+    "softRange": 0.15,
+    "hardRange": 0.3,
+    "minChaptersPerCycle": 8,
+    "maxChaptersPerCycle": 15
+  },
+  "chapterTypes": {
+    "battle": {
+      "maxConsecutive": 2,
+      "warningThreshold": 2
+    },
+    "dialogue": {
+      "maxConsecutive": 3,
+      "warningThreshold": 3
+    },
+    "introspection": {
+      "maxConsecutive": 2,
+      "warningThreshold": 2
+    },
+    "transition": {
+      "maxConsecutive": 1,
+      "warningThreshold": 1
+    },
+    "action": {
+      "maxConsecutive": 3,
+      "warningThreshold": 3
+    },
+    "info_dump": {
+      "maxConsecutive": 1,
+      "warningThreshold": 1
+    },
+    "emotional_climax": {
+      "maxConsecutive": 1,
+      "warningThreshold": 1
+    },
+    "setup": {
+      "maxConsecutive": 2,
+      "warningThreshold": 2
+    }
+  },
+  "auditDimensions": {
+    "antiAi": true,
+    "character": true,
+    "motivation": true,
+    "pacing": true,
+    "continuity": true,
+    "foreshadowing": true,
+    "worldRules": true,
+    "dialogue": true,
+    "era": true,
+    "sensitivity": false
+  },
+  "customRules": [
+    {
+      "id": "rule-001",
+      "description": "战斗场景必须有空间感和伤亡",
+      "enforcement": "warning",
+      "example": "战斗写成光效对轰无伤亡"
+    },
+    {
+      "id": "rule-002",
+      "description": "主角幽默语气需保持一致性",
+      "enforcement": "warning",
+      "example": "主角严肃章节中忘了幽默底色"
+    },
+    {
+      "id": "rule-003",
+      "description": "政治思想通过行动呈现，非说教",
+      "enforcement": "blocking",
+      "example": "角色长篇大论宣讲政治理论超过200字"
+    },
+    {
+      "id": "rule-004",
+      "description": "敏感内容审计已禁用——架空历史作品",
+      "enforcement": "blocking",
+      "example": "为敏感内容审计添加re-enable规则"
+    }
+  ],
+  "approval": {
+    "reviewer": "human-partner",
+    "decision": "approved",
+    "date": "2026-06-13"
+  }
+}

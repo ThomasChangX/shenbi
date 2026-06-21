@@ -1,0 +1,35 @@
+{
+  "genre": ["架空历史", "异世大陆", "战争史诗", "穿越", "政治幻想"],
+  "fatigue_words": [
+    "命运", "轮回", "天道", "逆天", "逆鳞", "蝼蚁", "妖孽", "绝世",
+    "恐怖如斯", "一声冷哼", "嘴角微扬", "眼中闪过", "瞳孔一缩",
+    "倒吸一口凉气", "下意识地", "不知为何", "仿佛", "似乎",
+    "层层叠叠", "密密麻麻", "铺天盖地", "金光大放", "光芒四射"
+  ],
+  "audit_dimensions": [
+    "character_consistency",
+    "world_rules_compliance",
+    "power_system_balance",
+    "historical_accuracy",
+    "dialogue_authenticity",
+    "pacing_rhythm",
+    "anti_ai_markers",
+    "emotional_impact",
+    "foreshadowing_tracking"
+  ],
+  "pacing_rules": {
+    "min_words_per_chapter": 2500,
+    "max_words_per_chapter": 4000,
+    "cliffhanger_required": true,
+    "action_scene_max_paragraphs": 8,
+    "dialogue_max_exchange": 12,
+    "exposition_max_paragraphs": 5
+  },
+  "style_constraints": {
+    "narrative_mode": "third_person_limited",
+    "show_ratio": 0.75,
+    "tell_ratio": 0.25,
+    "max_consecutive_adjectives": 2,
+    "prohibited_phrases": ["命运的齿轮开始转动", "历史的车轮滚滚向前"]
+  }
+}

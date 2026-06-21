@@ -1,0 +1,22 @@
+{
+  "gate": "G4-context-composing",
+  "status": "PASS",
+  "timestamp": "2026-06-12T18:46:20.233938+00:00",
+  "checks": [
+    {
+      "id": "G4.cc.labels",
+      "file": "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-context-composing/context-composing-report.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.cc.p1p2",
+      "file": "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-context-composing/context-composing-report.md",
+      "s": "PASS",
+      "p1_len": 2317,
+      "p2_len": 2147
+    }
+  ],
+  "files_checked": [
+    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-context-composing/context-composing-report.md"
+  ]
+}

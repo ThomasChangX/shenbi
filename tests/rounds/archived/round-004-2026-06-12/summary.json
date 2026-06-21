@@ -1,0 +1,195 @@
+{
+  "round": "004",
+  "model": "claude",
+  "tier_target": "T1",
+  "t1_scores": {
+    "shenbi-anti-detect": {
+      "generative": 92.25
+    },
+    "shenbi-canon-import": {
+      "generative": 92.5
+    },
+    "shenbi-chapter-drafting": {
+      "generative": 94.5
+    },
+    "shenbi-chapter-pattern": {
+      "generative": 86.75
+    },
+    "shenbi-chapter-planning": {
+      "generative": 96.25
+    },
+    "shenbi-chapter-revision": {
+      "generative": 97.75
+    },
+    "shenbi-character-design": {
+      "generative": 98.5
+    },
+    "shenbi-character-extraction": {
+      "generative": 88.8
+    },
+    "shenbi-context-composing": {
+      "generative": 83.75
+    },
+    "shenbi-drift-guidance": {
+      "generative": 100.0
+    },
+    "shenbi-faction-builder": {
+      "generative": 94.1
+    },
+    "shenbi-foreshadowing-plant": {
+      "generative": 99.5
+    },
+    "shenbi-foreshadowing-resolve": {
+      "generative": 94.5
+    },
+    "shenbi-foreshadowing-track": {
+      "generative": 96.25
+    },
+    "shenbi-foundation-review": {
+      "generative": 95.5
+    },
+    "shenbi-genre-config": {
+      "generative": 90.75
+    },
+    "shenbi-import-analysis": {
+      "generative": 92.4
+    },
+    "shenbi-intent-management": {
+      "generative": 100.0
+    },
+    "shenbi-length-normalizing": {
+      "generative": 69.75
+    },
+    "shenbi-location-builder": {
+      "generative": 92.6
+    },
+    "shenbi-market-radar": {
+      "generative": 78.0
+    },
+    "shenbi-pacing-design": {
+      "generative": 94.5
+    },
+    "shenbi-plot-thread-weaver": {
+      "generative": 96.75
+    },
+    "shenbi-power-system": {
+      "generative": 100.0
+    },
+    "shenbi-relationship-map": {
+      "generative": 88.0
+    },
+    "shenbi-review-anti-ai": {
+      "generative": 94.05
+    },
+    "shenbi-review-character": {
+      "generative": 91.0
+    },
+    "shenbi-review-continuity": {
+      "generative": 90.3
+    },
+    "shenbi-review-dialogue": {
+      "generative": 86.4
+    },
+    "shenbi-review-era": {
+      "generative": 94.5
+    },
+    "shenbi-review-fanfic": {
+      "generative": 90.75
+    },
+    "shenbi-review-foreshadowing": {
+      "generative": 97.5
+    },
+    "shenbi-review-highpoint": {
+      "generative": 93.25
+    },
+    "shenbi-review-long-span": {
+      "generative": 87.5
+    },
+    "shenbi-review-memo-compliance": {
+      "generative": 96.5
+    },
+    "shenbi-review-motivation": {
+      "generative": 96.5
+    },
+    "shenbi-review-pacing": {
+      "generative": 93.5
+    },
+    "shenbi-review-pov": {
+      "generative": 98.5
+    },
+    "shenbi-review-reader-pull": {
+      "generative": 93.5
+    },
+    "shenbi-review-sensitivity": {
+      "generative": 93.45
+    },
+    "shenbi-review-spinoff": {
+      "generative": 89.5
+    },
+    "shenbi-review-texture": {
+      "generative": 94.0
+    },
+    "shenbi-review-world-rules": {
+      "generative": 96.5
+    },
+    "shenbi-sequel-writing": {
+      "generative": 85.2
+    },
+    "shenbi-short-drafting": {
+      "generative": 70.25
+    },
+    "shenbi-short-outline": {
+      "generative": 100.0
+    },
+    "shenbi-short-packaging": {
+      "generative": 92.7
+    },
+    "shenbi-snapshot-manage": {
+      "generative": 94.75
+    },
+    "shenbi-state-settling": {
+      "generative": 93.75
+    },
+    "shenbi-story-architecture": {
+      "generative": 98.75
+    },
+    "shenbi-style-learning": {
+      "generative": 88.75
+    },
+    "shenbi-style-polishing": {
+      "generative": 94.5
+    },
+    "shenbi-truth-sync": {
+      "generative": 88.5
+    },
+    "shenbi-volume-consolidation": {
+      "generative": 93.75
+    },
+    "shenbi-volume-outlining": {
+      "generative": 100.0
+    },
+    "shenbi-world-extraction": {
+      "generative": 86.8
+    },
+    "shenbi-worldbuilding": {
+      "generative": 95.0
+    },
+    "shenbi-writing-skills": {
+      "generative": 99.5
+    },
+    "using-shenbi": {
+      "generative": 95.5
+    }
+  },
+  "t2_scores": {},
+  "t3_scores": {},
+  "kill_switches": [],
+  "enhancement_signals": [],
+  "band_breakdown": {
+    "pass_excellent": 45,
+    "pass_acceptable": 12,
+    "conditional": 2,
+    "fail": 0
+  },
+  "next_actions": []
+}

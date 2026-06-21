@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --frozen --group dev
       - run: uv run pip-audit
       - run: uv run cyclonedx-py environment -o sbom.cdx.json
       - uses: actions/upload-artifact@v4

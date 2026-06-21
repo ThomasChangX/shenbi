@@ -1,0 +1,56 @@
+{
+  "gate": "G6",
+  "status": "FAIL",
+  "timestamp": "2026-06-15T15:40:33.384175+00:00",
+  "checks": [
+    {
+      "id": "G6.4",
+      "s": "SKIP",
+      "r": "need chapters/ for continuity check"
+    },
+    {
+      "id": "G6.5",
+      "s": "SKIP",
+      "r": "need chapters/ for pacing check"
+    },
+    {
+      "id": "G6.7",
+      "s": "SKIP",
+      "r": "need truth/pending_hooks.md for foreshadowing check"
+    },
+    {
+      "id": "G6.8",
+      "s": "SKIP",
+      "r": "need characters/ and chapters/ for voice check"
+    },
+    {
+      "id": "G6.9",
+      "s": "SKIP",
+      "r": "need world/rules.md and chapters/ for world rule compliance"
+    },
+    {
+      "id": "G6.10",
+      "s": "SKIP",
+      "r": "need config/style_profile.md and chapters/ for style check"
+    },
+    {
+      "id": "G6.11",
+      "s": "SKIP",
+      "r": "need outline/volume_map.md for volume boundary check"
+    },
+    {
+      "id": "G6.6",
+      "s": "SKIP",
+      "r": "need character_matrix.md and chapters/ for ghost check"
+    },
+    {
+      "id": "G6.12",
+      "s": "SKIP",
+      "note": "sensitive_words.txt missing — round INCOMPLETE"
+    }
+  ],
+  "blocked_action": "scoring",
+  "must_fix": [
+    "G6.1:no_chapters_dir"
+  ]
+}

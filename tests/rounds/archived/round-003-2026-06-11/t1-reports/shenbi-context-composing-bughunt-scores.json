@@ -1,0 +1,14 @@
+{
+  "1": 85,
+  "2": 90,
+  "3": 95,
+  "4": 100,
+  "5": 95,
+  "6": 95,
+  "7": 95,
+  "8": 90,
+  "_final": 94.0,
+  "_band": "PASS",
+  "_kill_switch": false,
+  "_notes": "D1: Brief methodology mapping. Strong evidence with line numbers (L49, L53-89, L119-175). Explicit false positive analysis. Priority inversion correctly identified."
+}

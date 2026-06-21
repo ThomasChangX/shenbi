@@ -30,7 +30,7 @@ if [ "${1:-}" = "--validate" ]; then
   TIER_LOWER=$(echo "$TIER_TARGET" | tr '[:upper:]' '[:lower:]')
   REPORT_DIR="${TIER_LOWER}-reports"
 
-  for subdir in novel-output "$REPORT_DIR" skill-traces; do
+  for subdir in skill-output "$REPORT_DIR" skill-traces; do
     COUNT=$(find "${ROUND_DIR}/${subdir}" -type f 2>/dev/null | wc -l)
     if [ "$COUNT" -eq 0 ]; then
       echo "FAIL: ${subdir}/ is empty (no output generated)"
@@ -74,7 +74,7 @@ echo "=== Creating round ${ROUND_NUM}: ${MODEL} / ${TIER} ==="
 
 # G0: Environment readiness check
 echo "=== G0: Environment Check ==="
-G0_RESULT=$(python3 tests/validate-gate.py G0 "${SEED_FILE:-outline-example.md}" 2>&1) || true
+G0_RESULT=$(uv run shenbi-validate G0 "${SEED_FILE:-outline-example.md}" 2>&1) || true
 G0_STATUS=$(echo "$G0_RESULT" | python3 -c "import sys,json;print(json.load(sys.stdin).get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
 if [ "$G0_STATUS" != "PASS" ]; then
     echo "G0 FAILED:"
@@ -84,10 +84,10 @@ fi
 EXPECTED_CHAPTERS=$(echo "$G0_RESULT" | python3 -c "import sys,json;d=json.load(sys.stdin);print([c for c in d.get('checks',[]) if c.get('id')=='G0.3'][0].get('expected_chapters','N/A'))" 2>/dev/null || echo "N/A")
 echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
 
-mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,novel-output,skill-traces}
+mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,skill-output,skill-traces}
 
 # progress.json: written via update-progress.py single-writer (no direct edits)
-python3 tests/update-progress.py init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
+uv run shenbi-progress init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
 
 # Override tokens
 TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")

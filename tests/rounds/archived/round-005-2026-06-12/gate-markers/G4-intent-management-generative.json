@@ -1,0 +1,21 @@
+{
+  "gate": "G4-generic-gen",
+  "status": "PASS",
+  "timestamp": "2026-06-12T18:44:35.496566+00:00",
+  "checks": [
+    {
+      "id": "G4.gen.author_intent.md",
+      "s": "PASS",
+      "size": 383
+    },
+    {
+      "id": "G4.gen.intent-management-report.md",
+      "s": "PASS",
+      "size": 588
+    }
+  ],
+  "files_checked": [
+    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-intent-management/truth/author_intent.md",
+    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-intent-management/intent-management-report.md"
+  ]
+}

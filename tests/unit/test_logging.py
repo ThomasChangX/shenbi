@@ -20,7 +20,7 @@ from unittest.mock import patch
 import pytest
 import structlog
 
-from tests.logging import configure_logging, get_logger
+from shenbi.logging import configure_logging, get_logger
 
 
 @pytest.fixture()
@@ -97,3 +97,90 @@ def test_get_logger_returns_logger_with_standard_methods(
     assert callable(log.info)
     assert callable(log.error)
     assert callable(log.debug)
+
+
+def _run_framework_cli(args: list[str], env_log_format: str = "json") -> tuple[int, str, str]:
+    """Invoke a shenbi-* CLI via subprocess and capture (rc, stdout, stderr).
+
+    Used to verify that framework CLIs route logs to stderr (not stdout)
+    and produce structured JSON when SHENBI_LOG_FORMAT=json.
+    """
+    import subprocess
+
+    full_env = dict(os.environ)
+    full_env["SHENBI_LOG_FORMAT"] = env_log_format
+    result = subprocess.run(
+        ["uv", "run"] + args,
+        capture_output=True,
+        text=True,
+        env=full_env,
+    )
+    return result.returncode, result.stdout, result.stderr
+
+
+def _parse_json_log_lines(stderr: str) -> list[dict[str, Any]]:
+    """Parse newline-delimited JSON log lines from stderr, skipping non-JSON noise."""
+    parsed: list[dict[str, Any]] = []
+    for line in stderr.splitlines():
+        line = line.strip()
+        if not line or not line.startswith("{"):
+            continue
+        try:
+            parsed.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return parsed
+
+
+def test_gates_cli_logs_to_stderr_not_stdout() -> None:
+    """shenbi-validate (gates CLI) must emit JSON logs to stderr; stdout reserved for emit_json data.
+
+    Invoking with no args triggers the usage banner, which is logged via log.info.
+    """
+    rc, stdout, stderr = _run_framework_cli(["shenbi-validate"])
+    logs = _parse_json_log_lines(stderr)
+    assert logs, "expected JSON log lines on stderr from gates CLI"
+    assert any(entry.get("event") == "usage" for entry in logs), (
+        "usage banner must be logged with event=usage"
+    )
+    assert any(entry.get("level") == "info" for entry in logs), "logs must carry level= field"
+    assert not stdout, "stdout must stay empty when no DATA emit happens"
+
+
+def test_gates_cli_emits_data_to_stdout() -> None:
+    """When a gate runs, the JSON result must land on stdout (via emit_json), not stderr."""
+    rc, stdout, stderr = _run_framework_cli(
+        ["shenbi-validate", "G0", "tests/tiers/outline-example.md"]
+    )
+    assert stdout.strip(), "stdout must carry the gate result via emit_json"
+    stdout_data = json.loads(stdout.strip())
+    assert isinstance(stdout_data, dict), "emit_json output must be a JSON object"
+    assert stdout_data.get("gate") == "G0"
+
+
+def test_scoring_cli_logs_to_stderr_not_stdout() -> None:
+    """shenbi-score must route logs to stderr; stdout carries only the JSON result."""
+    rc, stdout, stderr = _run_framework_cli(["shenbi-score"])
+    logs = _parse_json_log_lines(stderr)
+    assert logs, "expected JSON log lines on stderr from scoring CLI usage banner"
+
+
+def test_phase_runner_cli_logs_to_stderr_not_stdout() -> None:
+    """shenbi-phase must route logs to stderr; stdout carries only emit_json dicts."""
+    rc, stdout, stderr = _run_framework_cli(["shenbi-phase"])
+    logs = _parse_json_log_lines(stderr)
+    assert logs, "expected JSON log lines on stderr from phase_runner usage banner"
+
+
+def test_summarize_cli_logs_to_stderr() -> None:
+    """shenbi-summarize must route logs to stderr."""
+    rc, stdout, stderr = _run_framework_cli(["shenbi-summarize"])
+    logs = _parse_json_log_lines(stderr)
+    assert logs, "expected JSON log lines on stderr from summarize usage banner"
+
+
+def test_update_progress_cli_logs_to_stderr() -> None:
+    """shenbi-progress must route logs to stderr."""
+    rc, stdout, stderr = _run_framework_cli(["shenbi-progress"])
+    logs = _parse_json_log_lines(stderr)
+    assert logs, "expected JSON log lines on stderr from update_progress usage banner"

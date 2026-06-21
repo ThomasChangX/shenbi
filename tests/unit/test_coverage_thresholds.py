@@ -20,16 +20,15 @@ import pytest
 
 COVERAGE_XML = Path(__file__).resolve().parent.parent / "coverage" / "coverage.xml"
 
-# P-1.B: staged ramp-up. Current branch coverage is ~1% (most framework code
-# is legacy untyped modules with ignore_errors overrides in mypy/basedpyright).
-# As P-1.E refactors these modules and adds tests, raise this threshold.
-# Target trajectory: 30% after P-1.E, 60% after P-2, 80% after P-3.
-BRANCH_THRESHOLD_PCT = 0.5
+BRANCH_THRESHOLD_PCT = 80
 
 
 @pytest.mark.last
 def test_branch_coverage_meets_threshold(request: pytest.FixtureRequest) -> None:
-    """Branch coverage across the framework must meet the staged threshold."""
+    """Branch coverage across the framework must meet the permanent >=80% floor.
+
+    P-1.E PR-56 removed the xfail after Phase 3 raised branch coverage past 80%.
+    """
     if not request.config.getoption("--no-cov", default=False):
         pytest.skip(
             "coverage threshold only enforced in the --no-cov second invocation; "

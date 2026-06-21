@@ -1,0 +1,18 @@
+{
+  "skill": "shenbi-foundation-review",
+  "test_type": "generative",
+  "scored_at": "2026-06-12",
+  "kill_switch_triggered": false,
+  "dimensions": {
+    "1_instruction_adherence": {"score": 90, "weight": 0.10, "rationale": "All sections executed: scoring worksheet with 5 dimensions, evidence citations, threshold enforcement, improvement suggestions with P0/P1/P2 priorities."},
+    "2_output_completeness": {"score": 90, "weight": 0.05, "rationale": "Complete worksheet: 5 dimensions with sub-items, evidence citations, rationale. Threshold verification. Deduction details. Improvement suggestions. All present."},
+    "3_scoring_rigor": {"score": 85, "weight": 0.20, "rationale": "Each deduction has concrete fix suggestion with file+paragraph+change. P0/P1/P2 prioritization. Some suggestions remain vague ('补充至少1个主要配角的独立角色档案' lacks specific paragraphs)."},
+    "4_threshold_enforcement": {"score": 95, "weight": 0.20, "rationale": "Both thresholds unconditionally enforced: total 85 >= 80 PASS, core conflict 27 >= 18 PASS.铁律检查 section explicitly verifies both. Non-negotiable logic."},
+    "5_evidence_based_evaluation": {"score": 80, "weight": 0.15, "rationale": "Score items cite specific evidence from truth fixtures. However, the review evaluates only truth fixtures (锈泥巷/银盾 version) — does not acknowledge that multi-chapter (矿区/灵晶) version has different content that would produce different scores."},
+    "6_actionability": {"score": 85, "weight": 0.15, "rationale": "Fixes point to specific files and fields with priority levels and expected score improvements. WARNING items are more observational than prescriptive. P0/P1 items are actionable."},
+    "7_dimension_balance": {"score": 90, "weight": 0.15, "rationale": "5 dimensions scored independently: Core Conflict 27/30, Opening 17/20, World 17/20, Character 16/20, Foreshadowing 8/10. Sub-scores sum to 85 = reported total. Internally consistent scoring."}
+  },
+  "final_score": 87.5,
+  "grade": "PASS (acceptable)",
+  "notes": "Solid foundation review with rigorous threshold enforcement. Gap: evaluates only truth fixtures (锈泥巷 version), doesn't acknowledge multi-chapter (矿区) version's different content which would affect scores. Evidence citations are correct for the version evaluated but scope is version-limited."
+}

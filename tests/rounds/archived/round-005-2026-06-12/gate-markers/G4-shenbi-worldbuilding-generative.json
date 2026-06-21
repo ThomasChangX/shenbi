@@ -1,0 +1,61 @@
+{
+  "gate": "G4-worldbuilding",
+  "status": "PASS",
+  "timestamp": "2026-06-13T03:22:07.736346+00:00",
+  "checks": [
+    {
+      "id": "G4.novel.title",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.genre",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.language",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.target_words",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.genre_config",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sb",
+      "s": "PASS",
+      "sections": 4
+    },
+    {
+      "id": "G4.rules",
+      "s": "PASS",
+      "count": 8
+    },
+    {
+      "id": "G4.locations",
+      "s": "PASS",
+      "count": 5
+    },
+    {
+      "id": "G4.truth.current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.character_matrix.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.emotional_arcs.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.chapter_summaries.md",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/project-output/world/story_bible.md"
+  ]
+}

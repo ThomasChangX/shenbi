@@ -1,0 +1,64 @@
+{
+  "dimensions": [
+    {
+      "num": 1,
+      "name": "Instruction adherence",
+      "weight": 10,
+      "score": 95
+    },
+    {
+      "num": 2,
+      "name": "Output completeness",
+      "weight": 5,
+      "score": 100
+    },
+    {
+      "num": 3,
+      "name": "Three-layer conflict coherence",
+      "weight": 20,
+      "score": 100
+    },
+    {
+      "num": 4,
+      "name": "Dual-line integrity",
+      "weight": 15,
+      "score": 100
+    },
+    {
+      "num": 5,
+      "name": "OKR executability",
+      "weight": 15,
+      "score": 100
+    },
+    {
+      "num": 6,
+      "name": "Prose quality",
+      "weight": 15,
+      "score": 95
+    },
+    {
+      "num": 7,
+      "name": "Foreshadowing seeding",
+      "weight": 10,
+      "score": 100
+    },
+    {
+      "num": 8,
+      "name": "Volume map scalability",
+      "weight": 10,
+      "score": 100
+    }
+  ],
+  "kill_switch_triggered": false,
+  "kill_switches": [
+    "Missed planted defect (false negative) → total score = 0",
+    "HARD-GATE violation → total score = 0",
+    "Any hallucinated defect (false positive) → total score = 0"
+  ],
+  "final_score": 98.75,
+  "classification": "PASS (excellent)",
+  "skill": "shenbi-story-architecture",
+  "test_type": "generative",
+  "date": "2026-06-12",
+  "scorer": "independent"
+}

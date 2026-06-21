@@ -1,17 +1,20 @@
 ---
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.13
+    rev: v0.15.17
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v2.1.0
     hooks:
       - id: mypy
-        additional_dependencies: [pydantic>=2.5]
+        additional_dependencies:
+          [pydantic>=2.5, structlog>=24.1.0, pyyaml>=6.0.1, types-PyYAML>=6.0.12]
+        pass_filenames: false
+        args: [src/shenbi/]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -38,11 +41,4 @@ repos:
         entry: uv run basedpyright
         language: system
         types: [python]
-        pass_filenames: false
-
-      - id: registry-lockfile-fresh
-        name: registry.lock.json freshness (P0 scaffolding, no-op in P-1)
-        entry: tests/build_registry.py
-        language: system
-        files: ^(skills/.*\.yaml|tests/tiers/.*\.yaml)$
         pass_filenames: false

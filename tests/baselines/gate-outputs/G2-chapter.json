@@ -1,0 +1,55 @@
+{
+  "gate": "G2",
+  "status": "FAIL",
+  "timestamp": "2026-06-15T15:40:33.094283+00:00",
+  "checks": [
+    {
+      "id": "G2.1",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.2",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.3",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.5",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "SKIP",
+      "r": "YAML parse error on non-structured file"
+    },
+    {
+      "id": "G2.7",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS",
+      "ceiling": 4500,
+      "is_important": false
+    },
+    {
+      "id": "G2.8",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.10",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G2.12",
+      "file": "tests/fixtures/chapter-7-example.md",
+      "s": "PASS"
+    }
+  ],
+  "blocked_action": "scoring",
+  "must_fix": [
+    "G2.6:tests/fixtures/chapter-7-example.md",
+    "G2.9:tests/fixtures/chapter-7-example.md"
+  ]
+}

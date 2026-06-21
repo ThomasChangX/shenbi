@@ -1,0 +1,51 @@
+{
+  "skill": "shenbi-market-radar",
+  "test_type": "generative",
+  "scored_at": "2026-06-12",
+  "kill_switch_triggered": false,
+  "dimensions": {
+    "1_instruction_adherence": {
+      "score": 95,
+      "weight": 0.10,
+      "rationale": "All SKILL.md sections executed: platform+genre identification (起点, 架空历史/异世大陆/战争史诗/穿越/政治幻想), leaderboard snapshot (Top 10 with month-ticket data), trend analysis (rising/saturated/declining), category distribution (Qidian Top500 breakdown), genre cross-analysis (异世大陆+战争史诗 deep-dive), opening strategy (5 recommendations), benchmark identification (4 works), and decision checklist (11 items with 跟进/警惕/研究/补充数据 categorization). The data citation iron law is consistently followed — every major claim references fixture data rows."
+    },
+    "2_output_completeness": {
+      "score": 95,
+      "weight": 0.05,
+      "rationale": "Single comprehensive market-report.md with all required sections: leaderboard snapshot (Top 10 table with precise month-ticket numbers), trend signals (3 categories), Qidian Top500 type distribution (5 tiers with saturation ratings), genre cross-analysis (异世大陆+战争史诗 intersection table), 5 opening strategy recommendations (each with data source citations), 4 benchmark works (with comparability rationale and key differences), and decision checklist (11 actionable items). Well-structured and complete."
+    },
+    "3_data_backed_claims": {
+      "score": 85,
+      "weight": 0.20,
+      "rationale": "The task specifies '27 data row citations from fixture'. The report contains approximately 30+ unique line references to market-data-example.md. Major claims are well-backed: leaderboard positions with specific month-ticket numbers (52358/37167/28479), category distribution counts (都市101本, 仙侠88本, 玄幻84本), genre analysis with fixture line references (行100-117, 行102-103, etc.). Each opening strategy includes fixture data citations. DEDUCTION: Two trend signals lack specific fixture citations: '异世大陆--新怪谈/克苏鲁 — 在 Top 20 中出现频率增加' and '异世大陆--学院流 — 公式化结构导致粘性下降' — these claims are stated without fixture row references. While these may be reasonable observations, they violate the 'no claim without data citation' iron law."
+    },
+    "4_saturation_detection": {
+      "score": 70,
+      "weight": 0.15,
+      "rationale": "Saturation is flagged for: 穿越--技术碾压, 科举/考试流, and 商业经营. However, the saturation assessment relies on the fixture's pre-labeled saturation levels ('极高', '高') rather than independent calculation from top-20 data. The rubric specifies 'Element occurrence > 60% in top-20 titles flagged as saturated' — this requires counting occurrences in top-20 and comparing to 60%. The Qidian Top500 type distribution (都市20.2%, 仙侠17.6%, 玄幻16.8%) covers Top500, not Top 20. The report does not independently calculate saturation percentages — it inherits the fixture's judgment. The saturation labels are directionally correct but the methodology is not independently verifiable from the provided data."
+    },
+    "5_trend_vs_imitation_distinction": {
+      "score": 80,
+      "weight": 0.15,
+      "rationale": "Three of four rising trends include differentiation suggestions: 体系驱动修真 → '知识驱动金手指 vs 天赋开挂' differentiation; 架空历史制度变革 → '殖民批判/政治觉醒子赛道' differentiation; 战争史诗 → '政治幻想+战争史诗交叉' differentiation. The opening strategies themselves are differentiation-focused (e.g., '知识驱动金手指 vs 天赋开挂', '殖民批判 vs 异世界冒险'). DEDUCTION: The fourth rising trend (异世大陆--新怪谈/克苏鲁) lacks a differentiation suggestion — it's mentioned as a trend signal without guidance on how to engage it distinctively."
+    },
+    "6_decision_checklist_actionability": {
+      "score": 90,
+      "weight": 0.15,
+      "rationale": "11 checklist items across 4 categories (跟进/警惕/研究/补充数据). Each item is a single action with a one-line rationale and data source citation. The '跟进' items have clear expected differentiation advantage. The '警惕' items have specific avoidance tactics. The '研究' items have specific focus areas. Minor issue: the '补充数据' item (Qidian 架空历史 Top50 追读率区间...) is a data-gathering requirement rather than a single executable action. Otherwise, all items are concrete and actionable, enabling a 60-second decision process."
+    },
+    "7_opening_strategy_relevance": {
+      "score": 95,
+      "weight": 0.10,
+      "rationale": "All 5 opening strategies are tied to specific genre + platform data: (1) 知识驱动金手指 → genre: 穿越/仙侠, platform data: 65%穿越文为天赋型, 玄鉴仙族 as system-driven success; (2) 殖民批判 → genre: 政治幻想 (几乎空白), platform gap analysis: 行143-153; (3) 类型融合 → cross-genre analysis with 5-label intersection; (4) 毛概思想处理 → platform sensitivity data (行156-162, 235-237); (5) 首发策略 → platform recommendation (Qidian as 架空历史主战场 with 行224-226, 209-211). Each strategy is platform-aware and genre-grounded."
+    },
+    "8_benchmark_identification": {
+      "score": 95,
+      "weight": 0.10,
+      "rationale": "4 competitive works identified: 赘婿 (社会变革叙事 — how to transition from 种田 to 制度批判), 秦吏 (知识驱动叙事 — reader acceptance of knowledge-based progression), 玄鉴仙族 (52358 月票 #1 — depth worldbuilding building word-of-mouth and payment), 幼女战记 (政治讽刺+军事+异世界 — three-in-one execution model). Each includes: comparability dimension, key difference from 星火燃穹, and specific research focus. Exceeds the >=2 minimum. All referenced to fixture data (行170-176 Competitive Benchmarks table)."
+    }
+  },
+  "final_score": 86.0,
+  "grade": "PASS (acceptable)",
+  "notes": "Strong market analysis with extensive fixture data integration (~30+ row citations). The 5 opening strategies are specific, differentiated, and platform-aware. Benchmark identification exceeds minimum with 4 well-analyzed works. Main deductions: (1) saturation detection relies on fixture pre-labels rather than independent 60% calculation from top-20 data, (2) two minor trend signals lack specific fixture row citations, violating the 'every claim needs data citation' iron law, and (3) one of four rising trends lacks a differentiation suggestion. The decision checklist is actionable and well-categorized."
+}

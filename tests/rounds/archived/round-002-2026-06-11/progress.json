@@ -1,0 +1,15 @@
+{
+  "round": "002",
+  "tier": "T1",
+  "test_cycle_phase": "generative",
+  "subagent_completion_count": 0,
+  "completed_skill_names": [],
+  "skills": {},
+  "remaining_generative": [],
+  "remaining_bug_hunt": [],
+  "remaining_clean": [],
+  "gate_blockers": [],
+  "total_framework_skills": 59,
+  "expected_chapters": 0,
+  "_note": "Backfilled 2026-06-11. This round predates the progress.json enhancement."
+}

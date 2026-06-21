@@ -18,6 +18,27 @@ Gemini CLI tools map to shenbi expectations as follows:
 | Glob file matching | `glob` / `Glob` |
 | Grep content search | `search_file_content` / `Grep` |
 
+## P-1.E Layout (2026-06-15)
+
+Framework runtime code lives under `src/shenbi/`. Invoke via entry points:
+
+| Old (pre-P-1.E) | New (post-P-1.E) |
+|---|---|
+| `python3 tests/scoring.py ...` | `shenbi-score ...` |
+| `python3 tests/summarize-round.py ...` | `shenbi-summarize ...` |
+| `python3 tests/update-progress.py ...` | `shenbi-progress ...` |
+| `python3 tests/phase-runner.py ...` | `shenbi-phase ...` |
+| `python3 tests/validate-gate.py ...` | `shenbi-validate ...` |
+| `bash tests/dispatch-subagent.sh ...` | `shenbi-dispatch ...` |
+
+Or use `just`:
+- `just check` — all CI checks
+- `just test` — unit tests
+- `just gate G0 <seed>` — gate invocation
+- `just dispatch <skill> <type> <round> <prompt>`
+
+Install: `uv sync --group dev` (PEP 735 dependency groups).
+
 ## SessionStart Behavior
 
 The `hooks/hooks.json` (Claude Code) and `hooks/hooks-cursor.json` (Cursor) entry points are platform-specific. For Gemini CLI, the equivalent is:
@@ -27,7 +48,7 @@ The `hooks/hooks.json` (Claude Code) and `hooks/hooks-cursor.json` (Cursor) entr
 
 ## Skill Loading
 
-All 59 skills are listed in `.claude-plugin/plugin.json`. For Gemini CLI, treat the `skills` array as the canonical list of available skills. Load them on demand by file path: `skills/<skill-name>/SKILL.md`.
+58 functional skills (shenbi-*) + 1 meta (using-shenbi) = 59 total, listed in `plugins/master.json` (single source; manifests generated via `shenbi-generate-plugins`). For Gemini CLI, treat the `skills` array as the canonical list of available skills. Load them on demand by file path: `skills/<skill-name>/SKILL.md`.
 
 ## Environment Variable
 

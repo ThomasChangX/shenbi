@@ -1,0 +1,52 @@
+{
+  "dimensions": [
+    {
+      "num": 1,
+      "name": "Handoff integrity",
+      "weight": 20,
+      "score": 95
+    },
+    {
+      "num": 2,
+      "name": "Cross-skill consistency",
+      "weight": 20,
+      "score": 95
+    },
+    {
+      "num": 3,
+      "name": "State propagation accuracy",
+      "weight": 15,
+      "score": 90
+    },
+    {
+      "num": 4,
+      "name": "Phase output completeness",
+      "weight": 15,
+      "score": 95
+    },
+    {
+      "num": 5,
+      "name": "Regression within phase",
+      "weight": 15,
+      "score": 95
+    },
+    {
+      "num": 6,
+      "name": "Execution time",
+      "weight": 5,
+      "score": 100
+    },
+    {
+      "num": 7,
+      "name": "Human gate compliance",
+      "weight": 10,
+      "score": 100
+    }
+  ],
+  "kill_switch_triggered": false,
+  "kill_switches": [
+    "Any skill's output scores below its T1 score on same input → phase = 0."
+  ],
+  "final_score": 95.0,
+  "classification": "PASS (excellent)"
+}

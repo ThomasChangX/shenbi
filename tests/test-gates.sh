@@ -7,7 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-VALIDATE_GATE="$SCRIPT_DIR/validate-gate.py"
+VALIDATE_GATE="uv run shenbi-validate"
 ROUNDS_DIR="$SCRIPT_DIR/rounds"
 SEED_FILE="$PROJECT_DIR/outline-example.md"
 
@@ -28,7 +28,7 @@ run_gate() {
     local stdout
     local stderr_file
     stderr_file=$(mktemp) || stderr_file="/tmp/gate-test-stderr-$$.tmp"
-    stdout=$(python3 "$VALIDATE_GATE" "$gate" "$@" 2>"$stderr_file") || exit_code=$?
+    stdout=$($VALIDATE_GATE "$gate" "$@" 2>"$stderr_file") || exit_code=$?
     GATE_EXIT=$exit_code
     if [ -s "$stderr_file" ]; then
         echo "  [stderr]: $(head -1 "$stderr_file")" >&2
@@ -276,7 +276,7 @@ echo ""
 echo "--- Test 6: validate-gate.py CLI ---"
 
 # 6a: No args should print usage and exit 1
-USAGE_OUTPUT=$(python3 "$VALIDATE_GATE" 2>&1) || USAGE_EXIT=$?
+USAGE_OUTPUT=$($VALIDATE_GATE 2>&1) || USAGE_EXIT=$?
 if [ "${USAGE_EXIT:-0}" -eq 1 ] && echo "$USAGE_OUTPUT" | grep -q "Usage:"; then
     test_pass "CLI no-args prints Usage and exits 1"
 else
@@ -284,7 +284,7 @@ else
 fi
 
 # 6b: Unknown gate returns UNKNOWN_GATE status and exits 1
-UNKNOWN_OUTPUT=$(python3 "$VALIDATE_GATE" "NONEXISTENT_GATE_XYZ" 2>&1) || UNKNOWN_EXIT=$?
+UNKNOWN_OUTPUT=$($VALIDATE_GATE "NONEXISTENT_GATE_XYZ" 2>&1) || UNKNOWN_EXIT=$?
 if [ "${UNKNOWN_EXIT:-0}" -eq 1 ]; then
     UNKNOWN_STATUS=$(echo "$UNKNOWN_OUTPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null) || true
     if [ "$UNKNOWN_STATUS" = "UNKNOWN_GATE" ]; then
@@ -303,7 +303,7 @@ echo ""
 echo "--- Test 7: Negative Path Tests ---"
 
 # G2 on nonexistent file
-G2_BAD_OUTPUT=$(python3 "$VALIDATE_GATE" G2 "/nonexistent/file.md" chapter 2>/dev/null) || true
+G2_BAD_OUTPUT=$($VALIDATE_GATE G2 "/nonexistent/file.md" chapter 2>/dev/null) || true
 G2_BAD_STATUS=$(echo "$G2_BAD_OUTPUT" | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "INVALID")
 if [ "$G2_BAD_STATUS" = "FAIL" ]; then
     test_pass "G2 nonexistent file returns FAIL"
@@ -312,7 +312,7 @@ else
 fi
 
 # G4 on unknown skill
-G4_UNKNOWN_OUTPUT=$(python3 "$VALIDATE_GATE" G4 "nonexistent-skill" "" "" 2>/dev/null) || true
+G4_UNKNOWN_OUTPUT=$($VALIDATE_GATE G4 "nonexistent-skill" "" "" 2>/dev/null) || true
 G4_UNKNOWN_STATUS=$(echo "$G4_UNKNOWN_OUTPUT" | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "INVALID")
 if [ "$G4_UNKNOWN_STATUS" = "UNIMPLEMENTED" ]; then
     test_pass "G4 unknown skill returns UNIMPLEMENTED"
@@ -321,7 +321,7 @@ else
 fi
 
 # G5 on nonexistent phase
-G5_BAD_OUTPUT=$(python3 "$VALIDATE_GATE" G5 "nonexistent-phase" "tests/rounds/round-001-2026-06-11" 2>/dev/null) || true
+G5_BAD_OUTPUT=$($VALIDATE_GATE G5 "nonexistent-phase" "tests/rounds/round-001-2026-06-11" 2>/dev/null) || true
 G5_BAD_STATUS=$(echo "$G5_BAD_OUTPUT" | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "INVALID")
 if [ "$G5_BAD_STATUS" = "FAIL" ]; then
     test_pass "G5 unknown phase returns FAIL"
@@ -330,7 +330,7 @@ else
 fi
 
 # G4 bughunt test (verify doesn't crash)
-G4_BH_OUTPUT=$(python3 "$VALIDATE_GATE" G4 bughunt "" 2>/dev/null) || true
+G4_BH_OUTPUT=$($VALIDATE_GATE G4 bughunt "" 2>/dev/null) || true
 G4_BH_STATUS=$(echo "$G4_BH_OUTPUT" | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "INVALID")
 if [ "$G4_BH_STATUS" = "UNIMPLEMENTED" ] || [ "$G4_BH_STATUS" = "PASS" ] || [ "$G4_BH_STATUS" = "FAIL" ]; then
     test_pass "G4 bughunt (valid JSON, status=$G4_BH_STATUS)"
@@ -339,7 +339,7 @@ else
 fi
 
 # G4 clean test (verify doesn't crash)
-G4_CL_OUTPUT=$(python3 "$VALIDATE_GATE" G4 clean "" 2>/dev/null) || true
+G4_CL_OUTPUT=$($VALIDATE_GATE G4 clean "" 2>/dev/null) || true
 G4_CL_STATUS=$(echo "$G4_CL_OUTPUT" | python3 -c "import sys,json;print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "INVALID")
 if [ "$G4_CL_STATUS" = "UNIMPLEMENTED" ] || [ "$G4_CL_STATUS" = "PASS" ] || [ "$G4_CL_STATUS" = "FAIL" ]; then
     test_pass "G4 clean (valid JSON, status=$G4_CL_STATUS)"
