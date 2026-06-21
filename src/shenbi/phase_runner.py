@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
+from shenbi.contract import ContractError, load_contract
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
@@ -110,19 +111,13 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
             }
         )
         sys.exit(1)
-    # Extract data contract for dispatcher guidance
-    skill_md = skill_path.read_text(encoding="utf-8")
-    import re as _re
-
-    reads = _re.findall(r"\*\*Reads:\*\*\s*(.*)", skill_md)
-    writes = _re.findall(r"\*\*Writes:\*\*\s*(.*)", skill_md)
-    updates = _re.findall(r"\*\*Updates:\*\*\s*(.*)", skill_md)
-    read_files: list[str] = []
-    for line in reads:
-        read_files.extend(_re.findall(r"`([^`]+)`", line))
-    write_files: list[str] = []
-    for line in writes + updates:
-        write_files.extend(_re.findall(r"`([^`]+)`", line))
+    # Extract data contract via the single loader (spec D2 — no second parser).
+    try:
+        contract = load_contract(skill)
+        read_files = list(contract["reads"])
+        write_files = [*contract["writes"], *contract["updates"]]
+    except ContractError:
+        read_files, write_files = [], []
     step = {
         "action": "pre-skill",
         "skill": skill,

@@ -240,6 +240,25 @@ class TestCmdStart:
 # --- TestCmdPreSkill -----------------------------------------------------
 
 
+_POINT_LOADER_REGISTRY = (
+    "concepts:\n"
+    "  - {name: world/story_bible.md, kind: world}\n"
+    "  - {name: outline/story_frame.md, kind: outline}\n"
+    "  - {name: world/locations.md, kind: world}\n"
+    "  - {name: truth/current_state.md, kind: truth}\n"
+    "patterns: []\n"
+    "globs: []\n"
+)
+
+
+def _point_loader_at(monkeypatch: pytest.MonkeyPatch, skills_root: Path) -> None:
+    """Redirect contract.load_contract at a tmp skills dir + tmp registry."""
+    reg = skills_root / "registry.yaml"
+    reg.write_text(_POINT_LOADER_REGISTRY, encoding="utf-8")
+    monkeypatch.setattr("shenbi.contract.SKILLS", skills_root)
+    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+
+
 class TestCmdPreSkill:
     def test_exits_when_skill_md_missing(
         self, round_dir: Path, started_state: dict[str, Any], capsys: pytest.CaptureFixture[str]
@@ -258,56 +277,35 @@ class TestCmdPreSkill:
             cmd_pre_skill("design", "shenbi-worldbuilding", str(round_dir))
         assert exc.value.code == 1
 
-    def test_extracts_reads_and_writes_from_skill_md(
+    def test_extracts_reads_writes_updates_from_frontmatter_contract(
         self,
         round_dir: Path,
         started_state: dict[str, Any],
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        """Skill MD's Reads:/Writes:/Updates: sections are parsed via regex
-        to build a data contract (backtick-quoted paths).
+        """cmd_pre_skill builds the data contract via load_contract (frontmatter),
+        not a body regex — updates fold into writes.
         """
         fake_skills = round_dir / "skills"
         (fake_skills / "shenbi-test-skill").mkdir(parents=True)
         (fake_skills / "shenbi-test-skill" / "SKILL.md").write_text(
-            "# Skill\n\n"
-            "**Reads:** `world/bible.md`, `outline.md`\n\n"
-            "**Writes:** `world/expansion.md`\n\n"
-            "**Updates:** `truth/state.md`\n",
+            "---\nname: shenbi-test-skill\ndescription: Use when test\n"
+            "contract:\n  kind: artifact\n"
+            "  reads:\n    - world/story_bible.md\n    - outline/story_frame.md\n"
+            "  writes:\n    - world/locations.md\n"
+            "  updates:\n    - truth/current_state.md\n"
+            "---\n\n# Skill\n",
             encoding="utf-8",
         )
         monkeypatch.setattr(phase_runner, "PROJECT", round_dir)
+        _point_loader_at(monkeypatch, fake_skills)
         cmd_pre_skill("design", "shenbi-test-skill", str(round_dir))
         emitted = json.loads(capsys.readouterr().out)
-        assert "world/bible.md" in emitted["reads"]
-        assert "outline.md" in emitted["reads"]
-        assert "world/expansion.md" in emitted["writes"]
-        assert "truth/state.md" in emitted["writes"]
-
-    def test_extracts_data_contract_from_skill_md(
-        self,
-        round_dir: Path,
-        started_state: dict[str, Any],
-        monkeypatch: pytest.MonkeyPatch,
-        capsys: pytest.CaptureFixture[str],
-    ) -> None:
-        fake_skills = round_dir / "skills"
-        (fake_skills / "shenbi-test-skill").mkdir(parents=True)
-        (fake_skills / "shenbi-test-skill" / "SKILL.md").write_text(
-            "# Skill\n\n"
-            "**Reads:** `world/bible.md`, `outline.md`\n\n"
-            "**Writes:** `world/expansion.md`\n\n"
-            "**Updates:** `truth/state.md`\n",
-            encoding="utf-8",
-        )
-        monkeypatch.setattr(phase_runner, "PROJECT", round_dir)
-        cmd_pre_skill("design", "shenbi-test-skill", str(round_dir))
-        emitted = json.loads(capsys.readouterr().out)
-        assert "world/bible.md" in emitted["reads"]
-        assert "outline.md" in emitted["reads"]
-        assert "world/expansion.md" in emitted["writes"]
-        assert "truth/state.md" in emitted["writes"]
+        assert "world/story_bible.md" in emitted["reads"]
+        assert "outline/story_frame.md" in emitted["reads"]
+        assert "world/locations.md" in emitted["writes"]
+        assert "truth/current_state.md" in emitted["writes"]  # updates fold into writes
 
     def test_emits_execute_skill_action(
         self,
@@ -319,26 +317,35 @@ class TestCmdPreSkill:
         fake_skills = round_dir / "skills"
         (fake_skills / "shenbi-x").mkdir(parents=True)
         (fake_skills / "shenbi-x" / "SKILL.md").write_text(
-            "# Skill\n**Reads:** `a.md`\n**Writes:** `b.md`\n", encoding="utf-8"
+            "---\nname: shenbi-x\ndescription: Use when x\n"
+            "contract:\n  kind: artifact\n  reads: []\n  writes: []\n  updates: []\n"
+            "---\n\n# Skill\n",
+            encoding="utf-8",
         )
         monkeypatch.setattr(phase_runner, "PROJECT", round_dir)
+        _point_loader_at(monkeypatch, fake_skills)
         cmd_pre_skill("design", "shenbi-x", str(round_dir))
         emitted = json.loads(capsys.readouterr().out)
         assert emitted["action"] == "execute_skill"
 
-    def test_returns_empty_lists_when_skill_md_has_no_contract(
+    def test_returns_empty_lists_when_contract_is_empty(
         self,
         round_dir: Path,
         started_state: dict[str, Any],
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
+        """A skill with a valid empty contract emits reads=[]/writes=[]."""
         fake_skills = round_dir / "skills"
         (fake_skills / "shenbi-bare").mkdir(parents=True)
         (fake_skills / "shenbi-bare" / "SKILL.md").write_text(
-            "# Bare skill\n\nNo data contract here.\n", encoding="utf-8"
+            "---\nname: shenbi-bare\ndescription: Use when bare\n"
+            "contract:\n  kind: ephemeral\n  reads: []\n  writes: []\n  updates: []\n"
+            "---\n\n# Bare skill\n",
+            encoding="utf-8",
         )
         monkeypatch.setattr(phase_runner, "PROJECT", round_dir)
+        _point_loader_at(monkeypatch, fake_skills)
         cmd_pre_skill("design", "shenbi-bare", str(round_dir))
         emitted = json.loads(capsys.readouterr().out)
         assert emitted["reads"] == []
