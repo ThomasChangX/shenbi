@@ -79,7 +79,7 @@ def main() -> None:
     t1_from_progress: dict[str, dict[str, Any]] = {}
     if progress_path.exists():
         try:
-            with open(progress_path) as f:
+            with open(progress_path, encoding="utf-8") as f:
                 progress = json.load(f)
             for sn, sd in progress.get("skills", {}).items():
                 for tt, td in sd.items():
@@ -97,7 +97,7 @@ def main() -> None:
         log.error("summary_not_found", round_dir=str(round_dir))
         sys.exit(1)
 
-    with open(summary_path) as f:
+    with open(summary_path, encoding="utf-8") as f:
         summary = json.load(f)
 
     _tier_target = summary.get("tier_target", "T1")
@@ -175,7 +175,7 @@ def main() -> None:
         summary["band_breakdown_t3"] = t3_bands
     summary["next_actions"] = next_actions
 
-    with open(summary_path, "w") as f:
+    with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
     parts = [

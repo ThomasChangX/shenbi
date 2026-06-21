@@ -27,7 +27,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         if not cn_match:
             continue
         cn = int(cn_match.group(1))
-        ct = ch.read_text()[:5000]
+        ct = ch.read_text(encoding="utf-8")[:5000]
         for m in day_pat.finditer(ct):
             timeline.append((cn, int(m.group(1)), "day"))
         for m in date_pat.finditer(ct):
@@ -49,7 +49,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         if not cn_match:
             continue
         cn = int(cn_match.group(1))
-        ct = ch.read_text()[:3000]
+        ct = ch.read_text(encoding="utf-8")[:3000]
         entities = set(m.group(0) for m in entity_pat.finditer(ct))
         for ent in entities:
             if ent not in intro_map:
@@ -93,7 +93,7 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
         if not cn_match:
             continue
         cn = int(cn_match.group(1))
-        ct = ch.read_text()
+        ct = ch.read_text(encoding="utf-8")
         body = ct
         for tag_pat in [
             r"^---\n.*?\n---\n",
@@ -176,7 +176,7 @@ def check_style_consistency(
             [],
         )
 
-    style_text = style_path.read_text()
+    style_text = style_path.read_text(encoding="utf-8")
     ranges: dict[str, float] = {}
     sent_pat = re.search(
         r"(?:句长|句子长度).*?(\d+\.?\d*)\s*(?:[-\~—到至])\s*(\d+\.?\d*)", style_text
@@ -227,7 +227,7 @@ def check_style_consistency(
 
     outliers: list[str] = []
     for ch in chapters[: min(10, len(chapters))]:
-        ct = ch.read_text()
+        ct = ch.read_text(encoding="utf-8")
         body = ct
         body = re.sub(r"^---\n.*?\n---\n", "", body, flags=re.DOTALL)
         body = re.sub(r"```.*?```", "", body, flags=re.DOTALL)

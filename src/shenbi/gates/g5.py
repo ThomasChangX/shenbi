@@ -68,10 +68,12 @@ def gate_G5(
     for i in range(1, len(prereqs)):
         up, down = prereqs[i - 1], prereqs[i]
         us_md = (
-            (SKILLS / up / "SKILL.md").read_text() if (SKILLS / up / "SKILL.md").exists() else ""
+            (SKILLS / up / "SKILL.md").read_text(encoding="utf-8")
+            if (SKILLS / up / "SKILL.md").exists()
+            else ""
         )
         ds_md = (
-            (SKILLS / down / "SKILL.md").read_text()
+            (SKILLS / down / "SKILL.md").read_text(encoding="utf-8")
             if (SKILLS / down / "SKILL.md").exists()
             else ""
         )
@@ -98,7 +100,7 @@ def gate_G5(
             char_data: dict[str, list[tuple[str, str]]] = {}  # name -> [(file, role)]
             for cf in char_dir.rglob("*.md"):
                 try:
-                    ct = cf.read_text()
+                    ct = cf.read_text(encoding="utf-8")
                     nms = re.findall(r"^name:\s*(\S+)", ct, re.MULTILINE)
                     rms = re.findall(r"^role:\s*(\S+)", ct, re.MULTILINE)
                     for nm in nms:
@@ -129,7 +131,7 @@ def gate_G5(
         num_pat = re.compile(r"(\d+)\s*(?:个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:
-                ct = wf.read_text()[:5000]
+                ct = wf.read_text(encoding="utf-8")[:5000]
                 for m in num_pat.finditer(ct):
                     val = int(m.group(1))
                     unit = m.group(2)
@@ -164,7 +166,7 @@ def gate_G5(
             sample_text = ""
             for cf in list(char_dir.rglob("*.md"))[:6]:
                 try:
-                    sample_text += cf.read_text()[:3000]
+                    sample_text += cf.read_text(encoding="utf-8")[:3000]
                 except Exception:
                     pass
             for t1, t2 in term_pairs:

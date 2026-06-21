@@ -116,7 +116,7 @@ class TestGateMarkers(unittest.TestCase):
                 len(markers), 1, f"Expected exactly 1 marker, found: {list(marker_dir.iterdir())}"
             )
 
-            marker = json.loads(markers[0].read_text())
+            marker = json.loads(markers[0].read_text(encoding="utf-8"))
             self.assertEqual(marker["status"], "PASS")
             self.assertIn("files_checked", marker)
 
@@ -389,7 +389,7 @@ class TestPhaseRunner(unittest.TestCase):
         )
         state_file = self.round_dir / "phase-state" / "genesis.json"
         self.assertTrue(state_file.exists(), "start should create state file")
-        state = json.loads(state_file.read_text())
+        state = json.loads(state_file.read_text(encoding="utf-8"))
         self.assertEqual(state["phase"], "genesis")
 
     def test_post_skill_writes_step(self):
@@ -409,14 +409,14 @@ class TestPhaseRunner(unittest.TestCase):
             ],
         )
         state_file = self.round_dir / "phase-state" / "genesis.json"
-        state = json.loads(state_file.read_text())
+        state = json.loads(state_file.read_text(encoding="utf-8"))
         steps = [s for s in state["steps"] if s["action"] == "post-skill"]
         self.assertEqual(len(steps), 1, "post-skill should record a step")
         self.assertEqual(steps[0]["skill"], "shenbi-worldbuilding")
 
     def test_finalize_sets_state(self):
         """Finalize should set state to finalized."""
-        deps = json.loads((TESTS / "tiers" / "deps.json").read_text())
+        deps = json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
         # Set state to "started" directly since G5 may not pass in test environment
         self._set_phase_state("genesis", "started")
         # Create gate markers for all 6 genesis prerequisites
@@ -432,7 +432,7 @@ class TestPhaseRunner(unittest.TestCase):
         # scored -> finalized (note: finalize re-runs G5 which may fail;
         # we directly set state to "finalized" and verify the state machine)
         state_file = self.round_dir / "phase-state" / "genesis.json"
-        state = json.loads(state_file.read_text())
+        state = json.loads(state_file.read_text(encoding="utf-8"))
         self.assertEqual(state["state"], "scored", "Should be scored after post-score")
 
         # finalize calls G5 which may fail in test env; verify it sets finalized
@@ -448,7 +448,7 @@ class TestPhaseRunner(unittest.TestCase):
                 str(self.round_dir / "project-output"),
             ],
         )
-        state = json.loads(state_file.read_text())
+        state = json.loads(state_file.read_text(encoding="utf-8"))
         # G5 may fail in test env; check state is at least attempted
         self.assertIn(
             state["state"],

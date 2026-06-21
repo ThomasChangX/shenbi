@@ -27,7 +27,7 @@ def load_rubric(rubric_path: str) -> tuple[list[Dimension], list[str]]:
     kill_switches: list[str] = []
     in_table = False
     in_kill_switch = False
-    with open(rubric_path) as f:
+    with open(rubric_path, encoding="utf-8") as f:
         for line in f:
             stripped = line.strip()
             if stripped.startswith("## Kill Switches") or stripped.startswith("## Kill Switch"):
@@ -73,7 +73,7 @@ def load_applicability(rubric_path: str) -> dict[str, dict[str, bool]]:
     applicability: dict[str, dict[str, bool]] = {}
     in_applicability = False
     header_dims = []
-    with open(rubric_path) as f:
+    with open(rubric_path, encoding="utf-8") as f:
         for line in f:
             stripped = line.strip()
             if stripped.startswith("## Dimension Applicability"):
@@ -345,7 +345,7 @@ def main() -> dict[str, Any]:
         if scores_file == "--kill-switch":
             scores = {}
         else:
-            with open(scores_file) as f:
+            with open(scores_file, encoding="utf-8") as f:
                 raw = json.load(f)
                 scores = {int(k): v for k, v in raw.items() if k.lstrip("-").isdigit()}
 

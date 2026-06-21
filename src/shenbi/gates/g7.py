@@ -294,7 +294,7 @@ def gate_G7(round_dir: str) -> str:
         try:
             s = jload(str(summary_path))
             s["audit_warnings"] = audit_warnings
-            with summary_path.open("w") as sf:
+            with summary_path.open("w", encoding="utf-8") as sf:
                 json.dump(s, sf, indent=2, ensure_ascii=False)
         except Exception:
             pass

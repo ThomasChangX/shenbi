@@ -91,7 +91,7 @@ def gate_G6(
     # G6.7: foreshadowing lifecycle (pending_hooks.md)
     hooks_path = pd / "truth" / "pending_hooks.md"
     if hooks_path.exists():
-        hook_text = hooks_path.read_text()
+        hook_text = hooks_path.read_text(encoding="utf-8")
         # Parse YAML-like hook entries (after "## hooks" section)
         hooks_section = hook_text.split("## hooks")[-1] if "## hooks" in hook_text else hook_text
         # Extract hook blocks using regex
@@ -153,7 +153,7 @@ def gate_G6(
         char_voice: dict[str, dict[str, Any]] = {}  # name -> voice_data
         for cf in char_dir6.rglob("*.md"):
             try:
-                ct = cf.read_text()
+                ct = cf.read_text(encoding="utf-8")
                 nm_m = re.search(r"^name:\s*(\S+)", ct, re.MULTILINE)
                 if not nm_m:
                     continue
@@ -173,7 +173,7 @@ def gate_G6(
                 pass
         # Ghost detection: character appears in chapters but no voice_profile
         for ch in chapters[:15]:  # sample up to 15 chapters
-            ct = ch.read_text()[:5000]
+            ct = ch.read_text(encoding="utf-8")[:5000]
             for cname, vdata in char_voice.items():
                 if not vdata["has_voice_profile"] and cname in ct and len(cname) >= 2:
                     mf.append(f"G6.8:ghost_voice:{cname}:in_{ch.name}:no_voice_profile")
@@ -183,7 +183,7 @@ def gate_G6(
                 found_any = False
                 for cp in vdata["catchphrases"][:3]:  # check top 3 catchphrases
                     for ch in chapters[:15]:
-                        if cp in ch.read_text()[:5000]:
+                        if cp in ch.read_text(encoding="utf-8")[:5000]:
                             found_any = True
                             break
                     if found_any:
@@ -210,7 +210,7 @@ def gate_G6(
     # G6.9: world rule compliance — scan numerical constraints and check chapters
     rules_path = pd / "world" / "rules.md"
     if rules_path.exists() and chapters:
-        rules_text = rules_path.read_text()
+        rules_text = rules_path.read_text(encoding="utf-8")
         # Extract numerical constraints: "不超过N人", "至少N个", "≥N", "≤N", "N天内", "N章内"
         constraints: list[dict[str, Any]] = []
         num_const_pat = re.compile(
@@ -234,7 +234,7 @@ def gate_G6(
         ch_contents = []
         for ch in chapters:
             try:
-                ch_contents.append((ch.name, ch.read_text()[:3000]))
+                ch_contents.append((ch.name, ch.read_text(encoding="utf-8")[:3000]))
             except Exception:
                 ch_contents.append((ch.name, ""))
         for const in constraints[:10]:  # limit to 10 constraints for performance
@@ -275,7 +275,7 @@ def gate_G6(
     # G6.11: volume boundary adherence — read volume_map.md, verify chapter coverage
     vm_path = pd / "outline" / "volume_map.md"
     if vm_path.exists():
-        vm_text = vm_path.read_text()
+        vm_text = vm_path.read_text(encoding="utf-8")
         # Extract volume-chapter mappings: "第一卷", "第X卷", "Volume N", chapter ranges
         volumes: list[dict[str, Any]] = []
         vol_pat = re.compile(r"(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))")
@@ -323,7 +323,7 @@ def gate_G6(
                         return int(m.group(1)) if m else 0
 
                     last_ch = sorted(ch_in_vol, key=_ch_num)[-1]
-                    last_ct = last_ch.read_text()
+                    last_ct = last_ch.read_text(encoding="utf-8")
                     hook_markers = ["伏笔", "暗示", "悬念", "未解", "待续", "将", "预告", "铺垫"]
                     if not any(h in last_ct[-1000:] for h in hook_markers):
                         mf.append(f"G6.11:no_ending_hook:vol{vol['vol']}:ch={last_ch.name}")
@@ -359,13 +359,13 @@ def gate_G6(
     cm_path = pd / "truth" / "character_matrix.md"
     if cm_path.exists() and chapters:
         dead_chars = set()
-        for line in cm_path.read_text().split("\n"):
+        for line in cm_path.read_text(encoding="utf-8").split("\n"):
             m = re.match(r"\|\s*(\S+?)\s*\|.*死亡", line)
             if m:
                 dead_chars.add(m.group(1))
         ghosts_found = []
         for ch in chapters:
-            content = ch.read_text()
+            content = ch.read_text(encoding="utf-8")
             for dc in dead_chars:
                 if dc in content:
                     ghosts_found.append(f"{dc}:{ch.name}")
@@ -387,12 +387,12 @@ def gate_G6(
     if sw_path.exists() and chapters:
         sensitive = [
             l.strip()
-            for l in sw_path.read_text().split("\n")
+            for l in sw_path.read_text(encoding="utf-8").split("\n")
             if l.strip() and not l.startswith("#")
         ]
         sw_found = []
         for ch in chapters:
-            content = ch.read_text()
+            content = ch.read_text(encoding="utf-8")
             for word in sensitive:
                 # Only flag as standalone token (surrounded by whitespace/punctuation),
                 # not as substring of other words
