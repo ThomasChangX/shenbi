@@ -40,6 +40,10 @@ fix:
 lint-status:
 	uv run python tools/lint_status_strings.py
 
+# Regenerate contract-derived artifacts (deps.json expected_outputs, DAG, index, body views)
+generate:
+	uv run shenbi-sync-contracts
+
 # Run gates CLI (e.g., just gate G0 <seed>)
 gate name *args:
     uv run shenbi-validate {{name}} {{args}}
