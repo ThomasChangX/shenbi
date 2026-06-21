@@ -20,7 +20,11 @@ log = get_logger(__name__)
 
 PROJECT = Path(__file__).resolve().parents[2]
 SKILLS = PROJECT / "skills"
-ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+ALL_SKILLS = (
+    sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+    if SKILLS.exists()
+    else []
+)
 
 
 def load(round_dir: str) -> dict[str, Any]:
