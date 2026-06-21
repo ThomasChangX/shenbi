@@ -21,11 +21,16 @@ def _require_mlc() -> None:
 
 
 def _markdown_docs() -> list[str]:
-    return sorted(
-        str(p.relative_to(REPO_ROOT))
-        for p in REPO_ROOT.rglob("*.md")
-        if ".venv" not in p.parts and "site/" not in p.parts
-    )
+    """Markdown files that are documentation (link-checked).
+
+    Scoped to docs/ and repo-root *.md. Test fixtures (tests/fixtures/) and
+    archived round output (tests/rounds/archived/) are test data with
+    intentionally illustrative content — not documentation — so they are
+    excluded from link-checking.
+    """
+    docs = [p for p in (REPO_ROOT / "docs").rglob("*.md")]
+    root = [p for p in REPO_ROOT.glob("*.md")]
+    return sorted(str(p.relative_to(REPO_ROOT)) for p in docs + root)
 
 
 @pytest.mark.parametrize("doc", _markdown_docs())
