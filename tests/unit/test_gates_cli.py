@@ -10,28 +10,10 @@ import io
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
-import structlog
 
 from shenbi.gates.cli import main
-
-
-@pytest.fixture(autouse=True)
-def _isolate_structlog_config() -> Any:
-    """Save/restore global structlog config around each test.
-
-    main() calls configure_logging(), which rebinds the global structlog
-    PrintLogger to the current sys.stderr (pytest capture stream) with
-    cache_logger_on_first_use=True. Without restoration that stream is closed
-    at teardown while structlog still holds it, making later log.* calls in
-    OTHER tests raise `ValueError: I/O operation on closed file` (seen as
-    flaky compute_score weight_mismatch failures under xdist).
-    """
-    original_config = structlog.get_config()
-    yield
-    structlog.configure(**original_config)
 
 
 def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, str]:
