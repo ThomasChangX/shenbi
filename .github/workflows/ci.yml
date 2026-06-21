@@ -66,6 +66,11 @@ jobs:
   mutation-testing:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    # mutmut 3.x builds a mutants/ workspace that does not include the full
+    # src/shenbi/ package (ModuleNotFoundError: shenbi.gates.g4) or skills/,
+    # so the test suite cannot establish a green baseline there. Non-blocking
+    # until mutmut is reconfigured for this layout; tracked for follow-up.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
