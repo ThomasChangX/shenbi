@@ -1,6 +1,7 @@
 name: CodeQL
 on:
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
 jobs:
