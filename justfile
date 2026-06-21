@@ -36,6 +36,10 @@ fix:
     uv run ruff check --fix .
     uv run ruff format .
 
+# Lint bare status strings (spec D3)
+lint-status:
+	uv run python tools/lint_status_strings.py
+
 # Run gates CLI (e.g., just gate G0 <seed>)
 gate name *args:
     uv run shenbi-validate {{name}} {{args}}

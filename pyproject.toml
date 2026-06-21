@@ -244,6 +244,9 @@ exclude = [
 ]
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
+# tools/ holds repo lints imported by unit tests (tools/__init__.py makes it a
+# package; "." puts the repo root on the import search path so they resolve).
+extraPaths = ["."]
 reportMissingTypeStubs = "warning"
 # Unknown-family rules downgraded to warning for JSON/YAML dict access.
 # Gates load heterogeneous external data (progress.json, deps.json, etc.)

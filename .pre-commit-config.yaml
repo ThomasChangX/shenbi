@@ -42,3 +42,9 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      - id: lint-status-strings
+        name: lint bare status strings (spec D3)
+        entry: uv run python tools/lint_status_strings.py
+        language: system
+        pass_filenames: false
+        types: [python]

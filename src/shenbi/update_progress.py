@@ -15,6 +15,7 @@ from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
+from shenbi.status import CommandStatus
 
 log = get_logger(__name__)
 
@@ -103,7 +104,10 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
 
     if pp.exists():
         emit_json(
-            {"status": "error", "message": "progress.json already exists — use validate instead"}
+            {
+                "status": CommandStatus.ERROR,
+                "message": "progress.json already exists — use validate instead",
+            }
         )
         sys.exit(1)
 
@@ -132,7 +136,7 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
     save(round_dir, out)
     emit_json(
         {
-            "status": "ok",
+            "status": CommandStatus.OK,
             "action": "init",
             "total_skills": total,
             "expected_chapters": expected_chapters,
@@ -199,7 +203,7 @@ def cmd_mark_done(
     save(round_dir, progress)
     emit_json(
         {
-            "status": "ok",
+            "status": CommandStatus.OK,
             "skill": skill,
             "test_type": test_type,
             "score": score,
@@ -270,7 +274,7 @@ def cmd_rebuild_queues(round_dir: str) -> None:
     save(round_dir, progress)
     emit_json(
         {
-            "status": "ok",
+            "status": CommandStatus.OK,
             "action": "rebuild-queues",
             "remaining_gen": len(pending_gen),
             "remaining_bug": len(pending_bug),

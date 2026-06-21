@@ -40,6 +40,8 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src/shenbi/
       - run: uv run basedpyright
+      - name: Lint bare status strings (spec D3)
+        run: uv run python tools/lint_status_strings.py
       - name: Run tests (parallel, excluding last)
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
       - name: Run coverage threshold test (serial, last only)
