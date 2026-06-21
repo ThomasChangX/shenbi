@@ -61,7 +61,7 @@ jobs:
         run: |
           # renovate-config-validator is provided by the renovate npm package.
           # Using npx avoids adding a persistent dep.
-          npx --yes renovate-config-validator renovate.json
+          npx --yes -p renovate renovate-config-validator renovate.json
 
   mutation-testing:
     runs-on: ubuntu-latest

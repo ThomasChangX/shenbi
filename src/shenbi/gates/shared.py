@@ -200,7 +200,11 @@ def read_genre_config(project_dir: str | Path) -> dict[str, Any]:
 
 
 # Pre-compute the known skill names from the skills/ directory
-ALL_SKILLS = sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+ALL_SKILLS = (
+    sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+    if SKILLS.exists()
+    else []
+)
 
 # Skills that have dedicated (non-generic) G4 generative checkers
 G4_CHECKER_SKILLS = {
