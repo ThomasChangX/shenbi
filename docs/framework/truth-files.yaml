@@ -75,7 +75,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: plans/chapter-*-plan.md}
   - {pattern: context/chapter-*-context.md}
   - {pattern: audits/chapter-*.md}
-  - {pattern: snapshots/chapter-NNN/*}
+  - {pattern: snapshots/chapter-*/*}
   - {pattern: snapshots/*.json}
   - {pattern: import/analysis/*.md}
   - {pattern: import/canon/*.md}

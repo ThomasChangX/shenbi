@@ -19,6 +19,51 @@ def test_parametric_normalizes_to_glob() -> None:
 
 
 @pytest.mark.unit
+def test_normalize_falls_back_to_declared_glob_for_per_dim_literal() -> None:
+    """A per-dimension audit literal (audits/chapter-N-anti-ai.md) is not the
+    registered parametric (audits/chapter-N-<dim>.md), so the patterns lookup
+    misses. The globs fallback must resolve it to audits/chapter-*.md — without
+    this, expected_outputs carries a literal N and G5.4 / cmd_pre_score never
+    match real numbered files (regression for Copilot review on PR #6).
+    """
+    reg = {
+        "concepts": [],
+        "patterns": [{"parametric": "audits/chapter-N-<dim>.md", "glob": "audits/chapter-*.md"}],
+        "globs": [{"pattern": "audits/chapter-*.md"}],
+    }
+    assert normalize_to_glob("audits/chapter-N-anti-ai.md", reg) == "audits/chapter-*.md"
+
+
+@pytest.mark.unit
+def test_parametric_glob_wins_over_broader_declared_glob() -> None:
+    """A registered parametric (chapters/chapter-N.md) matches both its own
+    pattern and the broad chapters/*.md glob; the specific parametric glob must
+    win so the normalized output stays specific.
+    """
+    reg = {
+        "concepts": [],
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [{"pattern": "chapters/*.md"}],
+    }
+    assert normalize_to_glob("chapters/chapter-N.md", reg) == "chapters/chapter-*.md"
+
+
+@pytest.mark.unit
+def test_load_all_contracts_emits_kind() -> None:
+    """load_all_contracts() must include ``kind`` per contract — the
+    contract-completeness lint (lint_contracts.find_completeness_violations)
+    gates on ``c.get("kind") == "report"``; dropping kind made the lint dead.
+    Regression for Copilot review on PR #6.
+    """
+    from shenbi.sync_contracts import load_all_contracts
+
+    contracts = load_all_contracts()
+    assert contracts, "expected migrated skills to load"
+    for skill, c in contracts.items():
+        assert "kind" in c, f"{skill} contract missing kind (completeness lint would skip it)"
+
+
+@pytest.mark.unit
 def test_declared_glob_passes_through() -> None:
     reg = {"globs": [{"pattern": "truth/*.md"}], "patterns": []}
     assert normalize_to_glob("truth/*.md", reg) == "truth/*.md"

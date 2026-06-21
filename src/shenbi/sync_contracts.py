@@ -30,10 +30,24 @@ BODY_END = "<!-- END AUTO-GENERATED -->"
 
 
 def normalize_to_glob(path: str, registry: dict[str, Any]) -> str:
-    """Parametric -> its declared glob; globs/concrete pass through."""
+    """Parametric -> its declared glob; a path matching a declared glob resolves
+    to that glob; other globs/concrete pass through.
+
+    The globs fallback handles per-dimension audit literals like
+    ``audits/chapter-N-anti-ai.md``: the registry has ONE parametric for all
+    dims (``audits/chapter-N-<dim>.md``), so a concrete-dim literal can't be
+    exact-matched against it. Without this fallback, ``expected_outputs``
+    would carry literal ``N``/``NNN`` and G5.4 / ``cmd_pre_score`` would never
+    match real numbered files (e.g. ``audits/chapter-005-anti-ai.md``).
+    Patterns are tried first so a specific parametric glob wins over a broad
+    declared glob.
+    """
     for p in registry.get("patterns", []):
         if p["parametric"] == path:
             return str(p["glob"])
+    for g in registry.get("globs", []):
+        if fnmatch.fnmatch(path, g["pattern"]):
+            return str(g["pattern"])
     return path
 
 
@@ -46,6 +60,7 @@ def load_all_contracts() -> dict[str, dict[str, Any]]:
         except ContractError:
             continue
         out[skill] = {
+            "kind": c["kind"],
             "reads": list(c["reads"]),
             "writes": list(c["writes"]),
             "updates": list(c["updates"]),

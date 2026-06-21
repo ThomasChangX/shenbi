@@ -20,16 +20,9 @@
         "characters/relationships.md",
         "genre-config.json",
         "novel.json",
-        "outline/rhythm_principles.md",
-        "outline/story_frame.md",
-        "outline/volume_map.md",
+        "outline/*.md",
         "truth/*.md",
-        "truth/character_matrix.md",
-        "world/factions.md",
-        "world/locations.md",
-        "world/power_system.md",
-        "world/rules.md",
-        "world/story_bible.md"
+        "world/*.md"
       ],
       "g4_checker": "shenbi-worldbuilding"
     },
@@ -43,10 +36,7 @@
       ],
       "expected_outputs": [
         "genre-config.json",
-        "outline/rhythm_principles.md",
-        "outline/story_frame.md",
-        "outline/thread_map.md",
-        "outline/volume_map.md"
+        "outline/*.md"
       ],
       "g4_checker": "shenbi-story-architecture"
     },
@@ -58,7 +48,7 @@
       ],
       "expected_outputs": [
         "plans/chapter-*-plan.md",
-        "truth/pending_hooks.md"
+        "truth/*.md"
       ],
       "g4_checker": "shenbi-chapter-planning"
     },
@@ -73,13 +63,7 @@
       ],
       "expected_outputs": [
         "chapters/chapter-*.md",
-        "truth/chapter_summaries.md",
-        "truth/character_matrix.md",
-        "truth/current_state.md",
-        "truth/emotional_arcs.md",
-        "truth/particle_ledger.md",
-        "truth/pending_hooks.md",
-        "truth/subplot_board.md"
+        "truth/*.md"
       ],
       "g4_checker": "shenbi-chapter-drafting"
     },
@@ -105,24 +89,7 @@
         "shenbi-review-spinoff"
       ],
       "expected_outputs": [
-        "audits/chapter-N-anti-ai.md",
-        "audits/chapter-N-character.md",
-        "audits/chapter-N-continuity.md",
-        "audits/chapter-N-dialogue.md",
-        "audits/chapter-N-era.md",
-        "audits/chapter-N-fanfic.md",
-        "audits/chapter-N-foreshadowing.md",
-        "audits/chapter-N-highpoint.md",
-        "audits/chapter-N-long-span.md",
-        "audits/chapter-N-memo-compliance.md",
-        "audits/chapter-N-motivation.md",
-        "audits/chapter-N-pacing.md",
-        "audits/chapter-N-pov.md",
-        "audits/chapter-N-reader-pull.md",
-        "audits/chapter-N-sensitivity.md",
-        "audits/chapter-N-spinoff.md",
-        "audits/chapter-N-texture.md",
-        "audits/chapter-N-world-rules.md"
+        "audits/chapter-*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for review-character not yet implemented in validate-gate.py"
@@ -136,14 +103,9 @@
         "shenbi-volume-consolidation"
       ],
       "expected_outputs": [
-        "outline/chapter_patterns.md",
-        "snapshots/chapter-NNN/*",
-        "truth/audit_drift.md",
-        "truth/author_intent.md",
-        "truth/chapter_summaries.md",
-        "truth/current_focus.md",
-        "truth/drift_guidance.md",
-        "truth/volume_summaries.md"
+        "outline/*.md",
+        "snapshots/chapter-*/*",
+        "truth/*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for snapshot-manage not yet implemented in validate-gate.py"
@@ -162,11 +124,7 @@
         "characters/relationships.md",
         "import/analysis/*.md",
         "import/canon/*.md",
-        "world/factions.md",
-        "world/locations.md",
-        "world/power_system.md",
-        "world/rules.md",
-        "world/story_bible.md"
+        "world/*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for import-analysis not yet implemented in validate-gate.py"
@@ -196,7 +154,7 @@
       "expected_outputs": [
         "chapters/chapter-*.md",
         "import/packaging/*",
-        "outline/short_story_map.md"
+        "outline/*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for short-outline not yet implemented in validate-gate.py"
