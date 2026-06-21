@@ -78,3 +78,31 @@ class TestGateResultTyped:
             "checks": [],
         }
         assert result["status"] is GateStatus.PASS
+
+
+@pytest.mark.unit
+class TestSharedHelpersUseEnums:
+    def test_passed_result_has_gate_status_pass(self) -> None:
+        import json
+
+        from shenbi.gates.shared import passed
+
+        result = json.loads(passed("G1", [{"id": "G1.1", "s": "PASS"}]))
+        assert result["status"] == GateStatus.PASS.value
+
+    def test_fail_result_has_gate_status_fail(self) -> None:
+        import json
+
+        from shenbi.gates.shared import fail
+
+        result = json.loads(fail("G1", [], "scoring", ["G1.0:x"]))
+        assert result["status"] == GateStatus.FAIL.value
+        assert result["blocked_action"] == "scoring"
+
+    def test_unimplemented_result_status(self) -> None:
+        import json
+
+        from shenbi.gates.shared import unimplemented
+
+        result = json.loads(unimplemented("G9"))
+        assert result["status"] == ScoringStatus.UNIMPLEMENTED.value
