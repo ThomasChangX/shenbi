@@ -163,6 +163,7 @@ def gate_G4(
     from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
     from shenbi.gates.g4.power_system import g4_power_system
     from shenbi.gates.g4.relationship_map import g4_relationship_map
+    from shenbi.gates.g4.review_resonance import g4_review_resonance
     from shenbi.gates.g4.state_settling import g4_state_settling
     from shenbi.gates.g4.story_architecture import g4_story_architecture
     from shenbi.gates.g4.style_polishing import g4_style_polishing
@@ -185,6 +186,7 @@ def gate_G4(
         "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
         "shenbi-power-system": g4_power_system,
         "shenbi-relationship-map": g4_relationship_map,
+        "shenbi-review-resonance": g4_review_resonance,
         "shenbi-state-settling": g4_state_settling,
         "shenbi-story-architecture": g4_story_architecture,
         "shenbi-style-polishing": g4_style_polishing,

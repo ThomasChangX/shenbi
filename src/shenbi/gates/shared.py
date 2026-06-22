@@ -218,6 +218,7 @@ G4_CHECKER_SKILLS = {
     "shenbi-plot-thread-weaver",
     "shenbi-power-system",
     "shenbi-relationship-map",
+    "shenbi-review-resonance",
     "shenbi-state-settling",
     "shenbi-story-architecture",
     "shenbi-style-polishing",
