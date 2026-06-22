@@ -120,7 +120,7 @@ digraph chapter_planning {
 ```markdown
 ## 1. 当前任务
 
-**chapter_role**: 高潮
+chapter_role: 高潮
 
 > 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
 
