@@ -132,3 +132,124 @@ def test_main_cli_outputs_json(tmp_path, capsys, monkeypatch) -> None:
     assert out["results"][0]["trope"] == "天降系统"
     assert out["results"][0]["hits"] == 2
     assert out["results"][0]["overuse"] is True
+
+
+# ===========================================================================
+# §10 套路检测测试 — fixture-scenario overuse detection (full report path)
+# ===========================================================================
+#
+# These exercise the full ``load_trope_inventory`` → ``match_all`` path against
+# the real ``genre-config-example.json`` tropeInventory with beats that do / do
+# not over-trigger a trope, asserting hits are correct, ``overuse_threshold``
+# flags fire, and the report carries the actionable ``rewrite_hint``.
+
+from shenbi.skill_utils.trope_detection.match_tropes import match_all  # noqa: E402
+
+
+@pytest.mark.unit
+def test_fixture_overuse_detected_via_match_all() -> None:
+    """Real fixture: 天降系统 over-triggered (>1 hit) → overuse flagged."""
+    tropes = load_trope_inventory(FIXTURE)
+    # two distinct beats each matching a 天降系统 signature → 2 hits > threshold 1
+    beats = [
+        "脑海中出现系统面板，显示任务列表",
+        "任务-奖励循环驱动行为，主角不断刷任务",
+        "主角吃了一碗面",
+    ]
+    results = {r["trope"]: r for r in match_all(beats, tropes)}
+
+    assert results["天降系统"]["hits"] == 2
+    assert results["天降系统"]["overuse"] is True
+    assert results["天降系统"]["overuse_threshold"] == 1
+    assert results["废柴逆袭"]["overuse"] is False
+
+
+@pytest.mark.unit
+def test_fixture_overuse_result_carries_rewrite_hint() -> None:
+    """An overused trope's result carries the actionable rewrite_hint."""
+    tropes = load_trope_inventory(FIXTURE)
+    beats = [
+        "脑海中出现系统面板",
+        "任务-奖励循环驱动行为",
+    ]
+    results = {r["trope"]: r for r in match_all(beats, tropes)}
+    flagged = results["天降系统"]
+    assert flagged["overuse"] is True
+    assert flagged["rewrite_hint"]  # non-empty, actionable
+    assert "系统" in flagged["rewrite_hint"]
+
+
+@pytest.mark.unit
+def test_fixture_clean_outline_no_overuse() -> None:
+    """Beats with no trope signatures → every result overuse=False, zero hits."""
+    tropes = load_trope_inventory(FIXTURE)
+    beats = [
+        "主角与村民商议秋收分配",
+        "主角独自在山路上行走，回忆往事",
+        "集市上有人争吵，主角旁观",
+    ]
+    for r in match_all(beats, tropes):
+        assert r["hits"] == 0
+        assert r["overuse"] is False
+
+
+@pytest.mark.unit
+def test_fixture_selective_overuse_only_flagged_trope() -> None:
+    """Only the trope exceeding its threshold is flagged; the other is not.
+
+    废柴逆袭 (threshold 2) gets exactly 2 hits → NOT overuse (strict >).
+    天降系统 (threshold 1) gets 2 hits → overuse. So the report flags exactly
+    one trope and reports the right hit counts for both.
+    """
+    tropes = load_trope_inventory(FIXTURE)
+    beats = [
+        # 废柴逆袭: 2 hits (== threshold, not overuse)
+        "主角开局被退婚/受辱，未婚妻离去",
+        "获得金手指(系统/老爷爷/血脉)老爷爷苏醒",
+        # 天降系统: 2 hits (> threshold 1, overuse)
+        "脑海中出现系统面板",
+        "系统解释一切机制",
+    ]
+    by_trope = {r["trope"]: r for r in match_all(beats, tropes)}
+    assert by_trope["废柴逆袭"]["hits"] == 2
+    assert by_trope["废柴逆袭"]["overuse"] is False
+    assert by_trope["天降系统"]["hits"] == 2
+    assert by_trope["天降系统"]["overuse"] is True
+
+
+@pytest.mark.unit
+def test_match_all_full_report_structure() -> None:
+    """Every match_all result exposes the full §10 report contract."""
+    tropes = load_trope_inventory(FIXTURE)
+    results = match_all(["主角吃面"], tropes)
+    assert len(results) == len(tropes)
+    for r in results:
+        assert set(r) == {
+            "trope",
+            "hits",
+            "overuse",
+            "overuse_threshold",
+            "rewrite_hint",
+        }
+
+
+@pytest.mark.unit
+def test_fixture_cli_with_real_genre_config(tmp_path, capsys, monkeypatch) -> None:
+    """main() against the real fixture config + a beats file → full JSON report."""
+    beats = tmp_path / "beats.txt"
+    beats.write_text(
+        "脑海中出现系统面板\n任务-奖励循环驱动行为\n主角吃面\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "sys.argv",
+        ["match_tropes.py", "--config", FIXTURE, "--beats-file", str(beats)],
+    )
+    main()
+    out = json.loads(capsys.readouterr().out)
+    assert out["sample"]["beats"] == 3
+    assert out["sample"]["tropes"] == 2
+    by_trope = {r["trope"]: r for r in out["results"]}
+    assert by_trope["天降系统"]["hits"] == 2
+    assert by_trope["天降系统"]["overuse"] is True
+    assert by_trope["天降系统"]["rewrite_hint"]

@@ -6,9 +6,11 @@ next step:
   * **clear pass** (overall >= threshold and every dimension floor met) -> the
     block is accepted as-is.
   * **clear fail** (overall more than 5 below threshold, high confidence, under
-    the revision cap) -> route to automatic revision for another draft.
+    the revision cap, *high* calibrated confidence) -> route to automatic
+    revision for another draft.
   * **borderline / uncertain** (within ±5 of threshold, a breached floor that is
-    itself near threshold, or low scorer confidence) -> escalate to human review.
+    itself near threshold, or non-high scorer confidence) -> escalate to human
+    review.
 
 To avoid an infinite revision loop, after ``MAX_AUTO_REVISIONS`` (2) automatic
 revisions a clear fail is no longer retried automatically — it escalates to
@@ -76,12 +78,19 @@ def _decide(
         return Routing.PASS, "overall >= threshold and all floors met"
 
     near_threshold = abs(overall - threshold) <= BORDERLINE_BAND
-    # Borderline score (within ±5) or low scorer confidence -> cannot trust
-    # either a pass or an auto-revise, so a human must adjudicate.
-    if confidence == "low" or near_threshold:
-        if confidence == "low":
-            return Routing.HUMAN_REVIEW, "low scorer confidence"
+    # A borderline score (within ±5) or any non-high (calibrated) confidence
+    # cannot be trusted with an automatic revision, so a human must adjudicate.
+    # Spec §5.4: 明确失败 → auto-revise requires *high* confidence; a scorer
+    # calibrated down to "mid" (overconfident-but-inaccurate) loses that privilege.
+    if near_threshold:
         return Routing.HUMAN_REVIEW, "overall within ±5 of threshold (borderline)"
+    if confidence == "low":
+        return Routing.HUMAN_REVIEW, "low scorer confidence"
+    if confidence != "high":
+        return (
+            Routing.HUMAN_REVIEW,
+            "calibrated confidence not high (overconfident/uncertain scorer)",
+        )
 
     # High confidence and clearly below threshold (>5 under). Auto-revise unless
     # the 2-revision cap has been reached, in which case escalate to a human.
@@ -105,8 +114,9 @@ def route_block(
         floors: Mapping of dimension name to ``(score, floor)``. Every ``score``
             must be ``>=`` its ``floor`` for a clear pass.
         confidence: Calibrated scorer confidence (``high`` / ``mid`` / ``low``).
-            Only ``low`` forces human review; ``mid`` and ``high`` are treated
-            identically here.
+            Only ``high`` qualifies a clear fail for automatic revision; ``mid``
+            (e.g. a scorer calibrated down from an overconfident ``high``) and
+            ``low`` both escalate to human review.
         prior_revisions: How many auto-revisions this block has already gone
             through. At/above ``MAX_AUTO_REVISIONS`` a clear fail escalates.
 
