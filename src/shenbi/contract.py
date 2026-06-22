@@ -42,10 +42,29 @@ class Contract(TypedDict):
     reads: list[str]
     writes: list[str]
     updates: list[str]
+    read_fields: dict[str, list[str]]
 
 
 def _skill_path(skill: str) -> Path:
     return SKILLS / skill / "SKILL.md"
+
+
+def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
+    """Normalize a reads entry into (path, fields-or-None).
+
+    Accepts a plain string or a dict ``{file, fields?}``. Dict-form lets a skill
+    annotate which fields of a truth file it consumes (R1 forward-compat).
+    """
+    if isinstance(item, str):
+        return item, None
+    if isinstance(item, dict) and "file" in item:
+        fields = item.get("fields")
+        if fields is not None and not (
+            isinstance(fields, list) and all(isinstance(x, str) for x in fields)
+        ):
+            raise ContractError("contract.reads[].fields must be list[str]", field="reads")
+        return str(item["file"]), fields
+    raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
 
 
 def load_registry() -> dict[str, Any]:
@@ -108,21 +127,38 @@ def _validate(raw: dict[str, Any], skill: str, registry: dict[str, Any]) -> Cont
         ) from None
 
     validated: dict[str, list[str]] = {}
+    read_fields: dict[str, list[str]] = {}
     for field in ("reads", "writes", "updates"):
         val = raw.get(field)
-        if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
+        if not isinstance(val, list):
             raise ContractError(f"contract.{field} must be a list[str]", skill=skill, field=field)
-        for p in val:
+        if field == "reads":
+            # reads may use dict-form {file, fields?}; writes/updates stay str-only.
+            paths: list[str] = []
+            for item in val:
+                path, fields = _normalize_read_item(item)
+                paths.append(path)
+                if fields is not None:
+                    read_fields[path] = fields
+            items = paths
+        else:
+            if not all(isinstance(x, str) for x in val):
+                raise ContractError(
+                    f"contract.{field} must be a list[str]", skill=skill, field=field
+                )
+            items = val
+        for p in items:
             if not resolves(p, registry):
                 raise ContractError(
                     "contract path does not resolve in registry", skill=skill, field=field, path=p
                 )
-        validated[field] = val
+        validated[field] = items
     return {
         "kind": kind,
         "reads": validated["reads"],
         "writes": validated["writes"],
         "updates": validated["updates"],
+        "read_fields": read_fields,
     }
 
 
@@ -134,3 +170,25 @@ def load_contract(skill: str) -> Contract:
     registry = load_registry()
     raw = _read_frontmatter_contract(skill, path)
     return _validate(raw, skill, registry)
+
+
+def requires_independent_agent(skill: str) -> bool:
+    """Read the top-level frontmatter flag (not under contract:).
+
+    A skill marked ``requires_independent_agent: true`` must run on a separate
+    sub-agent so it cannot grade its own output (G3.4 independence).
+    """
+    path = _skill_path(skill)
+    if not path.exists():
+        raise ContractError("skill SKILL.md not found", skill=skill)
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return False
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return False
+    try:
+        data = yaml.safe_load(parts[1]) or {}
+    except yaml.YAMLError:
+        return False
+    return bool(data.get("requires_independent_agent", False))
