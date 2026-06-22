@@ -21,6 +21,7 @@
       "shenbi-review-pacing",
       "shenbi-review-pov",
       "shenbi-review-reader-pull",
+      "shenbi-review-resonance",
       "shenbi-review-sensitivity",
       "shenbi-review-spinoff",
       "shenbi-review-texture",
@@ -94,6 +95,7 @@
       "shenbi-review-highpoint",
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
+      "shenbi-review-resonance",
       "shenbi-review-texture"
     ],
     "writes": [
@@ -105,6 +107,7 @@
     "reads": [
       "shenbi-chapter-drafting",
       "shenbi-context-composing",
+      "shenbi-review-resonance",
       "shenbi-short-drafting",
       "shenbi-style-polishing"
     ],
@@ -121,7 +124,8 @@
     ],
     "writes": [],
     "updates": [
-      "shenbi-drift-guidance"
+      "shenbi-drift-guidance",
+      "shenbi-review-resonance"
     ]
   },
   "chapters/*.md": {
@@ -618,6 +622,20 @@
       "shenbi-review-reader-pull"
     ],
     "updates": []
+  },
+  "audits/chapter-N-resonance.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-resonance"
+    ],
+    "updates": []
+  },
+  "truth/resonance_trend.md": {
+    "reads": [],
+    "writes": [],
+    "updates": [
+      "shenbi-review-resonance"
+    ]
   },
   "audits/chapter-N-sensitivity.md": {
     "reads": [],
