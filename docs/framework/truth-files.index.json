@@ -370,6 +370,22 @@
       "shenbi-state-settling"
     ]
   },
+  "truth/resonance_trend.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [],
+    "updates": [
+      "shenbi-review-resonance"
+    ]
+  },
+  "truth/arc_payoff_trend.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "truth/drift_guidance.md": {
     "reads": [],
     "writes": [
@@ -629,13 +645,6 @@
       "shenbi-review-resonance"
     ],
     "updates": []
-  },
-  "truth/resonance_trend.md": {
-    "reads": [],
-    "writes": [],
-    "updates": [
-      "shenbi-review-resonance"
-    ]
   },
   "audits/chapter-N-sensitivity.md": {
     "reads": [],

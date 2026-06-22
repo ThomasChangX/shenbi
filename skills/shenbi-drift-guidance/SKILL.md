@@ -7,6 +7,8 @@ contract:
   reads:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
+    - truth/resonance_trend.md
+    - truth/arc_payoff_trend.md
   writes:
     - truth/drift_guidance.md
   updates:
@@ -16,7 +18,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/arc_payoff_trend.md
 - **Writes:** truth/drift_guidance.md
 - **Updates:** truth/audit_drift.md
 
@@ -31,12 +33,16 @@ contract:
 ```dot
 digraph drift_guidance {
     "Read all audit reports for current chapter" -> "Categorize issues by source audit";
-    "Categorize issues by source audit" -> "For each issue: determine if it conducts forward";
+    "Read all audit reports for current chapter" -> "Read resonance_trend.md + arc_payoff_trend.md";
+    "Categorize issues by source audit" -> "Read resonance_trend.md + arc_payoff_trend.md";
+    "Read resonance_trend.md + arc_payoff_trend.md" -> "Run python -m shenbi.skill_utils.drift_detection (spec §8.3 triggers)";
+    "Run python -m shenbi.skill_utils.drift_detection (spec §8.3 triggers)" -> "For each issue: determine if it conducts forward";
     "For each issue: determine if it conducts forward" -> "Generate targeted guidance for next chapter";
-    "Generate targeted guidance for next chapter" -> "Write truth/audit_drift.md";
-    "Write truth/audit_drift.md" -> "Report conduction summary";
+    "Generate targeted guidance for next chapter" -> "Write truth/audit_drift.md (chapter drift + §8.3 volume drift)";
+    "Write truth/audit_drift.md (chapter drift + §8.3 volume drift)" -> "Report conduction summary";
 }
 ```
+读取 `truth/resonance_trend.md` 与 `truth/arc_payoff_trend.md`，调用 `python -m shenbi.skill_utils.drift_detection` 得到 DriftFinding，将 findings 写入 `truth/audit_drift.md`（逐章纠偏 + 卷级纠偏）。触发条件见 spec §8.3（此处不重定义）。
 
 ## 铁律
 
@@ -62,12 +68,14 @@ digraph drift_guidance {
 ## 执行步骤
 
 1. 读取当前章节所有审计报告（continuity / character / pacing / foreshadowing / anti-ai 等）
-2. 按来源审计归类所有问题
-3. 对每条问题判断：是 error 还是 warning，是否属于可传导类型
-4. 对可传导项生成具体写作指导（"下章应做什么"，而非"上章错在哪"）
-5. 检查累积传导数量，若超过 5 条则按"影响下章质量风险"排序取前 5
-6. 写入 `truth/audit_drift.md`（YAML frontmatter 格式）
-7. 输出传导汇总，供 human partner 核对
+2. 读取 `truth/resonance_trend.md` 与 `truth/arc_payoff_trend.md`，调用 `python -m shenbi.skill_utils.drift_detection` 得到 DriftFinding；触发条件遵循 spec §8.3（逐章 3 点平滑 + 连续下滑/均值-2σ；卷级连续下滑），不在此重定义
+3. 将 DriftFinding 的 findings 写入 `truth/audit_drift.md`：逐章纠偏（dimension下滑/低于阈值）与卷级纠偏（跨卷趋势）分项列出
+4. 按来源审计归类当前章问题
+5. 对每条问题判断：是 error 还是 warning，是否属于可传导类型
+6. 对可传导项生成具体写作指导（"下章应做什么"，而非"上章错在哪"）
+7. 检查累积传导数量，若超过 5 条则按"影响下章质量风险"排序取前 5
+8. 写入 `truth/audit_drift.md`（YAML frontmatter 格式）
+9. 输出传导汇总，供 human partner 核对
 
 ## 输出格式
 
