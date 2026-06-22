@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-foreshadowing
 description: "Use when a finished chapter needs foreshadowing audit against hook ledger and cultivation rules"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -51,10 +52,11 @@ digraph review_foreshadowing {
 
 ## 铁律
 
-1. **过期伏笔必须标记为 error** — 超过 `max_distance` 未兑现的伏笔禁止沉默
-2. **支线停滞 > 5 章必须标记为 warning** — 支线推进的活跃度是追读信号
-3. **备忘 hook 账必须与正文一致** — memo 中标注的兑现动作禁止在正文中缺失
-4. **密度预算禁止超 8 操作/章** — 含种植、强化、触发、兑现
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **过期伏笔必须标记为 error** — 超过 `max_distance` 未兑现的伏笔禁止沉默
+3. **支线停滞 > 5 章必须标记为 warning** — 支线推进的活跃度是追读信号
+4. **备忘 hook 账必须与正文一致** — memo 中标注的兑现动作禁止在正文中缺失
+5. **密度预算禁止超 8 操作/章** — 含种植、强化、触发、兑现
 
 ## 检查执行
 

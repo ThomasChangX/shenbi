@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-highpoint
 description: "Use when a finished chapter needs a high-point audit (suppression-explosion, twist detection, climax keyword diversity, 爽点虚化)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -49,10 +50,11 @@ digraph review_highpoint {
 
 ## 铁律
 
-1. **高潮必须有蓄压** — 高潮章/段前必须有 500+ 字蓄压（压迫/危机/期待），无蓄压 = error
-2. **反转必须有三段式** — 铺垫（误导读者）→ 反转点 → 解释/确认，三段缺一 = error
-3. **爽点关键词 = 写作红线** — 命中 `genre-config.json` 禁忌关键词 = error
-4. **爽点虚化 = 最大毒点** — 蓄压远大于释放 = 读者期待落空 = error
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **高潮必须有蓄压** — 高潮章/段前必须有 500+ 字蓄压（压迫/危机/期待），无蓄压 = error
+3. **反转必须有三段式** — 铺垫（误导读者）→ 反转点 → 解释/确认，三段缺一 = error
+4. **爽点关键词 = 写作红线** — 命中 `genre-config.json` 禁忌关键词 = error
+5. **爽点虚化 = 最大毒点** — 蓄压远大于释放 = 读者期待落空 = error
 
 ## 检查执行
 

@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-world-rules
 description: "Use when a finished chapter needs a world-rules consistency audit against power system, setting, and numerical records"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -55,10 +56,11 @@ digraph review_world_rules {
 
 ## 铁律
 
-1. **战力体系 = 不可逾越的天花板** — 角色表现超出 `world/power_system.md` 定义的等级上限 = error
-2. **世界规则 = 物理定律** — 违反 `world/rules.md` 中声明的规则（不可逆/不可兼得/代价等）= error
-3. **数值一致性 = 不可调和** — 同一数值（年龄/年份/距离/数量）在不同章节矛盾 = error
-4. **知识库污染零容忍** — 角色使用未建立的术语/概念/技术 = error
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **战力体系 = 不可逾越的天花板** — 角色表现超出 `world/power_system.md` 定义的等级上限 = error
+3. **世界规则 = 物理定律** — 违反 `world/rules.md` 中声明的规则（不可逆/不可兼得/代价等）= error
+4. **数值一致性 = 不可调和** — 同一数值（年龄/年份/距离/数量）在不同章节矛盾 = error
+5. **知识库污染零容忍** — 角色使用未建立的术语/概念/技术 = error
 
 ## 检查执行
 

@@ -1,6 +1,7 @@
 ---
 name: shenbi-chapter-pattern
 description: "Use when classifying chapters by structural pattern, detecting pattern monotony across the novel, monitoring chapter type distribution, or preventing repetitive chapter structures"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -40,11 +41,12 @@ digraph chapter_pattern {
 
 ## 铁律
 
-1. **13 模式全识别** — 任何章节必须能归入至少 1 种模式；不可识别的标注"未分类"
-2. **单调性阈值硬性** — 连续 N 章同模式 ≥ genre-config 中定义必须报警
-3. **分布检测必看** — 不仅看连续，还看整体分布（10 章内 13 模式必须覆盖 ≥ 5 种）
-4. **不重写章节** — 本技能只检测不修订；发现问题建议下章调整
-5. **建议可执行** — 模式建议必须具体到下一章该用哪种模式
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **13 模式全识别** — 任何章节必须能归入至少 1 种模式；不可识别的标注"未分类"
+3. **单调性阈值硬性** — 连续 N 章同模式 ≥ genre-config 中定义必须报警
+4. **分布检测必看** — 不仅看连续，还看整体分布（10 章内 13 模式必须覆盖 ≥ 5 种）
+5. **不重写章节** — 本技能只检测不修订；发现问题建议下章调整
+6. **建议可执行** — 模式建议必须具体到下一章该用哪种模式
 
 ## 13 种章节模式
 

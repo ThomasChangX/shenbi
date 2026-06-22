@@ -1,6 +1,7 @@
 ---
 name: shenbi-drift-guidance
 description: "Use when a chapter has completed all audits and results need to be conveyed to the next chapter's writing context"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -39,10 +40,11 @@ digraph drift_guidance {
 
 ## 铁律
 
-1. **error 级别不传导** — error 必须在当前章修订中修复，修复后不传导
-2. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
-3. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
-4. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **error 级别不传导** — error 必须在当前章修订中修复，修复后不传导
+3. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
+4. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
+5. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
 
 ## 传导规则
 

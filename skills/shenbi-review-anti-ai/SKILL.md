@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-anti-ai
 description: "Use when a finished chapter needs an AI-pattern audit against fatigue words, structural tells, and genre-config prohibitions"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -40,10 +41,11 @@ digraph review_anti_ai {
 
 ## 铁律
 
-1. **不信任"看起来还行"** — 每条检查必须逐一执行，不允许跳步
-2. **先确定性后判断** — 确定性检查（零 LLM 成本）先跑，发现问题就不需要继续
-3. **error 级别 = 必须修复** — error 级别问题不通过修订不能放过
-4. **warning 级别 = 建议修复** — 3+ warning 也需要修订
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **不信任"看起来还行"** — 每条检查必须逐一执行，不允许跳步
+3. **先确定性后判断** — 确定性检查（零 LLM 成本）先跑，发现问题就不需要继续
+4. **error 级别 = 必须修复** — error 级别问题不通过修订不能放过
+5. **warning 级别 = 建议修复** — 3+ warning 也需要修订
 
 ## 检查执行
 

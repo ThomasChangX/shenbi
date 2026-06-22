@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-dialogue
 description: "Use when a finished chapter needs a dialogue style consistency audit against character voice profiles"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -51,10 +52,11 @@ digraph review_dialogue {
 
 ## 铁律
 
-1. **声音指纹 = 角色身份证** — 角色说话方式与 `voice_profile` 严重不符 = error
-2. **口头禅必须出现或显式缺席** — 标志口头禅每 5-8 章至少出现 1 次，长时间消失 = warning
-3. **对话标签单调 = 写作偷懒** — 连续 5 段以上使用同一种对话标签（"说道""说"）= warning
-4. **了字密度需符合角色** — 文言角色 了 字密度应低于白话角色，违反 = warning
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **声音指纹 = 角色身份证** — 角色说话方式与 `voice_profile` 严重不符 = error
+3. **口头禅必须出现或显式缺席** — 标志口头禅每 5-8 章至少出现 1 次，长时间消失 = warning
+4. **对话标签单调 = 写作偷懒** — 连续 5 段以上使用同一种对话标签（"说道""说"）= warning
+5. **了字密度需符合角色** — 文言角色 了 字密度应低于白话角色，违反 = warning
 
 ## 检查执行
 

@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-pacing
 description: "Use when a finished chapter needs pacing audit against rhythm rules and chapter type sequence"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -48,9 +49,10 @@ digraph review_pacing {
 
 ## 铁律
 
-1. **蓄压必须有释放** — 连续超过 `genre-config.json` 的 `maxConsecutiveQuest` 章 QUEST 无 FIRE → 必须报告为 warning
-2. **爆发后必须有缓冲** — FIRE 章后不能直接进入下一个 FIRE，必须有缓冲章
-3. **日常段落必须有功能** — CONSTELLATION 段落不能只是"日常描写"，必须承载信息/关系/伏笔中的至少一种
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **蓄压必须有释放** — 连续超过 `genre-config.json` 的 `maxConsecutiveQuest` 章 QUEST 无 FIRE → 必须报告为 warning
+3. **爆发后必须有缓冲** — FIRE 章后不能直接进入下一个 FIRE，必须有缓冲章
+4. **日常段落必须有功能** — CONSTELLATION 段落不能只是"日常描写"，必须承载信息/关系/伏笔中的至少一种
 
 ## 检查执行
 

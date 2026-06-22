@@ -1,6 +1,7 @@
 ---
 name: shenbi-foundation-review
 description: "Use when reviewing the complete worldbuilding + character + story architecture foundation before writing begins, or when a human partner asks for a quality assessment of story fundamentals"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -50,10 +51,11 @@ digraph foundation_review {
 
 ## 铁律
 
-1. **总分 80 = 最低门槛** — < 80 必须返回修改，不商量
-2. **核心冲突 < 18 = 自动不通过** — 无论其他维度多高
-3. **只审核已生成的内容** — 不为缺失的内容假设分数
-4. **每个扣分必须附带具体改进建议** — 不让人类合作者猜测如何改进
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **总分 80 = 最低门槛** — < 80 必须返回修改，不商量
+3. **核心冲突 < 18 = 自动不通过** — 无论其他维度多高
+4. **只审核已生成的内容** — 不为缺失的内容假设分数
+5. **每个扣分必须附带具体改进建议** — 不让人类合作者猜测如何改进
 
 ## 审核清单
 
