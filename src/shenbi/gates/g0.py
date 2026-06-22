@@ -447,13 +447,15 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     # G0.13 — independence markers: every report-kind skill must declare
     # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
+    # Delegates to the unit-tested check_independence_markers helper so the
+    # production gate and the tested logic share a single source of truth.
     from shenbi.contract import (
         load_contract,
         requires_independent_agent,
         ContractError,
     )
 
-    indep_issues: list[str] = []
+    skills: dict[str, dict[str, Any]] = {}
     for d in SKILLS.iterdir():
         if not d.is_dir() or d.name.startswith("_"):
             continue
@@ -461,8 +463,11 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             c = load_contract(d.name)
         except ContractError:
             continue  # contract issues surface in their own checks
-        if c["kind"] == OutputKind.REPORT and not requires_independent_agent(d.name):
-            indep_issues.append(d.name)
+        skills[d.name] = {
+            "kind": c["kind"],
+            "has_marker": requires_independent_agent(d.name),
+        }
+    indep_issues = check_independence_markers(skills)
     if indep_issues:
         return fail(
             "G0",
@@ -471,7 +476,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 {
                     "id": "G0.13",
                     "s": "FAIL",
-                    "r": f"report skills missing requires_independent_agent: {indep_issues}",
+                    "r": "; ".join(indep_issues),
                 }
             ],
             "round_creation",
