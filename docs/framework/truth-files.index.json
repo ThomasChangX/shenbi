@@ -125,6 +125,7 @@
     "writes": [],
     "updates": [
       "shenbi-drift-guidance",
+      "shenbi-review-arc-payoff",
       "shenbi-review-resonance"
     ]
   },
@@ -132,6 +133,7 @@
     "reads": [
       "shenbi-chapter-pattern",
       "shenbi-character-extraction",
+      "shenbi-review-arc-payoff",
       "shenbi-review-long-span",
       "shenbi-short-packaging",
       "shenbi-style-learning",
@@ -187,6 +189,7 @@
       "shenbi-foreshadowing-resolve",
       "shenbi-foreshadowing-track",
       "shenbi-plot-thread-weaver",
+      "shenbi-review-arc-payoff",
       "shenbi-review-foreshadowing",
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
@@ -206,6 +209,7 @@
       "shenbi-chapter-planning",
       "shenbi-pacing-design",
       "shenbi-plot-thread-weaver",
+      "shenbi-review-arc-payoff",
       "shenbi-sequel-writing",
       "shenbi-volume-outlining"
     ],
@@ -372,7 +376,8 @@
   },
   "truth/resonance_trend.md": {
     "reads": [
-      "shenbi-drift-guidance"
+      "shenbi-drift-guidance",
+      "shenbi-review-arc-payoff"
     ],
     "writes": [],
     "updates": [
@@ -384,7 +389,9 @@
       "shenbi-drift-guidance"
     ],
     "writes": [],
-    "updates": []
+    "updates": [
+      "shenbi-review-arc-payoff"
+    ]
   },
   "truth/drift_guidance.md": {
     "reads": [],
@@ -520,6 +527,13 @@
     "reads": [],
     "writes": [
       "shenbi-review-anti-ai"
+    ],
+    "updates": []
+  },
+  "audits/volume-N-payoff.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-arc-payoff"
     ],
     "updates": []
   },
