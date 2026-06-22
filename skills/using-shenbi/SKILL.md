@@ -52,7 +52,9 @@ digraph skill_check {
 | "质感" / "沉浸感" / "画面感" | shenbi-review-texture |
 | "吸引力" / "读不下去" / "读者" | shenbi-review-reader-pull |
 | "高光" / "高潮" / "名场面" | shenbi-review-highpoint |
+| "共鸣评分" / "正向质量" / "这章写得好不好" | shenbi-review-resonance |
 | "长程" / "跨卷" / "长线" | shenbi-review-long-span |
+| "卷质量" / "整卷交付" / "伏笔兑现" | shenbi-review-arc-payoff |
 | "时代感" / "年代感" / "历史氛围" | shenbi-review-era |
 | "同人" / "原作一致" / "角色崩坏" | shenbi-review-fanfic |
 | "番外" / "衍生" / "外传" | shenbi-review-spinoff |
@@ -118,8 +120,26 @@ When working with a novel project, the directory structure is defined in `docs/s
 
 ## Audit Activation
 
-Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity
+Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity, review-resonance
 
-> All 4 default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). Conditional audits: Phase 2 (review-pacing, review-foreshadowing), Phase 4b (review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff). Activation rules in design spec Section 7.4.
+> All default audits are now implemented (Phase 1 + Phase 2 + Phase 4a). Conditional audits: Phase 2 (review-pacing, review-foreshadowing), Phase 4b (review-world-rules, review-dialogue, review-motivation, review-pov, review-texture, review-reader-pull, review-memo-compliance, review-highpoint, review-long-span, review-era, review-fanfic, review-spinoff). Activation rules in design spec Section 7.4.
 
 Additional audits activate based on `genre-config.json` in the novel project. See design spec Section 7.4 for activation rules.
+
+### Positive quality gates (spec §5 / §6)
+
+The two positive gates complement the negative (defect-hunting) audits above — they answer "is this worth reading" instead of "did it break a rule":
+
+- **review-resonance** — per-chapter positive quality gate, **default-on**. Runs in an independent agent after each finished chapter (drafting loop, after style-polishing). Scores emotional landing / presence / prose craft / reader reward, appends to `truth/resonance_trend.md`.
+- **review-arc-payoff** — volume/arc boundary positive gate, **activates at volume boundary**. Triggered by `volume-consolidation` after the arc's chapters are drafted; gates advancement to the next volume (overall ≥80 AND 伏笔兑现质量 ≥15). Scores arc emotional delivery / foreshadowing payoff / thread resolution / expectation-debt / character arc, appends to `truth/arc_payoff_trend.md`.
+
+Both run in a context-cleaned independent subagent (`requires_independent_agent: true`, spec §8.1); the drafting/consolidation agent never scores its own output.
+
+### `resonance_pending` dispatch-failure path (spec §9)
+
+If `review-resonance` dispatch fails (provider timeout/error after retry), the orchestrator does **not** block the next chapter:
+
+1. Mark the chapter `resonance_pending` in `truth/resonance_trend.md` — append a row with `overall = pending` (a non-numeric sentinel; the drift parser treats `pending` rows as skip / non-numeric).
+2. **Do not block** `chapter-drafting` of the next chapter.
+3. Queue the chapter for re-evaluation; the main agent never substitutes its own score for the missing independent one (no self-scoring).
+4. The `arc-payoff` gate still requires every in-arc chapter to have a non-`pending` resonance pass before it can score the volume — so unresolved `pending` chapters eventually block the volume boundary until back-filled.
