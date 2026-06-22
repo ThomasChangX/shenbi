@@ -58,10 +58,12 @@
         "shenbi-state-settling",
         "shenbi-foreshadowing-track",
         "shenbi-style-polishing",
+        "shenbi-review-resonance",
         "shenbi-anti-detect",
         "shenbi-length-normalizing"
       ],
       "expected_outputs": [
+        "audits/chapter-*.md",
         "chapters/chapter-*.md",
         "truth/*.md"
       ],
@@ -100,9 +102,11 @@
         "shenbi-drift-guidance",
         "shenbi-intent-management",
         "shenbi-chapter-pattern",
-        "shenbi-volume-consolidation"
+        "shenbi-volume-consolidation",
+        "shenbi-review-arc-payoff"
       ],
       "expected_outputs": [
+        "audits/volume-*.md",
         "outline/*.md",
         "snapshots/chapter-*/*",
         "truth/*.md"
