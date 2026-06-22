@@ -23,6 +23,7 @@ from shenbi.gates.g0_purity import (
 from shenbi.gates.shared import (
     ALL_SKILLS,
     CHAPTER_WORD_FLOOR,
+    FIXTURES,
     G4_CHECKER_SKILLS,
     PROJECT,
     SKILLS,
@@ -50,6 +51,90 @@ def check_independence_markers(skills: dict[str, dict[str, Any]]) -> list[str]:
                 f"'requires_independent_agent: true' (spec §8.1)"
             )
     return issues
+
+
+def check_calibration_integrity(
+    calibration_dir: Path,
+    deps_path: Path,
+) -> tuple[list[dict[str, Any]], str | None, list[str]]:
+    """G0.14: calibration anchor hash lock.
+
+    Compute a combined SHA256 over every file under ``calibration_dir``
+    (recursively, excluding ``.gitkeep``) and compare to the locked value
+    at ``deps_path._calibration_hashes.combined``. Mirrors the existing
+    ``_tool_hashes`` integrity pattern.
+
+    Returns ``(checks, fail_reason_or_None, must_fix)`` so it composes with
+    the other tuple-returning G0 sub-checks. Failure modes:
+
+    * the ``_calibration_hashes`` key is absent from deps.json entirely ->
+      FAIL with a hint to run the lock script (not a hash mismatch).
+    * a file has been added, removed, or edited since the last lock ->
+      FAIL as anchor tamper/drift.
+    """
+    # Build the combined hash over the current anchor tree. An empty
+    # directory (scaffolding state) hashes the empty byte stream, which is
+    # a stable, lockable value.
+    h = hashlib.sha256()
+    if calibration_dir.exists():
+        for p in sorted(calibration_dir.rglob("*")):
+            if p.is_file() and p.name != ".gitkeep":
+                h.update(p.read_bytes())
+    actual = h.hexdigest()
+
+    try:
+        deps = json.loads(deps_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return (
+            [{"id": "G0.14", "s": "FAIL", "r": f"deps.json unreadable: {deps_path}"}],
+            "deps.json unreadable",
+            ["G0.14: repair tests/tiers/deps.json then run tests/lock-tool-hashes.sh"],
+        )
+
+    locked = deps.get("_calibration_hashes", {}).get("combined")
+    if locked is None:
+        return (
+            [
+                {
+                    "id": "G0.14",
+                    "s": "FAIL",
+                    "r": "_calibration_hashes.combined missing from deps.json",
+                }
+            ],
+            "_calibration_hashes.combined missing from deps.json",
+            ["G0.14: run tests/lock-tool-hashes.sh to lock calibration anchor hashes"],
+        )
+
+    # Accept both bare hex and the "sha256:<hex>" envelope used by _tool_hashes.
+    expected = locked.split(":", 1)[1] if str(locked).startswith("sha256:") else str(locked)
+
+    if actual != expected:
+        return (
+            [
+                {
+                    "id": "G0.14",
+                    "s": "FAIL",
+                    "r": (
+                        f"calibration anchor hash mismatch: expected {expected[:12]}..., "
+                        f"actual {actual[:12]}... — anchor tamper or drift detected"
+                    ),
+                }
+            ],
+            "calibration anchor hash mismatch",
+            ["G0.14: re-run tests/lock-tool-hashes.sh after intentional anchor changes"],
+        )
+
+    return (
+        [
+            {
+                "id": "G0.14",
+                "s": "PASS",
+                "note": "calibration anchors match locked hash",
+            }
+        ],
+        None,
+        [],
+    )
 
 
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
@@ -485,5 +570,18 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.append(
         {"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"}
     )
+
+    # G0.14 — calibration anchor hash lock: combined SHA256 over every file
+    # under tests/fixtures/calibration/** must match the locked value in
+    # deps.json._calibration_hashes.combined. Detects anchor tampering /
+    # drift between rounds. Empty scaffolding state hashes the empty byte
+    # stream and is itself lockable.
+    cal_checks, cal_fail, cal_must_fix = check_calibration_integrity(
+        FIXTURES / "calibration",
+        TESTS / "tiers" / "deps.json",
+    )
+    checks.extend(cal_checks)
+    if cal_fail:
+        return fail("G0", checks, "round_creation", cal_must_fix)
 
     return passed("G0", checks)

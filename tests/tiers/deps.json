@@ -187,10 +187,11 @@
     }
   },
   "_tool_hashes": {
-    "validate-gate.py": "sha256:b388c3add7a399b4cb407ff915b7f5f7e72687aacea15935a1abca01dac4de99",
-    "scoring.py": "sha256:128f86564dead61f55df51ca66c5efdca4c7fec9aa0a10781d1630b8f7af211e",
-    "phase-runner.py": "sha256:0b041f14363baeae477e597c4e4fcd66522c96a5ad87127901a705cc7cfdb406",
-    "summarize-round.py": "sha256:ef8811a78c82a251d8879a53042f1bd523a0ff3545ecd1964157eec6a8e8de4f"
+    "src/shenbi/gates/cli.py": "sha256:2a7fab5c08d58b9f3d9596f390d891ada09202e235c708d058b4d1e0fd07e67c",
+    "src/shenbi/gates/shared.py": "sha256:319c7595c6535c6ecbaea297c71948263457f8a4a04ed731abd3027c0f214ad1",
+    "src/shenbi/scoring.py": "sha256:103987fea231ad66194d562b69f37c028766d201a83bb94c1eab24b8fd989517",
+    "src/shenbi/phase_runner.py": "sha256:9706a24e2fae97012e7bc1ae1b2e86fe4b8c1b8b66ec3028012cad1030e05bb8",
+    "src/shenbi/summarize_round.py": "sha256:0ed6aa565b640864f27f8a4d673884803b9e6fe63f9d7ca5cdf200ff03ab6e98"
   },
   "_out_of_pipeline": {
     "t1_only_auxiliary": [
@@ -205,5 +206,8 @@
       "shenbi-foreshadowing-resolve"
     ],
     "_note": "These skills pass T1 but are not required by any T2 phase. They are auxiliary tools, meta/setup skills, or single-purpose drafting helpers."
+  },
+  "_calibration_hashes": {
+    "combined": "c6b17c11bae7386b8d8363f075769bbebfdc2f1184fc48c33cd879046528d9e8"
   }
 }
