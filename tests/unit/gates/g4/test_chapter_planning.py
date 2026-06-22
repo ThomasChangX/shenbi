@@ -95,6 +95,7 @@ def test_passes_when_all_conditions_met(tmp_path: Path) -> None:
         content += f"## {i}. Section {i}\n"
         if i == 1:
             content += "三面墙\n"
+            content += "chapter_role: 高潮\n"
         elif i == 5:
             content += "关键抉择\n"
         elif i == 7:
