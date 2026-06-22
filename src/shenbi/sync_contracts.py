@@ -97,7 +97,13 @@ def build_dag(contracts: dict[str, dict[str, Any]], registry: dict[str, Any]) ->
     producers: dict[str, list[str]] = {}
     for skill, c in contracts.items():
         for f in [*c["writes"], *c["updates"]]:
-            producers.setdefault(dag_key(f, registry), []).append(skill)
+            key = dag_key(f, registry)
+            bucket = producers.setdefault(key, [])
+            # A skill that both writes and updates files sharing a glob key
+            # (e.g. any truth/*.md) must appear once per key, not once per
+            # file, or every downstream edge is duplicated.
+            if skill not in bucket:
+                bucket.append(skill)
     edges: list[dict[str, str]] = []
     for consumer, c in contracts.items():
         for f in c["reads"]:
