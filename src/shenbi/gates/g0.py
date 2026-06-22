@@ -32,6 +32,25 @@ from shenbi.gates.shared import (
     passed,
 )
 
+from shenbi.contract import OutputKind
+
+
+def check_independence_markers(skills: dict[str, dict[str, Any]]) -> list[str]:
+    """G0 sub-check: every report-kind skill must declare requires_independent_agent.
+
+    ``skills[skill] = {"kind": OutputKind, "has_marker": bool}`` (caller assembles via
+    load_contract + requires_independent_agent). Returns a list of issue strings;
+    empty means every report-kind skill declares independence.
+    """
+    issues: list[str] = []
+    for skill, meta in skills.items():
+        if meta["kind"] == OutputKind.REPORT and not meta["has_marker"]:
+            issues.append(
+                f"G0.independence:{skill}: report-kind skill missing "
+                f"'requires_independent_agent: true' (spec §8.1)"
+            )
+    return issues
+
 
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     """G0: Round creation environment check."""
@@ -424,6 +443,42 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             "note": f"G4 coverage: {dedicated_count}/{len(ALL_SKILLS)} dedicated, "
             f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
         }
+    )
+
+    # G0.13 — independence markers: every report-kind skill must declare
+    # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
+    from shenbi.contract import (
+        load_contract,
+        requires_independent_agent,
+        ContractError,
+    )
+
+    indep_issues: list[str] = []
+    for d in SKILLS.iterdir():
+        if not d.is_dir() or d.name.startswith("_"):
+            continue
+        try:
+            c = load_contract(d.name)
+        except ContractError:
+            continue  # contract issues surface in their own checks
+        if c["kind"] == OutputKind.REPORT and not requires_independent_agent(d.name):
+            indep_issues.append(d.name)
+    if indep_issues:
+        return fail(
+            "G0",
+            checks
+            + [
+                {
+                    "id": "G0.13",
+                    "s": "FAIL",
+                    "r": f"report skills missing requires_independent_agent: {indep_issues}",
+                }
+            ],
+            "round_creation",
+            ["G0.13: add 'requires_independent_agent: true' to listed skills"],
+        )
+    checks.append(
+        {"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"}
     )
 
     return passed("G0", checks)
