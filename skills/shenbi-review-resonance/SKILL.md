@@ -38,7 +38,7 @@ contract:
 ## 铁律
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得给自己的产出评分（spec §8.1）。
-2. **锚点先行（anchor-first）** — 打分前先对照 `tests/fixtures/calibration/resonance/*.md` 锚点（每维度高/中/低三档，spec §8.2）。被评段的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
+2. **锚点先行（anchor-first）** — 打分前先对照本技能的共鸣锚点集（每维度高/中/低三档，spec §8.2；锚点文件路径由 dispatch 时传入，见 scenario 锚点映射）。被评段的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
 3. **先确定性** — 评分员的 LLM 判断只产出 4 维度分数 + 自报置信度。**校准门阈值、置信度降级、§5.4 分流、修订上限**全部由确定性 helper 计算，不得手算手判：
    - 分流：`python -m shenbi.skill_utils.review_resonance --overall <分> --threshold <校准阈值> --confidence <校准后置信度> --prior-revisions <次数> --floor <维度=分:子地板> ...`
    - 置信度降级：`python -m shenbi.skill_utils.calibration --reported <自报> --high-confidence <锚点命中率> --threshold 0.8`
@@ -52,8 +52,8 @@ digraph review_resonance {
     rankdir=TB;
     "读 chapters/chapter-N.md (prose + POST_WRITE_SELF_CHECK)" -> "读 plans/chapter-N-plan.md (chapter_role + core_task)";
     "读 plans/chapter-N-plan.md (chapter_role + core_task)" -> "读 style/style_profile.md (voice_fingerprint)";
-    "读 style/style_profile.md (voice_fingerprint)" -> "载入锚点 tests/fixtures/calibration/resonance/*.md (高/中/低)";
-    "载入锚点 tests/fixtures/calibration/resonance/*.md (高/中/低)" -> "评 4 维度 (情感落地 30 / 场景临场感 25 / 文笔质感 25 / 读者回报 20)";
+    "读 style/style_profile.md (voice_fingerprint)" -> "载入锚点 (高/中/低)";
+    "载入锚点 (高/中/低)" -> "评 4 维度 (情感落地 30 / 场景临场感 25 / 文笔质感 25 / 读者回报 20)";
     "评 4 维度" -> "校准门: 按 chapter_role 选 overall 阈值 + 维度子地板";
     "校准门" -> "置信度校准: 锚点命中率 → high/mid/low";
     "置信度校准" -> "§5.4 分流 (确定性 routing)";

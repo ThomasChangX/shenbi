@@ -42,7 +42,7 @@ contract:
 ## 铁律
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting / volume-consolidation / planning agent 不得给自己的弧打分（spec §8.1）。
-2. **锚点先行（anchor-first）** — 打分前先对照 `tests/fixtures/calibration/arc-payoff/*.md` 锚点（每维度高/中/低三档，spec §8.2）。被评弧的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
+2. **锚点先行（anchor-first）** — 打分前先对照本技能的弧级锚点集（每维度高/中/低三档，spec §8.2；锚点文件路径由 dispatch 时传入，见 scenario 锚点映射）。被评弧的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
 3. **先确定性** — 评分员的 LLM 判断只产出 5 维度分数 + 自报置信度。**门阈值（overall ≥80、伏笔兑现质量 ≥15 子地板）是固定值，逐字套用，不得手算「调」**：overall 与子地板的达标判定没有任何可「凭感觉」松动空间，照 §6.4 二元裁决。
 4. **show-not-tell 证据** — 每个维度分数必须落到「原文/锚点文件行号 + 引述」，证兑现是挣来的还是敷衍，**禁止**用「伏笔兑现得很好」「弧线推进有力」这类无锚点的评价话术。
 5. **置信度必报** — 每个维度报 high/mid/low，overall 报 high/mid/low。**裸置信度不可信**：自报 high 但锚点命中率 < 0.8 → 校准降级为 mid（spec §8.2），降级后的置信度才用于报告置信带。
@@ -55,7 +55,7 @@ digraph review_arc_payoff {
     "读 chapters/*.md (缩小到本卷弧内章节范围)" -> "读 outline/volume_map.md (volume_promise + arc_beats)";
     "读 outline/volume_map.md (volume_promise + arc_beats)" -> "读 truth/pending_hooks.md (resolved_this_arc + carried_forward)";
     "读 truth/pending_hooks.md (resolved_this_arc + carried_forward)" -> "读 truth/resonance_trend.md (本卷逐章情感落地均分)";
-    "读 truth/resonance_trend.md" -> "载入锚点 tests/fixtures/calibration/arc-payoff/*.md (高/中/低)";
+    "读 truth/resonance_trend.md" -> "载入锚点 (高/中/低)";
     "载入锚点" -> "评 5 维度 (弧情感交付 25 / 伏笔兑现质量 25 / 线索收束 20 / 期待债务结算 15 / 角色弧推进 15)";
     "评 5 维度" -> "门判定 (§6.4): overall ≥80 且 伏笔兑现质量 ≥15";
     "门判定 (§6.4)" -> "判定?";

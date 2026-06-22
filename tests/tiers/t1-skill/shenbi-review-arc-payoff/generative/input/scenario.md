@@ -19,7 +19,7 @@ Run shenbi-review-arc-payoff (in an independent agent — the volume-consolidati
 3. Report confidence as high/mid/low per-dimension AND overall; apply confidence calibration (self-reported high with anchor hit-rate < 0.8 → downgrade to mid)
 4. Land every dimension score on original-text file + line numbers + quoted excerpt; for 伏笔兑现质量 judge whether each resolved hook is "surprising+earned" vs "perfunctory/旁白交代"
 5. Apply the §6.4 binary gate (overall ≥80 且 伏笔兑现质量 ≥15 → 放行; else 阻断+处方) as fixed thresholds, not hand-judgment
-6. Produce the full output: 评分明细 table, 门判定, 处方 (if 阻断), 跨卷短板 → `truth/audit_drift.md`, and a `truth/arc_payoff_trend.md` append row
+6. Produce the full output: 评分明细 table, 门判定, 处方 (if 阻断), a 跨卷短板 entry appended into the project's truth/audit_drift.md file, and an arc_payoff_trend.md append row in truth/ (overall + 5 dimension scores + confidence band + 放行/阻断 verdict)
 
 ## Seed Input
 Finished arc chapters from `tests/fixtures/multi-chapter-example/`; volume outline from `tests/fixtures/outline-example.md`; pending hooks from `tests/fixtures/truth-pending_hooks.md`; style from `tests/fixtures/style-profile-example.md`; anchors from `tests/fixtures/calibration/arc-payoff/`.

@@ -17,7 +17,7 @@ Run shenbi-review-resonance (in an independent agent — the drafting context mu
 2. Report confidence as high/mid/low per-dimension AND overall; apply confidence calibration (self-reported high with anchor hit-rate < 0.8 → downgrade to mid)
 3. Land every dimension score on original-text line numbers + quoted excerpt; for 情感落地 name the strongest emotion + its trigger line and judge show-vs-tell
 4. Apply the calibration gate for `chapter_role: 推进/转折` (overall threshold ≥65, no dimension sub-floor) using the deterministic helper, not hand-judgment
-5. Produce the full output: 评分明细 table, 校准门判定, 共鸣短板 → `truth/audit_drift.md`, and a `truth/resonance_trend.md` append row
+5. Produce the full output: 评分明细 table, 校准门判定, a 共鸣短板 entry appended into the project's truth/audit_drift.md file, and a resonance_trend.md append row in truth/ (overall + 4 dimension scores + confidence band)
 6. Route the result via §5.4 (放行 / 自动 chapter-revision / 人机复核)
 
 ## Seed Input
