@@ -769,23 +769,23 @@ git commit -m "feat: add shenbi-score-stratum skill + G4 checker (spec §4.4, §
 
 - [ ] **Step 1: Update deps.json**
 
-drafting phase 加 score-arc + foreshadowing-recall；management phase 加 memory-distill + score-volume + score-stratum：
+**注意嵌套层级**：phase 对象在 `t2-phases` 下。用 python patch：
 
-```json
-"drafting": {
-  "prerequisites": [
-    "shenbi-chapter-drafting", "shenbi-state-settling", "shenbi-foreshadowing-track",
-    "shenbi-style-polishing", "shenbi-review-resonance", "shenbi-anti-detect",
-    "shenbi-length-normalizing", "shenbi-score-arc", "shenbi-foreshadowing-recall"
-  ]
-},
-"management": {
-  "prerequisites": [
-    "shenbi-snapshot-manage", "shenbi-drift-guidance", "shenbi-intent-management",
-    "shenbi-chapter-pattern", "shenbi-volume-consolidation", "shenbi-review-arc-payoff",
-    "shenbi-memory-distill", "shenbi-score-volume", "shenbi-score-stratum"
-  ]
-}
+```bash
+python3 -c "
+import json
+from pathlib import Path
+deps_path = Path('tests/tiers/deps.json')
+d = json.loads(deps_path.read_text(encoding='utf-8'))
+for skill in ['shenbi-score-arc', 'shenbi-foreshadowing-recall']:
+    prereqs = d['t2-phases']['drafting']['prerequisites']
+    if skill not in prereqs: prereqs.append(skill)
+for skill in ['shenbi-memory-distill', 'shenbi-score-volume', 'shenbi-score-stratum']:
+    prereqs = d['t2-phases']['management']['prerequisites']
+    if skill not in prereqs: prereqs.append(skill)
+deps_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
+"
+```
 ```
 
 _out_of_pipeline 加入 anchor-curate：
@@ -874,13 +874,30 @@ score-volume / score-stratum / anchor-curate 的 rubric 同此模式，替换维
 }
 ```
 
-- [ ] **Step 5: Run check + re-lock + commit**
+- [ ] **Step 5: Register G4 checkers in generic.py dispatch (spec §9.12)**
+
+G4 dispatch 在 `src/shenbi/gates/g4/generic.py` 的 `gate_G4()` 函数内（late imports + checkers dict）。`__init__.py` 只 re-export，在此添加不生效。对每个新评分 skill 的 G4 checker：
+
+```python
+# 1. generic.py late imports 块添加：
+from shenbi.gates.g4.score_arc import g4_score_arc
+from shenbi.gates.g4.score_volume import g4_score_volume
+from shenbi.gates.g4.score_stratum import g4_score_stratum
+# 2. checkers dict 添加：
+#   "shenbi-score-arc": g4_score_arc,
+#   "shenbi-score-volume": g4_score_volume,
+#   "shenbi-score-stratum": g4_score_stratum,
+# 3. shared.py G4_CHECKER_SKILLS 集合添加：
+#   "shenbi-score-arc", "shenbi-score-volume", "shenbi-score-stratum"
+```
+
+- [ ] **Step 6: Run check + re-lock + commit**
 
 ```bash
 just check
 bash tests/lock-tool-hashes.sh
-git add tests/ src/shenbi/gates/g4/ tests/tiers/
-git commit -m "test: add rubrics + T1 dirs + fixtures for Wave 3 scoring layer (spec §9.6, §9.7)"
+git add tests/ src/shenbi/gates/g4/ src/shenbi/gates/generic.py src/shenbi/gates/shared.py tests/tiers/
+git commit -m "test: add rubrics + T1 dirs + G4 registration + fixtures for Wave 3 scoring layer (spec §9.6, §9.7, §9.12)"
 ```
 
 ---

@@ -294,7 +294,39 @@ def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
 
 ```bash
 git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/escalation_review.py
-git commit -m "feat: add shenbi-escalation-review skill + G4 checker (spec §6.3)"
+- [ ] **Step 3: Register G4 checker in generic.py dispatch (spec §9.12)**
+
+```python
+# 1. generic.py late imports 块添加：
+from shenbi.gates.g4.escalation_review import g4_escalation_review
+# 2. checkers dict 添加：
+#   "shenbi-escalation-review": g4_escalation_review,
+# 3. shared.py G4_CHECKER_SKILLS 集合添加：
+#   "shenbi-escalation-review"
+```
+
+- [ ] **Step 4: Register in deps.json**
+
+`shenbi-escalation-review` 归入 `_out_of_pipeline.t1_only_auxiliary`（spec §9.5）：
+
+```bash
+python3 -c "
+import json
+from pathlib import Path
+deps_path = Path('tests/tiers/deps.json')
+d = json.loads(deps_path.read_text(encoding='utf-8'))
+aux = d['_out_of_pipeline']['t1_only_auxiliary']
+if 'shenbi-escalation-review' not in aux:
+    aux.append('shenbi-escalation-review')
+deps_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
+"
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/escalation_review.py tests/tiers/deps.json
+git commit -m "feat: add shenbi-escalation-review skill + G4 checker + deps.json registration (spec §6.3, §9.5)"
 ```
 
 ---
@@ -501,6 +533,143 @@ Expected: success
 bash tests/lock-tool-hashes.sh
 git add tests/tiers/deps.json
 git commit -m "chore: final hash lock after Wave 4 — hierarchical system complete"
+```
+
+---
+
+### Task 9: 运行时接线（helpers → 编排）
+
+**Files:**
+- Create: `src/shenbi/orchestration/escalation_bridge.py`
+- Create: `src/shenbi/orchestration/scoring_bridge.py`
+- Test: `tests/unit/orchestration/test_bridges.py`
+
+**问题**（independent review I6）：Wave 1 的 helpers（check_escalation / check_scorer_agreement / flag_score_collapse / recall_overdue_hooks）是纯函数有单测，但从未被运行时调用。本 task 构建 file→params 适配器，让 helpers 真正接入逐章循环。
+
+- [ ] **Step 1: Write escalation_bridge（trend.md → check_escalation params）**
+
+```python
+# src/shenbi/orchestration/escalation_bridge.py
+"""Bridge: parse resonance_trend.md → check_escalation params (spec §6.3)."""
+from __future__ import annotations
+import re
+from pathlib import Path
+from shenbi.skill_utils.escalation.check import check_escalation, EscalationSignal
+
+
+def parse_resonance_scores(trend_path: Path) -> list[float]:
+    """Extract overall scores from resonance_trend.md table rows."""
+    content = trend_path.read_text(encoding="utf-8")
+    scores = []
+    for line in content.split("\n"):
+        # Table rows: | chapter | role | 情感 | 场景 | 文笔 | 回报 | overall | ...
+        if line.startswith("|") and "overall" not in line.lower():
+            cells = [c.strip() for c in line.split("|")[1:-1]]
+            # overall is the 7th column (index 6), before confidence
+            if len(cells) >= 7:
+                try:
+                    val = float(cells[6])
+                    if val > 0:  # skip pending/empty
+                        scores.append(val)
+                except (ValueError, IndexError):
+                    pass
+    return scores
+
+
+def run_escalation_check(
+    resonance_trend_path: Path,
+    sensitivity_blocking: bool = False,
+    volume_objective_met: bool = True,
+    regeneration_attempts: int = 0,
+    arc_score: float | None = None,
+    stratum_axis_drift: bool = False,
+) -> list[EscalationSignal]:
+    """Full bridge: read trend file, call check_escalation."""
+    scores = parse_resonance_scores(resonance_trend_path)
+    return check_escalation(
+        resonance_scores=scores,
+        sensitivity_blocking=sensitivity_blocking,
+        volume_objective_met=volume_objective_met,
+        regeneration_attempts=regeneration_attempts,
+        arc_score=arc_score,
+        stratum_axis_drift=stratum_axis_drift,
+    )
+```
+
+- [ ] **Step 2: Write scoring_bridge（双评员一致性与塌缩检测接入评分流程）**
+
+```python
+# src/shenbi/orchestration/scoring_bridge.py
+"""Bridge: run dual-scorer agreement + collapse detection on scoring results."""
+from __future__ import annotations
+from shenbi.scoring import check_scorer_agreement, flag_score_collapse
+
+
+def validate_dual_scorer(scores_a: dict[int, float], scores_b: dict[int, float], threshold: float = 5.0) -> dict:
+    """Run agreement check; return result with escalation flag if disputed."""
+    result = check_scorer_agreement(scores_a, scores_b, threshold)
+    return {
+        **result,
+        "needs_arbitration": not result["agreed"],
+    }
+
+
+def check_single_scorer_collapse(scores: dict[int, float]) -> dict:
+    """Run collapse detection on a single scorer's output."""
+    return flag_score_collapse(scores)
+```
+
+- [ ] **Step 3: Write tests**
+
+```python
+# tests/unit/orchestration/test_bridges.py
+"""Tests for orchestration bridges (spec §6.3, §5.5)."""
+import pytest
+from pathlib import Path
+from shenbi.orchestration.escalation_bridge import parse_resonance_scores, run_escalation_check
+from shenbi.orchestration.scoring_bridge import validate_dual_scorer, check_single_scorer_collapse
+
+
+@pytest.mark.unit
+def test_parse_resonance_scores_extracts_overall():
+    # Create a temp trend file
+    import tempfile, os
+    content = """| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence |
+| N | 高潮 | 22 | 20 | 22 | 18 | 82 | high |
+| N+1 | 推进 | 20 | 18 | 20 | 16 | 74 | mid |"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+        f.write(content)
+        f.flush()
+        scores = parse_resonance_scores(Path(f.name))
+    os.unlink(f.name)
+    assert scores == [82.0, 74.0]
+
+
+@pytest.mark.unit
+def test_validate_dual_scorer_flags_dispute():
+    a = {1: 90, 2: 95}
+    b = {1: 85, 2: 70}  # dim 2 diff = 25
+    result = validate_dual_scorer(a, b, threshold=5.0)
+    assert result["needs_arbitration"] is True
+
+
+@pytest.mark.unit
+def test_check_single_scorer_collapse_detects_all_95():
+    scores = {1: 95, 2: 95, 3: 95}
+    result = check_single_scorer_collapse(scores)
+    assert result["collapse_suspected"] is True
+```
+
+- [ ] **Step 4: Run tests**
+
+Run: `uv run pytest tests/unit/orchestration/test_bridges.py -v`
+Expected: 3 passed
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/shenbi/orchestration/ tests/unit/orchestration/
+git commit -m "feat: wire helpers into runtime via orchestration bridges (spec §6.3, §5.5, review I6)"
 ```
 
 ---

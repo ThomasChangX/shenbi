@@ -436,7 +436,7 @@ def test_collapse_flagged_when_majority_95() -> None:
     scores = {1: 95, 2: 95, 3: 95, 4: 88}  # 3/4 = 75% at 95
     result = flag_score_collapse(scores)
     assert result["collapse_suspected"] is True
-    assert "majority_at_single_value" in result["signals"]
+    assert any("majority_at_single_value" in s for s in result["signals"])
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -613,6 +613,30 @@ def test_check_escalation_returns_signal_for_regeneration_loop() -> None:
 
 
 @pytest.mark.unit
+def test_check_escalation_returns_signal_for_arc_score_below_70() -> None:
+    signals = check_escalation(
+        resonance_scores=[90.0, 90.0, 90.0],
+        sensitivity_blocking=False,
+        volume_objective_met=True,
+        regeneration_attempts=0,
+        arc_score=65.0,
+    )
+    assert any(s.trigger == "arc_score_below_threshold" for s in signals)
+
+
+@pytest.mark.unit
+def test_check_escalation_returns_signal_for_stratum_axis_drift() -> None:
+    signals = check_escalation(
+        resonance_scores=[90.0, 90.0, 90.0],
+        sensitivity_blocking=False,
+        volume_objective_met=True,
+        regeneration_attempts=0,
+        stratum_axis_drift=True,
+    )
+    assert any(s.trigger == "stratum_axis_drift" for s in signals)
+
+
+@pytest.mark.unit
 def test_check_escalation_no_signals_when_all_healthy() -> None:
     signals = check_escalation(
         resonance_scores=[90.0, 90.0, 90.0, 90.0, 90.0],
@@ -694,9 +718,12 @@ def check_escalation(
     sensitivity_blocking: bool,
     volume_objective_met: bool,
     regeneration_attempts: int,
+    arc_score: float | None = None,
+    stratum_axis_drift: bool = False,
     window: int = 5,
     slope_threshold: float = -2.0,
     regen_loop_limit: int = 3,
+    arc_threshold: float = 70.0,
 ) -> list[EscalationSignal]:
     """Evaluate all escalation conditions (spec §6.2).
 
@@ -727,6 +754,18 @@ def check_escalation(
         signals.append(EscalationSignal(
             trigger="regeneration_loop_exhausted",
             detail=f"same goal unmet after {regeneration_attempts} regeneration attempts (limit {regen_loop_limit})",
+        ))
+
+    if arc_score is not None and arc_score < arc_threshold:
+        signals.append(EscalationSignal(
+            trigger="arc_score_below_threshold",
+            detail=f"arc score {arc_score} < {arc_threshold} (spec §6.2)",
+        ))
+
+    if stratum_axis_drift:
+        signals.append(EscalationSignal(
+            trigger="stratum_axis_drift",
+            detail="protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)",
         ))
 
     return signals
@@ -763,7 +802,7 @@ main()
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `uv run pytest tests/unit/skill_utils/test_escalation.py -v`
-Expected: 8 passed
+Expected: 10 passed (8 original + 2 new escalation triggers)
 
 - [ ] **Step 5: Commit**
 
@@ -802,10 +841,9 @@ from shenbi.skill_utils.foreshadowing_recall.recall import recall_overdue_hooks
 @pytest.mark.unit
 def test_overdue_hook_returned() -> None:
     hooks = [
-        {"id": "H01", "last_reinforced": 3, "max_distance": 20},
-        {"id": "H02", "last_reinforced": 50, "max_distance": 15},  # overdue: 60-50=10? no, 10<15
+        {"id": "H01", "last_reinforced": 60, "max_distance": 20},  # silence=6 < 20, NOT overdue
+        {"id": "H02", "last_reinforced": 50, "max_distance": 15},  # silence=16 > 15, overdue
     ]
-    # H02: current=66, 66-50=16 > 15 → overdue
     overdue = recall_overdue_hooks(hooks, current_chapter=66)
     assert "H02" in overdue
     assert "H01" not in overdue
@@ -981,10 +1019,12 @@ Expected: prints hashes for ALL .py files under src/shenbi/ (including new skill
 Run: `python3 -c "import json; d=json.load(open('tests/tiers/deps.json')); print(len(d['_tool_hashes']), 'files locked'); print('revision_routing' in str(d['_tool_hashes']))"`
 Expected: count > 5 (includes new helpers), True
 
-- [ ] **Step 5: Run G0.13 to verify hashes pass**
+- [ ] **Step 5: Verify deps.json updated correctly**
 
-Run: `uv run shenbi-validate G0 outline-example.md 2>&1 | grep "G0.13"`
-Expected: PASS
+`_tool_hashes` is a committed-state lock with **no runtime gate** (G0.13 is the independence-marker check, G0.14 is calibration hashes — neither verifies tool hashes). The lock's enforcement is `just check` (which runs tests that read deps.json) and `git diff` inspection. Verify the file is valid JSON:
+
+Run: `python3 -c "import json; d=json.load(open('tests/tiers/deps.json')); print(len(d['_tool_hashes']), 'files locked')"`
+Expected: count includes new helper files (revision_routing, escalation, foreshadowing_recall, scoring.py)
 
 - [ ] **Step 6: Commit**
 
