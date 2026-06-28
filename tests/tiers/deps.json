@@ -11,7 +11,8 @@
         "shenbi-story-architecture",
         "shenbi-volume-outlining",
         "shenbi-genre-config",
-        "shenbi-pacing-design"
+        "shenbi-pacing-design",
+        "shenbi-book-spine-init"
       ],
       "expected_outputs": [
         "characters/major/*.md",
@@ -60,7 +61,8 @@
         "shenbi-style-polishing",
         "shenbi-review-resonance",
         "shenbi-anti-detect",
-        "shenbi-length-normalizing"
+        "shenbi-length-normalizing",
+        "shenbi-foreshadowing-recall"
       ],
       "expected_outputs": [
         "audits/chapter-*.md",
@@ -224,12 +226,14 @@
     "src/shenbi/gates/g4/faction_builder.py": "sha256:072dffacfd3a02721160ae0f8bb08e57e805d07a114d5a884aeee8f6a954f117",
     "src/shenbi/gates/g4/foreshadowing_track.py": "sha256:bc21f297495a1eff5943d32fe3a081fed5ee19bad2bb14340f1477f056f2226c",
     "src/shenbi/gates/g4/foreshadowing_plant.py": "sha256:5e77d3fb03f2e3a9f10ea8ef139336d1ad8291db5581d152aeadd4d996e65158",
-    "src/shenbi/gates/g4/generic.py": "sha256:ad527dadc15df2d5229f0900a2e7a0dfeaf738a0429eba03934bafde6c410c0a",
+    "src/shenbi/gates/g4/generic.py": "sha256:6946f0fc28ba11b80520b6a109c9608e6ac805376e28849a6a68857dc9fe53fd",
     "src/shenbi/gates/g4/anti_detect.py": "sha256:34fb0dd39ab295d21c0dd786582691fb313bab61fb9f67bdd03f3dad7eeb3b2e",
     "src/shenbi/gates/g4/location_builder.py": "sha256:5f2c59c5c2a897d8876f584c52f5c063b420d9d6884b58091b96bc38e616ff36",
     "src/shenbi/gates/g4/state_settling.py": "sha256:906234983cb08736a9bf00f42fba628dbafa07fbdff031272727b74d7ca4e976",
     "src/shenbi/gates/g4/genre_config.py": "sha256:235e7a26e0faf6150c082fd8580634b78d92b63243115163db902305adbaffe3",
     "src/shenbi/gates/g4/__init__.py": "sha256:96fdf90381de16605e3f7dcfa362ed7b91eb35b6f84761a41a97fac5975c17a9",
+    "src/shenbi/gates/g4/memory_distill.py": "sha256:256199c7053603ef6181d40c2ec991ef7863235280bdfa02ce937b1d07717d55",
+    "src/shenbi/gates/g4/book_spine_init.py": "sha256:65cf78eb3155c73ce8bc50797ae78e5787c344086afb285333bcb4ea2837b93a",
     "src/shenbi/gates/g4/story_architecture.py": "sha256:2a28d09fea7fbfe1e38d0aaa93240478e10dab574d7667beeecf9ef693d62601",
     "src/shenbi/gates/g4/style_polishing.py": "sha256:68b0b9746d21c5cf121c23f1edbf500d91eafbcefb9397b4904ff397ad2bb19d",
     "src/shenbi/gates/g4/relationship_map.py": "sha256:a7900f10d827aa82ee0ebc606febd8e81193eb20264d643842eba90408cdcfed",
@@ -239,7 +243,7 @@
     "src/shenbi/gates/g4/power_system.py": "sha256:7e0362a0f37672fd6fef13da34e3c73c8ce8d71c4d4b9d029cbcb0099ec47f33",
     "src/shenbi/gates/g4/volume_outlining.py": "sha256:8fa97530ab1dd0590250855f1a3559701245be499a3f63a8ef871ae88aacab67",
     "src/shenbi/gates/g4/review_arc_payoff.py": "sha256:01ae31acc9f24b8fc47c982974db63786204476d3d2fdb1b9f9784f274dd732c",
-    "src/shenbi/gates/g4/context_composing.py": "sha256:e3ce322c53e4d431bfeec678849e4114e5f8cabcc2ec8204432477d447445979",
+    "src/shenbi/gates/g4/context_composing.py": "sha256:7c585b1d7428d6062560f2d46920896d8f7abad41736a995eff6674b27e1c452",
     "src/shenbi/gates/g4/chapter_planning.py": "sha256:66b6781e793f8173ca51fa16598db93817a7326bea1d60ef79afe56000771c1e",
     "src/shenbi/gates/g4/character_design.py": "sha256:da5ff2f8f8d9ef9ccc8248c06070cfb70f459b14ba760a22d5868886cbbdc0e3",
     "src/shenbi/gates/g4/review_resonance.py": "sha256:aaeca47e5b9355d6236e453f670f240359c452dd1dee4c6346b67e65e51d13be",
@@ -265,7 +269,7 @@
     "src/shenbi/skill_utils/chapter_pattern/compute_pattern.py": "sha256:7e389e5ac47a9221544858b998278b18e861036bb4ee1c9e863d2f0edb756772",
     "src/shenbi/skill_utils/chapter_pattern/__init__.py": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "src/shenbi/skill_utils/chapter_pattern/__main__.py": "sha256:bd64b0334ee0d178d2c2974e02b0ae38490cebae913582715171f8546a6afb96",
-    "src/shenbi/skill_utils/foreshadowing_recall/recall.py": "sha256:3d35c2ed4bcd0fbf54776f4ddc7a1513701d1c4eaf1e2869d9dc793f30f1975b",
+    "src/shenbi/skill_utils/foreshadowing_recall/recall.py": "sha256:a84a59821afc0a107c231f753118b84f29e7992b04ace3698136a650e8ea5c28",
     "src/shenbi/skill_utils/foreshadowing_recall/__init__.py": "sha256:a8d4a709f5848df9c2879fb071797b65e6434f50e6cb89bff7cae7c27fc0e44e",
     "src/shenbi/skill_utils/foreshadowing_recall/__main__.py": "sha256:7312d9ead28483fab32136241d4e889bb2f0c479051f721888aa1b6d7e064bc2",
     "src/shenbi/skill_utils/revision_routing/preserve_check.py": "sha256:c19e99d72b2d947dbcf5686c374ab64431bda42390f9054f02dbec6daa244258",

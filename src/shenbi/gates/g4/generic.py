@@ -170,6 +170,8 @@ def gate_G4(
     from shenbi.gates.g4.style_polishing import g4_style_polishing
     from shenbi.gates.g4.volume_outlining import g4_volume_outlining
     from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+    from shenbi.gates.g4.book_spine_init import g4_book_spine_init
+    from shenbi.gates.g4.memory_distill import g4_memory_distill
 
     checkers = {
         "shenbi-anti-detect": g4_anti_detect,
@@ -194,6 +196,8 @@ def gate_G4(
         "shenbi-style-polishing": g4_style_polishing,
         "shenbi-volume-outlining": g4_volume_outlining,
         "shenbi-worldbuilding": g4_worldbuilding,
+        "shenbi-book-spine-init": g4_book_spine_init,
+        "shenbi-memory-distill": g4_memory_distill,
     }
     fn = checkers.get(skill_name)
     if fn:

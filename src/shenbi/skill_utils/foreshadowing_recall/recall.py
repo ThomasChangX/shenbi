@@ -20,13 +20,16 @@ Usage (CLI):
       --current-chapter 66
 """
 
+
 from __future__ import annotations
+
+from typing import Any
 
 import argparse
 import json
 
 
-def recall_overdue_hooks(hooks: list[dict], current_chapter: int) -> list[str]:
+def recall_overdue_hooks(hooks: list[dict[str, Any]], current_chapter: int) -> list[str]:
     """Return hook_ids whose silence exceeds max_distance (spec §3.6).
 
     Excludes RESOLVED hooks and hooks without max_distance.
