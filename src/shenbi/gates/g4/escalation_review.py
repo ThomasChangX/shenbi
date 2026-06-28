@@ -15,6 +15,7 @@ def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.er.not_found:{fp}")
             continue
         content = p.read_text(encoding="utf-8")
+        normalized = re.sub(r"\s+", "", content)
         for section in ["触发信号", "升级上下文", "决策选项"]:
             if section not in content:
                 mf.append(f"G4.er.missing_section:{section}")

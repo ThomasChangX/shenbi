@@ -16,9 +16,10 @@ def g4_score_volume(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.not_found:{fp}")
             continue
         content = p.read_text(encoding="utf-8")
-        if "Route C" not in content:
+        normalized = re.sub(r"\s+", "", content)
+        if "RouteC" not in normalized:
             mf.append("G4.no_route_c:must have Route C section")
-        if "Route A" not in content and "锚点" not in content:
+        if "RouteA" not in normalized and "锚点" not in content:
             mf.append("G4.no_route_a:must have Route A anchor section")
     if not fps:
         c.append({"id": "G4", "s": "SKIP", "r": "no files"})

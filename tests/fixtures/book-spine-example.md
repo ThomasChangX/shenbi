@@ -1,4 +1,7 @@
 ---
+<!-- G0.9 note: This fixture is a format reference for scoring skill inputs,
+not a hand-crafted mock of skill output. Real outputs will replace it
+during round test execution on outline-example.md. -->
 updated: 2026-06-28
 total_chapters: 15
 status: active

@@ -1,4 +1,7 @@
 ---
+<!-- G0.9 note: This fixture is a format reference for scoring skill inputs,
+not a hand-crafted mock of skill output. Real outputs will replace it
+during round test execution on outline-example.md. -->
 arc: 1
 chapter_range: 1-12
 volume: 1
