@@ -107,6 +107,10 @@ digraph review_foreshadowing {
 - [WARNING] [具体 Hook ID / 段落] [问题描述]：[修复方案]
 ```
 
+## 大规模伏笔召回（spec §11.9）
+
+当 current_chapter > 50，调用 shenbi-foreshadowing-recall 获取 recall_overdue_hooks 结果，替代全量读取 pending_hooks.md。阈值以下仍用扁平读取。
+
 ## Anti-Rationalization
 
 | Excuse | Reality |

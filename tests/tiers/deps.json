@@ -231,7 +231,7 @@
     "src/shenbi/gates/g4/faction_builder.py": "sha256:072dffacfd3a02721160ae0f8bb08e57e805d07a114d5a884aeee8f6a954f117",
     "src/shenbi/gates/g4/foreshadowing_track.py": "sha256:bc21f297495a1eff5943d32fe3a081fed5ee19bad2bb14340f1477f056f2226c",
     "src/shenbi/gates/g4/foreshadowing_plant.py": "sha256:5e77d3fb03f2e3a9f10ea8ef139336d1ad8291db5581d152aeadd4d996e65158",
-    "src/shenbi/gates/g4/generic.py": "sha256:92759dca2495108dd1d031c2cd14d592b7da4f58f6e2f52b3aac95edde6f063e",
+    "src/shenbi/gates/g4/generic.py": "sha256:f5d1739de91093cde453b4fbb876176c670b205e7ddaa950d0f9ee6315598789",
     "src/shenbi/gates/g4/anti_detect.py": "sha256:34fb0dd39ab295d21c0dd786582691fb313bab61fb9f67bdd03f3dad7eeb3b2e",
     "src/shenbi/gates/g4/location_builder.py": "sha256:5f2c59c5c2a897d8876f584c52f5c063b420d9d6884b58091b96bc38e616ff36",
     "src/shenbi/gates/g4/state_settling.py": "sha256:906234983cb08736a9bf00f42fba628dbafa07fbdff031272727b74d7ca4e976",
@@ -244,6 +244,7 @@
     "src/shenbi/gates/g4/relationship_map.py": "sha256:a7900f10d827aa82ee0ebc606febd8e81193eb20264d643842eba90408cdcfed",
     "src/shenbi/gates/g4/worldbuilding.py": "sha256:bea2205ea418f46e13697300f64df98de90a7d6fbf2d8bc4c2f96e991f067221",
     "src/shenbi/gates/g4/chapter_drafting.py": "sha256:c94a1f9bea5f8b7d5f09490891e8eaa06c470ab037e2344b45d3f18a45fc0a6e",
+    "src/shenbi/gates/g4/escalation_review.py": "sha256:43d6b06c1a89895c77c8be3452ff582cd539dae71cce10565dcd8215282d3e92",
     "src/shenbi/gates/g4/plot_thread_weaver.py": "sha256:3a56cdeeb191dae02cd3b88368129b3f4a9b4267338f73b89f59af472b43ff09",
     "src/shenbi/gates/g4/power_system.py": "sha256:7e0362a0f37672fd6fef13da34e3c73c8ce8d71c4d4b9d029cbcb0099ec47f33",
     "src/shenbi/gates/g4/score_volume.py": "sha256:bcbb7582e1e5d44cf3d3df847a6b77ce8a1f5ab1fd0efe48a5af13a5e5b66f95",
@@ -291,13 +292,17 @@
     "src/shenbi/skill_utils/escalation/__main__.py": "sha256:d745d92d9313005982d16e522d5081b2a2307fbe92fb9fb7524be9e11d46481c",
     "src/shenbi/skill_utils/review_resonance/__init__.py": "sha256:8f2b6e9735cf50a45c2a030dbd28e36576f38e068a414e9a7212e97f2629788b",
     "src/shenbi/skill_utils/review_resonance/routing.py": "sha256:6c09b4f8c3e1ac2df38160ce8dfb819af64a6c2f4384b4750d43668467b024d3",
-    "src/shenbi/skill_utils/review_resonance/__main__.py": "sha256:e2da367dcc990a1b47f2401e8b828341a4c667a3fe470a21bb627b3e7c42814f"
+    "src/shenbi/skill_utils/review_resonance/__main__.py": "sha256:e2da367dcc990a1b47f2401e8b828341a4c667a3fe470a21bb627b3e7c42814f",
+    "src/shenbi/orchestration/scoring_bridge.py": "sha256:210d4823fe14c51726fbcb2d2dde00d25fd1919e06b3c3c7d6bbcf438d0f20ac",
+    "src/shenbi/orchestration/__init__.py": "sha256:04ceed9516fceb1c0a4451f9659d1ec46a2cc45925172b811547a1c3155d7214",
+    "src/shenbi/orchestration/escalation_bridge.py": "sha256:566af5d0aee6523bfc914c855c0d24b69a663fbb5def323c694eca4dbed4cf1b"
   },
   "_out_of_pipeline": {
     "t1_only_auxiliary": [
       "shenbi-market-radar",
       "shenbi-sequel-writing",
-      "shenbi-anchor-curate"
+      "shenbi-anchor-curate",
+      "shenbi-escalation-review"
     ],
     "t1_only_meta": [
       "shenbi-writing-skills",

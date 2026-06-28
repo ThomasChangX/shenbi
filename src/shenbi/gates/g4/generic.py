@@ -175,6 +175,7 @@ def gate_G4(
     from shenbi.gates.g4.score_arc import g4_score_arc
     from shenbi.gates.g4.score_volume import g4_score_volume
     from shenbi.gates.g4.score_stratum import g4_score_stratum
+    from shenbi.gates.g4.escalation_review import g4_escalation_review
 
     checkers = {
         "shenbi-anti-detect": g4_anti_detect,
@@ -204,6 +205,7 @@ def gate_G4(
         "shenbi-score-arc": g4_score_arc,
         "shenbi-score-volume": g4_score_volume,
         "shenbi-score-stratum": g4_score_stratum,
+        "shenbi-escalation-review": g4_escalation_review,
     }
     fn = checkers.get(skill_name)
     if fn:

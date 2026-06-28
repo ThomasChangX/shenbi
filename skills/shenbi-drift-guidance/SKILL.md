@@ -8,6 +8,7 @@ contract:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
     - truth/resonance_trend.md
+- truth/volume_score_trend.md
     - truth/arc_payoff_trend.md
   writes:
     - truth/drift_guidance.md
@@ -119,6 +120,10 @@ drift_items:
 - [ERROR] review-continuity 第3段时间矛盾 → 当前章修订
 - [ERROR] review-character 林轩动机偏移 → 当前章修订
 ```
+
+## 卷级目标达成漂移（spec §11.8）
+
+读取 truth/volume_score_trend.md，drift_detection 增加"卷级目标未达成"触发器。当 volume_score_trend 最近一行 objective_achieved=false 时，生成卷级漂移指导。
 
 ## Anti-Rationalization
 

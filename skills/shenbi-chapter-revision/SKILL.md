@@ -6,7 +6,10 @@ contract:
   reads:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
-  writes: []
+    - audits/chapter-N-resonance.md
+    - plans/chapter-N-plan.md
+  writes:
+    - truth/state_snapshot-pre-rev.md
   updates:
     - chapters/chapter-N.md
 ---
@@ -14,8 +17,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
-- **Writes:** none
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, audits/chapter-N-resonance.md, plans/chapter-N-plan.md
+- **Writes:** truth/state_snapshot-pre-rev.md
 - **Updates:** chapters/chapter-N.md
 
 <!-- END AUTO-GENERATED -->
@@ -82,6 +85,38 @@ digraph chapter_revision {
 
 如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
 如果是 rewrite/rework：输出完整修订正文，人类批准后替换原章节文件。
+
+
+## 重生路由（spec §5.2, §11.3-11.5）
+
+chapter-revision 现在支持三种模式（通过 revision_routing helper 分类诊断）：
+
+1. **spot-fix** — 纯工艺问题，生成 PATCHES（现有行为）
+2. **regenerate** — 目标未达成（route C 硬二元 BLOCKING），重生对应段落/整章
+3. **constrained-regenerate** — 目标未达成 + 工艺问题，带工艺约束的重生
+
+### 五步闭环（spec §11.3）
+
+```dot
+digraph chapter_revision_loop {
+    "Read chapter + audits + resonance diagnosis" -> "Call route_revision(diagnosis)";
+    "Call route_revision" -> "Mode?";
+    "Mode?" -> "spot-fix: PATCHES" [label="spot-fix"];
+    "Mode?" -> "Assemble original items" [label="regenerate/constrained"];
+    "Assemble original items" -> "Save state_snapshot-pre-rev.md";
+    "Save snapshot" -> "Execute regeneration";
+    "Execute regeneration" -> "Rerun state-settling";
+    "Rerun state-settling" -> "verify_preservation(original, new_truth)";
+    "verify_preservation" -> "Accept" [label="preserved"];
+    "verify_preservation" -> "Retry (max 3)" [label="violations"];
+}
+
+### 铁律（补充）
+
+6. **重生不是润色** — 目标未达成不能用 spot-fix
+7. **重生保留已兑现项** — verify_preservation 必须通过
+8. **重生后强制 state-settling 重跑** — 否则 truth 文件过时
+9. **重生上限 3 次** — 超限触发 escalation_check
 
 ## Anti-Rationalization
 
