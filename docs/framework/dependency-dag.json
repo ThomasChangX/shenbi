@@ -41,6 +41,71 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-book-spine-init",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-book-spine-init",
+      "file": "novel.json"
+    },
+    {
       "producer": "shenbi-chapter-planning",
       "consumer": "shenbi-chapter-drafting",
       "file": "plans/chapter-N-plan.md"
@@ -59,6 +124,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-chapter-drafting",
       "file": "genre-config.json"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-drafting",
+      "file": "truth/audit_drift.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -161,6 +231,11 @@
       "file": "chapters/*.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-pattern",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-chapter-pattern",
       "file": "truth/chapter_summaries.md"
@@ -236,6 +311,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_state.md"
@@ -301,6 +381,11 @@
       "file": "truth/current_state.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/pending_hooks.md"
@@ -364,6 +449,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -491,6 +581,11 @@
       "file": "outline/story_frame.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/current_focus.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_focus.md"
@@ -554,6 +649,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_focus.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/author_intent.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -846,6 +946,11 @@
       "file": "plans/chapter-N-plan.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-context-composing",
       "file": "truth/chapter_summaries.md"
@@ -911,6 +1016,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-context-composing",
       "file": "truth/pending_hooks.md"
@@ -974,6 +1084,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-context-composing",
       "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/audit_drift.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -1064,6 +1179,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-context-composing",
       "file": "world/rules.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/character_matrix.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -1301,6 +1421,11 @@
       "file": "audits/chapter-N-*.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-plant",
       "consumer": "shenbi-drift-guidance",
       "file": "truth/resonance_trend.md"
@@ -1359,6 +1484,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-drift-guidance",
       "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/arc_payoff_trend.md"
     },
     {
       "producer": "shenbi-foreshadowing-plant",
@@ -1501,6 +1631,11 @@
       "file": "plans/chapter-N-plan.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-foreshadowing-plant",
       "file": "truth/pending_hooks.md"
@@ -1571,6 +1706,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-resolve",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-foreshadowing-resolve",
       "file": "truth/pending_hooks.md"
@@ -1629,6 +1769,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-foreshadowing-resolve",
       "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-resolve",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -1726,6 +1871,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-track",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-foreshadowing-track",
       "file": "truth/pending_hooks.md"
@@ -1784,6 +1934,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-foreshadowing-track",
       "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-track",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -1901,6 +2056,11 @@
       "file": "outline/*.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foundation-review",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-foundation-review",
       "file": "truth/current_state.md"
@@ -1964,6 +2124,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-foundation-review",
       "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foundation-review",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -2041,6 +2206,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-intent-management",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-intent-management",
       "file": "truth/author_intent.md"
@@ -2099,6 +2269,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-intent-management",
       "file": "truth/author_intent.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-intent-management",
+      "file": "truth/audit_drift.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -2444,6 +2619,11 @@
       "producer": "shenbi-volume-outlining",
       "consumer": "shenbi-plot-thread-weaver",
       "file": "outline/rhythm_principles.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-plot-thread-weaver",
+      "file": "truth/pending_hooks.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -2596,6 +2776,11 @@
       "file": "characters/relationships.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-relationship-map",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-relationship-map",
       "file": "truth/character_matrix.md"
@@ -2791,6 +2976,11 @@
       "file": "outline/volume_map.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-arc-payoff",
       "file": "truth/pending_hooks.md"
@@ -2849,6 +3039,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-arc-payoff",
       "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/resonance_trend.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -2966,6 +3161,11 @@
       "file": "characters/major/*.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-character",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-character",
       "file": "truth/character_matrix.md"
@@ -3029,6 +3229,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-character",
       "file": "truth/character_matrix.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-character",
+      "file": "truth/emotional_arcs.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -3131,6 +3336,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-continuity",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-continuity",
       "file": "truth/current_state.md"
@@ -3194,6 +3404,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-continuity",
       "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-continuity",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -3339,6 +3554,11 @@
       "producer": "shenbi-character-extraction",
       "consumer": "shenbi-review-dialogue",
       "file": "characters/major/*.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-dialogue",
+      "file": "truth/character_matrix.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -3526,6 +3746,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-foreshadowing",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-foreshadowing",
       "file": "truth/pending_hooks.md"
@@ -3594,6 +3819,11 @@
       "producer": "shenbi-chapter-planning",
       "consumer": "shenbi-review-foreshadowing",
       "file": "plans/chapter-N-plan.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-foreshadowing",
+      "file": "truth/subplot_board.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -3829,6 +4059,11 @@
       "producer": "shenbi-chapter-planning",
       "consumer": "shenbi-review-memo-compliance",
       "file": "plans/chapter-N-plan.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-memo-compliance",
+      "file": "truth/pending_hooks.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -3951,6 +4186,11 @@
       "file": "characters/major/*.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-motivation",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-motivation",
       "file": "truth/character_matrix.md"
@@ -4061,6 +4301,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-pacing",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-pacing",
       "file": "truth/chapter_summaries.md"
@@ -4171,6 +4416,11 @@
       "file": "genre-config.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-pov",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-pov",
       "file": "truth/character_matrix.md"
@@ -4234,6 +4484,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-pov",
       "file": "truth/character_matrix.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-pov",
+      "file": "truth/current_state.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -4339,6 +4594,11 @@
       "producer": "shenbi-chapter-planning",
       "consumer": "shenbi-review-reader-pull",
       "file": "plans/chapter-N-plan.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-reader-pull",
+      "file": "truth/pending_hooks.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -4536,6 +4796,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-spinoff",
+      "file": "truth/parent_canon.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-spinoff",
       "file": "truth/parent_canon.md"
@@ -4624,6 +4889,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-spinoff",
       "file": "world/rules.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-spinoff",
+      "file": "truth/pending_hooks.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -4876,6 +5146,11 @@
       "file": "world/story_bible.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-world-rules",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-review-world-rules",
       "file": "truth/chapter_summaries.md"
@@ -4939,6 +5214,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-review-world-rules",
       "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-world-rules",
+      "file": "truth/current_state.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -5011,6 +5291,11 @@
       "file": "snapshots/chapter-NNN/*"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-sequel-writing",
+      "file": "truth/*.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-sequel-writing",
       "file": "truth/*.md"
@@ -5159,6 +5444,11 @@
       "producer": "shenbi-volume-outlining",
       "consumer": "shenbi-short-drafting",
       "file": "outline/short_story_map.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-short-drafting",
+      "file": "truth/author_intent.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -5246,6 +5536,11 @@
       "file": "novel.json"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-short-outline",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-short-outline",
       "file": "truth/author_intent.md"
@@ -5426,6 +5721,11 @@
       "file": "world/story_bible.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-short-packaging",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-short-packaging",
       "file": "truth/author_intent.md"
@@ -5489,6 +5789,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-short-packaging",
       "file": "truth/author_intent.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "truth/*.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -5766,6 +6071,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-truth-sync",
+      "file": "truth/*.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-truth-sync",
       "file": "truth/*.md"
@@ -5886,6 +6196,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-drift-guidance",
       "consumer": "shenbi-volume-consolidation",
       "file": "truth/chapter_summaries.md"
@@ -5944,6 +6259,11 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-volume-consolidation",
       "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/pending_hooks.md"
     },
     {
       "producer": "shenbi-drift-guidance",
@@ -6054,6 +6374,11 @@
       "producer": "shenbi-story-architecture",
       "consumer": "shenbi-volume-outlining",
       "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-volume-outlining",
+      "file": "truth/author_intent.md"
     },
     {
       "producer": "shenbi-drift-guidance",
