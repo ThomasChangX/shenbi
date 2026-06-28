@@ -7,6 +7,9 @@ import pytest
 from shenbi.skill_utils.revision_routing.route import route_revision
 
 
+from shenbi.skill_utils.revision_routing.preserve_check import verify_preservation
+
+
 @pytest.mark.unit
 def test_pure_craft_issues_route_to_spot_fix() -> None:
     diagnosis = {
@@ -76,3 +79,79 @@ def test_unmet_non_blocking_goal_routes_to_spot_fix() -> None:
 @pytest.mark.unit
 def test_empty_diagnosis_routes_to_spot_fix() -> None:
     assert route_revision({"issues": []}) == "spot-fix"
+
+
+@pytest.mark.unit
+def test_preservation_pass_when_all_items_retained() -> None:
+    original = {
+        "chapter": 5,
+        "hooks_advanced": ["H01", "H03"],
+        "changes_realized": ["信息: 得知反派寻找玉佩"],
+        "state_changes": ["林轩: 紧张→自信"],
+    }
+    regenerated = {
+        "chapter": 5,
+        "hooks_advanced": ["H01", "H03", "H04"],  # superset OK
+        "changes_realized": ["信息: 得知反派寻找玉佩"],
+        "state_changes": ["林轩: 紧张→自信"],
+    }
+    ok, violations = verify_preservation(original, regenerated)
+    assert ok
+    assert violations == []
+
+
+@pytest.mark.unit
+def test_preservation_fails_when_hook_lost() -> None:
+    original = {
+        "chapter": 5,
+        "hooks_advanced": ["H01", "H03"],
+        "changes_realized": [],
+        "state_changes": [],
+    }
+    regenerated = {
+        "chapter": 5,
+        "hooks_advanced": ["H01"],  # H03 lost
+        "changes_realized": [],
+        "state_changes": [],
+    }
+    ok, violations = verify_preservation(original, regenerated)
+    assert not ok
+    assert any("H03" in v for v in violations)
+
+
+@pytest.mark.unit
+def test_preservation_fails_when_change_lost() -> None:
+    original = {
+        "chapter": 5,
+        "hooks_advanced": [],
+        "changes_realized": ["权力: 升入内门"],
+        "state_changes": [],
+    }
+    regenerated = {
+        "chapter": 5,
+        "hooks_advanced": [],
+        "changes_realized": [],  # change lost
+        "state_changes": [],
+    }
+    ok, violations = verify_preservation(original, regenerated)
+    assert not ok
+    assert len(violations) == 1
+
+
+@pytest.mark.unit
+def test_preservation_fails_when_state_change_reverted() -> None:
+    original = {
+        "chapter": 5,
+        "hooks_advanced": [],
+        "changes_realized": [],
+        "state_changes": ["苏晴: 观望→认可"],
+    }
+    regenerated = {
+        "chapter": 5,
+        "hooks_advanced": [],
+        "changes_realized": [],
+        "state_changes": [],  # reverted
+    }
+    ok, violations = verify_preservation(original, regenerated)
+    assert not ok
+    assert len(violations) == 1
