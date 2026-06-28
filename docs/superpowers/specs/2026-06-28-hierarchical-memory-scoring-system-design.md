@@ -2,7 +2,7 @@
 
 > 日期: 2026-06-28
 > 状态: 设计完成，待实现
-> 版本: v1.2.0 (code-review R1+R2: 修复压缩比、确定性矛盾、诊断schema、双评员矛盾、爬坡期边界、preserve_check等20项)
+> 版本: v1.3.0 (code-review R1+R2+R3: 修复压缩比/确定性/schema/双评员/爬坡期 + 测试基建全量改造)
 > 前置: docs/specs/2026-06-08-shenbi-design.md (原始框架), docs/superpowers/specs/2026-06-22-positive-quality-gates-design.md (正向质量门)
 
 ## 0. 背景与问题
@@ -656,28 +656,30 @@ def check_escalation(round_dir: Path, chapter: int) -> list[EscalationSignal]:
 
 每个节点失败时，定位到具体评分层的具体维度，修复后重跑该节点，不回退到更早节点。
 
-## 9. 新增/改造清单与测试基础设施
+## 9. 新增/改造清单与测试基础设施改造
+
+本设计的测试基建改动是**第一优先级**——框架是测试驱动的（G0-G7 gate 链 + 工具哈希锁定 + T1/T2/T3 三层），任何 skill/helper 变动不经测试基建同步，会直接被 G0 阻断或产生幻影数据。
 
 ### 9.1 新增 skill（8个）
 
 | skill | 职责 | G4 checker | T1测试 |
 |-------|------|-----------|--------|
-| shenbi-memory-distill | 记忆蒸馏（L2/L4/L5） | 新建 generic checker | 新建3类 |
-| shenbi-anchor-curate | 锚点策展 | 新建 | 新建3类 |
-| shenbi-score-arc | 弧段级评分 | 新建 | 新建3类 |
-| shenbi-score-volume | 卷级评分 | 新建 | 新建3类 |
-| shenbi-score-stratum | 大弧/书级评分 | 新建 | 新建3类 |
-| shenbi-foreshadowing-recall | RAG伏笔召回 | 新建 | 新建3类 |
-| shenbi-book-spine-init | 书脊初始化 | 新建 | 新建3类 |
-| shenbi-escalation-review | 人工升级审查 | 新建 | 新建3类 |
+| shenbi-memory-distill | 记忆蒸馏（L2/L4/L5） | 新建 generic checker（溯源校验：每条结论引用章号） | 新建3类 |
+| shenbi-anchor-curate | 锚点策展 | 新建（工艺分析完整性校验） | 新建3类 |
+| shenbi-score-arc | 弧段级评分 | 新建（报告型 generic） | 新建3类 |
+| shenbi-score-volume | 卷级评分 | 新建（报告型 generic） | 新建3类 |
+| shenbi-score-stratum | 大弧/书级评分 | 新建（报告型 generic） | 新建3类 |
+| shenbi-foreshadowing-recall | RAG伏笔召回 | 新建（召回结果完整性） | 新建3类 |
+| shenbi-book-spine-init | 书脊初始化 | 新建（frontmatter字段校验） | 新建3类 |
+| shenbi-escalation-review | 人工升级审查 | 新建（报告型 generic） | 新建3类 |
 
 ### 9.2 改造 skill（6个）
 
 | skill | 改造内容 |
 |-------|---------|
-| shenbi-context-composing | P1-P7 重写为按层组装 |
-| shenbi-chapter-revision | 增加重生模式路由 + preserve_check |
-| shenbi-review-resonance | 注入 route A 锚点对照 + route C 目标达成检查 |
+| shenbi-context-composing | P1-P7 重写为按层组装；G4 checker 更新校验 9 节标题→按层节标题 |
+| shenbi-chapter-revision | 增加重生模式路由 + preserve_check；G4 checker 更新校验重生保留核验区块 |
+| shenbi-review-resonance | 注入 route A 锚点对照 + route C 目标达成检查；rubric 新增锚点对照维度 |
 | shenbi-volume-consolidation | 对接 memory-distill 的 L3 产出 |
 | 各创作/审计 skill（统一模式） | 审批节点改为默认auto + 阻断覆盖 + 升级条件 |
 | shenbi-intent-management | 维护 book_spine.md（与 author_intent 同步） |
@@ -688,20 +690,219 @@ def check_escalation(round_dir: Path, chapter: int) -> list[EscalationSignal]:
 |--------|------|
 | skill_utils/revision_routing | 诊断分类→路由（spot-fix/regenerate）+ preserve_check |
 | skill_utils/escalation | 升级条件判定（含线性回归斜率计算） |
-| scoring.py 扩展 | 双评员一致性 + 塌缩检测 |
+| scoring.py 扩展 | 双评员一致性 + 塍缩检测 |
 | skill_utils/foreshadowing_recall | RAG查询 + 确定性阈值过滤 |
 
-### 9.4 测试基础设施（每新增skill必须）
+### 9.4 Gate 代码改动（Critical，不修改则 G0 阻断）
 
-每个新增 skill 必须同步交付：
-1. **G4 checker**（`src/shenbi/gates/g4/<skill>.py`）——报告型skill用 generic checker（段标题+证据格式校验）；蒸馏型skill用溯源校验（每条结论引用章号）
-2. **T1测试目录**（`tests/tiers/t1-skill/<skill>/`）——含 rubric.md + generative/bug-hunt/clean 三类 + scenario.md + fixtures
-3. **deps.json注册**——新增skill加入对应T2 phase 的 prerequisites
-4. **fixtures**——真实输入样本（不手写mock，遵循G0.9）
+#### G0.10 — skill 计数硬编码修复
 
-> 现有5个T2 phase 的 `g4_checker: null`（audit/management/import/foundation/short-story）是已知缺口。新增评分skill不进T2 phase（它们是评分层，不是创作phase），但仍需独立G4 checker。
+`src/shenbi/gates/g0.py:419` 硬编码 `count < 59` 和 `total: 59` 两处。新增 8 个 skill 后总数为 67。
 
-### 9.5 genre-config 激活模型
+**修复**：将字面量 `59` 替换为 `len(ALL_SKILLS)`（动态从 skills/ 目录扫描），或读取 `tests/tiers/deps.json` 中的计数。G0.10 改为动态基数，不依赖硬编码。
+
+```python
+# 修复前
+if count < 59:
+    ... "total": 59 ...
+
+# 修复后
+total_skills = len(ALL_SKILLS)  # 动态扫描 skills/ 目录
+if count < total_skills:
+    ... "total": total_skills ...
+```
+
+#### G0.4 — 已是动态（无需修改）
+
+G0.4 用 `len(ALL_SKILLS)` 动态扫描，新增 skill 自动纳入。但需确认 `ALL_SKILLS` 的扫描路径包含新增的 benchmarks/ 目录下的 skill（若有）。
+
+#### G0.13/G0.14 — 工具哈希锁定范围扩展
+
+`tests/lock-tool-hashes.sh` 当前只锁定 5 个文件（cli.py/shared.py/scoring.py/phase_runner.py/summarize_round.py）。新增 4 个 helper（revision_routing/escalation/foreshadowing_recall + scoring.py 扩展本身）需纳入锁定。
+
+**修复方案**：lock-tool-hashes.sh 改为扫描 `src/shenbi/` 全树（排除 `__pycache__`），自动纳入所有 src/ 下的 .py 文件。这样未来新增 helper 自动被锁定，不依赖手动维护文件列表。
+
+```bash
+# 修复前：手动列举 5 个文件
+tool_paths = ['src/shenbi/gates/cli.py', ...]
+
+# 修复后：扫描全树
+tool_paths = [str(p.relative_to(project)) for p in
+              (project / 'src/shenbi').rglob('*.py')
+              if '__pycache__' not in str(p)]
+```
+
+#### G2 — 文件类型分类扩展
+
+`shenbi-validate G2 <files> <type>` 的 `<type>` 需新增分类：
+
+| 新文件 | G2 type |
+|--------|---------|
+| truth/arcs/arc-N.md | `truth`（复用现有 truth 校验） |
+| truth/book_strata.md | `truth` |
+| truth/book_spine.md | `truth` |
+| audits/arc-N-score.md | `audit`（复用现有 audit 校验，需新增） |
+| audits/volume-N-score.md | `audit` |
+| audits/stratum-N-score.md | `audit` |
+| benchmarks/anchors/AC-NNN.md | `anchor`（新增类型，校验 frontmatter + 工艺分析完整性） |
+
+### 9.5 deps.json 改动（Critical，不修改则 T2/T3 链断裂）
+
+#### T2 phases — prerequisites 扩展
+
+| phase | 新增 prerequisites | 理由 |
+|-------|-------------------|------|
+| genesis | + shenbi-book-spine-init | 创世层末尾必须初始化书脊（L5） |
+| drafting | + shenbi-score-arc（每12章）, shenbi-foreshadowing-recall（每章） | 起草循环含弧段评分 + RAG召回 |
+| management | + shenbi-memory-distill, shenbi-score-volume, shenbi-score-stratum | 卷/大弧管理含记忆蒸馏 + 分层评分 |
+
+新增评分/记忆 skill **不新建独立 T2 phase**——它们作为评分层和记忆层，附加到现有 drafting/management phase。但它们各自有独立 T1 测试（§9.1）。
+
+#### T3 pipelines — prerequisites 扩展
+
+| pipeline | 新增 phase 依赖 | 理由 |
+|----------|----------------|------|
+| long-form | drafting + management（已含，但需确认含新评分技能） | 长篇必须跑通分层评分全链路 |
+
+#### _out_of_pipeline 调整
+
+新增的 8 个 skill 中，anchor-curate 和 escalation-review 是辅助/触发型，归入 `t1_only_auxiliary`：
+
+```json
+"_out_of_pipeline": {
+  "t1_only_auxiliary": [
+    "shenbi-market-radar",
+    "shenbi-sequel-writing",
+    "shenbi-anchor-curate",
+    "shenbi-escalation-review"
+  ],
+  "t1_only_meta": ["shenbi-writing-skills", "using-shenbi"],
+  "_note": "anchor-curate 和 escalation-review 是辅助/触发型，T1 通过即可，不进 T2 phase prerequisites"
+}
+```
+
+### 9.6 Rubric 改动（Critical，不修改则评分维度不覆盖 route A+C）
+
+#### 改造的 6 个 skill — rubric 新增维度
+
+每个被改造 skill 的 rubric.md 必须同步新增 route A/C 维度。以 review-resonance 为例：
+
+```markdown
+## 新增 Bespoke Dimensions（route A + route C，权重从现有维度拆分）
+
+| # | Dimension | Weight | Standard | route |
+|---|-----------|--------|----------|-------|
+| N | Anchor calibration | 15% | 每维度分数必须对照 benchmarks/anchors/ 相关锚点定相对位置（更好/相当/更差），禁止无锚点孤立打分 | A |
+| N+1 | Goal attainment (hard-binary) | 15% | chapter_role兑现/§6改变发生/hook账履行——每项二元判定，任一未达成=该维度0分 | C |
+```
+
+权重从现有 bespoke 维度按比例拆分（如从"4-dim scoring quality"40%拆出15%给 anchor calibration），总权重保持100%。
+
+#### 新增的 8 个 skill — 全新 rubric
+
+每个新增 skill 需新建完整 rubric.md（Universal 15% + Bespoke 85%），维度覆盖其 route A/C 职责。例如 score-arc 的 rubric：
+
+```markdown
+## Bespoke Dimensions（score-arc）
+
+| # | Dimension | Weight | Standard | route |
+|---|-----------|--------|----------|-------|
+| 3 | 弧段伏笔兑现检查（硬二元） | 30% | 弧段声明的伏笔是否兑现/推进，对照弧段合成§伏笔，二元判定 | C |
+| 4 | 张力曲线遵循卷节奏（软程度） | 20% | 弧段张力走向对照卷节奏原则的程度 | C |
+| 5 | 角色弧段变化（软程度） | 15% | 主要角色在本弧是否有可测弧段变化 | C |
+| 6 | 锚点对照（伏笔纪律/信息张力） | 20% | 对照 AC-003/AC-009 锚点定相对位置 | A |
+```
+
+### 9.7 Fixture 改动（Important，不补充则 G0.9 fixture 纯度检查阻断）
+
+每个新增 skill 的 T1 scenario 必须引用 `tests/fixtures/` 下的真实输入。需新建的 fixtures：
+
+| fixture | 服务的 skill | 内容 |
+|---------|------------|------|
+| fixtures/arc-example.md | score-arc, memory-distill | 一个完整的 L2 弧段合成样本 |
+| fixtures/book-strata-example.md | score-stratum, memory-distill | 一个完整的 L4 大弧合成样本 |
+| fixtures/book-spine-example.md | score-stratum, book-spine-init | 一个完整的书脊样本 |
+| fixtures/volume-summary-example.md | score-volume | 卷摘要样本 |
+| fixtures/anchors/AC-00X.md | score-arc/volume/stratum, review-resonance | 锚点样本（从诡秘/炮火工艺分析生成，非原文） |
+| fixtures/diagnosis-example.json | chapter-revision (重生路由) | 结构化诊断样本（含 unmet_goal + craft） |
+
+所有 fixture 必须是真实 skill 产出的样本或上游生成副本（遵循 G0.9 禁止手写 mock）。
+
+### 9.8 summarize_round.py 改动（Important，不修改则新评分层分数不入 summary）
+
+`summarize_round.py` 当前只读 `t1_scores`/`t2_scores`/`t3_scores`。分层评分（score-arc/volume/stratum）是新的评分维度——它们不是单项 T1 skill 测试，也不完全是 T2 phase 测试。
+
+**修复方案**：summary.json 新增分层评分桶：
+
+```json
+{
+  "t1_scores": {...},
+  "t2_scores": {...},
+  "t3_scores": {...},
+  "hierarchical_scores": {
+    "arc_scores": {"arc-1": 88.0, "arc-2": 91.5},
+    "volume_scores": {"volume-1": 85.0},
+    "stratum_scores": {"stratum-1": 82.0}
+  }
+}
+```
+
+summarize_round.py 增加读取 `hierarchical_scores` 的逻辑，G7 审计纳入分层分数验证。
+
+### 9.9 command-to-give.md 改动（Important，不修改则执行协议不反映新闭环）
+
+`command-to-give.md` 第三步（按 skill 列表执行）需补充：
+
+- 评分必须含 route A 锚点对照（dispatch 指令注入锚点ID）
+- 评分必须含双评员（两个独立 subagent）
+- 评分诊断输出必须按 §5.2 统一 schema（category/severity/evidence）
+- chapter-revision 失败后按 revision_routing 分流（spot-fix/regenerate），不再只有 spot-fix
+- 重生后必须通过 preserve_check 核验
+
+第六步（T2 phase 执行）需补充：drafting phase 含 score-arc（每12章）；management phase 含 memory-distill + score-volume + score-stratum。
+
+### 9.10 acceptance.json — 无需修改
+
+`{"t1":94,"t2":94,"t3":94}` 的阈值适用于所有层。分层评分沿用 ≥94 阈值。
+
+### 9.11 测试基建改动清单（执行顺序）
+
+与 §10 实施顺序对齐，测试基建改动分波进行：
+
+**波1（与 helpers 同步）：**
+- lock-tool-hashes.sh 改为扫描全树（§9.4）
+- scoring.py 扩展 + 重锁哈希
+
+**波2（与记忆层同步）：**
+- G0.10 硬编码59→动态（§9.4）
+- G2 新增 truth/audit/anchor 类型（§9.4）
+- 新增 fixtures（§9.7）：arc/book-strata/book-spine/volume-summary
+- deps.json：genesis + book-spine-init（§9.5）
+
+**波3（与评分层同步）：**
+- 新增 fixtures（§9.7）：anchors/AC-00X、diagnosis
+- deps.json：drafting + score-arc/recall；management + memory-distill/score-volume/stratum（§9.5）
+- 6 个改造 skill 的 rubric 新增 route A/C 维度（§9.6）
+- 8 个新增 skill 的全新 rubric + T1 目录（§9.6）
+- summarize_round.py + hierarchical_scores（§9.8）
+
+**波4（与闭环同步）：**
+- command-to-give.md 更新执行协议（§9.9）
+- chapter-revision rubric 更新（重生路由维度）
+- _out_of_pipeline 调整（§9.5）
+- 全量重锁哈希 + G0 全检通过
+
+### 9.12 每个新增/改造 skill 必须同步交付（硬性）
+
+1. **G4 checker**（`src/shenbi/gates/g4/<skill>.py`）
+2. **T1测试目录**（`tests/tiers/t1-skill/<skill>/`）：rubric.md + generative/bug-hunt/clean + scenario.md + fixtures
+3. **deps.json注册**：加入对应T2 phase prerequisites 或 _out_of_pipeline
+4. **fixtures**：真实输入样本（遵循G0.9）
+5. **重锁哈希**：`bash tests/lock-tool-hashes.sh`（修改任何 src/shenbi/ 代码后）
+
+> 现有5个T2 phase 的 `g4_checker: null`（audit/management/import/foundation/short-story）是已知缺口。新增评分skill不进T2 phase（它们是评分层），但仍需独立G4 checker。
+
+### 9.13 genre-config 激活模型
 
 新增评分/记忆 skill 不走 genre-config.auditDimensions 激活模型（那是审计层的条件激活）。它们的触发规则：
 
