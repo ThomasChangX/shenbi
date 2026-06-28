@@ -988,7 +988,7 @@ bash tests/lock-tool-hashes.sh
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/ tests/tiers/ tests/tiers/t1-skill/shenbi-book-spine-init/ tests/tiers/t1-skill/shenbi-memory-distill/ tests/tiers/t1-skill/shenbi-foreshadowing-recall/
+git add src/shenbi/gates/g4/ src/shenbi/gates/shared.py tests/tiers/ tests/tiers/t1-skill/shenbi-book-spine-init/ tests/tiers/t1-skill/shenbi-memory-distill/ tests/tiers/t1-skill/shenbi-foreshadowing-recall/
 git commit -m "test: add G4 checkers + T1 dirs + deps.json for Wave 2 skills (spec §9)"
 ```
 

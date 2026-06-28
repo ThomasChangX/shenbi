@@ -290,10 +290,6 @@ def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-escalation-review", c)
 ```
 
-- [ ] **Step 3: Commit**
-
-```bash
-git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/escalation_review.py
 - [ ] **Step 3: Register G4 checker in generic.py dispatch (spec §9.12)**
 
 ```python
@@ -322,7 +318,7 @@ deps_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
 "
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/ src/shenbi/gates/shared.py tests/tiers/deps.json
