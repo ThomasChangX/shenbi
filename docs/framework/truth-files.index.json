@@ -126,7 +126,9 @@
     "updates": []
   },
   "truth/book_spine.md": {
-    "reads": [],
+    "reads": [
+      "shenbi-context-composing"
+    ],
     "writes": [
       "shenbi-book-spine-init"
     ],
@@ -393,6 +395,34 @@
     "writes": [],
     "updates": []
   },
+  "truth/book_strata.md": {
+    "reads": [
+      "shenbi-context-composing"
+    ],
+    "writes": [
+      "shenbi-memory-distill"
+    ],
+    "updates": []
+  },
+  "truth/volume_summaries.md": {
+    "reads": [
+      "shenbi-context-composing",
+      "shenbi-memory-distill"
+    ],
+    "writes": [
+      "shenbi-volume-consolidation"
+    ],
+    "updates": []
+  },
+  "truth/arcs/arc-N.md": {
+    "reads": [
+      "shenbi-context-composing"
+    ],
+    "writes": [
+      "shenbi-memory-distill"
+    ],
+    "updates": []
+  },
   "truth/character_matrix.md": {
     "reads": [
       "shenbi-context-composing",
@@ -514,29 +544,6 @@
     "updates": [
       "shenbi-location-builder"
     ]
-  },
-  "truth/volume_summaries.md": {
-    "reads": [
-      "shenbi-memory-distill"
-    ],
-    "writes": [
-      "shenbi-volume-consolidation"
-    ],
-    "updates": []
-  },
-  "truth/arcs/arc-N.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-memory-distill"
-    ],
-    "updates": []
-  },
-  "truth/book_strata.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-memory-distill"
-    ],
-    "updates": []
   },
   "outline/rhythm_principles.md": {
     "reads": [

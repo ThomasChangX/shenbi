@@ -1018,6 +1018,326 @@
     {
       "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/book_strata.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/arcs/arc-N.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-context-composing",
       "file": "truth/chapter_summaries.md"
     },
     {
