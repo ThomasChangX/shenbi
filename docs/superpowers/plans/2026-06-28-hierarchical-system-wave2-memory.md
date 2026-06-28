@@ -605,7 +605,7 @@ git commit -m "fix: G0.10 skill count dynamic instead of hardcoded 59 (spec §9.
 - Create: `tests/fixtures/book-strata-example.md`
 - Create: `tests/fixtures/volume-summary-example.md`
 
-**Note:** 这些 fixture 是真实 skill 输出的样本（遵循 G0.9），基于 outline-example.md（星火燃穹）生成。先创建骨架，实际内容由 skill 首次运行填充（或手工构造符合格式的真实内容）。
+**Note:** 以下展示的 fixture 内容是**完整的真实内容**（基于 outline-example.md 星火燃穹设定构造），直接使用，不需要后续填充。
 
 - [ ] **Step 1: Create book-spine fixture**
 
@@ -838,7 +838,61 @@ for skill in shenbi-book-spine-init shenbi-memory-distill shenbi-foreshadowing-r
 done
 ```
 
-为每个 skill 创建 `rubric.md`（Universal 15% + Bespoke 85%，参照现有 rubric 格式）和 `scenario.md`（引用 tests/fixtures/ 下的样本）。
+为每个 skill 创建 `rubric.md`（Universal 15% + Bespoke 85%）和 `scenario.md`（引用 tests/fixtures/ 下的样本）。以 memory-distill 为例：
+
+```markdown
+# tests/tiers/t1-skill/shenbi-memory-distill/rubric.md
+# T1 Rubric: shenbi-memory-distill
+
+## Universal Dimensions (15%)
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 1 | Instruction adherence | 10% | All SKILL.md sections: L2/L4/L5 trigger rules, traceability, incremental output, loss标注 |
+| 2 | Output completeness | 5% | All sections: event chain, hook resolution, character deltas, tension curve, unsuspended |
+
+## Bespoke Dimensions (85%)
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 3 | Traceability | 30% | Every synthesized conclusion references specific chapter numbers |
+| 4 | Hook tracking accuracy | 25% | Arc hooks correctly extracted from L1 summaries, resolved/advanced/planted categorized correctly |
+| 5 | Character arc extraction | 15% | Per-character state changes accurately captured at arc granularity |
+| 6 | Information loss标注 | 15% | Unresolved foreshadowing/tension explicitly listed in "unsuspended" section |
+
+## Kill Switches
+### Generative
+- No chapter references in synthesis -> total score = 0
+### Bug-Hunt
+- Missed planted unresolved hook -> total score = 0
+### Clean
+- Any hallucinated event not in source summaries -> total score = 0
+```
+
+scenario.md 示例：
+
+```markdown
+# tests/tiers/t1-skill/shenbi-memory-distill/generative/input/scenario.md
+# Generative Test: shenbi-memory-distill
+
+## Skill Under Test
+`skills/shenbi-memory-distill/SKILL.md`
+
+## Test Setup
+A novel project exists with 12 completed chapters. Truth files include chapter summaries at `tests/fixtures/chapter-summaries-example.md` and pending hooks at `tests/fixtures/pending-hooks-example.md`. The project is ready for its first L2 arc distillation (arc 1, chapters 1-12).
+
+## Agent Task
+Run shenbi-memory-distill to produce the first L2 arc synthesis. The agent must:
+1. Read chapter_summaries for chapters 1-12
+2. Synthesize arc event chain with chapter references
+3. Extract arc hook resolution (advance/resolve/plant)
+4. Extract character state changes at arc granularity
+5. Document tension curve vs volume rhythm principles
+6. List unresolved foreshadowing in "unsuspended" section
+
+## Seed Input
+Chapter summaries from `tests/fixtures/chapter-summaries-example.md`, hooks from `tests/fixtures/pending-hooks-example.md`
+```
+
+book-spine-init 和 foreshadowing-recall 的 rubric/scenario 同此模式，替换维度为各自职责（book-spine-init: frontmatter字段完整性/themes继承/master hook提取; foreshadowing-recall: 超期判定准确性/RESOLVED排除/输出可溯源）。
 
 - [ ] **Step 4: Update deps.json — genesis phase**
 

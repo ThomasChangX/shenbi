@@ -73,7 +73,143 @@ calibrates: [章级.情感落地, 章级.角色弧兑现]
 
 - [ ] **Step 2: Create AC-002 through AC-009**
 
-按 spec §4.3 的 9 类槽位表，为每个锚点创建文件。每个含：id/category/source_work/source_ref/calibrates + 工艺分析（2-3句文学批评）+ 评分校准基准。9 类：
+为每个锚点创建完整文件（含实际工艺分析）。逐个创建：
+
+```markdown
+# benchmarks/anchors/AC-002.md
+---
+id: AC-002
+category: 氛围质感/日常段功能
+source_work: 诡秘之主
+source_ref: 克莱恩做羔羊肉等妹妹回家（第一卷日常段）
+calibrates: [章级.文笔质感, 章级.日常段功能]
+---
+## 工艺分析
+该场景在日常段落中完成多重功能：展现克莱恩的节俭（因陋就简的烹饪）、兄妹关系（梅丽莎的惊恐到柔和）、维多利亚式的生活质感（猪油、怀表、纱帽）。氛围不是描写堆砌而是通过感官细节（香味弥漫、吞咽口水）和动作节奏（看怀表等待）传达。这是日常段"功能映射"的标杆——日常不是水文而是承载角色塑造和气氛调节。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 章级文笔质感 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-003.md
+---
+id: AC-003
+category: 规模管理/高光/信息张力
+source_work: 诡秘之主
+source_ref: 第七卷末，乌托邦偷袭战
+calibrates: [弧段/卷级.高光, 卷级.伏笔纪律]
+---
+## 工艺分析
+该战役是全书最精密的战略性进攻：亚当的两次致命进攻完美达成战略目的，克莱恩交出满分防守试卷。信息差驱动贯穿全局——观众途径真神的威能通过多层伏笔（密偶小镇的建立、维尔杜的突兀到来）逐步揭示。这是"规模管理"标杆：多序列一围剿一人，复杂度极高却逻辑自洽，每一步都可追溯。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 卷级高光/伏笔纪律 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-004.md
+---
+id: AC-004
+category: 战役节奏/场景临场感
+source_work: 炮火弧线
+source_ref: 第50章《燃烧的原野》
+calibrates: [章级.节奏, 章级.场景临场]
+---
+## 工艺分析
+王忠骑白马携缴获喷火器半履带车反推的场面，是战术微操与战场画面感融合的标杆。俯瞰视角（金手指）转化为读者可感知的临场感——烟雾、风向、马匹体力的细节让RTS式指挥有了血肉。节奏控制上，蓄压（敌人烟雾逼近）到爆发（逆风放火）的转换精准。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 章级节奏/场景临场 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-005.md
+---
+id: AC-005
+category: 高光设计/爽点阶梯
+source_work: 炮火弧线
+source_ref: 第67章《我炮多，怎么，你不服气？》
+calibrates: [章级.爽点, 章级.读者牵引]
+---
+## 工艺分析
+炮火覆盖名场面展示了爽点的阶梯升级：不是一次性倾泻而是分层揭示火力（210毫米炮缺席→己方炮群全开），让读者期待逐步拉高后集中释放。标题本身就是钩子（挑衅式语气制造好奇心）。爽点不是无脑碾压而是战术合理性背书的快感。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 章级爽点/读者牵引 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-006.md
+---
+id: AC-006
+category: 规模管理/群像调度
+source_work: 炮火弧线
+source_ref: 第453章《突袭莫哈》
+calibrates: [弧段.群像, 卷级.规模]
+---
+## 工艺分析
+伞降突袭展现了多视角群像调度的标杆：理查德中校和查理上校的对话切入，天气侦察的等待，各部队视角的快速切换。每个视角段都推进信息（攻击决心、天气窗口、降 versus 降），没有冗余。这是"单场与战略弧关系"的典范——战术行动服务于战略目标（阿巴瓦罕郊外机场）。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 弧段群像/卷级规模 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-007.md
+---
+id: AC-007
+category: 情感落地/主题升华
+source_work: 炮火弧线
+source_ref: 第670章《以我残躯化烈火》
+calibrates: [大弧级.主题贯穿, 章级.情感]
+---
+## 工艺分析
+杜达耶夫大爷和卢娜大婶在收音机旁听飞行员通讯的场景，将"普通人的牺牲"主题推至高潮。情感落地不靠主角而靠配角群像——老人家变多、无线电里的呼喊、大爷的焦急。这是"主题升华"标杆：个人故事（大爷认路）升华为集体叙事（全城守护），情感强度来自克制而非煽情。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 大弧级主题贯穿/章级情感 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-008.md
+---
+id: AC-008
+category: 战役节奏/张力曲线
+source_work: 炮火弧线
+source_ref: 第696章《装甲对决》
+calibrates: [卷级.张力曲线, 弧段.节奏]
+---
+## 工艺分析
+大场面装甲对决展示了张力曲线的标杆控制：渡河→遭遇→装甲对决的阶梯式升级，每一步都提高赌注。节奏上，技术细节（坦克型号、射击角度）与人物反应（恐惧、决断）交替，避免纯技术流水账。单场与战略弧的关系清晰——这场对决是突破第伯河的关键节点。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 卷级张力曲线/弧段节奏 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
+
+```markdown
+# benchmarks/anchors/AC-009.md
+---
+id: AC-009
+category: 伏笔纪律/世界规则自洽
+source_work: 诡秘之主
+source_ref: 序列体系全局设计
+calibrates: [卷级.世界规则, 卷级.伏笔]
+---
+## 工艺分析
+22条序列途径、220个职业的体系是"世界规则自洽"的最高标杆：每一条途径的晋升逻辑、能力特点、扮演法都内部自洽，且跨数百章一致。伏笔纪律上，序列体系的规则在第一卷建立后从未被违反——读者可以逐章验证。力量体系与角色成长绑定（扮演法消化魔药），让规则成为叙事驱动力而非设定百科。
+## 评分校准基准（0-100）
+- 达到此工艺水平 → 卷级世界规则/伏笔纪律 88-97
+- 接近但未及 → 75-87
+- 远不及 → <75
+```
 
 | ID | category | source | calibrates |
 |----|----------|--------|-----------|
@@ -660,13 +796,71 @@ _out_of_pipeline 加入 anchor-curate：
 ]
 ```
 
-- [ ] **Step 2: Create rubric for modified review-resonance**
+- [ ] **Step 2: Update review-resonance rubric with route A/C dimensions**
 
-更新 `tests/tiers/t1-skill/shenbi-review-resonance/rubric.md`，从现有 bespoke 维度拆出权重给 route A/C 新维度（参照 spec §9.6）。
+修改 `tests/tiers/t1-skill/shenbi-review-resonance/rubric.md`，从现有 bespoke 维度拆出权重。新 Bespoke Dimensions 表（权重从现有维度按比例拆分，总 100%）：
+
+```markdown
+## Bespoke Dimensions (85%)
+
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 3 | 4-dim scoring quality | 25% | 情感落地/场景临场/文笔质感/读者回报 scored against calibration anchors (reduced from 40% to make room for A/C) |
+| 4 | Evidence rigor (file + line) | 20% | Every dimension score lands on original-text line numbers + quoted excerpt |
+| 5 | Confidence + routing correctness | 15% | Per-dim + overall confidence; §5.4 routing via deterministic helper |
+| 6 | Gate-decision correctness | 10% | Calibration gate picks threshold from chapter_role |
+| 7 | Route A: Anchor calibration (NEW) | 10% | Every dimension must position relative to benchmarks/anchors/ AC-ID (better/equivalent/worse); no anchorless isolated scoring |
+| 8 | Route C: Goal attainment hard-binary (NEW) | 5% | chapter_role/§6-changes/§7-hooks each binary checked; any unmet = dimension 0 + triggers regeneration |
+
+## Kill Switches by Test Type
+
+### Generative Kill Switches
+- HARD-GATE violation -> total score = 0
+- Route C hard-binary goal unmet but not reported as unmet_goal -> total score = 0
+- No anchor ID referenced in any dimension -> total score = 0
+```
 
 - [ ] **Step 3: Create T1 dirs + rubrics for 4 new scoring skills**
 
-为 shenbi-anchor-curate / shenbi-score-arc / shenbi-score-volume / shenbi-score-stratum 创建 T1 目录 + rubric（route A/C 维度，参照 spec §9.6 模板）。
+为每个新评分 skill 创建完整 rubric.md。以 score-arc 为例（其余三个同模式）：
+
+```markdown
+# tests/tiers/t1-skill/shenbi-score-arc/rubric.md
+# T1 Rubric: shenbi-score-arc
+
+## Universal Dimensions (15%)
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 1 | Instruction adherence | 10% | Every SKILL.md section executed: reads L5 not L4, route C hard-binary + soft-degree, route A anchor positioning |
+| 2 | Output completeness | 5% | All output sections: Route C table, Route A table, arc drift -> audit_drift |
+
+## Bespoke Dimensions (85%)
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 3 | Route C: arc hook resolution (hard-binary) | 30% | Arc-declared hooks checked for兑现/推进; each binary; any unmet unreported -> 0 |
+| 4 | Route C: tension curve adherence (soft-degree) | 20% | Arc tension vs volume_map rhythm principles; degree scored |
+| 5 | Route C: character arc progression (soft-degree) | 15% | Measurable arc-segment change per major character |
+| 6 | Route A: anchor positioning (伏笔纪律/信息张力) | 20% | AC-003/AC-009 referenced; relative position justified |
+
+## Kill Switches by Test Type
+### Bug-Hunt Kill Switches
+- Missed planted unmet-goal (false negative) -> total score = 0
+- No anchor ID referenced -> total score = 0
+### Clean Kill Switches
+- Any hallucinated unmet-goal (false positive) -> total score = 0
+### Generative Kill Switches
+- Route C hard-binary unmet but not reported -> total score = 0
+
+## Dimension Applicability by Test Type
+| Dimension scope | Bug-hunt | Clean | Generative |
+|----------------|----------|-------|------------|
+| Universal (1-2) | Yes | Yes | Yes |
+| Route C hard-binary (3) | Yes | Yes | Yes |
+| Route C soft-degree (4-5) | Yes | Yes | Yes |
+| Route A (6) | Yes | Yes | Yes |
+```
+
+score-volume / score-stratum / anchor-curate 的 rubric 同此模式，替换维度为各自 route C 检查项（score-volume: Objective达成/KR覆盖/跨卷钩子；score-stratum: themes探索/master hook/主角弧对齐；anchor-curate: 工艺分析完整性/校准基准具体性/槽位映射正确性）。
 
 - [ ] **Step 4: Create diagnosis fixture**
 

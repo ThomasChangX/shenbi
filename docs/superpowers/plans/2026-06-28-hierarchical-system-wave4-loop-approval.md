@@ -172,7 +172,12 @@ Expected: list of skills needing改造
 - 升级信号（escalation_check）→ 召唤人工
 ```
 
-- [ ] **Step 3: Commit batch**
+- [ ] **Step 3: Verify all approval nodes converted**
+
+Run: `grep -rl "Human reviews\|present for approval\|Human approves" skills/ | grep SKILL.md`
+Expected: empty output (all converted). If any remain, repeat Step 2 for those skills.
+
+- [ ] **Step 4: Commit batch**
 
 ```bash
 git add skills/
@@ -360,19 +365,27 @@ git commit -m "feat: review-foreshadowing calls foreshadowing-recall at scale (s
 在 `src/shenbi/summarize_round.py` 中，读取 arc/volume/stratum 评分并聚合到 `hierarchical_scores`：
 
 ```python
-# 在 main() 的 t3 聚合后新增
+# 在 main() 的 t3 聚合后新增（spec §9.8）
 hierarchical = summary.get("hierarchical_scores", {})
 arc_scores = hierarchical.get("arc_scores", {})
 volume_scores = hierarchical.get("volume_scores", {})
 stratum_scores = hierarchical.get("stratum_scores", {})
 
 if arc_scores:
-    arc_avg = sum(arc_scores.values()) / len(arc_scores)
-    next_actions.append(f"分层评分: 弧段级均分 {arc_avg:.1f}")
+    arc_vals = [float(v) for v in arc_scores.values()]
+    arc_avg = sum(arc_vals) / len(arc_vals)
+    arc_bands = classify_scores(arc_scores)
+    next_actions.append(f"分层评分: 弧段级均分 {arc_avg:.1f} (bands: {arc_bands})")
 if volume_scores:
-    vol_vals = list(volume_scores.values())
-    if any(v < 80 for v in vol_vals):
-        next_actions.append("分层评分: 有卷级 Objective 未达成的卷，需人工复核")
+    vol_failed = below_threshold(
+        {k: float(v) for k, v in volume_scores.items()}, threshold=80.0
+    )
+    if vol_failed:
+        next_actions.append(f"分层评分: 卷级 Objective 未达成的卷: {vol_failed}，需人工复核")
+if stratum_scores:
+    strat_vals = [float(v) for v in stratum_scores.values()]
+    if any(v < 80 for v in strat_vals):
+        next_actions.append("分层评分: 大弧级主轴可能有偏移，需人工复核书脊")
 ```
 
 - [ ] **Step 2: Update summary.json template**
@@ -392,14 +405,24 @@ if volume_scores:
 # tests/unit/test_summarize_hierarchical.py
 """Test summarize_round hierarchical_scores parsing (spec §9.8)."""
 import pytest
-from shenbi.summarize_round import compute_next_actions  # or relevant function
+from shenbi.summarize_round import classify_scores, below_threshold
 
 
 @pytest.mark.unit
-def test_hierarchical_scores_parsed():
-    summary = {"hierarchical_scores": {"arc_scores": {"arc-1": 88.0}, "volume_scores": {}, "stratum_scores": {}}}
-    # verify arc average computed
-    ...
+def test_arc_scores_classified_into_bands():
+    # classify_scores returns band counts: {pass_excellent, pass_acceptable, conditional, fail}
+    result = classify_scores({"arc-1": 95.0, "arc-2": 91.5})
+    assert result["pass_excellent"] == 2  # both >= 90 (95 and 91.5)
+    assert result["fail"] == 0
+
+
+@pytest.mark.unit
+def test_volume_objective_missed_detected():
+    # below_threshold returns list of names scoring below threshold
+    vol_scores = {"volume-1": 85.0, "volume-2": 72.0}
+    failed = below_threshold(vol_scores, threshold=80.0)
+    assert "volume-2" in failed
+    assert "volume-1" not in failed
 ```
 
 - [ ] **Step 4: Run tests + re-lock + commit**
