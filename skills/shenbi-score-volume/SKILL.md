@@ -1,0 +1,87 @@
+---
+name: shenbi-score-volume
+description: "Use when scoring 卷级评分 on goal attainment and anchor calibration"
+requires_independent_agent: true
+contract:
+  kind: report
+  reads:
+    - truth/volume_summaries.md
+    - outline/volume_map.md
+    - truth/book_spine.md
+    - benchmarks/anchors/
+  writes:
+    - audits/volume-N-score.md
+    - truth/volume_score_trend.md
+  updates:
+[]
+---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/volume_summaries.md, outline/volume_map.md, truth/book_spine.md, benchmarks/anchors/
+- **Writes:** audits/volume-N-score.md, truth/volume_score_trend.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
+
+# 卷级评分
+
+触发：卷边界（必须在volume-consolidation之后）
+
+## HARD-GATE: 独立评分，context-cleaned subagent
+
+## 流程
+
+```dot
+digraph shenbi_score_volume {
+    "Read inputs" -> "Route C: hard-binary checks";
+    "Route C: hard-binary" -> "Route C: soft-degree scoring";
+    "Route C: soft-degree" -> "Route A: anchor positioning";
+    "Route A: anchor" -> "Write audit report";
+}
+```
+
+## 铁律
+
+1. **独立评分** — context-cleaned 独立 subagent
+2. **硬二元驱动** — route C 硬二元项未达成 = 该检查项 0 分 + 标记 unmet_goal
+3. **读上级目标** — 从 book_spine.md (L5) 读 themes/master hooks，不从同级读
+
+## Route C：目标达成
+
+**硬二元检查：**
+- 卷Objective达成（OKR二元判定）
+- KR全部有章节覆盖
+- 跨卷钩子≥3且已过境
+- master hook未超max_distance
+
+**软程度评分：**
+- Objective达成质量程度
+
+## Route A：锚点校准
+
+规模管理维度对照 AC-003/AC-006
+
+## 输出格式
+
+```markdown
+## 卷级评分报告
+
+**结果**: 通过 (XX/100) / 阻断
+
+### Route C 目标达成
+| 检查项 | 类型 | 结果 | 证据 |
+|--------|------|------|------|
+
+### Route A 锚点对照
+| 维度 | 得分 | 对照锚点 | 相对位置 |
+|------|------|---------|---------|
+```
+
+## Anti-Rationalization
+
+| Excuse | Reality |
+|--------|---------|
+| "目标达成太严格" | 硬二元未达成 = 目标失败，必须重生 |
+| "锚点对照太麻烦" | 无锚点的孤立打分 = 评分塌缩 |
