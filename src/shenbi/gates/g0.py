@@ -416,22 +416,24 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         return fail("G0", checks + purity_checks, "round_creation", must_fix)
     checks.extend(purity_checks)
 
-    # G0.10 — completed generative test count (must be >= 59 for full round;
-    # WARN if fewer — allows incremental execution)
+    # G0.10 — completed generative test count (must cover all skills for full round;
+    # WARN if fewer — allows incremental execution). Count is dynamic (scanned from
+    # skills/ dir), not hardcoded — new skills auto-included.
+    total_skills = len(ALL_SKILLS)
     if round_dir:
         rd = Path(round_dir)
         t1_reports = rd / "t1-reports"
         if t1_reports.exists() and t1_reports.is_dir():
             generative_scores = list(t1_reports.glob("*-generative-scores.json"))
             count = len(generative_scores)
-            if count < 59:
+            if count < total_skills:
                 checks.append(
                     {
                         "id": "G0.10",
                         "s": "WARN",
-                        "r": f"generative tests: {count}/59 — {59 - count} remaining",
+                        "r": f"generative tests: {count}/{total_skills} — {total_skills - count} remaining",
                         "completed": count,
-                        "total": 59,
+                        "total": total_skills,
                     }
                 )
             else:
@@ -440,7 +442,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                         "id": "G0.10",
                         "s": "PASS",
                         "completed": count,
-                        "total": 59,
+                        "total": total_skills,
                     }
                 )
         else:
