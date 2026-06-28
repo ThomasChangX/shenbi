@@ -778,6 +778,8 @@ def main() -> None:
     parser.add_argument("--sensitivity-blocking", default="false", help="true/false.")
     parser.add_argument("--volume-objective-met", default="true", help="true/false.")
     parser.add_argument("--regeneration-attempts", type=int, default=0)
+    parser.add_argument("--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)")
+    parser.add_argument("--stratum-axis-drift", default="false", help="true/false (spec §6.2 trigger)")
     args = parser.parse_args()
 
     scores = [float(x) for x in args.resonance_scores.split(",")]
@@ -786,6 +788,8 @@ def main() -> None:
         sensitivity_blocking=args.sensitivity_blocking.lower() == "true",
         volume_objective_met=args.volume_objective_met.lower() == "true",
         regeneration_attempts=args.regeneration_attempts,
+        arc_score=args.arc_score,
+        stratum_axis_drift=args.stratum_axis_drift.lower() == "true",
     )
     print(json.dumps([{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False))
 ```

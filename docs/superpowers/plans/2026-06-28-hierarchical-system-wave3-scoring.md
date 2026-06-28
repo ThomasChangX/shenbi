@@ -896,7 +896,7 @@ from shenbi.gates.g4.score_stratum import g4_score_stratum
 ```bash
 just check
 bash tests/lock-tool-hashes.sh
-git add tests/ src/shenbi/gates/g4/ src/shenbi/gates/generic.py src/shenbi/gates/shared.py tests/tiers/
+git add tests/ src/shenbi/gates/g4/ src/shenbi/gates/g4/ src/shenbi/gates/shared.py tests/tiers/
 git commit -m "test: add rubrics + T1 dirs + G4 registration + fixtures for Wave 3 scoring layer (spec §9.6, §9.7, §9.12)"
 ```
 

@@ -305,7 +305,7 @@ from shenbi.gates.g4.escalation_review import g4_escalation_review
 #   "shenbi-escalation-review"
 ```
 
-- [ ] **Step 4: Register in deps.json**
+- [ ] **Step 4: Register in deps.json (t1_only_auxiliary)**
 
 `shenbi-escalation-review` 归入 `_out_of_pipeline.t1_only_auxiliary`（spec §9.5）：
 
@@ -325,7 +325,7 @@ deps_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/escalation_review.py tests/tiers/deps.json
+git add skills/shenbi-escalation-review/SKILL.md src/shenbi/gates/g4/ src/shenbi/gates/shared.py tests/tiers/deps.json
 git commit -m "feat: add shenbi-escalation-review skill + G4 checker + deps.json registration (spec §6.3, §9.5)"
 ```
 
