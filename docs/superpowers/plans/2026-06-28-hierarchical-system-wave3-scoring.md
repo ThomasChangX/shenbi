@@ -1,0 +1,711 @@
+# 分层系统 Wave 3：评分层实施计划
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** 实现分层评分体系（route C 目标达成主干 + route A 锚点校准天花板），新增 5 个评分 skill + 锚点策展，改造 review-resonance 注入锚点对照。
+
+**Architecture:** route C 检查项分为硬二元（hook advance/§6改变/master hook 推进，确定性可验）和软程度（Objective 达成质量，LLM 判断但锚定上级目标）。route A 锚点库作为 `benchmarks/anchors/` 一等资产，从诡秘/炮火工艺分析入库。评分 skill 均 `requires_independent_agent: true`。
+
+**Tech Stack:** Python 3.11+，SKILL.md，benchmarks/anchors/，pytest。
+
+**Spec:** `docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md` v1.4.0
+- §4.1-4.5 四层评分金字塔 + route C/A + skill 家族
+- §11.2 score-arc 读 L5 非 L4
+- §11.6-11.7 卷边界顺序 + book_spine 字段所有权
+- §11.8 score-volume 输出 → drift-guidance
+- §4.3 锚点库（9 类槽位，诡秘+炮火）
+
+**Depends on:** Wave 1（scoring.py 扩展）+ Wave 2（L2/L4/L5 记忆产出 + fixtures）
+
+## Global Constraints
+
+- 评分 skill 必须 `requires_independent_agent: true`（drafting/planning agent 不得评分）
+- 评分 dispatch 指令必须含反塌缩约束（§5.4 补丁1：禁止默认95，88-97 有区分度）
+- 锚点库不存储大段原文，只存工艺分析（文学批评）
+- route C 硬二元项的"未达成"直接触发重生路由（§4.2）
+- 修改 src/shenbi/ 后运行 `bash tests/lock-tool-hashes.sh`
+
+## File Structure
+
+| 文件 | 职责 |
+|------|------|
+| `skills/shenbi-anchor-curate/SKILL.md` | 锚点策展 |
+| `skills/shenbi-score-arc/SKILL.md` | 弧段级评分 |
+| `skills/shenbi-score-volume/SKILL.md` | 卷级评分 |
+| `skills/shenbi-score-stratum/SKILL.md` | 大弧/书级评分 |
+| `benchmarks/anchors/AC-001.md` ~ `AC-009.md` | 9 类锚点 |
+| `skills/shenbi-review-resonance/SKILL.md` | 改造：注入 route A+C |
+| `tests/fixtures/anchors/` | 锚点 fixture |
+| `src/shenbi/gates/g4/score_arc.py` 等 | G4 checkers |
+
+---
+
+### Task 1: 锚点库初始化（9 类槽位）
+
+**Files:**
+- Create: `benchmarks/anchors/AC-001.md` ~ `AC-009.md`
+
+**Interfaces:**
+- Produces: 9 个锚点文件，被 review-resonance / score-arc / score-volume / score-stratum 的 route A 对照消费。
+
+- [ ] **Step 1: Create AC-001 (情感落地/角色弧兑现)**
+
+```markdown
+# benchmarks/anchors/AC-001.md
+---
+id: AC-001
+category: 情感落地/角色弧兑现
+source_work: 诡秘之主
+source_ref: 第一卷末，小丑魔药消化
+calibrates: [章级.情感落地, 章级.角色弧兑现]
+---
+
+## 工艺分析
+
+该场景将角色弧兑现（小丑魔药消化）与情感落地（笑中带泪）融合。克莱恩在拯救鲁恩后独自消化"小丑"身份，情感不是直接宣告而是通过身体反应（液体滑过衣领）和无声自语（"队长，你看"）传达。这是 show-not-tell 的标杆——情感强度通过克制释放，而非直白宣告。
+
+## 评分校准基准（0-100）
+- 产出达到此工艺水平 → 章级情感落地 88-97
+- 产出接近但未及 → 75-87
+- 产出远不及 → <75
+- 禁止默认 95。
+```
+
+- [ ] **Step 2: Create AC-002 through AC-009**
+
+按 spec §4.3 的 9 类槽位表，为每个锚点创建文件。每个含：id/category/source_work/source_ref/calibrates + 工艺分析（2-3句文学批评）+ 评分校准基准。9 类：
+
+| ID | category | source | calibrates |
+|----|----------|--------|-----------|
+| AC-001 | 情感落地/角色弧兑现 | 诡秘·小丑消化 | 章级.情感落地, 章级.角色弧兑现 |
+| AC-002 | 氛围质感/日常段功能 | 诡秘·羔羊肉场景 | 章级.文笔质感, 章级.日常段功能 |
+| AC-003 | 规模管理/高光/信息张力 | 诡秘·乌托邦偷袭战 | 弧段/卷级.高光, 卷级.伏笔纪律 |
+| AC-004 | 战役节奏/场景临场感 | 炮火·燃烧的原野 | 章级.节奏, 章级.场景临场 |
+| AC-005 | 高光设计/爽点阶梯 | 炮火·我炮多 | 章级.爽点, 章级.读者牵引 |
+| AC-006 | 规模管理/群像调度 | 炮火·突袭莫哈 | 弧段.群像, 卷级.规模 |
+| AC-007 | 情感落地/主题升华 | 炮火·以我残躯化烈火 | 大弧级.主题贯穿, 章级.情感 |
+| AC-008 | 战役节奏/张力曲线 | 炮火·装甲对决 | 卷级.张力曲线, 弧段.节奏 |
+| AC-009 | 伏笔纪律/世界规则自洽 | 诡秘·序列体系 | 卷级.世界规则, 卷级.伏笔 |
+
+- [ ] **Step 3: Create anchor fixtures (copy to tests/fixtures/anchors/)**
+
+```bash
+mkdir -p tests/fixtures/anchors
+cp benchmarks/anchors/AC-001.md tests/fixtures/anchors/
+# (each anchor copied for T1 test scenarios)
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add benchmarks/anchors/ tests/fixtures/anchors/
+git commit -m "feat: initialize anchor library with 9 categories from 诡秘/炮火 craft analysis (spec §4.3)"
+```
+
+---
+
+### Task 2: shenbi-anchor-curate skill
+
+**Files:**
+- Create: `skills/shenbi-anchor-curate/SKILL.md`
+
+- [ ] **Step 1: Write SKILL.md**
+
+```markdown
+---
+name: shenbi-anchor-curate
+description: "Use when generating a new scoring anchor from a reference work passage, or curating the existing anchor library"
+contract:
+  kind: artifact
+  reads:
+    - import/source/*.txt
+  writes:
+    - benchmarks/anchors/AC-NNN.md
+  updates: []
+---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** import/source/*.txt
+- **Writes:** benchmarks/anchors/AC-NNN.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
+
+# 锚点策展
+
+从授权参考作品提取工艺分析，生成评分锚点。锚点存储工艺分析（文学批评），不存储大段原文。
+
+## 流程
+
+```dot
+digraph anchor_curate {
+    "Read reference passage" -> "Identify craft dimension (9 categories)";
+    "Identify craft dimension" -> "Analyze why passage is excellent (2-3 sentences)";
+    "Analyze why excellent" -> "Define calibration baseline (0-100 bands)";
+    "Define calibration baseline" -> "Write benchmarks/anchors/AC-NNN.md";
+}
+```
+
+## 铁律
+
+1. **工艺分析非原文复制** — 只分析手法，不复制大段原文。版权边界严格遵守
+2. **9 类槽位映射** — 每个锚点必须映射到 spec §4.3 的 9 类之一
+3. **校准基准必须具体** — 88-97/75-87/<75 三档，禁止模糊区间
+4. **source_ref 精确** — 标注作品名 + 具体位置（卷/章/场景）
+
+## 输出格式
+
+参照 `benchmarks/anchors/AC-001.md` 格式（id/category/source_work/source_ref/calibrates + 工艺分析 + 评分校准基准）。
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-anchor-curate/SKILL.md
+git commit -m "feat: add shenbi-anchor-curate skill (spec §4.4)"
+```
+
+---
+
+### Task 3: review-resonance 改造（注入 route A + route C）
+
+**Files:**
+- Modify: `skills/shenbi-review-resonance/SKILL.md`
+
+**Interfaces:**
+- Consumes: 现有 4 维度 + benchmarks/anchors/（route A）+ plans/chapter-N-plan.md §1/§6/§7（route C 目标）
+- Produces: 现有输出 + route C 硬二元检查结果 + route A 锚点相对定位
+
+- [ ] **Step 1: Add route A anchor calibration to review-resonance**
+
+在 `skills/shenbi-review-resonance/SKILL.md` 的评分维度后新增：
+
+```markdown
+## Route A：锚点校准（注入）
+
+评分时必须对照 `benchmarks/anchors/` 相关锚点定相对位置。每个维度分数必须回答"比锚点更好/相当/更差"，而非孤立打分。
+
+对照规则：
+- 情感落地 → 对照 AC-001（诡秘·小丑消化）
+- 场景临场感 → 对照 AC-004（炮火·燃烧的原野）
+- 文笔质感 → 对照 AC-002（诡秘·羔羊肉场景）
+- 读者回报 → 对照 AC-005（炮火·我炮多）
+
+评分输出增加锚点对照列：
+
+| 维度 | 得分 | 对照锚点 | 相对位置 | 证据 |
+|------|------|---------|---------|------|
+| 情感落地 | 22 | AC-001 | 相当 | chapter-N.md L45 > … |
+```
+
+- [ ] **Step 2: Add route C goal attainment checks**
+
+在铁律后新增：
+
+```markdown
+## Route C：目标达成检查（注入）
+
+除现有 4 维度体验评分外，增加 route C 目标达成硬二元检查（对照章计划）：
+
+| 检查项 | 来源 | 类型 | 判定 |
+|--------|------|------|------|
+| chapter_role 兑现 | plans/chapter-N-plan.md §1 | 硬二元 | 已达成/未达成 |
+| §6 章尾改变发生 | plans/chapter-N-plan.md §6 | 硬二元 | 已达成/未达成 |
+| hook 账履行 | plans/chapter-N-plan.md §7 | 硬二元 | 已达成/未达成 |
+
+任一硬二元项"未达成" → 诊断输出含 `{"category": "unmet_goal", "severity": "BLOCKING"}` → 触发重生路由（§5.2 revision_routing）。
+```
+
+- [ ] **Step 3: Update frontmatter reads**
+
+```yaml
+  reads:
+    - {file: chapters/chapter-N.md, fields: [prose, POST_WRITE_SELF_CHECK]}
+    - {file: plans/chapter-N-plan.md, fields: [chapter_role, core_task, section6_changes, section7_hooks]}
+    - {file: style/style_profile.md, fields: [voice_fingerprint]}
+    - benchmarks/anchors/
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-review-resonance/SKILL.md
+git commit -m "feat: inject route A anchor calibration + route C goal attainment into review-resonance (spec §4.4)"
+```
+
+---
+
+### Task 4: shenbi-score-arc skill
+
+**Files:**
+- Create: `skills/shenbi-score-arc/SKILL.md`
+- Create: `src/shenbi/gates/g4/score_arc.py`
+
+- [ ] **Step 1: Write SKILL.md**
+
+```markdown
+---
+name: shenbi-score-arc
+description: "Use when scoring an arc segment (every 12 chapters) on foreshadowing resolution, tension curve adherence, and character arc progression against upper-level goals"
+requires_independent_agent: true
+contract:
+  kind: report
+  reads:
+    - truth/arcs/arc-N.md
+    - truth/book_spine.md
+    - truth/volume_summaries.md
+    - truth/book_strata.md
+    - benchmarks/anchors/
+  writes:
+    - audits/arc-N-score.md
+  updates:
+    - truth/audit_drift.md
+---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/arcs/arc-N.md, truth/book_spine.md, truth/volume_summaries.md, truth/book_strata.md, benchmarks/anchors/
+- **Writes:** audits/arc-N-score.md
+- **Updates:** truth/audit_drift.md
+
+<!-- END AUTO-GENERATED -->
+
+# 弧段级评分
+
+触发：每12章（与 memory-distill L2 对齐）。
+
+## 流程
+
+```dot
+digraph score_arc {
+    "Read truth/arcs/arc-N.md (被评弧段)" -> "Read truth/book_spine.md (上级目标: themes/master hooks, L5)";
+    "Read book_spine" -> "Read truth/volume_summaries.md (上级目标: 卷Objective定位, 若当前卷已完结)";
+    "Read volume_summaries" -> "Route C: 硬二元检查 (弧段伏笔兑现)";
+    "Route C 硬二元" -> "Route C: 软程度 (张力曲线/角色弧)";
+    "Route C 软程度" -> "Route A: 锚点对照 (AC-003/AC-009)";
+    "Route A 锚点对照" -> "Write audits/arc-N-score.md";
+    "Write audit" -> "Append arc drift to truth/audit_drift.md";
+}
+```
+
+## 铁律
+
+1. **独立评分** — context-cleaned 独立 subagent
+2. **读 L5 非 L4** — 上级目标从 book_spine.md（L5，始终存在）读；book_strata.md（L4）可选（§11.2，chapter<36 时缺失，标记 cross_arc_data: unavailable）
+3. **硬二元驱动** — 弧段伏笔未兑现 = 该检查项 0 分 + 标记 unmet_goal
+
+## Route C 检查项
+
+**硬二元（确定性）：**
+- 弧段声明的伏笔是否兑现/推进（对照弧段合成§伏笔）→ 已兑现/未兑现
+- 弧段是否推进所属卷的 Key Result → 是/否
+
+**软程度（锚定上级目标）：**
+- 弧段张力曲线遵循卷节奏原则的程度（对照 volume_map 节奏原则）
+- 主要角色在本弧是否有可测弧段变化
+
+## Route A 锚点对照
+- 伏笔纪律/信息张力维度对照 AC-003（诡秘·乌托邦偷袭战）/ AC-009（诡秘·序列体系）
+
+## 输出格式
+
+```markdown
+## 弧段评分报告
+
+**弧段**: arc-N (第X-Y章) | **结果**: 通过 (XX/100) / 阻断
+
+### Route C 目标达成
+
+| 检查项 | 类型 | 结果 | 证据 |
+|--------|------|------|------|
+| 弧段伏笔兑现 | 硬二元 | 已兑现 | arc-N.md §伏笔: H01 advance, H02 resolve |
+| 卷KR推进 | 硬二元 | 是 | 推进 KR1 |
+| 张力曲线遵循 | 软程度 | 85/100 | 对照 volume_map 节奏原则 |
+| 角色弧段变化 | 软程度 | 80/100 | 林烽有可测变化 |
+
+### Route A 锚点对照
+
+| 维度 | 得分 | 对照锚点 | 相对位置 |
+|------|------|---------|---------|
+| 伏笔纪律 | 82 | AC-009 | 相当 |
+| 信息张力 | 78 | AC-003 | 略低 |
+
+### 弧段漂移（写入 audit_drift）
+- [维度] [漂移描述] → 下弧段防范建议
+```
+```
+
+- [ ] **Step 2: Create G4 checker**
+
+```python
+# src/shenbi/gates/g4/score_arc.py
+"""G4 checker for shenbi-score-arc."""
+from __future__ import annotations
+import re
+from pathlib import Path
+from shenbi.gates.shared import fail, passed
+
+
+def g4_score_arc(fps: list[str], rd: str | None = None) -> str:
+    c, mf = [], []
+    for fp in fps or []:
+        p = Path(fp)
+        if not p.exists():
+            mf.append(f"G4.sa.not_found:{fp}")
+            continue
+        content = p.read_text(encoding="utf-8")
+        for section in ["Route C", "Route A", "锚点对照"]:
+            if section not in content:
+                mf.append(f"G4.sa.missing_section:{section}")
+        if not re.search(r"AC-0\d\d", content):
+            mf.append("G4.sa.no_anchor_ref:must reference anchor IDs")
+        c.append({"id": "G4.sa", "s": "PASS"})
+    if mf:
+        return fail("G4-score-arc", c, "scoring", mf)
+    return passed("G4-score-arc", c)
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-score-arc/SKILL.md src/shenbi/gates/g4/score_arc.py
+git commit -m "feat: add shenbi-score-arc skill + G4 checker (spec §4.4, §11.2)"
+```
+
+---
+
+### Task 5: shenbi-score-volume skill
+
+**Files:**
+- Create: `skills/shenbi-score-volume/SKILL.md`
+- Create: `src/shenbi/gates/g4/score_volume.py`
+
+- [ ] **Step 1: Write SKILL.md**
+
+```markdown
+---
+name: shenbi-score-volume
+description: "Use when scoring a completed volume on Objective achievement, cross-volume hook transit, and master hook progression against the book spine"
+requires_independent_agent: true
+contract:
+  kind: report
+  reads:
+    - truth/volume_summaries.md
+    - outline/volume_map.md
+    - truth/book_spine.md
+    - benchmarks/anchors/
+  writes:
+    - audits/volume-N-score.md
+    - truth/volume_score_trend.md
+  updates: []
+---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/volume_summaries.md, outline/volume_map.md, truth/book_spine.md, benchmarks/anchors/
+- **Writes:** audits/volume-N-score.md, truth/volume_score_trend.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
+
+# 卷级评分
+
+触发：卷边界。**必须在 volume-consolidation 之后运行**（§11.6：volume-consolidation 产出 L3 卷摘要，本 skill 读它）。与 review-arc-payoff 分工（§4.5）：arc-payoff 评体验交付轴，score-volume 评目标达成轴。
+
+## 流程
+
+```dot
+digraph score_volume {
+    "Read truth/volume_summaries.md (被评卷)" -> "Read outline/volume_map.md (上级目标: Objective + Key Results)";
+    "Read volume_map" -> "Read truth/book_spine.md (上级目标: 主线钩子状态)";
+    "Read book_spine" -> "Route C: 硬二元 (卷Objective达成 + KR覆盖 + 跨卷钩子过境)";
+    "Route C 硬二元" -> "Route C: 软程度 (Objective达成质量)";
+    "Route C 软程度" -> "Route A: 锚点对照 (AC-003/AC-006)";
+    "Route A" -> "Write audits/volume-N-score.md";
+    "Write audit" -> "Append to truth/volume_score_trend.md";
+}
+```
+
+## 铁律
+
+1. **必须在 volume-consolidation 之后** — 读 L3 卷摘要，后者由 volume-consolidation 产出
+2. **Objective 二元判定优先** — 卷 Objective 未达成 = 硬阻断，不接受程度评分
+3. **输出 volume_score_trend** — drift-guidance 消费此 trend（§11.8）
+
+## Route C 检查项
+
+**硬二元：**
+- 卷 Objective 达成（OKR 二元判定）→ 达成/未达成
+- 本卷 Key Results 全部有章节覆盖 → 是/否
+- 跨卷钩子 ≥3 且已过境到下一卷 → 是/否
+- 长程主线钩子（MH*）在本卷有推进且未超 max_distance → 是/否
+
+**软程度：** Objective 达成质量
+
+## Route A 锚点对照
+- 规模管理维度对照 AC-003（诡秘·乌托邦）/ AC-006（炮火·突袭莫哈）
+
+## 输出格式
+
+```markdown
+## 卷级评分报告
+
+**卷**: volume-N | **结果**: 通过 (XX/100) / 阻断
+
+### Route C 目标达成
+
+| 检查项 | 类型 | 结果 | 证据 |
+|--------|------|------|------|
+| 卷Objective达成 | 硬二元 | 达成 | volume_map Objective: ... ; volume_summaries: 达成 |
+| KR覆盖 | 硬二元 | 是 | KR1-3 全部有章节 |
+| 跨卷钩子过境 | 硬二元 | 是 | 3个钩子过境 |
+| master hook推进 | 硬二元 | 是 | MH01推进, 未超max_distance |
+| Objective质量 | 软程度 | 85/100 | |
+
+### Route A 锚点对照
+| 维度 | 得分 | 对照锚点 | 相对位置 |
+|------|------|---------|---------|
+| 规模管理 | 80 | AC-006 | 相当 |
+
+### volume_score_trend 追加行
+| volume | objective_achieved | cross_vol_hooks | master_hook_status | overall |
+| N | true | 3 | advanced | 85 |
+```
+```
+
+- [ ] **Step 2: Create G4 checker**
+
+```python
+# src/shenbi/gates/g4/score_volume.py
+"""G4 checker for shenbi-score-volume."""
+from __future__ import annotations
+import re
+from pathlib import Path
+from shenbi.gates.shared import fail, passed
+
+
+def g4_score_volume(fps: list[str], rd: str | None = None) -> str:
+    c, mf = [], []
+    for fp in fps or []:
+        p = Path(fp)
+        if not p.exists():
+            mf.append(f"G4.sv.not_found:{fp}")
+            continue
+        content = p.read_text(encoding="utf-8")
+        for section in ["Route C", "Objective达成", "跨卷钩子"]:
+            if section not in content:
+                mf.append(f"G4.sv.missing_section:{section}")
+        c.append({"id": "G4.sv", "s": "PASS"})
+    if mf:
+        return fail("G4-score-volume", c, "scoring", mf)
+    return passed("G4-score-volume", c)
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-score-volume/SKILL.md src/shenbi/gates/g4/score_volume.py
+git commit -m "feat: add shenbi-score-volume skill + G4 checker (spec §4.4, §11.6, §11.8)"
+```
+
+---
+
+### Task 6: shenbi-score-stratum skill
+
+**Files:**
+- Create: `skills/shenbi-score-stratum/SKILL.md`
+- Create: `src/shenbi/gates/g4/score_stratum.py`
+
+- [ ] **Step 1: Write SKILL.md**
+
+```markdown
+---
+name: shenbi-score-stratum
+description: "Use when scoring a stratum (every 36 chapters) on theme exploration depth, master hook progression, protagonist arc alignment, and cross-hundred-chapter fatigue"
+requires_independent_agent: true
+contract:
+  kind: report
+  reads:
+    - truth/book_strata.md
+    - truth/book_spine.md
+    - benchmarks/anchors/
+  writes:
+    - audits/stratum-N-score.md
+  updates:
+    - truth/book_spine.md
+---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/book_strata.md, truth/book_spine.md, benchmarks/anchors/
+- **Writes:** audits/stratum-N-score.md
+- **Updates:** truth/book_spine.md
+
+<!-- END AUTO-GENERATED -->
+
+# 大弧/书级健康评分
+
+触发：每36章 + 滚动（每卷后增量复核）。
+
+## 铁律
+
+1. **L5 字段分区所有权（§11.7）** — 本 skill 只写 book_spine.md 的**诊断字段**（主角弧漂移诊断/themes达成诊断），不写声明值（book-spine-init）或数据值（memory-distill）
+2. **主轴偏移检测** — 主角弧偏离声明终点 = 书级主轴偏移，触发升级
+
+## Route C 检查项
+
+**硬二元：**
+- master hooks 是否在 max_distance 内推进
+- 主角弧是否仍指向声明终点（arc_ending 未被偏移）
+
+**软程度：**
+- 全书 themes 被真正探索的程度（非悬空，有具体事件链支撑）
+- 跨数百章疲劳/套路复发诊断（用 chapter-pattern 全书数据）
+
+## Route A 锚点对照
+- 战役节奏/氛围质感维度对照 AC-004（炮火·燃烧的原野）/ AC-008（炮火·装甲对决）
+
+## 输出格式
+
+```markdown
+## 大弧/书级健康报告
+
+**大弧**: stratum-N (第X-Y章) | **结果**: 健康 (XX/100) / 主轴偏移
+
+### Route C 目标达成
+
+| 检查项 | 类型 | 结果 |
+|--------|------|------|
+| master hook max_distance | 硬二元 | 未超期 |
+| 主角弧终点对齐 | 硬二元 | 对齐 |
+| themes探索深度 | 软程度 | 82/100 |
+| 疲劳/套路复发 | 软程度 | 无复发 |
+
+### book_spine 诊断字段回流（§11.7）
+- 主角弧漂移诊断: 无偏移
+- themes达成诊断: 人民至上 探索充分, 逆境成长 探索充分
+```
+```
+
+- [ ] **Step 2: Create G4 checker**
+
+```python
+# src/shenbi/gates/g4/score_stratum.py
+"""G4 checker for shenbi-score-stratum."""
+from __future__ import annotations
+import re
+from pathlib import Path
+from shenbi.gates.shared import fail, passed
+
+
+def g4_score_stratum(fps: list[str], rd: str | None = None) -> str:
+    c, mf = [], []
+    for fp in fps or []:
+        p = Path(fp)
+        if not p.exists():
+            mf.append(f"G4.ss.not_found:{fp}")
+            continue
+        content = p.read_text(encoding="utf-8")
+        for section in ["Route C", "master hook", "主角弧", "themes"]:
+            if section not in content:
+                mf.append(f"G4.ss.missing_section:{section}")
+        c.append({"id": "G4.ss", "s": "PASS"})
+    if mf:
+        return fail("G4-score-stratum", c, "scoring", mf)
+    return passed("G4-score-stratum", c)
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-score-stratum/SKILL.md src/shenbi/gates/g4/score_stratum.py
+git commit -m "feat: add shenbi-score-stratum skill + G4 checker (spec §4.4, §11.7)"
+```
+
+---
+
+### Task 7: deps.json + rubric + T1 目录 + fixtures
+
+- [ ] **Step 1: Update deps.json**
+
+drafting phase 加 score-arc + foreshadowing-recall；management phase 加 memory-distill + score-volume + score-stratum：
+
+```json
+"drafting": {
+  "prerequisites": [
+    "shenbi-chapter-drafting", "shenbi-state-settling", "shenbi-foreshadowing-track",
+    "shenbi-style-polishing", "shenbi-review-resonance", "shenbi-anti-detect",
+    "shenbi-length-normalizing", "shenbi-score-arc", "shenbi-foreshadowing-recall"
+  ]
+},
+"management": {
+  "prerequisites": [
+    "shenbi-snapshot-manage", "shenbi-drift-guidance", "shenbi-intent-management",
+    "shenbi-chapter-pattern", "shenbi-volume-consolidation", "shenbi-review-arc-payoff",
+    "shenbi-memory-distill", "shenbi-score-volume", "shenbi-score-stratum"
+  ]
+}
+```
+
+_out_of_pipeline 加入 anchor-curate：
+
+```json
+"t1_only_auxiliary": [
+  "shenbi-market-radar", "shenbi-sequel-writing", "shenbi-anchor-curate"
+]
+```
+
+- [ ] **Step 2: Create rubric for modified review-resonance**
+
+更新 `tests/tiers/t1-skill/shenbi-review-resonance/rubric.md`，从现有 bespoke 维度拆出权重给 route A/C 新维度（参照 spec §9.6）。
+
+- [ ] **Step 3: Create T1 dirs + rubrics for 4 new scoring skills**
+
+为 shenbi-anchor-curate / shenbi-score-arc / shenbi-score-volume / shenbi-score-stratum 创建 T1 目录 + rubric（route A/C 维度，参照 spec §9.6 模板）。
+
+- [ ] **Step 4: Create diagnosis fixture**
+
+```json
+// tests/fixtures/diagnosis-example.json
+{
+  "issues": [
+    {"category": "unmet_goal", "id": "goal-H01-advance", "evidence": "ch5.md", "severity": "BLOCKING"},
+    {"category": "craft", "id": "craft-ai-tell-L23", "evidence": "ch5.md L23", "severity": "CRITICAL"}
+  ]
+}
+```
+
+- [ ] **Step 5: Run check + re-lock + commit**
+
+```bash
+just check
+bash tests/lock-tool-hashes.sh
+git add tests/ src/shenbi/gates/g4/ tests/tiers/
+git commit -m "test: add rubrics + T1 dirs + fixtures for Wave 3 scoring layer (spec §9.6, §9.7)"
+```
+
+---
+
+### Task 8: Wave 3 全量验证
+
+- [ ] **Step 1: Run all tests**
+
+Run: `just test && just check`
+Expected: all passed, coverage ≥90%
+
+- [ ] **Step 2: Verify skill count**
+
+Run: `uv run shenbi-validate G0 outline-example.md 2>&1 | grep "G0.4"`
+Expected: skills_count = 68 (64 + 4 new scoring skills)
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tests/tiers/deps.json
+git commit -m "chore: re-lock hashes after Wave 3 scoring layer"
+```
