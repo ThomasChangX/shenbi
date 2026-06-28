@@ -250,6 +250,7 @@
       "shenbi-chapter-planning",
       "shenbi-context-composing",
       "shenbi-foreshadowing-plant",
+      "shenbi-foreshadowing-recall",
       "shenbi-foreshadowing-resolve",
       "shenbi-foreshadowing-track",
       "shenbi-memory-distill",
@@ -456,6 +457,13 @@
     "updates": [
       "shenbi-faction-builder"
     ]
+  },
+  "truth/foreshadowing_recall_result.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-foreshadowing-recall"
+    ],
+    "updates": []
   },
   "world/*.md": {
     "reads": [

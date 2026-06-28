@@ -141,6 +141,11 @@
       "file": "truth/audit_drift.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-chapter-drafting",
+      "file": "truth/audit_drift.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-chapter-drafting",
       "file": "truth/audit_drift.md"
@@ -251,6 +256,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-chapter-pattern",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-chapter-pattern",
       "file": "truth/chapter_summaries.md"
@@ -336,6 +346,11 @@
       "file": "truth/current_state.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_state.md"
@@ -411,6 +426,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/pending_hooks.md"
@@ -482,6 +502,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/chapter_summaries.md"
     },
@@ -621,6 +646,11 @@
       "file": "truth/current_focus.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/current_focus.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/current_focus.md"
@@ -692,6 +722,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-chapter-planning",
+      "file": "truth/author_intent.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-chapter-planning",
       "file": "truth/author_intent.md"
     },
@@ -996,6 +1031,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-context-composing",
       "file": "truth/chapter_summaries.md"
@@ -1071,6 +1111,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-context-composing",
       "file": "truth/pending_hooks.md"
@@ -1142,6 +1187,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-context-composing",
       "file": "truth/audit_drift.md"
     },
@@ -1242,6 +1292,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-context-composing",
+      "file": "truth/character_matrix.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-context-composing",
       "file": "truth/character_matrix.md"
     },
@@ -1486,6 +1541,11 @@
       "file": "truth/resonance_trend.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-drift-guidance",
       "file": "truth/resonance_trend.md"
@@ -1552,6 +1612,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-drift-guidance",
       "file": "truth/arc_payoff_trend.md"
     },
@@ -1706,6 +1771,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-foreshadowing-plant",
       "file": "truth/pending_hooks.md"
@@ -1777,6 +1847,81 @@
     },
     {
       "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-foreshadowing-recall",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-foreshadowing-resolve",
       "file": "truth/pending_hooks.md"
     },
@@ -1787,6 +1932,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foreshadowing-resolve",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-foreshadowing-resolve",
       "file": "truth/pending_hooks.md"
     },
@@ -1857,6 +2007,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foreshadowing-resolve",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-foreshadowing-resolve",
       "file": "truth/chapter_summaries.md"
     },
@@ -1966,6 +2121,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-foreshadowing-track",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-foreshadowing-track",
       "file": "truth/pending_hooks.md"
@@ -2032,6 +2192,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foreshadowing-track",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-foreshadowing-track",
       "file": "truth/chapter_summaries.md"
     },
@@ -2161,6 +2326,11 @@
       "file": "truth/current_state.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-foundation-review",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-foundation-review",
       "file": "truth/current_state.md"
@@ -2232,6 +2402,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-foundation-review",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-foundation-review",
       "file": "truth/chapter_summaries.md"
     },
@@ -2321,6 +2496,11 @@
       "file": "truth/author_intent.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-intent-management",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-intent-management",
       "file": "truth/author_intent.md"
@@ -2387,6 +2567,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-intent-management",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-intent-management",
       "file": "truth/audit_drift.md"
     },
@@ -2606,6 +2791,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-memory-distill",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-memory-distill",
       "file": "truth/chapter_summaries.md"
@@ -2676,6 +2866,11 @@
       "file": "truth/volume_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-memory-distill",
+      "file": "truth/volume_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-memory-distill",
       "file": "truth/volume_summaries.md"
@@ -2742,6 +2937,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-memory-distill",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-memory-distill",
       "file": "truth/pending_hooks.md"
     },
@@ -2812,6 +3012,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-memory-distill",
+      "file": "truth/character_matrix.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-memory-distill",
       "file": "truth/character_matrix.md"
     },
@@ -3022,6 +3227,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-plot-thread-weaver",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-plot-thread-weaver",
       "file": "truth/pending_hooks.md"
     },
@@ -3186,6 +3396,11 @@
       "file": "truth/character_matrix.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-relationship-map",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-relationship-map",
       "file": "truth/character_matrix.md"
@@ -3391,6 +3606,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-arc-payoff",
       "file": "truth/pending_hooks.md"
@@ -3457,6 +3677,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-arc-payoff",
       "file": "truth/resonance_trend.md"
     },
@@ -3586,6 +3811,11 @@
       "file": "truth/character_matrix.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-character",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-character",
       "file": "truth/character_matrix.md"
@@ -3657,6 +3887,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-character",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-character",
       "file": "truth/emotional_arcs.md"
     },
@@ -3771,6 +4006,11 @@
       "file": "truth/current_state.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-continuity",
+      "file": "truth/current_state.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-continuity",
       "file": "truth/current_state.md"
@@ -3842,6 +4082,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-continuity",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-continuity",
       "file": "truth/chapter_summaries.md"
     },
@@ -3997,6 +4242,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-dialogue",
+      "file": "truth/character_matrix.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-dialogue",
       "file": "truth/character_matrix.md"
     },
@@ -4196,6 +4446,11 @@
       "file": "truth/pending_hooks.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-foreshadowing",
+      "file": "truth/pending_hooks.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-foreshadowing",
       "file": "truth/pending_hooks.md"
@@ -4272,6 +4527,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-foreshadowing",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-foreshadowing",
       "file": "truth/subplot_board.md"
     },
@@ -4517,6 +4777,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-memo-compliance",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-memo-compliance",
       "file": "truth/pending_hooks.md"
     },
@@ -4651,6 +4916,11 @@
       "file": "truth/character_matrix.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-motivation",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-motivation",
       "file": "truth/character_matrix.md"
@@ -4771,6 +5041,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-pacing",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-pacing",
       "file": "truth/chapter_summaries.md"
@@ -4891,6 +5166,11 @@
       "file": "truth/character_matrix.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-pov",
+      "file": "truth/character_matrix.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-pov",
       "file": "truth/character_matrix.md"
@@ -4962,6 +5242,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-pov",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-pov",
       "file": "truth/current_state.md"
     },
@@ -5077,6 +5362,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-reader-pull",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-reader-pull",
       "file": "truth/pending_hooks.md"
     },
@@ -5286,6 +5576,11 @@
       "file": "truth/parent_canon.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-spinoff",
+      "file": "truth/parent_canon.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-spinoff",
       "file": "truth/parent_canon.md"
@@ -5382,6 +5677,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-spinoff",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-spinoff",
       "file": "truth/pending_hooks.md"
     },
@@ -5646,6 +5946,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-world-rules",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-review-world-rules",
       "file": "truth/chapter_summaries.md"
@@ -5717,6 +6022,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-world-rules",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-review-world-rules",
       "file": "truth/current_state.md"
     },
@@ -5801,6 +6111,11 @@
       "file": "truth/*.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-sequel-writing",
+      "file": "truth/*.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-sequel-writing",
       "file": "truth/*.md"
@@ -5957,6 +6272,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-short-drafting",
+      "file": "truth/author_intent.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-short-drafting",
       "file": "truth/author_intent.md"
     },
@@ -6056,6 +6376,11 @@
       "file": "truth/author_intent.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-short-outline",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-short-outline",
       "file": "truth/author_intent.md"
@@ -6246,6 +6571,11 @@
       "file": "truth/author_intent.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-short-packaging",
+      "file": "truth/author_intent.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-short-packaging",
       "file": "truth/author_intent.md"
@@ -6317,6 +6647,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "truth/*.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-snapshot-manage",
       "file": "truth/*.md"
     },
@@ -6606,6 +6941,11 @@
       "file": "truth/*.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-truth-sync",
+      "file": "truth/*.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-truth-sync",
       "file": "truth/*.md"
@@ -6736,6 +7076,11 @@
       "file": "truth/chapter_summaries.md"
     },
     {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
       "producer": "shenbi-foreshadowing-resolve",
       "consumer": "shenbi-volume-consolidation",
       "file": "truth/chapter_summaries.md"
@@ -6802,6 +7147,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-volume-consolidation",
       "file": "truth/pending_hooks.md"
     },
@@ -6922,6 +7272,11 @@
     },
     {
       "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-volume-outlining",
+      "file": "truth/author_intent.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
       "consumer": "shenbi-volume-outlining",
       "file": "truth/author_intent.md"
     },
