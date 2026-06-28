@@ -1,4 +1,20 @@
 {
+  "import/source/*.txt": {
+    "reads": [
+      "shenbi-anchor-curate",
+      "shenbi-import-analysis",
+      "shenbi-style-learning"
+    ],
+    "writes": [],
+    "updates": []
+  },
+  "benchmarks/anchors/AC-NNN.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-anchor-curate"
+    ],
+    "updates": []
+  },
   "chapters/chapter-N.md": {
     "reads": [
       "shenbi-anti-detect",
@@ -515,14 +531,6 @@
     "writes": [
       "shenbi-foundation-review"
     ],
-    "updates": []
-  },
-  "import/source/*.txt": {
-    "reads": [
-      "shenbi-import-analysis",
-      "shenbi-style-learning"
-    ],
-    "writes": [],
     "updates": []
   },
   "import/analysis/*.md": {

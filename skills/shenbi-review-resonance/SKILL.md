@@ -8,6 +8,7 @@ contract:
     - {file: chapters/chapter-N.md, fields: [prose, POST_WRITE_SELF_CHECK]}
     - {file: plans/chapter-N-plan.md, fields: [chapter_role, core_task]}
     - {file: style/style_profile.md, fields: [voice_fingerprint]}
+    - benchmarks/anchors/
   writes:
     - audits/chapter-N-resonance.md
   updates:
@@ -151,6 +152,34 @@ digraph review_resonance {
 - 节奏**缺陷**（拖/赶）仍归 `shenbi-review-pacing`；resonance 不单列张力维度（其正向面折进「读者回报」）。
 - 伏笔**追踪**归 `shenbi-review-foreshadowing`；**兑现质量**归卷级 `shenbi-review-arc-payoff`（交付物 B）。
 - 去味**负向**（AI 套话/疲劳词）归 `shenbi-review-anti-ai`；resonance 的「文笔质感」是**正向**补足——评的是否贴合 `style_profile` 指纹，不是抓 AI tell。
+
+## Route A：锚点校准（注入）
+
+评分时必须对照 `benchmarks/anchors/` 相关锚点定相对位置。每个维度分数必须回答"比锚点更好/相当/更差"，而非孤立打分。
+
+对照规则：
+- 情感落地 → 对照 AC-001（诡秘·小丑消化）
+- 场景临场感 → 对照 AC-004（炮火·燃烧的原野）
+- 文笔质感 → 对照 AC-002（诡秘·羔羊肉场景）
+- 读者回报 → 对照 AC-005（炮火·我炮多）
+
+评分输出增加锚点对照列：
+
+| 维度 | 得分 | 对照锚点 | 相对位置 | 证据 |
+|------|------|---------|---------|------|
+| 情感落地 | 22 | AC-001 | 相当 | chapter-N.md L45 > … |
+
+## Route C：目标达成检查（注入）
+
+除现有 4 维度体验评分外，增加 route C 目标达成硬二元检查（对照章计划）：
+
+| 检查项 | 来源 | 类型 | 判定 |
+|--------|------|------|------|
+| chapter_role 兑现 | plans/chapter-N-plan.md §1 | 硬二元 | 已达成/未达成 |
+| §6 章尾改变发生 | plans/chapter-N-plan.md §6 | 硬二元 | 已达成/未达成 |
+| hook 账履行 | plans/chapter-N-plan.md §7 | 硬二元 | 已达成/未达成 |
+
+任一硬二元项"未达成" → 诊断输出含 `{"category": "unmet_goal", "severity": "BLOCKING"}` → 触发重生路由（§5.2 revision_routing）。
 
 ## Anti-Rationalization
 

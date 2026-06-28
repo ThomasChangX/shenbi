@@ -42,6 +42,10 @@ concepts:
   - {name: truth/parent_canon.md, kind: truth}
   - {name: truth/resonance_trend.md, kind: truth}
   - {name: truth/arc_payoff_trend.md, kind: truth}
+  - {name: truth/volume_score_trend.md, kind: truth}  # Wave 3: score-volume trend
+  - {name: truth/book_spine.md, kind: truth}           # L5 book spine (book-spine-init)
+  - {name: truth/book_strata.md, kind: truth}          # L4 strata summaries
+  - {name: truth/arcs/arc-N.md, kind: truth}           # parametric: N (arc segment)
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
@@ -51,6 +55,9 @@ concepts:
   # audits (one concept covers all 18 dims via the glob below)
   - {name: audits/chapter-N-<dim>.md, kind: report}  # parametric: N, <dim>
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
+  - {name: audits/arc-N-score.md, kind: report}     # parametric: N (Wave 3)
+  - {name: audits/volume-N-score.md, kind: report}  # parametric: N (Wave 3)
+  - {name: audits/stratum-N-score.md, kind: report} # parametric: N (Wave 3)
   # foundation / snapshots / import / short
   - {name: foundation/review_report.md, kind: report}
   - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot}
@@ -59,6 +66,9 @@ concepts:
   - {name: import/packaging/package.md, kind: import}
   - {name: short/outline.md, kind: short}
   - {name: short/package.md, kind: short}
+  # benchmarks (Wave 3: scoring anchor library, spec §4.3)
+  - {name: benchmarks/anchors/, kind: benchmark}            # anchor library dir (read)
+  - {name: benchmarks/anchors/AC-NNN.md, kind: benchmark}   # parametric: NNN
 
 patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: plans/chapter-N-plan.md, glob: plans/chapter-*-plan.md}
@@ -67,6 +77,11 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: snapshots/chapter-NNN/manifest.json, glob: snapshots/chapter-*/manifest.json}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
+  - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
+  - {parametric: audits/volume-N-score.md, glob: audits/volume-*-score.md}
+  - {parametric: audits/stratum-N-score.md, glob: audits/stratum-*-score.md}
+  - {parametric: benchmarks/anchors/AC-NNN.md, glob: benchmarks/anchors/AC-*.md}
+  - {parametric: truth/arcs/arc-N.md, glob: truth/arcs/arc-*.md}
 
 globs:  # declared wildcards contracts may use verbatim
   - {pattern: truth/*.md}
@@ -89,6 +104,12 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: source_canon/*}
   - {pattern: short/chapter-*.md}
   - {pattern: chapters/chapter-*-revised.md}
+  # Wave 3: scoring layer (spec §4.3-4.4)
+  - {pattern: benchmarks/anchors/AC-*.md}
+  - {pattern: truth/arcs/*.md}
+  - {pattern: audits/arc-*-score.md}
+  - {pattern: audits/volume-*-score.md}
+  - {pattern: audits/stratum-*-score.md}
 
 # Resolved synonym decisions (the audit's D1 drift surfaces):
 #   style/style_profile.md  is canonical; deps.json's legacy
