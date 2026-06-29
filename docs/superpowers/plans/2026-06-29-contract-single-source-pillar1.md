@@ -27,7 +27,7 @@
 
 **Files:** Create `src/shenbi/contracts/__init__.py`（占位 Task 6 填）、`src/shenbi/contracts/enums.py`、`tests/unit/contracts/__init__.py`、`tests/unit/contracts/test_enums.py`
 
-**Interfaces:** Produces `Severity/Verdict/CPZone/ActorRole` Literal + `ALL_ENUMS: dict[str, object]`（v2: object 非 type，避 mypy strict 拒）。
+**Interfaces:** Produces `Severity/Verdict/CPZone/ActorRole` Literal + `ALL_ENUMS: dict[str, Any]`（v2: Any 非 type，避 mypy strict 拒）。
 
 - [ ] **Step 1: Write failing test**
 
@@ -205,7 +205,7 @@ from __future__ import annotations
 from shenbi.contracts.registry import REGISTRY, bootstrap_registry, load_skill_contract
 
 def test_registry_empty_before_migration() -> None:
-    assert REGISTRY == {}  # Task 6 后改
+    assert REGISTRY == {}  # Task 5 后改
 def test_bootstrap_returns_vocab() -> None:
     reg = bootstrap_registry()
     assert isinstance(reg, dict) and len(reg) > 0
@@ -661,3 +661,4 @@ Plan complete and saved to `docs/superpowers/plans/2026-06-29-contract-single-so
 **2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
 
 Which approach?
+（实现者：`.pre-commit-config.yaml` 已有 `- repo: local` 段（basedpyright 在此），直接在此段追加上述 hook。）
