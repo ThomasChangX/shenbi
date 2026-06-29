@@ -15,6 +15,41 @@ contract:
   updates:
     - truth/audit_drift.md
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+### constants
+
+| name | value |
+|------|-------|
+| PASS_THRESHOLD | 90 |
+| ROUTE_A_WEIGHT | 0.4 |
+| ROUTE_C_SOFT_WEIGHT | 0.6 |
+| TIER_ADVANCE_THRESHOLD | 94 |
+
+### formula
+
+```
+# final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score + ROUTE_A_WEIGHT * route_a_score
+# passed requires final_score >= PASS_THRESHOLD AND hard_binary all pass
+```
+
+### computed fields
+
+| name | type |
+|------|------|
+| hard_binary_gate_failed | bool |
+| final_score | float |
+| passed | bool |
+| tier_advance_eligible | bool |
+
+### invariants
+
+- hard binary pass le total
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约
