@@ -164,3 +164,33 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     from shenbi.dispatcher.modes.internal import dispatch_internal
 
     return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+
+
+def _audit_watch_paths(skill: str) -> list[str]:
+    """Audit watch surface: the skill contract writes+updates (project-relative)."""
+    try:
+        return derive_output_files(skill)
+    except ContractError:
+        return []
+
+
+def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
+    """Audited dispatch (pillar 4 Tier B topology).
+
+    pre snapshot(declared write surface) -> dispatch -> post snapshot -> audit ->
+    record. Returns 0 = shippable; 2 = GATE_FAIL (write overreach or drift),
+    blocked before tier advance. The write side uses FS snapshot diff, feasible
+    for all dispatch modes incl. codex subprocesses; read provenance in a
+    subprocess is a known blind spot.
+    """
+    from shenbi.audit.record import record_audit_outcome
+    from shenbi.audit.snapshot import snapshot_tree
+    from shenbi.audit.write_audit import audit_writes
+
+    watch = _audit_watch_paths(skill)
+    pre = snapshot_tree(PROJECT_DIR, watch)
+    rc = dispatch(skill, test_type, round_dir, prompt)
+    post = snapshot_tree(PROJECT_DIR, watch)
+    result = audit_writes(skill, pre, post)
+    ok = record_audit_outcome(round_dir, skill, result)
+    return rc if ok else 2

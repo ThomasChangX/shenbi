@@ -187,6 +187,11 @@ convention = "google"
 "tests/unit/contracts/test_ownership.py" = [
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059", "F401",
 ]
+"tests/unit/dispatcher/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 "src/shenbi/trace/*.py" = [
     "D103", "D107", "E402", "D101", "D102", "D205", "D415", "E501", "E741",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059", "PLC0415",
