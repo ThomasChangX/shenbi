@@ -153,7 +153,17 @@ def gate_G3(
                 else None
             )
             scorer_agent = progress.get("current_scorer_agent")
-            if gen_agent and scorer_agent and str(gen_agent) == str(scorer_agent):
+            # G3.4 fail-closed (spec): a generator ran but no independent SCORE
+            # record exists -> dispatcher-scored results are invalid.
+            if gen_agent and not scorer_agent:
+                mf.append(
+                    {
+                        "id": "G3.4",
+                        "s": "FAIL",
+                        "r": "generator recorded but no independent scorer agent",
+                    }
+                )
+            elif gen_agent and str(gen_agent) == str(scorer_agent):
                 mf.append({"id": "G3.4", "s": "FAIL", "r": "scorer agent same as generator"})
             else:
                 c.append({"id": "G3.4", "s": "PASS"})
