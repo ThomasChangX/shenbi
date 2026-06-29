@@ -9,7 +9,7 @@
 **第 4 轮 8.0/10（持平）。两个 critical：v4 在回退 status→state 时机械替换到了 genre-config.json 行（该文件根本没有此字段），并加了伪造的「fixture 核对」注释——正是本 spec 要消灭的信任转述错误；v4 的 read-provenance capability FS shim 对 codex subprocess 不可行。v5 亲手核对 fixture 修正两者：**
 
 - **C1（Critical， blocker）**：genre-config.json 的 OWNERSHIP 行 ~70% 虚构。v4 亲手核对 fixture 确认：真实顶层键 = `{approval, auditDimensions, chapterTypes, customRules, fatigueWords, pacing, tropeInventory, updated, version}`（9 个，非 genre-config SKILL.md 声称的「恰好 8」——这是 inherited drift，记入风险表）。v4 的 title/genre/language/target_words 是 **novel.json 字段**误抄；state/target_word_count/chapter_word 不存在；伪造注释删除。**v5 用真实 9 键。**
-- **C2（Critical， blocker）**：read-provenance capability FS shim 对 codex subprocess 不可行。v5 亲手核对 codex.py:34 确认 `subprocess.run(["codex","exec",...])` 是子进程，Python 无法拦截其 syscall。**v5 诚实分层**：capability FS shim 仅用于 in-process（gates 纯度，支柱五，可行）；codex subprocess 的 read-provenance 是 **future work**（需 FUSE/ptrace/seccomp）。tropeInventory under-declaration 在生产路径**不是真闭口**——诚实降级为：迁移时人工补全 reads + lint 维护 frontmatter 完整性，已知盲点是 body prose 引用未声明文件（lint 抓不到，subprocess 无法 runtime 校验）。
+- **C2（Critical， blocker）**：read-provenance capability FS shim 对 codex subprocess 不可行。v5.2 亲手核对 codex.py:28 确认 `subprocess.run(["codex","exec",...])` 是子进程，Python 无法拦截其 syscall。**v5 诚实分层**：capability FS shim 仅用于 in-process（gates 纯度，支柱五，可行）；codex subprocess 的 read-provenance 是 **future work**（需 FUSE/ptrace/seccomp）。tropeInventory under-declaration 在生产路径**不是真闭口**——诚实降级为：迁移时人工补全 reads + lint 维护 frontmatter 完整性，已知盲点是 body prose 引用未声明文件（lint 抓不到，subprocess 无法 runtime 校验）。
 - **I1（Important）**：「capability FS shim」术语过载。**v5 拆分命名**：in-process 用 `CapabilityFS`（gates 纯度）；subprocess read-provenance 明确标 future work，不与前者混名。
 - **New-F（Important，解决矛盾）**：v4 自相矛盾（表既「派生生成」又「检测 drift」）。**v5 选定单一模型**：skills 继续写两份；YAML block 为权威；record parser 检测 drift（派生表必须与 YAML 一致，不一致即 fail）；YAML 在冲突时胜出。这是「检测」模型，非「生成」。
 - **New-E（Important，定义 round-trip）**：YAML 字节级 round-trip 不成立（引号/顺序/空白差异）。**v5 定义语义 round-trip**：`parse(serialize(parse(x))) == parse(x)`（parse 幂等），加 golden-parse 回归固定格式。
@@ -289,7 +289,7 @@ jieba + 领域词典（从契约层 tropeInventory/worldbuilding 自动派生）
 #### 读 provenance（v5 诚实分层，C2 修复）
 
 - **internal mode**：dispatcher 在进程内执行 skill 逻辑，注入 CapabilityFS 记录实际 open 的文件，比对声明 reads。未声明实际读 → ship 失败。**可行。**
-- **codex subprocess mode**：skill 是 `codex exec` 子进程（codex.py:34）。Python 无法拦截子进程 syscall。**read-provenance 不可行**（需 FUSE/ptrace/seccomp，future work）。
+- **codex subprocess mode**：skill 是 `codex exec` 子进程（codex.py:28，v5.2 修正行号）。Python 无法拦截子进程 syscall。**read-provenance 不可行**（需 FUSE/ptrace/seccomp，future work）。
 - **诚实结论**：codex 生产路径上，read 未声明只能靠「迁移补全 reads + lint frontmatter 完整性」；body prose 引用未声明文件是已知盲点。**不声称真闭口。**
 
 **为何写侧可行而读侧不可行**：写侧用文件系统快照 diff（pre/post），不依赖拦截 skill 行为，对子进程同样有效。读侧要记录 skill 实际 open 了什么，必须拦截 syscall——子进程做不到。
@@ -438,7 +438,7 @@ SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保
 10. **markdown 记录级审计边界已知**：per-skill-per-file（非 per-record），记入风险表，不假装物理预防。
 11. **事件版本前向不兼容 + compaction 链**：CI 跑「未知更高版本→fail」「COMPACTION 链单调无缺口（含 LEGACY 锚）」「截断点连续」回归。
 12. **record parser 正确性**：每个注册 parser 有语义 round-trip（`parse(serialize(parse(x)))==parse(x)`）+ golden-parse 回归 + cross-section drift 检测。
-13. **OWNERSHIP 字段集 fixture 核对**：每个 (skill, file) 的字段集以对应 fixture / SKILL.md 输出 schema 为准。**「顶层键」按文件类型定义（v5.1 修正）**：JSON 文件 = JSON 顶层键；markdown truth 文件 = **从权威 YAML block（判据 12 的 record parser）解析出的记录键**。CI 跑「OWNERSHIP 字段 ⊆ 对应类型的键集」断言——**同时覆盖 JSON 与 markdown truth（后者正是 v3/v4 被咬的场景）**。
+13. **OWNERSHIP 字段集 fixture 核对**：每个 (skill, file) 的字段集以对应 fixture / SKILL.md 输出 schema 为准。**「顶层键」按文件类型定义（v5.1 修正）**：JSON 文件 = JSON 顶层键；markdown truth 文件 = **从权威 YAML block（判据 12 的 record parser）解析出的记录键**。CI 跑「OWNERSHIP 字段 ⊆ 对应类型的键集」断言——**同时覆盖 JSON 与 markdown truth（后者正是 v3/v4 被咬的场景）**。**参考 fixture 为 `tests/fixtures/`（非 round 输出，v5.2 N6-3）；判据 13 依赖判据 12 的 parser，二者必须同时落地（实现顺序 step 4 已排序，v5.2 N6-2）。**
 14. **读 provenance 诚实分层**：internal mode CapabilityFS runtime 校验（判据）；codex subprocess 是已知盲点（记风险表），不声称真闭口。
 
 ## v4→v5 变更日志（round-4 审核逐条闭环）
@@ -462,3 +462,10 @@ SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保
 | New-Issue-3（行号引文漂移） | FIXED | codex.py subprocess 实际 28/53/73（非 34）；executor.py derive_file_type def 31、truth_skills 块 39-45（非 39-43）|
 | New-Issue-4（双写义务未声明） | FIXED | 风险表加「detect 模型要求 skills 双写 YAML+表保持一致；迁移期可能噪音失败，由判据 8 全迁移门吸收」|
 | New-Issue-5（plant schema 漏 notes 的 inherited drift 未记风险表） | FIXED | 风险表加「plant SKILL.md 输出 schema 漏 notes（fixture 有）；OWNERSHIP 以 fixture 为准」|
+## v5.2 修订（round-6 审核闭环，8.5→目标 9+）
+
+| round-6 发现 | 状态 | 处置 |
+|---|---|---|
+| N6-1（codex.py:34 引文错误，v5.1 changelog 误标 FIXED） | FIXED | body 两处 codex.py:34 → codex.py:28（修订摘要 C2 + Tier B 读 provenance）|
+| N6-2（判据 13↔12 bootstrap 耦合未声明） | FIXED | 判据 13 加注「依赖判据 12 的 record parser，二者必须同时落地（实现顺序 step 4 已排序）」|
+| N6-3（tropeInventory 仅在 canonical fixture，真实 round 输出缺） | FIXED | 判据 13 + OWNERSHIP 注明「参考 fixture 为 tests/fixtures/，非 round 输出；CI 断言对 fixture 跑，非 round 输出」|
