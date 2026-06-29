@@ -521,10 +521,12 @@ git commit -m "ci: wire purity lint into pre-commit + CI (spec P4)"
 **Interfaces:** Consumes `pydantic`。Produces `ScoreReport`（含 `PASS_THRESHOLD=90`、`TIER_ADVANCE_THRESHOLD=94`、`ROUTE_C_SOFT_WEIGHT=0.6`、`ROUTE_A_WEIGHT=0.4`、`AGGREGATION_FORMULA`、4 个 `@computed_field`、1 个 `@model_validator`）。三个 `score_*.py` 各导出 `Report = ScoreReport`（REGISTRY 自动发现，`_scoring_base.py` 以 `_` 前缀跳过发现）。
 
 **聚合公式（M3 修复 -- 评分标尺不再未定义）：**
-- 若 `route_c_hard_binary_pass < route_c_hard_binary_total`（硬二元未全达）-> `final_score = 0`
+- `route_c_hard_binary` 未全达时该**检查项**得 0（非全卷归零）
 - 否则 `final_score = 0.6 * route_c_soft_score + 0.4 * route_a_score`
 
-阈值来源（已验证）：AGENTS.md「Thresholds: >=94 for tier advancement, >=90 for individual test pass」。
+阈值来源分层（round-1 Parfit 修正）：
+- **已验证（AGENTS.md）：** PASS_THRESHOLD=90、TIER_ADVANCE_THRESHOLD=94
+- **首次编码待验证（非来自 AGENTS.md）：** ROUTE_C_SOFT_WEIGHT=0.6、ROUTE_A_WEIGHT=0.4（scoring.py 用 rubric-weighted average，非 Route C/A split；权重需后续与 score-arc rubric 对齐）。AGENTS.md「Thresholds: >=94 for tier advancement, >=90 for individual test pass」。
 
 - [ ] **Step 1: Write failing test**
 
@@ -563,8 +565,9 @@ def test_hard_binary_fail_zeros_score() -> None:
         route_c_hard_binary_pass=2, route_c_hard_binary_total=3,
         route_c_soft_score=95.0, route_a_score=90.0,
     )
+    # hard_binary failure is an audit flag; does NOT zero final_score (Parfit round-1)
     assert r.hard_binary_gate_failed is True
-    assert r.final_score == 0.0
+    assert r.final_score > 0.0  # weighted average, not zeroed
     assert r.passed is False
 
 
@@ -631,8 +634,8 @@ def test_registry_includes_scoring_skills() -> None:
 """评分报告共享契约模型（spec M3 修复：评分标尺显式声明）。
 
 聚合公式（Route C 硬二元门控 + 软分加权）：
-  若 route_c_hard_binary_pass < route_c_hard_binary_total -> final_score = 0
-  否则 final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score
+  final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score
+                     + ROUTE_A_WEIGHT * route_a_score
                      + ROUTE_A_WEIGHT * route_a_score
 
 阈值来源：AGENTS.md（>=90 单项通过，>=94 层进）。此前散落在散文/AGENTS.md，
@@ -657,7 +660,7 @@ ROUTE_A_WEIGHT: float = 0.4
 # --- 文档派生用公式描述 ---
 
 AGGREGATION_FORMULA: str = (
-    "if route_c_hard_binary_pass < route_c_hard_binary_total: final_score = 0\n"
+    "# weighted: ROUTE_C_SOFT_WEIGHT * soft + ROUTE_A_WEIGHT * a\n"
     "else: final_score = "
     "ROUTE_C_SOFT_WEIGHT * route_c_soft_score + ROUTE_A_WEIGHT * route_a_score"
 )
@@ -685,13 +688,14 @@ class ScoreReport(BaseModel):
     @computed_field
     @property
     def hard_binary_gate_failed(self) -> bool:
+        """True if any hard-binary check failed. Audit flag only."""
         return self.route_c_hard_binary_pass < self.route_c_hard_binary_total
 
     @computed_field
     @property
     def final_score(self) -> float:
-        if self.hard_binary_gate_failed:
-            return 0.0
+        # Weighted average; hard_binary failure does NOT zero the score
+        # (skill: 该检查项 0 分, not 全卷归零). Parfit round-1 fix.
         return (
             ROUTE_C_SOFT_WEIGHT * self.route_c_soft_score
             + ROUTE_A_WEIGHT * self.route_a_score
@@ -797,7 +801,7 @@ def test_render_includes_computed_fields() -> None:
     from shenbi.contracts.skills._scoring_base import ScoreReport
 
     md = render_autocheck(ScoreReport)
-    assert "final_score" in md
+    assert "ROUTE_C_SOFT_WEIGHT" in md or "AGGREGATION_FORMULA" in md  # Parfit round-1: test the formula
     assert "passed" in md
 
 
@@ -805,7 +809,7 @@ def test_render_includes_formula() -> None:
     from shenbi.contracts.skills._scoring_base import ScoreReport
 
     md = render_autocheck(ScoreReport)
-    assert "final_score" in md
+    assert "ROUTE_C_SOFT_WEIGHT" in md or "AGGREGATION_FORMULA" in md  # Parfit round-1: test the formula
 
 
 def test_inject_creates_block(tmp_path: Path) -> None:

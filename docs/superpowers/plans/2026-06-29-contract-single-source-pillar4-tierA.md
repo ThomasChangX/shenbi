@@ -645,7 +645,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.trace.event import TraceEvent
+from shenbi.trace.event import GENESIS_PREV, TraceEvent
 from shenbi.trace.replay import replay
 from shenbi.trace.writer import TraceWriter
 
@@ -654,7 +654,8 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
     """Compact the current trace: rewrite to a fresh file with one COMPACTION event.
 
     N2 fix: crash-safe via temp+fsync+os.replace+dir-fsync (mirrors safe_write),
-    so a mid-compaction crash cannot leave an empty trace.jsonl.
+    so a mid-compaction crash cannot leave an empty trace.jsonl. The COMPACTION
+    head is built directly via TraceEvent.sign_and_new (no stale TraceWriter).
     """
     import os
     import tempfile
@@ -668,12 +669,7 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             prev_compaction_seq = e.seq
         truncated_at = max(truncated_at, e.seq)
 
-    # Build the COMPACTION head. TraceWriter appends to a throwaway empty temp,
-    # then we atomically replace the live file.
-    head_path = Path(round_dir) / ".trace_compact_tmp.jsonl"
-    head_path.write_text("", encoding="utf-8")
-    w = TraceWriter(Path(round_dir))  # reads live trace for seq/sig
-    # But we want the head in the temp, so build the event, clear temp, write.
+    # Build the new COMPACTION head as the sole event (seq=1, prev=GENESIS).
     head_event = TraceEvent.sign_and_new(
         prev_signature=GENESIS_PREV, seq=1,
         actor="system", actor_role="GATE", action="COMPACTION", target="trace.jsonl",
@@ -683,6 +679,7 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             "truncated_at_seq": truncated_at,
         },
     )
+    # Write to temp, fsync, atomically replace, dir-fsync.
     content = head_event.model_dump_json() + "\n"
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix="trace.", suffix=".tmp")
     try:
@@ -700,8 +697,6 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
         if os.path.exists(tmp):
             os.unlink(tmp)
         raise
-    if head_path.exists():
-        head_path.unlink()
     return head_event
 
 
