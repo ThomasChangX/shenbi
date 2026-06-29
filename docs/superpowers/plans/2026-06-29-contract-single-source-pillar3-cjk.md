@@ -46,6 +46,16 @@ Append to `[tool.ruff.lint.per-file-ignores]`:
     "D103", "E402", "D101", "D102", "D205", "D415",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
+"tests/unit/text/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/cjk/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 ```
 
 - [ ] **Step 4: Verify**
@@ -185,8 +195,6 @@ def test_multiple_dashes() -> None:
 
 - [ ] **Step 2: Run → fails**
 - [ ] **Step 3: Append to cjk.py (function only)**
-Add `import jieba` and `import jieba.posseg as pseg` (third-party group with `# type: ignore[import-untyped]`). Then append:
-
 ```python
 PUNCTUATION_TOKENS: dict[str, list[str]] = {
     "句号": ["。"], "逗号": ["，"], "感叹号": ["！", "!"],
@@ -261,7 +269,7 @@ git commit -m "feat(text): add count_words with dual semantics (cjk_only/mixed)"
 ---
 ---
 
-### Task 5: tokenize（v2: 只追加函数体——jieba 已在 Task 2 导入）
+### Task 5: tokenize（v2.2: jieba 在本 Task 导入）
 
 **Files:** Modify `src/shenbi/text/cjk.py`、`tests/unit/text/test_cjk.py`
 
@@ -288,7 +296,22 @@ def test_tokenize_empty() -> None:
 
 - [ ] **Step 2: Run → fails**
 
-- [ ] **Step 3: Append to cjk.py (function only, NO imports)**
+- [ ] **Step 3: Add jieba imports + append function**
+
+Add to top import block (third-party group):
+```python
+import jieba  # type: ignore[import-untyped]
+import jieba.posseg as pseg  # type: ignore[import-untyped]
+```
+
+Add to pyproject.toml:
+```toml
+[[tool.mypy.overrides]]
+module = "jieba.*"
+ignore_missing_imports = true
+```
+
+Then append the function:
 ```python
 @dataclass(frozen=True)
 class Token:
