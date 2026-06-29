@@ -17,16 +17,28 @@ from shenbi.contracts.registry import (
     bootstrap_registry,
     load_skill_contract,
 )
+from shenbi.contracts.ownership import (
+    OWNERSHIP,
+    FileChange,
+    FileOwnership,
+    check_write_ownership,
+    get_ownership,
+)
 
 __all__ = [
     "ALL_ENUMS",
+    "OWNERSHIP",
     "REGISTRY",
     "ActorRole",
     "CPZone",
+    "FileChange",
+    "FileOwnership",
     "GateOutcome",
     "PureInput",
     "Severity",
     "Verdict",
     "bootstrap_registry",
+    "check_write_ownership",
+    "get_ownership",
     "load_skill_contract",
 ]
