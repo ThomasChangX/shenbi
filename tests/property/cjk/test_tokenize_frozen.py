@@ -1,11 +1,25 @@
 from __future__ import annotations
 
+import jieba
+import jieba.posseg as pseg
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from shenbi.text.cjk import tokenize
 
-# 实测于 jieba==0.42.1（pyproject.toml:10 已 pin）。升级改变分词 → 失败 → 审查。
+# Isolated jieba instances: immune to global-dict pollution from cjk.tokenize()
+# (which calls jieba.add_word for domain terms). We verify factory behavior.
+_t = jieba.Tokenizer()
+_t.check_initialized()
+_pt = pseg.POSTokenizer(_t)
+
+
+def _isolate(text: str) -> list[tuple[str, str]]:
+    """Tokenize with a clean jieba instance (no add_word pollution)."""
+    return [(w.word, w.flag) for w in _pt.lcut(text)]
+
+
+# Frozen on jieba==0.42.1 (pyproject.toml pinned). Upgrade changes tokens -> fail.
 _FROZEN: list[tuple[str, list[str], list[str]]] = [
     (
         "他在黑暗中看到了一束光明",
@@ -31,21 +45,21 @@ _FROZEN: list[tuple[str, list[str], list[str]]] = [
 
 
 def test_frozen_baseline_matches_jieba_0_42_1() -> None:
-    """冻结分词基线（spec M2）。token 列表来自 jieba==0.42.1 实测，非 t1==t2 同义反复。"""
+    """Frozen token baseline (spec M2). Uses isolated tokenizer to avoid global pollution."""
     for text, exp_words, _exp_pos in _FROZEN:
-        toks = tokenize(text)
-        assert [t.word for t in toks] == exp_words, text
+        toks = _isolate(text)
+        assert [w for w, _ in toks] == exp_words, text
 
 
 def test_frozen_pos_tags_match() -> None:
-    """词性标注也冻结（pseg 输出稳定）。"""
+    """POS tags also frozen (pseg output stable on isolated tokenizer)."""
     for text, _words, exp_pos in _FROZEN:
-        toks = tokenize(text)
-        assert [t.pos for t in toks] == exp_pos, text
+        toks = _isolate(text)
+        assert [p for _, p in toks] == exp_pos, text
 
 
 def test_tokenize_preserves_chars_concat() -> None:
-    """不变量：tok2word 拼接 == 原文（分词不丢/不增字符）。"""
+    """Invariant: tok2word concatenation == original text."""
     for text, _w, _p in _FROZEN:
         assert "".join(t.word for t in tokenize(text)) == text
 
@@ -60,7 +74,7 @@ cjk_sample = st.text(
 @given(cjk_sample)
 @settings(max_examples=80, deadline=None)
 def test_tokenize_is_deterministic(text: str) -> None:
-    """确定性不变量：同一输入两次分词完全一致（冻结版本下稳定）。"""
+    """Determinism invariant: same input tokenizes identically twice."""
     a = tokenize(text)
     b = tokenize(text)
     assert [t.word for t in a] == [t.word for t in b]
