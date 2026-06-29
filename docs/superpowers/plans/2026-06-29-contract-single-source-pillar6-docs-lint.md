@@ -636,7 +636,6 @@ def test_registry_includes_scoring_skills() -> None:
 聚合公式（Route C 硬二元门控 + 软分加权）：
   final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score
                      + ROUTE_A_WEIGHT * route_a_score
-                     + ROUTE_A_WEIGHT * route_a_score
 
 阈值来源：AGENTS.md（>=90 单项通过，>=94 层进）。此前散落在散文/AGENTS.md，
 现固化于此模型为单一真理之源。
@@ -711,7 +710,9 @@ class ScoreReport(BaseModel):
     @computed_field
     @property
     def tier_advance_eligible(self) -> bool:
-        return self.final_score >= TIER_ADVANCE_THRESHOLD
+        # Same kill-switch as passed (Bernoulli round-3): hard_binary failure
+        # blocks tier advancement even if final_score >= 94.
+        return self.final_score >= TIER_ADVANCE_THRESHOLD and not self.hard_binary_gate_failed
 ```
 
 - [ ] **Step 4: Implement three scoring skill modules**
