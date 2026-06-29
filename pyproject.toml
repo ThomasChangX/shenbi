@@ -7,6 +7,7 @@ license = { text = "MIT" }
 authors = [{ name = "ThomasChangX" }]
 requires-python = ">=3.11"
 dependencies = [
+    "jieba==0.42.1",
     "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
@@ -159,6 +160,20 @@ convention = "google"
 # P-1.E: contracts/ subpackage (new code, spec 支柱一). Same suppression set
 # as src/shenbi/*.py — Chinese docstrings use fullwidth punctuation (RUF001-003).
 "src/shenbi/contracts/*.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"src/shenbi/text/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/unit/text/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/cjk/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
 "src/shenbi/gates/g4/*.py" = [
