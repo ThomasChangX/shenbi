@@ -125,7 +125,14 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
         "test_cycle_phase": "generative",
         "subagent_completion_count": 0,
         "completed_skill_names": [],
-        "skills": {},
+        "skills": {
+            skill: {
+                "generative": {"status": "pending"},
+                "bug-hunt": {"status": "pending"},
+                "clean": {"status": "pending"},
+            }
+            for skill in sorted(ALL_SKILLS)
+        },
         "remaining_generative": sorted(ALL_SKILLS),
         "remaining_bug_hunt": [],
         "remaining_clean": [],

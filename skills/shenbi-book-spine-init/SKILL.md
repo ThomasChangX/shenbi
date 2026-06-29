@@ -23,7 +23,7 @@ contract:
 
 # 书脊初始化
 
-HARD-GATE: 在创世层（worldbuilding + character + story-architecture + volume-outlining）完成后、逐章循环开始前执行。初始化全书的常青书脊（L5），后续由 memory-distill 滚动复核。
+HARD-GATE: 在创世层（worldbuilding + character + story-architecture + volume-outlining）完成后、逐章循环开始前执行。（worldbuilding + character + story-architecture + volume-outlining）完成后、逐章循环开始前执行。初始化全书的常青书脊（L5），后续由 memory-distill 滚动复核。
 
 ## 流程
 

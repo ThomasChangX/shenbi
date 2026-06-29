@@ -155,6 +155,14 @@ digraph review_resonance {
 
 ## Route A：锚点校准（注入）
 
+### 锚点文件位置
+
+锚点文件位于**框架根目录**的 `benchmarks/anchors/AC-NNN.md`。这些是框架级资产，不复制到项目目录。评分时直接读取框架路径的锚点文件。
+
+如果框架以插件形式加载（如 Claude Code 插件），锚点路径为插件根目录下的 `benchmarks/anchors/`。
+
+**评分前必须确认至少有 1 个锚点文件可读。如果 benchmarks/anchors/ 为空或不存在，route A 降级为"无锚点参照"，评分报告中标注 `anchor_calibration: unavailable`，不阻断但 flag。**
+
 评分时必须对照 `benchmarks/anchors/` 相关锚点定相对位置。每个维度分数必须回答"比锚点更好/相当/更差"，而非孤立打分。
 
 对照规则：

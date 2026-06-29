@@ -31,6 +31,8 @@ contract:
 
 # 上下文组装
 
+HARD-GATE: chapter-drafting 的输入**必须**是 context-composing 产出的上下文包，不可直接读扁平 outline 文件。绕过 context-composing = 丢失分层记忆 = 长程失忆。
+
 分层记忆架构下，上下文按层（L5→L1）组装，使窗口大小有界，与全书总字数无关。
 
 ## 上下文优先级（按层组装）

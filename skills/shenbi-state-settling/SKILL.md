@@ -27,6 +27,8 @@ contract:
 
 # 状态结算
 
+HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
+
 在章节起草被人类合作者批准后，必须执行状态结算。
 
 ## 流程
