@@ -48,12 +48,12 @@ Append to `[tool.ruff.lint.per-file-ignores]`:
 ]
 "tests/unit/text/*.py" = [
     "D103", "D101", "D102", "D205", "D415", "E402",
-    "I001", "F401", "F841",
+    "I001", "F401", "F841", "PLR2004",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
 "tests/property/cjk/*.py" = [
     "D103", "D101", "D102", "D205", "D415", "E402",
-    "I001", "F401", "F841",
+    "I001", "F401", "F841", "PLR2004",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
 ```
@@ -157,13 +157,6 @@ def find_terms(text: str, terms: Iterable[str]) -> list[TermHit]:
 
 - [ ] **Step 4: Run → passes** (7)
 - [ ] **Step 5: mypy+ruff+commit**
-
-If jieba mypy fails, add to pyproject.toml:
-```toml
-[[tool.mypy.overrides]]
-module = "jieba.*"
-ignore_missing_imports = true
-```
 
 ```bash
 git add src/shenbi/text/cjk.py tests/unit/text/test_cjk.py pyproject.toml
@@ -302,13 +295,6 @@ Add to top import block (third-party group):
 ```python
 import jieba  # type: ignore[import-untyped]
 import jieba.posseg as pseg  # type: ignore[import-untyped]
-```
-
-Add to pyproject.toml:
-```toml
-[[tool.mypy.overrides]]
-module = "jieba.*"
-ignore_missing_imports = true
 ```
 
 Then append the function:
