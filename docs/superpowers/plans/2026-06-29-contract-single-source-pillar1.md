@@ -290,7 +290,7 @@ git commit -m "feat(contracts): add REGISTRY auto-discovery + truth-files.yaml b
 
 **Interfaces:** Consumes `shenbi.contracts.enums.CPZone`、pydantic。Produces `CP_THRESHOLDS`、`HookCP`(含 `@computed_field zone`、`@computed_field must_resolve_next_chapter`)、`Report`(两 `@model_validator`)。REGISTRY 自动收录。
 
-spec 展示案例：CP 算术三 bug（CP=80 标 RED、同 hook 三 CP、>200 vs ≥100）在此根治。
+spec 展示案例：CP 算术三 bug（CP=80 标 RED、同 hook 三 CP、>200 vs ≥100）以契约模型编码正确逻辑（生产路径接入在支柱二）。
 
 - [ ] **Step 1: Write failing test**
 
@@ -663,4 +663,3 @@ Plan complete and saved to `docs/superpowers/plans/2026-06-29-contract-single-so
 
 Which approach?
 （实现者：`.pre-commit-config.yaml` 已有 `- repo: local` 段（basedpyright 在此），直接在此段追加上述 hook。）
-placeholder_marker_for_version_note
