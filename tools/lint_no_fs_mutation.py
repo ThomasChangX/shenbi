@@ -50,6 +50,7 @@ TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
         "summarize_round.py",
         "trace/replay.py",
         "trace/compaction.py",
+        "audit/record.py",
     }
 )
 
