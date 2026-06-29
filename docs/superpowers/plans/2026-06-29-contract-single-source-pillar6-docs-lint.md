@@ -560,7 +560,7 @@ def test_aggregation_formula_declared() -> None:
     assert "ROUTE_C_SOFT_WEIGHT" in AGGREGATION_FORMULA
 
 
-def test_hard_binary_fail_zeros_score() -> None:
+def test_hard_binary_fail_blocks_pass() -> None:
     r = ScoreReport(
         route_c_hard_binary_pass=2, route_c_hard_binary_total=3,
         route_c_soft_score=95.0, route_a_score=90.0,
@@ -660,9 +660,9 @@ ROUTE_A_WEIGHT: float = 0.4
 # --- 文档派生用公式描述 ---
 
 AGGREGATION_FORMULA: str = (
-    "# weighted: ROUTE_C_SOFT_WEIGHT * soft + ROUTE_A_WEIGHT * a\n"
-    "else: final_score = "
-    "ROUTE_C_SOFT_WEIGHT * route_c_soft_score + ROUTE_A_WEIGHT * route_a_score"
+    "# final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score "
+    "+ ROUTE_A_WEIGHT * route_a_score\n"
+    "# passed requires final_score >= PASS_THRESHOLD AND hard_binary all pass"
 )
 
 
@@ -704,7 +704,9 @@ class ScoreReport(BaseModel):
     @computed_field
     @property
     def passed(self) -> bool:
-        return self.final_score >= PASS_THRESHOLD
+        # Gate semantics (Poincare round-2): hard_binary failure blocks pass
+        # even if weighted final_score >= 90. Matches scoring.py kill-switch.
+        return self.final_score >= PASS_THRESHOLD and not self.hard_binary_gate_failed
 
     @computed_field
     @property
