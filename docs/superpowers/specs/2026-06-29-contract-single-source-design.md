@@ -13,7 +13,7 @@
 - **I1（Important）**：「capability FS shim」术语过载。**v5 拆分命名**：in-process 用 `CapabilityFS`（gates 纯度）；subprocess read-provenance 明确标 future work，不与前者混名。
 - **New-F（Important，解决矛盾）**：v4 自相矛盾（表既「派生生成」又「检测 drift」）。**v5 选定单一模型**：skills 继续写两份；YAML block 为权威；record parser 检测 drift（派生表必须与 YAML 一致，不一致即 fail）；YAML 在冲突时胜出。这是「检测」模型，非「生成」。
 - **New-E（Important，定义 round-trip）**：YAML 字节级 round-trip 不成立（引号/顺序/空白差异）。**v5 定义语义 round-trip**：`parse(serialize(parse(x))) == parse(x)`（parse 幂等），加 golden-parse 回归固定格式。
-- **New-I（Important，补 join 规则）**：derive_file_type 从 REGISTRY 派生 truth skill 需要未指定的 join。**v5 明确**：OutputKind 只有 {ARTIFACT, EPHEMERAL}，truth/chapter 区分在 truth-files.yaml；derive = skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 列表。这个 join 是新增逻辑。
+- **New-I（Important，补 join 规则；v5.1 修正 OutputKind 转录错误）**：derive_file_type 从 REGISTRY 派生 truth skill 需要未指定的 join。**v5.1 亲手核对 contract.py:34-37**：`OutputKind = {ARTIFACT, REPORT, EPHEMERAL}`（3 成员，非 v5 误写的 2）。truth 与 chapter **都是 ARTIFACT**（durable project file），REPORT 是 audit 报告，EPHEMERAL 是瞬态。truth/chapter 区分不在 OutputKind，在 truth-files.yaml。**derive join**：skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 列表；REPORT 走 report-type 门，EPHEMERAL 跳过输出门。当前 executor.py:31 `derive_file_type` 硬编码漏 resolve（truth_skills 块 39-45 只列 3），需修复为从 REGISTRY + truth-files.yaml 派生。这是新增 join 逻辑（非现成）。
 
 **第 1-3 轮已修且第 4 轮复核为 FIXED 的，v5 保留**：C1 contract.py 取代、I4 强度表、I5 AST lint、I7 收窄、I6/N4 compaction 链、I6/N5 前向不兼容、N1 记录级、N3/New-C 真实拓扑、New-A pending_hooks state、New-B track/state-settling 分工、New-G LEGACY 锚、New-H 边界措辞、N6 staging future work、N7 extra=ignore、N8 可选、N9 allowlist、M1-M5。
 
@@ -243,7 +243,7 @@ contracts/REGISTRY 自动发现（过渡期 truth-files.yaml bootstrap）。
 - G5/G6 顶层 jload 加守卫，G6.12 用 cjk.find_terms。
 - G1/G7 删写副作用。
 - G0 覆盖率从 REGISTRY 派生。
-- **`derive_file_type`（executor.py:39-43）修复（New-I，v5 补 join）**：当前硬编码 3 truth skills 漏 resolve。改从 REGISTRY 派生。**join 规则**：OutputKind 只有 {ARTIFACT, EPHEMERAL}（无 truth/chapter 区分）；truth/chapter 区分在 truth-files.yaml。derive = skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 文件列表。这是新增 join 逻辑（非现成）。
+- **`derive_file_type`（executor.py:31，truth_skills 硬编码块 39-45）修复（New-I，v5.1 修正）**：当前硬编码 3 truth skills 漏 resolve，G2 把 resolve 的 truth 输出当 chapter。改从 REGISTRY 派生。**join 规则（v5.1 亲手核对）**：`OutputKind = {ARTIFACT, REPORT, EPHEMERAL}`（contract.py:34-37，3 成员）。truth 与 chapter 都是 ARTIFACT，故 OutputKind 无法区分；truth/chapter 区分在 truth-files.yaml。derive = skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 文件列表；REPORT 走 report-type 门，EPHEMERAL 跳过。这是新增 join 逻辑（非现成）。
 
 ## 支柱三：CJK 工具包（src/shenbi/text/cjk.py）
 
@@ -419,6 +419,8 @@ SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保
 | record parser 信任面 | 语义 round-trip + golden-parse 回归（判据 12，New-E） |
 | **subprocess read-provenance 不可行** | 诚实声明已知盲点；迁移补全 reads + lint frontmatter 完整性兜底；FUSE/ptrace 是 future work（v5 C2） |
 | **genre-config 「恰好 8 字段」inherited drift** | OWNERSHIP 用真实 9 键；记风险表；契约迁移时 genre-config SKILL.md 字段声明对齐 fixture |
+| **plant SKILL.md 输出 schema 漏 notes（inherited drift）** | OWNERSHIP write_keys_new_record 以 fixture 为准（含 notes）；风险表登记；迁移时 SKILL.md 对齐 fixture |
+| **detect 模型要求 skills 双写 YAML+表保持一致** | 当前 skills 未审计双写，迁移期 drift 检测可能噪音失败；由判据 8 全迁移门吸收；双写义务作为强制 authoring 规则 |
 | body prose 引用未声明 read | lint frontmatter 完整性（盲点）；internal mode CapabilityFS runtime（可行）；subprocess 是盲点 |
 | 顺序执行→并发 dispatch 升级 | 当前顺序够用；并发需 staging 隔离（future work） |
 
@@ -436,7 +438,7 @@ SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保
 10. **markdown 记录级审计边界已知**：per-skill-per-file（非 per-record），记入风险表，不假装物理预防。
 11. **事件版本前向不兼容 + compaction 链**：CI 跑「未知更高版本→fail」「COMPACTION 链单调无缺口（含 LEGACY 锚）」「截断点连续」回归。
 12. **record parser 正确性**：每个注册 parser 有语义 round-trip（`parse(serialize(parse(x)))==parse(x)`）+ golden-parse 回归 + cross-section drift 检测。
-13. **OWNERSHIP 字段集 fixture 核对**：每个 (skill, file) 的字段集以对应 fixture / SKILL.md 输出 schema 为准；CI 跑「OWNERSHIP 字段 ⊆ fixture 顶层键」断言（防 v4 类转述错误复现）。
+13. **OWNERSHIP 字段集 fixture 核对**：每个 (skill, file) 的字段集以对应 fixture / SKILL.md 输出 schema 为准。**「顶层键」按文件类型定义（v5.1 修正）**：JSON 文件 = JSON 顶层键；markdown truth 文件 = **从权威 YAML block（判据 12 的 record parser）解析出的记录键**。CI 跑「OWNERSHIP 字段 ⊆ 对应类型的键集」断言——**同时覆盖 JSON 与 markdown truth（后者正是 v3/v4 被咬的场景）**。
 14. **读 provenance 诚实分层**：internal mode CapabilityFS runtime 校验（判据）；codex subprocess 是已知盲点（记风险表），不声称真闭口。
 
 ## v4→v5 变更日志（round-4 审核逐条闭环）
@@ -451,3 +453,12 @@ SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保
 | New-I（join 规则未指定） | FIXED | 明确 join：skill writes/updates → 文件路径 → truth-files.yaml truth 列表 |
 | M3（genre-config 8 vs 9 inherited drift） | ACKNOWLEDGED | OWNERSHIP 用真实 9 键；记风险表；迁移时对齐 SKILL.md |
 | M4（plant 漏 notes） | FIXED | write_keys_new_record 加 notes |
+## v5.1 修订（round-5 审核三处闭环，8.5→目标 9+）
+
+| round-5 发现 | 状态 | 处置 |
+|---|---|---|
+| New-Issue-1（OutputKind 2 vs 3 转录错误，出现 2 次） | FIXED | 亲手核对 contract.py:34-37：`{ARTIFACT, REPORT, EPHEMERAL}`；两处修正；补 REPORT 作 derive_file_type 第三类 |
+| New-Issue-2（判据 13「顶层键」仅 JSON，未覆盖 markdown 记录） | FIXED | 「顶层键」按文件类型定义：JSON=JSON 顶层键；markdown=parser 解析的记录键（用判据 12 的 record parser）|
+| New-Issue-3（行号引文漂移） | FIXED | codex.py subprocess 实际 28/53/73（非 34）；executor.py derive_file_type def 31、truth_skills 块 39-45（非 39-43）|
+| New-Issue-4（双写义务未声明） | FIXED | 风险表加「detect 模型要求 skills 双写 YAML+表保持一致；迁移期可能噪音失败，由判据 8 全迁移门吸收」|
+| New-Issue-5（plant schema 漏 notes 的 inherited drift 未记风险表） | FIXED | 风险表加「plant SKILL.md 输出 schema 漏 notes（fixture 有）；OWNERSHIP 以 fixture 为准」|
