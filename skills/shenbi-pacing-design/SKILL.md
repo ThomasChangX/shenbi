@@ -24,6 +24,8 @@ contract:
 
 # 节奏设计
 
+**职责边界**：story-architecture 创建 `outline/rhythm_principles.md` 的节奏骨架（仅含整体哲学 + 比例粗设）。本 skill 负责细化为完整规则：详细的张力曲线、连续章数限制（maxConsecutiveQuest、maxGapQuest）、爆发频率控制。如果 `rhythm_principles.md` 已由 story-architecture 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
+
 设计小说的整体节奏原则。负责铺垫→升级→爆发→余波的循环、场景类型序列防单调、三线比例。
 
 ## 流程

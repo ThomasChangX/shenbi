@@ -28,6 +28,19 @@ contract:
 
 HARD-GATE: 在基础设定未通过审核（总分 ≥ 80）前，不得进入逐章写作。
 
+**前置文件验证**：审核前必须验证以下文件全部存在。任一缺失 = 创世层未完成 = 拒绝审核：
+- `world/story_bible.md`（worldbuilding）
+- `world/rules.md`（worldbuilding）
+- `world/locations.md`（location-builder / worldbuilding）
+- `world/factions.md`（faction-builder）
+- `world/power_system.md`（power-system）
+- `characters/protagonist.md`（character-design）
+- `characters/relationships.md`（relationship-map）
+- `outline/story_frame.md`（story-architecture）
+- `outline/volume_map.md`（volume-outlining）
+- `genre-config.json`（genre-config）
+- `truth/book_spine.md`（book-spine-init）
+
 审核创世层输出（worldbuilding + character-design + story-architecture），对六个维度打分。
 > **再平衡说明（spec §7.2）：** 第六维「反套路/原创性」的 10 分从核心冲突 −5 与角色区分度 −5 拆出。核心冲突仍为最高权重维度（25 分），其通过门槛按比例从 18 调至 15（占比 60% 不变）；角色区分度 20→15 是因为反套路维度已部分覆盖角色层面的原创性。六维合计仍为 100。
 

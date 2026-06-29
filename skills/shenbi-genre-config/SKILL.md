@@ -22,6 +22,8 @@ contract:
 
 # 题材配置管理
 
+**职责边界**：worldbuilding 创建 `genre-config.json` 的初始 stub（仅含题材/语言/基本审计维度）。本 skill 负责细化为完整配置：疲劳词列表、节奏规则、章节类型、审计维度激活、自定义禁忌词。如果 `genre-config.json` 已由 worldbuilding 创建，本 skill 读取并细化；如果不存在，本 skill 创建。
+
 管理 `genre-config.json`。负责疲劳词、节奏规则、章节类型、审计维度、自定义规则。
 
 ## 流程

@@ -1,6 +1,7 @@
 """G4 checker for shenbi-escalation-review."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from shenbi.gates.shared import fail, passed

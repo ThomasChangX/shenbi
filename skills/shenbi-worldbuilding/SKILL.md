@@ -61,11 +61,11 @@ digraph worldbuilding {
 | 文件 | 内容 |
 |------|------|
 | `novel.json` | 标题、题材、语言、状态 |
-| `genre-config.json` | 疲劳词、审计维度、节奏规则 |
+| `genre-config.json` | **初始 stub**（仅含题材分类、语言、基本审计维度激活）。完整的疲劳词列表、章节类型、禁忌词由 `shenbi-genre-config` skill 细化。worldbuilding 创建 stub，genre-config skill 负责细化。 |
 | `world/story_bible.md` | 世界观圣经（散文，4段式） |
 | `world/rules.md` | 世界铁律（最多10条） |
 | `world/locations.md` | 初始地点图谱（3-5个核心地点） |
-| `truth/` (初始化) | 创建 `current_state.md`, `character_matrix.md`, `emotional_arcs.md`, `chapter_summaries.md` 的空模板。每个文件的 YAML frontmatter 必须包含 `type`（truth）、`category`（state 或 character）、`status`（initialized）三个字段，body 标记为待填充。body header 用 `> 此文件由 state-settling 首次运行时填充实际数据。`。state-settling 首次运行时填充实际数据 |
+| `truth/` (初始化) | 创建以下 **全部 11 个** truth files 的空模板。每个文件的 YAML frontmatter 必须包含 `type`（truth）、`category`（state 或 character）、`status`（initialized）三个字段，body 标记为待填充。body header 用 `> 此文件由 state-settling 首次运行时填充实际数据。`：  **state 类**：`current_state.md`（当前世界状态）、`chapter_summaries.md`（逐章摘要）、`particle_ledger.md`（资源账本）、`subplot_board.md`（支线进度板）、`audit_drift.md`（审计纠偏）、`volume_summaries.md`（卷摘要归档）、`pending_hooks.md`（伏笔池）、`drift_guidance.md`（纠偏指导）  **character 类**：`character_matrix.md`（角色交互矩阵）、`emotional_arcs.md`（角色情感弧线）  **intent 类**：`author_intent.md`（作者长期意图）、`current_focus.md`（当前关注点）  **注意**：遗漏任何一个 truth file 的初始化会导致后续 skill（state-settling、foreshadowing-plant 等）写入失败。 |
 
 ### story_bible.md 结构
 
@@ -86,6 +86,10 @@ digraph worldbuilding {
 ## 第四段：暗流涌动
 [表面平静下涌动的矛盾，为后续冲突埋种子]
 ```
+
+## 铁律
+
+6. **truth files 必须全部初始化** — spec §4 定义的 11+ 个 truth files 必须在 worldbuilding 阶段全部创建为空模板。遗漏任何一个 = 后续 skill 写入失败 = 状态漂移。
 
 ## Anti-Rationalization
 

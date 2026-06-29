@@ -61,7 +61,7 @@ digraph story_architecture {
 |------|------|
 | `outline/story_frame.md` | 散文骨架（4段），YAML frontmatter 含三层冲突定义 |
 | `outline/volume_map.md` | 分卷地图，每卷含 objective + key results |
-| `outline/rhythm_principles.md` | 节奏原则（独立文件） |
+| `outline/rhythm_principles.md` | **节奏骨架**（仅含整体节奏哲学 + 章节类型比例粗设）。详细的张力曲线规则、连续章数限制、间隔控制由 `shenbi-pacing-design` skill 细化。story-architecture 创建骨架，pacing-design 负责细化。 |
 
 ### story_frame.md 结构
 
