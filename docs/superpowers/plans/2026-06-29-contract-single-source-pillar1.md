@@ -10,7 +10,7 @@
 
 **关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2（9/10）。
 
-**v2 修订（round-1 审核 6→目标 9+）：** C1 truth-files.yaml 真实结构是 `concepts/globs/patterns`（非 `files`）；C2 Task 7 迭代层级错；C3 Task 3↔4 顺序（registry import skills 包，须先建包）；C4 `dict[str,type]` mypy strict 拒（Literal 非 type）；I1 GateResult 与 status.GateResult 碰撞→改名 GateOutcome；I2 测试数 1313 非 1231；I3 pre-commit 条件性 TODO→给精确 YAML + `uv run python`；I4 测试相对路径→用 repo 绝对路径。
+**v2 修订（round-1 审核 6→目标 9+）：** C1 truth-files.yaml 真实结构是 `concepts/globs/patterns`（非 `files`）；C2 Task 7 迭代层级错；C3 Task 3↔4 顺序（registry import skills 包，须先建包）；C4 `dict[str,type]` mypy strict 拒（Literal 非 type）；I1 GateResult 与 status.GateResult 碰撞→改名 GateOutcome；I2 测试数引用（v3 改为不引用具体数字，避免漂移）；I3 pre-commit 条件性 TODO→给精确 YAML + `uv run python`；I4 测试相对路径→用 repo 绝对路径。
 
 ## Global Constraints
 
@@ -19,6 +19,7 @@
 - mypy strict + ruff 必须 CI 干净。
 - 契约字段集以 `tests/fixtures/` 为准（非 round 输出）。
 - 不改运行态（本计划只新增 contracts/）。
+- **覆盖率门（v3 新增，关键）：** `pyproject.toml` 设 `--cov=shenbi` + `fail_under=90`，因此任何**单文件** `uv run pytest <path>` 都会因覆盖率不足退出码非零。本计划所有**单文件/子集** pytest 命令必须追加 `--no-cov`（如 `uv run pytest tests/unit/contracts/test_enums.py -v --no-cov`）。覆盖率门只在**全量** `uv run pytest -q` 时生效（Task 9）。下面各步为简洁省略 `--no-cov`，执行者一律按此规则补上。
 - contract.py 本计划结束**保留**；删除是后续「完全迁移」计划。
 
 ---
@@ -283,7 +284,7 @@ git commit -m "feat(contracts): add REGISTRY auto-discovery + truth-files.yaml b
 
 ---
 
-### Task 5: foreshadowing_resolve 契约模型（先导迁移，根治 CP 算术 bug）
+### Task 5: foreshadowing_resolve 契约模型（先导迁移，以契约编码正确 CP 逻辑）
 
 **Files:** Create `src/shenbi/contracts/skills/foreshadowing_resolve.py`、`tests/unit/contracts/test_foreshadowing_resolve_contract.py`；Modify `tests/unit/contracts/test_registry.py`（REGISTRY 不再空）
 
@@ -342,7 +343,7 @@ def test_registry_includes_resolve() -> None:
 
 ```python
 # src/shenbi/contracts/skills/foreshadowing_resolve.py
-"""foreshadowing_resolve 契约模型。spec 展示案例：根治 CP 算术三 bug。
+"""foreshadowing_resolve 契约模型。spec 展示案例：以契约模型编码正确的 CP 逻辑（生产路径接入在支柱二）。
 zone/must_resolve 是 computed_field 只读派生；debt 一致性 + hook 单 cp 是
 model_validator 运行时校验。字段以 fixture 为准（state 非 status）。
 
@@ -415,7 +416,7 @@ def test_registry_excludes_unmigrated() -> None:
 git add src/shenbi/contracts/skills/foreshadowing_resolve.py \
         tests/unit/contracts/test_foreshadowing_resolve_contract.py \
         tests/unit/contracts/test_registry.py
-git commit -m "feat(contracts): migrate foreshadowing_resolve, eradicating CP arithmetic bugs"
+git commit -m "feat(contracts): migrate foreshadowing_resolve contract model (correct CP logic)"
 ```
 
 ---
@@ -599,7 +600,7 @@ pre-commit（`.pre-commit-config.yaml`，参考现有 local hook 格式）：
     pass_filenames: false
     files: ^src/shenbi/contracts/.*\.py$
 ```
-（实现者：按 `.pre-commit-config.yaml` 实际 repo/rev 与 local hook 段落格式调整缩进与位置；若现有 hook 全是 remote repo，加 `- repo: local` 段。）
+（实现者：`.pre-commit-config.yaml` 已有 `- repo: local` 段——位于远程 repo 段之后、含 `basedpyright`/`lint-contracts` 等。把本 hook 追加进**已有的** local hook 列表，保持缩进一致，不要新建第二个 local 段。）
 
 - [ ] **Step 6: mypy+ruff+commit**
 ```bash
@@ -611,12 +612,12 @@ git commit -m "feat(lint): add N7 guard — no extra=forbid on @computed_field m
 
 ---
 
-### Task 9: 全量回归 + 支柱一骨架完成确认（v2 I2: 测试数 1313）
+### Task 9: 全量回归 + 支柱一骨架完成确认（v3: 不引用具体测试数（覆盖率门 + 漂移））
 
 **Files:** 无。仅验证。
 
 - [ ] **Step 1: Full test suite**
-`uv run pytest -q` → v2 I2: 现有 1313 passed（非 1231）+ 新增 ~17 contract tests，无 regression
+`uv run pytest -q` → 现有测试集（不引用具体数字，避免漂移）全部 passed（无 regression）+ 新增 contract 测试（约 24 个：enums 5 + base 3 + registry 5 + foreshadowing_resolve 9 + lint 2）。执行者以实际输出为准，只断言「无失败、无 regression」。
 - [ ] **Step 2: Type check + lint whole repo**
 `uv run mypy src/shenbi && uv run ruff check .` → Success/All passed
 - [ ] **Step 3: Verify spec 判据对齐（本支柱范围）**
@@ -662,3 +663,4 @@ Plan complete and saved to `docs/superpowers/plans/2026-06-29-contract-single-so
 
 Which approach?
 （实现者：`.pre-commit-config.yaml` 已有 `- repo: local` 段（basedpyright 在此），直接在此段追加上述 hook。）
+placeholder_marker_for_version_note
