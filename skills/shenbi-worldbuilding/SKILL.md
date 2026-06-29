@@ -50,9 +50,10 @@ digraph worldbuilding {
 
 1. **NO BULLET-POINT WORLDS** — 世界观以散文形式输出，不是表格、不是 schema、不是条目化 bullet。每个设定段落是一段连贯的叙述。
 2. **前台故事 + 后台故事** — story_bible.md 必须包含两条线：读者看到的前台冲突，和贯穿全书的后台暗线。
-3. **世界铁律写在 rules.md** — 硬性规则（物理法则、社会禁忌、力量上限）独立存放，writer 和 auditor 直接引用。
+3. **世界铁律写在 rules.md** — 世界级硬性规则（物理法则、社会禁忌、时代禁忌）独立存放，writer 和 auditor 直接引用。
 4. **去重原则** — 同一事实只出现在一个文件中。genre/core_concept/themes 只在 `novel.json` 定义。
-5. **项目目录初始化** — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。
+5. **力量体系归 power_system.md** — 等级划分、进阶规则、力量上限、能力边界由 `shenbi-power-system` skill 维护至 `world/power_system.md`，不写入 rules.md。rules.md 只存放与具体力量体系无关的世界级硬律。
+6. **项目目录初始化** — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。
 
 ## 输出格式
 
@@ -89,7 +90,7 @@ digraph worldbuilding {
 
 ## 铁律
 
-6. **truth files 必须全部初始化** — spec §4 定义的 11+ 个 truth files 必须在 worldbuilding 阶段全部创建为空模板。遗漏任何一个 = 后续 skill 写入失败 = 状态漂移。
+7. **truth files 必须全部初始化** — spec §4 定义的 11+ 个 truth files 必须在 worldbuilding 阶段全部创建为空模板。遗漏任何一个 = 后续 skill 写入失败 = 状态漂移。
 
 ## Anti-Rationalization
 

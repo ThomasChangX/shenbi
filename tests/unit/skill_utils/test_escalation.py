@@ -5,9 +5,8 @@ from __future__ import annotations
 import pytest
 
 from shenbi.skill_utils.escalation.check import (
-    EscalationSignal,
-    detect_score_decline,
     check_escalation,
+    detect_score_decline,
 )
 
 

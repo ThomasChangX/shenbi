@@ -1,4 +1,4 @@
-"""recall.py — deterministic overdue-hook filtering (spec §3.6).
+r"""recall.py — deterministic overdue-hook filtering (spec §3.6).
 
 This helper wraps the RAG recall layer's final deterministic filter.
 The RAG layer (benchmarks/index/) retrieves candidate hooks by semantic
@@ -19,7 +19,6 @@ Usage (CLI):
       --hooks-json '[{"id":"H01","last_reinforced":3,"max_distance":20}]' \\
       --current-chapter 66
 """
-
 
 from __future__ import annotations
 
@@ -51,7 +50,9 @@ def recall_overdue_hooks(hooks: list[dict[str, Any]], current_chapter: int) -> l
 
 def main() -> None:
     """CLI: print overdue hook IDs as JSON."""
-    parser = argparse.ArgumentParser(prog="foreshadowing_recall", description="Filter overdue hooks (spec §3.6).")
+    parser = argparse.ArgumentParser(
+        prog="foreshadowing_recall", description="Filter overdue hooks (spec §3.6)."
+    )
     parser.add_argument("--hooks-json", required=True, help="JSON array of hook dicts.")
     parser.add_argument("--current-chapter", type=int, required=True)
     args = parser.parse_args()

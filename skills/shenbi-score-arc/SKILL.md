@@ -28,6 +28,7 @@ contract:
 # 弧段级评分
 
 触发：每12章（与memory-distill L2对齐）
+对 `truth/audit_drift.md` 仅 **append** 弧段评分短板条目（不覆盖已有内容）；最终权威版本由 `shenbi-drift-guidance` 合并重写（见该 skill 单一写者声明）。
 
 ## HARD-GATE: 独立评分，context-cleaned subagent
 

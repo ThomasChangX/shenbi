@@ -1,14 +1,15 @@
 """Unit tests for G4 score checkers (spec §9.12)."""
+
 from __future__ import annotations
 
-import pytest
-import tempfile
 import os
-from pathlib import Path
+import tempfile
+
+import pytest
 
 from shenbi.gates.g4.score_arc import g4_score_arc
-from shenbi.gates.g4.score_volume import g4_score_volume
 from shenbi.gates.g4.score_stratum import g4_score_stratum
+from shenbi.gates.g4.score_volume import g4_score_volume
 
 
 @pytest.mark.unit

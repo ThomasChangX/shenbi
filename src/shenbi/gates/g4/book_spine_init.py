@@ -1,4 +1,5 @@
 """G4 checker for shenbi-book-spine-init."""
+
 from __future__ import annotations
 
 from pathlib import Path

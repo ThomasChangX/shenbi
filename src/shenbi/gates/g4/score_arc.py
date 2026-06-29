@@ -1,4 +1,5 @@
 """G4 checker for shenbi-score-arc."""
+
 from __future__ import annotations
 
 import re

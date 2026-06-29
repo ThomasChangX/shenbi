@@ -29,7 +29,7 @@ contract:
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 11 时激活。
 
-> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI 与档案的偏离"，本审计检查"角色行为在利益/逻辑层面的合理性"。
+> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI（信念/欲望/意图）与档案的偏离"，本审计检查"角色行为在利益/逻辑层面的合理性"。
 
 ## 流程
 

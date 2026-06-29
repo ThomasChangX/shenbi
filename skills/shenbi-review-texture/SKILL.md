@@ -29,6 +29,7 @@ contract:
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 17 时激活。
 
 > 与 `shenbi-review-pacing` 区别：节奏审计检查"章类型序列"与"蓄压-爆发周期"，本审计检查"段落级"质感。
+> 与 `shenbi-review-anti-ai` 区别：段长由两者都触及——本审计审"段长**极端**（>500/<20 字）与**呼吸感**（长短交错的可读性）"；anti-ai 审"段长**等长/规律性**（CV 过低 = AI 生成特征）"。本审计判质量，anti-ai 判可检测性。
 
 ## 流程
 

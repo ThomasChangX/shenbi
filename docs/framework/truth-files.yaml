@@ -57,7 +57,8 @@ concepts:
   - {name: audits/volume-N-payoff.md, kind: report}  # parametric: N
   - {name: audits/arc-N-score.md, kind: report}     # parametric: N (Wave 3)
   - {name: audits/volume-N-score.md, kind: report}  # parametric: N (Wave 3)
-  - {name: audits/stratum-N-score.md, kind: report} # parametric: N (Wave 3)
+  - {name: audits/stratum-N-score.md, kind: report}  # parametric: N (Wave 3)
+  - {name: audits/escalation-N-report.md, kind: report}  # parametric: N
   # foundation / snapshots / import / short
   - {name: foundation/review_report.md, kind: report}
   - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot}
@@ -80,6 +81,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
   - {parametric: audits/volume-N-score.md, glob: audits/volume-*-score.md}
   - {parametric: audits/stratum-N-score.md, glob: audits/stratum-*-score.md}
+  - {parametric: audits/escalation-N-report.md, glob: audits/escalation-*-report.md}
   - {parametric: benchmarks/anchors/AC-NNN.md, glob: benchmarks/anchors/AC-*.md}
   - {parametric: truth/arcs/arc-N.md, glob: truth/arcs/arc-*.md}
 

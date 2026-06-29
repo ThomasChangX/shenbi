@@ -62,6 +62,18 @@ digraph chapter_revision {
 - 结构问题 → rewrite（REVISED_CONTENT）
 - 混合 → rewrite（保守策略）
 
+## 与专项改章 skill 的委派边界
+
+chapter-revision 是**通用修订入口**，但以下三类问题应优先委派给专项 skill——chapter-revision 仅在这些问题成为修订链路上的阻塞项时才一并处理：
+
+| 问题类型 | 委派目标 skill | 触发判定 |
+|---------|--------------|---------|
+| 表达层质感（疲劳词、句长、段落呼吸、修辞） | `shenbi-style-polishing` | 审计发现为表达层问题、无情节/角色影响 |
+| AI 可检测性标记（structural tells、句式规律） | `shenbi-anti-detect` | anti-ai 审计有 critical/blocking 级标记 |
+| 字数越界（< 3000 或 > 10000） | `shenbi-length-normalizing` | 字数 hard-gate 未过 |
+
+**分工原则**：polishing/anti-detect/length-normalizing 只做表面变换（不动情节/角色/伏笔），chapter-revision 处理需要改写叙事内容的 blocking/结构问题。表面问题交给专项 skill，不在本 skill 内重复实现。
+
 ## 修订接受条件
 
 ```markdown

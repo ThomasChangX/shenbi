@@ -26,6 +26,8 @@ contract:
 
 这是条件激活的审计技能。检查角色还原度、世界规则一致性、关系动态、原作事件一致性。支持 4 种同人模式（canon/au/ooc/cp），每种模式严格度不同。
 
+> **同人模式缩写**：canon=忠于原作续写；au=Alternate Universe 架空设定（核心设定变更）；ooc=Out of Character 性格偏离（至少 1 个核心性格/关系变化）；cp=Couple/Pairing 角色配对（关系正典）。模式由 `shenbi-canon-import` 导入并声明。注意：本 skill 的 cp 指**角色配对**，与 `shenbi-foreshadowing-resolve` 的 CP（Chase Power 期望债务）语义无关。
+
 > 激活条件：`novel.json.mode` = `"fanfic"` 时激活。
 
 > 与 `shenbi-review-character` 区别：角色一致性审计检查"作品内自洽"，本审计检查"与原作的对齐"。

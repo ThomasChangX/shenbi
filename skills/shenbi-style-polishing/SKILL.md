@@ -46,6 +46,7 @@ digraph style_polishing {
 2. **只改善，不恶化** — 字数变化 ≤ ±15%，不能引入 AI 味
 3. **发现结构问题只标记** — 如果发现需要结构调整的段落，用 `[polisher-note]` 标记，不自行修改
 4. **保持风格指纹** — 如果 `style/style_profile.md` 存在，必须遵循风格指纹
+5. **边界：仅处理 warning 级表达问题** — 本 skill 处理疲劳词替换、句长/段长节奏调整等表达层优化。若 anti-AI 审计出现 **critical/blocking 级 structural tells（句式规律、结构特征）**，委派给 `shenbi-anti-detect`（靶向改写）。polishing 做"优化"，anti-detect 做"消痕"，不互相替代。
 
 ## 润色维度
 

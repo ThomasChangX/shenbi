@@ -274,7 +274,8 @@ def test_g010_warns_when_fewer_than_total_skills_generative_reports(tmp_path: Pa
 @pytest.mark.unit
 def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path) -> None:
     """round_dir with >= total_skills generative reports -> G0.10 PASS (dynamic count, spec §9.4)."""
-    from shenbi.gates.g0 import ALL_SKILLS
+    from shenbi.gates.shared import ALL_SKILLS
+
     total = len(ALL_SKILLS)
     seed = tmp_path / "seed.md"
     seed.write_text("目标字数：5000\n" + "正文内容。" * 200, encoding="utf-8")

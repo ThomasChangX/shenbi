@@ -1,4 +1,4 @@
-"""check.py — human-escalation trigger detection (spec §6.2-6.3).
+r"""check.py — human-escalation trigger detection (spec §6.2-6.3).
 
 Deterministic helper that evaluates escalation conditions for the
 auto-approve system. When any condition fires, the orchestrator must
@@ -70,53 +70,71 @@ def check_escalation(
 
     if detect_score_decline(resonance_scores, window, slope_threshold):
         recent = resonance_scores[-window:]
-        signals.append(EscalationSignal(
-            trigger="score_decline",
-            detail=f"linear regression slope on last {window} scores < {slope_threshold}: {recent}",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="score_decline",
+                detail=f"linear regression slope on last {window} scores < {slope_threshold}: {recent}",
+            )
+        )
 
     if sensitivity_blocking:
-        signals.append(EscalationSignal(
-            trigger="sensitivity_blocking",
-            detail="sensitivity audit reported BLOCKING severity",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="sensitivity_blocking",
+                detail="sensitivity audit reported BLOCKING severity",
+            )
+        )
 
     if not volume_objective_met:
-        signals.append(EscalationSignal(
-            trigger="volume_objective_missed",
-            detail="volume Objective not achieved (score-volume binary check)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="volume_objective_missed",
+                detail="volume Objective not achieved (score-volume binary check)",
+            )
+        )
 
     if regeneration_attempts >= regen_loop_limit:
-        signals.append(EscalationSignal(
-            trigger="regeneration_loop_exhausted",
-            detail=f"same goal unmet after {regeneration_attempts} regeneration attempts (limit {regen_loop_limit})",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="regeneration_loop_exhausted",
+                detail=f"same goal unmet after {regeneration_attempts} regeneration attempts (limit {regen_loop_limit})",
+            )
+        )
 
     if arc_score is not None and arc_score < arc_threshold:
-        signals.append(EscalationSignal(
-            trigger="arc_score_below_threshold",
-            detail=f"arc score {arc_score} < {arc_threshold} (spec §6.2)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="arc_score_below_threshold",
+                detail=f"arc score {arc_score} < {arc_threshold} (spec §6.2)",
+            )
+        )
 
     if stratum_axis_drift:
-        signals.append(EscalationSignal(
-            trigger="stratum_axis_drift",
-            detail="protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)",
-        ))
+        signals.append(
+            EscalationSignal(
+                trigger="stratum_axis_drift",
+                detail="protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)",
+            )
+        )
 
     return signals
 
 
 def main() -> None:
     """CLI: print escalation signals as JSON."""
-    parser = argparse.ArgumentParser(prog="escalation", description="Detect human-escalation triggers (spec §6.2).")
+    parser = argparse.ArgumentParser(
+        prog="escalation", description="Detect human-escalation triggers (spec §6.2)."
+    )
     parser.add_argument("--resonance-scores", required=True, help="Comma-separated overall scores.")
     parser.add_argument("--sensitivity-blocking", default="false", help="true/false.")
     parser.add_argument("--volume-objective-met", default="true", help="true/false.")
     parser.add_argument("--regeneration-attempts", type=int, default=0)
-    parser.add_argument("--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)")
-    parser.add_argument("--stratum-axis-drift", default="false", help="true/false (spec §6.2 trigger)")
+    parser.add_argument(
+        "--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)"
+    )
+    parser.add_argument(
+        "--stratum-axis-drift", default="false", help="true/false (spec §6.2 trigger)"
+    )
     args = parser.parse_args()
 
     scores = [float(x) for x in args.resonance_scores.split(",")]
@@ -128,4 +146,8 @@ def main() -> None:
         arc_score=args.arc_score,
         stratum_axis_drift=args.stratum_axis_drift.lower() == "true",
     )
-    print(json.dumps([{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False))
+    print(
+        json.dumps(
+            [{"trigger": s.trigger, "detail": s.detail} for s in signals], ensure_ascii=False
+        )
+    )

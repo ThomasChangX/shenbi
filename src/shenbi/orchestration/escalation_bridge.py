@@ -1,7 +1,7 @@
 """Bridge: parse resonance_trend.md -> check_escalation params (spec §6.3)."""
+
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 from shenbi.skill_utils.escalation.check import check_escalation, EscalationSignal

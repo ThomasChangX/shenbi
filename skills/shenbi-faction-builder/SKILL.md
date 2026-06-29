@@ -26,6 +26,7 @@ contract:
 # 势力构建
 
 设计小说中的势力组织。负责层级结构、内部矛盾、跨势力动态、利益驱动行为。
+**职责边界**：`world/factions.md` 如由 `shenbi-worldbuilding` 创建则含初始势力；本 skill 负责后续**追加/扩展**具体势力（append，不重写已有势力）。反向场景（从已有手稿提取势力）用 `shenbi-world-extraction`。
 
 ## 流程
 

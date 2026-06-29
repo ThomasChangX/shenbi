@@ -26,6 +26,7 @@ contract:
 # 续篇写作
 
 为已暂停的小说恢复写作。负责寻找断点快照、重建上下文、续写后续章节。
+**`truth/*.md` 写范围说明**：本 skill 的 `updates: truth/*.md` 仅指**从断点快照恢复**全部 truth 文件至快照状态（一次性恢复操作），**不**在正常逐章写作循环中运行。正常运行中各 truth 文件的字段所有权仍归原 skill（state-settling/foreshadowing-track/memory-distill 等）。
 
 ## 流程
 

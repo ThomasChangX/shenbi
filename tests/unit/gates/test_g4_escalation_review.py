@@ -1,10 +1,11 @@
 """Unit tests for G4 escalation_review checker (spec §9.12)."""
+
 from __future__ import annotations
 
-import pytest
-import tempfile
 import os
-from pathlib import Path
+import tempfile
+
+import pytest
 
 from shenbi.gates.g4.escalation_review import g4_escalation_review
 

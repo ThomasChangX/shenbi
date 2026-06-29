@@ -29,7 +29,7 @@ contract:
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 9 或 19 时激活。
 
-> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI"，本审计检查"叙事视角的边界"。
+> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI（信念/欲望/意图）"，本审计检查"叙事视角的边界"。
 
 ## 流程
 

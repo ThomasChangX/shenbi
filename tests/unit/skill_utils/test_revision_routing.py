@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shenbi.skill_utils.revision_routing.route import route_revision
-
-
 from shenbi.skill_utils.revision_routing.preserve_check import verify_preservation
+from shenbi.skill_utils.revision_routing.route import route_revision
 
 
 @pytest.mark.unit

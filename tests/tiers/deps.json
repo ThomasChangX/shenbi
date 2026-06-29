@@ -66,6 +66,7 @@
         "shenbi-score-arc"
       ],
       "expected_outputs": [
+        "audits/arc-*-score.md",
         "audits/chapter-*.md",
         "chapters/chapter-*.md",
         "truth/*.md"
@@ -112,10 +113,13 @@
         "shenbi-score-stratum"
       ],
       "expected_outputs": [
+        "audits/stratum-*-score.md",
+        "audits/volume-*-score.md",
         "audits/volume-*.md",
         "outline/*.md",
         "snapshots/chapter-*/*",
-        "truth/*.md"
+        "truth/*.md",
+        "truth/arcs/arc-*.md"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for snapshot-manage not yet implemented in validate-gate.py"

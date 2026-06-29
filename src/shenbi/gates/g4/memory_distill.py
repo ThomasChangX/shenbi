@@ -1,4 +1,5 @@
 """G4 checker for shenbi-memory-distill (traceability validation)."""
+
 from __future__ import annotations
 
 import re

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from shenbi.gates.g0 import ALL_SKILLS
+from shenbi.gates.shared import ALL_SKILLS
 
 
 @pytest.mark.unit

@@ -8,7 +8,7 @@ contract:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
     - truth/resonance_trend.md
-- truth/volume_score_trend.md
+    - truth/volume_score_trend.md
     - truth/arc_payoff_trend.md
   writes:
     - truth/drift_guidance.md
@@ -19,7 +19,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/arc_payoff_trend.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md
 - **Writes:** truth/drift_guidance.md
 - **Updates:** truth/audit_drift.md
 
@@ -28,6 +28,8 @@ contract:
 # 审计纠偏传导
 
 把当前章节的审计问题转化为下一章的写作指导，写入 `truth/audit_drift.md`，在 context-composing 阶段自动导入。
+
+> **单一写者（single-writer）**：`truth/audit_drift.md` 由本 skill 作为**合并器/最终写者**拥有。`shenbi-review-resonance`、`shenbi-review-arc-payoff`、`shenbi-score-arc` 仅 **append** 各自的趋势短板条目（不得覆盖/清空已有内容），随后本 skill 读取全部条目并合成最终纠偏指导。写顺序：评分器先 append → 本 skill 合并重写为权威版本。任何 skill 不得独立清空 audit_drift.md。
 
 ## 流程
 

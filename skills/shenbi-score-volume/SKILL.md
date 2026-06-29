@@ -12,8 +12,7 @@ contract:
   writes:
     - audits/volume-N-score.md
     - truth/volume_score_trend.md
-  updates:
-[]
+  updates: []
 ---
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 

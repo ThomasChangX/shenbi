@@ -111,6 +111,7 @@
       "shenbi-pacing-design",
       "shenbi-plot-thread-weaver",
       "shenbi-review-arc-payoff",
+      "shenbi-score-volume",
       "shenbi-sequel-writing",
       "shenbi-volume-outlining"
     ],
@@ -143,13 +144,17 @@
   },
   "truth/book_spine.md": {
     "reads": [
-      "shenbi-context-composing"
+      "shenbi-context-composing",
+      "shenbi-score-arc",
+      "shenbi-score-stratum",
+      "shenbi-score-volume"
     ],
     "writes": [
       "shenbi-book-spine-init"
     ],
     "updates": [
-      "shenbi-memory-distill"
+      "shenbi-memory-distill",
+      "shenbi-score-stratum"
     ]
   },
   "source_canon/*": {
@@ -170,6 +175,7 @@
   "plans/chapter-N-plan.md": {
     "reads": [
       "shenbi-chapter-drafting",
+      "shenbi-chapter-revision",
       "shenbi-context-composing",
       "shenbi-foreshadowing-plant",
       "shenbi-review-foreshadowing",
@@ -207,7 +213,8 @@
     "updates": [
       "shenbi-drift-guidance",
       "shenbi-review-arc-payoff",
-      "shenbi-review-resonance"
+      "shenbi-review-resonance",
+      "shenbi-score-arc"
     ]
   },
   "chapters/*.md": {
@@ -319,6 +326,22 @@
     "writes": [],
     "updates": []
   },
+  "audits/chapter-N-resonance.md": {
+    "reads": [
+      "shenbi-chapter-revision"
+    ],
+    "writes": [
+      "shenbi-review-resonance"
+    ],
+    "updates": []
+  },
+  "truth/state_snapshot-pre-rev.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-revision"
+    ],
+    "updates": []
+  },
   "world/story_bible.md": {
     "reads": [
       "shenbi-character-design",
@@ -413,7 +436,9 @@
   },
   "truth/book_strata.md": {
     "reads": [
-      "shenbi-context-composing"
+      "shenbi-context-composing",
+      "shenbi-score-arc",
+      "shenbi-score-stratum"
     ],
     "writes": [
       "shenbi-memory-distill"
@@ -423,7 +448,9 @@
   "truth/volume_summaries.md": {
     "reads": [
       "shenbi-context-composing",
-      "shenbi-memory-distill"
+      "shenbi-memory-distill",
+      "shenbi-score-arc",
+      "shenbi-score-volume"
     ],
     "writes": [
       "shenbi-volume-consolidation"
@@ -432,7 +459,8 @@
   },
   "truth/arcs/arc-N.md": {
     "reads": [
-      "shenbi-context-composing"
+      "shenbi-context-composing",
+      "shenbi-score-arc"
     ],
     "writes": [
       "shenbi-memory-distill"
@@ -458,12 +486,22 @@
   "truth/resonance_trend.md": {
     "reads": [
       "shenbi-drift-guidance",
+      "shenbi-escalation-review",
       "shenbi-review-arc-payoff"
     ],
     "writes": [],
     "updates": [
       "shenbi-review-resonance"
     ]
+  },
+  "truth/volume_score_trend.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [
+      "shenbi-score-volume"
+    ],
+    "updates": []
   },
   "truth/arc_payoff_trend.md": {
     "reads": [
@@ -478,6 +516,49 @@
     "reads": [],
     "writes": [
       "shenbi-drift-guidance"
+    ],
+    "updates": []
+  },
+  "audits/volume-N-score.md": {
+    "reads": [
+      "shenbi-escalation-review"
+    ],
+    "writes": [
+      "shenbi-score-volume"
+    ],
+    "updates": []
+  },
+  "audits/arc-N-score.md": {
+    "reads": [
+      "shenbi-escalation-review"
+    ],
+    "writes": [
+      "shenbi-score-arc"
+    ],
+    "updates": []
+  },
+  "audits/stratum-N-score.md": {
+    "reads": [
+      "shenbi-escalation-review"
+    ],
+    "writes": [
+      "shenbi-score-stratum"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-sensitivity.md": {
+    "reads": [
+      "shenbi-escalation-review"
+    ],
+    "writes": [
+      "shenbi-review-sensitivity"
+    ],
+    "updates": []
+  },
+  "audits/escalation-N-report.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-escalation-review"
     ],
     "updates": []
   },
@@ -714,18 +795,14 @@
     ],
     "updates": []
   },
-  "audits/chapter-N-resonance.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-resonance"
+  "benchmarks/anchors/": {
+    "reads": [
+      "shenbi-review-resonance",
+      "shenbi-score-arc",
+      "shenbi-score-stratum",
+      "shenbi-score-volume"
     ],
-    "updates": []
-  },
-  "audits/chapter-N-sensitivity.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-sensitivity"
-    ],
+    "writes": [],
     "updates": []
   },
   "truth/parent_canon.md": {

@@ -25,6 +25,7 @@ contract:
 # 故事架构
 
 HARD-GATE: 故事框架必须在世界观和角色完成后才能开始。
+**职责边界**：本 skill 创建 `outline/story_frame.md`、`outline/volume_map.md`、`outline/rhythm_principles.md` 的**骨架**（整体哲学 + 比例粗设 + 卷划分）。后续细化由专项 skill 负责——`outline/rhythm_principles.md` 详化为完整节奏规则见 `shenbi-pacing-design`；`outline/volume_map.md` 单卷细化见 `shenbi-volume-outlining`。
 
 ## 流程
 

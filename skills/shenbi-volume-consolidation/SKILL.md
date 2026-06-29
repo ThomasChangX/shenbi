@@ -26,6 +26,8 @@ contract:
 
 卷完成后：合并逐章摘要为叙事摘要、归档旧摘要、生成卷级长程记忆。
 
+> **术语缩写（CP）**：本 skill 输出中的 **CP** 指 **Chase Power（读者期望债务）**，即未兑现伏笔累积的读者期待压力（公式见 `shenbi-foreshadowing-resolve`）。不指同人创作中的角色配对 Couple/Pairing。
+
 ## 流程
 
 ```dot

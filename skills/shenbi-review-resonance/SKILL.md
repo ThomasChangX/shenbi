@@ -19,7 +19,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md
+- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md, benchmarks/anchors/
 - **Writes:** audits/chapter-N-resonance.md
 - **Updates:** truth/audit_drift.md, truth/resonance_trend.md
 
@@ -129,6 +129,7 @@ digraph review_resonance {
 - 判定: 通过
 
 ### 共鸣短板（写入 audit_drift）
+> 仅 append 本维度短板条目，不覆盖已有内容；最终权威版本由 `shenbi-drift-guidance` 合并重写（见该 skill 单一写者声明）。
 - [维度] [短板描述] → 下章 PRE_WRITE_CHECK 防范建议
 
 ### 趋势（写入 resonance_trend）

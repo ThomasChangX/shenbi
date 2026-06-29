@@ -240,8 +240,7 @@ def check_scorer_agreement(
         a = float(scores_a.get(dim, 0))
         b = float(scores_b.get(dim, 0))
         diff = abs(a - b)
-        if diff > max_diff:
-            max_diff = diff
+        max_diff = max(max_diff, diff)
         if diff > threshold:
             disputed.append(dim)
     return {
@@ -267,6 +266,7 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
         signals.append("all_identical")
 
     from collections import Counter
+
     counts = Counter(values)
     most_common_val, most_common_n = counts.most_common(1)[0]
     if most_common_n / len(values) > 0.6 and len(values) >= 3:

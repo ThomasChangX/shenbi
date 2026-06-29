@@ -39,7 +39,7 @@ for chapter N:
   13. escalation_check（检查是否需要人工升级）
 ```
 
-**关键约束**: 
+**关键约束**:
 - 步骤 5（state-settling）**必须在步骤 4 之后立即执行**。跳过 = truth files 过时 = 后续章节全部基于错误状态
 - 步骤 7（审计）**不可跳过**。任何审计 BLOCKING → 进入步骤 9-10 修正闭环
 - 步骤 8-10（评分-修正闭环）**不可跳过**。评分 < 阈值 → 必须修订/重生，不可"先放着后面再说"
@@ -137,4 +137,3 @@ runner 必须支持从中断点恢复：
 - 审计层内的 18 个审计可按 spec §7.5 的顺序串行执行（前一步 BLOCKING 则停止）
 - review-resonance 与审计可并行（不同评估轴，不互相依赖）
 - context-composing 与 intent-management 可合并为一步
-

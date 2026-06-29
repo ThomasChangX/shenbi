@@ -1,6 +1,6 @@
 ---
 name: shenbi-review-arc-payoff
-description: "Use at a volume/arc boundary to gate advancement on arc emotional delivery, foreshadowing payoff quality, thread resolution, expectation-debt settlement, and character arc — runs in an independent agent"
+description: "Use when at a volume/arc boundary to gate advancement on arc emotional delivery, foreshadowing payoff quality, thread resolution, expectation-debt settlement, and character arc — runs in an independent agent"
 requires_independent_agent: true
 contract:
   kind: report
@@ -120,6 +120,7 @@ digraph review_arc_payoff {
 - [arc_beats[X] / hook-ID] [未交付/敷衍的描述] → 卷级修订方向
 
 ### 跨卷短板（写入 audit_drift）
+> 仅 append 本维度短板条目，不覆盖已有内容；最终权威版本由 `shenbi-drift-guidance` 合并重写（见该 skill 单一写者声明）。
 - [维度] [卷级短板] → 下卷 outline 防范建议
 
 ### 趋势（写入 arc_payoff_trend）

@@ -1,4 +1,5 @@
 """G4 checker for shenbi-escalation-review."""
+
 from __future__ import annotations
 
 import re
@@ -18,7 +19,7 @@ def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
         content = p.read_text(encoding="utf-8")
         normalized = re.sub(r"\s+", "", content)
         for section in ["触发信号", "升级上下文", "决策选项"]:
-            if section not in content:
+            if section not in normalized:
                 mf.append(f"G4.er.missing_section:{section}")
     if not fps:
         c.append({"id": "G4.er", "s": "SKIP", "r": "no files"})

@@ -1,6 +1,7 @@
 ---
 name: shenbi-writing-skills
 description: Use when creating or modifying any shenbi skill — guides the design, testing, and iteration of new novel-writing skills
+meta: true
 ---
 
 # 编写 Shenbi 技能
@@ -33,6 +34,8 @@ name: skill-name          # 仅字母、数字、连字符
 description: Use when ...  # 只描述触发条件，≤500字符
 ---
 ```
+
+> **消歧括号例外**：description 可以包含**边界消歧括号**（如 `(流水账 detection, ...)`、`(≠ shenbi-review-X)`），用于说明与相邻 skill 的区别。这是触发条件的一部分（帮助 agent 判断"是不是该用本 skill 而非另一个"），不属于"流程摘要"陷阱。禁止的是流程步骤摘要，不是消歧信息。
 
 ### 描述陷阱
 

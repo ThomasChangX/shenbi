@@ -27,6 +27,8 @@ contract:
 这是条件激活的审计技能。检查蓄压-爆发周期完整性、连续无爆发检测、日常段落功能验证、章节类型序列多样性。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 7 或 26 时激活。
+> 与 `shenbi-review-highpoint` 区别：pacing 审"蓄压-爆发**周期/序列宏观**"（有无爆发周期、连续无爆发、章节类型多样性）；highpoint 审"**单点爽点质量**"（爆发强度、反转、爽点关键词、爽点虚化）。两者都涉及蓄压-爆发，但 pacing 看结构是否成立，highpoint 看单次爆发是否到位。
+> 与 `shenbi-review-texture` 区别：日常段功能由 texture 审"是否沦为流水账/功能失效"；pacing 审"日常段在节奏序列中的位置与占位"。
 
 ## 流程
 
