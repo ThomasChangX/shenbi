@@ -166,6 +166,20 @@ convention = "google"
 "src/shenbi/contracts/*.py" = [
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
+"src/shenbi/trace/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415", "E501", "E741",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059", "PLC0415",
+]
+"tests/unit/trace/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402", "E501", "E741",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/trace/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402", "E501", "E741",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 "src/shenbi/text/*.py" = [
     "D103", "E402", "D101", "D102", "D205", "D415",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
@@ -180,6 +194,48 @@ convention = "google"
     "I001", "F401", "F841", "PLR2004",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
+"tests/property/stats/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/drift/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/cjk/test_punct_properties.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/cjk/test_g612_embedded_properties.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/cjk/test_tokenize_frozen.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/gates/test_g34_independence_properties.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/gates/test_capability_fs_properties.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/contracts/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"src/shenbi/capability_fs.py" = ["RUF001", "RUF002", "RUF003", "RUF005", "RUF059"]
+"src/shenbi/gates/g3_independence.py" = ["RUF001", "RUF002", "RUF003", "RUF005", "RUF059"]
 "src/shenbi/gates/g4/*.py" = [
     "D103", "E402", "D101", "D102", "D205", "D415",
     "E501", "E741", "E722",
