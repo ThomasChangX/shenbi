@@ -105,27 +105,31 @@ def test_substring_match_semantics() -> None:
 
 - [ ] **Step 2: Run → fails**
 
-- [ ] **Step 3: Implement — full file with ALL imports (v2 I1)**
+- [ ] **Step 3: Implement (v2.1: Task-2-only imports, raw docstring)**
 ```python
 # src/shenbi/text/cjk.py
 """Centralized CJK text operations (spec pillar 3)."""
 from __future__ import annotations
-import re
+
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Literal
-import jieba  # type: ignore[import-untyped]
-import jieba.posseg as pseg  # type: ignore[import-untyped]
+
 
 @dataclass(frozen=True)
 class TermHit:
     """A single term match found in text."""
+
     term: str
     start: int
     end: int
 
+
 def find_terms(text: str, terms: Iterable[str]) -> list[TermHit]:
-    """Find terms as exact substrings. Replaces broken \\w-anchored regex."""
+    r"""Find terms as exact substrings. Replaces broken \w-anchored regex.
+
+    Semantics: exact substring match. For pure CJK text every char position
+    is a valid boundary. False-positive handling deferred to integration.
+    """
     hits: list[TermHit] = []
     for term in terms:
         if not term:
@@ -180,7 +184,9 @@ def test_multiple_dashes() -> None:
 ```
 
 - [ ] **Step 2: Run → fails**
-- [ ] **Step 3: Append to cjk.py (function only, NO imports)**
+- [ ] **Step 3: Append to cjk.py (function only)**
+Add `import jieba` and `import jieba.posseg as pseg` (third-party group with `# type: ignore[import-untyped]`). Then append:
+
 ```python
 PUNCTUATION_TOKENS: dict[str, list[str]] = {
     "句号": ["。"], "逗号": ["，"], "感叹号": ["！", "!"],
@@ -232,6 +238,8 @@ def test_numbers_in_mixed() -> None:
 
 - [ ] **Step 2: Run → fails**
 - [ ] **Step 3: Append to cjk.py (function only)**
+Add `import re` and `from typing import Literal` to the top import block. Then append:
+
 ```python
 _CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 _NON_CJK_WORD_RE = re.compile(r"[a-zA-Z0-9]+")
