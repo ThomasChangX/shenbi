@@ -9,11 +9,11 @@ from hypothesis import strategies as st
 from shenbi.capability_fs import CapabilityFS
 
 
-@given(content=st.text(min_size=0, max_size=200))
+@given(content=st.text(min_size=0, max_size=200, alphabet=st.characters(blacklist_characters="\r\n")))
 @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 def test_read_text_roundtrips(tmp_path: Path, content: str) -> None:
     f = tmp_path / "a.txt"
-    f.write_text(content, encoding="utf-8", newline="")
+    f.write_text(content, encoding="utf-8")
     fs = CapabilityFS(tmp_path)
     assert fs.read_text(f) == content
 

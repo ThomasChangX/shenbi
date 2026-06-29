@@ -32,9 +32,7 @@ class CapabilityFS:
         return self._sandbox(path).exists()
 
     def read_text(self, path: Path, encoding: str = "utf-8") -> str:
-        # newline="" disables universal-newline translation so read_text is a
-        # faithful inverse of write_text(newline="")（\r 等控制字符原样保留）。
-        return self._sandbox(path).read_text(encoding=encoding, newline="")
+        return self._sandbox(path).read_text(encoding=encoding)
 
     def read_bytes(self, path: Path) -> bytes:
         return self._sandbox(path).read_bytes()
