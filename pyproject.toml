@@ -68,6 +68,10 @@ packages = ["src/shenbi"]
 module = "shenbi.contracts.*"
 disable_error_code = ["prop-decorator"]
 
+[[tool.mypy.overrides]]
+module = "jieba.*"
+ignore_missing_imports = true
+
 [tool.mutmut]
 # mutmut 3.x reads underscored keys; the prior hyphenated names
 # (paths-to-mutate / tests-dir / do-not-mutate) were silently ignored, so
