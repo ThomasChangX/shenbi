@@ -10,6 +10,8 @@
 
 **关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier A（成功判据 7、11）。
 
+**v3 修订（round-1 审核 4→目标 9+，Zeno 全部 verified-against-reality）：** C1 覆盖率门加 Global Constraint（--no-cov on per-file）；C2 `_base_kwargs` 固定 ts（default_factory 致两次 sign 非确定）；C3 trace/ per-file-ignores + safe_write/g7_trace ASCII docstring；I1 materialize per-phase queue（非 total-done）；I2 skills three-pending 默认；I3 flock 跨 os.replace 持有；I4 baseline coverage-threshold 隔离 fail 声明；I5 compaction 跨边界审计限制诚实声明；I6 加 migrate_from_progress Task 8.5（LEGACY_MIGRATION + file-signature）。
+
 **前置依赖:** 支柱一已落地（`shenbi.contracts.enums.ActorRole`、`shenbi.contracts.base`）。本计划 import `ActorRole`。
 
 ## Global Constraints
@@ -17,11 +19,12 @@
 - Python 3.11+；pathlib + json + hashlib；框架代码无 print()（用 structlog）。
 - Pydantic v2.5+；`TraceEvent` frozen 且 `extra="ignore"`。
 - mypy strict + ruff 必须 CI 干净。
-- Tier A **不修改** `update_progress.py`/`gates/g7.py` 的现有命令行为（只新增只读 `audit_trace` 与 `materialize_progress`，并让它们各自有测试）。现有测试集全 passed（不引用具体数字）必须保持。
+- Tier A **不修改** `update_progress.py`/`gates/g7.py` 的现有命令行为（只新增只读 `audit_trace` 与 `materialize_progress`，并让它们各自有测试）。现有测试集全 passed（不引用具体数字）必须保持。**注意（I4）：** `tests/unit/test_coverage_thresholds.py::test_branch_coverage_meets_threshold` 在**单文件隔离运行**时会因覆盖率数据不足而 fail（它依赖全量运行的覆盖率累积）——这是预期行为，不是 regression。只有全量 `uv run pytest -q` 才能正确评估覆盖率门。
 - **覆盖率门：** `pyproject.toml` 设 `--cov=shenbi` + `fail_under=90`，因此任何**单文件/子集** `uv run pytest <path>` 都会因覆盖率不足退出码非零。本计划所有单文件 pytest 命令必须追加 `--no-cov`（如 `uv run pytest tests/unit/trace/test_event.py -q --no-cov`）。覆盖率门只在全量 `uv run pytest -q` 时生效。下面各步为简洁省略 `--no-cov`，执行者一律按此规则补上。
 - safe_write 是**新入口**；是否唯一由 AST lint 强制（支柱六），本计划不强制。
 - trace.jsonl 是 round 目录下的 `trace.jsonl`（与 `progress.json` 同级）。
 - macOS/Linux fsync：`os.fsync`；目录 fsync 用 `os.open(dir, O_RDONLY)+os.fsync+os.close`。
+- **RUFF（v3 Critical C3 修复）：** `src/shenbi/trace/*.py` 无 per-file-ignores 条目，且 `src/shenbi/*.py`/`gates/*.py` 的忽略列表不含 RUF001/002/003（fullwidth CJK 标点）。因此 trace/ 与 safe_write.py/g7_trace.py 的**全部 docstring 和注释必须 ASCII**（禁用 （）：，。等全角字符）。Task 1 Step 3 另需在 `[tool.ruff.lint.per-file-ignores]` 加 `"src/shenbi/trace/*.py"` 条目（含 D/E402/PLC0415 等，镜像 contracts/）。
 
 ## 文件结构
 
@@ -58,6 +61,8 @@
 # tests/unit/trace/test_event.py
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pytest
 from pydantic import ValidationError
 
@@ -71,7 +76,12 @@ from shenbi.trace.event import (
 
 
 def _base_kwargs(**over: object) -> dict[str, object]:
+    # ts MUST be pinned: TraceEvent.ts has default_factory=datetime.now,
+    # so two sign_and_new() calls without ts get different microsecond
+    # timestamps, making canonical_payload/sign non-deterministic.
+    from datetime import datetime, timezone
     kw: dict[str, object] = {
+        "ts": datetime(2026, 1, 1, tzinfo=timezone.utc),
         "seq": 1,
         "actor": "dispatcher",
         "actor_role": "GATE",
@@ -194,13 +204,35 @@ class TraceEvent(BaseModel):
 ```
 
 - [ ] **Step 4: Run → passes** (5)
-- [ ] **Step 5: mypy + ruff**
-`uv run mypy src/shenbi/trace/event.py && uv run ruff check src/shenbi/trace/` → Success / All passed
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Add ruff per-file-ignores for trace/ (C3 fix)**
+
+Append to `[tool.ruff.lint.per-file-ignores]` in `pyproject.toml` (mirror `contracts/*.py`):
+```toml
+"src/shenbi/trace/*.py" = [
+    "D103", "E402", "D101", "D102", "D205", "D415", "E501", "E741",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059", "PLC0415",
+]
+"tests/unit/trace/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402", "E501", "E741",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/property/trace/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402", "E501", "E741",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+```
+注：`safe_write.py` 匹配 `src/shenbi/*.py`（无 RUF 忽略）→ **必须 ASCII docstring**。`gates/g7_trace.py` 匹配 `gates/*.py`（无 RUF 忽略）→ **必须 ASCII docstring**。trace/*.py 虽加了忽略但**建议仍用 ASCII** 以保持一致。
+
+- [ ] **Step 6: mypy + ruff**
+`uv run mypy src/shenbi/trace/event.py` → Success
+`uv run ruff check src/shenbi/trace/ src/shenbi/safe_write.py` → All passed
+- [ ] **Step 7: Commit**
 ```bash
 git add src/shenbi/trace/__init__.py src/shenbi/trace/event.py \
-        tests/unit/trace/__init__.py tests/unit/trace/test_event.py
-git commit -m "feat(trace): add TraceEvent frozen model with hash-chain signature"
+        tests/unit/trace/__init__.py tests/unit/trace/test_event.py pyproject.toml
+git commit -m "feat(trace): add TraceEvent frozen model with hash-chain signature + ruff config"
 ```
 
 ---
@@ -552,6 +584,8 @@ git commit -m "feat(trace): add schema_version monotonicity + forward-incompatib
 
 **设计：** COMPACTION 事件本身成为 trace 新首条（链从它的 signature 继续）。`prev_compaction_seq` 指向前一次 compaction 的 seq（首次=None，语义=LEGACY_MIGRATION 锚）。verify_chain 校验每条 COMPACTION 的 prev_compaction_seq 严格无缺口，首条可为 None。
 
+**已知限制（I5，诚实声明）：** compact() 截断旧事件后，当前文件只含一条 COMPACTION。`prev_compaction_seq` 指向已被截断的旧 seq，verify_chain 只校验单文件内 COMPACTION 序列的单调性（首条 None 合法），**无法跨 compaction 边界独立回验**被截断的历史（那是 snapshot 的职责，不是 hash 链的）。这是 compaction-by-design 的固有权衡（以 auditability 换体积）。spec 判据 7 要求 compaction "保历史 + 篡改边界链"——snapshot 保历史、当前链校验篡改边界，但跨 compaction 的端到端审计是已知 Tier A 限制（full cross-compaction end-to-end auditability 是 future work）。
+
 - [ ] **Step 1: Write failing test**
 
 ```python
@@ -742,18 +776,24 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
-def _lock(path: Path) -> None:
+def _acquire_lock(path: Path) -> object | None:
+    """Acquire exclusive lock on parent dir; return fd to release later (I3 fix).
+
+    The fd must stay open across os.replace+fsync for the lock to be held.
+    Returns the fd (caller closes after write) or None on flock-unavailable
+    (lockfile fallback M5).
+    """
     try:
         import fcntl
 
         fd = os.open(str(path.parent), os.O_RDONLY)
-        try:
-            fcntl.flock(fd, fcntl.LOCK_EX)
-        finally:
-            os.close(fd)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        return fd  # caller must close after write to release
     except (ImportError, OSError):
-        lockfile = path.parent / (path.name + ".lock")  # M5 回退
+        # M5 fallback: lockfile (advisory, not as strong as flock)
+        lockfile = path.parent / (path.name + ".lock")
         lockfile.touch()
+        return None
 
 
 def safe_write(
@@ -765,7 +805,7 @@ def safe_write(
     trace_target: str | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    _lock(path)
+    lock_fd = _acquire_lock(path)  # held open across write (I3 fix)
     payload = data if isinstance(data, bytes) else data.encode("utf-8")
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
     try:
@@ -779,6 +819,9 @@ def safe_write(
         if os.path.exists(tmp):
             os.unlink(tmp)
         raise
+    finally:
+        if lock_fd is not None:
+            os.close(lock_fd)  # release flock AFTER os.replace+fsync
     if round_dir is not None and trace_action is not None:
         from shenbi.trace.writer import TraceWriter  # 局部 import 避免循环
 
@@ -841,6 +884,24 @@ def test_materialize_empty_trace(tmp_path: Path) -> None:
     prog = materialize_progress(rd, total_skills=SKILLS)
     assert prog["completed_skill_names"] == []
     assert set(prog["remaining_generative"]) == set(SKILLS)
+    # I2 fix: unmarked skills get three-pending structure (not empty)
+    assert prog["skills"]["shenbi-a"]["generative"]["status"] == "pending"
+
+
+def test_materialize_partial_skill_per_phase_queue(tmp_path: Path) -> None:
+    """I1 fix: per-phase queue. Skill done on generative ONLY should NOT be
+    in remaining_generative, but SHOULD be in remaining_bug_hunt/clean."""
+    rd = tmp_path / "round"
+    rd.mkdir()
+    w = TraceWriter(rd)
+    w.append(actor="d", actor_role="GATE", action="MARK_DONE", target="progress.json",
+             payload={"skill": "shenbi-a", "test_type": "generative", "score": 94.0, "status": "done"})
+    prog = materialize_progress(rd, total_skills=SKILLS)
+    # shenbi-a done on generative only -> NOT fully complete, NOT in remaining_generative
+    assert "shenbi-a" not in prog["completed_skill_names"]
+    assert "shenbi-a" not in prog["remaining_generative"]
+    assert "shenbi-a" in prog["remaining_bug_hunt"]  # still pending bug-hunt
+    assert "shenbi-a" in prog["remaining_clean"]
 ```
 
 - [ ] **Step 2: Run → fails**
@@ -864,6 +925,11 @@ from shenbi.trace.replay import replay
 _TEST_TYPES = ("generative", "bug-hunt", "clean")
 
 
+def _empty_skill() -> dict[str, dict[str, Any]]:
+    """Match update_progress.cmd_init: every skill starts three-phase pending."""
+    return {tt: {"status": "pending"} for tt in _TEST_TYPES}
+
+
 def materialize_progress(
     round_dir: Path,
     *,
@@ -871,37 +937,58 @@ def materialize_progress(
     tier: str = "T1",
     expected_chapters: int = 67,
 ) -> dict[str, Any]:
+    """Reconstruct progress.json from trace (I1/I2 fix: match update_progress semantics).
+
+    Per-phase queues (NOT total - genuinely_done): remaining_generative = skills
+    not done on generative specifically. Skills sub-structure defaults to
+    three-pending (not empty) for unmarked skills — matches cmd_init.
+    """
     events = replay(round_dir)
     skills_state: dict[str, dict[str, dict[str, Any]]] = {}
     init_tier, init_chapters = tier, expected_chapters
     done_counter = 0
     for e in events:
         if e.action == "INIT":
-            p = e.payload
-            init_tier = str(p.get("tier", tier))
-            init_chapters = int(p.get("expected_chapters", expected_chapters))
+            payload = e.payload
+            init_tier = str(payload.get("tier", tier))
+            init_chapters = int(payload.get("expected_chapters", expected_chapters))
         elif e.action == "MARK_DONE":
-            p = e.payload
-            skill = str(p.get("skill"))
-            tt = str(p.get("test_type"))
-            sd = skills_state.setdefault(skill, {})
-            sd[tt] = {"status": str(p.get("status", "done")), "score": float(p.get("score", 0.0))}
+            payload = e.payload
+            skill = str(payload.get("skill"))
+            tt = str(payload.get("test_type"))
+            sd = skills_state.setdefault(skill, _empty_skill())  # I2: default three-pending
+            sd[tt] = {"status": str(payload.get("status", "done")),
+                      "score": float(payload.get("score", 0.0))}
             if sd[tt]["status"] in ("done", "skip"):
                 done_counter += 1
+
+    all_skills_set = set(total_skills)
+
+    # I1 fix: per-phase pending (mirror cmd_rebuild_queues semantics)
+    def _pending(test_type: str) -> set[str]:
+        return all_skills_set - {
+            sn for sn, sd in skills_state.items()
+            if sd.get(test_type, {}).get("status") in ("done", "skip")
+        }
+
     genuinely_done = sorted(
-        sn for sn, sd in skills_state.items()
-        if all(sd.get(tt, {}).get("status") in ("done", "skip") for tt in _TEST_TYPES)
+        all_skills_set - (_pending("generative") | _pending("bug-hunt") | _pending("clean"))
     )
+    # I2 fix: unmarked skills get three-pending structure (not empty)
+    skills_full = {
+        skill: skills_state.get(skill, _empty_skill())
+        for skill in sorted(total_skills)
+    }
     out: dict[str, Any] = {
         "round": Path(round_dir).name.split("-")[1] if "round-" in str(round_dir) else "???",
         "tier": init_tier,
         "test_cycle_phase": "generative",
         "subagent_completion_count": done_counter,
         "completed_skill_names": genuinely_done,
-        "skills": {skill: skills_state.get(skill, {}) for skill in sorted(total_skills)},
-        "remaining_generative": sorted(set(total_skills) - set(genuinely_done)),
-        "remaining_bug_hunt": [],
-        "remaining_clean": [],
+        "skills": skills_full,
+        "remaining_generative": sorted(_pending("generative")),
+        "remaining_bug_hunt": sorted(_pending("bug-hunt")),
+        "remaining_clean": sorted(_pending("clean")),
         "gate_blockers": [],
         "total_framework_skills": len(total_skills),
         "expected_chapters": init_chapters,
@@ -1048,6 +1135,102 @@ git commit -m "feat(g7): add read-only trace tamper audit (chain + version + com
 
 ---
 
+### Task 8.5: migrate_from_progress (LEGACY_MIGRATION, 判据 7 I6d)
+
+**Files:** Create `src/shenbi/trace/migrate.py`、`tests/unit/trace/test_migrate.py`
+
+**Interfaces:** Consumes `TraceWriter`、`hashlib`、`json`。Produces `migrate_from_progress(round_dir: Path) -> TraceEvent`。从现有 progress.json 反推 LEGACY_MIGRATION 事件（含文件签名快照），写入 trace.jsonl 作合法链首锚。判据 7 I6d 核心。
+
+- [ ] **Step 1: Write failing test**
+
+```python
+# tests/unit/trace/test_migrate.py
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from shenbi.trace.migrate import migrate_from_progress
+
+
+def test_migrate_from_existing_progress(tmp_path: Path) -> None:
+    rd = tmp_path / "round"
+    rd.mkdir()
+    (rd / "progress.json").write_text(json.dumps({
+        "round": "001", "tier": "T1",
+        "completed_skill_names": ["shenbi-a"],
+    }), encoding="utf-8")
+    e = migrate_from_progress(rd)
+    assert e.action == "LEGACY_MIGRATION"
+    assert "progress_sha256" in e.payload
+    assert "completed_skill_names" in e.payload["progress_snapshot"]
+
+
+def test_migrate_idempotent(tmp_path: Path) -> None:
+    rd = tmp_path / "round"
+    rd.mkdir()
+    (rd / "progress.json").write_text("{}", encoding="utf-8")
+    migrate_from_progress(rd)
+    from shenbi.trace.replay import replay
+    before = len(replay(rd))
+    migrate_from_progress(rd)
+    after = len(replay(rd))
+    assert before == after
+```
+
+- [ ] **Step 2: Run -> fails**
+
+- [ ] **Step 3: Implement**
+
+```python
+# src/shenbi/trace/migrate.py
+# I6d: bootstrap LEGACY_MIGRATION from existing progress.json + file signature.
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+
+from shenbi.trace.event import TraceEvent
+from shenbi.trace.replay import replay
+from shenbi.trace.writer import TraceWriter
+
+
+def migrate_from_progress(round_dir: Path) -> TraceEvent:
+    events = replay(round_dir)
+    if events:
+        for e in events:
+            if e.action == "LEGACY_MIGRATION":
+                return e  # idempotent: already migrated
+    progress_path = Path(round_dir) / "progress.json"
+    raw = progress_path.read_text(encoding="utf-8") if progress_path.exists() else "{}"
+    try:
+        snapshot = json.loads(raw)
+    except json.JSONDecodeError:
+        snapshot = {}
+    w = TraceWriter(round_dir)
+    return w.append(
+        actor="system", actor_role="GATE",
+        action="LEGACY_MIGRATION", target="progress.json",
+        payload={
+            "progress_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+            "progress_snapshot": {
+                "tier": snapshot.get("tier"),
+                "completed_skill_names": snapshot.get("completed_skill_names", []),
+            },
+        },
+    )
+```
+
+- [ ] **Step 4: Run -> passes** (2)
+- [ ] **Step 5: mypy + ruff + commit**
+```bash
+git add src/shenbi/trace/migrate.py tests/unit/trace/test_migrate.py
+git commit -m "feat(trace): add migrate_from_progress (LEGACY_MIGRATION + file-signature snapshot)"
+```
+
+---
+
 ### Task 9: 公共 API 导出 + 属性测试 + 全量回归
 
 **Files:** Modify `src/shenbi/trace/__init__.py`；Create `tests/property/trace/__init__.py`、`tests/property/trace/test_chain_invariants.py`
@@ -1060,6 +1243,7 @@ git commit -m "feat(g7): add read-only trace tamper audit (chain + version + com
 from shenbi.trace.compaction import compact, verify_chain
 from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
 from shenbi.trace.materialize import materialize_progress
+from shenbi.trace.migrate import migrate_from_progress
 from shenbi.trace.replay import replay
 from shenbi.trace.versioning import CURRENT_VERSION, assert_monotonic, migrate_to_current
 from shenbi.trace.writer import TraceWriter
@@ -1067,7 +1251,8 @@ from shenbi.trace.writer import TraceWriter
 __all__ = [
     "CURRENT_VERSION", "GENESIS_PREV", "TraceEvent", "TraceWriter",
     "canonical_payload", "sign", "replay", "compact", "verify_chain",
-    "materialize_progress", "assert_monotonic", "migrate_to_current",
+    "materialize_progress", "migrate_from_progress",
+    "assert_monotonic", "migrate_to_current",
 ]
 ```
 
@@ -1138,13 +1323,13 @@ git commit --allow-empty -m "chore(trace): pillar 4 Tier A skeleton complete"
 
 ## Self-Review
 
-**1. Spec coverage（Tier A 范围）：** 判据 7（trace 完整性：目录 fsync I6a Task 2、torn-line I6b Task 3、compaction+LEGACY 锚 Task 5、版本前向不兼容 I6c+N5 Task 4、在飞 round 迁移=LEGACY_MIGRATION 作锚 Task 5）全覆盖。判据 11（compaction 链单调+截断连续 Task 5/8）。progress 降级 Task 7。G7 只读篡改审计 Task 8。**范围外：** safe_write 唯一性 AST lint 强制（支柱六）、Tier B 写所有权审计（支柱四 Tier B）、update_progress.py 命令迁到 trace（行为切换，后续）。
+**1. Spec coverage（Tier A 范围）：** 判据 7（trace 完整性：目录 fsync I6a Task 2、torn-line I6b Task 3、compaction+LEGACY 锚 Task 5、版本前向不兼容 I6c+N5 Task 4、在飞 round 迁移=LEGACY_MIGRATION Task 8.5）全覆盖。判据 11（compaction 链单调 Task 5/9；跨 compaction 端到端审计是已知 Tier A 限制，见 Task 5 I5 诚实声明）。progress 降级 Task 7（I1/I2：per-phase queue + three-pending 默认）。G7 只读篡改审计 Task 8。**范围外：** safe_write 唯一性 AST lint 强制（支柱六）、Tier B 写所有权审计（支柱四 Tier B）、update_progress.py 命令迁到 trace（行为切换，后续）。
 
 **2. Placeholder scan：** 无 TBD/TODO；每个 code step 有完整代码；命令精确。
 
 **3. Type consistency：** `TraceEvent`/`sign`/`canonical_payload`/`TraceWriter.append`/`replay`/`compact`/`verify_chain`/`materialize_progress`/`audit_trace` 签名跨任务一致；`ActorRole` 复用支柱一。`safe_write` 的 `round_dir`/`trace_action` 可选，trace 追加走 `TraceWriter`。
 
-**4. 已知限制：** Tier A **不**改 update_progress.py 现有命令（保持现有测试集全 passed）；materialize_progress 是新独立函数。AST lint 强制 safe_write 唯一性留给支柱六。G7 audit_trace 是新只读函数，未替换 gate_G7 主体（避免破坏现有 G7 行为；集成在门改造支柱二）。
+**4. 已知限制（诚实）：** (a) Tier A **不**改 update_progress.py 现有命令（materialize_progress 是新独立函数，语义对齐 cmd_rebuild_queues）。(b) AST lint 强制 safe_write 唯一性留给支柱六。(c) G7 audit_trace 是新只读函数，未替换 gate_G7 主体。(d) **compaction 跨边界审计有限**（I5，Task 5 诚实声明）。(e) **subprocess read-provenance 不在 Tier A**（future work）。(f) coverage-threshold 测试在隔离运行时 fail（预期，I4）。
 
 ---
 
