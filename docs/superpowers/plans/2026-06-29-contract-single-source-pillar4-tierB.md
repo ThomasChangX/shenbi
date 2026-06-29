@@ -340,6 +340,12 @@ def test_no_drift_when_no_active_table() -> None:
     """init fixture 无活跃表 → drift=[]（md_rows={}）。"""
     init = (PROJECT / "tests" / "fixtures" / "pending-hooks-init.md").read_text(encoding="utf-8")
     assert detect_cross_section_drift(parse_records(init), parse_markdown_table(init)) == []
+
+def test_no_false_drift_on_float_formatting() -> None:
+    """Pin the float-format case: YAML 0.8 vs markdown '0.80' must NOT drift."""
+    recs = [{"id": "h", "subtlety": 0.8}]          # YAML parses to float 0.8
+    md = {"h": {"id": "h", "subtlety": "0.80"}}    # markdown table text "0.80"
+    assert detect_cross_section_drift(recs, md) == []
 ```
 
 - [ ] **Step 2: Run → fails**
@@ -403,24 +409,43 @@ def parse_markdown_table(text: str) -> dict[str, dict[str, str]]:
     return out
 
 
+def _values_equal(yaml_val: Any, md_val: str) -> bool:
+    """Numeric-aware comparison (Singer C1 fix).
+
+    YAML parses 0.80 -> float 0.8; markdown keeps literal "0.80".
+    str(0.8)="0.8" != "0.80" -> false drift on real fixture.
+    Try float() both sides first; fall back to str() comparison.
+    """
+    if str(yaml_val) == md_val:
+        return True
+    try:
+        return float(yaml_val) == float(md_val)
+    except (TypeError, ValueError):
+        return False
+
+
 def detect_cross_section_drift(
     yaml_records: list[dict[str, Any]], md_rows: dict[str, dict[str, str]]
 ) -> list[str]:
-    """返回 drift 描述列表（空=一致）。YAML 权威：以 YAML 为基准比对派生表。"""
+    """Return drift descriptions (empty=consistent). YAML authoritative.
+
+    C1 fix: numeric-aware comparison via _values_equal. YAML parses 0.80 -> 0.8
+    (float); markdown keeps literal "0.80". Compare floats when both parse.
+    """
     by_id: dict[str, dict[str, Any]] = {str(r.get("id")): r for r in yaml_records}
     issues: list[str] = []
     for rid, row in md_rows.items():
         if rid not in by_id:
-            issues.append(f"drift: markdown 表 id={rid} 在 YAML 中不存在")
+            issues.append(f"drift: markdown table id={rid} not in YAML")
             continue
         rec = by_id[rid]
         for key, md_val in row.items():
             if key == "id":
                 continue
             yaml_val = rec.get(key)
-            if str(yaml_val) != md_val:
+            if not _values_equal(yaml_val, md_val):
                 issues.append(
-                    f"drift: id={rid} key={key} 表={md_val!r} != YAML={yaml_val!r}"
+                    f"drift: id={rid} key={key} md={md_val!r} != YAML={yaml_val!r}"
                 )
     return issues
 ```
