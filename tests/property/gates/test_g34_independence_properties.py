@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import string
 
-from hypothesis import assume, given, settings
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
 from shenbi.gates.g3_independence import scoring_independence_status
@@ -28,19 +28,20 @@ def test_empty_progress_fails_closed(skill: str) -> None:
     assert status == "FAIL"
 
 
-@given(skill=skill, gen=agent_id, scorer=agent_id)
+@given(skill=skill, gen=agent_id)
 @settings(max_examples=80, deadline=None)
-def test_same_agent_fails(skill: str, gen: str, scorer: str) -> None:
-    assume(scorer == gen)
+def test_same_agent_fails(skill: str, gen: str) -> None:
+    """生成者与评分者同一 agent（同源自评）→ FAIL。"""
     status, _ = scoring_independence_status(
-        {"agent_trace": {skill: gen}, "current_scorer_agent": scorer}, skill
+        {"agent_trace": {skill: gen}, "current_scorer_agent": gen}, skill
     )
     assert status == "FAIL"
 
 
 @given(skill=skill, gen=agent_id, scorer=agent_id)
-@settings(max_examples=80, deadline=None)
+@settings(max_examples=80, deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
 def test_different_agents_pass_only_when_distinct(skill: str, gen: str, scorer: str) -> None:
+    """生成者与评分者不同 agent（独立评分）→ PASS。"""
     assume(scorer != gen)
     status, reason = scoring_independence_status(
         {"agent_trace": {skill: gen}, "current_scorer_agent": scorer}, skill
