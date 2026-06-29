@@ -65,6 +65,8 @@ jobs:
       - run: uv sync --frozen --group dev
       - name: Regenerate contract-derived artifacts
         run: uv run shenbi-sync-contracts
+      - name: Regenerate auto-check docs (spec P6)
+        run: uv run python tools/generate_autocheck_docs.py
       - name: Idempotency — generated artifacts must match committed
         run: git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
 
