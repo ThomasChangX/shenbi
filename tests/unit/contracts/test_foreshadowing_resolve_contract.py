@@ -25,6 +25,9 @@ def test_zone_computed_from_cp() -> None:
     assert HookCP(hook_id="h", cp=80, last_reinforced=1, current_chapter=10).zone == "ORANGE"
     assert HookCP(hook_id="h", cp=100, last_reinforced=1, current_chapter=10).zone == "RED"
     assert HookCP(hook_id="h", cp=49, last_reinforced=1, current_chapter=10).zone == "GREEN"
+    assert (
+        HookCP(hook_id="h", cp=50, last_reinforced=1, current_chapter=10).zone == "ORANGE"
+    )  # GREEN_MAX boundary
 
 
 def test_zone_ignores_hand_filled() -> None:

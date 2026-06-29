@@ -57,13 +57,8 @@ class Report(BaseModel):
     @model_validator(mode="after")
     def _debt_consistent_with_hooks(self) -> Report:
         max_cp = max((h.cp for h in self.hooks), default=0)
-        expected: CPZone = (
-            "RED"
-            if max_cp >= CP_THRESHOLDS["RED_NOW"]
-            else "ORANGE"
-            if max_cp >= CP_THRESHOLDS["GREEN_MAX"]
-            else "GREEN"
-        )
+        # Reuse HookCP.zone derivation — single source of truth for zone logic
+        expected: CPZone = HookCP(hook_id="_", cp=max_cp, last_reinforced=1, current_chapter=1).zone
         if self.debt_level != expected:
             raise ValueError(
                 f"debt_level={self.debt_level} 与 hooks 最大 cp={max_cp} "

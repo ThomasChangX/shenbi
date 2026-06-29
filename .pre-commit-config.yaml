@@ -64,3 +64,9 @@ repos:
           git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/'
         language: system
         pass_filenames: false
+      - id: lint-no-forbid-with-computed-field
+        name: N7 forbid-on-computed_field guard
+        entry: uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
+        language: system
+        pass_filenames: false
+        files: ^src/shenbi/contracts/.*\.py$

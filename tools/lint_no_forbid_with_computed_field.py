@@ -3,6 +3,9 @@
 
 Usage: python tools/lint_no_forbid_with_computed_field.py <path>
 exit 0 = pass; exit 1 = violation found.
+
+Limitation: only checks model_config within the same class body as @computed_field.
+Inherited extra='forbid' from a parent class is not detected.
 """
 
 from __future__ import annotations

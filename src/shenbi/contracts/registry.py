@@ -18,8 +18,10 @@ _TRUTH_FILES_YAML = PROJECT / "docs" / "framework" / "truth-files.yaml"
 
 
 def bootstrap_registry() -> dict[str, str]:
-    """从 truth-files.yaml 的 concepts 读全部文件词汇（未迁移技能用）。
+    """Read truth-files.yaml concepts for unmigrated skill file vocabulary.
 
+    Reserved for the transition-period integration (later pillars will wire
+    contract.py's 4 tools to call this). Not called by production code yet.
     v2 C1: 真实结构 concepts:[{name,kind}]，非 files:[{path,kind}]。
     返回 {name: kind}。
     """
