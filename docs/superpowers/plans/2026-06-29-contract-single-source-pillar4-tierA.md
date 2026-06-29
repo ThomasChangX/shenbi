@@ -647,7 +647,6 @@ from pathlib import Path
 
 from shenbi.trace.event import GENESIS_PREV, TraceEvent
 from shenbi.trace.replay import replay
-from shenbi.trace.writer import TraceWriter
 
 
 def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
@@ -810,8 +809,8 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
-def _acquire_lock(path: Path) -> object | None:
-    """Acquire exclusive lock on parent dir; return fd to release later (I3 fix).
+def _acquire_lock(path: Path) -> int | None:
+    """Acquire exclusive lock on parent dir; return fd to release later (I3 fix). fd is int (os.open returns int).
 
     The fd must stay open across os.replace+fsync for the lock to be held.
     Returns the fd (caller closes after write) or None on flock-unavailable
