@@ -1,0 +1,85 @@
+"""safe_write: sole atomic-write entry for framework state (spec pillar 4 Tier A).
+
+temp + fsync(file) + os.replace(atomic) + fsync(dir) + fcntl.flock;
+on flock-unavailable, falls back to a lockfile (M5). Optionally appends a
+trace event via TraceWriter. ASCII docstring: matches src/shenbi/*.py whose
+ruff ignore list omits RUF002 (ambiguous-unicode-in-docstring).
+"""
+
+from __future__ import annotations
+
+import os
+import tempfile
+from pathlib import Path
+
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
+
+def _fsync_dir(path: Path) -> None:
+    fd = os.open(str(path), os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    except OSError as e:  # 某些 FS 不支持目录 fsync
+        log.debug("dir_fsync_unsupported", path=str(path), error=str(e))
+    finally:
+        os.close(fd)
+
+
+def _acquire_lock(path: Path) -> int | None:
+    """Acquire exclusive lock on parent dir; return fd to release later.
+
+    The fd must stay open across os.replace+fsync for the lock to be held.
+    Returns the fd (caller closes after write) or None on flock-unavailable
+    (lockfile fallback M5).
+    """
+    try:
+        import fcntl
+
+        fd = os.open(str(path.parent), os.O_RDONLY)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        return fd  # caller must close after write to release
+    except (ImportError, OSError):
+        # M5 fallback: lockfile (advisory, not as strong as flock)
+        lockfile = path.parent / (path.name + ".lock")
+        lockfile.touch()
+        return None
+
+
+def safe_write(
+    path: Path,
+    data: bytes | str,
+    *,
+    round_dir: Path | None = None,
+    trace_action: str | None = None,
+    trace_target: str | None = None,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_fd = _acquire_lock(path)  # held open across write (I3)
+    payload = data if isinstance(data, bytes) else data.encode("utf-8")
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(payload)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+        _fsync_dir(path.parent)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+    finally:
+        if lock_fd is not None:
+            os.close(lock_fd)  # release flock AFTER os.replace+fsync
+    if round_dir is not None and trace_action is not None:
+        from shenbi.trace.writer import TraceWriter  # 局部 import 避免循环
+
+        TraceWriter(round_dir).append(
+            actor="safe_write",
+            actor_role="GATE",
+            action=trace_action,
+            target=trace_target or path.name,
+            payload={"path": str(path)},
+        )
