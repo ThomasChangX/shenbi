@@ -1,7 +1,27 @@
 ---
 name: shenbi-relationship-map
-description: Use when modeling character relationships, building interest chains between characters, tracking faction affiliations, defining information boundaries, or designing how relationships evolve over the story
+description: "Use when modeling character relationships, building interest chains between characters, tracking faction affiliations, defining information boundaries, or designing how relationships evolve over the story"
+contract:
+  kind: artifact
+  reads:
+    - characters/**/*.md
+    - characters/relationships.md
+    - truth/character_matrix.md
+    - world/factions.md
+  writes: []
+  updates:
+    - characters/relationships.md
+    - truth/character_matrix.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md
+- **Writes:** none
+- **Updates:** characters/relationships.md, truth/character_matrix.md
+
+<!-- END AUTO-GENERATED -->
 
 # 关系图谱
 
@@ -24,12 +44,6 @@ digraph relationship_map {
     "Human reviews" -> "Update relationships.md + character_matrix.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `characters/**/*.md`, `characters/relationships.md` (existing), `truth/character_matrix.md`, `world/factions.md`
-- **Writes:** 无
-- **Updates:** `characters/relationships.md`, `truth/character_matrix.md`
 
 ## 铁律
 

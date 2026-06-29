@@ -1,0 +1,147 @@
+"""Generator: expected_outputs (parametric->glob), DAG, index — from contracts."""
+
+from __future__ import annotations
+
+import pytest
+
+from shenbi.sync_contracts import (
+    build_dag,
+    derive_expected_outputs,
+    normalize_to_glob,
+    verify_bijection,
+)
+
+
+@pytest.mark.unit
+def test_parametric_normalizes_to_glob() -> None:
+    reg = {"patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}]}
+    assert normalize_to_glob("chapters/chapter-N.md", reg) == "chapters/chapter-*.md"
+
+
+@pytest.mark.unit
+def test_normalize_falls_back_to_declared_glob_for_per_dim_literal() -> None:
+    """A per-dimension audit literal (audits/chapter-N-anti-ai.md) is not the
+    registered parametric (audits/chapter-N-<dim>.md), so the patterns lookup
+    misses. The globs fallback must resolve it to audits/chapter-*.md — without
+    this, expected_outputs carries a literal N and G5.4 / cmd_pre_score never
+    match real numbered files (regression for Copilot review on PR #6).
+    """
+    reg = {
+        "concepts": [],
+        "patterns": [{"parametric": "audits/chapter-N-<dim>.md", "glob": "audits/chapter-*.md"}],
+        "globs": [{"pattern": "audits/chapter-*.md"}],
+    }
+    assert normalize_to_glob("audits/chapter-N-anti-ai.md", reg) == "audits/chapter-*.md"
+
+
+@pytest.mark.unit
+def test_parametric_glob_wins_over_broader_declared_glob() -> None:
+    """A registered parametric (chapters/chapter-N.md) matches both its own
+    pattern and the broad chapters/*.md glob; the specific parametric glob must
+    win so the normalized output stays specific.
+    """
+    reg = {
+        "concepts": [],
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [{"pattern": "chapters/*.md"}],
+    }
+    assert normalize_to_glob("chapters/chapter-N.md", reg) == "chapters/chapter-*.md"
+
+
+@pytest.mark.unit
+def test_load_all_contracts_emits_kind() -> None:
+    """load_all_contracts() must include ``kind`` per contract — the
+    contract-completeness lint (lint_contracts.find_completeness_violations)
+    gates on ``c.get("kind") == "report"``; dropping kind made the lint dead.
+    Regression for Copilot review on PR #6.
+    """
+    from shenbi.sync_contracts import load_all_contracts
+
+    contracts = load_all_contracts()
+    assert contracts, "expected migrated skills to load"
+    for skill, c in contracts.items():
+        assert "kind" in c, f"{skill} contract missing kind (completeness lint would skip it)"
+
+
+@pytest.mark.unit
+def test_declared_glob_passes_through() -> None:
+    reg = {"globs": [{"pattern": "truth/*.md"}], "patterns": []}
+    assert normalize_to_glob("truth/*.md", reg) == "truth/*.md"
+
+
+@pytest.mark.unit
+def test_concrete_path_stays_concrete() -> None:
+    reg = {"concepts": [{"name": "novel.json"}], "patterns": [], "globs": []}
+    assert normalize_to_glob("novel.json", reg) == "novel.json"
+
+
+@pytest.mark.unit
+def test_dag_edge_from_producer_to_consumer() -> None:
+    contracts = {
+        "A": {"writes": ["chapters/chapter-N.md"], "updates": [], "reads": []},
+        "B": {"writes": [], "updates": [], "reads": ["chapters/chapter-N.md"]},
+    }
+    reg = {
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [],
+        "concepts": [],
+    }
+    dag = build_dag(contracts, reg)
+    assert {"producer": "A", "consumer": "B", "file": "chapters/chapter-N.md"} in dag["edges"]
+
+
+@pytest.mark.unit
+def test_dag_connects_concrete_write_to_glob_read() -> None:
+    """A concrete audit write must join a glob audit read (glob-aware matching)."""
+    contracts = {
+        "reviewer": {"writes": ["audits/chapter-N-anti-ai.md"], "updates": [], "reads": []},
+        "drift": {"writes": [], "updates": [], "reads": ["audits/chapter-N-*.md"]},
+    }
+    reg = {"concepts": [], "patterns": [], "globs": [{"pattern": "audits/chapter-*.md"}]}
+    dag = build_dag(contracts, reg)
+    assert any(e["producer"] == "reviewer" and e["consumer"] == "drift" for e in dag["edges"])
+
+
+@pytest.mark.unit
+def test_derive_expected_outputs_normalizes_and_dedups() -> None:
+    """Two members writing the same glob -> one entry; parametric -> glob."""
+    phase = {"prerequisites": ["A", "B"]}
+    contracts = {
+        "A": {"writes": ["chapters/chapter-N.md"], "updates": [], "reads": []},
+        "B": {"writes": [], "updates": ["chapters/chapter-N.md"], "reads": []},
+    }
+    reg = {
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [],
+        "concepts": [],
+    }
+    assert derive_expected_outputs(phase, contracts, reg) == ["chapters/chapter-*.md"]
+
+
+@pytest.mark.unit
+def test_bijection_self_check_passes_when_complete() -> None:
+    """Every member write is emitted and every emitted entry traces to a member."""
+    phase = {"prerequisites": ["A"]}
+    contracts = {"A": {"writes": ["novel.json"], "updates": [], "reads": []}}
+    reg = {"concepts": [{"name": "novel.json"}], "patterns": [], "globs": []}
+    generated = derive_expected_outputs(phase, contracts, reg)
+    # No raise == bijection holds (catches generator bugs, not curated drift).
+    verify_bijection(generated, phase, contracts, reg)
+
+
+@pytest.mark.unit
+def test_bijection_self_check_rejects_dropped_member_write() -> None:
+    """verify_bijection raises when a member write is missing from generated."""
+    phase = {"prerequisites": ["A", "B"]}
+    contracts = {
+        "A": {"writes": ["novel.json"], "updates": [], "reads": []},
+        "B": {"writes": ["genre-config.json"], "updates": [], "reads": []},
+    }
+    reg = {
+        "concepts": [{"name": "novel.json"}, {"name": "genre-config.json"}],
+        "patterns": [],
+        "globs": [],
+    }
+    # Drop B's write -> the bijection is broken (member output not emitted).
+    with pytest.raises(AssertionError, match="genre-config"):
+        verify_bijection(["novel.json"], phase, contracts, reg)

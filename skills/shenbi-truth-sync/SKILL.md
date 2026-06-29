@@ -1,7 +1,26 @@
 ---
 name: shenbi-truth-sync
-description: Use when restoring consistency between manually edited chapter content and truth files, re-extracting state from revised chapters, or bootstrapping truth files from existing novel content
+description: "Use when restoring consistency between manually edited chapter content and truth files, re-extracting state from revised chapters, or bootstrapping truth files from existing novel content"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - truth/*.md
+    - world/*.md
+    - characters/**/*.md
+  writes: []
+  updates:
+    - truth/*.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/*.md, world/*.md, characters/**/*.md
+- **Writes:** none
+- **Updates:** truth/*.md
+
+<!-- END AUTO-GENERATED -->
 
 # 真相文件同步
 
@@ -20,12 +39,6 @@ digraph truth_sync {
     "Apply approved changes to truth files" -> "Report sync summary";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/*.md`, `world/*.md`, `characters/**/*.md`
-- **Writes:** none
-- **Updates:** `truth/*.md` (in-place corrections)
 
 ## 铁律
 

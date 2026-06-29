@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-sensitivity
-description: Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries
+description: "Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+    - novel.json
+  writes:
+    - audits/chapter-N-sensitivity.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json, novel.json
+- **Writes:** audits/chapter-N-sensitivity.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 敏感内容审计
 
@@ -24,12 +42,6 @@ digraph review_sensitivity {
     "Report blocking issues" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `novel.json`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 

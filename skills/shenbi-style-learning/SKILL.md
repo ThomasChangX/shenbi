@@ -1,7 +1,24 @@
 ---
 name: shenbi-style-learning
-description: Use when extracting a style fingerprint from existing chapters for style imitation, computing sentence/paragraph length statistics, or generating a statistical style profile
+description: "Use when extracting a style fingerprint from existing chapters for style imitation, computing sentence/paragraph length statistics, or generating a statistical style profile"
+contract:
+  kind: artifact
+  reads:
+    - chapters/*.md
+    - import/source/*.txt
+  writes:
+    - style/style_profile.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/*.md, import/source/*.txt
+- **Writes:** style/style_profile.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 风格学习
 
@@ -21,12 +38,6 @@ digraph style_learning {
 ```
 
 **第一步必须运行** `python -m shenbi.skill_utils.style_learning <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
-
-## 数据契约
-
-- **Reads:** `chapters/*.md`（或 `import/source/*.txt`）
-- **Writes:** `style/style_profile.md`
-- **Updates:** 无
 
 ## 铁律
 

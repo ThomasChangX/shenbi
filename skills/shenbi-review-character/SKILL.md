@@ -1,7 +1,27 @@
 ---
 name: shenbi-review-character
-description: Use when a finished chapter needs character consistency audit against profiles and arcs
+description: "Use when a finished chapter needs character consistency audit against profiles and arcs"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - characters/protagonist.md
+    - characters/major/*.md
+    - truth/character_matrix.md
+    - truth/emotional_arcs.md
+  writes:
+    - audits/chapter-N-character.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, characters/protagonist.md, characters/major/*.md, truth/character_matrix.md, truth/emotional_arcs.md
+- **Writes:** audits/chapter-N-character.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 角色一致性审计
 
@@ -25,12 +45,6 @@ digraph review_character {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `characters/protagonist.md`, `characters/major/*.md`, `truth/character_matrix.md`, `truth/emotional_arcs.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 

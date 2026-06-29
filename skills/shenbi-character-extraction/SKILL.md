@@ -1,7 +1,28 @@
 ---
 name: shenbi-character-extraction
-description: Use when reverse-extracting character profiles from existing chapters, building character cards from an analyzed manuscript, or generating speech-style fingerprints from sample dialogue
+description: "Use when reverse-extracting character profiles from existing chapters, building character cards from an analyzed manuscript, or generating speech-style fingerprints from sample dialogue"
+contract:
+  kind: artifact
+  reads:
+    - import/analysis/02_characters.md
+    - chapters/*.md
+    - import/analysis/04_plot.md
+  writes:
+    - characters/protagonist.md
+    - characters/major/*.md
+    - characters/minor/*.md
+    - characters/relationships.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** import/analysis/02_characters.md, chapters/*.md, import/analysis/04_plot.md
+- **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 角色反向提取
 
@@ -22,12 +43,6 @@ digraph character_extraction {
     "Cross-check" -> "Write to characters/";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `import/analysis/02_characters.md`, 源 `chapters/*.md`, `import/analysis/04_plot.md`
-- **Writes:** `characters/protagonist.md`, `characters/major/*.md`, `characters/minor/*.md`, `characters/relationships.md`
-- **Updates:** 无（导入阶段写新文件，不修改原 `characters/`）
 
 ## 铁律
 
@@ -215,4 +230,3 @@ evidence:
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

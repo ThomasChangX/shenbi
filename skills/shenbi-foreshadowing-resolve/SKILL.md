@@ -1,7 +1,24 @@
 ---
 name: shenbi-foreshadowing-resolve
-description: Use when foreshadowing hooks reach TRIGGERED state and need resolution, or when a volume ends and requires foreshadowing inventory
+description: "Use when foreshadowing hooks reach TRIGGERED state and need resolution, or when a volume ends and requires foreshadowing inventory"
+contract:
+  kind: artifact
+  reads:
+    - truth/pending_hooks.md
+    - truth/chapter_summaries.md
+  writes: []
+  updates:
+    - truth/pending_hooks.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** truth/pending_hooks.md, truth/chapter_summaries.md
+- **Writes:** none
+- **Updates:** truth/pending_hooks.md
+
+<!-- END AUTO-GENERATED -->
 
 # 伏笔兑现管理
 
@@ -21,12 +38,6 @@ digraph foreshadowing_resolve {
     "Flag unresolved hooks for next volume" -> "Output 兑现汇总";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `truth/pending_hooks.md`, `truth/chapter_summaries.md`
-- **Writes:** none
-- **Updates:** `truth/pending_hooks.md`
 
 ## 铁律
 

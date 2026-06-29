@@ -1,7 +1,27 @@
 ---
 name: shenbi-location-builder
-description: Use when designing or expanding specific locations in a novel, building detailed place profiles with spatial layout and atmosphere, or resolving cross-location spatial consistency
+description: "Use when designing or expanding specific locations in a novel, building detailed place profiles with spatial layout and atmosphere, or resolving cross-location spatial consistency"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - world/story_bible.md
+    - world/rules.md
+    - world/locations.md
+    - outline/story_frame.md
+  writes: []
+  updates:
+    - world/locations.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md
+- **Writes:** none
+- **Updates:** world/locations.md
+
+<!-- END AUTO-GENERATED -->
 
 # 地点构建
 
@@ -21,12 +41,6 @@ digraph location_builder {
     "Human reviews" -> "Append to world/locations.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `world/story_bible.md`, `world/rules.md`, `world/locations.md` (existing), `outline/story_frame.md`
-- **Writes:** 无（增量追加）
-- **Updates:** `world/locations.md`
 
 ## 铁律
 

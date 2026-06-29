@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-fanfic
-description: Use when a finished chapter in fanfic mode needs a character fidelity and world consistency audit (4 modes: canon/au/ooc/cp)
+description: "Use when a finished chapter in fanfic mode needs a character fidelity and world consistency audit (4 modes: canon/au/ooc/cp)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - novel.json
+    - source_canon/*
+  writes:
+    - audits/chapter-N-fanfic.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, novel.json, source_canon/*
+- **Writes:** audits/chapter-N-fanfic.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 同人创作审计
 
@@ -30,12 +48,6 @@ digraph review_fanfic {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `novel.json`, `source_canon/`（原作资料）
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -138,4 +150,3 @@ digraph review_fanfic {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

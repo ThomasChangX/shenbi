@@ -1,7 +1,26 @@
 ---
 name: shenbi-pacing-design
-description: Use when designing pacing principles for the novel, planning the buildup→escalation→explosion→aftermath cycle, configuring scene type sequence, or calibrating the three-line ratio
+description: "Use when designing pacing principles for the novel, planning the buildup→escalation→explosion→aftermath cycle, configuring scene type sequence, or calibrating the three-line ratio"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - outline/story_frame.md
+    - outline/volume_map.md
+    - genre-config.json
+  writes: []
+  updates:
+    - outline/rhythm_principles.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, outline/story_frame.md, outline/volume_map.md, genre-config.json
+- **Writes:** none
+- **Updates:** outline/rhythm_principles.md
+
+<!-- END AUTO-GENERATED -->
 
 # 节奏设计
 
@@ -23,12 +42,6 @@ digraph pacing_design {
     "Human reviews" -> "Write to outline/rhythm_principles.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `outline/story_frame.md`, `outline/volume_map.md`, `genre-config.json`
-- **Writes:** 无
-- **Updates:** `outline/rhythm_principles.md`
 
 ## 铁律
 

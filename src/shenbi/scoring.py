@@ -9,6 +9,7 @@ from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
+from shenbi.status import ScoreClassification, ScoringStatus
 
 log = get_logger(__name__)
 
@@ -153,7 +154,7 @@ def validate_scores(scores: dict[int, Any], dimensions: list[Dimension]) -> tupl
             errors.append(f"REJECT: dimension {num} score is not a number: {score}")
         elif score < 0 or score > 100:
             errors.append(f"REJECT: dimension {num} score {score} out of range 0-100")
-    is_valid = not any(e.startswith("REJECT") for e in errors)
+    is_valid = not any(e.startswith(ScoringStatus.REJECT.value) for e in errors)
     return is_valid, errors
 
 
@@ -172,14 +173,14 @@ def compute_score(
     return round(weighted_sum / total_weight, 2)
 
 
-def classify(score: float | int) -> str:
+def classify(score: float | int) -> ScoreClassification:
     if score >= 90:
-        return "PASS (excellent)"
+        return ScoreClassification.PASS_EXCELLENT
     if score >= 75:
-        return "PASS (acceptable)"
+        return ScoreClassification.PASS_ACCEPTABLE
     if score >= 60:
-        return "CONDITIONAL"
-    return "FAIL"
+        return ScoreClassification.CONDITIONAL
+    return ScoreClassification.FAIL
 
 
 def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str | None) -> list[str]:
@@ -300,7 +301,7 @@ def main() -> dict[str, Any]:
             missing = check_gate_markers(rubric_path, test_type, round_dir)
             if missing:
                 err = {
-                    "status": "MARKER_MISSING",
+                    "status": ScoringStatus.MARKER_MISSING,
                     "missing_markers": missing,
                     "message": f"Required gate markers not found: {', '.join(missing)}. "
                     f"Run gates (G4/G6) with --round-dir before scoring.",
@@ -353,7 +354,7 @@ def main() -> dict[str, Any]:
     is_valid, validation_errors = validate_scores(scores, dimensions)
     if not is_valid:
         err_result = {
-            "status": "REJECT",
+            "status": ScoringStatus.REJECT,
             "reason": "score validation failed",
             "errors": validation_errors,
             "expected_dimensions": [{"num": d["num"], "name": d["name"]} for d in dimensions],

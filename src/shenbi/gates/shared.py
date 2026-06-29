@@ -5,6 +5,7 @@ import these helpers to keep behavior identical to the legacy monolith.
 """
 
 from shenbi.logging import get_logger
+from shenbi.status import GateResult, GateStatus
 
 log = get_logger(__name__)
 
@@ -81,32 +82,26 @@ def word_count_md(fp: str | Path) -> int:
 
 def fail(gid: str, checks: list[dict[str, Any]], blocked: str, must_fix: list[str]) -> str:
     """Return FAIL JSON string."""
-    return json.dumps(
-        {
-            "gate": gid,
-            "status": "FAIL",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "checks": checks,
-            "blocked_action": blocked,
-            "must_fix": must_fix,
-        },
-        indent=2,
-        ensure_ascii=False,
-    )
+    result: GateResult = {
+        "gate": gid,
+        "status": GateStatus.FAIL,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "checks": checks,
+        "blocked_action": blocked,
+        "must_fix": must_fix,
+    }
+    return json.dumps(result, indent=2, ensure_ascii=False)
 
 
 def passed(gid: str, checks: list[dict[str, Any]]) -> str:
     """Return PASS JSON string."""
-    return json.dumps(
-        {
-            "gate": gid,
-            "status": "PASS",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "checks": checks,
-        },
-        indent=2,
-        ensure_ascii=False,
-    )
+    result: GateResult = {
+        "gate": gid,
+        "status": GateStatus.PASS,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "checks": checks,
+    }
+    return json.dumps(result, indent=2, ensure_ascii=False)
 
 
 def find_report(
@@ -175,7 +170,7 @@ def unimplemented(gate_name: str, note: str = "") -> str:
     return json.dumps(
         {
             "gate": gate_name,
-            "status": "UNIMPLEMENTED",
+            "status": GateStatus.UNIMPLEMENTED,
             "note": note or f"{gate_name} not yet implemented — stub",
             "timestamp": datetime.now(UTC).isoformat(),
             "checks": [],

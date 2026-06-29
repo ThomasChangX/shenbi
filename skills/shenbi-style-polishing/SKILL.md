@@ -1,7 +1,25 @@
 ---
 name: shenbi-style-polishing
-description: Use when a chapter has been drafted and audit-passed, and surface-level prose quality needs improvement without altering plot or character
+description: "Use when a chapter has been drafted and audit-passed, and surface-level prose quality needs improvement without altering plot or character"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+    - style/style_profile.md
+  writes: []
+  updates:
+    - chapters/chapter-N.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json, style/style_profile.md
+- **Writes:** none
+- **Updates:** chapters/chapter-N.md
+
+<!-- END AUTO-GENERATED -->
 
 # 文字层润色
 
@@ -21,12 +39,6 @@ digraph style_polishing {
     "Verify constraints (word count +-15%, no new events)" -> "Output polished chapter";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`, `style/style_profile.md`
-- **Writes:** none (edits chapter in-place)
-- **Updates:** `chapters/chapter-N.md`
 
 ## 铁律
 

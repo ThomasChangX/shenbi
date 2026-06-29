@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-reader-pull
-description: Use when a finished chapter needs a reader-pull audit (opening hook, chapter-end suspense, expectation management)
+description: "Use when a finished chapter needs a reader-pull audit (opening hook, chapter-end suspense, expectation management)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - plans/chapter-N-plan.md
+    - truth/pending_hooks.md
+  writes:
+    - audits/chapter-N-reader-pull.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, truth/pending_hooks.md
+- **Writes:** audits/chapter-N-reader-pull.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 读者牵引力审计
 
@@ -27,12 +45,6 @@ digraph review_reader_pull {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `plans/chapter-N-plan.md`, `truth/pending_hooks.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -151,4 +163,3 @@ digraph review_reader_pull {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

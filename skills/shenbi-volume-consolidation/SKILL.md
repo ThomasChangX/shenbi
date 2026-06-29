@@ -1,7 +1,26 @@
 ---
 name: shenbi-volume-consolidation
-description: Use when a volume has been completed and needs summarization for context management in subsequent writing
+description: "Use when a volume has been completed and needs summarization for context management in subsequent writing"
+contract:
+  kind: artifact
+  reads:
+    - chapters/chapter-N.md
+    - truth/chapter_summaries.md
+    - truth/pending_hooks.md
+  writes:
+    - truth/volume_summaries.md
+  updates:
+    - truth/chapter_summaries.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/chapter_summaries.md, truth/pending_hooks.md
+- **Writes:** truth/volume_summaries.md
+- **Updates:** truth/chapter_summaries.md
+
+<!-- END AUTO-GENERATED -->
 
 # 卷整合
 
@@ -22,12 +41,6 @@ digraph volume_consolidation {
 }
 ```
 
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/chapter_summaries.md`, `truth/pending_hooks.md`
-- **Writes:** `truth/volume_summaries.md` (creates on first volume, appends for subsequent volumes)
-- **Updates:** `truth/chapter_summaries.md` (preserves per-chapter entries; marks them as archived but does not delete)
-
 ## 铁律
 
 1. **卷完成后必须整合** — 逐章摘要继续增长会导致 context-composing 上下文过长
@@ -35,7 +48,7 @@ digraph volume_consolidation {
 3. **保留可回查性** — 归档的逐章摘要必须仍然可以手动查阅
 4. **未兑现伏笔必须醒目** — 卷级摘要必须明确列出本卷种下但未兑现的伏笔。数据来源为 `truth/pending_hooks.md`，必须逐一核对状态字段
 
-## 输出
+## 输出格式
 
 ### 卷级叙事摘要
 

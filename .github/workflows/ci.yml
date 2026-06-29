@@ -40,10 +40,29 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src/shenbi/
       - run: uv run basedpyright
+      - name: Lint bare status strings (spec D3)
+        run: uv run python tools/lint_status_strings.py
+      - name: Contract + repo-consistency lints (spec §5.5)
+        run: |
+          uv run python tools/lint_contracts.py
+          uv run python tools/lint_repo_consistency.py
       - name: Run tests (parallel, excluding last)
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
+
+  contract-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --group dev
+      - name: Regenerate contract-derived artifacts
+        run: uv run shenbi-sync-contracts
+      - name: Idempotency — generated artifacts must match committed
+        run: git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
 
   dependency-review:
     runs-on: ubuntu-latest

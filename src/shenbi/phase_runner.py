@@ -18,7 +18,9 @@ from pathlib import Path
 from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
+from shenbi.contract import ContractError, load_contract
 from shenbi.logging import configure_logging, get_logger
+from shenbi.status import CommandStatus, GateStatus, PhaseState
 
 log = get_logger(__name__)
 
@@ -34,7 +36,7 @@ def load_state(round_dir: str, phase: str) -> dict[str, Any]:
     state_file = Path(round_dir) / "phase-state" / f"{phase}.json"
     if state_file.exists():
         return cast(dict[str, Any], json.loads(state_file.read_text(encoding="utf-8")))
-    return {"phase": phase, "state": "created", "steps": []}
+    return {"phase": phase, "state": PhaseState.CREATED, "steps": []}
 
 
 def save_state(round_dir: str, state: dict[str, Any]) -> None:
@@ -60,7 +62,7 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     try:
         return cast(dict[str, Any], json.loads(r.stdout))
     except (json.JSONDecodeError, ValueError):
-        return {"status": "FAIL", "raw_stdout": r.stdout, "raw_stderr": r.stderr}
+        return {"status": GateStatus.FAIL, "raw_stdout": r.stdout, "raw_stderr": r.stderr}
 
 
 def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
@@ -81,14 +83,16 @@ def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
     g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
     step = {"action": "start", "timestamp": now_iso(), "g5_status": g5.get("status")}
     if g5.get("status") == "PASS":
-        state["state"] = "started"
+        state["state"] = PhaseState.STARTED
         state["steps"].append(step)
         save_state(round_dir, state)
-        emit_json({"status": "ok", "phase": phase, "state": "started", "g5": "PASS"})
+        emit_json(
+            {"status": CommandStatus.OK, "phase": phase, "state": PhaseState.STARTED, "g5": "PASS"}
+        )
     else:
         state["steps"].append({**step, "g5_must_fix": g5.get("must_fix", [])})
         save_state(round_dir, state)
-        emit_json({"status": "blocked", "phase": phase, "g5": g5})
+        emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "g5": g5})
         sys.exit(1)
 
 
@@ -100,26 +104,20 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     if not skill_path.exists():
         emit_json(
             {
-                "status": "error",
+                "status": CommandStatus.ERROR,
                 "phase": phase,
                 "skill": skill,
                 "message": f"SKILL.md not found: {skill_path}",
             }
         )
         sys.exit(1)
-    # Extract data contract for dispatcher guidance
-    skill_md = skill_path.read_text(encoding="utf-8")
-    import re as _re
-
-    reads = _re.findall(r"\*\*Reads:\*\*\s*(.*)", skill_md)
-    writes = _re.findall(r"\*\*Writes:\*\*\s*(.*)", skill_md)
-    updates = _re.findall(r"\*\*Updates:\*\*\s*(.*)", skill_md)
-    read_files: list[str] = []
-    for line in reads:
-        read_files.extend(_re.findall(r"`([^`]+)`", line))
-    write_files: list[str] = []
-    for line in writes + updates:
-        write_files.extend(_re.findall(r"`([^`]+)`", line))
+    # Extract data contract via the single loader (spec D2 — no second parser).
+    try:
+        contract = load_contract(skill)
+        read_files = list(contract["reads"])
+        write_files = [*contract["writes"], *contract["updates"]]
+    except ContractError:
+        read_files, write_files = [], []
     step = {
         "action": "pre-skill",
         "skill": skill,
@@ -133,7 +131,7 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     save_state(round_dir, state)
     emit_json(
         {
-            "status": "ok",
+            "status": CommandStatus.OK,
             "phase": phase,
             "skill": skill,
             "action": "execute_skill",
@@ -149,12 +147,12 @@ def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | No
     assert project_dir is not None
     proj = Path(project_dir)
     output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
-    g2_status = "SKIP"
+    g2_status = GateStatus.SKIP.value
     if output_files:
         g2 = run_gate("G2", [",".join(output_files), "chapter", str(round_dir)])
-        g2_status = g2.get("status", "UNKNOWN")
+        g2_status = g2.get("status", GateStatus.FAIL.value)
     g4 = run_gate("G4", [skill, ",".join(output_files) if output_files else "", str(round_dir)])
-    g4_status = g4.get("status", "UNKNOWN")
+    g4_status = g4.get("status", GateStatus.FAIL.value)
     step = {
         "action": "post-skill",
         "skill": skill,
@@ -165,9 +163,17 @@ def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | No
     state["steps"].append(step)
     save_state(round_dir, state)
     if g4_status == "FAIL":
-        emit_json({"status": "blocked", "phase": phase, "skill": skill, "g4": g4})
+        emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "skill": skill, "g4": g4})
         sys.exit(1)
-    emit_json({"status": "ok", "phase": phase, "skill": skill, "g2": g2_status, "g4": g4_status})
+    emit_json(
+        {
+            "status": CommandStatus.OK,
+            "phase": phase,
+            "skill": skill,
+            "g2": g2_status,
+            "g4": g4_status,
+        }
+    )
 
 
 def cmd_pre_score(phase: str, round_dir: str) -> None:
@@ -184,7 +190,7 @@ def cmd_pre_score(phase: str, round_dir: str) -> None:
     if missing:
         emit_json(
             {
-                "status": "blocked",
+                "status": CommandStatus.BLOCKED,
                 "phase": phase,
                 "missing_markers": [f"G4-{s}-generative" for s in missing],
             }
@@ -194,14 +200,16 @@ def cmd_pre_score(phase: str, round_dir: str) -> None:
     for pattern in phase_data.get("expected_outputs", []):
         if "*" in pattern:
             if not list(proj_dir.rglob(pattern)):
-                emit_json({"status": "blocked", "phase": phase, "missing_output": pattern})
+                emit_json(
+                    {"status": CommandStatus.BLOCKED, "phase": phase, "missing_output": pattern}
+                )
                 sys.exit(1)
         elif not (proj_dir / pattern).exists():
-            emit_json({"status": "blocked", "phase": phase, "missing_output": pattern})
+            emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "missing_output": pattern})
             sys.exit(1)
-    state["state"] = "skills_done"
+    state["state"] = PhaseState.SKILLS_DONE
     save_state(round_dir, state)
-    emit_json({"status": "ok", "phase": phase, "state": "skills_done"})
+    emit_json({"status": CommandStatus.OK, "phase": phase, "state": PhaseState.SKILLS_DONE})
 
 
 def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
@@ -209,7 +217,11 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
     require_state(state, ["skills_done"], "post-score")
     if not Path(scores_file).exists():
         emit_json(
-            {"status": "error", "phase": phase, "message": f"Scores file not found: {scores_file}"}
+            {
+                "status": CommandStatus.ERROR,
+                "phase": phase,
+                "message": f"Scores file not found: {scores_file}",
+            }
         )
         sys.exit(1)
     _scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
@@ -219,9 +231,9 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
         "scores_file": str(scores_file),
     }
     state["steps"].append(step)
-    state["state"] = "scored"
+    state["state"] = PhaseState.SCORED
     save_state(round_dir, state)
-    emit_json({"status": "ok", "phase": phase, "state": "scored"})
+    emit_json({"status": CommandStatus.OK, "phase": phase, "state": PhaseState.SCORED})
 
 
 def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
@@ -236,20 +248,24 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     if g5.get("status") != "PASS":
         state["steps"].append({**step, "g5_must_fix": g5.get("must_fix", [])})
         save_state(round_dir, state)
-        emit_json({"status": "blocked", "phase": phase, "g5": g5})
+        emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "g5": g5})
         sys.exit(1)
     deps = load_deps()
     marker_dir = Path(round_dir) / "gate-markers"
     for skill in deps.get("t2-phases", {}).get(phase, {}).get("prerequisites", []):
         if not (marker_dir / f"G4-{skill}-generative.json").exists():
             emit_json(
-                {"status": "error", "phase": phase, "missing_marker": f"G4-{skill}-generative"}
+                {
+                    "status": CommandStatus.ERROR,
+                    "phase": phase,
+                    "missing_marker": f"G4-{skill}-generative",
+                }
             )
             sys.exit(1)
-    state["state"] = "finalized"
+    state["state"] = PhaseState.FINALIZED
     state["steps"].append(step)
     save_state(round_dir, state)
-    emit_json({"status": "ok", "phase": phase, "state": "finalized"})
+    emit_json({"status": CommandStatus.OK, "phase": phase, "state": PhaseState.FINALIZED})
 
 
 def main() -> None:

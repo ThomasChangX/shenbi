@@ -1,7 +1,29 @@
 ---
 name: shenbi-context-composing
-description: Use when assembling context before drafting a chapter, collecting truth files, or preparing the writing context package
+description: "Use when assembling context before drafting a chapter, collecting truth files, or preparing the writing context package"
+contract:
+  kind: ephemeral
+  reads:
+    - plans/chapter-N-plan.md
+    - truth/chapter_summaries.md
+    - truth/pending_hooks.md
+    - truth/audit_drift.md
+    - world/rules.md
+    - truth/character_matrix.md
+    - style/style_profile.md
+    - chapters/chapter-N.md
+  writes: []
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** plans/chapter-N-plan.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
+- **Writes:** none
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 上下文组装
 
@@ -21,12 +43,6 @@ digraph context_composing {
     "Present context to human" -> "Proceed to chapter-drafting";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `plans/chapter-N-plan.md`, `truth/chapter_summaries.md`, `truth/pending_hooks.md`, `truth/audit_drift.md`, `world/rules.md`, `truth/character_matrix.md`, `style/style_profile.md`, `chapters/chapter-(N-3).md` through `chapters/chapter-(N-1).md`
-- **Writes:** none (assembles context for drafting)
-- **Updates:** none
 
 ## 铁律
 

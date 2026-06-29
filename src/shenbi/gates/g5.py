@@ -14,9 +14,9 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.contract import ContractError, load_contract
 from shenbi.gates.shared import (
     PROJECT,
-    SKILLS,
     TESTS,
     find_report,
     fail,
@@ -64,27 +64,19 @@ def gate_G5(
         if score < threshold:
             mf.append(f"G5.1:{pr}:score={score}<{threshold}")
 
-    # G5.2: handoff integrity — parse SKILL.md Reads vs upstream Writes+Updates
+    # G5.2: handoff integrity — contract Reads vs upstream Writes+Updates
     for i in range(1, len(prereqs)):
         up, down = prereqs[i - 1], prereqs[i]
-        us_md = (
-            (SKILLS / up / "SKILL.md").read_text(encoding="utf-8")
-            if (SKILLS / up / "SKILL.md").exists()
-            else ""
-        )
-        ds_md = (
-            (SKILLS / down / "SKILL.md").read_text(encoding="utf-8")
-            if (SKILLS / down / "SKILL.md").exists()
-            else ""
-        )
-        us_outs = set(
-            re.findall(
-                r"`([^`]+)`", "\n".join(re.findall(r"\*\*(?:Writes|Updates):\*\*\s*(.*)", us_md))
-            )
-        )
-        ds_ins = set(
-            re.findall(r"`([^`]+)`", "\n".join(re.findall(r"\*\*Reads:\*\*\s*(.*)", ds_md)))
-        )
+        try:
+            up_c = load_contract(up)
+            us_outs = {*up_c["writes"], *up_c["updates"]}
+        except ContractError:
+            us_outs = set()
+        try:
+            down_c = load_contract(down)
+            ds_ins = set(down_c["reads"])
+        except ContractError:
+            ds_ins = set()
         missing = ds_ins - us_outs
         if missing:
             mf.append(f"G5.2:handoff:{up}->{down}:missing={list(missing)}")

@@ -1,7 +1,26 @@
 ---
 name: shenbi-review-motivation
-description: Use when a finished chapter needs a character motivation and behavior-chain plausibility audit
+description: "Use when a finished chapter needs a character motivation and behavior-chain plausibility audit"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - characters/protagonist.md
+    - characters/major/*.md
+    - truth/character_matrix.md
+  writes:
+    - audits/chapter-N-motivation.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, characters/protagonist.md, characters/major/*.md, truth/character_matrix.md
+- **Writes:** audits/chapter-N-motivation.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 动机与行为链审计
 
@@ -29,12 +48,6 @@ digraph review_motivation {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `characters/protagonist.md`, `characters/major/*.md`, `truth/character_matrix.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -129,4 +142,3 @@ digraph review_motivation {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

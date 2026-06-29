@@ -1,7 +1,26 @@
 ---
 name: shenbi-review-continuity
-description: Use when a finished chapter needs an internal consistency audit against truth files
+description: "Use when a finished chapter needs an internal consistency audit against truth files"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - truth/current_state.md
+    - truth/chapter_summaries.md
+    - world/rules.md
+  writes:
+    - audits/chapter-N-continuity.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/chapter_summaries.md, world/rules.md
+- **Writes:** audits/chapter-N-continuity.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 连续性审计
 
@@ -24,12 +43,6 @@ digraph review_continuity {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/current_state.md`, `truth/chapter_summaries.md`, `world/rules.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 

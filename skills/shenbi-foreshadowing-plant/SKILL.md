@@ -1,7 +1,25 @@
 ---
 name: shenbi-foreshadowing-plant
-description: Use when a chapter memo's hook ledger contains OPEN items that need foreshadowing planted before drafting begins
+description: "Use when a chapter memo's hook ledger contains OPEN items that need foreshadowing planted before drafting begins"
+contract:
+  kind: artifact
+  reads:
+    - plans/chapter-N-plan.md
+    - truth/pending_hooks.md
+    - genre-config.json
+  writes: []
+  updates:
+    - truth/pending_hooks.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** plans/chapter-N-plan.md, truth/pending_hooks.md, genre-config.json
+- **Writes:** none
+- **Updates:** truth/pending_hooks.md
+
+<!-- END AUTO-GENERATED -->
 
 # 伏笔种植
 
@@ -23,12 +41,6 @@ digraph foreshadowing_plant {
     "Append new hooks to truth/pending_hooks.md" -> "Output 种植汇总";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `plans/chapter-N-plan.md`, `truth/pending_hooks.md`, `genre-config.json`
-- **Writes:** 种植汇总（输出到 human partner）
-- **Updates:** `truth/pending_hooks.md`
 
 ## 铁律
 

@@ -1,7 +1,24 @@
 ---
 name: shenbi-review-anti-ai
-description: Use when a finished chapter needs an AI-pattern audit against fatigue words, structural tells, and genre-config prohibitions
+description: "Use when a finished chapter needs an AI-pattern audit against fatigue words, structural tells, and genre-config prohibitions"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - genre-config.json
+  writes:
+    - audits/chapter-N-anti-ai.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, genre-config.json
+- **Writes:** audits/chapter-N-anti-ai.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # Anti-AI 审计
 
@@ -20,12 +37,6 @@ digraph review_anti_ai {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `genre-config.json`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -91,4 +102,3 @@ digraph review_anti_ai {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

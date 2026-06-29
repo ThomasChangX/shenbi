@@ -8,13 +8,13 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import uuid
 from pathlib import Path
 from typing import Any
 
+from shenbi.contract import ContractError, load_contract
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -49,30 +49,21 @@ def derive_file_type(skill: str) -> str:
 
 
 def derive_input_files(skill: str) -> list[str]:
-    """Parse SKILL.md to extract Reads."""
-    skill_md = PROJECT_DIR / "skills" / skill / "SKILL.md"
-    if not skill_md.exists():
+    """Return the skill's contract reads via the single loader."""
+    try:
+        return list(load_contract(skill)["reads"])
+    except ContractError:
+        # A skill outside the contract system (e.g. a meta skill) has no inputs.
         return []
-    content = skill_md.read_text(encoding="utf-8")
-    reads_match = re.findall(r"\*\*Reads:\*\*\s*(.*)", content)
-    files: list[str] = []
-    for line in reads_match:
-        files.extend(re.findall(r"`([^`]+)`", line))
-    return files
 
 
 def derive_output_files(skill: str) -> list[str]:
-    """Parse SKILL.md to extract Writes + Updates."""
-    skill_md = PROJECT_DIR / "skills" / skill / "SKILL.md"
-    if not skill_md.exists():
+    """Return the skill's contract writes + updates via the single loader."""
+    try:
+        c = load_contract(skill)
+        return [*c["writes"], *c["updates"]]
+    except ContractError:
         return []
-    content = skill_md.read_text(encoding="utf-8")
-    writes = re.findall(r"\*\*Writes:\*\*\s*(.*)", content)
-    updates = re.findall(r"\*\*Updates:\*\*\s*(.*)", content)
-    files: list[str] = []
-    for line in writes + updates:
-        files.extend(re.findall(r"`([^`]+)`", line))
-    return files
 
 
 def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:

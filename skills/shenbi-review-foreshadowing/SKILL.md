@@ -1,7 +1,26 @@
 ---
 name: shenbi-review-foreshadowing
-description: Use when a finished chapter needs foreshadowing audit against hook pool and cultivation rules
+description: "Use when a finished chapter needs foreshadowing audit against hook ledger and cultivation rules"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - truth/pending_hooks.md
+    - plans/chapter-N-plan.md
+    - truth/subplot_board.md
+  writes:
+    - audits/chapter-N-foreshadowing.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, truth/pending_hooks.md, plans/chapter-N-plan.md, truth/subplot_board.md
+- **Writes:** audits/chapter-N-foreshadowing.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 伏笔审计
 
@@ -9,7 +28,7 @@ description: Use when a finished chapter needs foreshadowing audit against hook 
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 6 或 24 时激活。
 
-> If `truth/pending_hooks.md` is empty or missing, report explicitly that no hook pool data was found — do NOT auto-PASS. Direct the human partner to populate it via `shenbi-foreshadowing-plant` (Phase 3).
+> If `truth/pending_hooks.md` is empty or missing, report explicitly that no hook ledger data was found — do NOT auto-PASS. Direct the human partner to populate it via `shenbi-foreshadowing-plant` (Phase 3).
 
 ## 流程
 
@@ -29,12 +48,6 @@ digraph review_foreshadowing {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `truth/pending_hooks.md`, `plans/chapter-N-plan.md`, `truth/subplot_board.md`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 
@@ -112,4 +125,3 @@ digraph review_foreshadowing {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
-

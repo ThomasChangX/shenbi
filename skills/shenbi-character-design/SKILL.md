@@ -1,7 +1,27 @@
 ---
 name: shenbi-character-design
-description: Use when creating or refining character profiles, designing character arcs, voice profiles, or personality systems
+description: "Use when creating or refining character profiles, designing character arcs, voice profiles, or personality systems"
+contract:
+  kind: artifact
+  reads:
+    - world/story_bible.md
+    - world/rules.md
+  writes:
+    - characters/protagonist.md
+    - characters/major/*.md
+    - characters/minor/*.md
+    - characters/relationships.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** world/story_bible.md, world/rules.md
+- **Writes:** characters/protagonist.md, characters/major/*.md, characters/minor/*.md, characters/relationships.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 角色设计
 
@@ -21,12 +41,6 @@ digraph character_design {
 }
 ```
 
-## 数据契约
-
-- **Reads:** `world/story_bible.md`, `world/rules.md`
-- **Writes:** `characters/protagonist.md`, `characters/major/*.md`, `characters/minor/*.md`, `characters/relationships.md`
-- **Updates:** none (initial creation)
-
 ## 铁律
 
 1. **一人一卡** — 每个角色独立文件，不把多个角色塞进同一个文件
@@ -34,7 +48,7 @@ digraph character_design {
 3. **voice_profile 必填** — 每个主要角色必须有说话风格指纹（speech_patterns, catchphrases, avoid_patterns）
 4. **去重原则** — 角色的性格底色只写在角色卡，不在关系文件中重复
 
-## 输出文件
+## 输出格式
 
 | 文件 | 内容 |
 |------|------|

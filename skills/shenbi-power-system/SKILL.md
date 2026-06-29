@@ -1,7 +1,26 @@
 ---
 name: shenbi-power-system
-description: Use when designing power systems, cultivation/level/ability systems, magic systems, technological capability ladders, or defining power ceilings and ability boundaries
+description: "Use when designing power systems, cultivation/level/ability systems, magic systems, technological capability ladders, or defining power ceilings and ability boundaries"
+contract:
+  kind: artifact
+  reads:
+    - novel.json
+    - world/story_bible.md
+    - world/rules.md
+    - outline/story_frame.md
+  writes: []
+  updates:
+    - world/power_system.md
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** novel.json, world/story_bible.md, world/rules.md, outline/story_frame.md
+- **Writes:** none
+- **Updates:** world/power_system.md
+
+<!-- END AUTO-GENERATED -->
 
 # 力量体系
 
@@ -24,12 +43,6 @@ digraph power_system {
     "Human reviews" -> "Write to world/power_system.md" [label="approved"];
 }
 ```
-
-## 数据契约
-
-- **Reads:** `novel.json`, `world/story_bible.md`, `world/rules.md`, `outline/story_frame.md`
-- **Writes:** 无
-- **Updates:** `world/power_system.md`
 
 ## 铁律
 

@@ -1,7 +1,25 @@
 ---
 name: shenbi-review-long-span
-description: Use when a finished chapter (≥3) needs a cross-chapter pattern repetition audit (6-char n-gram, word/image loops, paragraph length drift)
+description: "Use when a finished chapter (≥3) needs a cross-chapter pattern repetition audit (6-char n-gram, word/image loops, paragraph length drift)"
+contract:
+  kind: report
+  reads:
+    - chapters/chapter-N.md
+    - chapters/*.md
+    - genre-config.json
+  writes:
+    - audits/chapter-N-long-span.md
+  updates: []
 ---
+<!-- AUTO-GENERATED from frontmatter — do not edit -->
+
+## 数据契约
+
+- **Reads:** chapters/chapter-N.md, chapters/*.md, genre-config.json
+- **Writes:** audits/chapter-N-long-span.md
+- **Updates:** none
+
+<!-- END AUTO-GENERATED -->
 
 # 跨章模式审计
 
@@ -30,12 +48,6 @@ digraph review_long_span {
     "Report issues with severity" -> "Suggest specific fixes";
 }
 ```
-
-## 数据契约
-
-- **Reads:** `chapters/chapter-N.md`, `chapters/chapter-(N-1).md` ... `chapters/chapter-(N-5).md`, `genre-config.json`
-- **Writes:** report only
-- **Updates:** none
 
 ## 铁律
 

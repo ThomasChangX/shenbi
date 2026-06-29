@@ -32,21 +32,54 @@ def test_derive_file_type_defaults_to_chapter_for_unknown() -> None:
 
 
 @pytest.mark.unit
-def test_derive_input_files_returns_reads_from_skill_md() -> None:
-    """Existing skill shenbi-worldbuilding has Reads: section."""
-    files = derive_input_files("shenbi-worldbuilding")
-    assert isinstance(files, list)
+def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatch) -> None:
+    """derive_input_files/derive_output_files delegate to load_contract (no regex)."""
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-N-plan.md"],
+            "writes": ["chapters/chapter-N.md"],
+            "updates": ["truth/current_state.md"],
+        },
+    )
+    assert derive_input_files("shenbi-x") == ["plans/chapter-N-plan.md"]
+    # writes + updates both fold into output files
+    assert derive_output_files("shenbi-x") == ["chapters/chapter-N.md", "truth/current_state.md"]
 
 
 @pytest.mark.unit
-def test_derive_input_files_empty_for_missing_skill() -> None:
-    assert derive_input_files("shenbi-nonexistent-skill-xyz") == []
+def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A skill outside the contract system (meta skill) raises ContractError -> []."""
+    from shenbi.contract import ContractError
+
+    def raise_contract_error(_skill: str) -> None:
+        raise ContractError("no contract")
+
+    monkeypatch.setattr("shenbi.dispatcher.executor.load_contract", raise_contract_error)
+    assert derive_input_files("using-shenbi") == []
+    assert derive_output_files("using-shenbi") == []
 
 
 @pytest.mark.unit
-def test_derive_output_files_returns_writes_and_updates() -> None:
-    files = derive_output_files("shenbi-worldbuilding")
-    assert isinstance(files, list)
+def test_derive_files_read_real_migrated_skill_contract() -> None:
+    """Post-migration, derive_* read the real frontmatter contract end-to-end."""
+    assert derive_input_files("shenbi-chapter-drafting") == [
+        "plans/chapter-N-plan.md",
+        "style/style_profile.md",
+        "genre-config.json",
+        "truth/audit_drift.md",
+    ]
+    # shenbi-state-settling: writes=[] + updates=7 truth files (all fold into outputs)
+    assert derive_output_files("shenbi-state-settling") == [
+        "truth/current_state.md",
+        "truth/particle_ledger.md",
+        "truth/character_matrix.md",
+        "truth/emotional_arcs.md",
+        "truth/subplot_board.md",
+        "truth/pending_hooks.md",
+        "truth/chapter_summaries.md",
+    ]
 
 
 @pytest.mark.unit
