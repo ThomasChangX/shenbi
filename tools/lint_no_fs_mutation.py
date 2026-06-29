@@ -38,7 +38,6 @@ PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
 TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
     {
         "gates/shared.py",
-        "gates/g7.py",
         "gates/g1.py",
         "phase_runner.py",
         "plugins/generate.py",
