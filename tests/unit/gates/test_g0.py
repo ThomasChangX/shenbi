@@ -291,3 +291,21 @@ def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path
     assert g010["s"] == "PASS"
     assert g010["completed"] == total + 1
     assert g010["total"] == total
+
+
+@pytest.mark.unit
+def test_g015_gate_registry_consistency_passes_on_current_repo() -> None:
+    """G0.15 asserts G4_CHECKER_SKILLS is a subset of the single-source skill set."""
+    result = _result_dict(gate_G0(None, None))
+    g015 = next((chk for chk in result["checks"] if chk.get("id") == "G0.15"), None)
+    assert g015 is not None
+    assert g015["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_known_skill_names_is_single_source() -> None:
+    """known_skill_names owns the authoritative skill vocabulary (judgement 5)."""
+    from shenbi.contracts.registry import known_skill_names
+    from shenbi.gates.shared import ALL_SKILLS
+
+    assert known_skill_names() == set(ALL_SKILLS)

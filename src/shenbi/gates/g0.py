@@ -586,4 +586,22 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     if cal_fail:
         return fail("G0", checks, "round_creation", cal_must_fix)
 
+    # G0.15 — gate registry single-source consistency (judgement 5 precursor).
+    # G4_CHECKER_SKILLS must reference only real skills. Catches drift across
+    # the gate registries.
+    from shenbi.contracts.registry import known_skill_names
+
+    known = known_skill_names()
+    g4_drift = sorted(G4_CHECKER_SKILLS - known)
+    if g4_drift:
+        return fail(
+            "G0",
+            checks + [{"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}],
+            "round_creation",
+            [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
+        )
+    checks.append(
+        {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
+    )
+
     return passed("G0", checks)
