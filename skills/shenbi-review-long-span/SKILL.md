@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-long-span
 description: "Use when a finished chapter (≥3) needs a cross-chapter pattern repetition audit (6-char n-gram, word/image loops, paragraph length drift)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -51,10 +52,11 @@ digraph review_long_span {
 
 ## 铁律
 
-1. **6 字 n-gram 重复率 = 写作指纹稳定性的红线** — 超出 `genre-config.json` 的 `maxNgramRepetition` = error
-2. **核心意象不可过度复现** — 同章内同一意象 > 4 次 = warning，跨 3 章 > 8 次 = warning
-3. **段长漂移 = 节奏失控** — 段落平均字数连续 3 章单向漂移（增/减 > 20%）= warning
-4. **句式开端需多样** — 同一句子开端模式（"X 看着" / "忽然"）在章内 > 5 次 = warning
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **6 字 n-gram 重复率 = 写作指纹稳定性的红线** — 超出 `genre-config.json` 的 `maxNgramRepetition` = error
+3. **核心意象不可过度复现** — 同章内同一意象 > 4 次 = warning，跨 3 章 > 8 次 = warning
+4. **段长漂移 = 节奏失控** — 段落平均字数连续 3 章单向漂移（增/减 > 20%）= warning
+5. **句式开端需多样** — 同一句子开端模式（"X 看着" / "忽然"）在章内 > 5 次 = warning
 
 ## 检查执行
 

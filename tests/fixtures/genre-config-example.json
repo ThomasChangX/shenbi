@@ -336,6 +336,20 @@
       "example": "政治辩论段落中'贵族议会以条例驳斥改革的三个步骤，每一条都精准击在制度的软肋上'——此句理性严谨，符合政治幻想题材的文学惯例，却被texture检测标记为'文字质感不足'"
     }
   ],
+  "tropeInventory": [
+    {
+      "trope": "废柴逆袭",
+      "signatures": ["主角开局被退婚/受辱", "获得金手指(系统/老爷爷/血脉)", "首次展示实力打脸轻视者"],
+      "overuse_threshold": 2,
+      "rewrite_hint": "淡化金手指的万能性；让首次胜利伴随真实代价"
+    },
+    {
+      "trope": "天降系统",
+      "signatures": ["脑海中出现系统面板", "任务-奖励循环驱动行为", "系统解释一切机制"],
+      "overuse_threshold": 1,
+      "rewrite_hint": "将部分机制来源改为世界内生规则，减少系统直接喂饭"
+    }
+  ],
   "approval": {
     "reviewer": "human-partner",
     "decision": "approved",

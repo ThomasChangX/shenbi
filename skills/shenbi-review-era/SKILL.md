@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-era
 description: "Use when a finished chapter needs a historical era accuracy audit (period vocabulary, artifacts, locations)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -50,10 +51,11 @@ digraph review_era {
 
 ## 铁律
 
-1. **时代错位 = blocking** — 任何时代错位的器物/概念/制度出现在正文中 = error
-2. **语汇与时代对齐** — 任何时代错位的词汇（"咖啡"出现在宋朝）= error
-3. **架空世界不豁免** — 架空时代仍需自洽的"时代逻辑"，混用元素 = warning
-4. **作者标记的"免检"才豁免** — 若 `eraConstraints` 为对象，其 `exempt` 列表中的元素不计入审计；若为列表，则列表中的约束即为允许项，超出约束的元素才计入审计
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **时代错位 = blocking** — 任何时代错位的器物/概念/制度出现在正文中 = error
+3. **语汇与时代对齐** — 任何时代错位的词汇（"咖啡"出现在宋朝）= error
+4. **架空世界不豁免** — 架空时代仍需自洽的"时代逻辑"，混用元素 = warning
+5. **作者标记的"免检"才豁免** — 若 `eraConstraints` 为对象，其 `exempt` 列表中的元素不计入审计；若为列表，则列表中的约束即为允许项，超出约束的元素才计入审计
 
 ## 检查执行
 

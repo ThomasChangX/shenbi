@@ -25,6 +25,8 @@ contract:
 
 # 角色设计
 
+**职责边界**：本 skill **正向创建**角色档案（新小说，从 story_bible/story_frame 设计角色）。`shenbi-character-extraction` **反向提取**角色档案（已有手稿，从章节分析反推）。两者都写 `characters/*.md`，但方向相反——新小说用本 skill，导入已有作品用 extraction。
+
 ## 流程
 
 ```dot

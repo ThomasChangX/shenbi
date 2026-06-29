@@ -1,6 +1,6 @@
 ---
 name: shenbi-canon-import
-description: "Use when importing source material for fanfic writing, extracting canon from existing works, or generating reference files for AU/OOC/CP fanfic modes"
+description: "Use when importing source material for fanfic writing, extracting canon from existing works, or generating reference files for AU/OOC/CP fanfic modes (AU=Alternate Universe 架空设定, OOC=Out of Character 性格偏离, CP=Couple/Pairing 角色配对)"
 contract:
   kind: artifact
   reads:

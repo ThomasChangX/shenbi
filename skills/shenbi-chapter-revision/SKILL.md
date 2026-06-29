@@ -6,7 +6,10 @@ contract:
   reads:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
-  writes: []
+    - audits/chapter-N-resonance.md
+    - plans/chapter-N-plan.md
+  writes:
+    - truth/state_snapshot-pre-rev.md
   updates:
     - chapters/chapter-N.md
 ---
@@ -14,8 +17,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
-- **Writes:** none
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, audits/chapter-N-resonance.md, plans/chapter-N-plan.md
+- **Writes:** truth/state_snapshot-pre-rev.md
 - **Updates:** chapters/chapter-N.md
 
 <!-- END AUTO-GENERATED -->
@@ -59,6 +62,18 @@ digraph chapter_revision {
 - 结构问题 → rewrite（REVISED_CONTENT）
 - 混合 → rewrite（保守策略）
 
+## 与专项改章 skill 的委派边界
+
+chapter-revision 是**通用修订入口**，但以下三类问题应优先委派给专项 skill——chapter-revision 仅在这些问题成为修订链路上的阻塞项时才一并处理：
+
+| 问题类型 | 委派目标 skill | 触发判定 |
+|---------|--------------|---------|
+| 表达层质感（疲劳词、句长、段落呼吸、修辞） | `shenbi-style-polishing` | 审计发现为表达层问题、无情节/角色影响 |
+| AI 可检测性标记（structural tells、句式规律） | `shenbi-anti-detect` | anti-ai 审计有 critical/blocking 级标记 |
+| 字数越界（< 3000 或 > 10000） | `shenbi-length-normalizing` | 字数 hard-gate 未过 |
+
+**分工原则**：polishing/anti-detect/length-normalizing 只做表面变换（不动情节/角色/伏笔），chapter-revision 处理需要改写叙事内容的 blocking/结构问题。表面问题交给专项 skill，不在本 skill 内重复实现。
+
 ## 修订接受条件
 
 ```markdown
@@ -82,6 +97,38 @@ digraph chapter_revision {
 
 如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
 如果是 rewrite/rework：输出完整修订正文，人类批准后替换原章节文件。
+
+
+## 重生路由（spec §5.2, §11.3-11.5）
+
+chapter-revision 现在支持三种模式（通过 revision_routing helper 分类诊断）：
+
+1. **spot-fix** — 纯工艺问题，生成 PATCHES（现有行为）
+2. **regenerate** — 目标未达成（route C 硬二元 BLOCKING），重生对应段落/整章
+3. **constrained-regenerate** — 目标未达成 + 工艺问题，带工艺约束的重生
+
+### 五步闭环（spec §11.3）
+
+```dot
+digraph chapter_revision_loop {
+    "Read chapter + audits + resonance diagnosis" -> "Call route_revision(diagnosis)";
+    "Call route_revision" -> "Mode?";
+    "Mode?" -> "spot-fix: PATCHES" [label="spot-fix"];
+    "Mode?" -> "Assemble original items" [label="regenerate/constrained"];
+    "Assemble original items" -> "Save state_snapshot-pre-rev.md";
+    "Save snapshot" -> "Execute regeneration";
+    "Execute regeneration" -> "Rerun state-settling";
+    "Rerun state-settling" -> "verify_preservation(original, new_truth)";
+    "verify_preservation" -> "Accept" [label="preserved"];
+    "verify_preservation" -> "Retry (max 3)" [label="violations"];
+}
+
+### 铁律（补充）
+
+6. **重生不是润色** — 目标未达成不能用 spot-fix
+7. **重生保留已兑现项** — verify_preservation 必须通过
+8. **重生后强制 state-settling 重跑** — 否则 truth 文件过时
+9. **重生上限 3 次** — 超限触发 escalation_check
 
 ## Anti-Rationalization
 

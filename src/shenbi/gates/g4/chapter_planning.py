@@ -37,6 +37,12 @@ def g4_chapter_planning(fps: list[str], rd: str | None = None) -> str:
         else:
             c.append({"id": "G4.cp.sections", "file": fp, "s": "PASS"})
 
+        # chapter_role token — drives review-resonance threshold calibration (spec §5.1)
+        if re.search(r"chapter_role\s*[:：]\s*(高潮|兑现|推进|转折|过渡|铺垫)", content):
+            c.append({"id": "G4.cp.chapter_role", "file": fp, "s": "PASS"})
+        else:
+            mf.append(f"G4.cp.missing_chapter_role:{fp}")
+
         # Golden-3 rules based on chapter number N (hardcoded default=3;
         # projects can configure golden_opening_chapters in novel.json)
         ch_num = re.search(r"-(\d+)-plan", str(fp))

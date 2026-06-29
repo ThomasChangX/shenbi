@@ -25,6 +25,7 @@ contract:
 # 故事架构
 
 HARD-GATE: 故事框架必须在世界观和角色完成后才能开始。
+**职责边界**：本 skill 创建 `outline/story_frame.md`、`outline/volume_map.md`、`outline/rhythm_principles.md` 的**骨架**（整体哲学 + 比例粗设 + 卷划分）。后续细化由专项 skill 负责——`outline/rhythm_principles.md` 详化为完整节奏规则见 `shenbi-pacing-design`；`outline/volume_map.md` 单卷细化见 `shenbi-volume-outlining`。
 
 ## 流程
 
@@ -61,7 +62,7 @@ digraph story_architecture {
 |------|------|
 | `outline/story_frame.md` | 散文骨架（4段），YAML frontmatter 含三层冲突定义 |
 | `outline/volume_map.md` | 分卷地图，每卷含 objective + key results |
-| `outline/rhythm_principles.md` | 节奏原则（独立文件） |
+| `outline/rhythm_principles.md` | **节奏骨架**（仅含整体节奏哲学 + 章节类型比例粗设）。详细的张力曲线规则、连续章数限制、间隔控制由 `shenbi-pacing-design` skill 细化。story-architecture 创建骨架，pacing-design 负责细化。 |
 
 ### story_frame.md 结构
 

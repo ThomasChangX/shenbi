@@ -18,7 +18,7 @@ shenbi/
 │   ├── rounds/             # Active + archived rounds
 │   ├── fixtures/           # Real skill outputs (no mocks)
 │   └── baselines/          # Differential testing baselines
-├── skills/                 # 58 functional (shenbi-*) + 1 meta (using-shenbi) = 59 total
+├── skills/                 # 67 functional (shenbi-*) + 2 meta (using-shenbi, shenbi-writing-skills) = 69 total
 ├── docs/                   # Documentation, ADRs, specs, plans
 ├── .github/workflows/      # CI: ci, security, docs, codeql, release
 ├── pyproject.toml          # PEP 621 + tool config

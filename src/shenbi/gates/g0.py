@@ -23,6 +23,7 @@ from shenbi.gates.g0_purity import (
 from shenbi.gates.shared import (
     ALL_SKILLS,
     CHAPTER_WORD_FLOOR,
+    FIXTURES,
     G4_CHECKER_SKILLS,
     PROJECT,
     SKILLS,
@@ -31,6 +32,109 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+
+from shenbi.contract import OutputKind
+
+
+def check_independence_markers(skills: dict[str, dict[str, Any]]) -> list[str]:
+    """G0 sub-check: every report-kind skill must declare requires_independent_agent.
+
+    ``skills[skill] = {"kind": OutputKind, "has_marker": bool}`` (caller assembles via
+    load_contract + requires_independent_agent). Returns a list of issue strings;
+    empty means every report-kind skill declares independence.
+    """
+    issues: list[str] = []
+    for skill, meta in skills.items():
+        if meta["kind"] == OutputKind.REPORT and not meta["has_marker"]:
+            issues.append(
+                f"G0.independence:{skill}: report-kind skill missing "
+                f"'requires_independent_agent: true' (spec §8.1)"
+            )
+    return issues
+
+
+def check_calibration_integrity(
+    calibration_dir: Path,
+    deps_path: Path,
+) -> tuple[list[dict[str, Any]], str | None, list[str]]:
+    """G0.14: calibration anchor hash lock.
+
+    Compute a combined SHA256 over every file under ``calibration_dir``
+    (recursively, excluding ``.gitkeep``) and compare to the locked value
+    at ``deps_path._calibration_hashes.combined``. Mirrors the existing
+    ``_tool_hashes`` integrity pattern.
+
+    Returns ``(checks, fail_reason_or_None, must_fix)`` so it composes with
+    the other tuple-returning G0 sub-checks. Failure modes:
+
+    * the ``_calibration_hashes`` key is absent from deps.json entirely ->
+      FAIL with a hint to run the lock script (not a hash mismatch).
+    * a file has been added, removed, or edited since the last lock ->
+      FAIL as anchor tamper/drift.
+    """
+    # Build the combined hash over the current anchor tree. An empty
+    # directory (scaffolding state) hashes the empty byte stream, which is
+    # a stable, lockable value.
+    h = hashlib.sha256()
+    if calibration_dir.exists():
+        for p in sorted(calibration_dir.rglob("*")):
+            if p.is_file() and p.name != ".gitkeep":
+                h.update(p.read_bytes())
+    actual = h.hexdigest()
+
+    try:
+        deps = json.loads(deps_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return (
+            [{"id": "G0.14", "s": "FAIL", "r": f"deps.json unreadable: {deps_path}"}],
+            "deps.json unreadable",
+            ["G0.14: repair tests/tiers/deps.json then run tests/lock-tool-hashes.sh"],
+        )
+
+    locked = deps.get("_calibration_hashes", {}).get("combined")
+    if locked is None:
+        return (
+            [
+                {
+                    "id": "G0.14",
+                    "s": "FAIL",
+                    "r": "_calibration_hashes.combined missing from deps.json",
+                }
+            ],
+            "_calibration_hashes.combined missing from deps.json",
+            ["G0.14: run tests/lock-tool-hashes.sh to lock calibration anchor hashes"],
+        )
+
+    # Accept both bare hex and the "sha256:<hex>" envelope used by _tool_hashes.
+    expected = locked.split(":", 1)[1] if str(locked).startswith("sha256:") else str(locked)
+
+    if actual != expected:
+        return (
+            [
+                {
+                    "id": "G0.14",
+                    "s": "FAIL",
+                    "r": (
+                        f"calibration anchor hash mismatch: expected {expected[:12]}..., "
+                        f"actual {actual[:12]}... — anchor tamper or drift detected"
+                    ),
+                }
+            ],
+            "calibration anchor hash mismatch",
+            ["G0.14: re-run tests/lock-tool-hashes.sh after intentional anchor changes"],
+        )
+
+    return (
+        [
+            {
+                "id": "G0.14",
+                "s": "PASS",
+                "note": "calibration anchors match locked hash",
+            }
+        ],
+        None,
+        [],
+    )
 
 
 def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
@@ -312,22 +416,24 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         return fail("G0", checks + purity_checks, "round_creation", must_fix)
     checks.extend(purity_checks)
 
-    # G0.10 — completed generative test count (must be >= 59 for full round;
-    # WARN if fewer — allows incremental execution)
+    # G0.10 — completed generative test count (must cover all skills for full round;
+    # WARN if fewer — allows incremental execution). Count is dynamic (scanned from
+    # skills/ dir), not hardcoded — new skills auto-included.
+    total_skills = len(ALL_SKILLS)
     if round_dir:
         rd = Path(round_dir)
         t1_reports = rd / "t1-reports"
         if t1_reports.exists() and t1_reports.is_dir():
             generative_scores = list(t1_reports.glob("*-generative-scores.json"))
             count = len(generative_scores)
-            if count < 59:
+            if count < total_skills:
                 checks.append(
                     {
                         "id": "G0.10",
                         "s": "WARN",
-                        "r": f"generative tests: {count}/59 — {59 - count} remaining",
+                        "r": f"generative tests: {count}/{total_skills} — {total_skills - count} remaining",
                         "completed": count,
-                        "total": 59,
+                        "total": total_skills,
                     }
                 )
             else:
@@ -336,7 +442,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                         "id": "G0.10",
                         "s": "PASS",
                         "completed": count,
-                        "total": 59,
+                        "total": total_skills,
                     }
                 )
         else:
@@ -425,5 +531,59 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
         }
     )
+
+    # G0.13 — independence markers: every report-kind skill must declare
+    # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
+    # Delegates to the unit-tested check_independence_markers helper so the
+    # production gate and the tested logic share a single source of truth.
+    from shenbi.contract import (
+        load_contract,
+        requires_independent_agent,
+        ContractError,
+    )
+
+    skills: dict[str, dict[str, Any]] = {}
+    for d in SKILLS.iterdir():
+        if not d.is_dir() or d.name.startswith("_"):
+            continue
+        try:
+            c = load_contract(d.name)
+        except ContractError:
+            continue  # contract issues surface in their own checks
+        skills[d.name] = {
+            "kind": c["kind"],
+            "has_marker": requires_independent_agent(d.name),
+        }
+    indep_issues = check_independence_markers(skills)
+    if indep_issues:
+        return fail(
+            "G0",
+            checks
+            + [
+                {
+                    "id": "G0.13",
+                    "s": "FAIL",
+                    "r": "; ".join(indep_issues),
+                }
+            ],
+            "round_creation",
+            ["G0.13: add 'requires_independent_agent: true' to listed skills"],
+        )
+    checks.append(
+        {"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"}
+    )
+
+    # G0.14 — calibration anchor hash lock: combined SHA256 over every file
+    # under tests/fixtures/calibration/** must match the locked value in
+    # deps.json._calibration_hashes.combined. Detects anchor tampering /
+    # drift between rounds. Empty scaffolding state hashes the empty byte
+    # stream and is itself lockable.
+    cal_checks, cal_fail, cal_must_fix = check_calibration_integrity(
+        FIXTURES / "calibration",
+        TESTS / "tiers" / "deps.json",
+    )
+    checks.extend(cal_checks)
+    if cal_fail:
+        return fail("G0", checks, "round_creation", cal_must_fix)
 
     return passed("G0", checks)

@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-texture
 description: "Use when a finished chapter needs a writing texture audit (流水账 detection, paragraph breathing, author preaching, segment length extremes)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -28,6 +29,7 @@ contract:
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 17 时激活。
 
 > 与 `shenbi-review-pacing` 区别：节奏审计检查"章类型序列"与"蓄压-爆发周期"，本审计检查"段落级"质感。
+> 与 `shenbi-review-anti-ai` 区别：段长由两者都触及——本审计审"段长**极端**（>500/<20 字）与**呼吸感**（长短交错的可读性）"；anti-ai 审"段长**等长/规律性**（CV 过低 = AI 生成特征）"。本审计判质量，anti-ai 判可检测性。
 
 ## 流程
 
@@ -50,10 +52,11 @@ digraph review_texture {
 
 ## 铁律
 
-1. **流水账 = 写作致命伤** — 单纯按时间罗列事件而无功能/冲突/变化的段落必须标记为 error
-2. **作者说教 = 越界** — 叙事者跳出情节直接对读者输出观点/教训 = 沉浸感破坏 = error
-3. **段长极端 = 节奏病** — 单段 > 500 字 或 < 20 字（无特殊修辞目的）= warning
-4. **日常段必须有功能** — 备忘第 4 段标注的功能（关系/信息/伏笔）必须在对应段落实
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **流水账 = 写作致命伤** — 单纯按时间罗列事件而无功能/冲突/变化的段落必须标记为 error
+3. **作者说教 = 越界** — 叙事者跳出情节直接对读者输出观点/教训 = 沉浸感破坏 = error
+4. **段长极端 = 节奏病** — 单段 > 500 字 或 < 20 字（无特殊修辞目的）= warning
+5. **日常段必须有功能** — 备忘第 4 段标注的功能（关系/信息/伏笔）必须在对应段落实
 
 ## 检查执行
 

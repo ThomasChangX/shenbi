@@ -1,11 +1,15 @@
 ---
 name: shenbi-drift-guidance
 description: "Use when a chapter has completed all audits and results need to be conveyed to the next chapter's writing context"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
     - chapters/chapter-N.md
     - audits/chapter-N-*.md
+    - truth/resonance_trend.md
+    - truth/volume_score_trend.md
+    - truth/arc_payoff_trend.md
   writes:
     - truth/drift_guidance.md
   updates:
@@ -15,7 +19,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md
 - **Writes:** truth/drift_guidance.md
 - **Updates:** truth/audit_drift.md
 
@@ -25,24 +29,31 @@ contract:
 
 把当前章节的审计问题转化为下一章的写作指导，写入 `truth/audit_drift.md`，在 context-composing 阶段自动导入。
 
+> **单一写者（single-writer）**：`truth/audit_drift.md` 由本 skill 作为**合并器/最终写者**拥有。`shenbi-review-resonance`、`shenbi-review-arc-payoff`、`shenbi-score-arc` 仅 **append** 各自的趋势短板条目（不得覆盖/清空已有内容），随后本 skill 读取全部条目并合成最终纠偏指导。写顺序：评分器先 append → 本 skill 合并重写为权威版本。任何 skill 不得独立清空 audit_drift.md。
+
 ## 流程
 
 ```dot
 digraph drift_guidance {
     "Read all audit reports for current chapter" -> "Categorize issues by source audit";
-    "Categorize issues by source audit" -> "For each issue: determine if it conducts forward";
+    "Read all audit reports for current chapter" -> "Read resonance_trend.md + arc_payoff_trend.md";
+    "Categorize issues by source audit" -> "Read resonance_trend.md + arc_payoff_trend.md";
+    "Read resonance_trend.md + arc_payoff_trend.md" -> "Run python -m shenbi.skill_utils.drift_detection (spec §8.3 triggers)";
+    "Run python -m shenbi.skill_utils.drift_detection (spec §8.3 triggers)" -> "For each issue: determine if it conducts forward";
     "For each issue: determine if it conducts forward" -> "Generate targeted guidance for next chapter";
-    "Generate targeted guidance for next chapter" -> "Write truth/audit_drift.md";
-    "Write truth/audit_drift.md" -> "Report conduction summary";
+    "Generate targeted guidance for next chapter" -> "Write truth/audit_drift.md (chapter drift + §8.3 volume drift)";
+    "Write truth/audit_drift.md (chapter drift + §8.3 volume drift)" -> "Report conduction summary";
 }
 ```
+读取 `truth/resonance_trend.md` 与 `truth/arc_payoff_trend.md`，调用 `python -m shenbi.skill_utils.drift_detection` 得到 DriftFinding，将 findings 写入 `truth/audit_drift.md`（逐章纠偏 + 卷级纠偏）。触发条件见 spec §8.3（此处不重定义）。
 
 ## 铁律
 
-1. **error 级别不传导** — error 必须在当前章修订中修复，修复后不传导
-2. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
-3. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
-4. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **error 级别不传导** — error 必须在当前章修订中修复，修复后不传导
+3. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
+4. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
+5. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
 
 ## 传导规则
 
@@ -60,12 +71,14 @@ digraph drift_guidance {
 ## 执行步骤
 
 1. 读取当前章节所有审计报告（continuity / character / pacing / foreshadowing / anti-ai 等）
-2. 按来源审计归类所有问题
-3. 对每条问题判断：是 error 还是 warning，是否属于可传导类型
-4. 对可传导项生成具体写作指导（"下章应做什么"，而非"上章错在哪"）
-5. 检查累积传导数量，若超过 5 条则按"影响下章质量风险"排序取前 5
-6. 写入 `truth/audit_drift.md`（YAML frontmatter 格式）
-7. 输出传导汇总，供 human partner 核对
+2. 读取 `truth/resonance_trend.md` 与 `truth/arc_payoff_trend.md`，调用 `python -m shenbi.skill_utils.drift_detection` 得到 DriftFinding；触发条件遵循 spec §8.3（逐章 3 点平滑 + 连续下滑/均值-2σ；卷级连续下滑），不在此重定义
+3. 将 DriftFinding 的 findings 写入 `truth/audit_drift.md`：逐章纠偏（dimension下滑/低于阈值）与卷级纠偏（跨卷趋势）分项列出
+4. 按来源审计归类当前章问题
+5. 对每条问题判断：是 error 还是 warning，是否属于可传导类型
+6. 对可传导项生成具体写作指导（"下章应做什么"，而非"上章错在哪"）
+7. 检查累积传导数量，若超过 5 条则按"影响下章质量风险"排序取前 5
+8. 写入 `truth/audit_drift.md`（YAML frontmatter 格式）
+9. 输出传导汇总，供 human partner 核对
 
 ## 输出格式
 
@@ -109,6 +122,10 @@ drift_items:
 - [ERROR] review-continuity 第3段时间矛盾 → 当前章修订
 - [ERROR] review-character 林轩动机偏移 → 当前章修订
 ```
+
+## 卷级目标达成漂移（spec §11.8）
+
+读取 truth/volume_score_trend.md，drift_detection 增加"卷级目标未达成"触发器。当 volume_score_trend 最近一行 objective_achieved=false 时，生成卷级漂移指导。
 
 ## Anti-Rationalization
 

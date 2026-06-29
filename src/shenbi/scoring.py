@@ -223,6 +223,61 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
     return missing
 
 
+def check_scorer_agreement(
+    scores_a: dict[int, Any], scores_b: dict[int, Any], threshold: float = 5.0
+) -> dict[str, Any]:
+    """Compare two scorers' per-dimension scores (spec §5.5 补丁2).
+
+    Returns dict with:
+      - agreed: bool (all dimensions within threshold)
+      - max_diff: float (largest per-dimension difference)
+      - disputed_dimensions: list[int] (dimensions exceeding threshold)
+    """
+    disputed: list[int] = []
+    max_diff: float = 0.0
+    all_dims = set(scores_a.keys()) | set(scores_b.keys())
+    for dim in all_dims:
+        a = float(scores_a.get(dim, 0))
+        b = float(scores_b.get(dim, 0))
+        diff = abs(a - b)
+        max_diff = max(max_diff, diff)
+        if diff > threshold:
+            disputed.append(dim)
+    return {
+        "agreed": len(disputed) == 0,
+        "max_diff": round(max_diff, 2),
+        "disputed_dimensions": sorted(disputed),
+    }
+
+
+def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
+    """Detect score-collapse signals like all-95 (spec §5.5 补丁3).
+
+    Returns dict with:
+      - collapse_suspected: bool
+      - signals: list[str] (which collapse pattern was detected)
+    """
+    signals: list[str] = []
+    values = [float(v) for v in scores.values() if isinstance(v, (int, float))]
+    if not values:
+        return {"collapse_suspected": False, "signals": []}
+
+    if len(set(values)) == 1:
+        signals.append("all_identical")
+
+    from collections import Counter
+
+    counts = Counter(values)
+    most_common_val, most_common_n = counts.most_common(1)[0]
+    if most_common_n / len(values) > 0.6 and len(values) >= 3:
+        signals.append(f"majority_at_single_value({most_common_val})")
+
+    return {
+        "collapse_suspected": len(signals) > 0,
+        "signals": signals,
+    }
+
+
 def main() -> dict[str, Any]:
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:

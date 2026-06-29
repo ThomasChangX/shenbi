@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-spinoff
 description: "Use when a finished chapter in a spinoff needs a main-story consistency audit (event conflict, future info leak, world rule consistency, hook isolation)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -51,10 +52,11 @@ digraph review_spinoff {
 
 ## 铁律
 
-1. **原作事件 = 不可篡改** — 与原作已发生事件矛盾的衍生情节 = error
-2. **未来信息不得泄漏** — 衍生作品角色不得拥有"未到时点"的信息 = error
-3. **共享世界规则必须一致** — 与原作共用世界的物理/能力/社会规则不能违反 = error
-4. **衍生伏笔不得污染原作伏笔池** — 衍生作品的伏笔必须在 `pending_hooks.md` 中独立登记
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **原作事件 = 不可篡改** — 与原作已发生事件矛盾的衍生情节 = error
+3. **未来信息不得泄漏** — 衍生作品角色不得拥有"未到时点"的信息 = error
+4. **共享世界规则必须一致** — 与原作共用世界的物理/能力/社会规则不能违反 = error
+5. **衍生伏笔不得污染原作伏笔池** — 衍生作品的伏笔必须在 `pending_hooks.md` 中独立登记
 
 ## 检查执行
 

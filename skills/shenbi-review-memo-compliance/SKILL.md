@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-memo-compliance
 description: "Use when a finished chapter needs an 8-section chapter memo compliance audit against `plans/chapter-N-plan.md`"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -51,10 +52,11 @@ digraph review_memo_compliance {
 
 ## 铁律
 
-1. **备忘是承诺，必须兑现** — 备忘第 1 段"当前任务"未在正文中出现 = error
-2. **章尾改变 = 必现** — 备忘第 6 段列出的 1-3 条改变必须发生，少一条 = error
-3. **禁止事项 = 必避** — 备忘第 8 段列出的事项一旦在正文中出现 = error
-4. **Hook 账本必须与正文一致** — 备忘第 7 段声明的 open/advance/resolve/defer 操作必须能在正文中找到对应动作
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **备忘是承诺，必须兑现** — 备忘第 1 段"当前任务"未在正文中出现 = error
+3. **章尾改变 = 必现** — 备忘第 6 段列出的 1-3 条改变必须发生，少一条 = error
+4. **禁止事项 = 必避** — 备忘第 8 段列出的事项一旦在正文中出现 = error
+5. **Hook 账本必须与正文一致** — 备忘第 7 段声明的 open/advance/resolve/defer 操作必须能在正文中找到对应动作
 
 ## 检查执行
 

@@ -27,6 +27,8 @@ contract:
 
 # 状态结算
 
+HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
+
 在章节起草被人类合作者批准后，必须执行状态结算。
 
 ## 流程
@@ -104,7 +106,12 @@ digraph state_settling {
 | 伏笔 | `truth/pending_hooks.md` |
 | 摘要 | `truth/chapter_summaries.md` (追加) |
 
-> **Phase 1 limitation:** 在 foreshadowing-track 实现前（Phase 3），state-settling 只更新 `last_reinforced` 和 `subtlety` 字段，不推进 hook 生命周期状态（PLANTED→RELEVANT 等）。生命周期转换需要完整的验证逻辑，留给 foreshadowing-track。
+> **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
+> - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。
+> - **foreshadowing-track**：唯一推进 hook 生命周期状态的 skill（需文本证据验证）。
+> - **foreshadowing-plant**：追加新 hook（PLANTED）。
+> - **foreshadowing-resolve**：兑现处理（TRIGGERED→RESOLVED）。
+> 执行顺序：plant → track（生命周期）→ resolve；state-settling 的 `last_reinforced` 更新与 track 并行。历史 Phase 1 临时由 state-settling 兼做生命周期转换的逻辑已废弃。
 
 参考 `truth-files-reference.md` 获取完整的文件格式说明。
 

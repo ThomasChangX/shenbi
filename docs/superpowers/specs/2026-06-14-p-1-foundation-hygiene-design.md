@@ -1078,7 +1078,7 @@ ShenbiError (基类)
 ```python
 class ShenbiError(Exception):
     """Base for all Shenbi errors."""
-    
+
     def __init__(
         self,
         message: str,
@@ -1090,7 +1090,7 @@ class ShenbiError(Exception):
         self.message = message
         self.cause = cause
         self.context = context
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize for failure catalog and structured logging."""
         return {

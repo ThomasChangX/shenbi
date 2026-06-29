@@ -5,6 +5,10 @@ contract:
   kind: ephemeral
   reads:
     - plans/chapter-N-plan.md
+    - truth/book_spine.md
+    - truth/book_strata.md
+    - truth/volume_summaries.md
+    - truth/arcs/arc-N.md
     - truth/chapter_summaries.md
     - truth/pending_hooks.md
     - truth/audit_drift.md
@@ -19,7 +23,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
+- **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
 - **Writes:** none
 - **Updates:** none
 
@@ -27,55 +31,81 @@ contract:
 
 # 上下文组装
 
+HARD-GATE: chapter-drafting 的输入**必须**是 context-composing 产出的上下文包，不可直接读扁平 outline 文件。绕过 context-composing = 丢失分层记忆 = 长程失忆。
+
+分层记忆架构下，上下文按层（L5→L1）组装，使窗口大小有界，与全书总字数无关。
+
+## 上下文优先级（按层组装）
+
+分层记忆架构下，上下文按层加载，使窗口大小有界（与全书总字数无关）：
+
+| 优先级 | 层 | 来源 | 裁剪规则 |
+|--------|----|------|---------|
+| P1 | - | plans/chapter-N-plan.md | 不裁剪 |
+| P2 | L5 | truth/book_spine.md | 不裁剪（常青，~1页） |
+| P3 | L4 | truth/book_strata.md（当前大弧段） | 不裁剪 |
+| P4 | L3 | truth/volume_summaries.md（当前卷） | 不裁剪 |
+| P5 | L2 | truth/arcs/arc-N.md（当前弧） | 不裁剪 |
+| P6 | L1 | truth/chapter_summaries.md（近8章拍点） | 仅取近8章 |
+| P7 | - | world/rules.md（最多5条）+ style/style_profile.md | nice，先裁剪 |
+
 ## 流程
 
 ```dot
 digraph context_composing {
-    "Read chapter plan" -> "Collect P1: plan";
-    "Collect P1: plan" -> "Collect P2: recent summaries";
-    "Collect P2: recent summaries" -> "Collect P3: active hooks [Phase 3] (max 3)";
-    "Collect P3: active hooks [Phase 3] (max 3)" -> "Collect P4: drift guidance";
-    "Collect P4: drift guidance" -> "Collect P5: world rules (max 5)";
-    "Collect P5: world rules (max 5)" -> "Collect P6: character states";
-    "Collect P6: character states" -> "Collect P7: style profile";
-    "Collect P7: style profile" -> "Check near-chapter endings (avoid repetition)";
-    "Check near-chapter endings (avoid repetition)" -> "Present context to human";
+    "Read chapter plan (P1)" -> "Load L5: book_spine.md (P2)";
+    "Load L5: book_spine.md (P2)" -> "Load L4: book_strata.md current stratum (P3)";
+    "Load L4 (P3)" -> "Load L3: volume_summaries.md current volume (P4)";
+    "Load L3 (P4)" -> "Load L2: arcs/arc-N.md current arc (P5)";
+    "Load L2 (P5)" -> "Load L1: chapter_summaries.md near 8 chapters (P6)";
+    "Load L1 (P6)" -> "Load P7: world/rules.md (max 5) + style/style_profile.md";
+    "Load P7" -> "Check near-chapter endings (avoid repetition)";
+    "Check near-chapter endings" -> "Present context to human";
     "Present context to human" -> "Proceed to chapter-drafting";
 }
 ```
 
 ## 铁律
 
-1. **优先级严格递减** — P1 不可省略，P7 最先被裁剪
-2. **近章结尾轨迹** — 收集近 3 章的结尾方式（从 `chapters/chapter-(N-3).md` 到 `chapters/chapter-(N-1).md` 的末段），避免连续相同结尾结构（如连续3个崩塌式结尾）。此检查独立于 P2 摘要收集——摘要提供叙事脉络，结尾轨迹检查章尾模式多样性
+1. **优先级严格递减** — P1 不可省略，P7 最先被裁剪。L5-L2 缺失层跳过加载（爬坡期，§3.2.1），不报错
+2. **近章结尾轨迹** — 收集近 3 章的结尾方式（从 `chapters/chapter-(N-3).md` 到 `chapters/chapter-(N-1).md` 的末段），避免连续相同结尾结构（如连续3个崩塌式结尾）。此检查独立于 P6 拍点收集——拍点提供叙事脉络，结尾轨迹检查章尾模式多样性
 3. **不自动检索** — 这是手动组装指南，由 AI 或人类按优先级从文件读取
 4. **结尾分析必读原文** — 近章结尾多样性检查必须读取实际章节文件（`chapters/chapter-(N-3).md` 到 `chapters/chapter-(N-1).md`）的末段文本，严禁以摘要（`chapter_summaries.md`）作为结尾分析的代理。摘要不包含结尾结构信息，无法判断连续闭环/开放型结尾模式
-5. **伏笔数据溯源** — Hook 债务简报的内容必须来自 `truth/pending_hooks.md`，不得从章节计划（`plans/chapter-N-plan.md`）中提取伏笔信息。章节计划中的伏笔引用可能已过期，只有 pending_hooks.md 是伏笔状态的权威数据源
+5. **伏笔数据溯源** — Hook 债务简报的跨弧主线钩子（MH*）来自 P2 书脊（`truth/book_spine.md` 的 master hooks），弧内本地钩子（H*）来自 P5 当前弧段（`truth/arcs/arc-N.md`）。爬坡期书脊尚未产出 master hooks 时，从 `truth/pending_hooks.md` 读取。不得从章节计划（`plans/chapter-N-plan.md`）中提取伏笔信息
 
-## 上下文优先级
+## 爬坡期处理（章节 1-35）
 
-| 优先级 | 来源 | 文件位置 | 裁剪规则 |
-|--------|------|---------|---------|
-| P1 (must) | 章节备忘 | `plans/chapter-N-plan.md` | 不裁剪 |
-| P2 (must) | 近 2 章摘要 | `truth/chapter_summaries.md` 末尾 | 不裁剪。第 1 章跳过此项，第 2 章只取近 1 章 |
-| P3 (need) | 活跃伏笔 | `truth/pending_hooks.md` | 最多 3 条，按紧迫度排序 |
-| P4 (need) | 纠偏指导 | `truth/audit_drift.md` | 不裁剪 |
-| P5 (nice) | 世界铁律 | `world/rules.md` | 最多 5 条 |
-| P6 (nice) | 角色状态 | `truth/character_matrix.md` | 仅本章出场角色 |
-| P7 (nice) | 文风指纹 | `style/style_profile.md` | 仅摘要部分 |
+前36章内，L2/L3/L4 尚未产出（首个L2在第12章，首个L4在第36章，首个L3在卷边界）。爬坡期规则：
+
+- **缺失层不报错，跳过加载。** 按层逐层尝试加载，若文件不存在则跳过（不填充占位）。
+- **爬坡期用 L1 近章拍点补偿。** 前12章无 L2 时，L1 取近章范围扩大到近12章（而非8章）。
+- **爬坡期窗口较小（~3000-6000字），非缺陷。** 稳态窗口（~10,700字）从第36章起达成。
 
 ## Hook 债务简报
 
-从 pending_hooks.md 提取以下信息，以简报形式呈现：
+分层模型下，伏笔分两级追踪：
+
+- **跨弧主线钩子（MH*）** — 来自 P2 书脊 `truth/book_spine.md` 的 master hooks，追踪跨大弧的长程钩子状态。
+- **弧内本地钩子（H*）** — 来自 P5 当前弧段 `truth/arcs/arc-N.md` 的弧内伏笔兑现/推进记录。
+- **爬坡期回退** — 书脊 master hooks 尚未产出时（章节 < 首个卷边界），从 `truth/pending_hooks.md` 读取全量 hook 作为回退。
+
+以简报形式呈现：
 
 ```markdown
 ## Hook 债务简报
 
-| Hook ID | 内容 | 状态 | 沉默章数 | 操作建议 |
-|---------|------|------|---------|---------|
-| hook-001 | 玉佩秘密 | PLANTED | 4/20 | advance |
-| hook-002 | 老人预言 | RELEVANT | 2/15 | advance |
-| hook-005 | 师姐身世 | PLANTED | 8/12 | URGENT advance |
+### 主线钩子（MH*，来源：book_spine）
+
+| Hook ID | 内容 | 状态 | 最后推进章 | 声明兑现卷 | 沉默章数 | 操作建议 |
+|---------|------|------|----------|----------|---------|---------|
+| MH01 | 前穿越者失败教训 | ADVANCED | 12 | 第二卷 | 5 | advance |
+| MH02 | 灵能金手指上限 | PLANTED | 5 | 第三卷 | 12 | URGENT advance |
+
+### 弧内钩子（H*，来源：当前弧段）
+
+| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 | 操作建议 |
+|---------|------|------|----------|---------|---------|
+| H01 | 灵能知识驱动特性 | PLANTED | 3 | 14 | advance |
 ```
 
 紧迫度 = (current_chapter - last_reinforced) / max_distance
@@ -89,24 +119,16 @@ digraph context_composing {
 输出的 markdown 必须包含以下 H2 标题，按此顺序：
 
 1. `## P1 章节备忘`
-2. `## P2 近期摘要`
-3. `## P3 活跃伏笔`
-4. `## P4 纠偏指导`
-5. `## P5 世界铁律`
-6. `## P6 角色状态`
-7. `## P7 文风指纹`
+2. `## P2 书脊（L5）`
+3. `## P3 当前大弧（L4）`
+4. `## P4 当前卷摘要（L3）`
+5. `## P5 当前弧段（L2）`
+6. `## P6 近章拍点（L1）`
+7. `## P7 世界铁律与文风`
 8. `## 近章结尾多样性`
 9. `## Hook 债务简报`
 
-### ## P3 活跃伏笔 模板
-
-每条伏笔必须附带"数据来源"字段（文件路径 + 行号）。
-
-| Hook ID | 内容 | 状态 | 紧迫度 | 数据来源 |
-|---------|------|------|--------|---------|
-| hook-001 | ... | PLANTED | 0.4 | `truth/pending_hooks.md` L12-15 |
-
-紧迫度 = (current_chapter - last_reinforced) / max_distance
+**不合格条件**：缺任意一节，或使用旧的 P3 活跃伏笔/P5 世界铁律标题。
 
 ### ## 近章结尾多样性 模板
 
@@ -122,21 +144,24 @@ digraph context_composing {
 
 ### ## Hook 债务简报 模板
 
-| Hook ID | 内容 | 状态 | 沉默章数 | 操作建议 | 数据来源 |
-|---------|------|------|---------|---------|---------|
-| hook-001 | 玉佩秘密 | PLANTED | 4/20 | advance | `truth/pending_hooks.md` L12-15 |
+主线钩子（MH*）数据来源：`truth/book_spine.md`；弧内钩子（H*）数据来源：`truth/arcs/arc-N.md`。爬坡期回退数据来源：`truth/pending_hooks.md`。每行必须包含文件路径。
 
-**数据来源列**：每行必须包含文件路径 + 行号。缺失 = 不合格。
+| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 | 操作建议 | 数据来源 |
+|---------|------|------|----------|---------|---------|---------|
+| MH01 | 前穿越者失败教训 | ADVANCED | 12 | 5 | advance | `truth/book_spine.md` |
+| H01 | 灵能知识驱动特性 | PLANTED | 3 | 14 | advance | `truth/arcs/arc-1.md` |
+
+**数据来源列**：每行必须包含文件路径。缺失 = 不合格。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
 | 节标题数 | = 9 | < 9 |
-| P3 伏笔条目数据来源 | 每条有文件路径+行号 | 任意条目缺失 |
-| Hook 债务简报数据来源 | 每条有文件路径+行号 | 任意条目缺失 |
+| Hook 债务简报数据来源 | 每条有文件路径 | 任意条目缺失 |
+| 主线钩子来源文件 | `truth/book_spine.md` | 使用章节计划文件 |
+| 弧内钩子来源文件 | `truth/arcs/arc-N.md` 或爬坡期 `pending_hooks.md` | 使用章节计划文件 |
 | 近章结尾来源 | 引用 chapters/chapter-*.md 原文 | 使用摘要文件替代 |
-| P3 伏笔来源文件 | `truth/pending_hooks.md` | 使用章节计划文件 |
 | 近章结尾连续同类型 | ≤ 2 | ≥ 3 |
 
 ## Anti-Rationalization
@@ -146,3 +171,5 @@ digraph context_composing {
 | "不需要收集这么多上下文" | 上下文不足 = 每章都在重新发明设定 |
 | "近章结尾不需要检查" | 不检查 = 连续3个"轰然崩塌"式结尾 |
 | "hook 债务简报可以省略" | 不看债务 = 过期伏笔 = 读者信任流失 |
+| "爬坡期没有 L4，跳过大弧层就行" | 缺失层跳过加载，但 L1 近章范围须扩大补偿 |
+| "主线钩子和弧内钩子混着列就行" | MH* 来自书脊、H* 来自弧段，分级追踪才能定位长程债务 |

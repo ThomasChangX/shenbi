@@ -163,11 +163,19 @@ def gate_G4(
     from shenbi.gates.g4.plot_thread_weaver import g4_plot_thread_weaver
     from shenbi.gates.g4.power_system import g4_power_system
     from shenbi.gates.g4.relationship_map import g4_relationship_map
+    from shenbi.gates.g4.review_arc_payoff import g4_review_arc_payoff
+    from shenbi.gates.g4.review_resonance import g4_review_resonance
     from shenbi.gates.g4.state_settling import g4_state_settling
     from shenbi.gates.g4.story_architecture import g4_story_architecture
     from shenbi.gates.g4.style_polishing import g4_style_polishing
     from shenbi.gates.g4.volume_outlining import g4_volume_outlining
     from shenbi.gates.g4.worldbuilding import g4_worldbuilding
+    from shenbi.gates.g4.book_spine_init import g4_book_spine_init
+    from shenbi.gates.g4.memory_distill import g4_memory_distill
+    from shenbi.gates.g4.score_arc import g4_score_arc
+    from shenbi.gates.g4.score_volume import g4_score_volume
+    from shenbi.gates.g4.score_stratum import g4_score_stratum
+    from shenbi.gates.g4.escalation_review import g4_escalation_review
 
     checkers = {
         "shenbi-anti-detect": g4_anti_detect,
@@ -185,11 +193,19 @@ def gate_G4(
         "shenbi-plot-thread-weaver": g4_plot_thread_weaver,
         "shenbi-power-system": g4_power_system,
         "shenbi-relationship-map": g4_relationship_map,
+        "shenbi-review-arc-payoff": g4_review_arc_payoff,
+        "shenbi-review-resonance": g4_review_resonance,
         "shenbi-state-settling": g4_state_settling,
         "shenbi-story-architecture": g4_story_architecture,
         "shenbi-style-polishing": g4_style_polishing,
         "shenbi-volume-outlining": g4_volume_outlining,
         "shenbi-worldbuilding": g4_worldbuilding,
+        "shenbi-book-spine-init": g4_book_spine_init,
+        "shenbi-memory-distill": g4_memory_distill,
+        "shenbi-score-arc": g4_score_arc,
+        "shenbi-score-volume": g4_score_volume,
+        "shenbi-score-stratum": g4_score_stratum,
+        "shenbi-escalation-review": g4_escalation_review,
     }
     fn = checkers.get(skill_name)
     if fn:

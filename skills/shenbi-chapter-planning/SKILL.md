@@ -50,6 +50,7 @@ digraph chapter_planning {
 1. **NO CHAPTER WITHOUT A MEMO** — 没有章节备忘就动笔 = 删除重来
 2. **目标推导必须走优先级链** — 外部指令 > 局部覆盖 > 卷纲 Key Result > current_focus > author_intent
 3. **黄金三章不降级** — 前 N 章的特殊纪律不可跳过
+4. **每个备忘必须声明 chapter_role** — 驱动 review-resonance 校准阈值（spec §5.1）
 
 ## 目标推导优先级链
 
@@ -65,6 +66,7 @@ digraph chapter_planning {
    - 输出中必须注明目标由哪个优先级层驱动（外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent）
    - 如果高层级给出的指令与低层级冲突，必须说明为何选择当前层级（如"外部指令要求本章引入新角色X，但与 current_focus 的'主角独自探索'冲突，以外部指令为准"）
    - 未注明优先级来源的备忘视为不完整
+   - 首行必须声明 `chapter_role`（合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫），驱动 review-resonance 校准阈值（spec §5.1）
 2. **读者此刻在等什么** — 制造/延迟/兑现读者期待
 3. **该兑现的 / 暂不掀的** — 伏笔兑现清单 + 压住不掀的底牌
 4. **日常/过渡承担什么任务** — 非冲突段落的功能映射
@@ -118,6 +120,10 @@ digraph chapter_planning {
 ```markdown
 ## 1. 当前任务
 
+chapter_role: 高潮
+
+> 合法值：高潮/兑现 | 推进/转折 | 过渡/铺垫
+
 **优先级来源**: [外部指令 / 局部覆盖 / 卷纲 Key Result / current_focus / author_intent]
 
 **冲突说明**: [若高层级指令与低层级冲突，说明为何选择当前层级。无冲突则填"无"]
@@ -128,6 +134,8 @@ digraph chapter_planning {
 ```
 
 **不合格条件**: 未注明优先级来源。
+
+> 注：未声明 `chapter_role` 或使用非合法值，视为不合格（G4.cp.missing_chapter_role）。
 
 ### 段 2 模板：读者此刻在等什么
 
@@ -221,6 +229,7 @@ digraph chapter_planning {
 | 段完整性 | 8/8 段全部存在 | 缺任意段 |
 | 段标题精确性 | 8 个段标题精确匹配规定字符串 | 标题偏差 |
 | 优先级来源声明 | 段 1 含"优先级来源"字段且非空 | 缺失或为空 |
+| chapter_role 声明 | 段含 `chapter_role:` + 合法值（高潮/兑现/推进/转折/过渡/铺垫） | 缺失或值非法 |
 | 章尾改变数 | ≥ 1 条（第 3 章起 ≥ 1 条 advance 型） | 无改变或全为其他型 |
 | hook 账列名 | ID/操作/推进方式/沉默章数 四列 | 列名不匹配 |
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |

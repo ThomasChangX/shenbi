@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-character
 description: "Use when a finished chapter needs character consistency audit against profiles and arcs"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -48,10 +49,11 @@ digraph review_character {
 
 ## 铁律
 
-1. **OOC = blocking error** — 角色行为违反已建立的性格/动机/声音，视为最高严重级别
-2. **一人一卡** — 每个角色的行为只能与其自身角色档案对比，不能交叉污染
-3. **配角降智是致命毒点** — 为推进剧情让反派/配角降智 = 必须修订
-4. **声音指纹是读者的识别锚** — 角色说话方式突变会让读者感到陌生
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **OOC = blocking error** — 角色行为违反已建立的性格/动机/声音，视为最高严重级别
+3. **一人一卡** — 每个角色的行为只能与其自身角色档案对比，不能交叉污染
+4. **配角降智是致命毒点** — 为推进剧情让反派/配角降智 = 必须修订
+5. **声音指纹是读者的识别锚** — 角色说话方式突变会让读者感到陌生
 
 ## 检查执行
 

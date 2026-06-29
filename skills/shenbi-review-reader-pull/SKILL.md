@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-reader-pull
 description: "Use when a finished chapter needs a reader-pull audit (opening hook, chapter-end suspense, expectation management)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -48,10 +49,11 @@ digraph review_reader_pull {
 
 ## 铁律
 
-1. **章头 200 字 = 生死线** — 章节开头无钩子 / 拖沓 / 信息密度低 = error（除非本章承接上章紧急事件）
-2. **章尾必须留悬念** — 章尾无悬念 / 无信息落差 / 无改变 = error
-3. **期待必须被回应或被管理** — 备忘第 2 段"读者此刻在等什么"在正文中必须有明确回应（兑现/延迟/转方向），缺失 = error
-4. **中段必须有牵引点** — 章中每 800-1200 字需有牵引点（冲突/揭示/转折），否则 = warning
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **章头 200 字 = 生死线** — 章节开头无钩子 / 拖沓 / 信息密度低 = error（除非本章承接上章紧急事件）
+3. **章尾必须留悬念** — 章尾无悬念 / 无信息落差 / 无改变 = error
+4. **期待必须被回应或被管理** — 备忘第 2 段"读者此刻在等什么"在正文中必须有明确回应（兑现/延迟/转方向），缺失 = error
+5. **中段必须有牵引点** — 章中每 800-1200 字需有牵引点（冲突/揭示/转折），否则 = warning
 
 ## 检查执行
 

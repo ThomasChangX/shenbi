@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-continuity
 description: "Use when a finished chapter needs an internal consistency audit against truth files"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -46,10 +47,11 @@ digraph review_continuity {
 
 ## 铁律
 
-1. **时间线是单向不可逆的** — 不能出现"太阳落山后又出现正午场景"类矛盾
-2. **地点跳跃需要过渡** — 角色不能从A地瞬移到B地除非有明确能力支撑
-3. **事件因果链必须完整** — 每个事件必须有前因后果，不能凭空出现
-4. **物理规则一致** — 本章的物理规则必须与前章一致（除非有明确的世界规则变更）
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **时间线是单向不可逆的** — 不能出现"太阳落山后又出现正午场景"类矛盾
+3. **地点跳跃需要过渡** — 角色不能从A地瞬移到B地除非有明确能力支撑
+4. **事件因果链必须完整** — 每个事件必须有前因后果，不能凭空出现
+5. **物理规则一致** — 本章的物理规则必须与前章一致（除非有明确的世界规则变更）
 
 ## 检查执行
 

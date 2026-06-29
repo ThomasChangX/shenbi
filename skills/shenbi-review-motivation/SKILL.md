@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-motivation
 description: "Use when a finished chapter needs a character motivation and behavior-chain plausibility audit"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -28,7 +29,7 @@ contract:
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 11 时激活。
 
-> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI 与档案的偏离"，本审计检查"角色行为在利益/逻辑层面的合理性"。
+> 与 `shenbi-review-character` 区别：角色一致性审计检查"角色 BDI（信念/欲望/意图）与档案的偏离"，本审计检查"角色行为在利益/逻辑层面的合理性"。
 
 ## 流程
 
@@ -51,10 +52,11 @@ digraph review_motivation {
 
 ## 铁律
 
-1. **无利益驱动 = 无缘无故** — 角色行为若无自身利益 / 恐惧 / 欲望 / 信念支撑 = error
-2. **动机必须可推导** — 读者能从已建立信息中推导出角色当下的动机，不能 = error
-3. **行为链 = 因果链** — 角色行为 A → 后果 B → 应对 C，链中任一环节缺失 = warning
-4. **不得为推进剧情制造动机** — 角色动机必须源于已有欲望/恐惧，不能因"剧情需要"临时生成
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **无利益驱动 = 无缘无故** — 角色行为若无自身利益 / 恐惧 / 欲望 / 信念支撑 = error
+3. **动机必须可推导** — 读者能从已建立信息中推导出角色当下的动机，不能 = error
+4. **行为链 = 因果链** — 角色行为 A → 后果 B → 应对 C，链中任一环节缺失 = warning
+5. **不得为推进剧情制造动机** — 角色动机必须源于已有欲望/恐惧，不能因"剧情需要"临时生成
 
 ## 检查执行
 

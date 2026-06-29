@@ -27,6 +27,7 @@ contract:
 # 角色反向提取
 
 从已分析章节反向提取角色档案。负责角色识别、性格还原、声音指纹、行为模式、关系网络。
+**职责边界**：本 skill **反向提取**角色档案（已有手稿，从 `import/analysis/02_characters.md` + 章节反推）。`shenbi-character-design` **正向创建**角色档案（新小说，从 story_bible 设计）。两者都写 `characters/*.md`，但方向相反——导入已有作品用本 skill，新小说用 design。
 
 ## 流程
 

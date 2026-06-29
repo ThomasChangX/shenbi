@@ -1,6 +1,6 @@
 ---
 name: shenbi-anti-detect
-description: "Use when a chapter has been flagged by anti-AI audit for detectability markers that polishing alone cannot resolve"
+description: "Use when anti-AI audit flags a chapter with critical/blocking-level detectability markers (structural tells, sentence-pattern regularity) that surface polishing cannot resolve — distinct from polishing, which handles only warning-level fatigue-word and rhythm issues"
 contract:
   kind: artifact
   reads:

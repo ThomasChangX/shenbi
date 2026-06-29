@@ -988,10 +988,10 @@ def main():
     if len(sys.argv) < 2:
         print("validate-gate.py <GATE> [args...]"); sys.exit(1)
     gate = sys.argv[1]; args = sys.argv[2:]
-    
+
     def arg(i, default=None):
         return args[i] if i < len(args) else default
-    
+
     if gate == "G0": print(gate_G0(seed_file=arg(0)))
     elif gate == "G1": print(gate_G1(arg(0), json.loads(arg(1) or '[]') if arg(1) else [], arg(2)))
     elif gate == "G2":
@@ -1106,10 +1106,10 @@ if "--tier" in sys.argv:
     tier_idx = sys.argv.index("--tier")
     tier = sys.argv[tier_idx + 1]
     phase = sys.argv[tier_idx + 3] if "--phase" in sys.argv else None
-    
+
     import subprocess
     vg = str(Path(__file__).parent / "validate-gate.py")
-    
+
     if tier == "T1":
         # G3: prerequisite check
         result = subprocess.run([sys.executable, vg, "G3", skill_name, test_type, round_dir],
@@ -1118,7 +1118,7 @@ if "--tier" in sys.argv:
         if gate_out.get("status") == "FAIL":
             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
             sys.exit(1)
-    
+
     if tier == "T2" and phase:
         result = subprocess.run([sys.executable, vg, "G5", phase, round_dir],
                                capture_output=True, text=True)
@@ -1126,7 +1126,7 @@ if "--tier" in sys.argv:
         if gate_out.get("status") == "FAIL":
             print(json.dumps(gate_out, indent=2, ensure_ascii=False))
             sys.exit(1)
-    
+
     if tier == "T3":
         result = subprocess.run([sys.executable, vg, "G6", "long-form", round_dir, project_dir],
                                capture_output=True, text=True)
@@ -1143,7 +1143,7 @@ if "--gate-only" in sys.argv:
     gate_type = sys.argv[sys.argv.index("--gate-only") + 1]
     files = sys.argv[sys.argv.index("--files") + 1].split(",") if "--files" in sys.argv else []
     ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
-    
+
     result = subprocess.run([sys.executable, str(Path(__file__).parent / "validate-gate.py"),
                             "G2", ",".join(files), ftype],
                            capture_output=True, text=True)

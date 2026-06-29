@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-fanfic
 description: "Use when a finished chapter in fanfic mode needs a character fidelity and world consistency audit (4 modes: canon/au/ooc/cp)"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -24,6 +25,8 @@ contract:
 # 同人创作审计
 
 这是条件激活的审计技能。检查角色还原度、世界规则一致性、关系动态、原作事件一致性。支持 4 种同人模式（canon/au/ooc/cp），每种模式严格度不同。
+
+> **同人模式缩写**：canon=忠于原作续写；au=Alternate Universe 架空设定（核心设定变更）；ooc=Out of Character 性格偏离（至少 1 个核心性格/关系变化）；cp=Couple/Pairing 角色配对（关系正典）。模式由 `shenbi-canon-import` 导入并声明。注意：本 skill 的 cp 指**角色配对**，与 `shenbi-foreshadowing-resolve` 的 CP（Chase Power 期望债务）语义无关。
 
 > 激活条件：`novel.json.mode` = `"fanfic"` 时激活。
 
@@ -51,10 +54,11 @@ digraph review_fanfic {
 
 ## 铁律
 
-1. **同人模式决定严格度** — 4 种模式（canon/au/ooc/cp）的允许范围与严格度完全不同，见 `fanfic-modes.md`
-2. **原作人物 = 公共契约** — 角色基本属性（性格/能力/关系）= 读者共识，重大偏离需在文前声明
-3. **世界规则沿用原作** — 任何与原作规则冲突需在 AU 设定中显式声明
-4. **cp 模式的关系不破坏原作** — 配对不能扭曲原作其他关系（除非 AU 模式明示）
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **同人模式决定严格度** — 4 种模式（canon/au/ooc/cp）的允许范围与严格度完全不同，见 `fanfic-modes.md`
+3. **原作人物 = 公共契约** — 角色基本属性（性格/能力/关系）= 读者共识，重大偏离需在文前声明
+4. **世界规则沿用原作** — 任何与原作规则冲突需在 AU 设定中显式声明
+5. **cp 模式的关系不破坏原作** — 配对不能扭曲原作其他关系（除非 AU 模式明示）
 
 ## 检查执行
 

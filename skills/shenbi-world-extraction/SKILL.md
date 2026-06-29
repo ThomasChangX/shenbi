@@ -28,6 +28,7 @@ contract:
 # 世界观反向提取
 
 从已分析章节反向提取世界观文件。负责地点、势力、力量体系、世界规则。
+**职责边界**：本 skill **反向提取**（已有手稿，从 `import/analysis/` + 章节反推 story_bible/rules/locations/factions/power_system）。`shenbi-worldbuilding` **正向创建**（新小说，从 core concept 设计）。两者都写 `world/*.md`，但方向相反——导入已有作品用本 skill，新小说用 worldbuilding。
 
 ## 流程
 

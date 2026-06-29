@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-sensitivity
 description: "Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -45,10 +46,11 @@ digraph review_sensitivity {
 
 ## 铁律
 
-1. **敏感词 = blocking error** — 直接导致平台下架的问题没有 warning 余地，只分 error 和 pass
-2. **依据目标平台规则** — 如果 novel.json 指定了目标平台，应用对应平台的审核规则
-3. **本书禁忌词必须 0 出现** — genre-config.json 的 prohibitions 列表 = 每章必须为 0
-4. **不与 creative expression 妥协** — 只标记客观违规，不对艺术表达做主观审查
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **敏感词 = blocking error** — 直接导致平台下架的问题没有 warning 余地，只分 error 和 pass
+3. **依据目标平台规则** — 如果 novel.json 指定了目标平台，应用对应平台的审核规则
+4. **本书禁忌词必须 0 出现** — genre-config.json 的 prohibitions 列表 = 每章必须为 0
+5. **不与 creative expression 妥协** — 只标记客观违规，不对艺术表达做主观审查
 
 ## 检查执行
 

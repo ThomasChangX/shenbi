@@ -50,9 +50,10 @@ digraph worldbuilding {
 
 1. **NO BULLET-POINT WORLDS** — 世界观以散文形式输出，不是表格、不是 schema、不是条目化 bullet。每个设定段落是一段连贯的叙述。
 2. **前台故事 + 后台故事** — story_bible.md 必须包含两条线：读者看到的前台冲突，和贯穿全书的后台暗线。
-3. **世界铁律写在 rules.md** — 硬性规则（物理法则、社会禁忌、力量上限）独立存放，writer 和 auditor 直接引用。
+3. **世界铁律写在 rules.md** — 世界级硬性规则（物理法则、社会禁忌、时代禁忌）独立存放，writer 和 auditor 直接引用。
 4. **去重原则** — 同一事实只出现在一个文件中。genre/core_concept/themes 只在 `novel.json` 定义。
-5. **项目目录初始化** — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。
+5. **力量体系归 power_system.md** — 等级划分、进阶规则、力量上限、能力边界由 `shenbi-power-system` skill 维护至 `world/power_system.md`，不写入 rules.md。rules.md 只存放与具体力量体系无关的世界级硬律。
+6. **项目目录初始化** — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。
 
 ## 输出格式
 
@@ -61,11 +62,11 @@ digraph worldbuilding {
 | 文件 | 内容 |
 |------|------|
 | `novel.json` | 标题、题材、语言、状态 |
-| `genre-config.json` | 疲劳词、审计维度、节奏规则 |
+| `genre-config.json` | **初始 stub**（仅含题材分类、语言、基本审计维度激活）。完整的疲劳词列表、章节类型、禁忌词由 `shenbi-genre-config` skill 细化。worldbuilding 创建 stub，genre-config skill 负责细化。 |
 | `world/story_bible.md` | 世界观圣经（散文，4段式） |
 | `world/rules.md` | 世界铁律（最多10条） |
 | `world/locations.md` | 初始地点图谱（3-5个核心地点） |
-| `truth/` (初始化) | 创建 `current_state.md`, `character_matrix.md`, `emotional_arcs.md`, `chapter_summaries.md` 的空模板。每个文件的 YAML frontmatter 必须包含 `type`（truth）、`category`（state 或 character）、`status`（initialized）三个字段，body 标记为待填充。body header 用 `> 此文件由 state-settling 首次运行时填充实际数据。`。state-settling 首次运行时填充实际数据 |
+| `truth/` (初始化) | 创建以下 **全部 11 个** truth files 的空模板。每个文件的 YAML frontmatter 必须包含 `type`（truth）、`category`（state 或 character）、`status`（initialized）三个字段，body 标记为待填充。body header 用 `> 此文件由 state-settling 首次运行时填充实际数据。`：  **state 类**：`current_state.md`（当前世界状态）、`chapter_summaries.md`（逐章摘要）、`particle_ledger.md`（资源账本）、`subplot_board.md`（支线进度板）、`audit_drift.md`（审计纠偏）、`volume_summaries.md`（卷摘要归档）、`pending_hooks.md`（伏笔池）、`drift_guidance.md`（纠偏指导）  **character 类**：`character_matrix.md`（角色交互矩阵）、`emotional_arcs.md`（角色情感弧线）  **intent 类**：`author_intent.md`（作者长期意图）、`current_focus.md`（当前关注点）  **注意**：遗漏任何一个 truth file 的初始化会导致后续 skill（state-settling、foreshadowing-plant 等）写入失败。 |
 
 ### story_bible.md 结构
 
@@ -86,6 +87,10 @@ digraph worldbuilding {
 ## 第四段：暗流涌动
 [表面平静下涌动的矛盾，为后续冲突埋种子]
 ```
+
+## 铁律
+
+7. **truth files 必须全部初始化** — spec §4 定义的 11+ 个 truth files 必须在 worldbuilding 阶段全部创建为空模板。遗漏任何一个 = 后续 skill 写入失败 = 状态漂移。
 
 ## Anti-Rationalization
 

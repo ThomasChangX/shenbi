@@ -69,6 +69,7 @@ PRE_WRITE_CHECK:
 - 本章禁忌: [从备忘第8段]
 - 近3章结尾方式: [避免重复]
 - AI味重点防范: [根据最近的 audit_drift]
+- 共鸣短板（读 truth/audit_drift）: [本章重点防范的体验轴短板]
 ```
 
 ## 创作原则
@@ -84,6 +85,7 @@ PRE_WRITE_CHECK:
 写 `chapters/chapter-N.md`：
 
 ```markdown
+<!--META-BEGIN-->
 ## PRE_WRITE_CHECK
 
 - 本章核心任务: [从备忘第1段]
@@ -91,20 +93,28 @@ PRE_WRITE_CHECK:
 - 本章禁忌: [从备忘第8段]
 - 近3章结尾方式: [避免重复]
 - AI味重点防范: [根据最近的 audit_drift]
+- 共鸣短板（读 truth/audit_drift）: [本章重点防范的体验轴短板]
 - 转折词预算: ≤ [字数/3000] 个
+<!--META-END-->
 
 # 章节标题
 
 [正文内容]
 
+<!--META-BEGIN-->
 ## POST_WRITE_SELF_CHECK
 
 - [ ] 转折词密度: X / Y字 = Z (≤ 1/3000)
 - [ ] 章尾好奇心点燃: [是/否]
 - [ ] 无反思句/元叙事: [是/否]
+<!--META-END-->
 ```
 
 章节标题不要包含章节号（如"第一章"），文件名已编码章节号。
+
+## 元数据与正文分离（新增铁律）
+
+章节文件中的 PRE_WRITE_CHECK 和 POST_WRITE_SELF_CHECK 必须用 `<!--META-BEGIN-->` 和 `<!--META-END-->` 包裹。下游解析器（字数统计、审计、评分）必须剥离 META 块后处理纯正文。
 
 ## Anti-Rationalization
 

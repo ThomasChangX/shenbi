@@ -12,10 +12,10 @@
 | # | Dimension | Weight | Standard |
 |---|-----------|--------|----------|
 | 3 | Scoring rigor | 20% | Every deduction has a concrete improvement suggestion (which file, which paragraph, what to change) |
-| 4 | Threshold enforcement | 20% | 80-point minimum and core-conflict veto (< 18/30 = fail) unconditional |
+| 4 | Threshold enforcement | 20% | 80-point minimum and core-conflict veto (< 15/25 = fail) unconditional |
 | 5 | Evidence-based evaluation | 15% | Only existing content scored; no assumed content |
 | 6 | Actionability | 15% | Fix suggestions point to exact files/paragraphs |
-| 7 | Dimension balance | 15% | All 5 dimensions scored independently; dimension scores sum to total |
+| 7 | Dimension balance | 15% | All 6 dimensions scored independently; dimension scores sum to total |
 
 ## Kill Switches by Test Type
 

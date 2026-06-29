@@ -1,6 +1,7 @@
 ---
 name: shenbi-review-pacing
 description: "Use when a finished chapter needs pacing audit against rhythm rules and chapter type sequence"
+requires_independent_agent: true
 contract:
   kind: report
   reads:
@@ -26,6 +27,8 @@ contract:
 这是条件激活的审计技能。检查蓄压-爆发周期完整性、连续无爆发检测、日常段落功能验证、章节类型序列多样性。
 
 > 激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 7 或 26 时激活。
+> 与 `shenbi-review-highpoint` 区别：pacing 审"蓄压-爆发**周期/序列宏观**"（有无爆发周期、连续无爆发、章节类型多样性）；highpoint 审"**单点爽点质量**"（爆发强度、反转、爽点关键词、爽点虚化）。两者都涉及蓄压-爆发，但 pacing 看结构是否成立，highpoint 看单次爆发是否到位。
+> 与 `shenbi-review-texture` 区别：日常段功能由 texture 审"是否沦为流水账/功能失效"；pacing 审"日常段在节奏序列中的位置与占位"。
 
 ## 流程
 
@@ -48,9 +51,10 @@ digraph review_pacing {
 
 ## 铁律
 
-1. **蓄压必须有释放** — 连续超过 `genre-config.json` 的 `maxConsecutiveQuest` 章 QUEST 无 FIRE → 必须报告为 warning
-2. **爆发后必须有缓冲** — FIRE 章后不能直接进入下一个 FIRE，必须有缓冲章
-3. **日常段落必须有功能** — CONSTELLATION 段落不能只是"日常描写"，必须承载信息/关系/伏笔中的至少一种
+1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+2. **蓄压必须有释放** — 连续超过 `genre-config.json` 的 `maxConsecutiveQuest` 章 QUEST 无 FIRE → 必须报告为 warning
+3. **爆发后必须有缓冲** — FIRE 章后不能直接进入下一个 FIRE，必须有缓冲章
+4. **日常段落必须有功能** — CONSTELLATION 段落不能只是"日常描写"，必须承载信息/关系/伏笔中的至少一种
 
 ## 检查执行
 

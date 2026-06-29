@@ -26,6 +26,7 @@ contract:
 # 地点构建
 
 设计小说中的具体地点。负责空间布局、氛围描写、功能定位、跨地点空间一致性。
+**职责边界**：`world/locations.md` 初始核心地点（3-5 个）由 `shenbi-worldbuilding` 创建；本 skill 负责后续**追加/扩展**具体地点（每个地点 append，不重写已有地点）。反向场景（从已有手稿提取地点）用 `shenbi-world-extraction`。
 
 ## 流程
 

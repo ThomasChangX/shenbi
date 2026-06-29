@@ -24,6 +24,7 @@ contract:
 # 伏笔追踪
 
 在每章起草并结算状态后，更新 `truth/pending_hooks.md` 中所有活跃伏笔的状态。
+> **字段分工**：本 skill 是 `truth/pending_hooks.md` 中 **hook 生命周期状态**（PLANTED→RELEVANT→TRIGGERED→RESOLVED）的**唯一推进者**。`last_reinforced`/`subtlety` 字段由 `shenbi-state-settling` 维护；新增 hook 由 `shenbi-foreshadowing-plant`；兑现由 `shenbi-foreshadowing-resolve`。详见 state-settling 的 pending_hooks 字段分工声明。
 
 ## 流程
 

@@ -26,6 +26,8 @@ contract:
 
 卷完成后：合并逐章摘要为叙事摘要、归档旧摘要、生成卷级长程记忆。
 
+> **术语缩写（CP）**：本 skill 输出中的 **CP** 指 **Chase Power（读者期望债务）**，即未兑现伏笔累积的读者期待压力（公式见 `shenbi-foreshadowing-resolve`）。不指同人创作中的角色配对 Couple/Pairing。
+
 ## 流程
 
 ```dot
@@ -38,6 +40,10 @@ digraph volume_consolidation {
     "Summarize volume arc" -> "Write volume summary to truth/";
     "Write volume summary" -> "Report volume completion";
     "Report volume completion" -> "Output 卷整合汇总";
+    "Output 卷整合汇总" -> "触发 shenbi-review-arc-payoff (独立 agent)";
+    "触发 shenbi-review-arc-payoff (独立 agent)" -> "判定?";
+    "判定?" -> "放行下一卷推进" [label="通过: ≥80 且 伏笔兑现质量≥15"];
+    "判定?" -> "阻断 + 按处方卷级修订" [label="未通过"];
 }
 ```
 
@@ -47,6 +53,7 @@ digraph volume_consolidation {
 2. **长程记忆是精炼的** — 每卷的卷级摘要必须控制在 500 字以内
 3. **保留可回查性** — 归档的逐章摘要必须仍然可以手动查阅
 4. **未兑现伏笔必须醒目** — 卷级摘要必须明确列出本卷种下但未兑现的伏笔。数据来源为 `truth/pending_hooks.md`，必须逐一核对状态字段
+5. **弧门是下一卷的前置门** — 卷 consolidation 完成后，触发 `shenbi-review-arc-payoff`（独立 agent）。B 未通过（overall <80 **或** 伏笔兑现质量 <15）→ **阻断**下一卷推进，按处方修订后再放行；B 通过 → 才能推进下一卷（spec §6.1）
 
 ## 输出格式
 
@@ -97,6 +104,7 @@ digraph volume_consolidation {
 6. 追加到 `truth/volume_summaries.md`
 7. 报告卷整合完成
 8. 输出卷整合汇总
+9. 卷 consolidation 完成后，触发 `shenbi-review-arc-payoff`（独立 agent）。未通过（overall <80 或 伏笔兑现质量 <15）→ 阻断下一卷推进，按处方修订；通过 → 放行下一卷（spec §6.1）
 
 ## 卷整合汇总
 

@@ -24,6 +24,8 @@ contract:
 
 管理伏笔的兑现质量、读者期望债务（Chase Power）、卷尾伏笔盘点。
 
+> **术语缩写（CP）**：本 skill 及后续公式/输出中出现的 **CP** 一律指 **Chase Power（读者期望债务）**，即 `hook_power × time_since_plant × escalation_factor`。**不**指同人创作中的 CP（角色配对 Couple/Pairing，见 `shenbi-canon-import`）。两者仅在缩写上撞车，语义无关。
+
 ## 流程
 
 ```dot
