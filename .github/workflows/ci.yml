@@ -48,6 +48,8 @@ jobs:
           uv run python tools/lint_repo_consistency.py
       - name: N7 lint (no forbid on computed_field)
         run: uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
+      - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
+        run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Run tests (parallel, excluding last)
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
       - name: Run coverage threshold test (serial, last only)

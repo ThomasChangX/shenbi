@@ -70,3 +70,9 @@ repos:
         language: system
         pass_filenames: false
         files: ^src/shenbi/contracts/.*\.py$
+      - id: lint-no-fs-mutation
+        name: purity lint -- no FS-mutation in src/shenbi/ (spec P4)
+        entry: uv run python tools/lint_no_fs_mutation.py src/shenbi
+        language: system
+        pass_filenames: false
+        files: ^src/shenbi/.*\.py$
