@@ -116,3 +116,27 @@ def test_missing_skill_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -
     monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
     with pytest.raises(ContractError):
         load_contract("shenbi-nope")
+
+
+def test_load_registry_still_returns_truth_files_vocab() -> None:
+    """Transition period: load_registry still contains truth-files.yaml concepts.
+
+    v2 C2: iterate reg['concepts'] names, not top-level keys.
+    """
+    from shenbi.contract import load_registry
+
+    reg = load_registry()
+    assert isinstance(reg, dict)
+    concepts = reg.get("concepts", [])
+    assert any("pending_hooks" in c.get("name", "") for c in concepts)
+
+
+def test_contracts_registry_coexists_with_contract_py() -> None:
+    """Two-source coexistence: contract.py (unmigrated) + contracts.REGISTRY (migrated)."""
+    from shenbi.contracts import REGISTRY
+
+    assert "shenbi-foreshadowing-resolve" in REGISTRY
+    from shenbi.contract import load_contract
+
+    c = load_contract("shenbi-worldbuilding")  # unmigrated, uses TypedDict
+    assert c is not None
