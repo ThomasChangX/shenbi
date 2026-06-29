@@ -15,12 +15,31 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.contract import ContractError, load_contract
+from shenbi.contract import OutputKind
+from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROJECT_DIR = REPO_ROOT
+
+# Cached set of truth files; lazily built from truth-files.yaml concepts.
+_truth_files_cache: set[str] | None = None
+
+
+def _truth_file_set() -> set[str]:
+    """Files listed as kind='truth' in truth-files.yaml concepts.
+
+    Both truth and chapter edits have OutputKind.ARTIFACT, so OutputKind cannot
+    distinguish them; the distinction lives in truth-files.yaml (spec New-I).
+    """
+    global _truth_files_cache
+    if _truth_files_cache is None:
+        _truth_files_cache = {
+            name for name, kind in bootstrap_registry().items() if kind == "truth"
+        }
+    return _truth_files_cache
 
 
 def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
@@ -29,21 +48,24 @@ def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
 
 
 def derive_file_type(skill: str) -> str:
-    """Derive FILE_TYPE from skill name."""
-    chapter_skills = {
-        "shenbi-chapter-drafting",
-        "shenbi-style-polishing",
-        "shenbi-anti-detect",
-        "shenbi-length-normalizing",
-    }
-    truth_skills = {
-        "shenbi-state-settling",
-        "shenbi-foreshadowing-track",
-        "shenbi-foreshadowing-plant",
-    }
-    if skill in chapter_skills:
+    """Derive G2 FILE_TYPE from the contract layer (spec New-I).
+
+    Join rule: load contract kind. REPORT -> report. ARTIFACT -> truth iff the
+    skill writes/updates a file that truth-files.yaml lists as kind=truth, else
+    chapter. EPHEMERAL (no persisted output) -> chapter default. This replaces
+    the hardcoded skill-name sets that missed shenbi-foreshadowing-resolve.
+    """
+    try:
+        c = load_contract(skill)
+    except ContractError:
         return "chapter"
-    if skill in truth_skills:
+    kind = c["kind"]
+    if kind == OutputKind.REPORT:
+        return "report"
+    if kind == OutputKind.EPHEMERAL:
+        return "chapter"
+    outputs = {*c["writes"], *c["updates"]}
+    if outputs & _truth_file_set():
         return "truth"
     return "chapter"
 

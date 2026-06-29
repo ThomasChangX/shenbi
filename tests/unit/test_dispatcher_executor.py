@@ -32,6 +32,61 @@ def test_derive_file_type_defaults_to_chapter_for_unknown() -> None:
 
 
 @pytest.mark.unit
+def test_derive_file_type_returns_truth_for_foreshadowing_resolve() -> None:
+    """New-I fix: resolve updates truth/pending_hooks.md -> 'truth' (not 'chapter').
+
+    Old hardcoded truth_skills set (executor.py:39-43) missed resolve, so G2 ran
+    chapter word-count validation on a truth-file edit. derive now joins contract
+    OutputKind + truth-files.yaml concepts.
+    """
+    assert derive_file_type("shenbi-foreshadowing-resolve") == "truth"
+
+
+@pytest.mark.unit
+def test_derive_file_type_returns_report_for_report_kind_skill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """REPORT OutputKind -> 'report'."""
+    import shenbi.dispatcher.executor as exec_mod
+    from shenbi.contract import OutputKind
+
+    monkeypatch.setattr(
+        exec_mod,
+        "load_contract",
+        lambda s: {
+            "kind": OutputKind.REPORT,
+            "reads": [],
+            "writes": ["audits/r.md"],
+            "updates": [],
+            "read_fields": {},
+        },
+    )
+    assert derive_file_type("shenbi-review-arc-payoff") == "report"
+
+
+@pytest.mark.unit
+def test_derive_file_type_returns_chapter_for_ephemeral_skill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """EPHEMERAL has no persisted output -> default 'chapter' (G2 skipped upstream)."""
+    import shenbi.dispatcher.executor as exec_mod
+    from shenbi.contract import OutputKind
+
+    monkeypatch.setattr(
+        exec_mod,
+        "load_contract",
+        lambda s: {
+            "kind": OutputKind.EPHEMERAL,
+            "reads": [],
+            "writes": [],
+            "updates": [],
+            "read_fields": {},
+        },
+    )
+    assert derive_file_type("shenbi-ephemeral") == "chapter"
+
+
+@pytest.mark.unit
 def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatch) -> None:
     """derive_input_files/derive_output_files delegate to load_contract (no regex)."""
     monkeypatch.setattr(
