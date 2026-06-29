@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 
-from tools.lint_no_fs_mutation import lint_dir
+from tools.lint_no_fs_mutation import ALLOWED_FILES, _find_violations, lint_dir
 
 # --- Detection: mutation primitives MUST be flagged ---
 
@@ -120,3 +121,34 @@ def test_allows_dynamic_mode_open(tmp_path: Path) -> None:
     f = tmp_path / "ok.py"
     f.write_text("open(p, mode)\n", encoding="utf-8")
     assert lint_dir(tmp_path) == []
+
+
+# --- Allowlist honesty tests ---
+
+SRC = Path(__file__).resolve().parents[2] / "src" / "shenbi"
+
+
+def test_lint_passes_on_real_src() -> None:
+    """Lint passes on the actual src/shenbi/ tree (all violators allowlisted)."""
+    assert lint_dir(SRC) == [], (
+        "New unallowlisted FS-mutation found. Either route through safe_write "
+        "or add to TRANSITIONAL_ALLOWLIST (and verify the entry)."
+    )
+
+
+def test_every_allowlisted_file_has_violations() -> None:
+    """Each existing allowlisted file MUST contain actual FS-mutation primitives.
+
+    Files not yet created (e.g. safe_write.py pre-pillar-4) are skipped.
+    A file in the allowlist with zero violations is a dead entry -- remove it.
+    """
+    for rel in sorted(ALLOWED_FILES):
+        f = SRC / rel
+        if not f.exists():
+            continue
+        tree = ast.parse(f.read_text(encoding="utf-8"))
+        vs = _find_violations(tree, f)
+        assert vs, (
+            f"{rel} is allowlisted but has no FS-mutation primitives "
+            f"(dead entry -- remove it from the allowlist)."
+        )
