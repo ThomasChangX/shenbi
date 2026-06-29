@@ -294,11 +294,17 @@ def test_g010_passes_when_total_skills_or_more_generative_reports(tmp_path: Path
 
 
 @pytest.mark.unit
-def test_g015_gate_registry_consistency_passes_on_current_repo() -> None:
-    """G0.15 asserts G4_CHECKER_SKILLS is a subset of the single-source skill set."""
-    result = _result_dict(gate_G0(None, None))
+def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -> None:
+    """G0.15 asserts G4_CHECKER_SKILLS is a subset of the single-source skill set.
+
+    A real seed_file is required so the gate walks past G0.1/G0.2/G0.3 (seed_file=None
+    short-circuits at G0.1 and never reaches G0.15).
+    """
+    seed = tmp_path / "seed.md"
+    seed.write_text("# Novel\n\n目标字数：5000\n\n## Setup\n" + ("内容 " * 200), encoding="utf-8")
+    result = _result_dict(gate_G0(seed_file=str(seed)))
     g015 = next((chk for chk in result["checks"] if chk.get("id") == "G0.15"), None)
-    assert g015 is not None
+    assert g015 is not None, "G0.15 not emitted (earlier check short-circuited)"
     assert g015["s"] == "PASS"
 
 
