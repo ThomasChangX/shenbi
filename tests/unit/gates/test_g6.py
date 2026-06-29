@@ -521,3 +521,18 @@ def test_g611_missing_ending_hook_on_non_final_volume(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
     assert any("G6.11:no_ending_hook" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
+    r"""Sensitive word embedded mid-sentence (no spaces) -> G6.12 finds it.
+
+    Old \w-anchored regex missed this because \w matches CJK in Python's
+    Unicode mode. cjk.find_terms uses exact substring match.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    _make_chapter(project_dir, 1, "正文反对台独行径是底线内容\n")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.g6_checks import check_continuity, check_pacing, check_style_consistency
+from shenbi.text.cjk import find_terms
 from shenbi.gates.shared import (
     CHAPTER_WORD_FLOOR,
     FIXTURES,
@@ -390,14 +391,14 @@ def gate_G6(
             for l in sw_path.read_text(encoding="utf-8").split("\n")
             if l.strip() and not l.startswith("#")
         ]
-        sw_found = []
+        sw_found: list[str] = []
         for ch in chapters:
             content = ch.read_text(encoding="utf-8")
-            for word in sensitive:
-                # Only flag as standalone token (surrounded by whitespace/punctuation),
-                # not as substring of other words
-                if re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content):
-                    sw_found.append(f"{word}:{ch.name}")
+            # cjk.find_terms: exact substring match. For CJK every char position
+            # is a valid boundary, fixing the \w-anchored regex that missed words
+            # embedded mid-sentence (spec pillar 3 / G6.12).
+            hits = find_terms(content, sensitive)
+            sw_found.extend(f"{hit.term}:{ch.name}" for hit in hits)
         if sw_found:
             mf.extend([f"G6.12:{s}" for s in sw_found])
         else:
