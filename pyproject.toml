@@ -166,6 +166,27 @@ convention = "google"
 "src/shenbi/contracts/*.py" = [
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
 ]
+# 支柱四 Tier B: new records/ + audit/ subpackages. Chinese docstrings use
+# fullwidth punctuation (RUF001-003). Same minimal suppression as contracts/.
+"src/shenbi/records/*.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"src/shenbi/audit/*.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/unit/records/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/unit/audit/*.py" = [
+    "D103", "D101", "D102", "D205", "D415", "E402",
+    "I001", "F401", "F841", "PLR2004",
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
+"tests/unit/contracts/test_ownership.py" = [
+    "RUF001", "RUF002", "RUF003", "RUF005", "RUF059",
+]
 "src/shenbi/trace/*.py" = [
     "D103", "D107", "E402", "D101", "D102", "D205", "D415", "E501", "E741",
     "RUF001", "RUF002", "RUF003", "RUF005", "RUF059", "PLC0415",
