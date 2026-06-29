@@ -23,6 +23,7 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+from shenbi.contracts.thresholds import T2_PASS
 
 
 def gate_G5(
@@ -36,7 +37,7 @@ def gate_G5(
     if not phase_data:
         return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
     acceptance = jload(TESTS / "tiers" / "acceptance.json")
-    threshold = acceptance.get("t2", 94)
+    threshold = acceptance.get("t2", T2_PASS)
     prereqs = phase_data.get("prerequisites", [])
     rd = Path(round_dir) if round_dir else None
 

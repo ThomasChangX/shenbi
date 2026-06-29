@@ -19,6 +19,7 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+from shenbi.contracts.thresholds import T1_PASS
 
 
 def gate_G3(
@@ -66,7 +67,7 @@ def gate_G3(
     if accept_path.exists():
         try:
             acceptance = jload(str(accept_path))
-            threshold = acceptance.get("t1", 94)
+            threshold = acceptance.get("t1", T1_PASS)
             if reports_dir.exists():
                 for rp in reports_dir.glob("*.json"):
                     try:
