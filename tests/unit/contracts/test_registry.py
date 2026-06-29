@@ -9,8 +9,14 @@ from shenbi.contracts.registry import (
 )
 
 
-def test_registry_empty_before_migration() -> None:
-    assert REGISTRY == {}  # Task 5 后改
+def test_registry_includes_migrated() -> None:
+    from shenbi.contracts.skills.foreshadowing_resolve import Report
+
+    assert REGISTRY["shenbi-foreshadowing-resolve"] is Report
+
+
+def test_registry_excludes_unmigrated() -> None:
+    assert "shenbi-worldbuilding" not in REGISTRY
 
 
 def test_bootstrap_returns_vocab() -> None:

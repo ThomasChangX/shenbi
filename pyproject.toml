@@ -61,6 +61,12 @@ build-backend = "hatchling.build"
 packages = ["src/shenbi"]
 
 # Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-23)
+[[tool.mypy.overrides]]
+# Pydantic v2 @computed_field stacks on @property — mypy's prop-decorator
+# check rejects this. It's the official pydantic pattern; disable per-module.
+module = "shenbi.contracts.*"
+disable_error_code = ["prop-decorator"]
+
 [tool.mutmut]
 # mutmut 3.x reads underscored keys; the prior hyphenated names
 # (paths-to-mutate / tests-dir / do-not-mutate) were silently ignored, so
