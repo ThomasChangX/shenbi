@@ -60,6 +60,9 @@ def count_punctuation(text: str) -> dict[str, int]:
 
     Bug fix: old code used sum(text.count(c) for c in chars), iterating
     each char of multi-char marks. A single -- (2 chars) was counted as 4.
+
+    Note: half-width and full-width variants in the same bucket (e.g. ！ and !)
+    are counted separately and summed. A string "！!" yields 2 for 感叹号.
     """
     return {
         name: sum(text.count(token) for token in tokens)
@@ -67,7 +70,7 @@ def count_punctuation(text: str) -> dict[str, int]:
     }
 
 
-_CJK_RE = re.compile(r"[\u4e00-\u9fff]")
+_CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
 _NON_CJK_WORD_RE = re.compile(r"[a-zA-Z0-9]+")
 
 
@@ -91,7 +94,12 @@ _jieba_ready = False
 
 
 def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
-    """Tokenize with jieba. Domain terms registered to prevent splitting."""
+    """Tokenize with jieba. Domain terms registered to prevent splitting.
+
+    Note: jieba.add_word mutates the global jieba dictionary. Domain terms
+    persist across calls. This is a known limitation for the current skeleton;
+    the integration pillar should use jieba.Tokenizer instances for isolation.
+    """
     global _jieba_ready  # noqa: PLW0603
     if not _jieba_ready:
         jieba.initialize()
