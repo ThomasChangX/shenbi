@@ -10,7 +10,9 @@
 
 **关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier A（成功判据 7、11）。
 
-**v3 修订（round-1 审核 4→目标 9+，Zeno 全部 verified-against-reality）：** C1 覆盖率门加 Global Constraint（--no-cov on per-file）；C2 `_base_kwargs` 固定 ts（default_factory 致两次 sign 非确定）；C3 trace/ per-file-ignores + safe_write/g7_trace ASCII docstring；I1 materialize per-phase queue（非 total-done）；I2 skills three-pending 默认；I3 flock 跨 os.replace 持有；I4 baseline coverage-threshold 隔离 fail 声明；I5 compaction 跨边界审计限制诚实声明；I6 加 migrate_from_progress Task 8.5（LEGACY_MIGRATION + file-signature）。
+**v4 修订（round-2 re-rating C+→目标 9+，Anscombe reproduced）：** v3 修 C1/C2/I1-I6。**v4 修 C3 残留**（safe_write/g7_trace docstring ASCII；实测 src/shenbi/*.py 与 gates/*.py 忽略列表缺 RUF002）+ **N1**（gap 测试用 stale writer → fresh TraceWriter after compact）+ **N2**（compact() temp+fsync+os.replace+dir-fsync）+ N4（去冗余 datetime import）。
+
+**v3 修订（round-1 审核 4→目标 9+，Zeno）：** C1 覆盖率门加 Global Constraint（--no-cov on per-file）；C2 `_base_kwargs` 固定 ts（default_factory 致两次 sign 非确定）；C3 trace/ per-file-ignores + safe_write/g7_trace ASCII docstring；I1 materialize per-phase queue（非 total-done）；I2 skills three-pending 默认；I3 flock 跨 os.replace 持有；I4 baseline coverage-threshold 隔离 fail 声明；I5 compaction 跨边界审计限制诚实声明；I6 加 migrate_from_progress Task 8.5（LEGACY_MIGRATION + file-signature）。
 
 **前置依赖:** 支柱一已落地（`shenbi.contracts.enums.ActorRole`、`shenbi.contracts.base`）。本计划 import `ActorRole`。
 
@@ -79,7 +81,6 @@ def _base_kwargs(**over: object) -> dict[str, object]:
     # ts MUST be pinned: TraceEvent.ts has default_factory=datetime.now,
     # so two sign_and_new() calls without ts get different microsecond
     # timestamps, making canonical_payload/sign non-deterministic.
-    from datetime import datetime, timezone
     kw: dict[str, object] = {
         "ts": datetime(2026, 1, 1, tzinfo=timezone.utc),
         "seq": 1,
@@ -619,8 +620,10 @@ def test_verify_chain_first_legacy_anchor_ok(tmp_path: Path) -> None:
 
 
 def test_verify_chain_detects_gap(tmp_path: Path) -> None:
+    compact(tmp_path, snapshot={})  # rewrites trace.jsonl: COMPACTION seq=1, prev=None
+    # N1 fix: compact() rewrote the file, so the old TraceWriter is stale.
+    # Use a FRESH writer so the second COMPACTION chains from the real last sig.
     w = TraceWriter(tmp_path)
-    compact(tmp_path, snapshot={})  # COMPACTION seq=1, prev=None
     w.append(actor="d", actor_role="GATE", action="COMPACTION", target="trace.jsonl",
              payload={"prev_compaction_seq": 99, "snapshot": {}, "truncated_at_seq": 1})
     evs = replay(tmp_path)
@@ -648,7 +651,14 @@ from shenbi.trace.writer import TraceWriter
 
 
 def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
-    """压缩当前 trace：重写为新文件，仅含一条 COMPACTION 事件作为新首条。"""
+    """Compact the current trace: rewrite to a fresh file with one COMPACTION event.
+
+    N2 fix: crash-safe via temp+fsync+os.replace+dir-fsync (mirrors safe_write),
+    so a mid-compaction crash cannot leave an empty trace.jsonl.
+    """
+    import os
+    import tempfile
+
     path = Path(round_dir) / "trace.jsonl"
     prev_events = replay(round_dir)
     prev_compaction_seq: int | None = None
@@ -657,9 +667,15 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
         if e.action == "COMPACTION":
             prev_compaction_seq = e.seq
         truncated_at = max(truncated_at, e.seq)
-    path.write_text("", encoding="utf-8")
-    w = TraceWriter(round_dir)  # 空文件 → seq=1, prev=GENESIS
-    return w.append(
+
+    # Build the COMPACTION head. TraceWriter appends to a throwaway empty temp,
+    # then we atomically replace the live file.
+    head_path = Path(round_dir) / ".trace_compact_tmp.jsonl"
+    head_path.write_text("", encoding="utf-8")
+    w = TraceWriter(Path(round_dir))  # reads live trace for seq/sig
+    # But we want the head in the temp, so build the event, clear temp, write.
+    head_event = TraceEvent.sign_and_new(
+        prev_signature=GENESIS_PREV, seq=1,
         actor="system", actor_role="GATE", action="COMPACTION", target="trace.jsonl",
         payload={
             "prev_compaction_seq": prev_compaction_seq,
@@ -667,6 +683,26 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             "truncated_at_seq": truncated_at,
         },
     )
+    content = head_event.model_dump_json() + "\n"
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix="trace.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+        dirfd = os.open(str(path.parent), os.O_RDONLY)
+        try:
+            os.fsync(dirfd)
+        finally:
+            os.close(dirfd)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+    if head_path.exists():
+        head_path.unlink()
+    return head_event
 
 
 def verify_chain(events: list[TraceEvent]) -> list[str]:
@@ -751,9 +787,12 @@ def test_safe_write_traces_when_round_given(tmp_path: Path) -> None:
 
 ```python
 # src/shenbi/safe_write.py
-"""safe_write：框架状态原子写唯一入口（spec 支柱四 Tier A）。
-temp + fsync(文件) + os.replace(原子) + fsync(目录) + fcntl.flock；
-flock 在不支持时回退锁文件（M5）。可选经 TraceWriter 追加事件。
+"""safe_write: sole atomic-write entry for framework state (spec pillar 4 Tier A).
+
+temp + fsync(file) + os.replace(atomic) + fsync(dir) + fcntl.flock;
+on flock-unavailable, falls back to a lockfile (M5). Optionally appends a
+trace event via TraceWriter. ASCII docstring: matches src/shenbi/*.py whose
+ruff ignore list omits RUF002 (ambiguous-unicode-in-docstring).
 """
 from __future__ import annotations
 
@@ -805,7 +844,7 @@ def safe_write(
     trace_target: str | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    lock_fd = _acquire_lock(path)  # held open across write (I3 fix)
+    lock_fd = _acquire_lock(path)  # held open across write (I3)
     payload = data if isinstance(data, bytes) else data.encode("utf-8")
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
     try:
@@ -1071,8 +1110,10 @@ def test_audit_no_trace_ok(tmp_path: Path) -> None:
 
 ```python
 # src/shenbi/gates/g7_trace.py
-"""G7 篡改审计（只读）。读 trace.jsonl 原始字节，重算 hash 链判定篡改；
-校验 COMPACTION 链（LEGACY 锚）+ 版本单调。绝不修改文件（判据 7/11）。
+"""G7 tamper audit (read-only). Reads trace.jsonl raw bytes, recomputes the
+hash chain to detect tampering; validates the COMPACTION chain (LEGACY anchor)
++ schema_version monotonicity. Never mutates files (criteria 7/11). ASCII
+docstring: matches gates/*.py whose ruff ignore list omits RUF002.
 """
 from __future__ import annotations
 
@@ -1094,7 +1135,7 @@ def _read_only_events(path: Path) -> list[TraceEvent]:
         try:
             out.append(TraceEvent.model_validate_json(ln))
         except Exception:
-            break  # 撕裂行：到此为止（只读，不修）
+            break  # torn line: stop here (read-only, no repair)
     return out
 
 

@@ -578,9 +578,9 @@ git commit -m "refactor(g1): extract pure compute_backup_targets (purity step to
 
 **Interfaces:** G7 改为只读：不写 `summary.json`，把 `audit_warnings` 作为一条 check 放进返回 JSON。
 
-**验证现状（已核对 g7.py:282-300）：** G7 末尾「Write audit_warnings to summary.json」块对 `summary.json` 做 `open("w")` + `json.dump`，是写副作用（spec：门必须纯）。现有测试 `test_g715_duplicate_score_pattern_warns_and_writes_audit`（test_g7.py:429-446）断言 summary.json 被写入；删除写副作用后**必须**同步更新该测试为断言返回 JSON 含 `audit_warnings`（这是该任务的预期行为变更）。
+**验证现状（已核对 g7.py:282-300）：** G7 末尾「Write audit_warnings to summary.json」块对 `summary.json` 做 `open("w")` + `json.dump`，是写副作用（spec：门必须纯）。现有测试 `test_g715_duplicate_score_pattern_warns_only`（test_g7.py:429-446）断言 summary.json 被写入；删除写副作用后**必须**同步更新该测试为断言返回 JSON 含 `audit_warnings`（这是该任务的预期行为变更）。
 
-- [ ] **Step 1: Update the affected test first (documents intended behavior change)** — 改 `tests/unit/gates/test_g7.py` 第 429-446 行的 `test_g715_duplicate_score_pattern_warns_and_writes_audit`。把末尾：
+- [ ] **Step 1: Update the affected test first (documents intended behavior change)** — 改 `tests/unit/gates/test_g7.py` 第 429-446 行的 `test_g715_duplicate_score_pattern_warns_only`。把末尾：
 ```python
     # audit_warnings were written back into summary.json
     written = json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
@@ -603,7 +603,7 @@ git commit -m "refactor(g1): extract pure compute_backup_targets (purity step to
 ```
 （函数顶部的 `g715_warns` 断言保持不变。）
 
-- [ ] **Step 2: Run → fails** — `uv run pytest tests/unit/gates/test_g7.py::test_g715_duplicate_score_pattern_warns_and_writes_audit -q` → FAIL（当前写 summary.json 且无 G7.AUDIT check）。
+- [ ] **Step 2: Run → fails** — `uv run pytest tests/unit/gates/test_g7.py::test_g715_duplicate_score_pattern_warns_only -q` → FAIL（当前写 summary.json 且无 G7.AUDIT check）。
 - [ ] **Step 3: Implement** — 改 `src/shenbi/gates/g7.py` 第 282-300 行。把：
 ```python
     # Write audit_warnings to summary.json

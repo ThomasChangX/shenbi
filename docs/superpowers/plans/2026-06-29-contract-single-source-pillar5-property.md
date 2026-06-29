@@ -21,7 +21,7 @@
 | drift 排除不泄漏 | `drift_detection/compute_drift.py:67-133`（excl reset run/below_run at :91/:117，kept 过滤 :110） | 触发层正确 | Task 5 属性测试（触发层；平滑层是已知边界，见风险表） |
 | 熵 sum==1 | `chapter_pattern/compute_pattern.py:79-104`（input⊆PATTERNS 时 Σcount==n） | 正确 | Task 3 属性测试 |
 | volume_decline 必触发 | `compute_drift.py:136-146`（`scores[-1] < scores[-2]`） | 正确 | Task 5 属性测试 |
-| G6.12 CJK 内嵌必检出 | `gates/g6.py:396`（`[^\w]` 边界 → CJK 全是 `\w`，内嵌不检出）= BUG；正确工具 `text/cjk.find_terms`（substring） | g6.py 待支柱二改；find_terms 已正确 | Task 7 属性测试（断言 find_terms，不改 g6.py） |
+| G6.12 CJK 内嵌必检出 | `gates/g6.py:399`（`[^\w]` 边界 → CJK 全是 `\w`，内嵌不检出）= BUG；正确工具 `text/cjk.find_terms`（substring） | g6.py 待支柱二改；find_terms 已正确 | Task 7 属性测试（断言 find_terms，不改 g6.py） |
 | G3.4 无 SCORE 必 fail | `gates/g3.py:155`（`if gen_agent and scorer_agent and ...`，缺 scorer→PASS = fail-open）= BUG | gate 待支柱二改 | Task 8 纯函数 fail-closed + 属性测试（不改 gate_G3） |
 | 门纯度 | gates 写文件是散文约束 | 无运行时兜底 | Task 9 CapabilityFS（in-process） |
 | 三表一致 | `contracts/registry.py:bootstrap_registry` 与 `contract.py:load_registry` 均 read truth-files.yaml | 已一致（实测 54==54） | Task 10 属性测试 |
@@ -335,12 +335,16 @@ def test_p50_equals_sentence_stats_median(vs: list[int]) -> None:
 @given(sorted_pos_ints)
 @settings(max_examples=100, deadline=None)
 def test_percentiles_within_range(vs: list[int]) -> None:
-    """所有百分位必须在 [min, max] 区间（单调约束）。"""
+    """所有百分位必须在 [min, max] 区间（值域约束，非跨级单调）。
+
+    nearest-rank 百分位方案不保证跨级单调（P25<=P50<=P95）：
+    n=2 时 P50=values[1] 而 P25/P95=values[0]，故 P25<=P50 但 P50>P95 可能成立。
+    正确不变量是每个百分位值落在数据 [min,max] 区间内。
+    """
     pct = compute_percentiles(vs)
     lo, hi = vs[0], vs[-1]
     for key in ("P25", "P50", "P75", "P95"):
         assert lo <= pct[key] <= hi, key
-    assert pct["P25"] <= pct["P50"] <= pct["P95"]
 
 
 def test_percentiles_empty_returns_zeros() -> None:
@@ -464,9 +468,23 @@ def test_excluding_all_decline_indices_suppresses_finding(series: list[float]) -
 )
 @settings(max_examples=60, deadline=None)
 def test_monotonic_decline_triggers_without_exclusion(series: list[float]) -> None:
-    """充分递减（≥3 章 + 平滑后累计跌幅≥3）必触发 monotonic_decline（无排除时）。"""
-    if len(series) < 3 or series[0] - series[-1] < 3.0:
+    """严格递减 + 平滑后累计跌幅>=3 必触发 monotonic_decline。
+
+    detect_chapter_drift 对 s=smooth(raw) 检查：run>=3 且 s[start]-v>=3。
+    raw 递减不保证 smoothed 递减（小步 EMA 可能使 smoothed 反弹），也不保证
+    smoothed 累计跌幅>=3（如 [4,2,0] smooth 后跌幅~2.5）。故必须在 SMOOTHED
+    域检验前置条件，而非 raw 域。
+    """
+    from shenbi.skill_utils.drift_detection.compute_drift import smooth
+
+    if len(series) < 3:
         return
+    s = smooth(series)
+    # 前 3 个 smoothed 值须严格递减（run 才能到 3）+ s[0]-s[2]>=3（触发阈值）
+    if not (s[1] < s[0] and s[2] < s[1]):
+        return  # smoothed 未保持递减：本例不满足触发前置
+    if s[0] - s[2] < 3.0:
+        return  # smoothed 累计跌幅不足：本例不满足触发前置
     findings = detect_chapter_drift(series, dim="情感落地")
     assert any(f.kind == "monotonic_decline" for f in findings)
 
@@ -517,7 +535,7 @@ git commit -m "test(property): drift exclusion no-leak (trigger layer) + volume_
 
 **Interfaces:** Consumes `shenbi.text.cjk.find_terms`。
 
-**核实（亲手）：** `gates/g6.py:396` 用 `re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content)`。Python3 `\w` 默认匹配 Unicode 字母（含 CJK），故 `[^\w]` 在 CJK 文本中永不命中——敏感词「革命」嵌于「这个时代革命运动」时，前后「代」「运」均为 `\w`，**不检出**（G6.12 失效属实）。正确工具 `text/cjk.find_terms`（精确子串）。本任务**不改 g6.py**（接线=支柱二「G6.12 用 cjk.find_terms」），只把「内嵌必检出」立为 find_terms 的不变量 + 旧正则失效对照（防回归）。
+**核实（亲手）：** `gates/g6.py:399` 用 `re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content)`。Python3 `\w` 默认匹配 Unicode 字母（含 CJK），故 `[^\w]` 在 CJK 文本中永不命中——敏感词「革命」嵌于「这个时代革命运动」时，前后「代」「运」均为 `\w`，**不检出**（G6.12 失效属实）。正确工具 `text/cjk.find_terms`（精确子串）。本任务**不改 g6.py**（接线=支柱二「G6.12 用 cjk.find_terms」），只把「内嵌必检出」立为 find_terms 的不变量 + 旧正则失效对照（防回归）。
 
 - [ ] **Step 1: Write property tests**
 ```python

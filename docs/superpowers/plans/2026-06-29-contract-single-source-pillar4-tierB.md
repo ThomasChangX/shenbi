@@ -71,7 +71,8 @@
 
 ```python
 # tests/unit/records/__init__.py
-"""记录级解析测试包（判据 12）。"""
+"""记录级解析测试包（判据 12）。
+**v2 修订（round-1 审核 7→目标 9+，Singer reproduced）：** C1 cross-section drift 加 numeric-aware 比较（`_values_equal` try float() fallback，修 YAML `0.80`→0.8 vs md `0.80` 假阳性）；C2 `audit/__init__` 增量导出（Task 5 只导 snapshot，Task 9 组装全量，避免 import 未建模块 ImportError）。"""
 ```
 
 ```python
@@ -734,21 +735,11 @@ def test_compute_added_and_deleted() -> None:
 - [ ] **Step 3: Implement**
 
 ```python
-# src/shenbi/audit/__init__.py
-"""Tier B 写所有权审计（spec 支柱四 Tier B）。FS 快照 diff，适用于所有 dispatch 模式
-（含 codex 子进程：写侧用快照 diff，不依赖拦截 skill 行为；读 provenance 仅 internal）。"""
-from shenbi.audit.record import record_audit_outcome
+# src/shenbi/audit/__init__.py  (C2 fix: incremental — only export what
+# exists at THIS task. Tasks 6 (write_audit) and 7 (record) append their exports.)
 from shenbi.audit.snapshot import compute_file_change, parametric_globs, snapshot_tree
-from shenbi.audit.write_audit import AuditResult, audit_writes
 
-__all__ = [
-    "AuditResult",
-    "audit_writes",
-    "compute_file_change",
-    "parametric_globs",
-    "snapshot_tree",
-    "record_audit_outcome",
-]
+__all__ = ["compute_file_change", "parametric_globs", "snapshot_tree"]
 ```
 
 ```python
@@ -1343,7 +1334,23 @@ git commit -m "feat(dispatcher): add dispatch_with_write_audit + read-provenance
 
 ---
 
-### Task 9: 公共 API 导出 + 全量回归 + spec 判据对齐确认
+### Task 9:
+**C2 follow-up (audit/__init__ final assembly):** By Task 9, `record.py` (Task 7) and `write_audit.py` (Task 6) now exist. Update `src/shenbi/audit/__init__.py` to export all:
+
+```python
+# src/shenbi/audit/__init__.py (final, after Tasks 6-7 land)
+from shenbi.audit.record import record_audit_outcome
+from shenbi.audit.snapshot import compute_file_change, parametric_globs, snapshot_tree
+from shenbi.audit.write_audit import AuditResult, audit_writes
+
+__all__ = [
+    "AuditResult", "audit_writes", "compute_file_change",
+    "parametric_globs", "record_audit_outcome", "snapshot_tree",
+]
+```
+
+(original Task 9 content below)
+ 公共 API 导出 + 全量回归 + spec 判据对齐确认
 
 **Files:** Modify `src/shenbi/contracts/__init__.py`（导出 ownership）
 
