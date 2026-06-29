@@ -32,11 +32,17 @@ def gate_G5(
     """G5: T2 Phase check."""
     c: list[Any] = []
     mf: list[Any] = []
-    deps = jload(TESTS / "tiers" / "deps.json")
+    try:
+        deps = jload(TESTS / "tiers" / "deps.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G5", [], "scoring", ["G5.0:deps.json unreadable or malformed"])
     phase_data = deps.get("t2-phases", {}).get(phase_name)
     if not phase_data:
         return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
-    acceptance = jload(TESTS / "tiers" / "acceptance.json")
+    try:
+        acceptance = jload(TESTS / "tiers" / "acceptance.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G5", [], "scoring", ["G5.0:acceptance.json unreadable or malformed"])
     threshold = acceptance.get("t2", T2_PASS)
     prereqs = phase_data.get("prerequisites", [])
     rd = Path(round_dir) if round_dir else None

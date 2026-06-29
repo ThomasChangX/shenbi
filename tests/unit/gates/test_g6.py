@@ -536,3 +536,20 @@ def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
     _make_chapter(project_dir, 1, "正文反对台独行径是底线内容\n")
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
     assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g6_returns_fail_not_crash_when_deps_json_malformed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Malformed deps.json -> G6 returns FAIL JSON, never raises."""
+    import shenbi.gates.g6 as g6_mod
+
+    def boom(_p: object) -> dict[str, object]:
+        raise json.JSONDecodeError("bad", "doc", 0)
+
+    monkeypatch.setattr(g6_mod, "jload", boom)
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(tmp_path)))
+    assert result["status"] == "FAIL"

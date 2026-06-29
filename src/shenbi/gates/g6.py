@@ -31,7 +31,10 @@ def gate_G6(
 ) -> str:
     """G6: T3 Pipeline check."""
     c, mf = [], []
-    deps = jload(TESTS / "tiers" / "deps.json")
+    try:
+        deps = jload(TESTS / "tiers" / "deps.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G6", [], "scoring", ["G6.0:deps.json unreadable or malformed"])
     pipe_data = deps.get("t3-pipelines", {}).get(pipeline_name, {})
     min_ratio = pipe_data.get("min_chapter_ratio", 0.5)
     pd = Path(project_dir) if project_dir else PROJECT
