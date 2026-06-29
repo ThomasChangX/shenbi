@@ -257,7 +257,7 @@ def test_g35_fails_when_scorer_already_in_history(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_g34_fail_closed_when_generator_recorded_but_no_scorer(tmp_path: Path) -> None:
-    """generator ran (agent_trace[skill]) but no current_scorer_agent -> G3.4 FAIL.
+    """Generator ran (agent_trace[skill]) but no current_scorer_agent -> G3.4 FAIL.
 
     This is the dispatcher-scored 'idle' bug: the old condition
     `gen_agent and scorer_agent and ...` is False when scorer_agent is absent,
