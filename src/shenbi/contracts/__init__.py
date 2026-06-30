@@ -42,3 +42,15 @@ __all__ = [
     "get_ownership",
     "load_skill_contract",
 ]
+
+
+# Legacy contract.py re-exports (criterion 3: contracts/ is the unified import surface).
+# New code should import from shenbi.contracts, not shenbi.contract.
+from shenbi.contract import (
+    ContractError as ContractError,
+    Contract as Contract,
+    OutputKind as OutputKind,
+    load_contract as load_contract,
+    load_registry as load_registry,
+    requires_independent_agent as requires_independent_agent,
+)

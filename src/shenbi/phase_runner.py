@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
-from shenbi.contract import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract
 from shenbi.logging import configure_logging, get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState

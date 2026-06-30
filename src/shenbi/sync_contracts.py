@@ -16,7 +16,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract, load_registry
+from shenbi.contracts import ContractError, load_contract, load_registry
 from shenbi.gates.shared import ALL_SKILLS, PROJECT, SKILLS
 from shenbi.logging import get_logger
 

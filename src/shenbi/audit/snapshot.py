@@ -23,7 +23,7 @@ def parametric_globs() -> dict[str, str]:
     change across rounds in a long-running process, and stale globs cause
     false negatives (newly-truth files unwatched).
     """
-    from shenbi.contract import load_registry
+    from shenbi.contracts import load_registry
 
     reg = load_registry()
     return {str(p["parametric"]): str(p["glob"]) for p in reg.get("patterns", [])}

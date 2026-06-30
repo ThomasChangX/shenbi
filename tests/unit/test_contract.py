@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.contract import ContractError, OutputKind, load_contract
+from shenbi.contracts import ContractError, OutputKind, load_contract
 
 # A minimal registry the test paths resolve against. Tests monkeypatch
 # shenbi.contract.REGISTRY_PATH to this tmp file, so they are fully isolated
@@ -123,7 +123,7 @@ def test_load_registry_still_returns_truth_files_vocab() -> None:
 
     v2 C2: iterate reg['concepts'] names, not top-level keys.
     """
-    from shenbi.contract import load_registry
+    from shenbi.contracts import load_registry
 
     reg = load_registry()
     assert isinstance(reg, dict)
@@ -136,7 +136,7 @@ def test_contracts_registry_coexists_with_contract_py() -> None:
     from shenbi.contracts import REGISTRY
 
     assert "shenbi-foreshadowing-resolve" in REGISTRY
-    from shenbi.contract import load_contract
+    from shenbi.contracts import load_contract
 
     c = load_contract("shenbi-worldbuilding")  # unmigrated, uses TypedDict
     assert c is not None

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from shenbi.contract import load_contract, requires_independent_agent
+from shenbi.contracts import load_contract, requires_independent_agent
 
 
 def _write_skill(tmp_path: Path, skill: str, fm: str) -> Path:

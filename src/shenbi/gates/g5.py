@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract
 from shenbi.gates.shared import (
     PROJECT,
     TESTS,

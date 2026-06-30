@@ -33,7 +33,7 @@ from shenbi.gates.shared import (
     passed,
 )
 
-from shenbi.contract import OutputKind
+from shenbi.contracts import OutputKind
 
 
 def check_independence_markers(skills: dict[str, dict[str, Any]]) -> list[str]:
@@ -536,7 +536,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
     # Delegates to the unit-tested check_independence_markers helper so the
     # production gate and the tested logic share a single source of truth.
-    from shenbi.contract import (
+    from shenbi.contracts import (
         load_contract,
         requires_independent_agent,
         ContractError,

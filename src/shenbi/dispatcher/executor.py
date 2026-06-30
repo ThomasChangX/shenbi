@@ -14,8 +14,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract
-from shenbi.contract import OutputKind
+from shenbi.contracts import ContractError, load_contract
+from shenbi.contracts import OutputKind
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
 

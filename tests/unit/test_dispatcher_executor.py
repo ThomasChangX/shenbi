@@ -48,7 +48,7 @@ def test_derive_file_type_returns_report_for_report_kind_skill(
 ) -> None:
     """REPORT OutputKind -> 'report'."""
     import shenbi.dispatcher.executor as exec_mod
-    from shenbi.contract import OutputKind
+    from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
         exec_mod,
@@ -70,7 +70,7 @@ def test_derive_file_type_returns_chapter_for_ephemeral_skill(
 ) -> None:
     """EPHEMERAL has no persisted output -> default 'chapter' (G2 skipped upstream)."""
     import shenbi.dispatcher.executor as exec_mod
-    from shenbi.contract import OutputKind
+    from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
         exec_mod,
@@ -106,7 +106,7 @@ def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatc
 @pytest.mark.unit
 def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.MonkeyPatch) -> None:
     """A skill outside the contract system (meta skill) raises ContractError -> []."""
-    from shenbi.contract import ContractError
+    from shenbi.contracts import ContractError
 
     def raise_contract_error(_skill: str) -> None:
         raise ContractError("no contract")

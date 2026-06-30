@@ -5,7 +5,7 @@ import yaml
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shenbi.contract import load_registry
+from shenbi.contracts import load_registry
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.gates.shared import PROJECT
 
