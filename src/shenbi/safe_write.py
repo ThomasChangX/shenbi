@@ -19,7 +19,16 @@ log = get_logger(__name__)
 
 
 def _fsync_dir(path: Path) -> None:
-    fd = os.open(str(path), os.O_RDONLY)
+    """Best-effort directory fsync after atomic replace (POSIX-only).
+
+    Windows can't open directories as fds (PermissionError); on some network
+    filesystems os.fsync(dir) is unsupported. os.replace is already atomic
+    via NTFS rename, so skipping is safe for durability.
+    """
+    try:
+        fd = os.open(str(path), os.O_RDONLY)
+    except OSError:
+        return  # Windows / network FS: can't open dirs for fsync
     try:
         os.fsync(fd)
     except OSError as e:  # 某些 FS 不支持目录 fsync

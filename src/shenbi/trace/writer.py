@@ -19,9 +19,20 @@ _TRACE_NAME = "trace.jsonl"
 
 
 def _fsync_dir(path: Path) -> None:
-    fd = os.open(str(path), os.O_RDONLY)
+    """Best-effort directory fsync (POSIX-only; no-op on Windows).
+
+    Windows can't open directories as fds (PermissionError), and some network
+    filesystems reject dir fsync. os.replace is already atomic via NTFS rename,
+    so skipping is safe for durability on those platforms.
+    """
+    try:
+        fd = os.open(str(path), os.O_RDONLY)
+    except OSError:
+        return  # Windows / network FS: can't open dirs for fsync
     try:
         os.fsync(fd)
+    except OSError:
+        pass  # FS doesn't support directory fsync
     finally:
         os.close(fd)
 
