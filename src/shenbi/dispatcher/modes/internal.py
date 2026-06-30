@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from shenbi.logging import get_logger
+from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
 
@@ -16,7 +17,7 @@ def dispatch_internal(
     scores_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent.json"
     prompt_file = round_dir / "skill-traces" / f"{skill}-{test_type}-prompt.md"
     prompt_file.parent.mkdir(parents=True, exist_ok=True)
-    prompt_file.write_text(prompt)
+    safe_write(prompt_file, prompt)
 
     log.info("internal_mode_prompt_saved", path=str(prompt_file))
     log.info(

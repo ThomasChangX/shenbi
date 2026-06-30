@@ -37,11 +37,7 @@ PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
 
 TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
     {
-        "dispatcher/modes/internal.py",
-        "dispatcher/modes/codex.py",
         "skill_utils/drift_detection/compute_drift.py",
-        "skill_utils/style_learning/compute_stats.py",
-        "sync_contracts.py",
         "trace/replay.py",
         "trace/compaction.py",
         "audit/record.py",

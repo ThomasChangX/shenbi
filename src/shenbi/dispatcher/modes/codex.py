@@ -8,6 +8,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from shenbi.safe_write import safe_write
+
 from shenbi.cli_utils import emit_json
 from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
@@ -47,7 +49,7 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
     except json.JSONDecodeError as e:
         raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
 
-    scores_file.write_text(json.dumps(scores))
+    safe_write(scores_file, json.dumps(scores))
 
     rubric_path = Path(os.environ.get("RUBRIC", f"tests/tiers/t1-skill/{skill}/rubric.md"))
     result = subprocess.run(

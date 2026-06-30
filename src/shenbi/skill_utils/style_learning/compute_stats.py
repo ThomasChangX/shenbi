@@ -10,6 +10,7 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from shenbi.safe_write import safe_write
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
@@ -385,7 +386,7 @@ def main() -> None:
     stats = compute_all_stats(texts)
     result = json.dumps(stats, indent=2, ensure_ascii=False)
     if output_path:
-        Path(output_path).write_text(result, encoding="utf-8")
+        safe_write(Path(output_path), result)
         sys.stdout.write(f"Stats written to {output_path}\n")
     else:
         sys.stdout.write(result + "\n")
