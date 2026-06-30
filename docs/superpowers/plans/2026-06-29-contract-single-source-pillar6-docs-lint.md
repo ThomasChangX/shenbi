@@ -8,7 +8,9 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），ast+pathlib。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱六 + 成功判据 4（纯度强制）。
+**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱六 + 成功判据 4（纯度强制，allowlist 偏差：2 永久 + 14 过渡）。
+
+**v5 修订（round-4 审核 8→目标 9+，Meitner 高精度 reproduced）：** Important：transitional allowlist 修正（删 gates/g7.py——pillar2 执行后 G7 已纯化；加 audit/record.py——pillar4-tierB 执行后新增 append-only ledger）。Minor：加 tier_advance_eligible hard_binary 回归测试；判据 4 allowlist 偏差声明（永久 2 + 过渡 14，非 spec「仅 safe_write」）。
 
 **前置依赖:**
 - **支柱一**已落地：`src/shenbi/contracts/` 包含 `enums.py`、`base.py`、`registry.py`（REGISTRY 自动发现）、`skills/foreshadowing_resolve.py`。本计划在 `contracts/skills/` 新增评分模型。
@@ -261,7 +263,6 @@ PERMANENT_ALLOWLIST: frozenset[str] = frozenset({
 
 TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset({
     "gates/shared.py",
-    "gates/g7.py",
     "gates/g1.py",
     "phase_runner.py",
     "plugins/generate.py",
@@ -274,6 +275,7 @@ TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset({
     "summarize_round.py",
     "trace/replay.py",
     "trace/compaction.py",
+    "audit/record.py",  # Meitner v5: pillar4-tierB append-only ledger
 })
 
 ALLOWED_FILES: frozenset[str] = PERMANENT_ALLOWLIST | TRANSITIONAL_ALLOWLIST
@@ -598,6 +600,17 @@ def test_just_below_90_fails() -> None:
     )
     assert r.final_score < PASS_THRESHOLD
     assert r.passed is False
+
+
+def test_hard_binary_fail_blocks_tier_advance() -> None:
+    """Meitner v5: tier_advance_eligible also gated on hard_binary."""
+    r = ScoreReport(
+        route_c_hard_binary_pass=2, route_c_hard_binary_total=3,
+        route_c_soft_score=100.0, route_a_score=100.0,
+    )
+    assert r.final_score == 100.0
+    assert r.hard_binary_gate_failed is True
+    assert r.tier_advance_eligible is False
 
 
 def test_computed_fields_in_model_dump() -> None:
