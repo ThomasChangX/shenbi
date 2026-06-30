@@ -6,12 +6,12 @@ from pydantic import ValidationError
 from shenbi.contracts.registry import REGISTRY
 from shenbi.contracts.skills._scoring_base import (
     AGGREGATION_FORMULA,
-    PASS_THRESHOLD,
     ROUTE_A_WEIGHT,
     ROUTE_C_SOFT_WEIGHT,
-    TIER_ADVANCE_THRESHOLD,
     ScoreReport,
 )
+from shenbi.contracts.thresholds import T1_PASS as TIER_ADVANCE_THRESHOLD
+from shenbi.contracts.thresholds import TEST_PASS as PASS_THRESHOLD
 
 
 def test_thresholds_explicit() -> None:

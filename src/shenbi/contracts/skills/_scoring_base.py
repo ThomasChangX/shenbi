@@ -15,10 +15,10 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, computed_field, model_validator
 
-# --- 显式阈值（M3 修复：评分标尺不再未定义） ---
+# --- 显式阈值（M3 修复 + Kant I3：从 thresholds.py 单一源 import） ---
 
-PASS_THRESHOLD: int = 90
-TIER_ADVANCE_THRESHOLD: int = 94
+from shenbi.contracts.thresholds import T1_PASS as TIER_ADVANCE_THRESHOLD
+from shenbi.contracts.thresholds import TEST_PASS as PASS_THRESHOLD
 
 # --- 聚合权重 ---
 
