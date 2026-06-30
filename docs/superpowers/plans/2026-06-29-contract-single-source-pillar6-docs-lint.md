@@ -13,7 +13,8 @@
 **v5 修订（round-4 审核 8→目标 9+，Meitner 高精度 reproduced）：** Important：transitional allowlist 修正（删 gates/g7.py——pillar2 执行后 G7 已纯化；加 audit/record.py——pillar4-tierB 执行后新增 append-only ledger）。Minor：加 tier_advance_eligible hard_binary 回归测试；判据 4 allowlist 偏差声明（永久 2 + 过渡 14，非 spec「仅 safe_write」）。
 
 **前置依赖:**
-- **支柱一**已落地：`src/shenbi/contracts/` 包含 `enums.py`、`base.py`、`registry.py`、`thresholds.py`（Kant I3：评分阈值从此单一源 import）（REGISTRY 自动发现）、`skills/foreshadowing_resolve.py`。本计划在 `contracts/skills/` 新增评分模型。
+- **支柱一**已落地：`src/shenbi/contracts/` 包含 `enums.py`、`base.py`、`registry.py`（REGISTRY 自动发现）、`skills/foreshadowing_resolve.py`。本计划在 `contracts/skills/` 新增评分模型。
+- **支柱二**（thresholds.py）：本计划的 `_scoring_base.py` 从 `contracts/thresholds.py` import `TEST_PASS`/`T1_PASS`（Kant I3 单一源）。pillar2 Task 1 创建此文件。
 - **支柱五**（capability_fs.py）：Task 7 消费该模块，不重建（Kant C1 修复）。
 - **支柱四 Tier A**（safe_write.py + trace/writer.py）：本计划的 allowlist 按文件名引用 safe_write.py 和 trace/writer.py。若 pillar 4 尚未执行（文件不存在），lint 仍正常工作——allowlist 条目对不存在的文件无影响（测试跳过不存在的条目）。trace/replay.py 和 trace/compaction.py（pillar 4 产物）也在过渡 allowlist 中。
 
@@ -1100,9 +1101,9 @@ git commit -m "ci: wire auto-check doc idempotency into CI + pre-commit (spec P6
 
 **跨计划一致性（Kant cross-plan review C1 修复）：** `capability_fs.py` 由 **pillar5** 创建（`CapabilityFS(allow_root: Path)` 实例 API，非上下文管理器）。本计划**不重建**该文件——只为它写单元测试。pillar5 是本计划的前置依赖之一。
 
-**Files:** Create `src/shenbi/capability_fs.py`、`tests/unit/test_capability_fs.py`
+**Files:** Test only: `tests/unit/test_capability_fs.py`（capability_fs.py 是 pillar5 产物，本计划不 Create）
 
-**Interfaces:** Produces `CapabilityFS`（上下文管理器）。Consumes `pathlib`。
+**Interfaces:** Consumes `CapabilityFS`（pillar5 产物：`CapabilityFS(allow_root: Path)` 实例 API，非上下文管理器）。
 
 **设计依据：** spec 支柱五「CapabilityFS（in-process，可行）：测试时给门注入只读 FS 句柄，任意写抛 PermissionError」。不用于 subprocess。本垫片只拦截 `pathlib.Path` 写方法；builtin `open()` 或 os/shutil 直接调用由静态 lint 拦截（已知限制）。
 
@@ -1177,7 +1178,7 @@ Run: `uv run mypy src/shenbi/capability_fs.py && uv run ruff check src/shenbi/ca
 
 ```bash
 git add src/shenbi/capability_fs.py tests/unit/test_capability_fs.py
-git commit -m "feat(capability): add CapabilityFS in-process read-only FS shim (spec P5)"
+git commit -m "test(capability): add tests for CapabilityFS (pillar5 product, consume not create)"
 ```
 
 ---
@@ -1215,7 +1216,7 @@ git commit --allow-empty -m "chore(docs-lint): pillar 6 complete -- AST purity l
 
 **2. Placeholder scan：** 无 TBD/TODO；每个 code step 有完整代码；CI/pre-commit 给精确 YAML（参考现有 N7 hook + contract-sync job 格式，已亲手核对 `.pre-commit-config.yaml` 和 `.github/workflows/ci.yml`）。
 
-**3. Type consistency：** `ScoreReport` 的 `final_score -> float` / `passed -> bool` / `tier_advance_eligible -> bool` / `hard_binary_gate_failed -> bool` 一致。`lint_dir(root: Path) -> list[str]` / `_find_violations(tree: ast.Module, filepath: Path) -> list[str]` 一致。`render_autocheck(model_cls: type[BaseModel]) -> str` / `inject_block(skill_md: Path, block: str) -> bool` 一致。`CapabilityFS.__enter__ -> CapabilityFS` 一致。
+**3. Type consistency：** `ScoreReport` 的 `final_score -> float` / `passed -> bool` / `tier_advance_eligible -> bool` / `hard_binary_gate_failed -> bool` 一致。`lint_dir(root: Path) -> list[str]` / `_find_violations(tree: ast.Module, filepath: Path) -> list[str]` 一致。`render_autocheck(model_cls: type[BaseModel]) -> str` / `inject_block(skill_md: Path, block: str) -> bool` 一致。`CapabilityFS(allow_root: Path)` 实例 API 与 pillar5 一致（非上下文管理器）。
 
 **4. 已知限制：**
 - 纯度 lint 不检测 import-aliased 调用（`from os import replace; replace(...)`）。需 import tracking，超出 AST lint 范围。documented in script docstring。
