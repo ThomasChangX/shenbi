@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from shenbi.text.cjk import TermHit, find_terms
+from shenbi.text.cjk import find_terms
 
 
 def test_sensitive_word_embedded_in_chinese() -> None:

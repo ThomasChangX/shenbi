@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from shenbi.contracts.enums import ActorRole
 from shenbi.trace.event import (
     GENESIS_PREV,
     TraceEvent,

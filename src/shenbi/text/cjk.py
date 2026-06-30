@@ -90,9 +90,6 @@ class Token:
     pos: str
 
 
-_jieba_ready = False
-
-
 def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
     """Tokenize with jieba. Domain terms registered to prevent splitting.
 
@@ -100,10 +97,7 @@ def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]
     persist across calls. This is a known limitation for the current skeleton;
     the integration pillar should use jieba.Tokenizer instances for isolation.
     """
-    global _jieba_ready  # noqa: PLW0603
-    if not _jieba_ready:
-        jieba.initialize()
-        _jieba_ready = True
+    jieba.initialize()  # idempotent: jieba skips re-init if already loaded
     if domain_dict:
         for term in domain_dict:
             jieba.add_word(term)

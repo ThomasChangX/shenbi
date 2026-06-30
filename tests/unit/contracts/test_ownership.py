@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from shenbi.contracts.ownership import (
-    OWNERSHIP,
     FileChange,
     check_write_ownership,
     get_ownership,

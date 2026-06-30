@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from shenbi.audit.write_audit import AuditResult
+if TYPE_CHECKING:
+    from shenbi.audit.write_audit import AuditResult
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)

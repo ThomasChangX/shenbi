@@ -21,7 +21,7 @@ def test_compact_keeps_only_compaction_event(tmp_path: Path) -> None:
 def test_verify_chain_first_legacy_anchor_ok(tmp_path: Path) -> None:
     w = TraceWriter(tmp_path)
     w.append(actor="d", actor_role="GATE", action="LEGACY_MIGRATION", target="t")
-    c = compact(tmp_path, snapshot={})
+    compact(tmp_path, snapshot={})
     evs = replay(tmp_path)
     assert verify_chain(evs) == []  # 首条 COMPACTION prev=None 合法
 
