@@ -17,6 +17,8 @@ from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import CommandStatus
 
+from shenbi.trace.writer import TraceWriter
+
 log = get_logger(__name__)
 
 PROJECT = Path(__file__).resolve().parents[2]
@@ -140,6 +142,13 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
         "total_framework_skills": total,
         "expected_chapters": expected_chapters,
     }
+    TraceWriter(rd).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="INIT",
+        target="progress.json",
+        payload={"tier": tier, "expected_chapters": expected_chapters or 67},
+    )
     save(round_dir, out)
     emit_json(
         {
@@ -207,6 +216,18 @@ def cmd_mark_done(
     issues, gd, _pd = validate_internal(progress)
     if issues:
         emit_json({"status": "warn", "action": "mark-done", "consistency_issues": issues})
+    TraceWriter(Path(round_dir)).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="MARK_DONE",
+        target="progress.json",
+        payload={
+            "skill": skill,
+            "test_type": test_type,
+            "score": score,
+            "status": "skip" if note else "done",
+        },
+    )
     save(round_dir, progress)
     emit_json(
         {
@@ -278,6 +299,16 @@ def cmd_rebuild_queues(round_dir: str) -> None:
     }
     progress["completed_skill_names"] = sorted(genuinely_done)
 
+    TraceWriter(Path(round_dir)).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="REBUILD_QUEUES",
+        target="progress.json",
+        payload={
+            "remaining_gen": len(progress.get("remaining_generative", [])),
+            "remaining_bug": len(progress.get("remaining_bug_hunt", [])),
+        },
+    )
     save(round_dir, progress)
     emit_json(
         {

@@ -6,6 +6,7 @@ import these helpers to keep behavior identical to the legacy monolith.
 
 from shenbi.logging import get_logger
 from shenbi.status import GateResult, GateStatus
+from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
 
@@ -160,7 +161,7 @@ def write_gate_marker(
             "files_checked": [str(p) for p in (file_paths or [])],
         }
         marker_file = marker_dir / f"{gate}-{target}-{test_type}.json"
-        marker_file.write_text(json.dumps(marker, indent=2, ensure_ascii=False), encoding="utf-8")
+        safe_write(marker_file, json.dumps(marker, indent=2, ensure_ascii=False))
     except (json.JSONDecodeError, OSError):
         pass
 

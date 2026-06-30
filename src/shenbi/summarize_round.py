@@ -9,6 +9,8 @@ from typing import Any
 
 from shenbi.logging import configure_logging, get_logger
 
+from shenbi.safe_write import safe_write
+
 log = get_logger(__name__)
 
 
@@ -175,8 +177,7 @@ def main() -> None:
         summary["band_breakdown_t3"] = t3_bands
     summary["next_actions"] = next_actions
 
-    with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, ensure_ascii=False)
+    safe_write(summary_path, json.dumps(summary, indent=2, ensure_ascii=False))
 
     parts = [
         f"T1: {t1_bands['pass_excellent']}ex {t1_bands['pass_acceptable']}ok {t1_bands['conditional']}cond {t1_bands['fail']}fail"

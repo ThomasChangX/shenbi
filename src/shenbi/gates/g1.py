@@ -9,11 +9,11 @@ log = get_logger(__name__)
 
 
 import json
-import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.safe_write import safe_write
 from shenbi.gates.shared import (
     normalize_file_paths,
     fail,
@@ -105,7 +105,7 @@ def gate_G1(
             bak_path = Path(str(fp) + ".bak")
             if not bak_path.exists():
                 try:
-                    shutil.copy2(fp, str(bak_path))
+                    safe_write(bak_path, Path(fp).read_bytes())
                     c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak created"})
                 except OSError:
                     mf.append({"id": "G1.4", "file": fp, "s": "FAIL", "r": "cannot create .bak"})
