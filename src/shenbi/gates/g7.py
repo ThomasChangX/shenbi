@@ -299,6 +299,13 @@ def gate_G7(round_dir: str) -> str:
         }
     )
 
+    # B3: trace tamper audit (audit_trace is read-only)
+    from shenbi.gates.g7_trace import audit_trace
+
+    trace_mf, trace_checks = audit_trace(rd)
+    mf.extend(trace_mf)
+    c.extend(trace_checks)
+
     if mf:
         return fail("G7", c, "round_close", mf)
     return passed("G7", c)

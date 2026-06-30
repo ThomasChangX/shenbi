@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.logging import configure_logging, get_logger
-
 from shenbi.safe_write import safe_write
+
 
 log = get_logger(__name__)
 

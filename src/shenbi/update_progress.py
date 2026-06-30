@@ -16,6 +16,7 @@ from typing import Any, cast
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import CommandStatus
+from shenbi.safe_write import safe_write
 
 from shenbi.trace.writer import TraceWriter
 
@@ -40,7 +41,7 @@ def load(round_dir: str) -> dict[str, Any]:
 
 def save(round_dir: str, data: dict[str, Any]) -> None:
     pp = Path(round_dir) / "progress.json"
-    pp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    safe_write(pp, json.dumps(data, indent=2, ensure_ascii=False))
 
 
 def validate_internal(

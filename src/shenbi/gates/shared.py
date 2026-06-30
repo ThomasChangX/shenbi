@@ -5,8 +5,8 @@ import these helpers to keep behavior identical to the legacy monolith.
 """
 
 from shenbi.logging import get_logger
-from shenbi.status import GateResult, GateStatus
 from shenbi.safe_write import safe_write
+from shenbi.status import GateResult, GateStatus
 
 log = get_logger(__name__)
 

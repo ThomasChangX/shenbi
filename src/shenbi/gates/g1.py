@@ -13,7 +13,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shenbi.safe_write import safe_write
 from shenbi.gates.shared import (
     normalize_file_paths,
     fail,
@@ -21,6 +20,7 @@ from shenbi.gates.shared import (
     passed,
     yload,
 )
+from shenbi.safe_write import safe_write
 
 
 BACKUP_SKILLS: frozenset[str] = frozenset(
