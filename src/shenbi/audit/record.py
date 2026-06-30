@@ -46,8 +46,8 @@ def record_audit_outcome(round_dir: Path, skill: str, result: AuditResult) -> bo
             skill=skill,
             payload=record,
         )
-    except Exception:
-        log.info("audit_recorded_ledger_only", skill=skill, blocked=blocked)
+    except (OSError, ValueError, TypeError):
+        log.warning("audit_recorded_ledger_only", skill=skill, blocked=blocked, exc_info=True)
     if blocked:
         log.error(
             "write_audit_gate_fail",

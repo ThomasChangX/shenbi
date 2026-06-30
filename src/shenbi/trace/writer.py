@@ -1,5 +1,9 @@
 """TraceWriter：append-only JSONL。seq 从现有 trace 接续；每条事件签名链前一条。
 首次创建对父目录 fsync（判据 7 I6a）；每条 append 后对文件 fsync（durability）。
+
+Concurrency: NOT thread/proc-safe — __init__ reads then append writes (TOCTOU).
+Current dispatch is sequential (spec: 顺序执行 topology), so this is safe.
+Concurrent dispatch needs flock or staging isolation (future work).
 """
 
 from __future__ import annotations

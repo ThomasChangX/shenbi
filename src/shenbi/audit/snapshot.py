@@ -19,7 +19,12 @@ from shenbi.records.parser import parse_records
 
 @functools.lru_cache(maxsize=1)
 def parametric_globs() -> dict[str, str]:
-    """truth-files.yaml patterns: parametric→glob（单一源，spec §5.3）。"""
+    """truth-files.yaml patterns: parametric to glob (single source, spec 5.3).
+
+    Franklin Important: not cached (lru_cache removed) — truth-files.yaml can
+    change across rounds in a long-running process, and stale globs cause
+    false negatives (newly-truth files unwatched).
+    """
     from shenbi.contract import load_registry
 
     reg = load_registry()

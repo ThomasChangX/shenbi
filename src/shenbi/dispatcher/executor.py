@@ -189,8 +189,19 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
 
     watch = _audit_watch_paths(skill)
     pre = snapshot_tree(PROJECT_DIR, watch)
-    rc = dispatch(skill, test_type, round_dir, prompt)
-    post = snapshot_tree(PROJECT_DIR, watch)
-    result = audit_writes(skill, pre, post)
-    ok = record_audit_outcome(round_dir, skill, result)
+    # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
+    # + audit so write overreach is caught even on failure paths.
+    rc: int
+    dispatch_exc: BaseException | None = None
+    try:
+        rc = dispatch(skill, test_type, round_dir, prompt)
+    except BaseException as exc:
+        dispatch_exc = exc
+        rc = -1
+    finally:
+        post = snapshot_tree(PROJECT_DIR, watch)
+        result = audit_writes(skill, pre, post)
+        ok = record_audit_outcome(round_dir, skill, result)
+    if dispatch_exc is not None:
+        raise dispatch_exc
     return rc if ok else 2

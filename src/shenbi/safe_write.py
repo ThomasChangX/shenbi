@@ -41,10 +41,23 @@ def _acquire_lock(path: Path) -> int | None:
         fcntl.flock(fd, fcntl.LOCK_EX)
         return fd  # caller must close after write to release
     except (ImportError, OSError):
-        # M5 fallback: lockfile (advisory, not as strong as flock)
         lockfile = path.parent / (path.name + ".lock")
-        lockfile.touch()
-        return None
+        # Franklin Important: M5 fallback with O_EXCL for real mutual exclusion
+        # (touch() grants zero exclusion — two writers both proceed).
+        try:
+            return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)  # caller closes
+        except FileExistsError:
+            # Another writer holds the lock — retry with backoff
+            import time
+
+            for _attempt in range(10):
+                time.sleep(0.1)
+                try:
+                    return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                except FileExistsError:
+                    continue
+            # Stale lock — take it over (crash recovery)
+            return os.open(str(lockfile), os.O_CREAT | os.O_WRONLY)
 
 
 def safe_write(
@@ -76,10 +89,15 @@ def safe_write(
     if round_dir is not None and trace_action is not None:
         from shenbi.trace.writer import TraceWriter  # 局部 import 避免循环
 
-        TraceWriter(round_dir).append(
-            actor="safe_write",
-            actor_role="GATE",
-            action=trace_action,
-            target=trace_target or path.name,
-            payload={"path": str(path)},
-        )
+        # Franklin Important: trace append can crash if trace.jsonl has a torn tail.
+        # The write already succeeded — don't let a trace error undo the caller's success signal.
+        try:
+            TraceWriter(round_dir).append(
+                actor="safe_write",
+                actor_role="GATE",
+                action=trace_action,
+                target=trace_target or path.name,
+                payload={"path": str(path)},
+            )
+        except Exception:
+            log.warning("safe_write_trace_append_failed", path=str(path), exc_info=True)
