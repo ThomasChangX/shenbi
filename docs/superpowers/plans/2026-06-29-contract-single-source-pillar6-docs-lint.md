@@ -4,7 +4,7 @@
 
 **Goal:** 建立 AST 纯度 lint（禁 `src/shenbi/` FS 变更原语，除 allowlist）、文档派生生成器（从契约模型生成「可自动检查」表，CI 拒绝手改）、评分标尺显式声明（score-arc/stratum/volume 聚合公式 + PASS_THRESHOLD）、以及进程内 CapabilityFS 只读垫片（测试时阻断写操作）。
 
-**Architecture:** 纯度 lint 是独立 AST 脚本（镜像现有 `tools/lint_no_forbid_with_computed_field.py` 模式），扫描 `src/shenbi/*.py` 中的 FS 变更 AST 节点。Allowlist 分两层：永久（safe_write.py + trace/writer.py，有合法直接写理由）和过渡（14 个尚未迁移到 safe_write 的文件，由测试断言无死条目）。文档派生生成器在 `tools/`，读契约模型 `@computed_field` + 模块级阈值常量，渲染 sentinel 分隔的 markdown 区块；CI 跑生成 + `git diff` 拒绝手改。评分标尺用 `_scoring_base.py` 共享 Pydantic 模型显式声明公式。CapabilityFS 是 `src/shenbi/capability_fs.py` 上下文管理器，monkeypatch `pathlib.Path` 写方法。
+**Architecture:** 纯度 lint 是独立 AST 脚本（镜像现有 `tools/lint_no_forbid_with_computed_field.py` 模式），扫描 `src/shenbi/*.py` 中的 FS 变更 AST 节点。Allowlist 分两层：永久（safe_write.py + trace/writer.py，有合法直接写理由）和过渡（14 个尚未迁移到 safe_write 的文件，由测试断言无死条目）。文档派生生成器在 `tools/`，读契约模型 `@computed_field` + 模块级阈值常量，渲染 sentinel 分隔的 markdown 区块；CI 跑生成 + `git diff` 拒绝手改。评分标尺用 `_scoring_base.py` 共享 Pydantic 模型显式声明公式。CapabilityFS（`src/shenbi/capability_fs.py`，**pillar5 产物**）是进程内只读 FS 句柄：`CapabilityFS(allow_root: Path)` 实例，读经沙箱允许，写一律 PermissionError。本计划**不重建**该模块——Task 7 只为它写测试。
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），ast+pathlib。
 
@@ -13,7 +13,8 @@
 **v5 修订（round-4 审核 8→目标 9+，Meitner 高精度 reproduced）：** Important：transitional allowlist 修正（删 gates/g7.py——pillar2 执行后 G7 已纯化；加 audit/record.py——pillar4-tierB 执行后新增 append-only ledger）。Minor：加 tier_advance_eligible hard_binary 回归测试；判据 4 allowlist 偏差声明（永久 2 + 过渡 14，非 spec「仅 safe_write」）。
 
 **前置依赖:**
-- **支柱一**已落地：`src/shenbi/contracts/` 包含 `enums.py`、`base.py`、`registry.py`（REGISTRY 自动发现）、`skills/foreshadowing_resolve.py`。本计划在 `contracts/skills/` 新增评分模型。
+- **支柱一**已落地：`src/shenbi/contracts/` 包含 `enums.py`、`base.py`、`registry.py`、`thresholds.py`（Kant I3：评分阈值从此单一源 import）（REGISTRY 自动发现）、`skills/foreshadowing_resolve.py`。本计划在 `contracts/skills/` 新增评分模型。
+- **支柱五**（capability_fs.py）：Task 7 消费该模块，不重建（Kant C1 修复）。
 - **支柱四 Tier A**（safe_write.py + trace/writer.py）：本计划的 allowlist 按文件名引用 safe_write.py 和 trace/writer.py。若 pillar 4 尚未执行（文件不存在），lint 仍正常工作——allowlist 条目对不存在的文件无影响（测试跳过不存在的条目）。trace/replay.py 和 trace/compaction.py（pillar 4 产物）也在过渡 allowlist 中。
 
 **Allowlist 决策（已验证）：**
@@ -45,7 +46,7 @@
 | `tests/unit/contracts/test_scoring_contracts.py` | 评分模型测试 |
 | `tools/generate_autocheck_docs.py` | 文档派生：从契约模型生成「可自动检查」区块 |
 | `tests/unit/test_generate_autocheck_docs.py` | 文档派生渲染 + 幂等 + 防篡改测试 |
-| `src/shenbi/capability_fs.py` | CapabilityFS：进程内只读 FS 垫片（monkeypatch Path 写方法） |
+| `src/shenbi/capability_fs.py` | **pillar5 产物（本计划不重建）**——Task 7 只加测试 |
 | `tests/unit/test_capability_fs.py` | CapabilityFS 测试 |
 
 ---
@@ -662,8 +663,8 @@ from pydantic import BaseModel, Field, computed_field, model_validator
 
 # --- 显式阈值（M3 修复：评分标尺不再未定义） ---
 
-PASS_THRESHOLD: int = 90
-TIER_ADVANCE_THRESHOLD: int = 94
+PASS_THRESHOLD: int = TEST_PASS  # single-source from thresholds.py (Kant I3 fix)
+TIER_ADVANCE_THRESHOLD: int = T1_PASS  # single-source from thresholds.py (Kant I3 fix)
 
 # --- 聚合权重 ---
 
@@ -1093,7 +1094,9 @@ git commit -m "ci: wire auto-check doc idempotency into CI + pre-commit (spec P6
 
 ---
 
-### Task 7: CapabilityFS 进程内只读垫片
+### Task 7: CapabilityFS 测试（消费 pillar5 产物，不重建）
+
+**跨计划一致性（Kant cross-plan review C1 修复）：** `capability_fs.py` 由 **pillar5** 创建（`CapabilityFS(allow_root: Path)` 实例 API，非上下文管理器）。本计划**不重建**该文件——只为它写单元测试。pillar5 是本计划的前置依赖之一。
 
 **Files:** Create `src/shenbi/capability_fs.py`、`tests/unit/test_capability_fs.py`
 
@@ -1116,139 +1119,55 @@ import pytest
 from shenbi.capability_fs import CapabilityFS
 
 
-def test_reads_allowed_under_capability_fs(tmp_path: Path) -> None:
-    f = tmp_path / "data.txt"
+def test_read_text_allowed(tmp_path: Path) -> None:
+    """Read within allow_root is permitted."""
+    f = tmp_path / "a.txt"
     f.write_text("hello", encoding="utf-8")
-    with CapabilityFS():
-        assert Path(f).read_text(encoding="utf-8") == "hello"
-        with Path(f).open(encoding="utf-8") as fh:
-            assert fh.read() == "hello"
+    fs = CapabilityFS(tmp_path)
+    assert fs.read_text(f) == "hello"
 
 
-def test_write_text_blocked(tmp_path: Path) -> None:
-    f = tmp_path / "out.txt"
-    with CapabilityFS():
-        with pytest.raises(PermissionError):
-            Path(f).write_text("x", encoding="utf-8")
+def test_write_text_denied(tmp_path: Path) -> None:
+    """Any write raises PermissionError (purity backstop)."""
+    fs = CapabilityFS(tmp_path)
+    with pytest.raises(PermissionError):
+        fs.write_text(tmp_path / "x.txt", "x")
 
 
-def test_write_bytes_blocked(tmp_path: Path) -> None:
-    f = tmp_path / "out.bin"
-    with CapabilityFS():
-        with pytest.raises(PermissionError):
-            Path(f).write_bytes(b"x")
+def test_unlink_denied(tmp_path: Path) -> None:
+    fs = CapabilityFS(tmp_path)
+    with pytest.raises(PermissionError):
+        fs.unlink(tmp_path / "x.txt")
 
 
-def test_open_write_blocked(tmp_path: Path) -> None:
-    f = tmp_path / "out.txt"
-    with CapabilityFS():
-        with pytest.raises(PermissionError):
-            Path(f).open("w", encoding="utf-8")
+def test_mkdir_denied(tmp_path: Path) -> None:
+    fs = CapabilityFS(tmp_path)
+    with pytest.raises(PermissionError):
+        fs.mkdir(tmp_path / "sub")
 
 
-def test_open_append_blocked(tmp_path: Path) -> None:
-    f = tmp_path / "out.txt"
-    with CapabilityFS():
-        with pytest.raises(PermissionError):
-            Path(f).open("a", encoding="utf-8")
+def test_escape_root_denied(tmp_path: Path) -> None:
+    """Path outside allow_root is rejected (sandbox boundary)."""
+    fs = CapabilityFS(tmp_path)
+    with pytest.raises(PermissionError):
+        fs.read_text(Path("/etc/passwd"))
 
 
-def test_open_create_blocked(tmp_path: Path) -> None:
-    f = tmp_path / "out.txt"
-    with CapabilityFS():
-        with pytest.raises(PermissionError):
-            Path(f).open("x", encoding="utf-8")
+def test_list_dir_allowed(tmp_path: Path) -> None:
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b.txt").write_text("x", encoding="utf-8")
+    fs = CapabilityFS(tmp_path)
+    names = set(fs.list_dir(tmp_path))
+    assert {"a", "b.txt"} <= names
 
 
-def test_restored_after_exit(tmp_path: Path) -> None:
-    f = tmp_path / "out.txt"
-    with CapabilityFS():
-        pass
-    Path(f).write_text("restored", encoding="utf-8")
-    assert f.read_text(encoding="utf-8") == "restored"
+def test_read_bytes_allowed(tmp_path: Path) -> None:
+    f = tmp_path / "bin.dat"
+    f.write_bytes(b"\x00\x01")
+    fs = CapabilityFS(tmp_path)
+    assert fs.read_bytes(f) == b"\x00\x01"
 
-
-def test_gate_purity_pattern(tmp_path: Path) -> None:
-    """Example: a pure (read-only) function works under CapabilityFS."""
-    f = tmp_path / "input.txt"
-    f.write_text("data", encoding="utf-8")
-
-    def pure_fn(path: Path) -> str:
-        return path.read_text(encoding="utf-8").upper()
-
-    with CapabilityFS():
-        assert pure_fn(f) == "DATA"
 ```
-
-- [ ] **Step 2: Run -> fails** (ModuleNotFoundError)
-
-- [ ] **Step 3: Implement**
-
-```python
-# src/shenbi/capability_fs.py
-"""CapabilityFS: in-process read-only FS backstop for gate purity testing
-(spec P5).
-
-When active (as a context manager), pathlib.Path write methods raise
-PermissionError. Read methods are unaffected.
-
-NOT for subprocess isolation -- codex subprocess read-provenance requires
-FUSE/ptrace/seccomp (spec: future work).
-
-Known limitation: intercepts pathlib.Path methods only. Direct builtin open()
-or os/shutil calls are not intercepted at runtime (caught by static lint).
-"""
-from __future__ import annotations
-
-import pathlib
-
-
-class CapabilityFS:
-    """Context manager that blocks pathlib.Path writes (read-only FS shim)."""
-
-    def __init__(self) -> None:
-        self._originals: list[tuple[type, str, object]] = []
-
-    def __enter__(self) -> "CapabilityFS":
-        _orig_write_text = pathlib.Path.write_text
-        _orig_write_bytes = pathlib.Path.write_bytes
-        _orig_open = pathlib.Path.open
-
-        def _blocked_write_text(self: pathlib.Path, *args: object, **kwargs: object) -> int:
-            raise PermissionError(f"CapabilityFS: write_text blocked on {self}")
-
-        def _blocked_write_bytes(self: pathlib.Path, *args: object, **kwargs: object) -> int:
-            raise PermissionError(f"CapabilityFS: write_bytes blocked on {self}")
-
-        def _guarded_open(
-            self: pathlib.Path, mode: str = "r", *args: object, **kwargs: object
-        ) -> object:
-            if any(c in mode for c in "wax"):
-                raise PermissionError(f"CapabilityFS: open('{mode}') blocked on {self}")
-            return _orig_open(self, mode, *args, **kwargs)  # type: ignore[arg-type]
-
-        pathlib.Path.write_text = _blocked_write_text  # type: ignore[method-assign]
-        pathlib.Path.write_bytes = _blocked_write_bytes  # type: ignore[method-assign]
-        pathlib.Path.open = _guarded_open  # type: ignore[method-assign]
-
-        self._originals = [
-            (pathlib.Path, "write_text", _orig_write_text),
-            (pathlib.Path, "write_bytes", _orig_write_bytes),
-            (pathlib.Path, "open", _orig_open),
-        ]
-        return self
-
-    def __exit__(self, *exc: object) -> None:
-        for cls, name, original in self._originals:
-            setattr(cls, name, original)
-        self._originals = []
-```
-
-- [ ] **Step 4: Run -> passes**
-
-- [ ] **Step 5: mypy + ruff**
-
-（`# type: ignore[method-assign]` 是必要的——monkeypatch 赋值的方法签名与 pathlib 原型不匹配。）
 
 Run: `uv run mypy src/shenbi/capability_fs.py && uv run ruff check src/shenbi/capability_fs.py tests/unit/test_capability_fs.py` -> Success / All passed
 

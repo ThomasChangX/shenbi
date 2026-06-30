@@ -133,7 +133,7 @@ def test_gate_outcome_factories() -> None:
 GateOutcome 是纯数据，门返回它而非修改文件系统。
 
 v2: 命名为 GateOutcome 而非 GateResult，避与 shenbi.status.GateResult(TypedDict) 碰撞。
-后续支柱二门改造时统一迁移 status.GateResult→GateOutcome。"""
+后续支柱二门改造时统一迁移 status.GateResult→GateOutcome（Kant Minor5：实际迁移在支柱一续/支柱二深度改造时进行，本骨架只建类型）。"""
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
