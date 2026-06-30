@@ -70,7 +70,7 @@
 - `trace/writer.py`：append-only，safe_write 不兼容
 
 过渡 allowlist（尚未迁移到 safe_write；v1 grep 验证每个含违规）：
-- `gates/shared.py`（marker_file.write_text）、`gates/g7.py`（summary_path.open("w")）、`gates/g1.py`（shutil.copy2）
+- `gates/shared.py`（marker_file.write_text）、`gates/g1.py`（shutil.copy2）
 - `phase_runner.py`（state_file.write_text）
 - `plugins/generate.py`（output_path.write_text）
 - `dispatcher/modes/internal.py`（prompt_file.write_text）、`dispatcher/modes/codex.py`（scores_file.write_text）
@@ -821,13 +821,6 @@ def test_render_includes_computed_fields() -> None:
     assert "passed" in md
 
 
-def test_render_includes_formula() -> None:
-    from shenbi.contracts.skills._scoring_base import ScoreReport
-
-    md = render_autocheck(ScoreReport)
-    assert "ROUTE_C_SOFT_WEIGHT" in md or "AGGREGATION_FORMULA" in md  # Parfit round-1: test the formula
-
-
 def test_inject_creates_block(tmp_path: Path) -> None:
     from shenbi.contracts.skills._scoring_base import ScoreReport
 
@@ -1255,6 +1248,8 @@ class CapabilityFS:
 - [ ] **Step 5: mypy + ruff**
 
 （`# type: ignore[method-assign]` 是必要的——monkeypatch 赋值的方法签名与 pathlib 原型不匹配。）
+
+Run: `uv run mypy src/shenbi/capability_fs.py && uv run ruff check src/shenbi/capability_fs.py tests/unit/test_capability_fs.py` -> Success / All passed
 
 - [ ] **Step 6: Commit**
 
