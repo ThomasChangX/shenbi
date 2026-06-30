@@ -148,7 +148,9 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
         actor_role="GATE",
         action="INIT",
         target="progress.json",
-        payload={"tier": tier, "expected_chapters": expected_chapters or 67},
+        # expected_chapters is already normalized to a non-None int above,
+        # so record it verbatim to keep trace/audit in sync with progress.json.
+        payload={"tier": tier, "expected_chapters": expected_chapters},
     )
     save(round_dir, out)
     emit_json(

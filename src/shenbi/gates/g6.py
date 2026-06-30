@@ -401,7 +401,15 @@ def gate_G6(
             # is a valid boundary, fixing the \w-anchored regex that missed words
             # embedded mid-sentence (spec pillar 3 / G6.12).
             hits = find_terms(content, sensitive)
-            sw_found.extend(f"{hit.term}:{ch.name}" for hit in hits)
+            # Dedupe per (term, chapter): find_terms returns one hit per
+            # occurrence, but the gate must emit at most one G6.12 entry per
+            # term per chapter (pre-refactor regex behavior) so a repeated
+            # sensitive word cannot blow up the must_fix output.
+            seen_in_ch: set[str] = set()
+            for hit in hits:
+                if hit.term not in seen_in_ch:
+                    seen_in_ch.add(hit.term)
+                    sw_found.append(f"{hit.term}:{ch.name}")
         if sw_found:
             mf.extend([f"G6.12:{s}" for s in sw_found])
         else:

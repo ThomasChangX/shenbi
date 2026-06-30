@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fcntl
 import json
 from pathlib import Path
 
@@ -39,3 +40,25 @@ def test_safe_write_traces_when_round_given(tmp_path: Path) -> None:
     assert (rd / "trace.jsonl").exists()
     rec = json.loads((rd / "trace.jsonl").read_text(encoding="utf-8").strip())
     assert rec["action"] == "MATERIALIZE"
+
+
+def test_safe_write_removes_o_excl_lockfile_on_release(tmp_path: Path, monkeypatch) -> None:
+    """Lockfile fallback (M5): the O_EXCL .lock must be unlinked on release.
+
+    Regression: safe_write only closed the fd, leaving a permanent stale lock
+    that forced every later writer through the 1s backoff + stale-takeover path.
+    """
+
+    def boom(fd: int, op: int) -> None:
+        raise OSError("flock unavailable (test)")
+
+    monkeypatch.setattr(fcntl, "flock", boom)
+    p = tmp_path / "out.json"
+    safe_write(p, '{"k": 1}')
+    assert json.loads(p.read_text(encoding="utf-8")) == {"k": 1}
+    # The fallback lockfile must not be left behind after a successful write.
+    assert not (tmp_path / "out.json.lock").exists(), "O_EXCL lockfile leaked on release"
+    # A second write must not inherit a stale lock from the first.
+    safe_write(p, '{"k": 2}')
+    assert json.loads(p.read_text(encoding="utf-8")) == {"k": 2}
+    assert not (tmp_path / "out.json.lock").exists()

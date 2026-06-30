@@ -539,6 +539,23 @@ def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_g612_dedupes_repeated_sensitive_word_per_chapter(tmp_path: Path) -> None:
+    r"""A sensitive word repeated many times in one chapter yields a single
+    G6.12 entry for that (term, chapter), not one per occurrence.
+
+    Regression for the find_terms wiring: find_terms returns one TermHit per
+    occurrence, so naively extending sw_found blew up the must_fix output.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    _make_chapter(project_dir, 1, ("正文反对台独行径" * 5) + "\n")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    dupe_hits = [mf for mf in result["must_fix"] if mf.startswith("G6.12:台独")]
+    assert len(dupe_hits) == 1
+
+
+@pytest.mark.unit
 def test_g6_returns_fail_not_crash_when_deps_json_malformed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
