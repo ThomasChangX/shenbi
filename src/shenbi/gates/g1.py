@@ -101,7 +101,8 @@ def gate_G1(
                 mf.append({"id": "G1.3", "file": fp, "s": "FAIL", "r": "YAML parse error"})
 
         # G1.4 — create .bak for in-place modifying skills (decision via pure helper)
-        if fp in dict(targets):
+        target_dict = dict(targets)
+        if fp in target_dict:
             bak_path = Path(str(fp) + ".bak")
             if not bak_path.exists():
                 try:
@@ -111,6 +112,11 @@ def gate_G1(
                     mf.append({"id": "G1.4", "file": fp, "s": "FAIL", "r": "cannot create .bak"})
             else:
                 c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak exists"})
+        elif skill_name and skill_name in BACKUP_SKILLS and not rd:
+            # Skill is in-place but backups are impossible without round_dir.
+            c.append(
+                {"id": "G1.4", "file": fp, "s": "SKIP", "r": "no round_dir — cannot create .bak"}
+            )
         else:
             c.append({"id": "G1.4", "file": fp, "s": "SKIP", "r": "not in-place skill"})
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shenbi.safe_write import safe_write
 from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
 
 _TRACE_NAME = "trace.jsonl"
@@ -21,23 +22,28 @@ def replay(round_dir: Path) -> list[TraceEvent]:
     if not path.exists():
         return []
     raw = path.read_text(encoding="utf-8")
-    lines = raw.splitlines()
+    # keepends=True preserves the exact line separators (\n or \r\n), so
+    # the cumulative char count is exact regardless of platform. This avoids
+    # the off-by-N truncation that the old len(ln)+1 heuristic caused on
+    # Windows (CRLF), which could cut a valid event mid-line.
+    lines = raw.splitlines(keepends=True)
     out: list[TraceEvent] = []
     prev = GENESIS_PREV
     keep_chars = 0
     for ln in lines:
-        if not ln.strip():
-            keep_chars += len(ln) + 1
+        content = ln.rstrip("\r\n")
+        if not content.strip():
+            keep_chars += len(ln)
             continue
         try:
-            event = TraceEvent.model_validate_json(ln)
+            event = TraceEvent.model_validate_json(content)
         except Exception:
-            break  # 撕裂行：截断
+            break  # torn line: truncate
         if not _verify(event, prev):
-            break  # 签名断裂：截断
+            break  # signature gap: truncate
         out.append(event)
         prev = event.signature
-        keep_chars += len(ln) + 1
+        keep_chars += len(ln)
     if keep_chars < len(raw):
-        path.write_text(raw[:keep_chars], encoding="utf-8")
+        safe_write(path, raw[:keep_chars])
     return out
