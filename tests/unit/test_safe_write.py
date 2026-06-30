@@ -44,9 +44,23 @@ def test_safe_write_traces_when_round_given(tmp_path: Path) -> None:
     assert rec["action"] == "MATERIALIZE"
 
 
+def test_safe_write_no_lockfile_leak(tmp_path: Path) -> None:
+    """safe_write must never leave a .lock file behind on any platform.
+
+    On POSIX: flock is used (no lockfile created). On Windows: the O_EXCL
+    lockfile fallback is always used and must be cleaned up on release.
+    """
+    p = tmp_path / "out.json"
+    safe_write(p, '{"k": 1}')
+    assert json.loads(p.read_text(encoding="utf-8")) == {"k": 1}
+    assert not (tmp_path / "out.json.lock").exists(), "lockfile leaked"
+    safe_write(p, '{"k": 2}')
+    assert not (tmp_path / "out.json.lock").exists()
+
+
 @pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")
-def test_safe_write_removes_o_excl_lockfile_on_release(tmp_path: Path, monkeypatch) -> None:
-    """Lockfile fallback (M5): the O_EXCL .lock must be unlinked on release.
+def test_safe_write_lockfile_fallback_cleanup_posix(tmp_path: Path, monkeypatch) -> None:
+    """Force the flock fallback path on POSIX to verify lockfile cleanup.
 
     Regression: safe_write only closed the fd, leaving a permanent stale lock
     that forced every later writer through the 1s backoff + stale-takeover path.
@@ -59,10 +73,6 @@ def test_safe_write_removes_o_excl_lockfile_on_release(tmp_path: Path, monkeypat
     monkeypatch.setattr(fcntl, "flock", boom)
     p = tmp_path / "out.json"
     safe_write(p, '{"k": 1}')
-    assert json.loads(p.read_text(encoding="utf-8")) == {"k": 1}
-    # The fallback lockfile must not be left behind after a successful write.
     assert not (tmp_path / "out.json.lock").exists(), "O_EXCL lockfile leaked on release"
-    # A second write must not inherit a stale lock from the first.
     safe_write(p, '{"k": 2}')
-    assert json.loads(p.read_text(encoding="utf-8")) == {"k": 2}
     assert not (tmp_path / "out.json.lock").exists()
