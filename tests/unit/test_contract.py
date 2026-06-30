@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.contract import ContractError, OutputKind, load_contract
+from shenbi.contracts import ContractError, OutputKind, load_contract
 
 # A minimal registry the test paths resolve against. Tests monkeypatch
-# shenbi.contract.REGISTRY_PATH to this tmp file, so they are fully isolated
+# shenbi.contracts.legacy.REGISTRY_PATH to this tmp file, so they are fully isolated
 # from the real docs/framework/truth-files.yaml (authored in Task 5).
 _TEST_REGISTRY = (
     "concepts:\n"
@@ -28,8 +28,8 @@ def _setup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str, body: str
     (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
     reg = tmp_path / "registry.yaml"
     reg.write_text(_TEST_REGISTRY, encoding="utf-8")
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path)
-    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path)
+    monkeypatch.setattr("shenbi.contracts.legacy.REGISTRY_PATH", reg)
 
 
 @pytest.mark.unit
@@ -112,7 +112,31 @@ def test_unregistered_path_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path
 def test_missing_skill_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     reg = tmp_path / "registry.yaml"
     reg.write_text(_TEST_REGISTRY, encoding="utf-8")
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path)
-    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path)
+    monkeypatch.setattr("shenbi.contracts.legacy.REGISTRY_PATH", reg)
     with pytest.raises(ContractError):
         load_contract("shenbi-nope")
+
+
+def test_load_registry_still_returns_truth_files_vocab() -> None:
+    """Transition period: load_registry still contains truth-files.yaml concepts.
+
+    v2 C2: iterate reg['concepts'] names, not top-level keys.
+    """
+    from shenbi.contracts import load_registry
+
+    reg = load_registry()
+    assert isinstance(reg, dict)
+    concepts = reg.get("concepts", [])
+    assert any("pending_hooks" in c.get("name", "") for c in concepts)
+
+
+def test_contracts_registry_coexists_with_contract_py() -> None:
+    """Two-source coexistence: contract.py (unmigrated) + contracts.REGISTRY (migrated)."""
+    from shenbi.contracts import REGISTRY
+
+    assert "shenbi-foreshadowing-resolve" in REGISTRY
+    from shenbi.contracts import load_contract
+
+    c = load_contract("shenbi-worldbuilding")  # unmigrated, uses TypedDict
+    assert c is not None

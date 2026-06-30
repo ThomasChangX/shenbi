@@ -1,4 +1,6 @@
-"""Single loader for skill I/O contracts (spec §5.1, fixes audit D2).
+"""DEPRECATED: This module is the legacy implementation. New code should import from shenbi.contracts instead. This file will be deleted after all importers migrate.
+
+Original: Single loader for skill I/O contracts (spec §5.1, fixes audit D2).
 
 The frontmatter ``contract:`` block is the ONE editable location for a skill's
 I/O. Every consumer (dispatcher, phase_runner, gates, generator) imports

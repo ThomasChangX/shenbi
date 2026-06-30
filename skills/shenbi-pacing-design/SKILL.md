@@ -12,6 +12,21 @@ contract:
   updates:
     - outline/rhythm_principles.md
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+### invariants
+
+- beat sum is 100
+- constellation range
+- eight scene types
+- four beats present
+- no three consecutive same
+- three lines present
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约

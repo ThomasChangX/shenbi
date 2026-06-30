@@ -10,6 +10,23 @@ contract:
   updates:
     - truth/pending_hooks.md
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+### constants
+
+| name | value |
+|------|-------|
+| CP_THRESHOLDS | {'GREEN_MAX': 50, 'RED_NOW': 100, 'FORCE_NEXT_CHAPTER': 200} |
+
+### invariants
+
+- debt consistent with hooks
+- hook cp single value
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约

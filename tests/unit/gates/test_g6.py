@@ -521,3 +521,52 @@ def test_g611_missing_ending_hook_on_non_final_volume(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
     assert any("G6.11:no_ending_hook" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g612_detects_sensitive_word_embedded_in_cjk(tmp_path: Path) -> None:
+    r"""Sensitive word embedded mid-sentence (no spaces) -> G6.12 finds it.
+
+    Old \w-anchored regex missed this because \w matches CJK in Python's
+    Unicode mode. cjk.find_terms uses exact substring match.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    _make_chapter(project_dir, 1, "正文反对台独行径是底线内容\n")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    assert any(mf.startswith("G6.12:台独") for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g612_dedupes_repeated_sensitive_word_per_chapter(tmp_path: Path) -> None:
+    r"""A sensitive word repeated many times in one chapter yields a single
+    G6.12 entry for that (term, chapter), not one per occurrence.
+
+    Regression for the find_terms wiring: find_terms returns one TermHit per
+    occurrence, so naively extending sw_found blew up the must_fix output.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    _make_chapter(project_dir, 1, ("正文反对台独行径" * 5) + "\n")
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    dupe_hits = [mf for mf in result["must_fix"] if mf.startswith("G6.12:台独")]
+    assert len(dupe_hits) == 1
+
+
+@pytest.mark.unit
+def test_g6_returns_fail_not_crash_when_deps_json_malformed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Malformed deps.json -> G6 returns FAIL JSON, never raises."""
+    import shenbi.gates.g6 as g6_mod
+
+    def boom(_p: object) -> dict[str, object]:
+        raise json.JSONDecodeError("bad", "doc", 0)
+
+    monkeypatch.setattr(g6_mod, "jload", boom)
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(tmp_path)))
+    assert result["status"] == "FAIL"

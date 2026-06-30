@@ -19,6 +19,18 @@ contract:
   writes: []
   updates: []
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+### invariants
+
+- hook debt has paths
+- nine sections
+- no 3 consecutive endings
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约

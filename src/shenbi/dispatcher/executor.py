@@ -14,13 +14,32 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract
+from shenbi.contracts import OutputKind
+from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROJECT_DIR = REPO_ROOT
+
+# Cached set of truth files; lazily built from truth-files.yaml concepts.
+_truth_files_cache: set[str] | None = None
+
+
+def _truth_file_set() -> set[str]:
+    """Files listed as kind='truth' in truth-files.yaml concepts.
+
+    Both truth and chapter edits have OutputKind.ARTIFACT, so OutputKind cannot
+    distinguish them; the distinction lives in truth-files.yaml (spec New-I).
+    """
+    global _truth_files_cache
+    if _truth_files_cache is None:
+        _truth_files_cache = {
+            name for name, kind in bootstrap_registry().items() if kind == "truth"
+        }
+    return _truth_files_cache
 
 
 def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
@@ -29,21 +48,24 @@ def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
 
 
 def derive_file_type(skill: str) -> str:
-    """Derive FILE_TYPE from skill name."""
-    chapter_skills = {
-        "shenbi-chapter-drafting",
-        "shenbi-style-polishing",
-        "shenbi-anti-detect",
-        "shenbi-length-normalizing",
-    }
-    truth_skills = {
-        "shenbi-state-settling",
-        "shenbi-foreshadowing-track",
-        "shenbi-foreshadowing-plant",
-    }
-    if skill in chapter_skills:
+    """Derive G2 FILE_TYPE from the contract layer (spec New-I).
+
+    Join rule: load contract kind. REPORT -> report. ARTIFACT -> truth iff the
+    skill writes/updates a file that truth-files.yaml lists as kind=truth, else
+    chapter. EPHEMERAL (no persisted output) -> chapter default. This replaces
+    the hardcoded skill-name sets that missed shenbi-foreshadowing-resolve.
+    """
+    try:
+        c = load_contract(skill)
+    except ContractError:
         return "chapter"
-    if skill in truth_skills:
+    kind = c["kind"]
+    if kind == OutputKind.REPORT:
+        return "report"
+    if kind == OutputKind.EPHEMERAL:
+        return "chapter"
+    outputs = {*c["writes"], *c["updates"]}
+    if outputs & _truth_file_set():
         return "truth"
     return "chapter"
 
@@ -142,3 +164,44 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     from shenbi.dispatcher.modes.internal import dispatch_internal
 
     return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+
+
+def _audit_watch_paths(skill: str) -> list[str]:
+    """Audit watch surface: the skill contract writes+updates (project-relative)."""
+    try:
+        return derive_output_files(skill)
+    except ContractError:
+        return []
+
+
+def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
+    """Audited dispatch (pillar 4 Tier B topology).
+
+    pre snapshot(declared write surface) -> dispatch -> post snapshot -> audit ->
+    record. Returns 0 = shippable; 2 = GATE_FAIL (write overreach or drift),
+    blocked before tier advance. The write side uses FS snapshot diff, feasible
+    for all dispatch modes incl. codex subprocesses; read provenance in a
+    subprocess is a known blind spot.
+    """
+    from shenbi.audit.record import record_audit_outcome
+    from shenbi.audit.snapshot import snapshot_tree
+    from shenbi.audit.write_audit import audit_writes
+
+    watch = _audit_watch_paths(skill)
+    pre = snapshot_tree(PROJECT_DIR, watch)
+    # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
+    # + audit so write overreach is caught even on failure paths.
+    rc: int
+    dispatch_exc: BaseException | None = None
+    try:
+        rc = dispatch(skill, test_type, round_dir, prompt)
+    except Exception as exc:
+        dispatch_exc = exc
+        rc = -1
+    finally:
+        post = snapshot_tree(PROJECT_DIR, watch)
+        result = audit_writes(skill, pre, post)
+        ok = record_audit_outcome(round_dir, skill, result)
+    if dispatch_exc is not None:
+        raise dispatch_exc
+    return rc if ok else 2

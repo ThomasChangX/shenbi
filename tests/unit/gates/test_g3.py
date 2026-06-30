@@ -253,3 +253,21 @@ def test_g35_fails_when_scorer_already_in_history(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G3(None, "generative", str(rd)))
     assert any("G3.5" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_g34_fail_closed_when_generator_recorded_but_no_scorer(tmp_path: Path) -> None:
+    """Generator ran (agent_trace[skill]) but no current_scorer_agent -> G3.4 FAIL.
+
+    This is the dispatcher-scored 'idle' bug: the old condition
+    `gen_agent and scorer_agent and ...` is False when scorer_agent is absent,
+    so a dispatcher grading its own output passed G3.4.
+    """
+    rd = tmp_path / "round"
+    rd.mkdir()
+    (rd / "progress.json").write_text(
+        json.dumps({"agent_trace": {"shenbi-worldbuilding": "agent-gen"}}),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+    assert any("G3.4" in m for m in result.get("must_fix", []))

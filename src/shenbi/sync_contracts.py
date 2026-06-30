@@ -16,7 +16,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract, load_registry
+from shenbi.contracts import ContractError, load_contract, load_registry
+from shenbi.safe_write import safe_write
 from shenbi.gates.shared import ALL_SKILLS, PROJECT, SKILLS
 from shenbi.logging import get_logger
 
@@ -192,12 +193,12 @@ def render_body_into(skill_md: Path, contract: dict[str, Any]) -> None:
         body = pattern.sub(block, body, count=1)
     else:
         body = block + "\n" + body.lstrip("\n")
-    skill_md.write_text(frontmatter + body, encoding="utf-8")
+    safe_write(skill_md, frontmatter + body)
 
 
 def _write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    safe_write(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
 def main() -> int:

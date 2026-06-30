@@ -8,7 +8,7 @@ from typing import Any, cast
 
 import pytest
 
-from shenbi.gates.g1 import gate_G1
+from shenbi.gates.g1 import compute_backup_targets, gate_G1
 
 
 def _result_dict(result: str) -> dict[str, Any]:
@@ -199,3 +199,24 @@ def test_g16_warns_when_scoring_history_not_a_list(tmp_path: Path) -> None:
     )
     g16 = next((c for c in result["checks"] if c.get("id") == "G1.6"), None)
     assert g16 is not None and g16["s"] == "WARN"
+
+
+@pytest.mark.unit
+def test_compute_backup_targets_is_pure_decision() -> None:
+    """Pure decision: which (src, bak) pairs to create. No I/O."""
+    targets = compute_backup_targets(
+        "shenbi-faction-builder", ["/abs/world/factions.md"], "/abs/round"
+    )
+    assert targets == [("/abs/world/factions.md", "/abs/world/factions.md.bak")]
+
+
+@pytest.mark.unit
+def test_compute_backup_targets_empty_without_round_dir() -> None:
+    """No round_dir -> no backups targeted."""
+    assert compute_backup_targets("shenbi-faction-builder", ["/x.md"], None) == []
+
+
+@pytest.mark.unit
+def test_compute_backup_targets_skips_non_backup_skill() -> None:
+    """A skill not in BACKUP_SKILLS -> no targets."""
+    assert compute_backup_targets("shenbi-chapter-drafting", ["/x.md"], "/r") == []

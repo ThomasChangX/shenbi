@@ -18,8 +18,9 @@ from pathlib import Path
 from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
-from shenbi.contract import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract
 from shenbi.logging import configure_logging, get_logger
+from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
 log = get_logger(__name__)
@@ -43,7 +44,7 @@ def save_state(round_dir: str, state: dict[str, Any]) -> None:
     state_dir = Path(round_dir) / "phase-state"
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file = state_dir / f"{state['phase']}.json"
-    state_file.write_text(json.dumps(state, indent=2, ensure_ascii=False))
+    safe_write(state_file, json.dumps(state, indent=2, ensure_ascii=False))
 
 
 def now_iso() -> str:

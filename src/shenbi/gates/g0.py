@@ -33,7 +33,7 @@ from shenbi.gates.shared import (
     passed,
 )
 
-from shenbi.contract import OutputKind
+from shenbi.contracts import OutputKind
 
 
 def check_independence_markers(skills: dict[str, dict[str, Any]]) -> list[str]:
@@ -77,9 +77,14 @@ def check_calibration_integrity(
     # a stable, lockable value.
     h = hashlib.sha256()
     if calibration_dir.exists():
-        for p in sorted(calibration_dir.rglob("*")):
+        for p in sorted(
+            calibration_dir.rglob("*"),
+            key=lambda x: str(x.relative_to(calibration_dir)).replace(os.sep, "/"),
+        ):
             if p.is_file() and p.name != ".gitkeep":
-                h.update(p.read_bytes())
+                # Normalize CRLF→LF before hashing so the combined hash is
+                # stable across platforms (Windows git may checkout with CRLF).
+                h.update(p.read_bytes().replace(b"\r\n", b"\n"))
     actual = h.hexdigest()
 
     try:
@@ -536,7 +541,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # requires_independent_agent (spec §8.1). Deterministic frontmatter check.
     # Delegates to the unit-tested check_independence_markers helper so the
     # production gate and the tested logic share a single source of truth.
-    from shenbi.contract import (
+    from shenbi.contracts import (
         load_contract,
         requires_independent_agent,
         ContractError,
@@ -585,5 +590,26 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.extend(cal_checks)
     if cal_fail:
         return fail("G0", checks, "round_creation", cal_must_fix)
+
+    # G0.15 — gate registry single-source consistency (judgement 5 precursor).
+    # G4_CHECKER_SKILLS must reference only real skills. Catches drift across
+    # the gate registries.
+    from shenbi.contracts.registry import known_skill_names
+
+    known = known_skill_names()
+    g4_drift = sorted(G4_CHECKER_SKILLS - known)
+    if g4_drift:
+        return fail(
+            "G0",
+            checks
+            + [
+                {"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}
+            ],
+            "round_creation",
+            [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
+        )
+    checks.append(
+        {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
+    )
 
     return passed("G0", checks)

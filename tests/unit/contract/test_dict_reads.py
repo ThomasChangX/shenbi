@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from shenbi.contract import load_contract, requires_independent_agent
+from shenbi.contracts import load_contract, requires_independent_agent
 
 
 def _write_skill(tmp_path: Path, skill: str, fm: str) -> Path:
@@ -21,7 +21,7 @@ def test_dict_form_reads_extract_file_and_keep_fields(tmp_path, monkeypatch):
         "    - truth/current_state.md\n"
         "  writes: [audits/chapter-N-dict.md]\n  updates: []\n",
     )
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path / "skills")
     c = load_contract("shenbi-test-dict")
     assert c["reads"] == ["truth/audit_drift.md", "truth/current_state.md"]
     assert c["read_fields"] == {"truth/audit_drift.md": ["shortcomings"]}
@@ -34,7 +34,7 @@ def test_requires_independent_agent_reads_top_level_field(tmp_path, monkeypatch)
         "name: shenbi-test-ind\nrequires_independent_agent: true\n"
         "contract:\n  kind: report\n  reads: []\n  writes: [audits/x.md]\n  updates: []\n",
     )
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path / "skills")
     assert requires_independent_agent("shenbi-test-ind") is True
 
 
@@ -45,5 +45,5 @@ def test_requires_independent_agent_default_false(tmp_path, monkeypatch):
         "name: shenbi-test-noind\n"
         "contract:\n  kind: artifact\n  reads: []\n  writes: [chapters/chapter-N.md]\n  updates: []\n",
     )
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path / "skills")
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path / "skills")
     assert requires_independent_agent("shenbi-test-noind") is False

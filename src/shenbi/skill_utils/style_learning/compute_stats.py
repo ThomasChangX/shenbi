@@ -10,6 +10,7 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from shenbi.safe_write import safe_write
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
@@ -96,7 +97,9 @@ def compute_percentiles(values: list[int]) -> dict[str, int]:
     n = len(values)
     return {
         "P25": values[max(0, int(n * 0.25) - 1)],
-        "P50": values[max(0, int(n * 0.50) - 1)],
+        # P50 必须与 compute_sentence_stats 的 median（lengths[n//2]）同源；
+        # 旧式 int(n*0.50)-1 在 n≥2 时与 median 偏移 → P50≠median（spec 支柱五修复）。
+        "P50": values[n // 2],
         "P75": values[max(0, int(n * 0.75) - 1)],
         "P95": values[max(0, int(n * 0.95) - 1)],
     }
@@ -383,7 +386,7 @@ def main() -> None:
     stats = compute_all_stats(texts)
     result = json.dumps(stats, indent=2, ensure_ascii=False)
     if output_path:
-        Path(output_path).write_text(result, encoding="utf-8")
+        safe_write(Path(output_path), result)
         sys.stdout.write(f"Stats written to {output_path}\n")
     else:
         sys.stdout.write(result + "\n")

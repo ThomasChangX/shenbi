@@ -12,6 +12,8 @@ from typing import Any, cast
 
 import structlog
 
+from shenbi.safe_write import safe_write
+
 log = structlog.get_logger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -115,11 +117,9 @@ def generate_all() -> int:
         content = generator(master, config)
 
         if output_type == "json":
-            output_path.write_text(
-                json.dumps(content, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-            )
+            safe_write(output_path, json.dumps(content, indent=2, ensure_ascii=False) + "\n")
         else:
-            output_path.write_text(content, encoding="utf-8")
+            safe_write(output_path, content)
 
         log.info("generated", path=str(output_path.relative_to(REPO_ROOT)))
 

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.g6_checks import check_continuity, check_pacing, check_style_consistency
+from shenbi.text.cjk import find_terms
 from shenbi.gates.shared import (
     CHAPTER_WORD_FLOOR,
     FIXTURES,
@@ -30,7 +31,10 @@ def gate_G6(
 ) -> str:
     """G6: T3 Pipeline check."""
     c, mf = [], []
-    deps = jload(TESTS / "tiers" / "deps.json")
+    try:
+        deps = jload(TESTS / "tiers" / "deps.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G6", [], "scoring", ["G6.0:deps.json unreadable or malformed"])
     pipe_data = deps.get("t3-pipelines", {}).get(pipeline_name, {})
     min_ratio = pipe_data.get("min_chapter_ratio", 0.5)
     pd = Path(project_dir) if project_dir else PROJECT
@@ -390,14 +394,22 @@ def gate_G6(
             for l in sw_path.read_text(encoding="utf-8").split("\n")
             if l.strip() and not l.startswith("#")
         ]
-        sw_found = []
+        sw_found: list[str] = []
         for ch in chapters:
             content = ch.read_text(encoding="utf-8")
-            for word in sensitive:
-                # Only flag as standalone token (surrounded by whitespace/punctuation),
-                # not as substring of other words
-                if re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content):
-                    sw_found.append(f"{word}:{ch.name}")
+            # cjk.find_terms: exact substring match. For CJK every char position
+            # is a valid boundary, fixing the \w-anchored regex that missed words
+            # embedded mid-sentence (spec pillar 3 / G6.12).
+            hits = find_terms(content, sensitive)
+            # Dedupe per (term, chapter): find_terms returns one hit per
+            # occurrence, but the gate must emit at most one G6.12 entry per
+            # term per chapter (pre-refactor regex behavior) so a repeated
+            # sensitive word cannot blow up the must_fix output.
+            seen_in_ch: set[str] = set()
+            for hit in hits:
+                if hit.term not in seen_in_ch:
+                    seen_in_ch.add(hit.term)
+                    sw_found.append(f"{hit.term}:{ch.name}")
         if sw_found:
             mf.extend([f"G6.12:{s}" for s in sw_found])
         else:

@@ -12,6 +12,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.g3_independence import scoring_independence_status
+
 from shenbi.gates.shared import (
     TESTS,
     find_report,
@@ -19,6 +21,7 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+from shenbi.contracts.thresholds import T1_PASS
 
 
 def gate_G3(
@@ -66,7 +69,7 @@ def gate_G3(
     if accept_path.exists():
         try:
             acceptance = jload(str(accept_path))
-            threshold = acceptance.get("t1", 94)
+            threshold = acceptance.get("t1", T1_PASS)
             if reports_dir.exists():
                 for rp in reports_dir.glob("*.json"):
                     try:
@@ -145,15 +148,10 @@ def gate_G3(
     if pp.exists():
         try:
             progress = jload(str(pp))
-            agent_trace = progress.get("agent_trace", {})
-            gen_agent = (
-                agent_trace.get(skill_name)
-                if isinstance(agent_trace, dict) and skill_name
-                else None
-            )
-            scorer_agent = progress.get("current_scorer_agent")
-            if gen_agent and scorer_agent and str(gen_agent) == str(scorer_agent):
-                mf.append({"id": "G3.4", "s": "FAIL", "r": "scorer agent same as generator"})
+            # Kant I2: call scoring_independence_status (single-source from pillar5)
+            verdict, reason = scoring_independence_status(progress, skill_name or "")
+            if verdict == "FAIL":
+                mf.append({"id": "G3.4", "s": "FAIL", "r": reason})
             else:
                 c.append({"id": "G3.4", "s": "PASS"})
         except (json.JSONDecodeError, OSError):

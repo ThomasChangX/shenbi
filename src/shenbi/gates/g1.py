@@ -9,7 +9,6 @@ log = get_logger(__name__)
 
 
 import json
-import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -21,6 +20,37 @@ from shenbi.gates.shared import (
     passed,
     yload,
 )
+from shenbi.safe_write import safe_write
+
+
+BACKUP_SKILLS: frozenset[str] = frozenset(
+    {
+        "shenbi-faction-builder",
+        "shenbi-location-builder",
+        "shenbi-relationship-map",
+        "shenbi-volume-outlining",
+        "shenbi-power-system",
+        "shenbi-foreshadowing-track",
+        "shenbi-truth-sync",
+        "shenbi-state-settling",
+        "shenbi-genre-config",
+    }
+)
+
+
+def compute_backup_targets(
+    skill_name: str | None, file_paths: list[str], round_dir: str | None
+) -> list[tuple[str, str]]:
+    """Pure decision: which (src_path, bak_path) pairs to create for an in-place skill.
+
+    Extracted from G1.4 so the backup decision is testable without I/O. The
+    gate still performs the copy (G2.11 truth-diff depends on the .bak
+    existing pre-dispatch); moving the write fully to the dispatcher is a
+    follow-up orchestration refactor (out of scope here).
+    """
+    if not skill_name or skill_name not in BACKUP_SKILLS or not round_dir:
+        return []
+    return [(fp, str(fp) + ".bak") for fp in file_paths]
 
 
 def gate_G1(
@@ -40,19 +70,7 @@ def gate_G1(
             pass
     fps = normalize_file_paths(input_files)
     rd = Path(round_dir) if round_dir else None
-
-    # In-place modifying skills that need .bak creation
-    inplace_skills = {
-        "shenbi-faction-builder",
-        "shenbi-location-builder",
-        "shenbi-relationship-map",
-        "shenbi-volume-outlining",
-        "shenbi-power-system",
-        "shenbi-foreshadowing-track",
-        "shenbi-truth-sync",
-        "shenbi-state-settling",
-        "shenbi-genre-config",
-    }
+    targets = compute_backup_targets(skill_name, fps, str(rd) if rd else None)
 
     for fp in fps:
         p = Path(fp)
@@ -82,18 +100,24 @@ def gate_G1(
             except Exception:
                 mf.append({"id": "G1.3", "file": fp, "s": "FAIL", "r": "YAML parse error"})
 
-        # G1.4 — create .bak for in-place modifying skills
-        if skill_name in inplace_skills and rd:
+        # G1.4 — create .bak for in-place modifying skills (decision via pure helper)
+        target_dict = dict(targets)
+        if fp in target_dict:
             bak_path = Path(str(fp) + ".bak")
             if not bak_path.exists():
                 try:
-                    shutil.copy2(fp, str(bak_path))
+                    safe_write(bak_path, Path(fp).read_bytes())
                     c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak created"})
                 except OSError:
                     mf.append({"id": "G1.4", "file": fp, "s": "FAIL", "r": "cannot create .bak"})
             else:
                 c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak exists"})
-        elif skill_name not in inplace_skills:
+        elif skill_name and skill_name in BACKUP_SKILLS and not rd:
+            # Skill is in-place but backups are impossible without round_dir.
+            c.append(
+                {"id": "G1.4", "file": fp, "s": "SKIP", "r": "no round_dir — cannot create .bak"}
+            )
+        else:
             c.append({"id": "G1.4", "file": fp, "s": "SKIP", "r": "not in-place skill"})
 
     # G1.5 — file lock check (round-level .gate-lock file)

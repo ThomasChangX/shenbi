@@ -440,10 +440,15 @@ def test_g715_duplicate_score_pattern_warns_and_writes_audit(tmp_path: Path) -> 
     result = _result_dict(gate_G7(str(round_dir)))
     g715_warns = [c for c in result["checks"] if c.get("id") == "G7.15" and c.get("s") == "WARN"]
     assert g715_warns
-    # audit_warnings were written back into summary.json
-    written = json.loads((round_dir / "summary.json").read_text(encoding="utf-8"))
-    assert "audit_warnings" in written
-    assert written["audit_warnings"]
+    # G7 is now pure: audit_warnings are returned in the gate JSON, NOT written
+    # to summary.json (spec: gates must not have write side-effects).
+    audit_check = next((chk for chk in result["checks"] if chk.get("id") == "G7.AUDIT"), None)
+    assert audit_check is not None
+    assert audit_check.get("audit_warnings")
+    # summary.json must be untouched by the gate
+    assert "audit_warnings" not in json.loads(
+        (round_dir / "summary.json").read_text(encoding="utf-8")
+    )
 
 
 @pytest.mark.unit

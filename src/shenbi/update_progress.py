@@ -16,6 +16,9 @@ from typing import Any, cast
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import CommandStatus
+from shenbi.safe_write import safe_write
+
+from shenbi.trace.writer import TraceWriter
 
 log = get_logger(__name__)
 
@@ -38,7 +41,7 @@ def load(round_dir: str) -> dict[str, Any]:
 
 def save(round_dir: str, data: dict[str, Any]) -> None:
     pp = Path(round_dir) / "progress.json"
-    pp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    safe_write(pp, json.dumps(data, indent=2, ensure_ascii=False))
 
 
 def validate_internal(
@@ -140,6 +143,15 @@ def cmd_init(round_dir: str, tier: str, expected_chapters: int | None = None) ->
         "total_framework_skills": total,
         "expected_chapters": expected_chapters,
     }
+    TraceWriter(rd).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="INIT",
+        target="progress.json",
+        # expected_chapters is already normalized to a non-None int above,
+        # so record it verbatim to keep trace/audit in sync with progress.json.
+        payload={"tier": tier, "expected_chapters": expected_chapters},
+    )
     save(round_dir, out)
     emit_json(
         {
@@ -207,6 +219,18 @@ def cmd_mark_done(
     issues, gd, _pd = validate_internal(progress)
     if issues:
         emit_json({"status": "warn", "action": "mark-done", "consistency_issues": issues})
+    TraceWriter(Path(round_dir)).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="MARK_DONE",
+        target="progress.json",
+        payload={
+            "skill": skill,
+            "test_type": test_type,
+            "score": score,
+            "status": "skip" if note else "done",
+        },
+    )
     save(round_dir, progress)
     emit_json(
         {
@@ -278,6 +302,16 @@ def cmd_rebuild_queues(round_dir: str) -> None:
     }
     progress["completed_skill_names"] = sorted(genuinely_done)
 
+    TraceWriter(Path(round_dir)).append(
+        actor="update_progress",
+        actor_role="GATE",
+        action="REBUILD_QUEUES",
+        target="progress.json",
+        payload={
+            "remaining_gen": len(progress.get("remaining_generative", [])),
+            "remaining_bug": len(progress.get("remaining_bug_hunt", [])),
+        },
+    )
     save(round_dir, progress)
     emit_json(
         {

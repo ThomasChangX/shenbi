@@ -279,7 +279,8 @@ def gate_G7(round_dir: str) -> str:
         except (json.JSONDecodeError, OSError):
             pass
 
-    # Write audit_warnings to summary.json
+    # G7 is pure: collect audit_warnings into the returned JSON, never write to
+    # summary.json (spec: gates must not have write side-effects).
     audit_warnings = []
     for check in c:
         if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
@@ -290,14 +291,20 @@ def gate_G7(round_dir: str) -> str:
                     "message": check.get("message", check.get("detail", "")),
                 }
             )
-    if audit_warnings and summary_path.exists():
-        try:
-            s = jload(str(summary_path))
-            s["audit_warnings"] = audit_warnings
-            with summary_path.open("w", encoding="utf-8") as sf:
-                json.dump(s, sf, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+    c.append(
+        {
+            "id": "G7.AUDIT",
+            "s": "WARN" if audit_warnings else "PASS",
+            "audit_warnings": audit_warnings,
+        }
+    )
+
+    # B3: trace tamper audit (audit_trace is read-only)
+    from shenbi.gates.g7_trace import audit_trace
+
+    trace_mf, trace_checks = audit_trace(rd)
+    mf.extend(trace_mf)
+    c.extend(trace_checks)
 
     if mf:
         return fail("G7", c, "round_close", mf)

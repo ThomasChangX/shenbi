@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.contract import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract
 from shenbi.gates.shared import (
     PROJECT,
     TESTS,
@@ -23,6 +23,7 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+from shenbi.contracts.thresholds import T2_PASS
 
 
 def gate_G5(
@@ -31,12 +32,18 @@ def gate_G5(
     """G5: T2 Phase check."""
     c: list[Any] = []
     mf: list[Any] = []
-    deps = jload(TESTS / "tiers" / "deps.json")
+    try:
+        deps = jload(TESTS / "tiers" / "deps.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G5", [], "scoring", ["G5.0:deps.json unreadable or malformed"])
     phase_data = deps.get("t2-phases", {}).get(phase_name)
     if not phase_data:
         return fail("G5", [], "scoring", [f"unknown phase: {phase_name}"])
-    acceptance = jload(TESTS / "tiers" / "acceptance.json")
-    threshold = acceptance.get("t2", 94)
+    try:
+        acceptance = jload(TESTS / "tiers" / "acceptance.json")
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G5", [], "scoring", ["G5.0:acceptance.json unreadable or malformed"])
+    threshold = acceptance.get("t2", T2_PASS)
     prereqs = phase_data.get("prerequisites", [])
     rd = Path(round_dir) if round_dir else None
 
