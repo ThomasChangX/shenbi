@@ -57,7 +57,7 @@ def _acquire_lock(path: Path) -> int | None:
                 except FileExistsError:
                     continue
             # Stale lock — take it over (crash recovery)
-            return os.open(str(lockfile), os.O_CREAT | os.O_WRONLY)
+            return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
 
 
 def safe_write(

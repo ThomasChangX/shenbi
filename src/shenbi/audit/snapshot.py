@@ -8,7 +8,6 @@ JSON 用顶层键 field diff。
 
 from __future__ import annotations
 
-import functools
 import json
 from pathlib import Path
 from typing import Any
@@ -17,7 +16,6 @@ from shenbi.contracts.ownership import FileChange
 from shenbi.records.parser import parse_records
 
 
-@functools.lru_cache(maxsize=1)
 def parametric_globs() -> dict[str, str]:
     """truth-files.yaml patterns: parametric to glob (single source, spec 5.3).
 
