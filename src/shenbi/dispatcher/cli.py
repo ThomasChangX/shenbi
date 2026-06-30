@@ -8,7 +8,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from shenbi.dispatcher.executor import dispatch
+from shenbi.dispatcher.executor import dispatch_with_write_audit as dispatch
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
