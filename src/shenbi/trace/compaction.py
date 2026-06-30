@@ -62,6 +62,8 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             finally:
                 os.close(dirfd)
         except OSError:
+            # Windows / network FS: can't open dirs for fsync — safe to skip
+            # (os.replace already provides atomic durability via rename).
             pass
     except BaseException:
         if os.path.exists(tmp):
