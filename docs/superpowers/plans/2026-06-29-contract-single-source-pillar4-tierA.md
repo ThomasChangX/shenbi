@@ -10,6 +10,8 @@
 
 **关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier A（成功判据 7、11）。
 
+**v7 修订（round-5 审核 7→目标 9+，Bohr 高精度 reproduced）：** C1 compact() sign_and_new 补 schema_version=1（必填字段，缺失致 ValidationError）；I1 ruff 忽略列表精确化（src/shenbi/*.py 含 RUF001/003/005/059 但缺 RUF002）；M1 safe_write CJK 注释改 ASCII。
+
 **v4 修订（round-2 re-rating C+→目标 9+，Anscombe reproduced）：** v3 修 C1/C2/I1-I6。**v4 修 C3 残留**（safe_write/g7_trace docstring ASCII；实测 src/shenbi/*.py 与 gates/*.py 忽略列表缺 RUF002）+ **N1**（gap 测试用 stale writer → fresh TraceWriter after compact）+ **N2**（compact() temp+fsync+os.replace+dir-fsync）+ N4（去冗余 datetime import）。
 
 **v3 修订（round-1 审核 4→目标 9+，Zeno）：** C1 覆盖率门加 Global Constraint（--no-cov on per-file）；C2 `_base_kwargs` 固定 ts（default_factory 致两次 sign 非确定）；C3 trace/ per-file-ignores + safe_write/g7_trace ASCII docstring；I1 materialize per-phase queue（非 total-done）；I2 skills three-pending 默认；I3 flock 跨 os.replace 持有；I4 baseline coverage-threshold 隔离 fail 声明；I5 compaction 跨边界审计限制诚实声明；I6 加 migrate_from_progress Task 8.5（LEGACY_MIGRATION + file-signature）。
@@ -26,7 +28,7 @@
 - safe_write 是**新入口**；是否唯一由 AST lint 强制（支柱六），本计划不强制。
 - trace.jsonl 是 round 目录下的 `trace.jsonl`（与 `progress.json` 同级）。
 - macOS/Linux fsync：`os.fsync`；目录 fsync 用 `os.open(dir, O_RDONLY)+os.fsync+os.close`。
-- **RUFF（v3 Critical C3 修复）：** `src/shenbi/trace/*.py` 无 per-file-ignores 条目，且 `src/shenbi/*.py`/`gates/*.py` 的忽略列表不含 RUF001/002/003（fullwidth CJK 标点）。因此 trace/ 与 safe_write.py/g7_trace.py 的**全部 docstring 和注释必须 ASCII**（禁用 （）：，。等全角字符）。Task 1 Step 3 另需在 `[tool.ruff.lint.per-file-ignores]` 加 `"src/shenbi/trace/*.py"` 条目（含 D/E402/PLC0415 等，镜像 contracts/）。
+- **RUFF（v3 Critical C3 修复 + Bohr v7 精确化）：** `src/shenbi/trace/*.py` 无 per-file-ignores 条目。`src/shenbi/*.py` 的忽略列表含 RUF001/RUF003/RUF005/RUF059 但**不含 RUF002**（docstring 内 CJK）；`gates/*.py` 同理（无 RUF002）。因此 safe_write.py/g7_trace.py 的 **docstring 必须纯 ASCII**（RUF002 在这两个 glob 未忽略），但**注释（RUF003）和字符串（RUF001）可用 CJK**（已忽略）。Task 1 Step 5 另需在 `[tool.ruff.lint.per-file-ignores]` 加 `"src/shenbi/trace/*.py"` 条目。
 
 ## 文件结构
 
@@ -677,6 +679,7 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             "snapshot": snapshot,
             "truncated_at_seq": truncated_at,
         },
+        schema_version=1,  # required field (Bohr v7 fix: was missing -> ValidationError)
     )
     # Write to temp, fsync, atomically replace, dir-fsync.
     content = head_event.model_dump_json() + "\n"
@@ -803,7 +806,7 @@ def _fsync_dir(path: Path) -> None:
     fd = os.open(str(path), os.O_RDONLY)
     try:
         os.fsync(fd)
-    except OSError as e:  # 某些 FS 不支持目录 fsync
+    except OSError as e:  # some FS don't support dir fsync
         log.debug("dir_fsync_unsupported", path=str(path), error=str(e))
     finally:
         os.close(fd)
@@ -856,7 +859,7 @@ def safe_write(
         if lock_fd is not None:
             os.close(lock_fd)  # release flock AFTER os.replace+fsync
     if round_dir is not None and trace_action is not None:
-        from shenbi.trace.writer import TraceWriter  # 局部 import 避免循环
+        from shenbi.trace.writer import TraceWriter  # local import to avoid circular dependency
 
         TraceWriter(round_dir).append(
             actor="safe_write", actor_role="GATE", action=trace_action,
