@@ -7,7 +7,9 @@ from hypothesis import strategies as st
 
 from shenbi.text.cjk import find_terms
 
-cjk_pad = st.text(alphabet=st.sampled_from(list("在这个时代悄然兴起运动发展和平")), min_size=1, max_size=6)
+cjk_pad = st.text(
+    alphabet=st.sampled_from(list("在这个时代悄然兴起运动发展和平")), min_size=1, max_size=6
+)
 term_st = st.sampled_from(["革命", "暴动", "起义", "敏感词"])
 
 

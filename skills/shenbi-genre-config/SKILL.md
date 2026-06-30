@@ -10,6 +10,22 @@ contract:
   updates:
     - genre-config.json
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+### invariants
+
+- approval decision valid
+- audit dimension count
+- banned words have replacements
+- cautioned words have replacements
+- chapter type count
+- disabled dimensions have rules
+- fatigue word count
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约

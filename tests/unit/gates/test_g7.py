@@ -442,9 +442,7 @@ def test_g715_duplicate_score_pattern_warns_and_writes_audit(tmp_path: Path) -> 
     assert g715_warns
     # G7 is now pure: audit_warnings are returned in the gate JSON, NOT written
     # to summary.json (spec: gates must not have write side-effects).
-    audit_check = next(
-        (chk for chk in result["checks"] if chk.get("id") == "G7.AUDIT"), None
-    )
+    audit_check = next((chk for chk in result["checks"] if chk.get("id") == "G7.AUDIT"), None)
     assert audit_check is not None
     assert audit_check.get("audit_warnings")
     # summary.json must be untouched by the gate

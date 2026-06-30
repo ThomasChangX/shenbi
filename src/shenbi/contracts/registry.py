@@ -71,6 +71,4 @@ def known_skill_names() -> set[str]:
     """
     if not SKILLS.exists():
         return set()
-    return {
-        d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists()
-    }
+    return {d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists()}

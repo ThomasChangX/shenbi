@@ -596,7 +596,10 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     if g4_drift:
         return fail(
             "G0",
-            checks + [{"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}],
+            checks
+            + [
+                {"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}
+            ],
             "round_creation",
             [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
         )

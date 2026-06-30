@@ -24,9 +24,7 @@ scores_st = st.lists(
     excl=st.sets(st.integers(min_value=0, max_value=19), max_size=8),
 )
 @settings(max_examples=200, deadline=None)
-def test_monotonic_decline_span_excludes_overridden(
-    raw: list[float], excl: set[int]
-) -> None:
+def test_monotonic_decline_span_excludes_overridden(raw: list[float], excl: set[int]) -> None:
     """Drift 排除不泄漏（触发层）：任何 MONOTONIC_DECLINE 的章节跨度不含 excl 索引。
 
     excl reset run/start/prev（compute_drift.py:91-92），故递减不可能跨越被排除章。

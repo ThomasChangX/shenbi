@@ -15,9 +15,7 @@ skill = st.sampled_from(["shenbi-worldbuilding", "shenbi-chapter-drafting"])
 @settings(max_examples=40, deadline=None)
 def test_no_scorer_recorded_fails_closed(skill: str) -> None:
     """G3.4 fail-closed：progress.json 存在但无 current_scorer_agent → FAIL（空转 bug 的正确化）。"""
-    status, _ = scoring_independence_status(
-        {"agent_trace": {skill: "agent-1"}}, skill
-    )
+    status, _ = scoring_independence_status({"agent_trace": {skill: "agent-1"}}, skill)
     assert status == "FAIL"
 
 
@@ -54,7 +52,5 @@ def test_different_agents_pass_only_when_distinct(skill: str, gen: str, scorer: 
 @settings(max_examples=40, deadline=None)
 def test_scorer_present_no_gen_trace_passes(skill: str) -> None:
     """有独立评分者、无该技能生成 trace（无法证同源）→ 不能判同源 → PASS。"""
-    status, _ = scoring_independence_status(
-        {"current_scorer_agent": "scorer-9"}, skill
-    )
+    status, _ = scoring_independence_status({"current_scorer_agent": "scorer-9"}, skill)
     assert status == "PASS"

@@ -9,8 +9,16 @@ from hypothesis import strategies as st
 from shenbi.capability_fs import CapabilityFS
 
 
-@given(content=st.text(min_size=0, max_size=200, alphabet=st.characters(blacklist_characters="\r\n", blacklist_categories=("Cs",))))
-@settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(
+    content=st.text(
+        min_size=0,
+        max_size=200,
+        alphabet=st.characters(blacklist_characters="\r\n", blacklist_categories=("Cs",)),
+    )
+)
+@settings(
+    max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_read_text_roundtrips(tmp_path: Path, content: str) -> None:
     f = tmp_path / "a.txt"
     f.write_text(content, encoding="utf-8")
@@ -19,7 +27,9 @@ def test_read_text_roundtrips(tmp_path: Path, content: str) -> None:
 
 
 @given(data=st.binary(min_size=0, max_size=64))
-@settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=60, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_read_bytes_roundtrips(tmp_path: Path, data: bytes) -> None:
     f = tmp_path / "b.bin"
     f.write_bytes(data)
