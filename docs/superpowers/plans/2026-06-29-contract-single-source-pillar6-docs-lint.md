@@ -78,6 +78,7 @@
 - `sync_contracts.py`（skill_md.write_text, path.write_text）、`update_progress.py`（pp.write_text）
 - `summarize_round.py`（open(summary_path, "w")）
 - `trace/replay.py`（pillar 4：path.write_text 截断）、`trace/compaction.py`（pillar 4：path.write_text 重写）
+- `audit/record.py`（ledger.open("a")，pillar 4-tierB 产物）
 
 - [ ] **Step 1: Write failing test**
 
