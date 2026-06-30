@@ -23,6 +23,12 @@ contract:
 
 ## auto-check (generated -- do not edit)
 
+### invariants
+
+- hook debt has paths
+- nine sections
+- no 3 consecutive endings
+
 <!-- AUTO-CHECK-END -->
 
 <!-- AUTO-GENERATED from frontmatter — do not edit -->

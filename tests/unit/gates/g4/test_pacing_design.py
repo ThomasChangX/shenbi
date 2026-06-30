@@ -1,4 +1,4 @@
-"""Bespoke error-path tests for g4_pacing_design."""
+"""Tests for g4_pacing_design (rewritten: structured Pydantic validation)."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def test_fails_when_rhythm_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir()
     result = _result(g4_pacing_design([str(marker)]))
-    assert any("G4.rhythm.not_found" in mf for mf in result["must_fix"])
+    assert result["status"] == "FAIL"
 
 
 @pytest.mark.unit
@@ -37,10 +37,10 @@ def test_fails_when_beats_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
     (project_dir / "outline" / "rhythm_principles.md").write_text(
-        "# Rhythm\nno beats\n", encoding="utf-8"
+        "# Rhythm\nno beat data here\n", encoding="utf-8"
     )
     result = _result(g4_pacing_design([str(marker)]))
-    assert any(mf.startswith("G4.pd.beats") for mf in result["must_fix"])
+    assert result["status"] == "FAIL"
 
 
 @pytest.mark.unit
@@ -48,10 +48,26 @@ def test_fails_without_three_lines(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
     (project_dir / "outline" / "rhythm_principles.md").write_text(
-        "铺垫升级爆发余波QUESTFIRE\n战斗日常对话探索\n", encoding="utf-8"
+        "铺垫 25% 升级 25% 爆发 25% 余波 25%\nQUEST FIRE\n",
+        encoding="utf-8",
     )
     result = _result(g4_pacing_design([str(marker)]))
-    assert any("G4.pd.three_lines" in mf for mf in result["must_fix"])
+    assert result["status"] == "FAIL"
+    assert any(
+        "CONSTELLATION" in mf or "narrative lines" in mf for mf in result.get("must_fix", [])
+    )
+
+
+@pytest.mark.unit
+def test_fails_when_beat_sum_wrong(tmp_path: Path) -> None:
+    project_dir, marker = _setup(tmp_path)
+    (project_dir / "outline").mkdir(parents=True)
+    (project_dir / "outline" / "rhythm_principles.md").write_text(
+        "铺垫 20% 升级 20% 爆发 20% 余波 20%\nQUEST 40% FIRE 35% CONSTELLATION 25%\n",
+        encoding="utf-8",
+    )
+    result = _result(g4_pacing_design([str(marker)]))
+    assert result["status"] == "FAIL"
 
 
 @pytest.mark.unit
@@ -59,7 +75,9 @@ def test_passes_with_complete_rhythm(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir(parents=True)
     (project_dir / "outline" / "rhythm_principles.md").write_text(
-        "铺垫 升级 爆发 余波\nQUEST FIRE CONSTELLATION\n战斗 对话 日常 探索 修炼 阴谋\n单调性\n",
+        "铺垫 25% 升级 30% 爆发 25% 余波 20%\n"
+        "QUEST 40% FIRE 35% CONSTELLATION 25%\n"
+        "战斗 对话 日常 探索 修炼 阴谋 逃亡 揭示\n",
         encoding="utf-8",
     )
     result = _result(g4_pacing_design([str(marker)]))

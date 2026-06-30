@@ -15,6 +15,12 @@ contract:
 
 ## auto-check (generated -- do not edit)
 
+### invariants
+
+- entity hooks
+- kr count
+- tension sum
+
 <!-- AUTO-CHECK-END -->
 
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
