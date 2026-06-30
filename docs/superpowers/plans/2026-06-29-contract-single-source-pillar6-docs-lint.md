@@ -661,6 +661,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, computed_field, model_validator
 
+from shenbi.contracts.thresholds import T1_PASS, TEST_PASS  # Kant I3: single-source
+
 # --- 显式阈值（M3 修复：评分标尺不再未定义） ---
 
 PASS_THRESHOLD: int = TEST_PASS  # single-source from thresholds.py (Kant I3 fix)

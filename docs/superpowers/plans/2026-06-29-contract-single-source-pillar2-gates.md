@@ -265,6 +265,8 @@ git commit -m "fix(dispatcher): derive_file_type from contract+truth-files.yaml 
 
 **验证现状（已核对 g3.py:144-162）：** 当前 `if gen_agent and scorer_agent and str(gen_agent) == str(scorer_agent): FAIL`。Bug：若 `gen_agent` 存在（生成器跑过）但 `scorer_agent` 为 falsy（dispatcher 自评、无 SCORE 记录），整个条件为假 → **PASS（空转）**。spec：scoring MUST use independent subagent；dispatcher-scored 无效；加 fail-closed 检查。
 
+**跨计划一致性（Kant I2 修复）：** pillar5 Task 8 已创建 `gates/g3_independence.py::scoring_independence_status`。本 Task 应优先调用该纯函数（单一源），避免内联重写。若 pillar5 未执行则可临时内联但须标注接入点。
+
 **外科策略（不破坏现有测试）：** 仅当「生成器有记录但无独立 scorer」时 FAIL。对 `gen_agent` 为 None（无生成记录，G3.4 不适用）仍 PASS，保持 `test_g33_passes_with_valid_output_files` 等现有测试不变。
 
 - [ ] **Step 1: Write failing test** — 追加到 `tests/unit/gates/test_g3.py`：
