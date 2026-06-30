@@ -56,7 +56,12 @@ def _acquire_lock(path: Path) -> int | None:
                     return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
                 except FileExistsError:
                     continue
-            # Stale lock — take it over (crash recovery)
+            # Stale lock takeover (Helmholtz P3 fix): unlink + recreate with O_EXCL.
+            # After 1s of backoff the lock is likely stale (crash left it behind).
+            try:
+                os.unlink(str(lockfile))
+            except FileNotFoundError:
+                pass
             return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
 
 
