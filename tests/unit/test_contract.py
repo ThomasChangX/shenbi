@@ -9,7 +9,7 @@ import pytest
 from shenbi.contracts import ContractError, OutputKind, load_contract
 
 # A minimal registry the test paths resolve against. Tests monkeypatch
-# shenbi.contract.REGISTRY_PATH to this tmp file, so they are fully isolated
+# shenbi.contracts.legacy.REGISTRY_PATH to this tmp file, so they are fully isolated
 # from the real docs/framework/truth-files.yaml (authored in Task 5).
 _TEST_REGISTRY = (
     "concepts:\n"
@@ -28,8 +28,8 @@ def _setup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str, body: str
     (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
     reg = tmp_path / "registry.yaml"
     reg.write_text(_TEST_REGISTRY, encoding="utf-8")
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path)
-    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path)
+    monkeypatch.setattr("shenbi.contracts.legacy.REGISTRY_PATH", reg)
 
 
 @pytest.mark.unit
@@ -112,8 +112,8 @@ def test_unregistered_path_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_path
 def test_missing_skill_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     reg = tmp_path / "registry.yaml"
     reg.write_text(_TEST_REGISTRY, encoding="utf-8")
-    monkeypatch.setattr("shenbi.contract.SKILLS", tmp_path)
-    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", tmp_path)
+    monkeypatch.setattr("shenbi.contracts.legacy.REGISTRY_PATH", reg)
     with pytest.raises(ContractError):
         load_contract("shenbi-nope")
 

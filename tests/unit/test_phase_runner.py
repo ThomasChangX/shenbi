@@ -255,8 +255,8 @@ def _point_loader_at(monkeypatch: pytest.MonkeyPatch, skills_root: Path) -> None
     """Redirect contract.load_contract at a tmp skills dir + tmp registry."""
     reg = skills_root / "registry.yaml"
     reg.write_text(_POINT_LOADER_REGISTRY, encoding="utf-8")
-    monkeypatch.setattr("shenbi.contract.SKILLS", skills_root)
-    monkeypatch.setattr("shenbi.contract.REGISTRY_PATH", reg)
+    monkeypatch.setattr("shenbi.contracts.legacy.SKILLS", skills_root)
+    monkeypatch.setattr("shenbi.contracts.legacy.REGISTRY_PATH", reg)
 
 
 class TestCmdPreSkill:
