@@ -304,11 +304,7 @@ def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -
     seed.write_text("# Novel\n\n目标字数：5000\n\n## Setup\n" + ("内容 " * 200), encoding="utf-8")
     result = _result_dict(gate_G0(seed_file=str(seed)))
     g015 = next((chk for chk in result["checks"] if chk.get("id") == "G0.15"), None)
-    assert g015 is not None, (
-        "G0.15 not emitted (earlier check short-circuited). "
-        f"must_fix={result.get('must_fix', [])}. "
-        f"checks={[c['id'] + ':' + c['s'] for c in result['checks']]}"
-    )
+    assert g015 is not None, "G0.15 not emitted (earlier check short-circuited)"
     assert g015["s"] == "PASS"
 
 

@@ -79,7 +79,9 @@ def check_calibration_integrity(
     if calibration_dir.exists():
         for p in sorted(calibration_dir.rglob("*")):
             if p.is_file() and p.name != ".gitkeep":
-                h.update(p.read_bytes())
+                # Normalize CRLF→LF before hashing so the combined hash is
+                # stable across platforms (Windows git may checkout with CRLF).
+                h.update(p.read_bytes().replace(b"\r\n", b"\n"))
     actual = h.hexdigest()
 
     try:
