@@ -1,4 +1,4 @@
-"""REGISTRY 自动发现 + bootstrap 测试。"""
+"""REGISTRY auto-discovery + bootstrap tests."""
 
 from __future__ import annotations
 
@@ -15,8 +15,9 @@ def test_registry_includes_migrated() -> None:
     assert REGISTRY["shenbi-foreshadowing-resolve"] is Report
 
 
-def test_registry_excludes_unmigrated() -> None:
-    assert "shenbi-worldbuilding" not in REGISTRY
+def test_registry_includes_all_functional_skills() -> None:
+    assert "shenbi-worldbuilding" in REGISTRY
+    assert "shenbi-pacing-design" in REGISTRY
 
 
 def test_bootstrap_returns_vocab() -> None:
@@ -26,8 +27,8 @@ def test_bootstrap_returns_vocab() -> None:
     assert any("pending_hooks" in k for k in reg)
 
 
-def test_load_unmigrated_returns_none() -> None:
-    assert load_skill_contract("shenbi-worldbuilding") is None
+def test_load_migrated_returns_model() -> None:
+    assert load_skill_contract("shenbi-worldbuilding") is not None
 
 
 def test_load_unknown_returns_none() -> None:

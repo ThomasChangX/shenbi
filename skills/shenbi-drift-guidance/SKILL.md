@@ -15,6 +15,12 @@ contract:
   updates:
     - truth/audit_drift.md
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+<!-- AUTO-CHECK-END -->
+
 <!-- AUTO-GENERATED from frontmatter — do not edit -->
 
 ## 数据契约

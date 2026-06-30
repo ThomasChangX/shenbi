@@ -3,6 +3,12 @@ name: shenbi-writing-skills
 description: Use when creating or modifying any shenbi skill — guides the design, testing, and iteration of new novel-writing skills
 meta: true
 ---
+<!-- AUTO-CHECK-START -->
+
+## auto-check (generated -- do not edit)
+
+<!-- AUTO-CHECK-END -->
+
 
 # 编写 Shenbi 技能
 
