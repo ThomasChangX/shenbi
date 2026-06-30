@@ -77,7 +77,10 @@ def check_calibration_integrity(
     # a stable, lockable value.
     h = hashlib.sha256()
     if calibration_dir.exists():
-        for p in sorted(calibration_dir.rglob("*")):
+        for p in sorted(
+            calibration_dir.rglob("*"),
+            key=lambda x: str(x.relative_to(calibration_dir)).replace(os.sep, "/"),
+        ):
             if p.is_file() and p.name != ".gitkeep":
                 # Normalize CRLF→LF before hashing so the combined hash is
                 # stable across platforms (Windows git may checkout with CRLF).

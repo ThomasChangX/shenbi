@@ -304,39 +304,7 @@ def test_g015_gate_registry_consistency_passes_on_current_repo(tmp_path: Path) -
     seed.write_text("# Novel\n\n目标字数：5000\n\n## Setup\n" + ("内容 " * 200), encoding="utf-8")
     result = _result_dict(gate_G0(seed_file=str(seed)))
     g015 = next((chk for chk in result["checks"] if chk.get("id") == "G0.15"), None)
-    if g015 is None:
-        # Diagnostic: show which check failed and the actual hash details.
-        import hashlib
-        import json as _json
-
-        from shenbi.gates.shared import FIXTURES, TESTS
-
-        cal_dir = FIXTURES / "calibration"
-        h_raw = hashlib.sha256()
-        h_norm = hashlib.sha256()
-        files = []
-        for fp in sorted(cal_dir.rglob("*")):
-            if fp.is_file() and fp.name != ".gitkeep":
-                raw = fp.read_bytes()
-                h_raw.update(raw)
-                h_norm.update(raw.replace(b"\r\n", b"\n"))
-                files.append(f"{fp.name}({len(raw)}b)")
-        deps = _json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
-        locked = deps.get("_calibration_hashes", {}).get("combined", "NONE")
-        g014 = next((c for c in result["checks"] if c.get("id") == "G0.14"), {})
-        first_file = sorted(p for p in cal_dir.rglob("*") if p.is_file() and p.name != ".gitkeep")[
-            0
-        ]
-        first_bytes = first_file.read_bytes()[:80].hex()
-        raise AssertionError(
-            f"FIRST_FILE_BYTES={first_bytes} " + f"G0.15 not emitted. G0.14={g014}. "
-            f"raw_hash={h_raw.hexdigest()[:16]} "
-            f"norm_hash={h_norm.hexdigest()[:16]} "
-            f"locked={locked[:16]} "
-            f"files={len(files)} "
-            f"file_list={files[:5]}... "
-            f"must_fix={result.get('must_fix', [])}"
-        )
+    assert g015 is not None, "G0.15 not emitted (earlier check short-circuited)"
     assert g015["s"] == "PASS"
 
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +48,10 @@ def _compute_combined(calibration_dir: Path) -> str:
     normalization (Windows git/filesystem may produce CRLF on write).
     """
     h = hashlib.sha256()
-    for p in sorted(calibration_dir.rglob("*")):
+    for p in sorted(
+        calibration_dir.rglob("*"),
+        key=lambda x: str(x.relative_to(calibration_dir)).replace(os.sep, "/"),
+    ):
         if p.is_file() and p.name != ".gitkeep":
             h.update(p.read_bytes().replace(b"\r\n", b"\n"))
     return h.hexdigest()
