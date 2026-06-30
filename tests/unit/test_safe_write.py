@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-import fcntl
 import json
+import sys
 from pathlib import Path
+
+import pytest
 
 from shenbi.safe_write import safe_write
 
@@ -42,12 +44,14 @@ def test_safe_write_traces_when_round_given(tmp_path: Path) -> None:
     assert rec["action"] == "MATERIALIZE"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")
 def test_safe_write_removes_o_excl_lockfile_on_release(tmp_path: Path, monkeypatch) -> None:
     """Lockfile fallback (M5): the O_EXCL .lock must be unlinked on release.
 
     Regression: safe_write only closed the fd, leaving a permanent stale lock
     that forced every later writer through the 1s backoff + stale-takeover path.
     """
+    import fcntl
 
     def boom(fd: int, op: int) -> None:
         raise OSError("flock unavailable (test)")

@@ -54,11 +54,15 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             fh.flush()
             os.fsync(fh.fileno())
         os.replace(tmp, path)
-        dirfd = os.open(str(path.parent), os.O_RDONLY)
+        # Best-effort dir fsync (POSIX-only; Windows can't open dirs as fds).
         try:
-            os.fsync(dirfd)
-        finally:
-            os.close(dirfd)
+            dirfd = os.open(str(path.parent), os.O_RDONLY)
+            try:
+                os.fsync(dirfd)
+            finally:
+                os.close(dirfd)
+        except OSError:
+            pass
     except BaseException:
         if os.path.exists(tmp):
             os.unlink(tmp)
