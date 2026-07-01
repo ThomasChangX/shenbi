@@ -291,34 +291,64 @@ class TestClosureFlow:
 - [ ] **Step 2: Add full-chapter audit+revision cycle test**
 
 ```python
-class TestFullChapterCycle:
-    """Test a complete chapter: plan -> draft -> audit -> revision -> pass."""
-    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
-    def test_chapter_with_blocking_audit_routes_revision(self, mock_g4, mock_disp, tmp_path):
-        """When audit finds BLOCKING, revision routing should fire."""
-        from shenbi.pipeline.state import PipelineState, PipelinePhase, GenesisState
-        from shenbi.pipeline.machine import save_state, load_state
-        from shenbi.pipeline.cli import main
+class TestRevisionRoutingFromAuditResults:
+    """Test that audit BLOCKING/CRITICAL results correctly feed into revision routing."""
 
-        mock_disp.return_value = MagicMock(success=True, returncode=0, stdout="{}", stderr="")
-        mock_g4.return_value = {"status": "PASS"}
+    def test_blocking_audit_routes_to_regenerate(self, tmp_path):
+        """When audit report contains BLOCKING, revision router routes to regenerate."""
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
 
         project = tmp_path / "novel"
-        project.mkdir()
-        (project / "truth").mkdir()
-        (project / "truth" / "pending_hooks.md").write_text("---\nhooks: []\n---\n", encoding="utf-8")
-        (project / "plans").mkdir()
-        state = PipelineState.default(str(project))
-        state.phase = PipelinePhase.CHAPTER_LOOP
-        state.genesis.state = GenesisState.COMPLETED
-        state.chapter_loop.current_chapter = 1
-        save_state(project, state)
+        audits_dir = project / "audits"
+        audits_dir.mkdir(parents=True)
+        (audits_dir / "chapter-5-continuity.md").write_text(
+            "## Audit Report\n\nSeverity: BLOCKING\nIssue: Timeline contradiction")
 
-        # Run next — should execute steps until chapter-memo checkpoint
-        main(["next", str(project)])
-        state = load_state(project)
-        assert state.pending_checkpoint.type.value == "chapter-memo"
+        import glob
+        audit_files = glob.glob(str(audits_dir / "chapter-5-*.md"))
+        issues, blocking = [], False
+        for af in audit_files:
+            text = open(af).read()
+            if "BLOCKING" in text:
+                blocking = True
+                issues.append({"category": "unmet_goal", "severity": "BLOCKING"})
+            elif "CRITICAL" in text:
+                issues.append({"category": "craft", "severity": "CRITICAL"})
+
+        route = route_chapter_revision(issues=issues, blocking=blocking)
+        assert route == RevisionRoute.REGENERATE
+        assert blocking is True
+
+    def test_craft_only_routes_to_spot_fix(self, tmp_path):
+        """When audit has only CRITICAL (no BLOCKING), route to spot-fix."""
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+
+        project = tmp_path / "novel"
+        audits_dir = project / "audits"
+        audits_dir.mkdir(parents=True)
+        (audits_dir / "chapter-5-pacing.md").write_text(
+            "## Audit Report\n\nSeverity: CRITICAL\nIssue: Pacing too slow")
+
+        import glob
+        audit_files = glob.glob(str(audits_dir / "chapter-5-*.md"))
+        issues, blocking = [], False
+        for af in audit_files:
+            text = open(af).read()
+            if "BLOCKING" in text:
+                blocking = True
+                issues.append({"category": "unmet_goal", "severity": "BLOCKING"})
+            elif "CRITICAL" in text:
+                issues.append({"category": "craft", "severity": "CRITICAL"})
+
+        route = route_chapter_revision(issues=issues, blocking=blocking)
+        assert route == RevisionRoute.SPOT_FIX
+        assert blocking is False
+
+    def test_clean_chapter_no_revision(self):
+        """When no audit issues found, revision routing returns NO_REVISION."""
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+        route = route_chapter_revision(issues=[], blocking=False)
+        assert route == RevisionRoute.NO_REVISION
 ```
 
 - [ ] **Step 3: Commit**

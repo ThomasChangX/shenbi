@@ -106,7 +106,6 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     before dispatching requires_independent_agent skills. This is a known
     integration gap to address during implementation.
     """
-    """Run G3 independence check (required for requires_independent_agent skills)."""
     cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(round_dir)]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     try:
@@ -507,14 +506,24 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     # Revision routing after all audits + resonance
     if "review-resonance" in step.skill:
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
-        # Parse resonance result to determine if revision needed
-        # (Simplified: if resonance score < threshold, route to revision)
-        # Parse audit reports to build diagnosis for revision routing
-        # (Reads audits/chapter-N-*.md results; placeholder for full implementation)
-        route = route_chapter_revision(issues=[], blocking=False)  # NOTE: real audit issues parsed from audits/chapter-N-*.md at implementation time
+        # Parse ALL audit reports for this chapter to build revision diagnosis
+        import glob as _glob
+        audit_files = _glob.glob(str(project_dir / "audits" / f"chapter-{chapter}-*.md"))
+        issues = []
+        blocking = False
+        for af in audit_files:
+            audit_text = Path(af).read_text(encoding="utf-8")
+            if "BLOCKING" in audit_text:
+                blocking = True
+                issues.append({"category": "unmet_goal", "severity": "BLOCKING",
+                              "evidence": af, "id": Path(af).stem})
+            elif "CRITICAL" in audit_text:
+                issues.append({"category": "craft", "severity": "CRITICAL",
+                              "evidence": af, "id": Path(af).stem})
+        route = route_chapter_revision(issues=issues, blocking=blocking)
         if route != RevisionRoute.NO_REVISION:
-            log.info("revision_routed", chapter=chapter, route=route.value)
-
+            log.info("revision_routed", chapter=chapter, route=route.value,
+                    issues=len(issues), blocking=blocking)
     # Advance
     state.chapter_loop.step_index = step_idx + 1
     # Checkpoint
@@ -1130,10 +1139,25 @@ def cmd_next(args: argparse.Namespace) -> int:
                     # memory-distill/score-arc/etc. happens in a trigger execution
                     # step that would be added to CHAPTER_STEPS or run inline here.
                     # For now, log triggers for observability.
+                    _ch = state.chapter_loop.current_chapter - 1
                     if _triggers.l2_distill:
-                        log.info("trigger_fired", trigger="L2_distill", chapter=state.chapter_loop.current_chapter - 1)
+                        log.info("trigger_fired", trigger="L2_distill", chapter=_ch)
+                        dispatch_skill("shenbi-memory-distill", project_dir,
+                                      f"Run L2 arc distill for chapters ending at {_ch}.")
+                        if _triggers.score_arc:
+                            dispatch_skill("shenbi-score-arc", project_dir,
+                                          f"Score arc ending at chapter {_ch}.")
                     if _triggers.l4_distill:
                         log.info("trigger_fired", trigger="L4_distill")
+                        dispatch_skill("shenbi-memory-distill", project_dir,
+                                      f"Run L4 stratum distill for chapters ending at {_ch}.")
+                        if _triggers.score_stratum:
+                            dispatch_skill("shenbi-score-stratum", project_dir,
+                                          f"Score stratum ending at chapter {_ch}.")
+                    if _triggers.style_learning:
+                        log.info("trigger_fired", trigger="style_learning")
+                        dispatch_skill("shenbi-style-learning", project_dir,
+                                      f"Update style profile from recent chapters.")
         elif state.phase.value == "closure":
             checkpoint_reached = run_closure_step(state, project_dir)
         else:

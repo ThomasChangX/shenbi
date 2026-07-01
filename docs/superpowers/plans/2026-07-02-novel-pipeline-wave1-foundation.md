@@ -680,7 +680,7 @@ git commit -m "feat: add pipeline state machine load/save/checkpoint (wave1 task
 **Files:**
 - Create: `src/shenbi/pipeline/filelock_utils.py`
 - Create: `tests/unit/pipeline/test_filelock_utils.py`
-- Modify: `pyproject.toml` (add `fcntl.flock (stdlib)` to dependencies)
+- No pyproject.toml modification needed (fcntl is stdlib)
 
 **Interfaces:**
 - Produces: `WriteLock` (context manager), `ReadLock` (context manager)
@@ -760,9 +760,22 @@ Expected: FAIL with `ModuleNotFoundError`
 
 - [ ] **Step 3: No new dependency needed**
 
-Note:  is already a transitive dependency in . Adding it explicitly to  makes it a first-class dep rather than relying on transitive resolution. Run  to verify.
+The lock implementation uses `fcntl.flock` (POSIX stdlib module, zero pip install).
+No modification to `pyproject.toml` is required.
 
-Add `fcntl.flock (stdlib)` to `[project] dependencies` in `pyproject.toml`, then run `uv sync --group dev`.
+For Windows compatibility, add a platform guard at the top of `filelock_utils.py`:
+
+```python
+import sys
+if sys.platform != "win32":
+    import fcntl  # POSIX advisory locking
+    _HAS_FCNTL = True
+else:
+    _HAS_FCNTL = False
+    from filelock import FileLock as _FallbackLock  # transitive dep
+```
+
+In WriteLock/ReadLock `__enter__`, use `_FallbackLock` when `_HAS_FCNTL` is False.
 
 - [ ] **Step 4: Write the implementation**
 
