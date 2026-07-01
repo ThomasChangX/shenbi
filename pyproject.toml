@@ -54,6 +54,7 @@ shenbi-progress = "shenbi.update_progress:main"
 shenbi-phase = "shenbi.phase_runner:main"
 shenbi-sync-contracts = "shenbi.sync_contracts:main"
 shenbi-generate-plugins = "shenbi.plugins.generate:main"
+pipeline = "shenbi.pipeline.cli:main"
 
 [build-system]
 requires = ["hatchling"]
