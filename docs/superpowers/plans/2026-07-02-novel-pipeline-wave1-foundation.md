@@ -757,6 +757,8 @@ Expected: FAIL with `ModuleNotFoundError`
 
 - [ ] **Step 3: Add filelock dependency**
 
+Note:  is already a transitive dependency in . Adding it explicitly to  makes it a first-class dep rather than relying on transitive resolution. Run  to verify.
+
 Add `filelock>=3.13.0` to `[project] dependencies` in `pyproject.toml`, then run `uv sync --group dev`.
 
 - [ ] **Step 4: Write the implementation**
@@ -773,7 +775,7 @@ Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.4.
 
 from __future__ import annotations
 
-from filelock import FileLock, SoftFileLock
+from filelock import FileLock
 from pathlib import Path
 
 
@@ -795,21 +797,39 @@ class WriteLock:
 
 
 class ReadLock:
-    """Shared read lock for status queries (non-blocking concurrency)."""
+    """Shared read lock for status queries (multiple readers, non-exclusive).
+
+    Uses fcntl.flock(LOCK_SH) for true shared locking on POSIX.
+    Multiple ReadLock holders can coexist; WriteLock (LOCK_EX) blocks all readers.
+    """
 
     def __init__(self, project_dir: Path | str, timeout: float = 30.0) -> None:
-        # Read lock uses a separate file so it never blocks writes
-        self._lock = SoftFileLock(
-            str(Path(project_dir) / "pipeline-state.json.readlock"),
-            timeout=timeout,
-        )
+        self._lockfile = Path(project_dir) / "pipeline-state.json.readlock"
+        self._lockfile.parent.mkdir(parents=True, exist_ok=True)
+        self._timeout = timeout
+        self._fd: int | None = None
 
     def __enter__(self) -> ReadLock:
-        self._lock.acquire()
+        import fcntl
+        import time
+        self._fd = __import__("os").open(str(self._lockfile), __import__("os").O_CREAT | __import__("os").O_RDONLY)
+        deadline = time.monotonic() + self._timeout
+        while True:
+            try:
+                fcntl.flock(self._fd, fcntl.LOCK_SH | fcntl.LOCK_NB)
+                break
+            except (BlockingIOError, OSError):
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f"ReadLock timeout on {self._lockfile}")
+                time.sleep(0.05)
         return self
 
     def __exit__(self, *args: object) -> None:
-        self._lock.release()
+        import fcntl
+        if self._fd is not None:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+            __import__("os").close(self._fd)
+            self._fd = None
 ```
 
 - [ ] **Step 5: Run tests to verify they pass**
@@ -905,15 +925,14 @@ class TestParseSeed:
         assert data.genre_config.get("show_tell_ratio") == "70/30"
         assert "courage" in data.genre_config.get("deep_themes", "")
 
-    def test_parse_derives_total_chapters(self, sample_seed_content, tmp_path):
-        """If seed has no chapter count, derive from word count / avg chapter length."""
+    def test_parse_does_not_set_total_chapters(self, sample_seed_content, tmp_path):
+        """Seed parser must NOT set total_chapters -- that's volume-outlining's job."""
         seed_path = tmp_path / "seed.md"
         seed_path.write_text(sample_seed_content, encoding="utf-8")
 
         data = parse_seed(seed_path)
 
-        # 200000 / ~3000 per chapter ≈ 67
-        assert data.novel_json.get("total_chapters", 0) > 0
+        assert "total_chapters" not in data.novel_json
 
     def test_parse_missing_file_raises(self, tmp_path):
         with pytest.raises(FileNotFoundError):
@@ -944,9 +963,6 @@ from pathlib import Path
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
-
-DEFAULT_CHAPTER_LENGTH = 3000
-
 
 @dataclass
 class SeedData:
@@ -981,13 +997,6 @@ def _parse_list_items(section_text: str) -> list[str]:
     return items
 
 
-def _derive_total_chapters(target_word_count: int) -> int:
-    """Derive total chapters from target word count."""
-    if target_word_count <= 0:
-        return 67
-    return max(1, target_word_count // DEFAULT_CHAPTER_LENGTH)
-
-
 def parse_seed(seed_path: Path | str) -> SeedData:
     """Parse a seed file into SeedData.
 
@@ -1017,7 +1026,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         # Try to match "key: value" or "key：value"
         if ":" in item:
             key, _, value = item.partition(":")
-        elif ":" in item:
+        elif "：" in item:
             key, _, value = item.partition(":")
         else:
             continue
@@ -1039,10 +1048,8 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         elif key in ("ending_direction", "故事结局方向", "结局"):
             novel_json["ending_direction"] = value
 
-    # Derive total chapters if not provided
-    target_wc = novel_json.get("target_word_count", 200000)
-    if isinstance(target_wc, int):
-        novel_json["total_chapters"] = _derive_total_chapters(target_wc)
+    # total_chapters is NOT set here -- volume-outlining (genesis step 6) computes it.
+    # See spec section 4.2.
     novel_json["golden_opening_chapters"] = 3
     novel_json["language"] = "zh"
 
@@ -1052,7 +1059,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     for item in _parse_list_items(narrative):
         if ":" in item:
             key, _, value = item.partition(":")
-        elif ":" in item:
+        elif "：" in item:
             key, _, value = item.partition(":")
         else:
             continue
@@ -1081,7 +1088,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
     for item in _parse_list_items(conflict):
         if ":" in item:
             key, _, value = item.partition(":")
-        elif ":" in item:
+        elif "：" in item:
             key, _, value = item.partition(":")
         else:
             continue
@@ -1382,7 +1389,7 @@ from shenbi.pipeline.machine import (
     save_state,
 )
 from shenbi.pipeline.seed_parser import parse_seed
-from shenbi.pipeline.state import PipelinePhase, PipelineState, ReviewDecision
+from shenbi.pipeline.state import GenesisState, PipelinePhase, PipelineState, ReviewDecision
 
 log = get_logger(__name__)
 
@@ -1420,8 +1427,9 @@ def cmd_init(args: argparse.Namespace) -> int:
         if value:
             (ctx_dir / f"{key}.md").write_text(value, encoding="utf-8")
 
-    # Initialize pipeline state
+    # Initialize pipeline state -- genesis starts IN_PROGRESS per spec section 3.1
     state = PipelineState.default(project_dir=str(project_dir))
+    state.genesis.state = GenesisState.IN_PROGRESS
     with WriteLock(project_dir):
         save_state(project_dir, state)
 
@@ -1450,7 +1458,7 @@ def cmd_status(args: argparse.Namespace) -> int:
         "phase": state.phase.value,
         "current_chapter": state.chapter_loop.current_chapter,
         "current_step": state.chapter_loop.current_step,
-        "pending_checkpoint": cp.type.value if cp.type != "none" else None,
+        "pending_checkpoint": cp.type.value if cp.type != CheckpointType.NONE else None,
         "checkpoint_chapter": cp.chapter,
         "checkpoint_artifact": cp.artifact,
     }
