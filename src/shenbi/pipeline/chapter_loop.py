@@ -1,0 +1,580 @@
+"""Chapter loop orchestrator: per-chapter step sequence with staging, context
+assembly, and G4 validation (spec section 6.1).
+
+The chapter loop runs 20 steps per chapter (the spec's 13-step loop expanded
+with individual audit-circle skills). Steps 2 (chapter-planning) and 7
+(state-settling) write to ``staging/`` and are gated by human-review
+checkpoints. Step 4 (pipeline-context-assemble) materializes the three-route
+context package (section 7) before chapter-drafting consumes it.
+
+Each dispatched step runs G4 (skill-specific structure). Step 17
+(review-resonance) additionally runs G3 (scoring independence) because it is a
+``requires_independent_agent`` skill.
+
+dispatch/gate failures retry per spec section 11: up to
+``max_revision_retries`` attempts, then an escalation checkpoint is raised.
+The retry/escalation logic is inlined here because ``pipeline.retry`` (Wave
+3c) does not exist yet; once it does, this module can delegate to it.
+
+Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
+implements the audit layer, W3T5 implements revision routing. Clear TODO
+markers indicate the integration points.
+
+The orchestrator is stateless itself: it mutates the passed-in
+:class:`PipelineState` in memory and the caller persists it.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from shenbi.logging import get_logger
+from shenbi.pipeline.dispatch_helper import (
+    dispatch_skill,
+    requires_independent,
+    run_gate_g3,
+    run_gate_g4,
+)
+from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.state import (
+    ChapterState,
+    CheckpointType,
+    PipelineState,
+)
+from shenbi.status import GateStatus
+
+log = get_logger(__name__)
+
+
+@dataclass
+class ChapterStep:
+    """One step in the per-chapter sequence (spec section 6.1).
+
+    Attributes:
+        step_num: 1-based step number for logging.
+        skill: Skill name dispatched (``shenbi-*``) or pipeline-internal
+            identifier (``pipeline-*`` -- not dispatched, just advanced).
+        name: Human-readable label.
+        checkpoint: Checkpoint type raised after this step succeeds, or None.
+        uses_staging: If True, the dispatched skill writes to ``staging/``
+            and G4 validates the staging copy (spec section 2.7).
+        calls_context_assembly: If True, run :func:`assemble_context` before
+            dispatching this step (materializes ``context/chapter-N-context.md``).
+        is_audit: If True, this step is part of the audit core circle.
+        output_path: Expected output file relative to project dir (with N
+            placeholders for chapter number). Used for G4 validation. Empty
+            string means no single file (G4 validates generically).
+    """
+
+    step_num: int
+    skill: str
+    name: str
+    checkpoint: CheckpointType | None = None
+    uses_staging: bool = False
+    calls_context_assembly: bool = False
+    is_audit: bool = False
+    output_path: str = ""
+
+
+# Full 13-step + sub-steps from spec section 6.1.
+# The audit layer (spec step 8) is expanded into 7 individual core-circle
+# skills for serial execution. Genre-circle skills are dispatched dynamically
+# by the audit sub-orchestrator (W3T4).
+CHAPTER_STEPS: list[ChapterStep] = [
+    ChapterStep(
+        1,
+        "shenbi-intent-management",
+        "intent-management",
+        output_path="truth/current_focus.md",
+    ),
+    ChapterStep(
+        2,
+        "shenbi-chapter-planning",
+        "chapter-planning",
+        checkpoint=CheckpointType.CHAPTER_MEMO,
+        uses_staging=True,
+        output_path="plans/chapter-N-plan.md",
+    ),
+    ChapterStep(
+        3,
+        "shenbi-foreshadowing-plant",
+        "foreshadowing-plant",
+        output_path="truth/pending_hooks.md",
+    ),
+    ChapterStep(
+        4,
+        "pipeline-context-assemble",
+        "context-assembly",
+        calls_context_assembly=True,
+        output_path="context/chapter-N-context.md",
+    ),
+    ChapterStep(
+        5,
+        "shenbi-context-composing",
+        "context-composing",
+        output_path="",
+    ),
+    ChapterStep(
+        6,
+        "shenbi-chapter-drafting",
+        "chapter-drafting",
+        output_path="chapters/chapter-N.md",
+    ),
+    ChapterStep(
+        7,
+        "shenbi-state-settling",
+        "state-settling",
+        checkpoint=CheckpointType.STATE_SETTLE,
+        uses_staging=True,
+        output_path="",
+    ),
+    ChapterStep(
+        8,
+        "shenbi-foreshadowing-track",
+        "foreshadowing-track",
+        output_path="truth/pending_hooks.md",
+    ),
+    ChapterStep(
+        9,
+        "shenbi-foreshadowing-recall",
+        "foreshadowing-recall",
+        output_path="truth/foreshadowing_recall_result.md",
+    ),
+    # foreshadowing-resolve is conditional -- handled in run_chapter_step
+    # after foreshadowing-track succeeds (spec section 6.1 step 7b).
+    # Audit core circle: 7 skills, serial, BLOCKING stops (spec section 6.2).
+    ChapterStep(
+        10,
+        "shenbi-review-anti-ai",
+        "audit:anti-ai",
+        is_audit=True,
+        output_path="audits/chapter-N-anti-ai.md",
+    ),
+    ChapterStep(
+        11,
+        "shenbi-review-continuity",
+        "audit:continuity",
+        is_audit=True,
+        output_path="audits/chapter-N-continuity.md",
+    ),
+    ChapterStep(
+        12,
+        "shenbi-review-character",
+        "audit:character",
+        is_audit=True,
+        output_path="audits/chapter-N-character.md",
+    ),
+    ChapterStep(
+        13,
+        "shenbi-review-pacing",
+        "audit:pacing",
+        is_audit=True,
+        output_path="audits/chapter-N-pacing.md",
+    ),
+    ChapterStep(
+        14,
+        "shenbi-review-foreshadowing",
+        "audit:foreshadowing",
+        is_audit=True,
+        output_path="audits/chapter-N-foreshadowing.md",
+    ),
+    ChapterStep(
+        15,
+        "shenbi-review-memo-compliance",
+        "audit:memo-compliance",
+        is_audit=True,
+        output_path="audits/chapter-N-memo-compliance.md",
+    ),
+    ChapterStep(
+        16,
+        "shenbi-review-pov",
+        "audit:pov",
+        is_audit=True,
+        output_path="audits/chapter-N-pov.md",
+    ),
+    # Genre circle dispatched dynamically by audit sub-orchestrator (W3T4).
+    # TODO(W3T4): from shenbi.pipeline.audit_layer import run_audit_layer
+    #   Call after step 16 (last core-circle audit) to run genre-circle skills.
+    # review-resonance (independent agent, G3 required, spec section 6.1 step 9).
+    ChapterStep(
+        17,
+        "shenbi-review-resonance",
+        "review-resonance",
+        output_path="audits/chapter-N-resonance.md",
+    ),
+    # Revision routing + execution (conditional, spec section 6.1 steps 10-11).
+    # TODO(W3T5): from shenbi.pipeline.revision_router import route_chapter_revision
+    #   Route based on audit issues after review-resonance completes.
+    ChapterStep(
+        18,
+        "shenbi-chapter-revision",
+        "revision",
+        output_path="chapters/chapter-N.md",
+    ),
+    # Snapshot + drift (spec section 6.1 steps 12-13).
+    ChapterStep(
+        19,
+        "shenbi-snapshot-manage",
+        "snapshot-manage",
+        output_path="snapshots/chapter-NNN/",
+    ),
+    ChapterStep(
+        20,
+        "shenbi-drift-guidance",
+        "drift-guidance",
+        output_path="truth/drift_guidance.md",
+    ),
+]
+
+# 0-based index of the last core-circle audit step (for genre-circle trigger).
+_LAST_AUDIT_IDX = max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _gate_passed(result: dict[str, Any]) -> bool:
+    """True iff a gate result dict reports PASS (handles str and GateStatus)."""
+    return str(result.get("status", "")) == GateStatus.PASS
+
+
+def _substitute_chapter(path: str, chapter: int) -> str:
+    """Replace N / NNN placeholders with the actual chapter number."""
+    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
+
+
+def _retry_key(chapter: int, skill: str) -> str:
+    """Chapter-scoped retry key so retries from different chapters don't collide."""
+    return f"ch{chapter}-{skill}"
+
+
+def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
+    """Resolve the output file path for G4 validation.
+
+    For staging steps, returns the staging-relative path so G4 validates the
+    staging copy (not the final committed path). Empty string if the step has
+    no single output file.
+    """
+    if not step.output_path:
+        return ""
+    resolved = _substitute_chapter(step.output_path, chapter)
+    if step.uses_staging:
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        return f"{STAGING_DIR}/{resolved}"
+    return resolved
+
+
+def _handle_failure(
+    state: PipelineState,
+    step: ChapterStep,
+    chapter: int,
+    failure: str,
+) -> bool:
+    """Record a dispatch/gate failure for a chapter step.
+
+    Retries per spec section 11 up to ``max_revision_retries`` (default 3),
+    then raises an escalation checkpoint. Returns False when the step should
+    be retried on the next call (step_index unchanged) or True once an
+    escalation checkpoint has been raised.
+    """
+    key = _retry_key(chapter, step.skill)
+    count = state.chapter_loop.retry_counts.get(key, 0) + 1
+    state.chapter_loop.retry_counts[key] = count
+    limit = state.config.max_revision_retries
+    if count < limit:
+        log.warning(
+            "chapter_step_failed_retrying",
+            chapter=chapter,
+            step=step.step_num,
+            skill=step.skill,
+            failure=failure,
+            attempt=count,
+            limit=limit,
+        )
+        return False
+    log.error(
+        "chapter_step_escalation",
+        chapter=chapter,
+        step=step.step_num,
+        skill=step.skill,
+        failure=failure,
+        attempts=count,
+    )
+    set_checkpoint(
+        state,
+        CheckpointType.ESCALATION,
+        chapter=chapter,
+        context=(
+            f"Chapter {chapter} step {step.step_num} ({step.skill}) "
+            f"failed after {count} {failure} attempts"
+        ),
+    )
+    return True
+
+
+def _record_step_done(state: PipelineState, step: ChapterStep, chapter: int) -> None:
+    """Append the skill to the chapter's steps_done list."""
+    key = str(chapter)
+    cs = state.chapter_loop.chapter_states.get(key)
+    if cs is None:
+        cs = ChapterState()
+        state.chapter_loop.chapter_states[key] = cs
+    if step.skill not in cs.steps_done:
+        cs.steps_done.append(step.skill)
+
+
+def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
+    """Clear retry count after a successful step."""
+    state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
+
+
+def _complete_chapter(state: PipelineState, chapter: int) -> bool:
+    """Advance to the next chapter, optionally setting a per-chapter checkpoint.
+
+    Returns True when a per-chapter checkpoint is set (review needed), False
+    when automatic advancement is configured.
+    """
+    key = str(chapter)
+    cs = state.chapter_loop.chapter_states.get(key)
+    if cs is None:
+        cs = ChapterState()
+        state.chapter_loop.chapter_states[key] = cs
+    cs.status = "complete"
+
+    state.chapter_loop.current_chapter = chapter + 1
+    state.chapter_loop.step_index = 0
+    state.chapter_loop.current_step = ""
+
+    if state.chapter_loop.per_chapter_review_enabled:
+        set_checkpoint(
+            state,
+            CheckpointType.PER_CHAPTER,
+            chapter=chapter,
+            context=(
+                f"Chapter {chapter} complete. Review before proceeding to chapter {chapter + 1}."
+            ),
+        )
+        return True
+    return False
+
+
+def _advance(
+    state: PipelineState,
+    step_idx: int,
+    step: ChapterStep,
+    chapter: int,
+) -> bool:
+    """Bump the step cursor and set checkpoint if the step has one.
+
+    Returns True if a checkpoint was raised or the chapter completed;
+    False if the step simply advanced with no human action needed.
+    """
+    state.chapter_loop.step_index = step_idx + 1
+    state.chapter_loop.current_step = ""
+
+    if step.checkpoint is not None:
+        artifact = (
+            _substitute_chapter(step.output_path, chapter)
+            if step.output_path
+            else f"chapter-{chapter}/{step.name}"
+        )
+        set_checkpoint(
+            state,
+            step.checkpoint,
+            chapter=chapter,
+            artifact=artifact,
+            context=f"Review {step.name} for chapter {chapter}",
+        )
+        return True
+
+    if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+        return _complete_chapter(state, chapter)
+    return False
+
+
+def _run_context_assembly(project_dir: Path, chapter: int) -> None:
+    """Materialize the three-route context package for the chapter.
+
+    Calls :func:`assemble_context` + :func:`write_context_file` from
+    ``context_assemble``. Missing plan files are tolerated (early-stage
+    projects): the warning is logged and the step continues so
+    chapter-drafting can proceed without context.
+    """
+    try:
+        from shenbi.pipeline.context_assemble import (
+            assemble_context,
+            write_context_file,
+        )
+
+        plan_path = f"plans/chapter-{chapter}-plan.md"
+        pkg = assemble_context(project_dir, plan_path)
+        out = write_context_file(project_dir, chapter, pkg)
+        log.info(
+            "context_assembled_for_chapter",
+            chapter=chapter,
+            sections=len(pkg.sections),
+            total_tokens=pkg.total_tokens,
+            output=str(out),
+        )
+    except Exception as e:
+        log.warning("context_assembly_failed", chapter=chapter, error=str(e))
+
+
+def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
+    """Dispatch foreshadowing-resolve if TRIGGERED hooks are detected.
+
+    Reads the foreshadowing-track output (``truth/pending_hooks.md``). If any
+    hooks have ``state: TRIGGERED``, dispatches ``shenbi-foreshadowing-resolve``
+    to handle them (spec section 6.1 step 7b). Missing file or no triggered
+    hooks are no-ops.
+    """
+    hooks_file = project_dir / "truth" / "pending_hooks.md"
+    if not hooks_file.exists():
+        return
+
+    text = hooks_file.read_text(encoding="utf-8")
+    triggered_count = _count_triggered_hooks(text)
+    if triggered_count > 0:
+        log.info("conditional_resolve_triggered", chapter=chapter, count=triggered_count)
+        dispatch_skill(
+            "shenbi-foreshadowing-resolve",
+            project_dir,
+            f"Resolve {triggered_count} TRIGGERED hooks for chapter {chapter}.",
+        )
+    else:
+        log.debug("no_triggered_hooks", chapter=chapter)
+
+
+def _count_triggered_hooks(text: str) -> int:
+    r"""Count hooks with state TRIGGERED in the pending_hooks.md content.
+
+    Parses YAML frontmatter (``---\\n...\\n---``) for a ``hooks`` list where
+    entries have a ``state`` field. Falls back to a text scan for
+    ``state: TRIGGERED`` when frontmatter is absent or malformed.
+    """
+    # Try YAML frontmatter first.
+    if text.startswith("---"):
+        import yaml
+
+        parts = text.split("---", 2)
+        if len(parts) >= 3:
+            try:
+                fm = yaml.safe_load(parts[1]) or {}
+                hooks = fm.get("hooks", [])
+                if isinstance(hooks, list):
+                    return sum(
+                        1 for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"
+                    )
+            except Exception:
+                pass  # fall through to text scan
+    # Fallback: count literal occurrences.
+    return text.count("state: TRIGGERED")
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+
+def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
+    """Execute the next chapter step.
+
+    Returns True if a checkpoint was reached (chapter-memo, state-settle,
+    per-chapter, or escalation) or all steps are already consumed; False if
+    the step simply advanced (or will be retried) and no human action is
+    needed yet. Mutates ``state`` in place; the caller persists it.
+    """
+    project_dir = Path(project_dir)
+    step_idx = state.chapter_loop.step_index
+    if step_idx >= len(CHAPTER_STEPS):
+        return True  # all steps consumed
+
+    step = CHAPTER_STEPS[step_idx]
+    chapter = state.chapter_loop.current_chapter
+    state.chapter_loop.current_step = step.skill
+    log.info("chapter_step", chapter=chapter, step=step.step_num, skill=step.skill)
+
+    # Context assembly (step 4): materialize package before chapter-drafting.
+    if step.calls_context_assembly:
+        _run_context_assembly(project_dir, chapter)
+
+    # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
+    if step.skill.startswith("pipeline-"):
+        _record_step_done(state, step, chapter)
+        _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter)
+
+    # Build dispatch prompt (staging steps write to staging/).
+    prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
+    if step.uses_staging:
+        prompt += " Write output to staging/ directory."
+
+    # Dispatch the skill.
+    result = dispatch_skill(step.skill, project_dir, prompt)
+    if not result.success:
+        log.error(
+            "chapter_dispatch_failed",
+            chapter=chapter,
+            step=step.step_num,
+            skill=step.skill,
+        )
+        return _handle_failure(state, step, chapter, "dispatch")
+
+    # G4: skill-specific structural validation (every dispatched step).
+    g4_file = _resolve_g4_path(project_dir, step, chapter)
+    g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
+    if not _gate_passed(g4):
+        log.error(
+            "chapter_g4_failed",
+            chapter=chapter,
+            step=step.step_num,
+            skill=step.skill,
+            g4=g4,
+        )
+        return _handle_failure(state, step, chapter, "gate")
+
+    # G3: scoring independence for requires_independent_agent skills (step 17).
+    if requires_independent(step.skill):
+        g3 = run_gate_g3(step.skill, project_dir)
+        if not _gate_passed(g3):
+            log.error(
+                "chapter_g3_failed",
+                chapter=chapter,
+                step=step.step_num,
+                skill=step.skill,
+            )
+            return _handle_failure(state, step, chapter, "gate")
+
+    # Conditional: foreshadowing-resolve after foreshadowing-track (step 7b).
+    if "foreshadowing-track" in step.skill:
+        _check_conditional_resolve(state, project_dir, chapter)
+
+    # After last core-circle audit: genre circle would run here (W3T4).
+    if step.is_audit and step_idx == _LAST_AUDIT_IDX:
+        # TODO(W3T4): from shenbi.pipeline.audit_layer import run_audit_layer
+        #   gc_path = project_dir / "genre-config.json"
+        #   gc = json.loads(gc_path.read_text()) if gc_path.exists() else {}
+        #   audit_result = run_audit_layer(project_dir, chapter, gc)
+        #   if audit_result.blocking_found:
+        #       return _handle_failure(state, step, chapter, "audit")
+        log.info("audit_core_circle_complete", chapter=chapter)
+
+    # After review-resonance: revision routing would run here (W3T5).
+    if "review-resonance" in step.skill:
+        # TODO(W3T5): from shenbi.pipeline.revision_router import (
+        #     route_chapter_revision, RevisionRoute,
+        # )
+        #   Parse all audit reports for blocking/critical issues,
+        #   call route_chapter_revision(issues=..., blocking=...),
+        #   skip step 18 if route == RevisionRoute.NO_REVISION.
+        log.info("review_resonance_complete", chapter=chapter)
+
+    # Success: record, reset retries, advance.
+    _record_step_done(state, step, chapter)
+    _reset_retries(state, step, chapter)
+    return _advance(state, step_idx, step, chapter)
