@@ -11,6 +11,8 @@ from __future__ import annotations
 import struct
 from pathlib import Path
 
+import pytest
+
 from shenbi.pipeline.truth_embed import (
     EmbeddingStore,
     embed_and_store,
@@ -116,9 +118,10 @@ class TestDegradationPath:
 
     def test_embed_and_store_returns_false_when_unavailable(self, tmp_path: Path):
         store = EmbeddingStore(tmp_path / "embed.db")
-        if not is_embed_available():
-            ok = embed_and_store(store, "some text", "c1", "f.md", "summary")
-            assert ok is False
-            # Nothing should have been stored.
-            assert store.get("c1") is None
+        if is_embed_available():
+            pytest.skip("sentence_transformers installed; degradation path not testable")
+        ok = embed_and_store(store, "some text", "c1", "f.md", "summary")
+        assert ok is False
+        # Nothing should have been stored.
+        assert store.get("c1") is None
         store.close()
