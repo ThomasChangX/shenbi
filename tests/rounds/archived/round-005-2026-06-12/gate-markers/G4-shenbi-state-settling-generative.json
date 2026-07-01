@@ -1,9 +1,0 @@
-{
-  "gate": "G4-state-settling",
-  "status": "PASS",
-  "timestamp": "2026-06-12T18:50:05.198998+00:00",
-  "checks": [],
-  "files_checked": [
-    "/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-005-2026-06-12/novel-output/shenbi-state-settling/state-settling-report.md"
-  ]
-}
