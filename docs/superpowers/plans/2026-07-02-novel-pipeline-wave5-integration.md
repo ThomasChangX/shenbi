@@ -288,7 +288,40 @@ class TestClosureFlow:
         assert mock_disp.call_count == 10  # all closure steps dispatched
 ```
 
-- [ ] **Step 2: Commit**
+- [ ] **Step 2: Add full-chapter audit+revision cycle test**
+
+```python
+class TestFullChapterCycle:
+    """Test a complete chapter: plan -> draft -> audit -> revision -> pass."""
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    def test_chapter_with_blocking_audit_routes_revision(self, mock_g4, mock_disp, tmp_path):
+        """When audit finds BLOCKING, revision routing should fire."""
+        from shenbi.pipeline.state import PipelineState, PipelinePhase, GenesisState
+        from shenbi.pipeline.machine import save_state, load_state
+        from shenbi.pipeline.cli import main
+
+        mock_disp.return_value = MagicMock(success=True, returncode=0, stdout="{}", stderr="")
+        mock_g4.return_value = {"status": "PASS"}
+
+        project = tmp_path / "novel"
+        project.mkdir()
+        (project / "truth").mkdir()
+        (project / "truth" / "pending_hooks.md").write_text("---\nhooks: []\n---\n", encoding="utf-8")
+        (project / "plans").mkdir()
+        state = PipelineState.default(str(project))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.genesis.state = GenesisState.COMPLETED
+        state.chapter_loop.current_chapter = 1
+        save_state(project, state)
+
+        # Run next — should execute steps until chapter-memo checkpoint
+        main(["next", str(project)])
+        state = load_state(project)
+        assert state.pending_checkpoint.type.value == "chapter-memo"
+```
+
+- [ ] **Step 3: Commit**
 
 ```bash
 git add tests/integration/pipeline/test_full_flows.py

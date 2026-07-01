@@ -407,7 +407,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
     # review-resonance (independent agent, G3 required)
     ChapterStep(17, "shenbi-review-resonance", "review-resonance", output_path="audits/chapter-N-resonance.md"),
     # Revision routing (conditional)
-    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional)", output_path="chapters/chapter-N.md")"),
+    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional)", output_path="chapters/chapter-N.md"),
     # Snapshot + drift + escalation
     ChapterStep(19, "shenbi-snapshot-manage", "snapshot-manage", output_path="snapshots/chapter-NNN/"),
     ChapterStep(20, "shenbi-drift-guidance", "drift-guidance", output_path="truth/drift_guidance.md"),
@@ -662,8 +662,19 @@ def run_audit_layer(project_dir: Path, chapter: int, genre_config: dict[str, obj
     all_active = genre_active + boundary_active
     for skill in all_active:
         log.info("audit_dispatch", skill=skill, chapter=chapter)
-        # Actual dispatch would happen here; for now just log
-        result.audit_reports.append(f"audits/chapter-{chapter}-{skill}.md")
+        from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
+        disp_result = dispatch_skill(skill, project_dir,
+                                     f"Execute {skill} audit for chapter {chapter}.")
+        if disp_result.success:
+            result.audit_reports.append(f"audits/chapter-{chapter}-{skill}.md")
+            # Check for BLOCKING in audit output
+            audit_file = project_dir / "audits" / f"chapter-{chapter}-{skill.replace('shenbi-review-','')}.md"
+            if audit_file.exists():
+                content = audit_file.read_text(encoding="utf-8")
+                if "BLOCKING" in content:
+                    result.blocking_found = True
+                if "CRITICAL" in content:
+                    result.critical_found = True
     return result
 ```
 
@@ -874,7 +885,10 @@ def run_closure_step(state: PipelineState, project_dir: Path) -> bool:
     result = dispatch_skill(step.skill, project_dir, f"Execute {step.skill} for book closure.")
     if not result.success:
         return False
-    run_gate_g4(step.skill, [step.output_path], project_dir)
+    g4_result = run_gate_g4(step.skill, [step.output_path], project_dir)
+    if g4_result.get("status") not in ("PASS", "SKIP"):
+        log.error("closure_g4_failed", step=step.step_num, skill=step.skill, g4=g4_result)
+        return False
     state.closure_step = idx + 1  # persisted via PipelineState dataclass field
     if idx + 1 >= len(CLOSURE_STEPS):
         state.closure = ClosureState.CHECKPOINT_PENDING
@@ -1104,6 +1118,22 @@ def cmd_next(args: argparse.Namespace) -> int:
                         checkpoint_reached = True
                         continue
             checkpoint_reached = run_chapter_step(state, project_dir)
+            # After chapter completes, check memory/score triggers (spec section 6.4)
+            if checkpoint_reached and state.chapter_loop.step_index == 0:
+                # Chapter just completed — check if triggers should fire
+                import json as _json
+                _novel_path = project_dir / "novel.json"
+                if _novel_path.exists():
+                    _total = _json.loads(_novel_path.read_text()).get("total_chapters", 0)
+                    _triggers = check_triggers(state, state.chapter_loop.current_chapter - 1, _total)
+                    # Note: triggers return what SHOULD fire; actual dispatch of
+                    # memory-distill/score-arc/etc. happens in a trigger execution
+                    # step that would be added to CHAPTER_STEPS or run inline here.
+                    # For now, log triggers for observability.
+                    if _triggers.l2_distill:
+                        log.info("trigger_fired", trigger="L2_distill", chapter=state.chapter_loop.current_chapter - 1)
+                    if _triggers.l4_distill:
+                        log.info("trigger_fired", trigger="L4_distill")
         elif state.phase.value == "closure":
             checkpoint_reached = run_closure_step(state, project_dir)
         else:

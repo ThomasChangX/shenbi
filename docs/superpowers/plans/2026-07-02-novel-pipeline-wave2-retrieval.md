@@ -253,6 +253,28 @@ def is_embed_available() -> bool:
     except ImportError:
         return False
 
+def embed_and_store(store: EmbeddingStore, text: str, chunk_id: str,
+                    source_file: str, chunk_type: str,
+                    chapter_ref: int | None = None,
+                    entity_refs: str = "[]") -> bool:
+    """Embed text and store in the embedding DB. Returns True on success.
+
+    Called by the orchestrator after state-settling (to embed chapter summaries)
+    and after memory-distill (to embed arc syntheses).
+    """
+    if not is_embed_available():
+        return False
+    try:
+        import struct
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer("bge-large-zh")
+        vec = model.encode(text).astype("<f4").tobytes()
+        store.upsert(chunk_id, source_file, chunk_type, chapter_ref, entity_refs, text, vec)
+        return True
+    except Exception as e:
+        log.warning("embed_failed", chunk_id=chunk_id, error=str(e))
+        return False
+
 class EmbeddingStore:
     def __init__(self, db_path: Path | str) -> None:
         self.db_path = Path(db_path)
@@ -508,11 +530,18 @@ def main() -> int:
 
 # truth_embed.py — add at end:
 def main() -> int:
-    import argparse
+    import argparse, json
     p = argparse.ArgumentParser(prog="pipeline-truth-embed")
     p.add_argument("command", choices=["update", "rebuild", "search"])
     p.add_argument("--project-dir", required=True)
+    p.add_argument("--text", help="Text to embed (for update/search)")
     args = p.parse_args()
+    store = EmbeddingStore(Path(args.project_dir) / "truth-embeddings.db")
+    if args.command in ("update", "rebuild") and args.text:
+        # Embed a single text chunk and store it
+        embed_and_store(store, args.text, chunk_id=f"manual-{hash(args.text)}",
+                       source_file="manual", chunk_type="manual")
+    store.close()
     return 0
 
 # context_assemble.py — add at end:

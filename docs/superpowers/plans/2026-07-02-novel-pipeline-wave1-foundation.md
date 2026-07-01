@@ -6,7 +6,7 @@
 
 **Architecture:** Python state machine in `src/shenbi/pipeline/` following existing patterns (`phase_runner.py`, `status.py`, `safe_write.py`). The state machine is project-scoped, process-stateless, serializes to `pipeline-state.json`, and uses read/write lock separation for multi-user concurrency.
 
-**Tech Stack:** Python 3.11+, pathlib, json, filelock (new dep), pyyaml, structlog, argparse, pytest
+**Tech Stack:** Python 3.11+, pathlib, json, fcntl.flock (POSIX stdlib), pyyaml, structlog, argparse, pytest
 
 **Spec reference:** `docs/superpowers/specs/2026-07-01-novel-pipeline-design.md` Sections 2-4, 9
 
@@ -19,7 +19,7 @@
 - Typed enums via `StrEnum` (matching `status.py` pattern)
 - Tests in `tests/unit/pipeline/`
 - Conventional Commits: `feat:`, `fix:`, `test:`, `docs:`, `chore:`
-- `filelock` is a new dependency — add to `pyproject.toml [project] dependencies`
+- Uses `fcntl.flock` from stdlib (no new pip dependency). Windows falls back to `filelock` (already transitive dep).
 
 ---
 
@@ -680,7 +680,7 @@ git commit -m "feat: add pipeline state machine load/save/checkpoint (wave1 task
 **Files:**
 - Create: `src/shenbi/pipeline/filelock_utils.py`
 - Create: `tests/unit/pipeline/test_filelock_utils.py`
-- Modify: `pyproject.toml` (add `filelock>=3.13.0` to dependencies)
+- Modify: `pyproject.toml` (add `fcntl.flock (stdlib)` to dependencies)
 
 **Interfaces:**
 - Produces: `WriteLock` (context manager), `ReadLock` (context manager)
@@ -758,11 +758,11 @@ class TestReadLock:
 Run: `uv run pytest tests/unit/pipeline/test_filelock_utils.py -v`
 Expected: FAIL with `ModuleNotFoundError`
 
-- [ ] **Step 3: Add filelock dependency**
+- [ ] **Step 3: No new dependency needed**
 
 Note:  is already a transitive dependency in . Adding it explicitly to  makes it a first-class dep rather than relying on transitive resolution. Run  to verify.
 
-Add `filelock>=3.13.0` to `[project] dependencies` in `pyproject.toml`, then run `uv sync --group dev`.
+Add `fcntl.flock (stdlib)` to `[project] dependencies` in `pyproject.toml`, then run `uv sync --group dev`.
 
 - [ ] **Step 4: Write the implementation**
 
