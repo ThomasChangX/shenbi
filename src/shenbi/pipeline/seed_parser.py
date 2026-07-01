@@ -81,14 +81,18 @@ def _parse_list_items(section_text: str) -> list[str]:
 def _split_key_value(item: str) -> tuple[str, str] | None:
     """Split a key-value list item into (key, value).
 
-    Handles both ASCII and fullwidth-Chinese colon separators.
+    Handles both ASCII and fullwidth-Chinese colon separators, partitioning
+    on whichever appears earliest so a colon embedded in a value does not
+    hijack the split (see test_chinese_key_value_with_ascii_colon_in_value).
     Returns None when no colon is present.
     """
-    for sep in (":", "："):
-        if sep in item:
-            key, _, value = item.partition(sep)
-            return key.strip(), value.strip()
-    return None
+    pos = min(
+        (item.find(sep) for sep in (":", "：") if sep in item),
+        default=-1,
+    )
+    if pos == -1:
+        return None
+    return item[:pos].strip(), item[pos + 1 :].strip()
 
 
 def parse_seed(seed_path: Path | str) -> SeedData:

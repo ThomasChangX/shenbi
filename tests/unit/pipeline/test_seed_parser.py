@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from shenbi.gates.shared import PROJECT
-from shenbi.pipeline.seed_parser import parse_seed
+from shenbi.pipeline.seed_parser import _split_key_value, parse_seed
 
 FIXTURE = PROJECT / "tests" / "fixtures" / "outline-example.md"
 
@@ -106,3 +106,31 @@ class TestParseSeed:
         # 叙事技巧 -> genre-config
         assert "殖民" in str(data.genre_config.get("deep_themes", ""))
         assert "75" in str(data.genre_config.get("show_tell_ratio", ""))
+
+
+class TestSplitKeyValue:
+    """Unit tests for the _split_key_value helper."""
+
+    def test_no_colon_returns_none(self):
+        assert _split_key_value("just a label") is None
+
+    def test_ascii_colon(self):
+        assert _split_key_value("Genre: fantasy") == ("Genre", "fantasy")
+
+    def test_fullwidth_colon(self):
+        assert _split_key_value("类型：奇幻") == ("类型", "奇幻")
+
+    def test_chinese_key_value_with_ascii_colon_in_value(self):
+        """Regression: a fullwidth-colon key whose value contains an ASCII
+        colon must split on the earliest (fullwidth) separator, not on the
+        colon embedded inside the value.
+        """
+        item = '核心概念：主角说"你好:世界"'
+        assert _split_key_value(item) == ("核心概念", '主角说"你好:世界"')
+
+    def test_english_key_with_fullwidth_colon_in_value(self):
+        """Symmetric case: ASCII-colon key whose value contains a fullwidth
+        colon must split on the earliest (ASCII) separator.
+        """
+        item = 'Core concept: she says"你好：世界"'
+        assert _split_key_value(item) == ("Core concept", 'she says"你好：世界"')
