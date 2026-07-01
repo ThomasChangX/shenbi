@@ -2380,6 +2380,7 @@ docs = [
     { name = "mkdocs" },
     { name = "mkdocs-material", extra = ["imaging"] },
     { name = "mkdocstrings", extra = ["python"] },
+    { name = "pymdown-extensions" },
 ]
 
 [package.metadata]
@@ -2417,6 +2418,7 @@ docs = [
     { name = "mkdocs", specifier = ">=1.5.3" },
     { name = "mkdocs-material", extras = ["imaging"], specifier = ">=9.5.4" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.24.0" },
+    { name = "pymdown-extensions", specifier = ">=10.0" },
 ]
 
 [[package]]

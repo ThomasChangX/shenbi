@@ -31,6 +31,15 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
 plugins:
   - search:
       lang:
@@ -49,13 +58,13 @@ plugins:
   - social: {}
 
 nav:
-  - Home: index.md
-  - Getting Started:
-      - Installation: getting-started/installation.md
-      - First novel: getting-started/first-novel.md
-      - Concepts: getting-started/concepts.md
-  - Skills:
-      - Index: skills/index.md
+  - 首页 / Home: index.md
+  - 快速开始 / Getting Started:
+      - 安装 / Installation: getting-started/installation.md
+      - 核心概念 / Concepts: getting-started/concepts.md
+      - 第一本小说 / Your First Novel: getting-started/first-novel.md
+  - 技能目录 / Skills: skills/index.md
+  - 架构概览 / Architecture: architecture/overview.md
   - Framework:
       - Gates: framework/gates.md
       - Scoring: framework/scoring.md

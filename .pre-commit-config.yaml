@@ -22,6 +22,10 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        # mkdocs.yml uses MkDocs-specific !!python/name: tags (e.g. for the
+        # pymdownx.superfences mermaid custom fence) that PyYAML's safe loader
+        # cannot construct. MkDocs validates its own config at build time.
+        exclude: ^mkdocs\.yml$
       - id: check-added-large-files
         args: [--maxkb=500]
       - id: detect-private-key

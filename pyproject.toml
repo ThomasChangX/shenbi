@@ -42,6 +42,7 @@ docs = [
     "mkdocs>=1.5.3",
     "mkdocs-material[imaging]>=9.5.4",
     "mkdocstrings[python]>=0.24.0",
+    "pymdown-extensions>=10.0",
 ]
 
 [project.scripts]
