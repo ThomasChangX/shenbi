@@ -376,7 +376,7 @@ Add to the trigger rules section:
 - 弧内 character_matrix 变更 > 20 处
 
 满足任一条件时提前触发 L2 蒸馏 (不必等到 chapter%12)。
-Pipeline 的 `triggers.py` 在每章 state-settling 后检查这些条件。
+**跨波依赖**: Wave 3 的 `triggers.py` 需要增加密度检查逻辑 (累计变更/hook新增/角色变更阈值)。在 Wave 3 实现前，此规则为声明性文档 (skill 描述了应有的行为, 运行时触发逻辑在 orchestrator 中)。
 ```
 
 - [ ] **Step 2: Run sync-contracts, pre-commit. Commit.**
@@ -421,7 +421,7 @@ class TestCharacterDesignExpand:
 
     def test_expand_mode_documented(self):
         text = (SKILLS / "shenbi-character-design" / "SKILL.md").read_text(encoding="utf-8")
-        assert "expand" in text.lower()
+        assert "expand" in text.lower() and "## 扩展模式" in text  # check section heading, not just keyword
 
 class TestForeshadowingPlantGenesis:
     def test_genesis_mode_documented(self):
@@ -437,12 +437,12 @@ class TestChapterDraftingContextRead:
 class TestDriftGuidanceWindow:
     def test_rolling_window_documented(self):
         text = (SKILLS / "shenbi-drift-guidance" / "SKILL.md").read_text(encoding="utf-8")
-        assert "滚动窗口" in text or "rolling window" in text.lower()
+        assert "滚动窗口" in text and "12" in text  # verify both the rule name and the chapter count
 
 class TestStyleLearningBootstrap:
     def test_bootstrap_documented(self):
         text = (SKILLS / "shenbi-style-learning" / "SKILL.md").read_text(encoding="utf-8")
-        assert "bootstrap" in text.lower()
+        assert "bootstrap" in text.lower() and "bootstrap: true" in text.lower()  # check actual field reference
 ```
 
 - [ ] **Step 2: Run tests, verify pass. Commit.**
