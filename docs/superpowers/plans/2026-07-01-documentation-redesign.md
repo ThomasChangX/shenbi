@@ -15,7 +15,7 @@
 - Scoring thresholds: `tests/tiers/acceptance.json` (`{"t1":94,"t2":94,"t3":94}`)
 - Skill descriptions pulled verbatim from SKILL.md frontmatter `description` field
 - Nav policy: additive (preserve existing Framework/API/ADR nav entries)
-- Python: `>=3.11`, uv: `>=0.5` (recommended), just: required
+- Python: `>=3.11`, uv: `>=0.5` (required — the justfile uses `uv run` for all recipes), just: required
 - Docs build verification: `uv run mkdocs build --strict` (CI uses this; strict = warnings are errors)
 - 69 skills total: 67 writing + 2 meta
 - 9 T2 phases: genesis, architecture, planning, drafting, audit, foundation, management, import, short-story
@@ -185,12 +185,12 @@ Mermaid diagram (use this exact code):
     ```mermaid
     graph LR
         subgraph Long-Form["长篇 / Long-Form"]
-            G["创世<br/>Genesis"] --> A["架构<br/>Architecture"]
-            A --> P["规划<br/>Planning"]
-            P --> D["起草<br/>Drafting"]
-            D --> AU["审计<br/>Audit"]
-            AU --> F["基设<br/>Foundation"]
-            F --> M["管理<br/>Management"]
+            G["创世<br/>Genesis"] -->|"truth files"| A["架构<br/>Architecture"]
+            A -->|"truth files"| P["规划<br/>Planning"]
+            P -->|"truth files"| D["起草<br/>Drafting"]
+            D -->|"truth files"| AU["审计<br/>Audit"]
+            AU -->|"truth files"| F["基设<br/>Foundation"]
+            F -->|"truth files"| M["管理<br/>Management"]
         end
         subgraph Short["短篇 / Short-Form"]
             S["短篇<br/>Short Story"]
@@ -241,8 +241,10 @@ Mermaid gate chain flow (use this exact code):
         G4 -->|Pass| G3{"G3<br/>评分就绪?"}
         G4 -->|Fail| DISP
         G3 -->|Pass| SCORE["独立评分 / Score"]
+        G3 -->|Fail| FIX
         SCORE --> G7{"G7<br/>审计?"}
         G7 -->|Pass| DONE["完成 / Done"]
+        G7 -->|Fail| FIX
     ```
 
 Caption below the diagram: "Note: This diagram shows the per-dispatch quality loop. G5 (phase boundary) and G6 (pipeline integrity) fire at T2 phase transitions and T3 pipeline boundaries respectively, outside this per-skill loop."
@@ -298,6 +300,8 @@ Reference: full vocabulary in `docs/framework/truth-files.yaml`.
 Run: `uv run mkdocs build --strict`
 Expected: Build succeeds.
 
+Note: `mkdocs build --strict` verifies page structure and links but does NOT render Mermaid diagrams (they render client-side in the browser). After writing this page, run `just docs` and visually verify all Mermaid diagrams render correctly at `http://127.0.0.1:8000/architecture/overview/`.
+
 - [ ] **Step 3: Commit**
 
     git add docs/architecture/overview.md
@@ -350,7 +354,7 @@ Expected: Build succeeds.
 
 Structure:
 
-1. **前提条件 / Prerequisites** — Table: Python 3.11+, uv 0.5+ (recommended), just (latest). With install links.
+1. **前提条件 / Prerequisites** — Table: Python 3.11+, uv 0.5+ (required), just (latest). With install links. Note: uv is required because the justfile uses `uv run` for every recipe.
 2. **安装步骤 / Installation Steps** — Four numbered steps:
    - Clone: `git clone https://github.com/ThomasChangX/shenbi.git && cd shenbi`
    - Install: `uv sync --group dev`
@@ -431,7 +435,7 @@ Prerequisites section at top: Shenbi installed + seed file.
 
 Bottom section: Other Pipelines — brief mention of short-form (short-outline -> short-drafting -> short-packaging) and import-form (import-analysis -> character-extraction/world-extraction -> canon-import).
 
-> Note: the skill lists per phase are the same as in Task 2 (sourced from deps.json). Truth file categories come from `docs/framework/truth-files.yaml`.
+> Note: skill lists per phase are sourced from `tests/tiers/deps.json` `t2-phases[].prerequisites` — the same authoritative source used in Task 2. Truth file categories come from `docs/framework/truth-files.yaml`. Both are independently verifiable; do not copy from Task 2, read from the source files.
 
 Closing: after completion, run `uv run shenbi-summarize <round_dir>` and `uv run shenbi-validate G7 <round_dir>`. Reference command-to-give.md for full protocol.
 
@@ -467,7 +471,15 @@ Structure:
 
 Badge URLs: `https://github.com/ThomasChangX/shenbi/actions/workflows/ci.yml/badge.svg`
 
-- [ ] **Step 2: Commit**
+- [ ] **Step 2: Verify README structure**
+
+Run: `rg "^#" README.md | wc -l`
+Expected: 9 (the 9 numbered sections: title, badges line doesn't use #, What is, Why, Quick Start, Documentation, Skills at a Glance, Contributing, License)
+
+Run: `rg "badge.svg" README.md | wc -l`
+Expected: 2 (CI badge + Docs badge)
+
+- [ ] **Step 3: Commit**
 
     git add README.md
     git commit -m "docs: rewrite README with bilingual pitch, badges, skill overview, and doc links"
