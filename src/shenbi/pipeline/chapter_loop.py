@@ -13,8 +13,8 @@ Each dispatched step runs G4 (skill-specific structure). Step 17
 
 dispatch/gate failures retry per spec section 11: up to
 ``max_revision_retries`` attempts, then an escalation checkpoint is raised.
-The retry/escalation logic is inlined here because ``pipeline.retry`` (Wave
-3c) does not exist yet; once it does, this module can delegate to it.
+The retry decision is delegated to
+``shenbi.pipeline.error_handler.handle_dispatch_failure`` (W3T8).
 
 Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
 implements the audit layer, W3T5 implements revision routing. Clear TODO
@@ -41,6 +41,7 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.error_handler import handle_dispatch_failure
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
@@ -294,8 +295,7 @@ def _handle_failure(
     key = _retry_key(chapter, step.skill)
     count = state.chapter_loop.retry_counts.get(key, 0) + 1
     state.chapter_loop.retry_counts[key] = count
-    limit = state.config.max_revision_retries
-    if count < limit:
+    if handle_dispatch_failure(state, step.skill, count):
         log.warning(
             "chapter_step_failed_retrying",
             chapter=chapter,
@@ -303,7 +303,7 @@ def _handle_failure(
             skill=step.skill,
             failure=failure,
             attempt=count,
-            limit=limit,
+            limit=state.config.max_revision_retries,
         )
         return False
     log.error(

@@ -8,9 +8,9 @@ skill. After every truth-writing step the Route A entity index
 model is available (\u00a77.3 degradation path).
 
 dispatch/gate failures retry per spec \u00a711: up to ``max_revision_retries``
-attempts, then an escalation checkpoint is raised. The retry/escalation logic
-is inlined here because ``pipeline.retry`` (Wave 3c) does not exist yet; once it
-does, this module can delegate to it.
+attempts, then an escalation checkpoint is raised. The retry decision is
+delegated to ``shenbi.pipeline.error_handler.handle_dispatch_failure``
+(W3T8), so this module only mutates state (retry counts, checkpoints).
 
 The orchestrator is stateless itself: it mutates the passed-in
 :class:`PipelineState` in memory and the caller persists it.
@@ -29,6 +29,7 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.error_handler import handle_dispatch_failure
 from shenbi.pipeline.state import (
     CheckpointType,
     GenesisState,
@@ -225,15 +226,14 @@ def _handle_failure(
     step_num = step.step_num
     count = state.genesis.retry_counts.get(skill, 0) + 1
     state.genesis.retry_counts[skill] = count
-    limit = state.config.max_revision_retries
-    if count < limit:
+    if handle_dispatch_failure(state, skill, count):
         log.warning(
             "genesis_step_failed_retrying",
             step=step_num,
             skill=skill,
             failure=failure,
             attempt=count,
-            limit=limit,
+            limit=state.config.max_revision_retries,
         )
         return False
     log.error(
