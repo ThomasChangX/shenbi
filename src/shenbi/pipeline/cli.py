@@ -101,6 +101,9 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                         result.book_closure = False
                         if result.any_triggered():
                             run_triggered_skills(state, project_dir, prev_ch, result)
+                            if is_at_checkpoint(state):
+                                save_state(project_dir, state)
+                                return
                         transition_chapter_to_closure(state)
                         continue
                     if result.any_triggered():
@@ -386,15 +389,12 @@ def cmd_resume(args: argparse.Namespace) -> int:
                         )
 
                         transition_genesis_to_chapter_loop(state)
-                    elif cp_type == CheckpointType.BOOK_CLOSURE.value:
-                        from shenbi.pipeline.transitions import (
-                            transition_closure_to_completed,
-                        )
-
-                        transition_closure_to_completed(state)
-                        save_state(project_dir, state)
-                        emit_json({"status": CommandStatus.OK, "phase": "completed"})
-                        return 0
+                    # Book-closure approval does NOT complete the pipeline here.
+                    # The closure runner paused before step 10 (snapshot-manage);
+                    # the checkpoint was already cleared by ``review``, so falling
+                    # through to _orchestrate_to_checkpoint runs step 10. The
+                    # runner then sets closure=COMPLETED and the orchestrator
+                    # calls transition_closure_to_completed (spec section 8).
 
             if is_at_checkpoint(state):
                 emit_json(

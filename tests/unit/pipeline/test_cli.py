@@ -24,6 +24,7 @@ from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
 from shenbi.pipeline.state import (
     CheckpointType,
+    ClosureState,
     GenesisState,
     PipelinePhase,
 )
@@ -225,6 +226,60 @@ class TestReviewCommand:
 class TestNextCommand:
     """``next <dir>`` loops through steps until a checkpoint is reached."""
 
+    @patch("shenbi.pipeline.triggers.run_triggered_skills")
+    @patch("shenbi.pipeline.triggers.check_triggers")
+    def test_volume_boundary_checkpoint_preserved_with_book_closure(
+        self,
+        mock_check: MagicMock,
+        mock_run: MagicMock,
+        tmp_path: Path,
+        sample_seed_content: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """When book-closure and volume-boundary both fire, the checkpoint wins.
+
+        Regression: the book-closure branch used to run triggered skills and
+        immediately transition to closure, silently dropping the
+        volume-boundary checkpoint that ``run_triggered_skills`` had just
+        raised. The fix adds an ``is_at_checkpoint`` guard (mirroring the
+        non-book-closure branch) so the checkpoint survives.
+        """
+        from shenbi.pipeline.triggers import TriggerResult
+
+        mock_check.return_value = TriggerResult(volume_boundary=True, book_closure=True)
+
+        def _raise_volume_cp(state, project_dir, chapter, result):
+            set_checkpoint(state, CheckpointType.VOLUME_BOUNDARY, chapter=chapter)
+            return True
+
+        mock_run.side_effect = _raise_volume_cp
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        # chapter-loop at the chapter past the last; novel.json carries the total.
+        novel_path = project_dir / "novel.json"
+        novel = json.loads(novel_path.read_text(encoding="utf-8"))
+        novel["total_chapters"] = 12
+        novel_path.write_text(json.dumps(novel, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        state = load_state(project_dir)
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 13
+        state.chapter_loop.step_index = 0
+        save_state(project_dir, state)
+
+        rc, out = _run(["next", str(project_dir)], monkeypatch)
+        result = json.loads(out)
+
+        assert rc == 0
+        assert result["status"] == "blocked"
+        assert result["checkpoint"] == "volume-boundary"
+
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.VOLUME_BOUNDARY
+        # Phase stays in chapter-loop; the closure transition was deferred.
+        assert state.phase == PipelinePhase.CHAPTER_LOOP
+
     @patch("shenbi.pipeline.genesis.run_gate_g3")
     @patch("shenbi.pipeline.genesis.run_gate_g4")
     @patch("shenbi.pipeline.genesis.dispatch_skill")
@@ -352,6 +407,62 @@ class TestResumeCommand:
         assert rc == 0
         state = load_state(project_dir)
         assert state.phase == PipelinePhase.CHAPTER_LOOP
+
+    @patch("shenbi.pipeline.closure.run_gate_g3")
+    @patch("shenbi.pipeline.closure.run_gate_g4")
+    @patch("shenbi.pipeline.closure.dispatch_skill")
+    def test_book_closure_resume_runs_snapshot(
+        self,
+        mock_disp: MagicMock,
+        mock_g4: MagicMock,
+        mock_g3: MagicMock,
+        tmp_path: Path,
+        sample_seed_content: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Resuming after a book-closure approval dispatches step 10 (snapshot).
+
+        Regression: ``cmd_resume`` used to short-circuit a book-closure approval
+        by calling ``transition_closure_to_completed`` and returning early,
+        which permanently skipped step 10 (snapshot-manage). The fix lets the
+        orchestration path run step 10; the closure runner completes closure,
+        and the orchestrator performs the final transition.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        # Closure paused at step 9 (before snapshot); checkpoint already
+        # approved + cleared by `review`, recorded in history.
+        state = load_state(project_dir)
+        state.phase = PipelinePhase.CLOSURE
+        state.closure = ClosureState.CHECKPOINT_PENDING
+        state.closure_step = 9
+        state.checkpoint_history.append(
+            {
+                "type": "book-closure",
+                "chapter": None,
+                "decision": "approve",
+                "resolved_at": "2026-07-02T00:00:00+00:00",
+            }
+        )
+        save_state(project_dir, state)
+
+        rc, out = _run(["resume", str(project_dir)], monkeypatch)
+        result = json.loads(out)
+
+        assert rc == 0
+        assert result["status"] == "ok"
+
+        # Step 10 (snapshot-manage) was dispatched.
+        dispatched_skills = [call.args[0] for call in mock_disp.call_args_list]
+        assert "shenbi-snapshot-manage" in dispatched_skills
+
+        state = load_state(project_dir)
+        assert state.closure_step == 10
+        assert state.phase == PipelinePhase.COMPLETED
 
 
 class TestChaptersCommand:
