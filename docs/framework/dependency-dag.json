@@ -9436,6 +9436,71 @@
       "file": "truth/*.md"
     },
     {
+      "producer": "shenbi-faction-builder",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "world/*.md"
+    },
+    {
+      "producer": "shenbi-location-builder",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "world/*.md"
+    },
+    {
+      "producer": "shenbi-power-system",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "world/*.md"
+    },
+    {
+      "producer": "shenbi-world-extraction",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "world/*.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "world/*.md"
+    },
+    {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "outline/*.md"
+    },
+    {
+      "producer": "shenbi-chapter-planning",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "plans/chapter-N-plan.md"
+    },
+    {
+      "producer": "shenbi-style-learning",
+      "consumer": "shenbi-snapshot-manage",
+      "file": "style/style_profile.md"
+    },
+    {
       "producer": "shenbi-anti-detect",
       "consumer": "shenbi-snapshot-manage",
       "file": "chapters/chapter-N.md"

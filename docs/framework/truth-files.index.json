@@ -185,7 +185,8 @@
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
       "shenbi-review-resonance",
-      "shenbi-review-texture"
+      "shenbi-review-texture",
+      "shenbi-snapshot-manage"
     ],
     "writes": [
       "shenbi-chapter-planning"
@@ -198,6 +199,7 @@
       "shenbi-context-composing",
       "shenbi-review-resonance",
       "shenbi-short-drafting",
+      "shenbi-snapshot-manage",
       "shenbi-style-polishing"
     ],
     "writes": [
@@ -597,6 +599,7 @@
   "world/*.md": {
     "reads": [
       "shenbi-foundation-review",
+      "shenbi-snapshot-manage",
       "shenbi-truth-sync"
     ],
     "writes": [],
@@ -604,7 +607,8 @@
   },
   "outline/*.md": {
     "reads": [
-      "shenbi-foundation-review"
+      "shenbi-foundation-review",
+      "shenbi-snapshot-manage"
     ],
     "writes": [],
     "updates": []
