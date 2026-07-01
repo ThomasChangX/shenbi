@@ -146,25 +146,27 @@ def cmd_review(args: argparse.Namespace) -> int:
     try:
         with WriteLock(project_dir):
             state = load_state(project_dir)
+
+            if not is_at_checkpoint(state):
+                emit_json(
+                    {"status": CommandStatus.ERROR, "message": "no pending checkpoint to review"}
+                )
+                return 1
+
+            decision = ReviewDecision(args.decision)
+            feedback = None
+            if args.feedback:
+                feedback = Path(args.feedback).read_text(encoding="utf-8")
+
+            clear_checkpoint(state, decision)
+
+            if feedback:
+                state.checkpoint_history[-1]["feedback"] = feedback
+
+            save_state(project_dir, state)
     except FileNotFoundError:
         emit_json({"status": CommandStatus.ERROR, "message": "project not found"})
         return 1
-
-    if not is_at_checkpoint(state):
-        emit_json({"status": CommandStatus.ERROR, "message": "no pending checkpoint to review"})
-        return 1
-
-    decision = ReviewDecision(args.decision)
-    feedback = None
-    if args.feedback:
-        feedback = Path(args.feedback).read_text(encoding="utf-8")
-
-    clear_checkpoint(state, decision)
-
-    if feedback:
-        state.checkpoint_history[-1]["feedback"] = feedback
-
-    save_state(project_dir, state)
 
     log.info(
         "checkpoint_reviewed",

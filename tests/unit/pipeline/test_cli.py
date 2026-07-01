@@ -86,11 +86,14 @@ class TestInitCommand:
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Init reports total_chapters=unknown (volume-outlining computes it later)."""
-        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
-        # Re-run status to read the emitted value without re-initializing.
-        _, out = _run(["status", str(project_dir)], monkeypatch)
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(sample_seed_content, encoding="utf-8")
+        project_dir = tmp_path / "novel"
 
-        assert json.loads(out)["phase"] == "genesis"
+        rc, out = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
+
+        assert rc == 0
+        assert json.loads(out)["total_chapters"] == "unknown"
 
 
 class TestStatusCommand:
