@@ -32,9 +32,9 @@ uv sync --group dev
 just check
 ```
 
-详见 [安装指南 / Installation Guide](https://thomaschangx.github.io/shenbi/getting-started/installation/)。
+详见 [安装指南 / Installation Guide](docs/getting-started/installation.md)。
 
-See the [Installation Guide](https://thomaschangx.github.io/shenbi/getting-started/installation/) for details.
+See the [Installation Guide](docs/getting-started/installation.md) for details.
 
 ## 文档 / Documentation
 
@@ -44,10 +44,10 @@ Full documentation is published at https://thomaschangx.github.io/shenbi/
 
 | 文档 / Docs | 说明 / Description |
 |-------------|-------------------|
-| [核心概念 / Concepts](https://thomaschangx.github.io/shenbi/getting-started/concepts/) | 技能、真相文件、门控、轮次、评分 / Skills, truth files, gates, rounds, scoring |
-| [第一本小说 / First Novel](https://thomaschangx.github.io/shenbi/getting-started/first-novel/) | 完整长篇小说创作流程 / Complete long-form pipeline walkthrough |
-| [技能目录 / Skills](https://thomaschangx.github.io/shenbi/skills/) | 全部 69 个技能的完整目录 / Full catalog of all 69 skills |
-| [架构概览 / Architecture](https://thomaschangx.github.io/shenbi/architecture/overview/) | 流水线、门控链、评分系统 / Pipeline, gate chain, scoring system |
+| [核心概念 / Concepts](docs/getting-started/concepts.md) | 技能、真相文件、门控、轮次、评分 / Skills, truth files, gates, rounds, scoring |
+| [第一本小说 / First Novel](docs/getting-started/first-novel.md) | 完整长篇小说创作流程 / Complete long-form pipeline walkthrough |
+| [技能目录 / Skills](docs/skills/index.md) | 全部 69 个技能的完整目录 / Full catalog of all 69 skills |
+| [架构概览 / Architecture](docs/architecture/overview.md) | 流水线、门控链、评分系统 / Pipeline, gate chain, scoring system |
 
 ## 技能一览 / Skills at a Glance
 
@@ -64,9 +64,9 @@ Full documentation is published at https://thomaschangx.github.io/shenbi/
 | 短篇 / Short Story | 3 | 短篇小说精简流程 / Short novel streamlined pipeline |
 | 管道外 / Out-of-Pipeline | 7 | 辅助工具、元技能、起草辅助 / Auxiliary tools, meta-skills, drafting helper |
 
-> 部分技能出现在多个阶段。完整目录见 [技能目录 / Skills](https://thomaschangx.github.io/shenbi/skills/)。
+> 部分技能出现在多个阶段。完整目录见 [技能目录 / Skills](docs/skills/index.md)。
 >
-> Some skills appear in multiple phases. See the [full catalog](https://thomaschangx.github.io/shenbi/skills/) for details.
+> Some skills appear in multiple phases. See the [full catalog](docs/skills/index.md) for details.
 
 ## 贡献 / Contributing
 
