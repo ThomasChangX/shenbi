@@ -480,3 +480,93 @@ class TestCountTriggeredHooks:
 
         text = "---\nhooks: []\n---\nnothing"
         assert _count_triggered_hooks(text) == 0
+
+
+# ---------------------------------------------------------------------------
+# Revision routing integration (W3T5, spec §6.3)
+# ---------------------------------------------------------------------------
+class TestRevisionRoutingIntegration:
+    """After review-resonance (step 17), the router determines whether step 18
+    (chapter-revision) runs or is skipped.
+    """
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g3")
+    @patch("shenbi.pipeline.chapter_loop.requires_independent", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_clean_audits_skip_revision(self, mock_disp, mock_g4, mock_ri, mock_g3, tmp_path):
+        """No blocking issues -> step 18 (chapter-revision) is skipped."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+
+        # Run step 17 (review-resonance) with no audit files -> NO_REVISION.
+        state.chapter_loop.step_index = 16
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.step_index == 17
+        cs = state.chapter_loop.chapter_states["1"]
+        assert cs.audit_results["revision_route"] == "no-revision"
+
+        # Step 18 (chapter-revision) should be skipped.
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.step_index == 18
+        # dispatch_skill called only once (for step 17), not for step 18.
+        step18_skill = "shenbi-chapter-revision"
+        called_skills = [c[0][0] for c in mock_disp.call_args_list]
+        assert step18_skill not in called_skills
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g3")
+    @patch("shenbi.pipeline.chapter_loop.requires_independent", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_blocking_audits_route_revision(self, mock_disp, mock_g4, mock_ri, mock_g3, tmp_path):
+        """Blocking audit issues -> step 18 (chapter-revision) runs normally."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+
+        # Create a blocking audit report.
+        audit_dir = tmp_path / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-anti-ai.md").write_text("**BLOCKING**")
+
+        # Run step 17 (review-resonance) -> blocking -> REGENERATE.
+        state.chapter_loop.step_index = 16
+        run_chapter_step(state, tmp_path)
+        cs = state.chapter_loop.chapter_states["1"]
+        assert cs.audit_results["revision_route"] == "regenerate"
+
+        # Step 18 (chapter-revision) should NOT be skipped.
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.step_index == 18
+        step18_skill = "shenbi-chapter-revision"
+        called_skills = [c[0][0] for c in mock_disp.call_args_list]
+        assert step18_skill in called_skills
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g3")
+    @patch("shenbi.pipeline.chapter_loop.requires_independent", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_revision_route_stored_in_chapter_state(
+        self, mock_disp, mock_g4, mock_ri, mock_g3, tmp_path
+    ):
+        """The revision route is persisted on the chapter's audit_results."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16
+
+        # Critical (not blocking) audit -> SPOT_FIX.
+        audit_dir = tmp_path / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-pacing.md").write_text("**CRITICAL**")
+
+        run_chapter_step(state, tmp_path)
+        cs = state.chapter_loop.chapter_states["1"]
+        assert cs.audit_results["revision_route"] == "spot-fix"

@@ -19,6 +19,9 @@ The retry/escalation logic is inlined here because ``pipeline.retry`` (Wave
 Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
 implements the audit layer, W3T5 implements revision routing. Clear TODO
 markers indicate the integration points.
+Revision routing (W3T5) is integrated: after review-resonance the router
+determines the route and step 18 (chapter-revision) is skipped when no
+revision is needed.
 
 The orchestrator is stateless itself: it mutates the passed-in
 :class:`PipelineState` in memory and the caller persists it.
@@ -38,6 +41,11 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.revision_router import (
+    RevisionRoute,
+    collect_audit_issues,
+    route_chapter_revision,
+)
 from shenbi.pipeline.state import (
     ChapterState,
     CheckpointType,
@@ -205,8 +213,8 @@ CHAPTER_STEPS: list[ChapterStep] = [
         output_path="audits/chapter-N-resonance.md",
     ),
     # Revision routing + execution (conditional, spec section 6.1 steps 10-11).
-    # TODO(W3T5): from shenbi.pipeline.revision_router import route_chapter_revision
-    #   Route based on audit issues after review-resonance completes.
+    # Revision routing runs after review-resonance (W3T5 integrated, spec §6.3).
+    # Step 18 is skipped when route == RevisionRoute.NO_REVISION.
     ChapterStep(
         18,
         "shenbi-chapter-revision",
@@ -477,6 +485,56 @@ def _count_triggered_hooks(text: str) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Revision routing helpers (spec §6.3, W3T5)
+# ---------------------------------------------------------------------------
+
+_REVISION_ROUTE_KEY = "revision_route"
+
+
+def _get_chapter_state(state: PipelineState, chapter: int) -> ChapterState:
+    """Return the ChapterState for *chapter*, creating it if absent."""
+    key = str(chapter)
+    cs = state.chapter_loop.chapter_states.get(key)
+    if cs is None:
+        cs = ChapterState()
+        state.chapter_loop.chapter_states[key] = cs
+    return cs
+
+
+def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
+    """Collect audit issues and determine the revision route (spec §6.3).
+
+    Called after the review-resonance step succeeds. Stores the route in the
+    chapter's ``audit_results`` so that step 18 (chapter-revision) can decide
+    whether to run or skip.
+    """
+    issues, blocking = collect_audit_issues(project_dir, chapter)
+    route = route_chapter_revision(issues, blocking)
+    cs = _get_chapter_state(state, chapter)
+    cs.audit_results[_REVISION_ROUTE_KEY] = route.value
+    log.info(
+        "revision_routed",
+        chapter=chapter,
+        route=route.value,
+        issue_count=len(issues),
+        blocking=blocking,
+    )
+
+
+def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
+    """True if step 18 (chapter-revision) should be skipped for *chapter*.
+
+    This only applies when the revision router has already run (after
+    review-resonance) and determined ``RevisionRoute.NO_REVISION``. Steps
+    before review-resonance always proceed normally.
+    """
+    cs = state.chapter_loop.chapter_states.get(str(chapter))
+    if cs is None:
+        return False
+    return cs.audit_results.get(_REVISION_ROUTE_KEY) == RevisionRoute.NO_REVISION.value
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -505,6 +563,14 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
+        _record_step_done(state, step, chapter)
+        _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter)
+
+    # Step 18 (chapter-revision) is conditional -- skip when routing decided
+    # no revision is needed (spec §6.3, set during step 17 review-resonance).
+    if _is_revision_skipped(state, chapter):
+        log.info("revision_step_skipped", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter)
@@ -566,13 +632,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # After review-resonance: revision routing would run here (W3T5).
     if "review-resonance" in step.skill:
-        # TODO(W3T5): from shenbi.pipeline.revision_router import (
-        #     route_chapter_revision, RevisionRoute,
-        # )
-        #   Parse all audit reports for blocking/critical issues,
-        #   call route_chapter_revision(issues=..., blocking=...),
-        #   skip step 18 if route == RevisionRoute.NO_REVISION.
-        log.info("review_resonance_complete", chapter=chapter)
+        _route_revision_after_resonance(state, project_dir, chapter)
 
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
