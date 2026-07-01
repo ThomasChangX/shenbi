@@ -210,3 +210,39 @@ __all__ = [
     "embed_and_store",
     "is_embed_available",
 ]
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry point for ``pipeline-truth-embed``.
+
+    Commands:
+        rebuild --project-dir <dir>   Open/create the embedding DB (seed)
+        update --project-dir <dir> --text <text>
+            Embed a single text chunk and store it
+    """
+    import argparse
+    import hashlib
+
+    from shenbi.cli_utils import emit_json
+    from shenbi.logging import configure_logging
+    from shenbi.status import CommandStatus
+
+    configure_logging()
+    parser = argparse.ArgumentParser(prog="pipeline-truth-embed")
+    parser.add_argument("command", choices=["rebuild", "update"])
+    parser.add_argument("--project-dir", required=True)
+    parser.add_argument("--text", default=None, help="Text to embed (for update)")
+    args = parser.parse_args(argv)
+
+    store = EmbeddingStore(Path(args.project_dir) / "truth-embeddings.db")
+
+    if args.command == "update" and args.text:
+        chunk_id = "manual-" + hashlib.md5(args.text.encode("utf-8")).hexdigest()[:12]
+        ok = embed_and_store(store, args.text, chunk_id, "manual", "manual")
+        store.close()
+        emit_json({"status": CommandStatus.OK if ok else "degraded", "chunk_id": chunk_id})
+        return 0
+
+    store.close()
+    emit_json({"status": CommandStatus.OK, "command": args.command})
+    return 0

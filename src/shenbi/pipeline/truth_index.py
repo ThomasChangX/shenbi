@@ -226,3 +226,41 @@ def extract_entities_from_plan(index: TruthIndex, plan_text: str) -> dict[str, l
         "hooks": list(hook_hits),
         "rules": list(rule_hits),
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry point for ``pipeline-truth-index``.
+
+    Commands:
+        rebuild --project-dir <dir>   Rebuild index, write truth-index.json
+        query --project-dir <dir>     Build index, emit entity summary as JSON
+    """
+    import argparse
+
+    from shenbi.cli_utils import emit_json
+    from shenbi.logging import configure_logging
+    from shenbi.safe_write import safe_write
+    from shenbi.status import CommandStatus
+
+    configure_logging()
+    parser = argparse.ArgumentParser(prog="pipeline-truth-index")
+    parser.add_argument("command", choices=["rebuild", "query"])
+    parser.add_argument("--project-dir", required=True)
+    args = parser.parse_args(argv)
+
+    idx = build_index(args.project_dir)
+
+    if args.command == "rebuild":
+        out = Path(args.project_dir) / "truth-index.json"
+        safe_write(out, idx.to_json())
+
+    emit_json(
+        {
+            "status": CommandStatus.OK,
+            "command": args.command,
+            "characters": len(idx.characters),
+            "hooks": len(idx.hooks),
+            "rules": len(idx.rules),
+        }
+    )
+    return 0
