@@ -202,3 +202,33 @@ uv run shenbi-validate G7 <round_dir>
 > 完整执行协议见 `command-to-give.md`。
 >
 > Full execution protocol in `command-to-give.md`.
+
+---
+
+## 流水线命令行 / Pipeline CLI
+
+除了手动分派技能外，Shenbi 还提供 `pipeline` CLI 用于自动化编排。使用 `just` 脚本更方便：
+
+In addition to manually dispatching skills, Shenbi provides a `pipeline` CLI for automated orchestration. The `just` recipes are more convenient:
+
+```bash
+# 1. 从种子文件初始化项目 / Initialize project from seed
+just pipeline-init seed.md
+
+# 2. 查看当前状态 / Check current status
+just pipeline-status ./novel
+
+# 3. 提交检查点审查 / Submit checkpoint review (approve|reject|modify)
+just pipeline-review ./novel approve
+
+# 4. 恢复执行 / Resume execution
+just pipeline-resume ./novel
+```
+
+初始化会创建 `pipeline-state.json`、`novel.json`、`genre-config.json` 和 `genesis-context/` 目录。审查命令在检查点处清除阻塞并记录决定。
+
+Initialization creates `pipeline-state.json`, `novel.json`, `genre-config.json`, and the `genesis-context/` directory. The review command clears the checkpoint block and records the decision.
+
+> **注意：** 自动编排（`next`/`resume`）目前为占位实现，完整生成逻辑将在后续版本落地。状态机、检查点、种子解析等基础层已就绪。
+>
+> **Note:** Automated orchestration (`next`/`resume`) is currently a placeholder; full generation logic arrives in a later wave. The state machine, checkpoint, and seed parsing foundation layers are ready.
