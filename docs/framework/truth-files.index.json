@@ -193,6 +193,13 @@
     ],
     "updates": []
   },
+  "context/chapter-N-context.md": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [],
+    "updates": []
+  },
   "style/style_profile.md": {
     "reads": [
       "shenbi-chapter-drafting",

@@ -121,6 +121,7 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
     """Post-migration, derive_* read the real frontmatter contract end-to-end."""
     assert derive_input_files("shenbi-chapter-drafting") == [
         "plans/chapter-N-plan.md",
+        "context/chapter-N-context.md",
         "style/style_profile.md",
         "genre-config.json",
         "truth/audit_drift.md",
