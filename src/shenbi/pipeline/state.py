@@ -115,6 +115,7 @@ class PipelineState:
     checkpoint_history: list[dict[str, Any]] = field(default_factory=list)
     last_snapshot: dict[str, Any] = field(default_factory=dict)
     closure_step: int = 0  # tracks closure progress (persisted)
+    closure_skills_done: list[str] = field(default_factory=list)  # closure skill history
     config: PipelineConfig = field(default_factory=PipelineConfig)
 
     @classmethod
@@ -161,6 +162,7 @@ class PipelineState:
             "checkpoint_history": self.checkpoint_history,
             "last_snapshot": self.last_snapshot,
             "closure_step": self.closure_step,
+            "closure_skills_done": self.closure_skills_done,
             "config": {
                 "genesis_review_required": self.config.genesis_review_required,
                 "chapter_memo_review_required": self.config.chapter_memo_review_required,
@@ -227,6 +229,7 @@ class PipelineState:
             checkpoint_history=data.get("checkpoint_history", []),
             last_snapshot=data.get("last_snapshot", {}),
             closure_step=data.get("closure_step", 0),
+            closure_skills_done=data.get("closure_skills_done", []),
             config=PipelineConfig(
                 **{k: v for k, v in cfg_data.items() if k in PipelineConfig.__dataclass_fields__}
             ),
