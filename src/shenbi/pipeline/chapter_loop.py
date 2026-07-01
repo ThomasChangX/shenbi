@@ -43,6 +43,7 @@ from shenbi.pipeline.dispatch_helper import (
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
+    check_resonance,
     collect_audit_issues,
     route_chapter_revision,
 )
@@ -512,6 +513,19 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     route = route_chapter_revision(issues, blocking)
     cs = _get_chapter_state(state, chapter)
     cs.audit_results[_REVISION_ROUTE_KEY] = route.value
+
+    # Resonance floor check (spec §6.3). Full borderline/escalation handling
+    # is deferred pending chapter_role calibration (Wave 4+); for now a
+    # below-floor score with no audit issues is logged so it is visible.
+    resonance_ok = check_resonance(cs.resonance_score, state.config.resonance_global_floor)
+    if not resonance_ok and not issues:
+        log.warning(
+            "resonance_below_floor",
+            chapter=chapter,
+            score=cs.resonance_score,
+            floor=state.config.resonance_global_floor,
+        )
+
     log.info(
         "revision_routed",
         chapter=chapter,
@@ -569,7 +583,9 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # Step 18 (chapter-revision) is conditional -- skip when routing decided
     # no revision is needed (spec §6.3, set during step 17 review-resonance).
-    if _is_revision_skipped(state, chapter):
+    # Scoped to the revision skill ONLY: snapshot (step 19) and drift (step
+    # 20) must always run regardless of the revision route.
+    if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
         log.info("revision_step_skipped", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)

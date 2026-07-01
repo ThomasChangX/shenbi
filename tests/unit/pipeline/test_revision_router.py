@@ -269,3 +269,38 @@ class TestCollectAuditIssues:
         (audit_dir / "chapter-2-anti-ai.md").write_text("**BLOCKING**")
         issues, blocking = collect_audit_issues(tmp_project, chapter=1)
         assert len(issues) == 1
+
+    def test_no_blocking_in_prose_not_detected(self, tmp_project: Path):
+        """'No BLOCKING issues detected' must not register as blocking (W3T5 review).
+
+        Regression: the old bare ``"BLOCKING" in content`` substring match
+        falsely flagged prose mentions. The matcher now requires a severity
+        marker (bolded or severity-keyed).
+        """
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-continuity.md").write_text(
+            "# Continuity\n\nNo BLOCKING issues detected.\n"
+        )
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert issues == []
+        assert blocking is False
+
+    def test_no_critical_in_prose_not_detected(self, tmp_project: Path):
+        """'No CRITICAL issues' must not register as a critical issue."""
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-pacing.md").write_text("# Pacing\n\nNo CRITICAL issues found.\n")
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert issues == []
+        assert blocking is False
+
+    def test_severity_keyed_blocking_detected(self, tmp_project: Path):
+        """'severity: BLOCKING' (not bolded) is still a valid severity marker."""
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-character.md").write_text("# Character\n\n- severity: BLOCKING\n")
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert blocking is True
+        assert len(issues) == 1
+        assert issues[0]["severity"] == "BLOCKING"

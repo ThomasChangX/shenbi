@@ -15,6 +15,7 @@ Decision tree (spec §6.3)::
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -61,6 +62,22 @@ ESCALATION_SKILL = "shenbi-escalation-review"
 
 #: Default resonance global floor (spec §6.3, config.resonance_global_floor).
 DEFAULT_RESONANCE_FLOOR = 50
+
+# Severity markers (spec §6.3). Match BLOCKING/CRITICAL as a severity value
+# rather than a bare substring, so prose like "No BLOCKING issues detected"
+# does not register as a false positive. Accepts the bolded marker form
+# (``**BLOCKING**``) and the severity-key form (``severity: BLOCKING``,
+# ``**Severity**: BLOCKING``).
+_SEVERITY_BLOCKING_RE = re.compile(
+    r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
+    r"|severity\b\W{0,6}BLOCKING\b",  # severity key: "severity: BLOCKING"
+    re.IGNORECASE,
+)
+_SEVERITY_CRITICAL_RE = re.compile(
+    r"\*\*CRITICAL\*\*"
+    r"|severity\b\W{0,6}CRITICAL\b",
+    re.IGNORECASE,
+)
 
 
 def route_chapter_revision(issues: list[dict[str, Any]], blocking: bool) -> RevisionRoute:
@@ -175,10 +192,10 @@ def collect_audit_issues(
     for audit_file in sorted(audit_dir.glob(f"{prefix}*.md")):
         rel = f"{AUDIT_DIR}/{audit_file.name}"
         content = audit_file.read_text(encoding="utf-8")
-        if "BLOCKING" in content:
+        if _SEVERITY_BLOCKING_RE.search(content):
             blocking_found = True
             issues.append({"severity": "BLOCKING", "category": "unmet_goal", "file": rel})
-        elif "CRITICAL" in content:
+        elif _SEVERITY_CRITICAL_RE.search(content):
             issues.append({"severity": "CRITICAL", "category": "craft", "file": rel})
 
     return issues, blocking_found

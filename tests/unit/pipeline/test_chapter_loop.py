@@ -566,7 +566,70 @@ class TestRevisionRoutingIntegration:
         audit_dir = tmp_path / "audits"
         audit_dir.mkdir()
         (audit_dir / "chapter-1-pacing.md").write_text("**CRITICAL**")
-
         run_chapter_step(state, tmp_path)
         cs = state.chapter_loop.chapter_states["1"]
         assert cs.audit_results["revision_route"] == "spot-fix"
+
+    @patch("shenbi.pipeline.chapter_loop.check_resonance", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g3")
+    @patch("shenbi.pipeline.chapter_loop.requires_independent", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_check_resonance_wired_after_review(
+        self, mock_disp, mock_g4, mock_ri, mock_g3, mock_cr, tmp_path
+    ):
+        """check_resonance is called during revision routing (no longer dead code)."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16  # review-resonance
+        run_chapter_step(state, tmp_path)
+        mock_cr.assert_called_once()
+        # Called with the chapter's resonance score and the config floor.
+        args = mock_cr.call_args[0]
+        assert args[1] == state.config.resonance_global_floor
+
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g3")
+    @patch("shenbi.pipeline.chapter_loop.requires_independent", return_value=True)
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_clean_audits_dont_skip_snapshot_or_drift(
+        self, mock_disp, mock_g4, mock_ri, mock_g3, tmp_path
+    ):
+        """Steps 19 (snapshot) & 20 (drift) run even when audits are clean.
+
+        Regression: _is_revision_skipped must only affect step 18
+        (chapter-revision), not the snapshot/drift steps that follow.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.config.max_revision_retries = 3
+
+        # Step 17 (review-resonance) with no audit files -> NO_REVISION.
+        state.chapter_loop.step_index = 16
+        run_chapter_step(state, tmp_path)
+        cs = state.chapter_loop.chapter_states["1"]
+        assert cs.audit_results["revision_route"] == "no-revision"
+
+        # Step 18 (chapter-revision) skipped.
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.step_index == 18
+
+        # Step 19 (snapshot-manage) MUST dispatch.
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.step_index == 19
+
+        # Step 20 (drift-guidance) MUST dispatch; completes chapter.
+        run_chapter_step(state, tmp_path)
+        assert state.chapter_loop.current_chapter == 2
+        assert state.chapter_loop.step_index == 0
+
+        called_skills = [c[0][0] for c in mock_disp.call_args_list]
+        assert "shenbi-chapter-revision" not in called_skills
+        assert "shenbi-snapshot-manage" in called_skills
+        assert "shenbi-drift-guidance" in called_skills
