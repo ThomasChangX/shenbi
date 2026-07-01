@@ -157,7 +157,7 @@ Run: `rg "^\\| shenbi-" docs/skills/index.md | wc -l`
 Expected: 72 (total rows including cross-phase duplicates: 66 in phase tables + 4 auxiliary + 1 writing-skills + 1 foreshadowing-resolve)
 
 Run: `rg "^\\| shenbi-" docs/skills/index.md | sed 's/| shenbi-//' | sed 's/ |.*//' | sort -u | wc -l`
-Expected: 67 (unique functional skills)
+Expected: 68 (unique shenbi-* skills: 67 functional + 1 meta writing-skills; using-shenbi is excluded by the regex)
 
 Run: `rg "^\\| using-shenbi" docs/skills/index.md | wc -l`
 Expected: 1
@@ -244,6 +244,8 @@ Mermaid gate chain flow (use this exact code):
         SCORE --> G7{"G7<br/>审计?"}
         G7 -->|Pass| DONE["完成 / Done"]
     ```
+
+Caption below the diagram: "Note: This diagram shows the per-dispatch quality loop. G5 (phase boundary) and G6 (pipeline integrity) fire at T2 phase transitions and T3 pipeline boundaries respectively, outside this per-skill loop."
 
 Gate rules: G0 block = fix and re-pass; G2/G4 fail = not scored; scoring must use independent subagent (G3.4).
 
@@ -356,6 +358,7 @@ Structure:
    - Pre-commit: `uv run pre-commit install`
 3. **验证安装 / Verify Installation** — `just check`, `just test`, `just docs`
 4. **常用命令 / Common Commands** — Table: just check, just test, just fix, just docs, just --list
+5. **测试数据说明 / Test Data Note** — Brief callout: `tests/fixtures/` contains real skill outputs (not hand-crafted mocks, per G0.9). Round directories live under `tests/rounds/`. These are used by the testing framework, not required for normal novel writing.
 
 - [ ] **Step 2: Verify docs build**
 
@@ -518,3 +521,5 @@ Expected: All checks pass.
     git commit -m "docs: update nav with bilingual labels for Wave 1 pages, preserve existing entries"
 
 This completes Wave 1 of the documentation redesign.
+
+> **Note for Wave 2:** The existing `docs/framework/gates.md` says "7 validation gates" but lists G0-G7 (8 gates). This pre-existing typo should be fixed when the framework docs are expanded in Wave 2. Wave 1 correctly uses "8 gates (G0-G7)" throughout.
