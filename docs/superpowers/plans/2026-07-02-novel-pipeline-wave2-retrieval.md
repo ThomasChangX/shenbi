@@ -9,7 +9,7 @@
 **Spec reference:** Section 7
 
 ## Global Constraints
-Same as Wave 1. `numpy` already in transitive deps. `sentence_transformers` is optional (degrade gracefully). All token estimates use `int(len(text) * 1.5)` per spec §7.2.
+Same as Wave 1. Add `numpy>=1.26.0` to `[project] dependencies` in `pyproject.toml` (it's currently transitive only — direct imports should be declared). `sentence_transformers` is optional (degrade gracefully). All token estimates use `int(len(text) * 1.5)` per spec §7.2.
 
 ---
 
@@ -95,6 +95,21 @@ class TruthIndex:
     characters: dict[str, IndexEntry] = field(default_factory=dict)
     hooks: dict[str, IndexEntry] = field(default_factory=dict)
     rules: dict[str, IndexEntry] = field(default_factory=dict)
+
+    def to_json(self) -> str:
+        """Serialize index to JSON for persistence (called by orchestrator)."""
+        import json
+        return json.dumps({
+            "characters": {k: {"category": v.category, "entity_id": v.entity_id,
+                              "file": v.file, "ref": v.ref, "extra": v.extra}
+                          for k, v in self.characters.items()},
+            "hooks": {k: {"category": v.category, "entity_id": v.entity_id,
+                         "file": v.file, "ref": v.ref, "extra": v.extra}
+                     for k, v in self.hooks.items()},
+            "rules": {k: {"category": v.category, "entity_id": v.entity_id,
+                         "file": v.file, "ref": v.ref, "extra": v.extra}
+                     for k, v in self.rules.items()},
+        }, ensure_ascii=False, indent=2)
 
     @property
     def all_known_names(self) -> set[str]:
@@ -476,7 +491,43 @@ pipeline-truth-embed = "shenbi.pipeline.truth_embed:main"
 pipeline-context-assemble = "shenbi.pipeline.context_assemble:main"
 ```
 
-Add `main()` CLI functions to each module (argparse for update/query/search/build).
+Add `main()` CLI functions to each module:
+
+```python
+# truth_index.py — add at end:
+def main() -> int:
+    import argparse, sys
+    p = argparse.ArgumentParser(prog="pipeline-truth-index")
+    p.add_argument("command", choices=["update", "rebuild", "query"])
+    p.add_argument("--project-dir", required=True)
+    args = p.parse_args()
+    if args.command in ("update", "rebuild"):
+        idx = build_index(args.project_dir)
+        Path(args.project_dir, "truth-index.json").write_text(idx.to_json(), encoding="utf-8")
+    return 0
+
+# truth_embed.py — add at end:
+def main() -> int:
+    import argparse
+    p = argparse.ArgumentParser(prog="pipeline-truth-embed")
+    p.add_argument("command", choices=["update", "rebuild", "search"])
+    p.add_argument("--project-dir", required=True)
+    args = p.parse_args()
+    return 0
+
+# context_assemble.py — add at end:
+def main() -> int:
+    import argparse
+    p = argparse.ArgumentParser(prog="pipeline-context-assemble")
+    p.add_argument("build", choices=["build"])
+    p.add_argument("--project-dir", required=True)
+    p.add_argument("--chapter", type=int, required=True)
+    args = p.parse_args()
+    plan_path = f"plans/chapter-{args.chapter}-plan.md"
+    pkg = assemble_context(args.project_dir, plan_path)
+    write_context_file(args.project_dir, args.chapter, pkg)
+    return 0
+```
 
 ```bash
 uv run pytest tests/unit/pipeline/test_context_assemble.py -v

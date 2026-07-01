@@ -99,7 +99,7 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
 
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     """Run G3 independence check (required for requires_independent_agent skills)."""
-    cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, str(round_dir)]
+    cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(round_dir)]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     try:
         return json.loads(r.stdout)
@@ -255,7 +255,18 @@ def run_genesis_step(state: PipelineState, project_dir: Path) -> bool:
     result = dispatch_skill(step.skill, project_dir, prompt)
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
-        return False
+        from shenbi.pipeline.error_handler import handle_dispatch_failure
+        retry_counts = state.genesis.retry_counts.get(step.skill, 0) + 1
+        state.genesis.retry_counts[step.skill] = retry_counts
+        if handle_dispatch_failure(state, step.skill, retry_counts):
+            return False  # retry on next cmd_next call
+        else:
+            # Max retries exceeded -> escalation
+            from shenbi.pipeline.machine import set_checkpoint
+            from shenbi.pipeline.state import CheckpointType
+            set_checkpoint(state, CheckpointType.ESCALATION,
+                          context=f"Genesis step {step.step_num} ({step.skill}) failed after {retry_counts} attempts")
+            return True  # checkpoint reached
     # G4 validation
     g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
     if g4.get("status") != "PASS":
@@ -420,14 +431,38 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         from shenbi.pipeline.checkpoint import staging_path
         prompt += f". Write output to staging/ directory."
 
+    # Skip dispatch for orchestrator modules (not dispatchable skills)
+    if step.skill.startswith("pipeline-"):
+        state.chapter_loop.step_index = step_idx + 1
+        if step.checkpoint is not None:
+            set_checkpoint(state, step.checkpoint, chapter=chapter,
+                          artifact=f"chapter-{chapter}/{step.name}",
+                          context=f"Review {step.name} for chapter {chapter}")
+            return True
+        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            state.chapter_loop.current_chapter += 1
+            state.chapter_loop.step_index = 0
+        return False
+
     # Dispatch
     result = dispatch_skill(step.skill, project_dir, prompt)
     if not result.success:
         log.error("chapter_step_failed", chapter=chapter, step=step.step_num)
-        return False
+        from shenbi.pipeline.error_handler import handle_dispatch_failure
+        retry_key = f"ch{chapter}-{step.skill}"
+        retry_counts = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
+        state.chapter_loop.retry_counts[retry_key] = retry_counts
+        if handle_dispatch_failure(state, step.skill, retry_counts):
+            return False  # retry
+        else:
+            from shenbi.pipeline.machine import set_checkpoint
+            from shenbi.pipeline.state import CheckpointType
+            set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
+                          context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {retry_counts} attempts")
+            return True
 
     # G4 validation
-    g4 = run_gate_g4(step.skill, [], project_dir)
+    g4 = run_gate_g4(step.skill, [step.output_path] if hasattr(step, 'output_path') and step.output_path else [], project_dir)
     if g4.get("status") not in ("PASS", "SKIP"):
         log.error("chapter_g4_failed", step=step.step_num)
         return False
@@ -442,6 +477,27 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     # Conditional: foreshadowing-resolve after track (step 8)
     if "foreshadowing-track" in step.skill:
         _check_conditional_resolve(state, project_dir, chapter)
+
+    # After core circle completes, run genre + boundary audits
+    if step.is_audit and step_idx == len([s for s in CHAPTER_STEPS if s.is_audit]) + 8:
+        # All core-circle audits done -> run genre/boundary
+        from shenbi.pipeline.audit_layer import run_audit_layer
+        import json
+        gc_path = project_dir / "genre-config.json"
+        gc = json.loads(gc_path.read_text()) if gc_path.exists() else {}
+        audit_result = run_audit_layer(project_dir, chapter, gc)
+        if audit_result.blocking_found:
+            log.error("genre_audit_blocking", chapter=chapter)
+            return False
+
+    # Revision routing after all audits + resonance
+    if "review-resonance" in step.skill:
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+        # Parse resonance result to determine if revision needed
+        # (Simplified: if resonance score < threshold, route to revision)
+        route = route_chapter_revision(issues=[], blocking=False)  # placeholder
+        if route != RevisionRoute.NO_REVISION:
+            log.info("revision_routed", chapter=chapter, route=route.value)
 
     # Advance
     state.chapter_loop.step_index = step_idx + 1
@@ -458,10 +514,29 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     return False
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
-    """Check if foreshadowing-resolve should run (TRIGGERED hooks detected)."""
-    # Read track output — if TRIGGERED hooks exist, dispatch resolve
-    # This is a simplified check; real impl parses the track result
-    log.info("checking_conditional_resolve", chapter=chapter)
+    """Check if foreshadowing-resolve should run (TRIGGERED hooks detected).
+
+    Reads foreshadowing-track output. If any hooks are TRIGGERED,
+    dispatches foreshadowing-resolve to handle them (spec §6.1 step 7b).
+    """
+    import yaml
+    hooks_file = project_dir / "truth" / "pending_hooks.md"
+    if not hooks_file.exists():
+        return
+    text = hooks_file.read_text(encoding="utf-8")
+    if text.startswith("---"):
+        parts = text.split("---", 2)
+        if len(parts) >= 3:
+            fm = yaml.safe_load(parts[1]) or {}
+            hooks = fm.get("hooks", [])
+            if isinstance(hooks, list):
+                triggered = [h for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"]
+                if triggered:
+                    log.info("conditional_resolve_triggered", chapter=chapter, count=len(triggered))
+                    dispatch_skill("shenbi-foreshadowing-resolve", project_dir,
+                                  f"Resolve {len(triggered)} TRIGGERED hooks for chapter {chapter}.")
+                else:
+                    log.info("no_triggered_hooks", chapter=chapter)
 ```
 
 - [ ] **Step 4: Run tests, verify pass. Commit.**
@@ -773,7 +848,7 @@ CLOSURE_STEPS: list[ClosureStep] = [
 
 def run_closure_step(state: PipelineState, project_dir: Path) -> bool:
     """Execute next closure step."""
-    idx = getattr(state, '_closure_step', 0)
+    idx = state.closure_step
     if idx >= len(CLOSURE_STEPS):
         state.closure = ClosureState.CHECKPOINT_PENDING
         set_checkpoint(state, CheckpointType.BOOK_CLOSURE, artifact="final-snapshot/",
@@ -784,7 +859,7 @@ def run_closure_step(state: PipelineState, project_dir: Path) -> bool:
     if not result.success:
         return False
     run_gate_g4(step.skill, [step.output_path], project_dir)
-    state._closure_step = idx + 1  # type: ignore
+    state.closure_step = idx + 1  # persisted via PipelineState dataclass field
     if idx + 1 >= len(CLOSURE_STEPS):
         state.closure = ClosureState.CHECKPOINT_PENDING
         set_checkpoint(state, CheckpointType.BOOK_CLOSURE)

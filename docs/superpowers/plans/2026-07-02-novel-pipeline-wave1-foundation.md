@@ -332,6 +332,7 @@ class PipelineState:
     pending_checkpoint: CheckpointData = field(default_factory=CheckpointData)
     checkpoint_history: list[dict[str, Any]] = field(default_factory=list)
     last_snapshot: dict[str, Any] = field(default_factory=dict)
+    closure_step: int = 0  # tracks closure progress (persisted)
     config: PipelineConfig = field(default_factory=PipelineConfig)
 
     @classmethod
@@ -374,6 +375,7 @@ class PipelineState:
             },
             "checkpoint_history": self.checkpoint_history,
             "last_snapshot": self.last_snapshot,
+            "closure_step": self.closure_step,
             "config": {
                 "genesis_review_required": self.config.genesis_review_required,
                 "chapter_memo_review_required": self.config.chapter_memo_review_required,
@@ -439,6 +441,7 @@ class PipelineState:
             ),
             checkpoint_history=data.get("checkpoint_history", []),
             last_snapshot=data.get("last_snapshot", {}),
+            closure_step=data.get("closure_step", 0),
             config=PipelineConfig(**{
                 k: v for k, v in cfg_data.items()
                 if k in PipelineConfig.__dataclass_fields__
@@ -775,25 +778,44 @@ Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.4.
 
 from __future__ import annotations
 
-from filelock import FileLock
 from pathlib import Path
 
 
 class WriteLock:
-    """Exclusive write lock for pipeline state mutations."""
+    """Exclusive write lock. Uses fcntl.flock(LOCK_EX) on shared lockfile.
+
+    Both WriteLock and ReadLock operate on the SAME lockfile
+    (pipeline-state.json.lockfile) to guarantee mutual exclusion:
+    - WriteLock acquires LOCK_EX (blocks all readers and writers)
+    - ReadLock acquires LOCK_SH (allows concurrent readers, blocks writers)
+    """
 
     def __init__(self, project_dir: Path | str, timeout: float = 300.0) -> None:
-        self._lock = FileLock(
-            str(Path(project_dir) / "pipeline-state.json.lock"),
-            timeout=timeout,
-        )
+        self._lockfile = Path(project_dir) / "pipeline-state.json.lockfile"
+        self._lockfile.parent.mkdir(parents=True, exist_ok=True)
+        self._timeout = timeout
+        self._fd: int | None = None
 
     def __enter__(self) -> WriteLock:
-        self._lock.acquire()
+        import fcntl, os, time
+        self._fd = os.open(str(self._lockfile), os.O_CREAT | os.O_RDONLY)
+        deadline = time.monotonic() + self._timeout
+        while True:
+            try:
+                fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except (BlockingIOError, OSError):
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f"WriteLock timeout on {self._lockfile}")
+                time.sleep(0.05)
         return self
 
     def __exit__(self, *args: object) -> None:
-        self._lock.release()
+        import fcntl, os
+        if self._fd is not None:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+            os.close(self._fd)
+            self._fd = None
 
 
 class ReadLock:
@@ -804,7 +826,7 @@ class ReadLock:
     """
 
     def __init__(self, project_dir: Path | str, timeout: float = 30.0) -> None:
-        self._lockfile = Path(project_dir) / "pipeline-state.json.readlock"
+        self._lockfile = Path(project_dir) / "pipeline-state.json.lockfile"  # SAME file as WriteLock
         self._lockfile.parent.mkdir(parents=True, exist_ok=True)
         self._timeout = timeout
         self._fd: int | None = None
@@ -1027,7 +1049,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         if ":" in item:
             key, _, value = item.partition(":")
         elif "：" in item:
-            key, _, value = item.partition(":")
+            key, _, value = item.partition("：")
         else:
             continue
         key = key.strip().lower().replace(" ", "_")
@@ -1060,7 +1082,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         if ":" in item:
             key, _, value = item.partition(":")
         elif "：" in item:
-            key, _, value = item.partition(":")
+            key, _, value = item.partition("：")
         else:
             continue
         key = key.strip().lower().replace(" ", "_").replace("/", "_")
@@ -1089,7 +1111,7 @@ def parse_seed(seed_path: Path | str) -> SeedData:
         if ":" in item:
             key, _, value = item.partition(":")
         elif "：" in item:
-            key, _, value = item.partition(":")
+            key, _, value = item.partition("：")
         else:
             continue
         key_lower = key.strip().lower()
@@ -1389,7 +1411,7 @@ from shenbi.pipeline.machine import (
     save_state,
 )
 from shenbi.pipeline.seed_parser import parse_seed
-from shenbi.pipeline.state import GenesisState, PipelinePhase, PipelineState, ReviewDecision
+from shenbi.pipeline.state import CheckpointType, GenesisState, PipelinePhase, PipelineState, ReviewDecision
 
 log = get_logger(__name__)
 
@@ -1680,7 +1702,7 @@ class TestWave1E2E:
 
         state = load_state(project_dir)
         assert state.phase.value == "genesis"
-        assert state.genesis.state.value == "pending"
+        assert state.genesis.state.value == "in-progress"
 
         # Step 3: init again should fail (idempotency)
         rc = main(["init", str(seed_file), "--project-dir", str(project_dir)])
