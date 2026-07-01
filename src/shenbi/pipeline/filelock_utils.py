@@ -91,7 +91,14 @@ class WriteLock:
         """Acquire the exclusive lock (blocks competing readers and writers)."""
         if sys.platform != "win32":
             self._fd = os.open(str(self._lockfile), os.O_CREAT | os.O_RDONLY)
-            _flock_acquire(self._fd, shared=False, timeout=self._timeout, lockfile=self._lockfile)
+            try:
+                _flock_acquire(
+                    self._fd, shared=False, timeout=self._timeout, lockfile=self._lockfile
+                )
+            except BaseException:
+                os.close(self._fd)
+                self._fd = None
+                raise
         else:  # pragma: no cover
             _, self._release_fn = _windows_acquire(self._lockfile, self._timeout)
         log.debug("write_lock_acquired", lockfile=str(self._lockfile))
@@ -128,7 +135,14 @@ class ReadLock:
         """Acquire the shared lock (allows concurrent readers, blocks writers)."""
         if sys.platform != "win32":
             self._fd = os.open(str(self._lockfile), os.O_CREAT | os.O_RDONLY)
-            _flock_acquire(self._fd, shared=True, timeout=self._timeout, lockfile=self._lockfile)
+            try:
+                _flock_acquire(
+                    self._fd, shared=True, timeout=self._timeout, lockfile=self._lockfile
+                )
+            except BaseException:
+                os.close(self._fd)
+                self._fd = None
+                raise
         else:  # pragma: no cover
             _, self._release_fn = _windows_acquire(self._lockfile, self._timeout)
         log.debug("read_lock_acquired", lockfile=str(self._lockfile))

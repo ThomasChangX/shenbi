@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import threading
 from pathlib import Path
 
@@ -108,3 +109,57 @@ class TestLockFileCreation:
             pass
         with WriteLock(tmp_project, timeout=1.0):
             pass  # should not timeout
+
+
+class TestFdLeakOnTimeout:
+    """Regression: fd opened before _flock_acquire must be closed on timeout.
+
+    Python's context-manager protocol does NOT call __exit__ when __enter__
+    raises, so the fd opened by os.open() would leak on every timeout. The
+    __enter__ methods now wrap _flock_acquire in try/except to close the fd
+    before re-raising.
+    """
+
+    def test_write_lock_sets_fd_none_on_timeout(self, tmp_project: Path):
+        """WriteLock.__enter__ resets _fd to None when acquisition times out."""
+        with WriteLock(tmp_project):
+            w = WriteLock(tmp_project, timeout=0.2)
+            with pytest.raises(TimeoutError):
+                w.__enter__()
+            assert w._fd is None
+
+    def test_read_lock_sets_fd_none_on_timeout(self, tmp_project: Path):
+        """ReadLock.__enter__ resets _fd to None when acquisition times out."""
+        # A WriteLock (exclusive) blocks all readers, forcing the ReadLock to time out.
+        with WriteLock(tmp_project):
+            r = ReadLock(tmp_project, timeout=0.2)
+            with pytest.raises(TimeoutError):
+                r.__enter__()
+            assert r._fd is None
+
+    def test_write_lock_fd_closed_by_os_on_timeout(self, tmp_project: Path):
+        """The leaked fd is actually closed at the OS level (fstat fails)."""
+        # The source module calls ``os.open`` (the stdlib ``os`` module), so
+        # patching it there observes every fd it opens without touching the
+        # module's private imports (basedpyright reportPrivateImportUsage).
+        real_open = os.open
+        opened_fds: list[int] = []
+
+        def spy_open(path, *args, **kwargs):  # type: ignore[no-untyped-def]
+            fd = real_open(path, *args, **kwargs)
+            opened_fds.append(fd)
+            return fd
+
+        os.open = spy_open  # type: ignore[assignment]
+        try:
+            with WriteLock(tmp_project):
+                w = WriteLock(tmp_project, timeout=0.2)
+                with pytest.raises(TimeoutError):
+                    w.__enter__()
+                assert w._fd is None
+                # The contended lock opened the most recent fd.
+                leaked_fd = opened_fds[-1]
+                with pytest.raises(OSError):
+                    os.fstat(leaked_fd)
+        finally:
+            os.open = real_open  # type: ignore[assignment]
