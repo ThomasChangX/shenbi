@@ -480,7 +480,7 @@ if is_volume_boundary(N):
 
 ### 6.5 卷边界扩展 (渐进式创建)
 
-在 volume-consolidation 之后、review-arc-payoff 之前:
+在 drift-guidance 卷级之后 (所有当前卷评分和审核完成后):
 
 ```
 1. 读下一卷 volume_map -> 识别需求
@@ -648,7 +648,6 @@ pipeline-state.json 的 config 可调整。关闭时自动 approve。如 escalat
 ### 10.3 快照清单更新 [M4]
 
 truth 文件清单 (all truth files via glob, includes foreshadowing_recall_result.md):
-1-11: (现有清单) + 12: truth/foreshadowing_recall_result.md
 
 ### 10.4 回滚完整性
 
@@ -771,6 +770,7 @@ truth 文件清单 (all truth files via glob, includes foreshadowing_recall_resu
 | drift-guidance | truth/volume_score_trend.md, truth/arc_payoff_trend.md | 首个卷边界 | Ramp-up 章节跳过这两个 reads,仅加载 truth/resonance_trend.md + audits/ |
 | context-composing | truth/arcs/arc-N.md, truth/book_strata.md, truth/volume_summaries.md | ch12/ch36/卷边界 | Skill SKILL.md 已有爬坡期处理 (缺失层跳过)。Pipeline 在 dispatch 时对 G1 跳过这些可选 reads |
 | drift-guidance | truth/resonance_trend.md | ch1 step 9 (首次 review-resonance) | ch1 step 13 时已由 step 9 产出。OK |
+| escalation-review | audits/chapter-N-sensitivity.md | 仅 genre-config sensitivity=true 时产出 | 如 sensitivity 维度未激活,跳过此 read (§17 条件性 read) |
 
 **实现**: Pipeline 在 dispatch 前解析 contract reads。对于标记为 `optional` 或在 ramp-up 阶段可能不存在的 reads,pipeline 从 G1 输入列表中移除。G1 只验证必须存在的 reads。
 
