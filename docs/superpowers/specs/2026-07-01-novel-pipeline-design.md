@@ -314,12 +314,12 @@ seed sections -> 目标:
 | 1 | worldbuilding | G4 | novel.json, world/, truth/*.md |
 | 2 | genre-config | G4 | genre-config.json |
 | 3 | character-design (genesis) | G4 | characters/*.md |
-| 4 | faction-builder | G4 | world/factions.md |
-| 5 | story-architecture | G4 | outline/story_frame.md, volume_map.md, rhythm_principles.md |
+| 4 | story-architecture | G4 | outline/story_frame.md, volume_map.md, rhythm_principles.md |
+| 5 | faction-builder | G4 | world/factions.md |
 | 6 | volume-outlining | G4 | outline/volume_map.md (含 total_chapters -> novel.json) |
 | 7 | pacing-design | G4 | outline/rhythm_principles.md |
 | 8 | plot-thread-weaver | G4 | outline/thread_map.md |
-| 9 | foreshadowing-plant | G4 | truth/pending_hooks.md |
+| 9 | foreshadowing-plant (genesis mode) | G4 | truth/pending_hooks.md |
 | 10 | power-system | G4 | world/power_system.md |
 | 11 | location-builder | G4 | world/locations.md |
 | 12 | relationship-map | G4 | characters/relationships.md, truth/character_matrix.md |
@@ -588,9 +588,9 @@ Embedding 分块规则:
 | 2 | memory-distill L4+L5 | truth/book_strata.md, book_spine.md | 最终合成+复核(complete) |
 | 3 | volume-consolidation L3 | truth/volume_summaries.md | 末卷卷摘要 |
 | 4 | score-volume (G3) | audits/volume-N-score.md | 末卷评分 |
-| 5 | review-arc-payoff | audits/final-arc-payoff.md | 全书体验质量门 |
-| 6 | review-long-span | audits/final-long-span.md | 跨卷长程一致性 |
-| 7 | chapter-pattern | audits/final-pattern-analysis.md | 全书模式分布 |
+| 5 | review-arc-payoff | audits/volume-N-payoff.md | 全书体验质量门 |
+| 6 | review-long-span | audits/chapter-N-long-span.md | 跨卷长程一致性 |
+| 7 | chapter-pattern | outline/chapter_patterns.md | 全书模式分布 |
 | 8 | foundation-review (G3+G4) | foundation/review_report.md | 终态基础设定审核 |
 | 9 | style-learning (final) | style/style_profile.md | 最终风格指纹 |
 | -- | **[CHECKPOINT: book-closure]** | -- | 必审 |
@@ -647,7 +647,7 @@ pipeline-state.json 的 config 可调整。关闭时自动 approve。如 escalat
 
 ### 10.3 快照清单更新 [M4]
 
-truth 文件清单 (12 文件,含 foreshadowing_recall_result.md):
+truth 文件清单 (all truth files via glob, includes foreshadowing_recall_result.md):
 1-11: (现有清单) + 12: truth/foreshadowing_recall_result.md
 
 ### 10.4 回滚完整性
@@ -668,7 +668,8 @@ truth 文件清单 (12 文件,含 foreshadowing_recall_result.md):
 | Skill | 改动 | 原因 |
 |-------|------|------|
 | character-design | 增加 `--mode expand` | 渐进式创建 |
-| snapshot-manage | 全量快照清单 + 12 文件 + foreshadowing_recall_result.md | 回滚完整性 |
+| foreshadowing-plant | 增加 `--mode genesis` | Genesis 无 chapter plan,需从 volume_map 提取 master hooks |
+| snapshot-manage | 全量快照清单 (truth glob) + foreshadowing_recall_result.md | 回滚完整性 |
 | context-composing | 接收预检索包做策展 | 三路检索架构 |
 | chapter-drafting | contract reads 增加 `context/chapter-N-context.md` | context package 物化 [I1] |
 | memory-distill | 支持密度驱动触发 | 自适应压缩 |
@@ -734,3 +735,61 @@ truth 文件清单 (12 文件,含 foreshadowing_recall_result.md):
 18. resume 时 truth 完整性验证
 19. audit_drift.md 有界 (12章滚动)
 20. Route B 降级路径
+
+## 16. Genesis 依赖验证表
+
+每个 genesis 步骤的 contract reads 必须在执行前存在 (G1 检查)。以下为完整验证:
+
+| 步骤 | Skill | Contract reads | 产出来源 | 验证 |
+|------|-------|---------------|---------|------|
+| 1 | worldbuilding | novel.json | init | OK |
+| 2 | genre-config | novel.json, genre-config.json | step 1 | OK |
+| 3 | character-design | world/story_bible.md, world/rules.md | step 1 | OK |
+| 4 | story-architecture | world/story_bible.md, characters/**/*.md | step 1, step 3 | OK |
+| 5 | faction-builder | novel.json, world/story_bible.md, world/rules.md, characters/**/*.md, outline/story_frame.md | steps 1-4 | OK |
+| 6 | volume-outlining | outline/story_frame.md, outline/volume_map.md, truth/author_intent.md | steps 4-5, step 1 (empty template) | OK |
+| 7 | pacing-design | novel.json, outline/story_frame.md, outline/volume_map.md, genre-config.json | steps 1-4 | OK |
+| 8 | plot-thread-weaver | outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md | steps 4-7, step 1 (empty template) | OK |
+| 9 | foreshadowing-plant (genesis) | outline/story_frame.md, outline/volume_map.md, truth/pending_hooks.md, genre-config.json | steps 4-8, step 2 | OK (--mode genesis) |
+| 10 | power-system | novel.json, world/story_bible.md, world/rules.md, outline/story_frame.md | steps 1-4 | OK |
+| 11 | location-builder | novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md | steps 1-4 | OK |
+| 12 | relationship-map | characters/**/*.md, characters/relationships.md, truth/character_matrix.md, world/factions.md | steps 3, 1, 5 | OK |
+| 13 | book-spine-init | outline/story_frame.md, outline/volume_map.md, novel.json | steps 4-5, 1 | OK |
+| 14 | intent-management | truth/author_intent.md, truth/audit_drift.md | step 1 (empty templates) | OK |
+| 15 | style-learning | import/source/*.txt 或 chapters/*.md | seed 或 bootstrap | OK (bootstrap) |
+| 16 | anchor-curate (optional) | import/source/*.txt | seed (optional) | OK (optional) |
+| 17 | foundation-review | world/*.md, characters/**/*.md, outline/*.md, truth/current_state.md, truth/chapter_summaries.md | steps 1-14, 1 (templates) | OK |
+
+**注**: worldbuilding (step 1) 写 `truth/*.md` 创建所有 truth 文件的空模板。G1 检查文件存在性,不检查内容。因此 `truth/author_intent.md`、`truth/pending_hooks.md` 等在 step 1 后即存在 (空模板),后续 skill 读取不会 G1 失败。
+
+## 17. Ramp-Up 读取覆盖
+
+某些 skill 的 contract reads 包含在小说早期不存在的文件。Pipeline 在 dispatch 这些 skill 时,对 G1 输入进行预处理 (跳过不存在的可选读取):
+
+| Skill | 不存在的 reads | 首次产出时机 | Pipeline 处理 |
+|-------|-------------|------------|-------------|
+| drift-guidance | truth/volume_score_trend.md, truth/arc_payoff_trend.md | 首个卷边界 | Ramp-up 章节跳过这两个 reads,仅加载 truth/resonance_trend.md + audits/ |
+| context-composing | truth/arcs/arc-N.md, truth/book_strata.md, truth/volume_summaries.md | ch12/ch36/卷边界 | Skill SKILL.md 已有爬坡期处理 (缺失层跳过)。Pipeline 在 dispatch 时对 G1 跳过这些可选 reads |
+| drift-guidance | truth/resonance_trend.md | ch1 step 9 (首次 review-resonance) | ch1 step 13 时已由 step 9 产出。OK |
+
+**实现**: Pipeline 在 dispatch 前解析 contract reads。对于标记为 `optional` 或在 ramp-up 阶段可能不存在的 reads,pipeline 从 G1 输入列表中移除。G1 只验证必须存在的 reads。
+
+可选 reads 判定规则: 文件路径含 `N` 模板变量 (如 `arc-N.md`) 或文件首次产出在运行时后期 (如 trend files)。
+
+## 18. G4 Staging 验证目标 [R2-4]
+
+对于 checkpoint-gated skill (chapter-planning, state-settling),dispatch 将产出写入 `staging/`。G4 验证目标:
+
+1. **G4 在 staging 内容上运行**: dispatch 完成后,pipeline 运行 G4 验证 staging 路径下的产出 (如 `staging/plans/chapter-N-plan.md`)
+2. **G4 通过 -> checkpoint 暂停**: staging 内容验证合格,呈交人工审核
+3. **review approve -> commit**: pipeline 将 staging 内容复制到正式路径,然后**不再重复 G4** (已验证)
+4. **G4 失败**: 按 §11 重试逻辑,重新 dispatch 该 skill
+
+## 19. foreshadowing-plant --mode genesis [R2-2]
+
+现有 foreshadowing-plant 的 contract reads `plans/chapter-N-plan.md`。Genesis 阶段无章节备忘,需要 genesis 模式:
+
+- `--mode genesis`: reads `outline/story_frame.md` + `outline/volume_map.md` (跨卷 master hooks 从 volume_map 提取),而非 chapter plan。产出仍 updates `truth/pending_hooks.md`
+- `--mode per-chapter` (默认): 现有行为,reads `plans/chapter-N-plan.md`
+
+Pipeline 通过 dispatch prompt 传递 mode。SKILL.md 需增加 genesis mode 流程说明 (见 §12)。
