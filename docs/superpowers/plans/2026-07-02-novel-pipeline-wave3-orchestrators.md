@@ -98,6 +98,14 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
         return {"status": "FAIL", "error": r.stderr}
 
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
+    """Run G3 independence check.
+
+    Note: In pipeline context, round_dir is project_dir which has no progress.json.
+    G3.3-G3.5 will SKIP (no progress.json to check). For full G3 enforcement,
+    the pipeline should write a minimal progress.json with current_scorer_agent
+    before dispatching requires_independent_agent skills. This is a known
+    integration gap to address during implementation.
+    """
     """Run G3 independence check (required for requires_independent_agent skills)."""
     cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(round_dir)]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
@@ -373,35 +381,36 @@ class ChapterStep:
     uses_staging: bool = False  # If True, dispatch writes to staging/ instead of final path
     calls_context_assembly: bool = False  # If True, run assemble_context before this step
     is_audit: bool = False
+    output_path: str = ""  # G4 validates this file after dispatch (must be non-empty)
 
 # Full 13-step + sub-steps from spec §6.1
 CHAPTER_STEPS: list[ChapterStep] = [
-    ChapterStep(1, "shenbi-intent-management", "intent-management"),
-    ChapterStep(2, "shenbi-chapter-planning", "chapter-planning", checkpoint=CheckpointType.CHAPTER_MEMO, uses_staging=True),
-    ChapterStep(3, "shenbi-foreshadowing-plant", "foreshadowing-plant"),
+    ChapterStep(1, "shenbi-intent-management", "intent-management", output_path="truth/current_focus.md"),
+    ChapterStep(2, "shenbi-chapter-planning", "chapter-planning", checkpoint=CheckpointType.CHAPTER_MEMO, uses_staging=True, output_path="plans/chapter-N-plan.md"),
+    ChapterStep(3, "shenbi-foreshadowing-plant", "foreshadowing-plant", output_path="truth/pending_hooks.md"),
     ChapterStep(4, "pipeline-context-assemble", "context-assembly", calls_context_assembly=True),
-    ChapterStep(5, "shenbi-context-composing", "context-composing"),
-    ChapterStep(6, "shenbi-chapter-drafting", "chapter-drafting"),
-    ChapterStep(7, "shenbi-state-settling", "state-settling", checkpoint=CheckpointType.STATE_SETTLE, uses_staging=True),
-    ChapterStep(8, "shenbi-foreshadowing-track", "foreshadowing-track"),
-    ChapterStep(9, "shenbi-foreshadowing-recall", "foreshadowing-recall"),
+    ChapterStep(5, "shenbi-context-composing", "context-composing", output_path=""),
+    ChapterStep(6, "shenbi-chapter-drafting", "chapter-drafting", output_path="chapters/chapter-N.md"),
+    ChapterStep(7, "shenbi-state-settling", "state-settling", checkpoint=CheckpointType.STATE_SETTLE, uses_staging=True, output_path=""),
+    ChapterStep(8, "shenbi-foreshadowing-track", "foreshadowing-track", output_path="truth/pending_hooks.md"),
+    ChapterStep(9, "shenbi-foreshadowing-recall", "foreshadowing-recall", output_path="truth/foreshadowing_recall_result.md"),
     # foreshadowing-resolve is conditional — handled in run_chapter_step logic
     # Audit layer: core circle (7 skills, serial, BLOCKING stops)
-    ChapterStep(10, "shenbi-review-anti-ai", "audit:anti-ai", is_audit=True),
-    ChapterStep(11, "shenbi-review-continuity", "audit:continuity", is_audit=True),
-    ChapterStep(12, "shenbi-review-character", "audit:character", is_audit=True),
-    ChapterStep(13, "shenbi-review-pacing", "audit:pacing", is_audit=True),
-    ChapterStep(14, "shenbi-review-foreshadowing", "audit:foreshadowing", is_audit=True),
-    ChapterStep(15, "shenbi-review-memo-compliance", "audit:memo-compliance", is_audit=True),
-    ChapterStep(16, "shenbi-review-pov", "audit:pov", is_audit=True),
+    ChapterStep(10, "shenbi-review-anti-ai", "audit:anti-ai", is_audit=True, output_path="audits/chapter-N-anti-ai.md"),
+    ChapterStep(11, "shenbi-review-continuity", "audit:continuity", is_audit=True, output_path="audits/chapter-N-continuity.md"),
+    ChapterStep(12, "shenbi-review-character", "audit:character", is_audit=True, output_path="audits/chapter-N-character.md"),
+    ChapterStep(13, "shenbi-review-pacing", "audit:pacing", is_audit=True, output_path="audits/chapter-N-pacing.md"),
+    ChapterStep(14, "shenbi-review-foreshadowing", "audit:foreshadowing", is_audit=True, output_path="audits/chapter-N-foreshadowing.md"),
+    ChapterStep(15, "shenbi-review-memo-compliance", "audit:memo-compliance", is_audit=True, output_path="audits/chapter-N-memo-compliance.md"),
+    ChapterStep(16, "shenbi-review-pov", "audit:pov", is_audit=True, output_path="audits/chapter-N-pov.md"),
     # Genre circle handled dynamically by audit_sub_orchestrator (spec §6.2)
     # review-resonance (independent agent, G3 required)
-    ChapterStep(17, "shenbi-review-resonance", "review-resonance"),
+    ChapterStep(17, "shenbi-review-resonance", "review-resonance", output_path="audits/chapter-N-resonance.md"),
     # Revision routing (conditional)
-    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional)"),
+    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional, output_path="chapters/chapter-N.md")"),
     # Snapshot + drift + escalation
-    ChapterStep(19, "shenbi-snapshot-manage", "snapshot-manage"),
-    ChapterStep(20, "shenbi-drift-guidance", "drift-guidance"),
+    ChapterStep(19, "shenbi-snapshot-manage", "snapshot-manage", output_path="snapshots/chapter-NNN/"),
+    ChapterStep(20, "shenbi-drift-guidance", "drift-guidance", output_path="truth/drift_guidance.md"),
 ]
 
 def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
@@ -479,7 +488,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         _check_conditional_resolve(state, project_dir, chapter)
 
     # After core circle completes, run genre + boundary audits
-    if step.is_audit and step_idx == len([s for s in CHAPTER_STEPS if s.is_audit]) + 8:
+    if step.is_audit and step_idx == max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit):
         # All core-circle audits done -> run genre/boundary
         from shenbi.pipeline.audit_layer import run_audit_layer
         import json
@@ -495,7 +504,9 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
         # Parse resonance result to determine if revision needed
         # (Simplified: if resonance score < threshold, route to revision)
-        route = route_chapter_revision(issues=[], blocking=False)  # placeholder
+        # Parse audit reports to build diagnosis for revision routing
+        # (Reads audits/chapter-N-*.md results; placeholder for full implementation)
+        route = route_chapter_revision(issues=[], blocking=False)  # TODO: feed real audit issues
         if route != RevisionRoute.NO_REVISION:
             log.info("revision_routed", chapter=chapter, route=route.value)
 

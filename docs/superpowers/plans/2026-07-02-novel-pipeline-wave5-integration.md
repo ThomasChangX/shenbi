@@ -187,17 +187,48 @@ class TestStagingIntegration:
     @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
     def test_staging_committed_on_approve(self, mock_g4, mock_disp, tmp_path):
         """Verify staging files are committed when checkpoint is approved."""
+        from shenbi.pipeline.state import PipelineState, PipelinePhase, GenesisState
+        from shenbi.pipeline.machine import save_state, load_state
+        from shenbi.pipeline.cli import main
+
         mock_disp.return_value = MagicMock(success=True, returncode=0, stdout="{}", stderr="")
         mock_g4.return_value = {"status": "PASS"}
-        # ... setup chapter-loop state ...
-        # ... run next -> hits chapter-memo checkpoint ...
-        # ... approve -> verify commit_staging called ...
+
+        project = tmp_path / "novel"
+        project.mkdir()
+        state = PipelineState.default(str(project))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.genesis.state = GenesisState.COMPLETED
+        state.chapter_loop.current_chapter = 1
+        save_state(project, state)
+
+        # Create staging file for chapter plan
+        staging_dir = project / "staging" / "plans"
+        staging_dir.mkdir(parents=True)
+        (staging_dir / "chapter-1-plan.md").write_text("# Plan", encoding="utf-8")
+
+        # Run next -> should hit chapter-memo checkpoint
+        main(["next", str(project)])
+        state = load_state(project)
+        assert state.pending_checkpoint.type.value == "chapter-memo"
+
+        # Approve -> staging should be committed
+        main(["review", str(project), "approve"])
+        assert (project / "plans" / "chapter-1-plan.md").exists()
 
 class TestRevisionRouting:
-    @patch("shenbi.pipeline.revision_router.route_chapter_revision")
-    def test_revision_routed_after_resonance(self, mock_route, tmp_path):
-        """Verify revision router is called after review-resonance."""
-        # ... verify route_chapter_revision called with audit issues ...
+    def test_revision_routes_craft_to_polishing(self):
+        """Verify revision router correctly routes craft issues to polishing."""
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+        route = route_chapter_revision(
+            issues=[{"category": "craft", "severity": "CRITICAL"}], blocking=False)
+        assert route == RevisionRoute.SPOT_FIX
+
+    def test_revision_routes_blocking_to_regenerate(self):
+        from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+        route = route_chapter_revision(
+            issues=[{"category": "unmet_goal", "severity": "BLOCKING"}], blocking=True)
+        assert route == RevisionRoute.REGENERATE
 
 class TestTriggerSystem:
     def test_l2_trigger_at_ch12(self):
@@ -213,25 +244,48 @@ class TestTriggerSystem:
         assert r.book_closure
 
 class TestErrorHandling:
-    @patch("shenbi.pipeline.genesis.dispatch_skill")
-    @patch("shenbi.pipeline.genesis.run_gate_g4")
-    def test_dispatch_failure_retries(self, mock_g4, mock_disp, tmp_path):
-        """Verify dispatch failure triggers retry logic."""
-        mock_disp.return_value = MagicMock(success=False, returncode=1, stdout="", stderr="err")
-        mock_g4.return_value = {"status": "PASS"}
-        # ... setup ...
-        # ... verify retry_counts incremented ...
+    def test_dispatch_failure_increments_retry(self):
+        """Verify handle_dispatch_failure returns True for first retries, False on max."""
+        from shenbi.pipeline.error_handler import handle_dispatch_failure
+        from shenbi.pipeline.state import PipelineState
+        state = PipelineState.default("/x")
+        assert handle_dispatch_failure(state, "test-skill", 1) is True  # retry
+        assert handle_dispatch_failure(state, "test-skill", 2) is True  # retry
+        assert handle_dispatch_failure(state, "test-skill", 3) is False  # escalate
+
+    def test_scoring_failure_exit_code_routing(self):
+        from shenbi.pipeline.error_handler import handle_scoring_failure
+        from shenbi.pipeline.state import PipelineState
+        state = PipelineState.default("/x")
+        assert handle_scoring_failure(state, 2) is True   # validation fail -> retry
+        assert handle_scoring_failure(state, 3) is True   # marker missing -> retry
+        assert handle_scoring_failure(state, 1) is False  # other error -> give up
 
 class TestClosureFlow:
     @patch("shenbi.pipeline.closure.dispatch_skill")
     @patch("shenbi.pipeline.closure.run_gate_g4")
-    def test_closure_completes(self, mock_g4, mock_disp, tmp_path):
+    def test_closure_runs_all_steps(self, mock_g4, mock_disp, tmp_path):
         """Verify closure runs all 10 steps and reaches book-closure checkpoint."""
+        from shenbi.pipeline.state import PipelineState, PipelinePhase, ClosureState
+        from shenbi.pipeline.machine import save_state, load_state
+        from shenbi.pipeline.cli import main
+
         mock_disp.return_value = MagicMock(success=True, returncode=0, stdout="{}", stderr="")
         mock_g4.return_value = {"status": "PASS"}
-        # ... setup closure state ...
-        # ... run next until checkpoint ...
-        # ... verify book-closure checkpoint set ...
+
+        project = tmp_path / "novel"
+        project.mkdir()
+        state = PipelineState.default(str(project))
+        state.phase = PipelinePhase.CLOSURE
+        state.closure = ClosureState.IN_PROGRESS
+        save_state(project, state)
+
+        # Run next -> should loop through all 10 closure steps
+        main(["next", str(project)])
+
+        state = load_state(project)
+        assert state.pending_checkpoint.type.value == "book-closure"
+        assert mock_disp.call_count == 10  # all closure steps dispatched
 ```
 
 - [ ] **Step 2: Commit**

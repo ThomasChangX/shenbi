@@ -705,7 +705,7 @@ class TestWriteLock:
     def test_acquire_and_release(self, tmp_project: Path):
         lock = WriteLock(tmp_project)
         with lock:
-            assert (tmp_project / "pipeline-state.json.lock").exists()
+            assert (tmp_project / "pipeline-state.json.lockfile").exists()
         # Lock file may persist (filelock behavior) but is unlocked
 
     def test_concurrent_writes_are_serialized(self, tmp_project: Path):
