@@ -266,6 +266,67 @@ class TestRetryAndEscalation:
 
 
 # ---------------------------------------------------------------------------
+# Optional step skip (step 16: anchor-curate)
+# ---------------------------------------------------------------------------
+class TestOptionalStepSkip:
+    @patch("shenbi.pipeline.genesis.dispatch_skill")
+    def test_optional_step_failure_skips_instead_of_escalating(self, mock_disp, tmp_path):
+        """An optional step (anchor-curate) that fails must be skipped --
+        cursor advances, no retry counter, no escalation checkpoint.
+        """
+        mock_disp.return_value = DispatchResult(False, 1, "", "anchor error")
+        state = PipelineState.default(str(tmp_path))
+        state.genesis.state = GenesisState.IN_PROGRESS
+        # Position cursor at anchor-curate (step 16, 0-based index 15).
+        state.genesis.current_step = 15
+
+        result = run_genesis_step(state, tmp_path)
+
+        # Cursor advanced past anchor-curate to foundation-review.
+        assert state.genesis.current_step == 16
+        # No escalation checkpoint raised.
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+        # No retry counter left behind (skip, not retry).
+        assert "shenbi-anchor-curate" not in state.genesis.retry_counts
+        # No human action needed -- step simply advanced.
+        assert result is False
+
+    @patch("shenbi.pipeline.genesis.run_gate_g4")
+    @patch("shenbi.pipeline.genesis.dispatch_skill")
+    def test_optional_step_g4_failure_also_skips(self, mock_disp, mock_g4, tmp_path):
+        """A G4 failure on an optional step skips just like a dispatch failure."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "FAIL"}
+        state = PipelineState.default(str(tmp_path))
+        state.genesis.state = GenesisState.IN_PROGRESS
+        state.genesis.current_step = 15
+
+        result = run_genesis_step(state, tmp_path)
+
+        assert state.genesis.current_step == 16
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+        assert result is False
+
+    @patch("shenbi.pipeline.genesis.dispatch_skill")
+    def test_optional_step_skipped_even_after_prior_retries(self, mock_disp, tmp_path):
+        """If an optional step already has retry counts from a prior run
+        (e.g. state loaded from disk), the first failure in this session
+        still skips rather than escalating.
+        """
+        mock_disp.return_value = DispatchResult(False, 1, "", "err")
+        state = PipelineState.default(str(tmp_path))
+        state.genesis.state = GenesisState.IN_PROGRESS
+        state.genesis.current_step = 15
+        state.genesis.retry_counts["shenbi-anchor-curate"] = 99
+
+        result = run_genesis_step(state, tmp_path)
+
+        assert state.genesis.current_step == 16
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+        assert result is False
+
+
+# ---------------------------------------------------------------------------
 # Index updates (Route A deterministic + Route B embeds)
 # ---------------------------------------------------------------------------
 class TestIndexUpdates:
@@ -350,3 +411,54 @@ class TestIndexUpdates:
         state.genesis.state = GenesisState.IN_PROGRESS
         run_genesis_step(state, tmp_path)
         assert state.genesis.current_step == 1
+
+
+# ---------------------------------------------------------------------------
+# Route B error isolation (must not mask Route A success)
+# ---------------------------------------------------------------------------
+class TestRouteBErrorIsolation:
+    @patch("shenbi.pipeline.genesis._update_route_b", side_effect=RuntimeError("embed boom"))
+    @patch("shenbi.pipeline.genesis.run_gate_g4")
+    @patch("shenbi.pipeline.genesis.dispatch_skill")
+    def test_route_b_failure_does_not_mask_route_a_success(
+        self, mock_disp, mock_g4, mock_rb, tmp_path
+    ):
+        """When _update_route_b raises, truth-index.json must still be written
+        (Route A succeeded) and the step must advance normally.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        # Create a truth-writing file so build_index has something to index.
+        (tmp_path / "world").mkdir()
+        (tmp_path / "world" / "story_bible.md").write_text("# World\n", encoding="utf-8")
+
+        state = PipelineState.default(str(tmp_path))
+        state.genesis.state = GenesisState.IN_PROGRESS
+
+        result = run_genesis_step(state, tmp_path)
+
+        # Route A: truth-index.json was written despite Route B failure.
+        idx_file = tmp_path / "truth-index.json"
+        assert idx_file.exists()
+        # Route B error did not block step advancement.
+        assert state.genesis.current_step == 1
+        assert result is False
+        mock_rb.assert_called_once()
+
+    @patch("shenbi.pipeline.genesis._update_route_b", side_effect=RuntimeError("embed boom"))
+    def test_update_indexes_writes_index_then_logs_route_b_failure(self, mock_rb, tmp_path):
+        """Direct unit test: _update_indexes writes truth-index.json and logs
+        route_b_update_failed (not truth_index_update_failed) when Route B
+        raises.
+        """
+        from shenbi.pipeline.genesis import _update_indexes
+
+        (tmp_path / "world").mkdir()
+        (tmp_path / "world" / "rules.md").write_text("## R1: Magic\n", encoding="utf-8")
+
+        _update_indexes(tmp_path, "shenbi-worldbuilding")
+
+        # Route A succeeded.
+        assert (tmp_path / "truth-index.json").exists()
+        # Route B was attempted.
+        mock_rb.assert_called_once()

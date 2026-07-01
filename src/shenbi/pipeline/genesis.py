@@ -112,21 +112,26 @@ def _update_indexes(project_dir: Path, skill: str) -> None:
     """Rebuild Route A index (truth-index.json) after a truth-writing step.
 
     No-op for skills not in ``_INDEX_UPDATE_SKILLS``. Missing source directories
-    are tolerated by :func:`build_index`, so this never raises for an
-    early-stage project. After the Route A index is written, Route B embeddings
-    are refreshed (:func:`_update_route_b`).
+    are tolerated by :func:`build_index`, so the Route A write itself never
+    raises for an early-stage project. Route B embedding refresh is a separate
+    best-effort step: its failure must not mask Route A success (\u00a77.3).
     """
     if skill not in _INDEX_UPDATE_SKILLS:
         return
+    index = None
     try:
         from shenbi.pipeline.truth_index import build_index
 
-        idx = build_index(project_dir)
-        safe_write(project_dir / "truth-index.json", idx.to_json())
+        index = build_index(project_dir)
+        safe_write(project_dir / "truth-index.json", index.to_json())
         log.info("truth_index_updated", skill=skill)
-        _update_route_b(project_dir, idx, skill)
     except Exception as e:
         log.warning("truth_index_update_failed", skill=skill, error=str(e))
+        return
+    try:
+        _update_route_b(project_dir, index, skill)
+    except Exception as e:
+        log.warning("route_b_update_failed", skill=skill, error=str(e))
 
 
 def _update_route_b(
@@ -170,19 +175,54 @@ def _update_route_b(
         log.info("route_b_embeds_updated", skill=skill, embedded=embedded)
 
 
+def _advance(state: PipelineState, step_idx: int) -> bool:
+    """Bump the genesis cursor and set the completion checkpoint if done.
+
+    Shared by the success path and the optional-skip path. Returns ``True``
+    when genesis has finished (all steps consumed), ``False`` when at least
+    one step remains.
+    """
+    state.genesis.current_step = step_idx + 1
+    if state.genesis.current_step >= len(GENESIS_STEPS):
+        state.genesis.state = GenesisState.CHECKPOINT_PENDING
+        set_checkpoint(
+            state,
+            CheckpointType.GENESIS_COMPLETE,
+            artifact="foundation/review_report.md",
+            context="Review all genesis outputs before entering chapter loop.",
+        )
+        return True
+    return False
+
+
+def _step_index(step: GenesisStep) -> int:
+    """Return the 0-based cursor index for *step*."""
+    return step.step_num - 1
+
+
 def _handle_failure(
     state: PipelineState,
-    skill: str,
-    step_num: int,
+    step: GenesisStep,
     failure: str,
 ) -> bool:
-    """Record a dispatch/gate failure; escalate once the retry limit is hit.
+    """Record a dispatch/gate failure for a genesis step.
+
+    Optional steps skip forward on the first failure: the cursor advances
+    past them with no retry or escalation (the ``optional`` flag marks the
+    step as non-blocking). Non-optional steps retry per spec \u00a711 up to
+    ``max_revision_retries`` (default 3), then raise an escalation.
 
     Returns ``False`` when the step should be retried on the next ``cmd_next``
-    call (cursor unchanged), ``True`` once an escalation checkpoint has been
-    raised. The limit is ``state.config.max_revision_retries`` (default 3, per
-    spec \u00a711: retry at most twice, escalate on the third failure).
+    call (cursor unchanged) or when it was skipped (cursor advanced); ``True``
+    once an escalation or genesis-complete checkpoint has been raised.
     """
+    if step.optional:
+        log.warning("optional_step_skipped", skill=step.skill, step=step.step_num)
+        state.genesis.retry_counts.pop(step.skill, None)
+        return _advance(state, _step_index(step))
+
+    skill = step.skill
+    step_num = step.step_num
     count = state.genesis.retry_counts.get(skill, 0) + 1
     state.genesis.retry_counts[skill] = count
     limit = state.config.max_revision_retries
@@ -236,35 +276,24 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     result = dispatch_skill(step.skill, project_dir, prompt)
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
-        return _handle_failure(state, step.skill, step.step_num, "dispatch")
+        return _handle_failure(state, step, "dispatch")
 
     # G4: skill-specific structural validation (every step).
     g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
     if not _gate_passed(g4):
         log.error("genesis_g4_failed", step=step.step_num, skill=step.skill, g4=g4)
-        return _handle_failure(state, step.skill, step.step_num, "gate")
+        return _handle_failure(state, step, "gate")
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
         g3 = run_gate_g3(step.skill, project_dir)
         if not _gate_passed(g3):
             log.error("genesis_g3_failed", step=step.step_num, skill=step.skill, g3=g3)
-            return _handle_failure(state, step.skill, step.step_num, "gate")
+            return _handle_failure(state, step, "gate")
 
     # Success: refresh retrieval indexes, reset retries, advance cursor.
     if step.skill in _INDEX_UPDATE_SKILLS:
         _update_indexes(project_dir, step.skill)
     state.genesis.retry_counts.pop(step.skill, None)
     state.genesis.skills_done.append(step.skill)
-    state.genesis.current_step = step_idx + 1
-
-    if state.genesis.current_step >= len(GENESIS_STEPS):
-        state.genesis.state = GenesisState.CHECKPOINT_PENDING
-        set_checkpoint(
-            state,
-            CheckpointType.GENESIS_COMPLETE,
-            artifact="foundation/review_report.md",
-            context="Review all genesis outputs before entering chapter loop.",
-        )
-        return True
-    return False
+    return _advance(state, step_idx)
