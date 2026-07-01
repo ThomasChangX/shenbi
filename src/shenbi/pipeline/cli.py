@@ -34,16 +34,152 @@ from shenbi.pipeline.machine import (
     is_at_checkpoint,
     load_state,
     save_state,
+    set_checkpoint,
 )
 from shenbi.pipeline.seed_parser import parse_seed
 from shenbi.pipeline.state import (
     CheckpointType,
+    CheckpointData,
+    ClosureState,
     GenesisState,
     PipelineState,
+    PipelinePhase,
     ReviewDecision,
 )
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus
+
+
+# Orchestration loop: phase dispatch, trigger checks, closure transition
+def _read_total_chapters(project_dir: Path) -> int:
+    """Read total_chapters from novel.json (0 when not yet determined)."""
+    novel_path = project_dir / "novel.json"
+    if not novel_path.exists():
+        return 0
+    try:
+        data = json.loads(novel_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError):
+        return 0
+    total = data.get("total_chapters", 0)
+    return int(total) if isinstance(total, (int, float)) else 0
+
+
+def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
+    """Run pipeline steps until a checkpoint is reached or the pipeline completes.
+
+    Assumes the caller already holds the WriteLock and will persist *state*.
+    Dispatches to genesis / chapter-loop / closure step runners, and handles
+    trigger execution + closure transition at the start of each new chapter.
+    """
+    from shenbi.pipeline.chapter_loop import run_chapter_step
+    from shenbi.pipeline.closure import run_closure_step
+    from shenbi.pipeline.genesis import run_genesis_step
+    from shenbi.pipeline.transitions import (
+        transition_chapter_to_closure,
+        transition_closure_to_completed,
+    )
+    from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
+
+    while True:
+        phase = state.phase
+
+        if phase in (PipelinePhase.COMPLETED, PipelinePhase.FAILED):
+            return
+
+        if phase == PipelinePhase.GENESIS:
+            if run_genesis_step(state, project_dir):
+                return
+
+        elif phase == PipelinePhase.CHAPTER_LOOP:
+            cl = state.chapter_loop
+            if cl.step_index == 0 and cl.current_chapter > 1:
+                total = _read_total_chapters(project_dir)
+                if total > 0:
+                    prev_ch = cl.current_chapter - 1
+                    result = check_triggers(state, prev_ch, total)
+                    if result.book_closure:
+                        result.book_closure = False
+                        if result.any_triggered():
+                            run_triggered_skills(state, project_dir, prev_ch, result)
+                        transition_chapter_to_closure(state)
+                        continue
+                    if result.any_triggered():
+                        run_triggered_skills(state, project_dir, prev_ch, result)
+                        if is_at_checkpoint(state):
+                            return
+
+            if run_chapter_step(state, project_dir):
+                return
+
+        elif phase == PipelinePhase.CLOSURE:
+            # Closure runner returns True on any successful step (not just
+            # checkpoints), unlike genesis/chapter_loop which return False
+            # when a step merely advances. So we must inspect state to decide
+            # whether to stop.
+            if run_closure_step(state, project_dir):
+                if is_at_checkpoint(state):
+                    return  # book-closure checkpoint raised
+                if state.closure == ClosureState.COMPLETED:
+                    transition_closure_to_completed(state)
+                    return  # step 10 done, pipeline complete
+                # Step advanced without checkpoint: continue the loop.
+            else:
+                # Closure step failed. The closure runner has no internal
+                # retry logic, so raise an escalation checkpoint for human
+                # intervention rather than spinning on the same failing step.
+                set_checkpoint(
+                    state,
+                    CheckpointType.ESCALATION,
+                    context=f"Closure step {state.closure_step + 1} failed",
+                )
+                return
+
+        else:
+            return
+
+
+def _emit_orchestration_result(state: PipelineState) -> None:
+    """Emit the final JSON status after the orchestration loop exits."""
+    if is_at_checkpoint(state):
+        emit_json(
+            {
+                "status": CommandStatus.BLOCKED,
+                "checkpoint": state.pending_checkpoint.type.value,
+                "artifact": state.pending_checkpoint.artifact,
+            }
+        )
+    else:
+        emit_json({"status": CommandStatus.OK, "phase": state.phase.value})
+
+
+def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> None:
+    """Commit staging files for checkpoint-gated skills (spec section 2.7).
+
+    Only CHAPTER_MEMO and STATE_SETTLE checkpoints have staging files.
+    Each target is committed individually so a missing file for one type
+    does not block the other. The staging directory is cleared afterwards.
+    """
+    from shenbi.pipeline.checkpoint import commit_staging
+
+    if cp.type == CheckpointType.CHAPTER_MEMO:
+        chapter = cp.chapter or 1
+        targets = [f"plans/chapter-{chapter}-plan.md"]
+    elif cp.type == CheckpointType.STATE_SETTLE:
+        targets = ["truth/current_state.md"]
+    else:
+        return
+
+    for target in targets:
+        try:
+            commit_staging(project_dir, [target])
+        except FileNotFoundError:
+            pass
+
+    # Clear staging dir regardless (remove any remaining staged files).
+    from shenbi.pipeline.checkpoint import clear_staging
+
+    clear_staging(project_dir)
+
 
 log = get_logger(__name__)
 
@@ -154,6 +290,17 @@ def cmd_review(args: argparse.Namespace) -> int:
                 return 1
 
             decision = ReviewDecision(args.decision)
+            cp = state.pending_checkpoint
+
+            # Staging handling (spec section 2.7): approve/modify commits
+            # staging files to their final paths; reject clears staging.
+            if decision in (ReviewDecision.APPROVE, ReviewDecision.MODIFY):
+                _commit_staging_for_checkpoint(project_dir, cp)
+            elif decision == ReviewDecision.REJECT:
+                from shenbi.pipeline.checkpoint import clear_staging
+
+                clear_staging(project_dir)
+
             feedback = None
             if args.feedback:
                 feedback = Path(args.feedback).read_text(encoding="utf-8")
@@ -184,46 +331,89 @@ def cmd_review(args: argparse.Namespace) -> int:
 
 
 def cmd_next(args: argparse.Namespace) -> int:
-    """Execute toward the next checkpoint.
+    """Execute toward the next checkpoint (loop-until-checkpoint).
 
-    Placeholder: orchestrators (Wave 3) implement the actual generation. The
-    state machine and checkpoint primitives it depends on are already in place.
+    Loads state under an exclusive WriteLock, runs the orchestration loop
+    (genesis / chapter-loop / closure) until a checkpoint is reached or the
+    pipeline completes, then persists state and emits the result. When a
+    checkpoint is already pending, returns ``blocked`` without running.
     """
     project_dir = Path(args.project_dir)
 
     try:
         with WriteLock(project_dir):
             state = load_state(project_dir)
+            if is_at_checkpoint(state):
+                emit_json(
+                    {
+                        "status": CommandStatus.BLOCKED,
+                        "message": "pending checkpoint requires review",
+                        "checkpoint": state.pending_checkpoint.type.value,
+                    }
+                )
+                return 1
+
+            _orchestrate_to_checkpoint(state, project_dir)
+            save_state(project_dir, state)
     except FileNotFoundError:
         emit_json({"status": CommandStatus.ERROR, "message": "project not found"})
         return 1
 
-    if is_at_checkpoint(state):
-        emit_json(
-            {
-                "status": CommandStatus.BLOCKED,
-                "message": "pending checkpoint requires review",
-                "checkpoint": state.pending_checkpoint.type.value,
-            }
-        )
-        return 1
-
-    # Wave 3 replaces this with real orchestration. "not_implemented" is a
-    # transient placeholder status, deliberately not added to the canonical
-    # CommandStatus vocabulary (which it will leave once Wave 3 lands).
-    emit_json(
-        {
-            "status": "not_implemented",
-            "message": "Orchestrators not yet implemented (Wave 3). State machine is ready.",
-            "phase": state.phase.value,
-        }
-    )
+    _emit_orchestration_result(state)
     return 0
 
 
 def cmd_resume(args: argparse.Namespace) -> int:
-    """Resume after a checkpoint review (delegates to next until Wave 3)."""
-    return cmd_next(args)
+    """Resume after a checkpoint review.
+
+    Handles phase transitions triggered by the last checkpoint decision:
+    approve genesis-complete enters the chapter loop, approve book-closure
+    completes the pipeline. Then delegates to the orchestration loop.
+    """
+    project_dir = Path(args.project_dir)
+
+    try:
+        with WriteLock(project_dir):
+            state = load_state(project_dir)
+
+            if state.checkpoint_history:
+                last = state.checkpoint_history[-1]
+                if last.get("decision") == "approve":
+                    cp_type = last.get("type")
+                    if cp_type == CheckpointType.GENESIS_COMPLETE.value:
+                        from shenbi.pipeline.transitions import (
+                            transition_genesis_to_chapter_loop,
+                        )
+
+                        transition_genesis_to_chapter_loop(state)
+                    elif cp_type == CheckpointType.BOOK_CLOSURE.value:
+                        from shenbi.pipeline.transitions import (
+                            transition_closure_to_completed,
+                        )
+
+                        transition_closure_to_completed(state)
+                        save_state(project_dir, state)
+                        emit_json({"status": CommandStatus.OK, "phase": "completed"})
+                        return 0
+
+            if is_at_checkpoint(state):
+                emit_json(
+                    {
+                        "status": CommandStatus.BLOCKED,
+                        "message": "pending checkpoint requires review",
+                        "checkpoint": state.pending_checkpoint.type.value,
+                    }
+                )
+                return 1
+
+            _orchestrate_to_checkpoint(state, project_dir)
+            save_state(project_dir, state)
+    except FileNotFoundError:
+        emit_json({"status": CommandStatus.ERROR, "message": "project not found"})
+        return 1
+
+    _emit_orchestration_result(state)
+    return 0
 
 
 def cmd_chapters(args: argparse.Namespace) -> int:

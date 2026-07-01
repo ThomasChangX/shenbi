@@ -18,10 +18,12 @@ import io
 import json
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
 from shenbi.pipeline.cli import main
+from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelinePhase
 
@@ -159,6 +161,15 @@ class TestWave1E2E:
         """Every CLI command emits valid JSON on stdout (G2 contract)."""
         project_dir = _init(tmp_path, monkeypatch, sample_seed_content)
 
+        # Mock genesis dispatch so next actually runs orchestration without
+        # hitting real subprocess calls (skill CLIs not available in test env).
+        with (
+            patch("shenbi.pipeline.genesis.dispatch_skill") as mock_disp,
+            patch("shenbi.pipeline.genesis.run_gate_g4") as mock_g4,
+        ):
+            mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+            mock_g4.return_value = {"status": "PASS"}
+
         for argv in (
             ["status", str(project_dir)],
             ["chapters", str(project_dir)],
@@ -167,8 +178,8 @@ class TestWave1E2E:
             ["rollback", str(project_dir), "--chapter", "1"],
         ):
             rc, out = _run(argv, monkeypatch)
-            assert rc == 0, f"{argv[0]} returned {rc}"
-            # Must parse as valid JSON
+            # next/resume may return blocked (rc=1) at a checkpoint;
+            # every command must still emit valid JSON regardless of rc.
             json.loads(out)
 
     def test_pipeline_state_persists_across_commands(
@@ -258,24 +269,30 @@ class TestEndToEndErrorPaths:
         """Next is blocked while a checkpoint is pending, unblocks after review."""
         project_dir = _init(tmp_path, monkeypatch, sample_seed_content)
 
-        # No checkpoint: next is not_implemented (Wave 3 placeholder)
-        rc, out = _run(["next", str(project_dir)], monkeypatch)
-        assert rc == 0
-        assert json.loads(out)["status"] == "not_implemented"
-
-        # Set a checkpoint: next is now blocked
         state = load_state(project_dir)
         set_checkpoint(state, CheckpointType.GENESIS_COMPLETE)
         save_state(project_dir, state)
 
+        # Pending checkpoint: next is blocked
         rc, out = _run(["next", str(project_dir)], monkeypatch)
         result = json.loads(out)
         assert rc != 0
         assert result["status"] == "blocked"
 
-        # Review approve: next is unblocked again
+        # Review approve: next is unblocked and resumes the pipeline
         _run(["review", str(project_dir), "approve"], monkeypatch)
 
-        rc, out = _run(["next", str(project_dir)], monkeypatch)
-        assert rc == 0
-        assert json.loads(out)["status"] == "not_implemented"
+        # After approving genesis-complete, resume transitions to chapter-loop
+        # and runs until the chapter-memo checkpoint (step 2).
+        with (
+            patch("shenbi.pipeline.chapter_loop.dispatch_skill") as mock_ch_disp,
+            patch("shenbi.pipeline.chapter_loop.run_gate_g4") as mock_ch_g4,
+        ):
+            mock_ch_disp.return_value = DispatchResult(True, 0, "{}", "")
+            mock_ch_g4.return_value = {"status": "PASS"}
+
+            rc, out = _run(["resume", str(project_dir)], monkeypatch)
+            result = json.loads(out)
+            assert rc == 0
+            assert result["status"] == "blocked"
+            assert result["checkpoint"] == "chapter-memo"

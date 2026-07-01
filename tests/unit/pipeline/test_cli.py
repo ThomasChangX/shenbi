@@ -15,12 +15,18 @@ import io
 import json
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from shenbi.pipeline.cli import main
+from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.machine import load_state, save_state, set_checkpoint
-from shenbi.pipeline.state import CheckpointType
+from shenbi.pipeline.state import (
+    CheckpointType,
+    GenesisState,
+    PipelinePhase,
+)
 
 
 def _run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, str]:
@@ -189,21 +195,65 @@ class TestReviewCommand:
         assert state.checkpoint_history[-1]["feedback"] == "needs more tension in act 2"
         assert state.checkpoint_history[-1]["decision"] == "modify"
 
-
-class TestNextCommand:
-    """``next <dir>`` advances toward the next checkpoint (Wave 3 placeholder)."""
-
-    def test_next_not_implemented_when_clear(
+    def test_review_approve_commits_staging(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """With no pending checkpoint, next reports not_implemented (Wave 3)."""
+        """Approving a chapter-memo checkpoint commits staging to final paths."""
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        # Simulate a chapter-memo checkpoint with a staged plan file.
+        staging_dir = project_dir / "staging" / "plans"
+        staging_dir.mkdir(parents=True)
+        (staging_dir / "chapter-1-plan.md").write_text("plan content", encoding="utf-8")
+
+        state = load_state(project_dir)
+        set_checkpoint(
+            state, CheckpointType.CHAPTER_MEMO, chapter=1, artifact="plans/chapter-1-plan.md"
+        )
+        save_state(project_dir, state)
+
+        rc, _ = _run(["review", str(project_dir), "approve"], monkeypatch)
+
+        assert rc == 0
+        committed = project_dir / "plans" / "chapter-1-plan.md"
+        assert committed.exists()
+        assert committed.read_text(encoding="utf-8") == "plan content"
+        # Staging dir is cleaned up after commit.
+        assert not (project_dir / "staging").exists()
+
+
+class TestNextCommand:
+    """``next <dir>`` loops through steps until a checkpoint is reached."""
+
+    @patch("shenbi.pipeline.genesis.run_gate_g3")
+    @patch("shenbi.pipeline.genesis.run_gate_g4")
+    @patch("shenbi.pipeline.genesis.dispatch_skill")
+    def test_next_loops_genesis_to_checkpoint(
+        self,
+        mock_disp: MagicMock,
+        mock_g4: MagicMock,
+        mock_g3: MagicMock,
+        tmp_path: Path,
+        sample_seed_content: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Next runs all 17 genesis steps and hits the genesis-complete checkpoint."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+
         project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
 
         rc, out = _run(["next", str(project_dir)], monkeypatch)
         result = json.loads(out)
 
         assert rc == 0
-        assert result["status"] == "not_implemented"
+        assert result["status"] == "blocked"
+        assert result["checkpoint"] == "genesis-complete"
+        assert mock_disp.call_count == 17
+
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.GENESIS_COMPLETE
 
     def test_next_blocked_at_checkpoint(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
@@ -229,21 +279,79 @@ class TestNextCommand:
         assert rc != 0
         assert result["status"] == "error"
 
+    @patch("shenbi.pipeline.closure.run_gate_g3")
+    @patch("shenbi.pipeline.closure.run_gate_g4")
+    @patch("shenbi.pipeline.closure.dispatch_skill")
+    def test_next_loops_closure_to_book_closure_checkpoint(
+        self,
+        mock_disp: MagicMock,
+        mock_g4: MagicMock,
+        mock_g3: MagicMock,
+        tmp_path: Path,
+        sample_seed_content: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Next in closure phase runs steps 1-9 and hits book-closure checkpoint."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}
+
+        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        # Set up closure phase: all chapters done, closure just started.
+        state = load_state(project_dir)
+        state.phase = PipelinePhase.CLOSURE
+        state.closure_step = 0
+        save_state(project_dir, state)
+
+        rc, out = _run(["next", str(project_dir)], monkeypatch)
+        result = json.loads(out)
+
+        assert rc == 0
+        assert result["status"] == "blocked"
+        assert result["checkpoint"] == "book-closure"
+
+        state = load_state(project_dir)
+        assert state.pending_checkpoint.type == CheckpointType.BOOK_CLOSURE
+        assert state.closure_step == 9  # paused before step 10 (snapshot)
+
 
 class TestResumeCommand:
-    """``resume <dir>`` behaves like next (Wave 3 placeholder)."""
+    """``resume <dir>`` transitions phases after checkpoint approval then continues."""
 
-    def test_resume_delegates_to_next(
-        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
+    @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    def test_resume_transitions_after_genesis_approve(
+        self,
+        mock_disp: MagicMock,
+        mock_g4: MagicMock,
+        tmp_path: Path,
+        sample_seed_content: str,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """Resume returns the same not_implemented status as next."""
+        """Approving genesis-complete then resume enters the chapter loop."""
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+
         project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+
+        # Simulate genesis completion: all steps done, checkpoint approved.
+        state = load_state(project_dir)
+        state.genesis.current_step = 17
+        state.genesis.state = GenesisState.CHECKPOINT_PENDING
+        set_checkpoint(
+            state, CheckpointType.GENESIS_COMPLETE, artifact="foundation/review_report.md"
+        )
+        save_state(project_dir, state)
+
+        _run(["review", str(project_dir), "approve"], monkeypatch)
 
         rc, out = _run(["resume", str(project_dir)], monkeypatch)
         result = json.loads(out)
 
         assert rc == 0
-        assert result["status"] == "not_implemented"
+        state = load_state(project_dir)
+        assert state.phase == PipelinePhase.CHAPTER_LOOP
 
 
 class TestChaptersCommand:
