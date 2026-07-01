@@ -1,6 +1,6 @@
 # Gates
 
-Shenbi uses 7 validation gates to enforce pipeline integrity:
+Shenbi uses 8 validation gates to enforce pipeline integrity:
 
 | Gate | Purpose |
 |------|---------|

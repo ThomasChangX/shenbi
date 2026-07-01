@@ -1,6 +1,4 @@
-# 架构概览
-
-# Architecture Overview
+# 架构概览 / Architecture Overview
 
 ---
 

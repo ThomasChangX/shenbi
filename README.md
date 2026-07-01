@@ -62,7 +62,7 @@ Full documentation is published at https://thomaschangx.github.io/shenbi/
 | 管理 / Management | 9 | 快照、漂移、卷总结、评分 / Snapshot, drift, consolidation, scoring |
 | 导入 / Import | 4 | 已有作品导入分析 / Existing work import & analysis |
 | 短篇 / Short Story | 3 | 短篇小说精简流程 / Short novel streamlined pipeline |
-| 管道外 / Out-of-Pipeline | 7 | 辅助工具、元技能 / Auxiliary tools, meta-skills |
+| 管道外 / Out-of-Pipeline | 7 | 辅助工具、元技能、起草辅助 / Auxiliary tools, meta-skills, drafting helper |
 
 > 部分技能出现在多个阶段。完整目录见 [技能目录 / Skills](https://thomaschangx.github.io/shenbi/skills/)。
 >

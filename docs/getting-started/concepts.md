@@ -50,7 +50,7 @@ Eight validation gates (G0-G7) enforce quality checks at critical pipeline bound
 
 A gate failure means the output is rejected — not scored, not advanced.
 
--→ [门控详情 / Gate Details](../architecture/overview.md)
+→ [门控详情 / Gate Details](../architecture/overview.md)
 
 ---
 
@@ -84,4 +84,4 @@ The three-tier scoring system measures quality at different scopes:
 
 **94 is the advancement threshold** — all three test types (generative, bug-hunt, clean) must score >= 94 for a skill to pass. **100 is the convergence target.**
 
--→ [评分详情 / Scoring Details](../architecture/overview.md)
+→ [评分详情 / Scoring Details](../architecture/overview.md)
