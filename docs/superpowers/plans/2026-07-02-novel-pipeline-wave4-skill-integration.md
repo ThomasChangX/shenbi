@@ -115,7 +115,22 @@ Genesis 阶段无章节备忘 (`plans/chapter-N-plan.md`)。genesis 模式从大
 genesis 模式不读 `plans/chapter-N-plan.md`,不处理 hook 账的 OPEN 项 (那是 per-chapter 模式的职责)。
 ```
 
-- [ ] **Step 2: Run sync-contracts, pre-commit. Commit.**
+- [ ] **Step 2: Update contract reads to include genesis mode paths**
+
+**Important contract note**: Genesis mode reads `outline/story_frame.md` + `outline/volume_map.md` which are NOT in the current contract reads. The contract reads must be updated to include these paths. Add them to the `reads` list in the frontmatter:
+
+```yaml
+reads:
+  - plans/chapter-N-plan.md
+  - outline/story_frame.md    # for genesis mode
+  - outline/volume_map.md     # for genesis mode
+  - truth/pending_hooks.md
+  - genre-config.json
+```
+
+This is an additive change — per-chapter mode still reads `plans/chapter-N-plan.md`. G1 will pass for both modes since all declared reads exist by genesis step 9.
+
+- [ ] **Step 3: Run sync-contracts, pre-commit. Commit.**
 
 ```bash
 uv run shenbi-sync-contracts && uv run pre-commit run --files skills/shenbi-foreshadowing-plant/SKILL.md
@@ -170,10 +185,10 @@ chapter: NNN
 snapshot_kind: chapter | volume-boundary | genesis | closure | pre-revision
 created: YYYY-MM-DD HH:MM
 files:
-  truth: "glob:truth/*.md"
-  characters: "glob:characters/**/*.md"
-  world: "glob:world/*.md"
-  outline: "glob:outline/*.md"
+  truth: "truth/*.md"
+  characters: "characters/**/*.md"
+  world: "world/*.md"
+  outline: "outline/*.md"
   current_chapter: "chapters/chapter-NNN.md"
   current_plan: "plans/chapter-NNN-plan.md"
   style: "style/style_profile.md"
@@ -293,6 +308,70 @@ uv run shenbi-sync-contracts && uv run pre-commit run --files skills/shenbi-styl
 git add skills/shenbi-style-learning/SKILL.md
 git commit -m "feat: add bootstrap mode to style-learning (wave4 task6)"
 ```
+---
+
+### Task 6b: context-composing Pipeline Integration Mode
+
+**Files:**
+- Modify: `skills/shenbi-context-composing/SKILL.md`
+
+- [ ] **Step 1: Add pipeline integration section**
+
+Add after the existing flow:
+
+```markdown
+## Pipeline 集成模式
+
+当由 pipeline 编排时,`context/chapter-N-context.md` 已由 `pipeline-context-assemble` 预先组装 (三路检索 + 确定性重排)。本 skill 在 pipeline 模式下:
+
+1. **接收预检索包**: 读取 `context/chapter-N-context.md` 作为主要输入
+2. **策展层职责**: 去重 (残留重复) / 冲突检测 / 按 budget 裁剪
+3. **不重复检索**: 不再自行从 truth files 加载 (orchestrator 已完成)
+4. **输出**: 策展后的上下文包覆写到 `context/chapter-N-context.md`
+
+非 pipeline 模式 (直接 dispatch) 时,保持现有行为:自行按 P1-P7 加载。
+```
+
+- [ ] **Step 2: Run sync-contracts, pre-commit. Commit.**
+
+```bash
+uv run shenbi-sync-contracts && uv run pre-commit run --files skills/shenbi-context-composing/SKILL.md
+git add skills/shenbi-context-composing/SKILL.md
+git commit -m "feat: add pipeline integration mode to context-composing (wave4 task6b)"
+```
+
+
+---
+
+### Task 6c: memory-distill Density-Driven Trigger
+
+**Files:**
+- Modify: `skills/shenbi-memory-distill/SKILL.md`
+
+- [ ] **Step 1: Add density-driven trigger section**
+
+Add to the trigger rules section:
+
+```markdown
+## 密度驱动触发 (Pipeline 集成)
+
+当由 pipeline 编排时,除了固定间隔 (chapter%12/36),还检查密度触发:
+
+- 弧内累计 state-settling 变更条目 > 60 条
+- 弧内 pending_hooks 新增/推进 > 15 条
+- 弧内 character_matrix 变更 > 20 处
+
+满足任一条件时提前触发 L2 蒸馏 (不必等到 chapter%12)。
+Pipeline 的 `triggers.py` 在每章 state-settling 后检查这些条件。
+```
+
+- [ ] **Step 2: Run sync-contracts, pre-commit. Commit.**
+
+```bash
+uv run shenbi-sync-contracts && uv run pre-commit run --files skills/shenbi-memory-distill/SKILL.md
+git add skills/shenbi-memory-distill/SKILL.md
+git commit -m "feat: add density-driven trigger to memory-distill (wave4 task6c)"
+```
 
 ---
 
@@ -344,7 +423,7 @@ class TestChapterDraftingContextRead:
 class TestDriftGuidanceWindow:
     def test_rolling_window_documented(self):
         text = (SKILLS / "shenbi-drift-guidance" / "SKILL.md").read_text(encoding="utf-8")
-        assert "12" in text  # rolling window reference
+        assert "滚动窗口" in text or "rolling window" in text.lower()
 
 class TestStyleLearningBootstrap:
     def test_bootstrap_documented(self):
