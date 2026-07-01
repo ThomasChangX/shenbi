@@ -151,10 +151,15 @@ Expected: Build succeeds.
 
 - [ ] **Step 3: Verify skill count**
 
-Run: `rg "^| shenbi-" docs/skills/index.md | wc -l`
-Expected: 67 (functional skills)
+Skills appear in multiple phases (e.g., genre-config in both Genesis and Architecture), so total rows will exceed unique count. Verify both row count and unique count:
 
-Run: `rg "^| using-shenbi" docs/skills/index.md | wc -l`
+Run: `rg "^\\| shenbi-" docs/skills/index.md | wc -l`
+Expected: 72 (total rows including cross-phase duplicates: 66 in phase tables + 4 auxiliary + 1 writing-skills + 1 foreshadowing-resolve)
+
+Run: `rg "^\\| shenbi-" docs/skills/index.md | sed 's/| shenbi-//' | sed 's/ |.*//' | sort -u | wc -l`
+Expected: 67 (unique functional skills)
+
+Run: `rg "^\\| using-shenbi" docs/skills/index.md | wc -l`
 Expected: 1
 
 - [ ] **Step 4: Commit**
@@ -174,34 +179,117 @@ Expected: 1
 Write a page with 4 sections, each a few paragraphs with Mermaid diagrams. Bilingual (Chinese first, English below).
 
 **Section 1: 流水线 / The Pipeline**
-- Mermaid `graph LR` showing the 7 long-form phases (Genesis -> Architecture -> Planning -> Drafting -> Audit -> Foundation -> Management) plus Short-Story and Import as parallel tracks
-- Table of 3 T3 pipelines with their phase sequences (from deps.json `t3-pipelines`)
-- Note: data flows between phases via truth files
+
+Mermaid diagram (use this exact code):
+
+    ```mermaid
+    graph LR
+        subgraph Long-Form["长篇 / Long-Form"]
+            G["创世<br/>Genesis"] --> A["架构<br/>Architecture"]
+            A --> P["规划<br/>Planning"]
+            P --> D["起草<br/>Drafting"]
+            D --> AU["审计<br/>Audit"]
+            AU --> F["基设<br/>Foundation"]
+            F --> M["管理<br/>Management"]
+        end
+        subgraph Short["短篇 / Short-Form"]
+            S["短篇<br/>Short Story"]
+        end
+        subgraph Import["导入 / Import-Form"]
+            I["导入<br/>Import"]
+        end
+    ```
+
+Table of 3 T3 pipelines (from deps.json `t3-pipelines`):
+
+| Pipeline | Phase Sequence |
+|----------|---------------|
+| Long-form | genesis -> architecture -> planning -> drafting -> audit -> foundation -> management |
+| Short-form | short-story |
+| Import-form | import |
+
+Note: data flows between phases via truth files.
 
 **Section 2: 门控链 / The Gate Chain**
-- Table of G0-G7 with checkpoint and purpose (from deps.json and command-to-give.md):
-  - G0: Round creation / environment check
-  - G1: Pre-dispatch / input validation
-  - G2: Output validation
-  - G3: Scoring readiness
-  - G4: Skill quality checks + marker generation
-  - G5: T2 phase boundary
-  - G6: T3 pipeline integrity
-  - G7: Post-round audit
-- Mermaid flow diagram showing the gate chain from Start through G0 -> G1 -> Dispatch -> G2 -> G4 -> G3 -> Score -> G7 -> Done, with Fail paths looping back to Fix
-- Gate rules: G0 block = fix and re-pass; G2/G4 fail = not scored; scoring must use independent subagent
+
+Table of G0-G7 (8 gates) with checkpoint and purpose:
+
+| Gate | Checkpoint | Purpose |
+|------|-----------|---------|
+| G0 | Round creation | Environment integrity: tool hashes, fixture purity, progress.json consistency |
+| G1 | Pre-dispatch | Input file validation |
+| G2 | Output validation | Output file structure and content validation |
+| G3 | Scoring readiness | Scoring precondition check |
+| G4 | Skill quality | Skill-specific structural check + gate marker generation |
+| G5 | Phase boundary | T2 phase transition validation |
+| G6 | Pipeline integrity | T3 end-to-end validation |
+| G7 | Post-round audit | Round closure audit: tool tamper, gate mismatch |
+
+Mermaid gate chain flow (use this exact code):
+
+    ```mermaid
+    graph LR
+        S["开始 / Start"] --> G0{"G0<br/>环境?"}
+        G0 -->|Pass| G1{"G1<br/>输入?"}
+        G0 -->|Fail| FIX["修复 / Fix"]
+        FIX --> G0
+        G1 -->|Pass| DISP["分派技能 / Dispatch"]
+        G1 -->|Fail| FIX
+        DISP --> G2{"G2<br/>输出?"}
+        G2 -->|Pass| G4{"G4<br/>质量?"}
+        G2 -->|Fail| DISP
+        G4 -->|Pass| G3{"G3<br/>评分就绪?"}
+        G4 -->|Fail| DISP
+        G3 -->|Pass| SCORE["独立评分 / Score"]
+        SCORE --> G7{"G7<br/>审计?"}
+        G7 -->|Pass| DONE["完成 / Done"]
+    ```
+
+Gate rules: G0 block = fix and re-pass; G2/G4 fail = not scored; scoring must use independent subagent (G3.4).
 
 **Section 3: 评分层级 / The Scoring Tiers**
-- Table of T1/T2/T3 with scope and threshold (94 for all, from acceptance.json)
-- Three test types: generative, bug-hunt, clean (with clean's kill switch: hallucinated defect = 0)
-- Convergence target: 100; repair loop for <94
+
+Table of T1/T2/T3 with scope and threshold (94 for all, from acceptance.json):
+
+| Tier | Scope | Threshold |
+|------|-------|-----------|
+| T1 | Per-skill | >= 94 |
+| T2 | Per-phase (9 phases) | >= 94 |
+| T3 | End-to-end (3 pipelines) | >= 94 |
+
+Three test types: generative (generate output and score), bug-hunt (detect injected defects), clean (review clean input; hallucinated defect = score 0).
+
+Convergence target: 100. Repair loop for <94: read scoring report, identify root cause (missing template / rubric conflict / output defect), fix and re-run.
 
 **Section 4: 真相文件 / Truth Files**
-- Explanation: truth files persist project state between skills
-- Table of 5 categories from truth-files.yaml: config, world, characters, outline, truth (with example files)
-- Workflow: Read -> Execute -> Update (via state-settling)
-- Mermaid diagram showing truth files -> skill -> state settling -> truth files cycle
-- Reference: full vocabulary in `docs/framework/truth-files.yaml`
+
+Explanation: truth files persist project state between skills.
+
+Table of 5 core categories (from truth-files.yaml, which defines 15 `kind` values total):
+
+| Category | Example Files |
+|----------|--------------|
+| Config | `novel.json`, `genre-config.json` |
+| World | `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `world/power_system.md`, `world/factions.md` |
+| Character | `characters/protagonist.md`, `characters/relationships.md` |
+| Outline | `outline/story_frame.md`, `outline/volume_map.md`, `outline/rhythm_principles.md`, `outline/thread_map.md` |
+| Truth | `truth/current_state.md`, `truth/pending_hooks.md`, `truth/chapter_summaries.md`, `truth/character_matrix.md`, `truth/emotional_arcs.md` |
+
+Note: full 15 categories in `docs/framework/truth-files.yaml`.
+
+Workflow: Read (skill reads truth files for current state) -> Execute (skill performs task) -> Update (state-settling extracts changes and updates truth files).
+
+Mermaid truth file cycle (use this exact code):
+
+    ```mermaid
+    graph LR
+        TF["真相文件<br/>Truth Files"] -->|读取 / Read| SK["技能执行<br/>Skill"]
+        SK -->|产出 / Output| SS["状态结算<br/>State Settling"]
+        SS -->|更新 / Update| TF
+    ```
+
+Reference: full vocabulary in `docs/framework/truth-files.yaml`.
+
 
 - [ ] **Step 2: Verify docs build**
 
@@ -291,7 +379,7 @@ Expected: Build succeeds.
 Five concepts, each 3-5 sentences bilingual (Chinese first, English below):
 
 1. **技能 / Skill** — what a SKILL.md is, 9 pipeline phases, how agents discover skills via using-shenbi trigger map. Link to skills/index.md.
-2. **真相文件 / Truth Files** — persistent project state, 5 categories (config/world/characters/outline/truth), how state-settling updates them, reference to truth-files.yaml. Core mechanism for consistency.
+2. **真相文件 / Truth Files** — persistent project state. truth-files.yaml defines 15 `kind` values; the 5 core categories are config, world, character, outline, truth. State-settling updates them. Reference to truth-files.yaml for the full vocabulary. Core mechanism for consistency.
 3. **门控 / Gates** — G0-G7, what each guards, "no gate skipped" principle, gate failure = rejected. Link to architecture overview.
 4. **轮次 / Rounds** — what a round directory is, reproducibility property, command to create.
 5. **评分层级 / Scoring Tiers** — T1/T2/T3 table with scope, 94 threshold, 100 convergence target, three test types. Link to architecture overview.
@@ -318,17 +406,29 @@ Expected: Build succeeds.
 
 - [ ] **Step 1: Write the complete first-novel walkthrough**
 
-Follow the actual long-form T3 pipeline order: genesis -> architecture -> planning -> drafting -> audit -> foundation -> management. For each phase:
+Follow the actual long-form T3 pipeline order: genesis -> architecture -> planning -> drafting -> audit -> foundation -> management. For each phase, provide:
 
 - Bilingual heading
 - 1-2 sentence description of what it does
 - Skill list (from deps.json, exact skill names)
-- Truth files read/written (from truth-files.yaml categories)
+- Truth files read/written (specific file paths, see mapping below)
 - Example dispatch command
 
 Prerequisites section at top: Shenbi installed + seed file.
 
+**Phase-to-truth-file mapping** (use these exact file references per phase):
+
+- **Genesis**: Reads: `novel.json` (config). Writes: `world/story_bible.md`, `world/rules.md`, `world/locations.md`, `world/power_system.md`, `world/factions.md`, `characters/protagonist.md`, `characters/relationships.md`, `outline/story_frame.md`, `outline/volume_map.md`
+- **Architecture**: Reads: `outline/story_frame.md`, `outline/volume_map.md`. Writes: `outline/rhythm_principles.md`, `outline/thread_map.md`
+- **Planning**: Reads: `outline/` files, `truth/current_state.md`. Writes: `plans/chapter-N-plan.md` (kind: plan), `truth/pending_hooks.md`
+- **Drafting**: Reads: `plans/chapter-N-plan.md`, `truth/current_state.md`, `truth/pending_hooks.md`. Writes: `chapters/chapter-N.md` (kind: chapter), `truth/current_state.md` (updated), `truth/chapter_summaries.md`
+- **Audit**: Reads: all truth files + `chapters/chapter-N.md`. Writes: `audits/` directory reports (kind: report)
+- **Foundation**: Reads: `world/`, `characters/`, `outline/`, `truth/` (all). Writes: revised chapters, `truth/` (updated via truth-sync)
+- **Management**: Reads: `truth/` (all), `audits/`. Writes: `truth/drift_guidance.md`, `truth/volume_summaries.md` (kind: truth), `audits/` scoring reports
+
 Bottom section: Other Pipelines — brief mention of short-form (short-outline -> short-drafting -> short-packaging) and import-form (import-analysis -> character-extraction/world-extraction -> canon-import).
+
+> Note: the skill lists per phase are the same as in Task 2 (sourced from deps.json). Truth file categories come from `docs/framework/truth-files.yaml`.
 
 Closing: after completion, run `uv run shenbi-summarize <round_dir>` and `uv run shenbi-validate G7 <round_dir>`. Reference command-to-give.md for full protocol.
 
@@ -354,7 +454,7 @@ Expected: Build succeeds.
 Structure:
 1. Title + bilingual tagline
 2. Badges: CI (ci.yml), Docs (docs.yml), Python 3.11+, MIT
-3. **什么是 Shenbi / What is Shenbi** — ~150 words bilingual. Problem + solution (67 skills + 2 meta, 7 gates, T1/T2/T3, truth files)
+3. **什么是 Shenbi / What is Shenbi** — ~150 words bilingual. Problem + solution (67 skills + 2 meta, 8 gates (G0-G7), T1/T2/T3, truth files)
 4. **为什么选择 Shenbi / Why Shenbi** — 3 bilingual bullets: skill orchestration, quality gates, measurable quality
 5. **快速开始 / Quick Start** — clone, uv sync, just check
 6. **文档 / Documentation** — links to docs site (thomaschangx.github.io/shenbi/) with descriptions
@@ -378,7 +478,11 @@ Badge URLs: `https://github.com/ThomasChangX/shenbi/actions/workflows/ci.yml/bad
 
 - [ ] **Step 1: Update the nav section in mkdocs.yml**
 
-Replace the existing `nav` with an additive nav. New entries use bilingual labels; existing entries keep their current labels:
+Replace the existing `nav` with an additive nav. New entries use bilingual labels; existing entries keep their current labels.
+
+Note: the existing nav has `Skills` as a nested section (`Skills: - Index: skills/index.md`). The new nav flattens this to a direct page (`技能目录 / Skills: skills/index.md`). This is an intentional structural change consistent with the spec, not a pure addition. All other existing entries (Framework, API, Architecture Decisions) are preserved exactly.
+
+The proposed nav:
 
     nav:
       - 首页 / Home: index.md

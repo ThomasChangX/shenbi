@@ -6,7 +6,7 @@
 
 ## Problem
 
-Shenbi's documentation does not match the substance of the project. The actual project contains 69 novel-writing skills, a 7-gate quality system (G0-G7), a three-tier testing framework (T1/T2/T3), truth-file state management, and a detailed execution protocol. But the documentation surface is almost entirely stubs:
+Shenbi's documentation does not match the substance of the project. The actual project contains 69 novel-writing skills, an 8-gate quality system (G0-G7), a three-tier testing framework (T1/T2/T3), truth-file state management, and a detailed execution protocol. But the documentation surface is almost entirely stubs:
 
 - README: two lines ("Novel-writing AI skill framework")
 - docs/index.md: four lines
@@ -78,10 +78,10 @@ The single most important page. Must work for a GitHub visitor who has never hea
 Structure:
 1. **Title + bilingual one-liner**: `# Shenbi (神笔)` + bilingual tagline
 2. **Badges**: CI, License, Python version
-3. **What is Shenbi / 什么是 Shenbi**: ~150 words. Core problem (writing a full novel with AI agents means orchestrating dozens of specialized tasks while keeping consistency across hundreds of pages). What Shenbi provides (67 writing skills + 2 meta-skills, 7-gate quality system, three-tier testing framework across 3 pipelines, truth files). Chinese version follows English, same content.
+3. **What is Shenbi / 什么是 Shenbi**: ~150 words. Core problem (writing a full novel with AI agents means orchestrating dozens of specialized tasks while keeping consistency across hundreds of pages). What Shenbi provides (67 writing skills + 2 meta-skills, 8-gate quality system (G0-G7), three-tier testing framework across 3 pipelines, truth files). Chinese version follows English, same content.
 4. **Why Shenbi / 为什么选择 Shenbi**: three bullet points:
    - Skill orchestration: 67 writing skills + 2 meta-skills cover worldbuilding through anti-AI-detection, organized by pipeline phase
-   - Quality gates: 7 validation gates (G0-G7) enforce integrity at every stage — no stage can be skipped
+   - Quality gates: 8 validation gates (G0-G7) enforce integrity at every stage — no stage can be skipped
    - Measurable quality: T1/T2/T3 scoring against rubrics, 0-100, with convergence targets
 5. **Quick start / 快速开始**: clone, uv sync, just check
 6. **Documentation / 文档**: links to published docs site with one-line descriptions
