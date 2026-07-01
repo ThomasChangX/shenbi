@@ -304,3 +304,58 @@ class TestCollectAuditIssues:
         assert blocking is True
         assert len(issues) == 1
         assert issues[0]["severity"] == "BLOCKING"
+
+    # --- CJK production format (all 20 audit skills emit **严重度**: <LEVEL>) ---
+    def test_cjk_bolded_severity_blocking_detected(self, tmp_project: Path):
+        """The actual production format '**严重度**: BLOCKING' is recognised.
+
+        This is the format every audit skill's SKILL.md specifies (e.g.
+        shenbi-review-pacing, shenbi-review-character). Regression for the
+        wave3 task5 re-review: the English-only matcher missed these.
+        """
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-pacing.md").write_text(
+            "# Pacing\n\n| 问题 | **严重度**: BLOCKING |\n"
+        )
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert blocking is True
+        assert len(issues) == 1
+        assert issues[0]["severity"] == "BLOCKING"
+
+    def test_cjk_plain_severity_blocking_detected(self, tmp_project: Path):
+        """Unbolded CJK form '严重度: BLOCKING' is also recognised."""
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-continuity.md").write_text("# Continuity\n\n- 严重度: BLOCKING\n")
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert blocking is True
+        assert len(issues) == 1
+        assert issues[0]["severity"] == "BLOCKING"
+
+    def test_cjk_severity_critical_detected(self, tmp_project: Path):
+        """CJK critical form '**严重度**: CRITICAL' registers as CRITICAL (no blocking)."""
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-texture.md").write_text(
+            "# Texture\n\n- **严重度**: CRITICAL (意象不足)\n"
+        )
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert blocking is False
+        assert len(issues) == 1
+        assert issues[0]["severity"] == "CRITICAL"
+
+    def test_cjk_severity_not_blocking_in_prose(self, tmp_project: Path):
+        """Bare '严重度' in prose without a BLOCKING value must not flag blocking.
+
+        Guards against re-introducing the false-positive the severity-keyed
+        matcher was designed to avoid, now applied to the CJK key.
+        """
+        audit_dir = tmp_project / "audits"
+        audit_dir.mkdir()
+        (audit_dir / "chapter-1-dialogue.md").write_text(
+            "# Dialogue\n\n所有检查项的严重度均为 MINOR 或更低。\n"
+        )
+        issues, blocking = collect_audit_issues(tmp_project, chapter=1)
+        assert issues == []
+        assert blocking is False

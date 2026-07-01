@@ -66,16 +66,19 @@ DEFAULT_RESONANCE_FLOOR = 50
 # Severity markers (spec §6.3). Match BLOCKING/CRITICAL as a severity value
 # rather than a bare substring, so prose like "No BLOCKING issues detected"
 # does not register as a false positive. Accepts the bolded marker form
-# (``**BLOCKING**``) and the severity-key form (``severity: BLOCKING``,
-# ``**Severity**: BLOCKING``).
+# (``**BLOCKING**``), the English severity-key form (``severity: BLOCKING``,
+# ``**Severity**: BLOCKING``), and the CJK production form that all audit
+# skills actually emit (``**严重度**: BLOCKING``, ``严重度: BLOCKING``).
 _SEVERITY_BLOCKING_RE = re.compile(
     r"\*\*BLOCKING\*\*"  # bolded marker: **BLOCKING**
-    r"|severity\b\W{0,6}BLOCKING\b",  # severity key: "severity: BLOCKING"
+    # severity key (English "severity" or CJK "严重度"): "severity: BLOCKING",
+    # "**严重度**: BLOCKING". The optional \*{0,2} lets the key itself be bolded.
+    r"|(?:severity|严重度)\*{0,2}\W{0,6}BLOCKING\b",
     re.IGNORECASE,
 )
 _SEVERITY_CRITICAL_RE = re.compile(
     r"\*\*CRITICAL\*\*"
-    r"|severity\b\W{0,6}CRITICAL\b",
+    r"|(?:severity|严重度)\*{0,2}\W{0,6}CRITICAL\b",
     re.IGNORECASE,
 )
 
