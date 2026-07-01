@@ -220,9 +220,9 @@ def extract_entities_from_plan(index: TruthIndex, plan_text: str) -> dict[str, l
     """
     char_hits = {hit.term for hit in find_terms(plan_text, index.characters)}
     rule_hits = {hit.term for hit in find_terms(plan_text, index.rules)}
-    hook_hits = [hid for hid in _HOOK_ID_RE.findall(plan_text) if hid in index.hooks]
+    hook_hits = {hid for hid in _HOOK_ID_RE.findall(plan_text) if hid in index.hooks}
     return {
         "characters": list(char_hits),
-        "hooks": hook_hits,
+        "hooks": list(hook_hits),
         "rules": list(rule_hits),
     }

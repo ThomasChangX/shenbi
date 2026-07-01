@@ -143,6 +143,67 @@ class TestExtractEntitiesFromPlan:
         found = extract_entities_from_plan(idx, "")
         assert found == {"characters": [], "hooks": [], "rules": []}
 
+    def test_duplicate_hook_ids_are_deduped(self, project_with_truth):
+        idx = build_index(project_with_truth)
+        found = extract_entities_from_plan(idx, "Resolve H01 then pay off H01 again.")
+        assert found["hooks"] == ["H01"]
+
+
+class TestCJKEntityExtraction:
+    """CJK text is this module's primary domain; exercise non-ASCII names.
+
+    ``shenbi.text.find_terms`` does exact substring matching where every CJK
+    character position is a valid boundary, so Chinese character names must
+    round-trip cleanly through indexing and plan extraction.
+    """
+
+    @pytest.fixture
+    def cjk_project(self, tmp_path: Path) -> Path:
+        """A project with Chinese-named characters and a CJK hook body."""
+        p = tmp_path / "project"
+        (p / "truth").mkdir(parents=True)
+        (p / "truth" / "pending_hooks.md").write_text(
+            "---\nhooks:\n"
+            "  - id: H01\n"
+            "    content: 林晚晴在山洞中发现古剑\n"
+            "    state: PLANTED\n    last_reinforced: 3\n"
+            "    max_distance: 25\n---\n# 钩子\n",
+            encoding="utf-8",
+        )
+        (p / "characters").mkdir()
+        (p / "characters" / "lin_wanqing.md").write_text(
+            "---\nname: 林晚晴\nrole: 主角\n---\n# 林晚晴\n勇敢的战士。",
+            encoding="utf-8",
+        )
+        (p / "characters" / "yingxiong.md").write_text(
+            "---\nname: 英雄\nrole: 配角\n---\n# 英雄\n忠诚的伙伴。",
+            encoding="utf-8",
+        )
+        (p / "world").mkdir()
+        (p / "world" / "rules.md").write_text("## R1: 魔法存在\n## R2: 龙族\n", encoding="utf-8")
+        return p
+
+    def test_cjk_character_indexed_by_chinese_name(self, cjk_project: Path):
+        idx = build_index(cjk_project)
+        assert "林晚晴" in idx.characters
+        assert idx.characters["林晚晴"].file == "characters/lin_wanqing.md"
+
+    def test_cjk_character_extracted_from_plan(self, cjk_project: Path):
+        idx = build_index(cjk_project)
+        found = extract_entities_from_plan(idx, "林晚晴走进幽暗的山洞。")
+        assert "林晚晴" in found["characters"]
+
+    def test_multiple_cjk_characters_extracted(self, cjk_project: Path):
+        idx = build_index(cjk_project)
+        found = extract_entities_from_plan(idx, "林晚晴与英雄并肩作战。")
+        assert set(found["characters"]) == {"林晚晴", "英雄"}
+
+    def test_cjk_hook_content_stored_and_id_extracted(self, cjk_project: Path):
+        idx = build_index(cjk_project)
+        assert idx.hooks["H01"].extra["content_keywords"] == "林晚晴在山洞中发现古剑"
+        found = extract_entities_from_plan(idx, "本章解决H01。")
+        assert found["hooks"] == ["H01"]
+
 
 class TestTruthIndexSerialization:
     def test_all_known_names(self, project_with_truth):
