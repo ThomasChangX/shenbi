@@ -8,6 +8,8 @@ Shenbi includes 67 writing skills and 2 meta-skills, organized by 9 T2 phases. A
 
 ## 创世 / Genesis
 
+基础层：世界观、角色、故事架构和类型配置，在任何章节写作之前建立。
+
 The foundation layer: worldbuilding, characters, story architecture, and genre configuration established before any chapters are written.
 
 | Skill | Description |
@@ -26,6 +28,8 @@ The foundation layer: worldbuilding, characters, story architecture, and genre c
 
 ## 架构 / Architecture
 
+结构设计层：故事架构细化、分卷大纲、节奏、伏笔线协调。部分技能与创世阶段重叠。
+
 Structural design layer: story architecture refinement, volume outlines, pacing, plot thread coordination. Some skills overlap with Genesis — this reflects their dual role in both initial creation and structural refinement.
 
 | Skill | Description |
@@ -38,6 +42,8 @@ Structural design layer: story architecture refinement, volume outlines, pacing,
 
 ## 规划 / Planning
 
+逐章准备：章节计划、伏笔种植和上下文组装。
+
 Per-chapter preparation: chapter plans, foreshadowing seeds, and context assembly before drafting.
 
 | Skill | Description |
@@ -47,6 +53,8 @@ Per-chapter preparation: chapter plans, foreshadowing seeds, and context assembl
 | shenbi-context-composing | Use when assembling context before drafting a chapter, collecting truth files, or preparing the writing context package |
 
 ## 起草 / Drafting
+
+章节生成流水线：起草、状态更新、伏笔追踪、文风打磨、反检测、字数调整和评分。
 
 Chapter generation pipeline: drafting, state updates, foreshadowing tracking, style polishing, anti-detect, length normalization, and scoring.
 
@@ -63,6 +71,8 @@ Chapter generation pipeline: drafting, state updates, foreshadowing tracking, st
 | shenbi-score-arc | Use when scoring 弧段级评分 on goal attainment and anchor calibration |
 
 ## 审计 / Audit
+
+起草后质量检查：18 个专项审核维度，覆盖角色、连贯性、对话、节奏、反 AI、伏笔、世界规则、敏感词等。
 
 Post-drafting quality checks: 18 specialized audit dimensions covering character, continuity, dialogue, pacing, anti-AI, foreshadowing, world rules, sensitivity, and more.
 
@@ -89,6 +99,8 @@ Post-drafting quality checks: 18 specialized audit dimensions covering character
 
 ## 基设 / Foundation
 
+基础质量审查和章节修订：确保故事根基稳固，修复审计发现的问题。
+
 Foundation quality review and chapter revision: ensuring the story bedrock is solid before large-scale writing, and fixing audit findings.
 
 | Skill | Description |
@@ -99,6 +111,8 @@ Foundation quality review and chapter revision: ensuring the story bedrock is so
 | shenbi-style-learning | Use when extracting a style fingerprint from existing chapters for style imitation, computing sentence/paragraph length statistics, or generating a statistical style profile |
 
 ## 管理 / Management
+
+卷级和书级管理：快照、漂移引导、章节模式监控、卷总结、弧段结算审查、记忆蒸馏和分层评分。
 
 Volume-level and novel-level management: snapshots, drift guidance, chapter pattern monitoring, volume consolidation, arc payoff review, memory distillation, and multi-level scoring.
 
@@ -116,6 +130,8 @@ Volume-level and novel-level management: snapshots, drift guidance, chapter patt
 
 ## 导入 / Import
 
+稿件导入：分析已有小说、提取角色/世界数据、导入同人原作设定。
+
 Manuscript ingestion: analyzing existing novels, extracting character/world data, and importing canon for fanfic.
 
 | Skill | Description |
@@ -126,6 +142,8 @@ Manuscript ingestion: analyzing existing novels, extracting character/world data
 | shenbi-canon-import | Use when importing source material for fanfic writing, extracting canon from existing works, or generating reference files for AU/OOC/CP fanfic modes (AU=Alternate Universe 架空设定, OOC=Out of Character 性格偏离, CP=Couple/Pairing 角色配对) |
 
 ## 短篇 / Short Story
+
+短篇小说流水线（<30 章）：快速大纲、批量起草和出版打包。
 
 Short novel pipeline (<30 chapters): fast outlining, batch drafting, and publication packaging.
 
@@ -138,6 +156,8 @@ Short novel pipeline (<30 chapters): fast outlining, batch drafting, and publica
 ---
 
 ## 管道外技能 / Out-of-Pipeline Skills
+
+这些技能通过 T1 验证但不属于任何 T2 阶段。它们是辅助工具、元/设置工具或单一用途的起草辅助。
 
 These skills pass T1 validation but are not required by any T2 phase. They serve as auxiliary tools, meta/setup utilities, or single-purpose drafting helpers.
 

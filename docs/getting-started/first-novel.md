@@ -17,6 +17,8 @@ This guide walks you through the complete Shenbi long-form novel creation pipeli
 
 ---
 
+> **术语提示 / Terminology note:** Shenbi 通过"分派（dispatch）"执行技能——每个技能接收输入并产出文件。"轮次（round）"是一次完整的执行周期，其目录结构确保可复现性。命令中的 `T1` 指单技能测试层级，`generative` 是三种测试类型之一。 / Shenbi executes skills via "dispatch" — each skill receives input and produces output files. A "round" is a complete execution cycle whose directory structure ensures reproducibility. The `T1` in commands refers to the per-skill test tier; `generative` is one of three test types.
+
 ## 第 1 步：创世 / Step 1: Genesis
 
 **做什么 / What it does:** 构建小说的基础世界——世界观、力量体系、阵营、地点、角色设计、关系图、故事架构、分卷大纲、类型配置、节奏设计、书脊初始化。这是所有后续阶段的根基。

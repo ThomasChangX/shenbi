@@ -80,8 +80,8 @@ The three-tier scoring system measures quality at different scopes:
 | T2 | 单阶段 / Per-phase | 阶段内所有技能需达到推进门槛 |
 | T3 | 端到端 / End-to-end | 流水线连续性和完整性 |
 
-**94 分是推进门槛**——一个技能的三种测试（generative、bug-hunt、clean）全部 >= 94 才算在 tier 内通过。**100 分是收敛目标。**
+单次测试 **>= 90 分即通过**。但**推进到下一阶段（tier advancement）要求 >= 94 分**——一个技能的三种测试（generative、bug-hunt、clean）均需达标。**100 分是收敛目标。**
 
-**94 is the advancement threshold** — all three test types (generative, bug-hunt, clean) must score >= 94 for a skill to pass. **100 is the convergence target.**
+An individual test **>= 90 is a pass**. But **advancing to the next tier requires >= 94** — all three test types (generative, bug-hunt, clean) must reach this threshold. **100 is the convergence target.**
 
 → [评分详情 / Scoring Details](../architecture/overview.md)
