@@ -24,7 +24,7 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g3,
     run_gate_g4,
 )
-from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.machine import is_at_checkpoint, set_checkpoint
 from shenbi.pipeline.state import CheckpointType, ClosureState, PipelineState
 from shenbi.status import GateStatus
 
@@ -54,7 +54,8 @@ class ClosureStep:
 #
 # 10 steps. Steps 1-9 produce closure artifacts; step 10 (snapshot-manage)
 # runs after the book-closure checkpoint is approved. The checkpoint is set
-# when all 10 steps have been consumed (closure_step >= len(CLOSURE_STEPS)).
+# when closure_step reaches 9 (after step 9 / style-learning), BEFORE
+# step 10 executes (spec section 8).
 # ---------------------------------------------------------------------------
 
 CLOSURE_STEPS: list[ClosureStep] = [
@@ -138,30 +139,35 @@ def _record_done(state: PipelineState, skill: str) -> None:
 def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     """Execute the next closure step.
 
-    Returns True if a checkpoint was reached (book-closure) or all steps
-    are already consumed; False if the step failed (dispatch or gate).
-    Mutates ``state`` in place; the caller persists it.
+    Steps 1-9 run immediately. After step 9 (style-learning) completes, the
+    runner sets the ``BOOK_CLOSURE`` checkpoint and returns True: the pipeline
+    pauses for human review BEFORE the final snapshot (spec section 8).
 
-    When all 10 steps have been consumed, the runner sets the
-    ``BOOK_CLOSURE`` checkpoint and returns True.
+    Step 10 (snapshot-manage) only runs once the checkpoint is cleared.
+    While the checkpoint is still pending, calling this function returns True
+    without dispatching -- the step is blocked pending review.
+
+    After step 10 completes, ``state.closure`` is set to ``COMPLETED`` and the
+    function returns True. Calling again after completion is a no-op that keeps
+    ``closure == COMPLETED``.
+
+    Returns True if a checkpoint was reached, the step is blocked at a pending
+    checkpoint, or closure completed; False if the step failed (dispatch or
+    gate). Mutates ``state`` in place; the caller persists it.
     """
     project_dir = Path(project_dir)
     idx = state.closure_step
+    n = len(CLOSURE_STEPS)
 
-    if idx >= len(CLOSURE_STEPS):
-        # All steps consumed: set book-closure checkpoint.
-        state.closure = ClosureState.CHECKPOINT_PENDING
-        set_checkpoint(
-            state,
-            CheckpointType.BOOK_CLOSURE,
-            artifact="final-snapshot/",
-            context=(
-                "Review final book before completion. Check: all hooks "
-                "RESOLVED, protagonist arc complete, three-layer conflicts "
-                "converged, theme fully explored."
-            ),
-        )
-        log.info("closure_checkpoint_set", steps_done=idx)
+    # Past the last step: closure is already complete.
+    if idx >= n:
+        state.closure = ClosureState.COMPLETED
+        return True
+
+    # Step 10 (snapshot-manage): gated on the book-closure checkpoint being
+    # cleared. While pending, do not dispatch -- the human must review first.
+    if idx == n - 1 and is_at_checkpoint(state):
+        log.info("closure_blocked_at_checkpoint", step=n)
         return True
 
     step = CLOSURE_STEPS[idx]
@@ -212,7 +218,29 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
         "closure_step_done",
         step=step.step_num,
         skill=step.skill,
-        next_step=idx + 1,
+        next_step=state.closure_step,
     )
+
+    # After step 9: raise the book-closure checkpoint BEFORE step 10.
+    if state.closure_step == n - 1:
+        state.closure = ClosureState.CHECKPOINT_PENDING
+        set_checkpoint(
+            state,
+            CheckpointType.BOOK_CLOSURE,
+            artifact="final-snapshot/",
+            context=(
+                "Review final book before completion. Check: all hooks "
+                "RESOLVED, protagonist arc complete, three-layer conflicts "
+                "converged, theme fully explored."
+            ),
+        )
+        log.info("closure_checkpoint_set", steps_done=state.closure_step)
+        return True
+
+    # After step 10: closure is complete.
+    if state.closure_step >= n:
+        state.closure = ClosureState.COMPLETED
+        log.info("closure_completed", steps_done=state.closure_step)
+        return True
 
     return True

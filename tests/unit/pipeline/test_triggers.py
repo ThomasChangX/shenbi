@@ -39,6 +39,7 @@ from shenbi.pipeline.triggers import (
     is_volume_boundary,
     read_volume_boundaries,
     run_triggered_skills,
+    volume_snapshot_pending,
 )
 
 # ---------------------------------------------------------------------------
@@ -301,6 +302,38 @@ class TestTriggerSteps:
         assert "shenbi-review-arc-payoff" in skills
         assert "shenbi-drift-guidance" in skills
 
+    def test_style_learning_position_in_volume_block(self):
+        """Spec section 6.4: score-volume -> memory-distill L5 ->
+        style-learning -> drift-guidance. Style-learning must sit inside the
+        volume block (not before it) and fire exactly once.
+        """
+        r = TriggerResult(volume_boundary=True, score_volume=True, style_learning=True)
+        steps = get_trigger_steps(r)
+        skills = [s.skill for s in steps]
+        # Exactly one style-learning run, at the volume-block position.
+        assert skills.count("shenbi-style-learning") == 1
+        score_vol_idx = next(i for i, s in enumerate(steps) if s.skill == "shenbi-score-volume")
+        l5_idx = next(
+            i for i, s in enumerate(steps) if s.skill == "shenbi-memory-distill" and "L5" in s.mode
+        )
+        style_idx = next(i for i, s in enumerate(steps) if s.skill == "shenbi-style-learning")
+        drift_idx = next(i for i, s in enumerate(steps) if s.skill == "shenbi-drift-guidance")
+        assert score_vol_idx < l5_idx < style_idx < drift_idx
+
+    def test_arc_style_learning_suppressed_at_volume_boundary(self):
+        """At a volume boundary the periodic (arc) style-learning entry is
+        suppressed in favor of the volume-block entry, so it never runs twice.
+        """
+        r = TriggerResult(
+            volume_boundary=True,
+            score_volume=True,
+            style_learning=True,
+            l2_distill=True,
+            score_arc=True,
+        )
+        steps = get_trigger_steps(r)
+        assert [s.skill for s in steps].count("shenbi-style-learning") == 1
+
     def test_volume_expansion_skills_present(self):
         r = TriggerResult(volume_boundary=True)
         steps = get_trigger_steps(r)
@@ -389,6 +422,9 @@ class TestRunTriggeredSkills:
     @patch("shenbi.pipeline.triggers.dispatch_skill")
     @patch("shenbi.pipeline.triggers.run_gate_g4")
     def test_volume_boundary_checkpoint(self, mock_g4, mock_disp, tmp_path):
+        """Volume boundary raises a checkpoint but does NOT dispatch the
+        snapshot -- that is deferred to the caller post-review (Important #2).
+        """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
@@ -396,6 +432,26 @@ class TestRunTriggeredSkills:
         raised = run_triggered_skills(state, tmp_path, 24, result)
         assert raised is True
         assert state.pending_checkpoint.type == CheckpointType.VOLUME_BOUNDARY
+        # snapshot-manage must NOT have been dispatched before the review.
+        dispatched = [c.args[0] for c in mock_disp.call_args_list]
+        assert "shenbi-snapshot-manage" not in dispatched
+        assert volume_snapshot_pending(state)
+
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    def test_volume_snapshot_pending_clears_after_review(self, mock_g4, mock_disp, tmp_path):
+        """volume_snapshot_pending flips to False once the checkpoint clears."""
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        result = TriggerResult(volume_boundary=True, score_volume=True, style_learning=True)
+        run_triggered_skills(state, tmp_path, 24, result)
+        assert volume_snapshot_pending(state)
+        clear_checkpoint(state, ReviewDecision.APPROVE)
+        assert not volume_snapshot_pending(state)
 
     @patch("shenbi.pipeline.triggers.dispatch_skill")
     @patch("shenbi.pipeline.triggers.run_gate_g4")

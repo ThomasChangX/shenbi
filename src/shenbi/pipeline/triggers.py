@@ -206,6 +206,13 @@ TRIGGER_STEPS: list[TriggerStep] = [
         output_path="truth/book_spine.md",
         category="volume_boundary",
     ),
+    # Style-learning within the volume block (spec section 6.4 position 6:
+    # score-volume -> memory-distill L5 -> style-learning -> drift-guidance).
+    TriggerStep(
+        skill="shenbi-style-learning",
+        output_path="style/style_profile.md",
+        category="volume_boundary",
+    ),
     TriggerStep(
         skill="shenbi-drift-guidance",
         mode="volume",
@@ -401,9 +408,12 @@ def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
     the pre-defined order. This enforces [I14] (memory-distill L4 before
     score-stratum) and the spec's section ordering.
 
-    The ``style_learning`` flag maps to the single ``shenbi-style-learning``
-    entry (which fires at ch%12 or volume boundary -- the skill itself
-    adapts its depth based on available data).
+    ``shenbi-style-learning`` has two table entries: a periodic one
+    (``category="style_learning"``, for the ch%12 arc-cycle) and a
+    volume-boundary one (``category="volume_boundary"``, positioned after
+    memory-distill L5 and before drift-guidance per spec section 6.4). When a
+    volume boundary fires, the periodic entry is suppressed so style-learning
+    runs exactly once, at the volume-block position.
     """
     active_flags = {
         f
@@ -419,6 +429,11 @@ def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
         )
         if getattr(result, f)
     }
+    # Volume boundary: style-learning is handled by the volume_boundary entry
+    # at the correct block position; drop the standalone periodic entry so the
+    # skill fires once (spec section 6.4).
+    if result.volume_boundary:
+        active_flags.discard("style_learning")
     return [step for step in TRIGGER_STEPS if step.category in active_flags]
 
 
@@ -450,6 +465,11 @@ def run_triggered_skills(
     and on success advances. Returns True if a checkpoint was raised
     (volume boundary), False otherwise. Stops on first dispatch/gate
     failure; the caller can retry.
+
+    For a volume boundary the snapshot-manage dispatch is NOT performed here:
+    it is deferred to the caller, which runs it only after the human reviews
+    and clears the checkpoint (spec section 6.4: [CHECKPOINT] -> snapshot).
+    Use :func:`volume_snapshot_pending` to detect that a snapshot is owed.
 
     Mutates ``state`` in place; the caller persists it.
     """
@@ -512,7 +532,11 @@ def run_triggered_skills(
             mode=step.mode,
         )
 
-    # Volume-boundary: raise checkpoint + snapshot after all triggered skills.
+    # Volume-boundary: raise checkpoint. The snapshot-manage dispatch is
+    # deferred to the caller so it runs AFTER the checkpoint is cleared (spec
+    # section 6.4: [CHECKPOINT: volume-boundary] -> snapshot-manage). The
+    # pending VOLUME_BOUNDARY checkpoint is the signal that a snapshot is owed;
+    # see :func:`volume_snapshot_pending`.
     if result.volume_boundary:
         set_checkpoint(
             state,
@@ -521,17 +545,22 @@ def run_triggered_skills(
             artifact="truth/book_spine.md",
             context=(
                 f"Volume boundary at chapter {chapter}. Review volume scores, "
-                f"expansion, and drift before proceeding."
+                f"expansion, and drift before proceeding. The volume snapshot "
+                f"(snapshot-manage) runs after this checkpoint is cleared."
             ),
         )
-        # Snapshot is the final volume-boundary action (section 6.4).
-        snap_disp = dispatch_skill(
-            "shenbi-snapshot-manage",
-            project_dir,
-            f"Volume-boundary full snapshot after chapter {chapter}.",
-        )
-        if not snap_disp.success:
-            log.error("volume_snapshot_failed", chapter=chapter)
         return True
 
     return False
+
+
+def volume_snapshot_pending(state: PipelineState) -> bool:
+    """True when a volume-boundary snapshot awaits checkpoint clearance.
+
+    The caller dispatches ``shenbi-snapshot-manage`` only after the human
+    reviews and clears the volume-boundary checkpoint (spec section 6.4,
+    Important #2). Until then the snapshot must not run. This helper lets the
+    orchestrator (chapter loop / phase transition) detect that a snapshot is
+    owed and perform it post-approval.
+    """
+    return state.pending_checkpoint.type == CheckpointType.VOLUME_BOUNDARY

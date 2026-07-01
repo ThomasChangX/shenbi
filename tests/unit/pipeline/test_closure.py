@@ -15,10 +15,12 @@ from shenbi.pipeline.closure import (
     run_closure_step,
 )
 from shenbi.pipeline.dispatch_helper import DispatchResult
+from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
 from shenbi.pipeline.state import (
     CheckpointType,
     ClosureState,
     PipelineState,
+    ReviewDecision,
 )
 
 # ---------------------------------------------------------------------------
@@ -159,7 +161,10 @@ class TestRunClosureStep:
 
     @patch("shenbi.pipeline.closure.dispatch_skill")
     @patch("shenbi.pipeline.closure.run_gate_g4")
-    def test_all_steps_consumed_sets_checkpoint(self, mock_g4, mock_disp, tmp_path):
+    def test_all_steps_consumed_completed(self, mock_g4, mock_disp, tmp_path):
+        """Past the last step, the runner reports closure completed (the
+        book-closure checkpoint was already raised after step 9).
+        """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
@@ -167,8 +172,8 @@ class TestRunClosureStep:
         state.closure_step = len(CLOSURE_STEPS)  # past all steps
         result = run_closure_step(state, tmp_path)
         assert result is True
-        assert state.closure == ClosureState.CHECKPOINT_PENDING
-        assert state.pending_checkpoint.type == CheckpointType.BOOK_CLOSURE
+        assert state.closure == ClosureState.COMPLETED
+        assert state.pending_checkpoint.type == CheckpointType.NONE
 
     @patch("shenbi.pipeline.closure.dispatch_skill")
     @patch("shenbi.pipeline.closure.run_gate_g4")
@@ -185,21 +190,57 @@ class TestRunClosureStep:
     @patch("shenbi.pipeline.closure.dispatch_skill")
     @patch("shenbi.pipeline.closure.run_gate_g4")
     def test_full_run_to_checkpoint(self, mock_g4, mock_disp, tmp_path):
-        """Run all 10 steps sequentially, verify checkpoint at end."""
+        """Run steps 1-9, verify the book-closure checkpoint fires after
+        step 9 (style-learning), NOT after step 10 (snapshot-manage).
+        """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
         state.closure = ClosureState.IN_PROGRESS
         state.closure_step = 0
 
-        for _ in range(len(CLOSURE_STEPS)):
+        # Steps 1-9 only (step 10 is snapshot-manage, gated by checkpoint).
+        for _ in range(len(CLOSURE_STEPS) - 1):
             run_closure_step(state, tmp_path)
 
-        assert state.closure_step == len(CLOSURE_STEPS)
-        assert len(state.closure_skills_done) == len(CLOSURE_STEPS)
-
-        # Next call should set the checkpoint
-        result = run_closure_step(state, tmp_path)
-        assert result is True
+        # After step 9: checkpoint is set, before the final snapshot runs.
         assert state.closure == ClosureState.CHECKPOINT_PENDING
         assert state.pending_checkpoint.type == CheckpointType.BOOK_CLOSURE
+        assert state.closure_step == len(CLOSURE_STEPS) - 1
+        assert len(state.closure_skills_done) == len(CLOSURE_STEPS) - 1
+        # snapshot-manage (step 10) must NOT have run yet.
+        assert "shenbi-snapshot-manage" not in state.closure_skills_done
+
+    @patch("shenbi.pipeline.closure.dispatch_skill")
+    @patch("shenbi.pipeline.closure.run_gate_g4")
+    def test_step_10_blocked_until_checkpoint_cleared(self, mock_g4, mock_disp, tmp_path):
+        """Step 10 (snapshot-manage) does not run while the book-closure
+        checkpoint is pending; it runs and completes only after clearance.
+        """
+        mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_g4.return_value = {"status": "PASS"}
+        state = PipelineState.default(str(tmp_path))
+        state.closure = ClosureState.CHECKPOINT_PENDING
+        state.closure_step = len(CLOSURE_STEPS) - 1  # at step 10 boundary
+        set_checkpoint(
+            state,
+            CheckpointType.BOOK_CLOSURE,
+            artifact="final-snapshot/",
+        )
+
+        # While the checkpoint is pending, step 10 is blocked (no dispatch).
+        result = run_closure_step(state, tmp_path)
+        assert result is True
+        assert state.closure_step == len(CLOSURE_STEPS) - 1  # not advanced
+        assert mock_disp.call_count == 0
+        assert state.closure == ClosureState.CHECKPOINT_PENDING
+
+        # Human approves -> checkpoint cleared -> step 10 runs -> completed.
+        clear_checkpoint(state, ReviewDecision.APPROVE)
+        result = run_closure_step(state, tmp_path)
+        assert result is True
+        assert state.closure_step == len(CLOSURE_STEPS)
+        assert state.closure == ClosureState.COMPLETED
+        assert "shenbi-snapshot-manage" in state.closure_skills_done
+        assert mock_disp.call_count == 1
+        assert state.pending_checkpoint.type == CheckpointType.NONE
