@@ -92,6 +92,7 @@
       "shenbi-book-spine-init",
       "shenbi-chapter-planning",
       "shenbi-faction-builder",
+      "shenbi-foreshadowing-plant",
       "shenbi-location-builder",
       "shenbi-pacing-design",
       "shenbi-plot-thread-weaver",
@@ -108,6 +109,7 @@
     "reads": [
       "shenbi-book-spine-init",
       "shenbi-chapter-planning",
+      "shenbi-foreshadowing-plant",
       "shenbi-pacing-design",
       "shenbi-plot-thread-weaver",
       "shenbi-review-arc-payoff",

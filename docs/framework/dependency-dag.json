@@ -2831,6 +2831,66 @@
       "file": "plans/chapter-N-plan.md"
     },
     {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/story_frame.md"
+    },
+    {
+      "producer": "shenbi-chapter-pattern",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-pacing-design",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-plot-thread-weaver",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-short-outline",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-story-architecture",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
+      "producer": "shenbi-volume-outlining",
+      "consumer": "shenbi-foreshadowing-plant",
+      "file": "outline/volume_map.md"
+    },
+    {
       "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-foreshadowing-plant",
       "file": "truth/pending_hooks.md"
