@@ -11,6 +11,7 @@ dependencies = [
     "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
+    "numpy>=1.26.0",          # Wave 2 Task 2: Route B float32 cosine similarity (truth_embed)
     # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
 ]
