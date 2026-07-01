@@ -862,7 +862,7 @@ Expected: PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/pipeline/filelock_utils.py tests/unit/pipeline/test_filelock_utils.py pyproject.toml
+git add src/shenbi/pipeline/filelock_utils.py tests/unit/pipeline/test_filelock_utils.py
 git commit -m "feat: add pipeline read/write lock utilities (wave1 task3)"
 ```
 

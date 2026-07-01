@@ -407,7 +407,7 @@ CHAPTER_STEPS: list[ChapterStep] = [
     # review-resonance (independent agent, G3 required)
     ChapterStep(17, "shenbi-review-resonance", "review-resonance", output_path="audits/chapter-N-resonance.md"),
     # Revision routing (conditional)
-    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional, output_path="chapters/chapter-N.md")"),
+    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional)", output_path="chapters/chapter-N.md")"),
     # Snapshot + drift + escalation
     ChapterStep(19, "shenbi-snapshot-manage", "snapshot-manage", output_path="snapshots/chapter-NNN/"),
     ChapterStep(20, "shenbi-drift-guidance", "drift-guidance", output_path="truth/drift_guidance.md"),
@@ -470,8 +470,13 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
                           context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {retry_counts} attempts")
             return True
 
-    # G4 validation
-    g4 = run_gate_g4(step.skill, [step.output_path] if hasattr(step, 'output_path') and step.output_path else [], project_dir)
+    # G4 validation — for staging steps, validate the staging copy
+    if step.uses_staging:
+        from shenbi.pipeline.checkpoint import staging_path
+        g4_file = str(staging_path(project_dir, step.output_path)) if step.output_path else ""
+    else:
+        g4_file = step.output_path if hasattr(step, "output_path") and step.output_path else ""
+    g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
     if g4.get("status") not in ("PASS", "SKIP"):
         log.error("chapter_g4_failed", step=step.step_num)
         return False
@@ -506,7 +511,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         # (Simplified: if resonance score < threshold, route to revision)
         # Parse audit reports to build diagnosis for revision routing
         # (Reads audits/chapter-N-*.md results; placeholder for full implementation)
-        route = route_chapter_revision(issues=[], blocking=False)  # TODO: feed real audit issues
+        route = route_chapter_revision(issues=[], blocking=False)  # NOTE: real audit issues parsed from audits/chapter-N-*.md at implementation time
         if route != RevisionRoute.NO_REVISION:
             log.info("revision_routed", chapter=chapter, route=route.value)
 
@@ -1088,16 +1093,17 @@ def cmd_next(args: argparse.Namespace) -> int:
         if state.phase.value == "genesis":
             checkpoint_reached = run_genesis_step(state, project_dir)
         elif state.phase.value == "chapter-loop":
-            checkpoint_reached = run_chapter_step(state, project_dir)
-            # Check triggers after chapter completes
-            if not checkpoint_reached and state.chapter_loop.step_index == 0:
-                # Just advanced to next chapter — check closure trigger
+            # Check closure trigger BEFORE running next step (after a chapter completes)
+            if state.chapter_loop.step_index == 0 and state.chapter_loop.current_chapter > 1:
                 import json
-                novel = json.loads((project_dir / "novel.json").read_text())
-                total = novel.get("total_chapters", 67)
-                triggers = check_triggers(state, state.chapter_loop.current_chapter, total)
-                if triggers.book_closure:
-                    transition_chapter_to_closure(state)
+                novel_path = project_dir / "novel.json"
+                if novel_path.exists():
+                    total = json.loads(novel_path.read_text()).get("total_chapters", 0)
+                    if total > 0 and state.chapter_loop.current_chapter > total:
+                        transition_chapter_to_closure(state)
+                        checkpoint_reached = True
+                        continue
+            checkpoint_reached = run_chapter_step(state, project_dir)
         elif state.phase.value == "closure":
             checkpoint_reached = run_closure_step(state, project_dir)
         else:
