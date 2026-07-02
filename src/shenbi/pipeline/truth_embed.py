@@ -180,7 +180,7 @@ class EmbeddingStore:
         """
         import numpy as np
 
-        query = np.frombuffer(query_vec, dtype=np.float32)
+        query = np.frombuffer(query_vec, dtype=np.float32)  # type: ignore[var-annotated, unused-ignore]
         query_norm = float(np.linalg.norm(query))
         rows = self._conn.execute(
             "SELECT chunk_id, source_file, chunk_type, chapter_ref, "
@@ -188,7 +188,7 @@ class EmbeddingStore:
         ).fetchall()
         results: list[EmbeddingResult] = []
         for row in rows:
-            stored = np.frombuffer(row[6], dtype=np.float32)
+            stored = np.frombuffer(row[6], dtype=np.float32)  # type: ignore[var-annotated, unused-ignore]
             if len(stored) != len(query):
                 continue
             stored_norm = float(np.linalg.norm(stored))
