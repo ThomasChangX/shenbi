@@ -36,6 +36,10 @@ Or use `just`:
 - `just test` — unit tests
 - `just gate G0 <seed>` — gate invocation
 - `just dispatch <skill> <type> <round> <prompt>`
+- `just pipeline-init <seed>` — initialize novel pipeline
+- `just pipeline-status <dir>` — check pipeline status
+- `just pipeline-review <dir> <decision>` — submit checkpoint review
+- `just pipeline-resume <dir>` — resume pipeline execution
 
 Install: `uv sync --group dev` (PEP 735 dependency groups).
 

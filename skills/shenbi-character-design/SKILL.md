@@ -116,3 +116,33 @@ voice_profile:
 3. 主角最害怕什么？
 4. 有重要配角吗？他们和主角的关系是什么？
 5. 有反派吗？反派的动机是什么？
+
+## 扩展模式 (--mode expand)
+
+当 pipeline 在卷边界需要引入新角色时使用。与 genesis 模式 (全量创建) 不同:
+
+- **reads 已有角色卡**: 读取 `characters/**/*.md` 全部已有角色,避免重复
+- **只追加新角色**: 新角色 append 到 `characters/major/*.md` 或 `characters/minor/*.md`
+- **更新关系矩阵**: 追加新关系到 `characters/relationships.md`
+- **不碰已有角色**: 已有角色的弧线/voice_profile 不修改
+
+### expand 模式流程
+
+```dot
+digraph character_design_expand {
+    "Read all existing characters/**/*.md" -> "Read story_bible + rules (for consistency)";
+    "Read story_bible + rules" -> "Identify new character needs from volume_map";
+    "Identify new character needs" -> "Check: does similar character already exist?";
+    "Does similar character exist?" -> "Skip (log warning)" [label="yes"];
+    "Does similar character exist?" -> "Design new character card" [label="no"];
+    "Design new character card" -> "Append to characters/major/ or characters/minor/";
+    "Append" -> "Update relationships.md (append new rows)";
+    "Update relationships.md" -> "Human reviews new characters only";
+}
+```
+
+### expand 模式铁律
+
+1. **只追加不修改** — 已有角色文件的任何字段不可修改
+2. **去重检查** — 新角色不得与已有角色在性格/功能上高度重叠
+3. **关系矩阵只追加行** — 不重写已有关系行

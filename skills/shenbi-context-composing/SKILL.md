@@ -77,6 +77,17 @@ digraph context_composing {
 }
 ```
 
+## Pipeline 集成模式
+
+当由 pipeline 编排时,`context/chapter-N-context.md` 已由 `pipeline-context-assemble` 预先组装 (三路检索 + 确定性重排)。本 skill 在 pipeline 模式下:
+
+1. **接收预检索包**: 读取 `context/chapter-N-context.md` 作为主要输入
+2. **策展层职责**: 去重 (残留重复) / 冲突检测 / 按 budget 裁剪
+3. **不重复检索**: 不再自行从 truth files 加载 (orchestrator 已完成)
+4. **输出**: 策展后的上下文包覆写到 `context/chapter-N-context.md`
+
+非 pipeline 模式 (直接 dispatch) 时,保持现有行为:自行按 P1-P7 加载。
+
 ## 铁律
 
 1. **优先级严格递减** — P1 不可省略，P7 最先被裁剪。L5-L2 缺失层跳过加载（爬坡期，§3.2.1），不报错

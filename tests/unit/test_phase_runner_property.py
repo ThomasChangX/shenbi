@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -54,6 +56,7 @@ def test_now_iso_always_ends_with_utc_offset(seed: int) -> None:
     phase=_phase_name,
     state=st.sampled_from(["created", "started", "skills_done", "scored", "finalized"]),
 )
+@pytest.mark.skipif(sys.platform == "win32", reason="xdist worker crash on Windows (spec OQ-1)")
 def test_state_persistence_round_trips_with_any_state(
     tmp_path_factory: pytest.TempPathFactory, phase: str, state: str
 ) -> None:

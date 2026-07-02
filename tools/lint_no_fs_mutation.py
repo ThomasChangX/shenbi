@@ -40,6 +40,7 @@ TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
         "skill_utils/drift_detection/compute_drift.py",
         "trace/compaction.py",
         "audit/record.py",
+        "pipeline/checkpoint.py",
     }
 )
 

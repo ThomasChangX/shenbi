@@ -60,6 +60,7 @@ digraph drift_guidance {
 3. **warning 级别传导** — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）
 4. **每条传导必须指定目标章节** — `targeted_chapter` 字段不可省略
 5. **累积传导 ≤ 5 条** — 过多传导 = 审计噪音，下章无法消化
+6. **滚动窗口 (12章)** — `truth/audit_drift.md` 只保留最近 12 章的纠偏条目。超过 12 章的历史条目归档到 `truth/audit_drift_archive.md`。合并重写时:读取当前 audit_drift.md + 新一章条目 -> 如果超过 12 章 -> 移除最旧的到 archive -> 写入新 audit_drift.md
 
 ## 传导规则
 

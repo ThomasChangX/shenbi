@@ -5,6 +5,7 @@ contract:
   kind: artifact
   reads:
     - plans/chapter-N-plan.md
+    - context/chapter-N-context.md
     - style/style_profile.md
     - genre-config.json
     - truth/audit_drift.md
@@ -22,7 +23,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, style/style_profile.md, genre-config.json, truth/audit_drift.md
+- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, style/style_profile.md, genre-config.json, truth/audit_drift.md
 - **Writes:** chapters/chapter-N.md
 - **Updates:** none
 
@@ -31,6 +32,8 @@ contract:
 # 章节起草
 
 HARD-GATE: 不得在没有章节备忘的情况下起草正文。
+
+> **Pipeline 集成**: 当由 pipeline 编排时,`context/chapter-N-context.md` 由 `pipeline-context-assemble` 预先组装 (三路检索 + 重排)。本 skill 直接读取此文件作为主上下文输入,不再自行从 truth files 加载。
 
 ## 流程
 
