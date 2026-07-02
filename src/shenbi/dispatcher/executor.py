@@ -147,10 +147,11 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
             for f in input_files:
                 name = Path(f).name
                 if any(fnmatch(name, pat) for pat in skip_patterns):
+                    matching = [p for p in skip_patterns if fnmatch(name, p)]
                     log.debug(
                         "g1_skip_optional_read",
                         file=f,
-                        pattern=next(p for p in skip_patterns if fnmatch(name, p)),
+                        pattern=matching[0] if matching else "unknown",
                     )
                 else:
                     filtered.append(f)

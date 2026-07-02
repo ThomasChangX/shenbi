@@ -101,7 +101,16 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
     for entry in state.pending_re_dispatches:
         skill = entry.get("skill", "")
         ch = entry.get("chapter")
+        # Skip entries for checkpoint types no longer in DERIVED_TRUTH_MAP
+        # (stale state from a previous pipeline version).
         prompt_suffix_lookup = DERIVED_TRUTH_MAP.get(entry.get("checkpoint_type", ""), [])
+        if not prompt_suffix_lookup:
+            log.warning(
+                "re_dispatch_unknown_type",
+                checkpoint_type=entry.get("checkpoint_type", ""),
+                skill=skill,
+            )
+            continue
         prompt_suffix = ""
         for s, p in prompt_suffix_lookup:
             if s == skill:
@@ -567,8 +576,8 @@ def _verify_truth_integrity(state: PipelineState, project_dir: Path) -> list[str
         chapter_plan = project_dir / "plans" / f"chapter-{ch}-plan.md"
         if not chapter_plan.exists():
             # The chapter plan for the current chapter may not exist if
-            # we just transitioned from genesis. Only flag if it's chapter 1
-            # and genesis was fully completed (plan should have been created).
+            # we just transitioned from genesis. Don't flag chapter 1 since
+            # its plan is created during the first chapter-loop iteration.
             if ch > 1:
                 missing.append(f"plans/chapter-{ch}-plan.md")
 
