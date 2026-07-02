@@ -19,12 +19,6 @@ def test_body_reads_block_in_skills_is_flagged() -> None:
 
 
 @pytest.mark.unit
-def test_archived_rounds_are_exempt() -> None:
-    md = "# X\n\n- **Reads:** `a.md`\n"
-    assert find_body_contract_blocks([("tests/rounds/archived/r1/SKILL.md", md)]) == []
-
-
-@pytest.mark.unit
 def test_auto_generated_body_block_is_exempt() -> None:
     md = (
         "<!-- AUTO-GENERATED from frontmatter — do not edit -->\n\n## 数据契约\n\n"

@@ -42,9 +42,9 @@ This is the core mechanism that keeps a 200,000-word novel from contradicting it
 
 Eight validation gates (G0-G7) enforce quality checks at critical pipeline boundaries. Core principle: **no gate can be skipped.**
 
-- **G0** 在轮次创建时检查环境完整性（工具哈希、fixture 纯度） / Environment check at round creation (tool hashes, fixture purity)
+- **G0** 检查环境完整性（工具哈希、fixture 纯度） / Environment integrity check (tool hashes, fixture purity)
 - **G2/G4** 检查输出文件的结构和质量 / Output file structure and quality
-- **G7** 在轮次关闭时做全面审计 / Full audit at round closure
+- **G7** 做全面审计 / Full audit at pipeline milestones
 
 门控失败意味着输出被拒绝——不评分、不推进。
 
@@ -53,18 +53,6 @@ A gate failure means the output is rejected — not scored, not advanced.
 → [门控详情 / Gate Details](../architecture/overview.md)
 
 ---
-
-## 轮次 / Rounds
-
-轮次是一次完整的测试执行周期。每个轮次有自己的目录（如 `round-006/`），包含输入 fixtures、技能输出、评分报告、gate markers 和 progress.json。
-
-A round is a complete test execution cycle. Each round has its own directory (e.g., `round-006/`) containing input fixtures, skill outputs, scoring reports, gate markers, and progress.json.
-
-轮次的关键属性是**可复现性**：同一 fixtures + 同一 skills = 确定性输出。每次重跑都可以对比。
-
-The key property of a round is **reproducibility**: same fixtures + same skills = deterministic output. Every re-run can be compared.
-
-创建轮次：`bash tests/round-exec.sh <agent> <tier>`
 
 ---
 

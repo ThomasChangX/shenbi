@@ -1,6 +1,6 @@
 # 风格画像
 
-**样本来源**: `/Users/xiaotiac/Documents/GitHub/shenbi/tests/rounds/round-003-2026-06-11/skill-output/shenbi-short-drafting/short/chapter-*.md`
+**样本来源**: 历史测试数据集（round test 已清理）
 **样本章节数**: 15
 **样本总字数**: 83151
 **样本总词数**: 20513

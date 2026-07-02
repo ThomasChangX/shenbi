@@ -83,9 +83,3 @@ This starts a local docs server at `http://127.0.0.1:8000`.
 | `just pipeline-status <dir>` | 查看流水线状态 / Check pipeline status |
 | `just pipeline-review <dir> <decision>` | 提交检查点审查 / Submit checkpoint review |
 | `just --list` | 列出所有命令 / List all commands |
-
-## 测试数据说明 / Test Data Note
-
-`tests/fixtures/` 包含真实的技能输出（非手工编写的 mock，遵循 G0.9 规则）。轮次目录位于 `tests/rounds/`。这些是测试框架使用的，正常写小说不需要。
-
-`tests/fixtures/` contains real skill outputs (not hand-crafted mocks, per G0.9). Round directories live under `tests/rounds/`. These are used by the testing framework, not required for normal novel writing.

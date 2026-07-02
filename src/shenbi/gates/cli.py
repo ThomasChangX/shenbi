@@ -65,7 +65,7 @@ Examples:
   shenbi-validate G2 path/to/file.md,path/to/file2.md chapter
   shenbi-validate G4 chapter-drafting path/to/file.md
   shenbi-validate G4 worldbuilding path/to/file1,path/to/file2
-  shenbi-validate G7 tests/rounds/round-003-2026-01-01"""
+  shenbi-validate G7 /path/to/round_dir"""
         log.info("usage", message=usage)
         return 1
 
