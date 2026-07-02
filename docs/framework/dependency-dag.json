@@ -9631,6 +9631,21 @@
       "file": "chapters/*.md"
     },
     {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-style-learning",
+      "file": "novel.json"
+    },
+    {
+      "producer": "shenbi-genre-config",
+      "consumer": "shenbi-style-learning",
+      "file": "genre-config.json"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-style-learning",
+      "file": "genre-config.json"
+    },
+    {
       "producer": "shenbi-anti-detect",
       "consumer": "shenbi-style-polishing",
       "file": "chapters/chapter-N.md"
