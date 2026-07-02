@@ -512,8 +512,6 @@ class TestUpdateTotalChapters:
 
     def test_update_from_volume_map_end_pattern(self, tmp_path, monkeypatch):
         """Volume map with Chapter End: N sets total_chapters correctly."""
-        import json
-
         from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
 
         novel = tmp_path / "novel"
@@ -539,8 +537,6 @@ class TestUpdateTotalChapters:
 
     def test_update_from_chapter_range(self, tmp_path, monkeypatch):
         """Volume map using Chapters N-M notation sets total_chapters."""
-        import json
-
         from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
 
         novel = tmp_path / "novel"
@@ -564,8 +560,6 @@ class TestUpdateTotalChapters:
 
     def test_no_volume_map_returns_zero(self, tmp_path, monkeypatch):
         """No volume_map.md returns 0 and leaves total_chapters unchanged."""
-        import json
-
         from shenbi.pipeline.cli import _update_total_chapters
 
         novel = tmp_path / "novel"
