@@ -62,6 +62,19 @@ tests/unit/pipeline/
     test_root_cause_fixes.py  # NEW: cross-cutting fix tests
 ```
 
+
+## New Helper Functions
+
+Four helper functions are created within the tasks that use them. Signatures and logic:
+
+1. `_checkpoint_to_step_number(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to genesis step number for modify re-dispatch. Uses a dict mapping CheckpointType enum values to step numbers.
+
+2. `_checkpoint_to_step_index(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to CHAPTER_STEPS 0-based index for reject step_index reset. Uses a dict mapping.
+
+3. `_count_total_chapters(volume_map_text: str) -> int` — Task 5. Parses volume_map.md, sums all volume chapter counts using regex.
+
+4. `_verify_truth_checksums(project_dir: Path, checksums: dict[str, str]) -> list[str]` — Task 12. Computes SHA256 of each truth file, compares against stored manifest, returns list of mismatched paths.
+
 ---
 
 ## Phase 1: 正确性阻塞修复 (Tasks 1-8)
@@ -298,20 +311,25 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
     cs.audit_results["issues"] = [i.model_dump() if hasattr(i, "model_dump") else i for i in audit_result.issues]
 
     if audit_result.blocking_found:
-        # Note: handle_audit_blocking(state, chapter, revision_count) — 3 args.
-        # We inline the retry logic here instead. See spec A8 for details.
-        if should_retry:
-            # Step_index rollback: go back to revision step (step 18)
-            # revision_step_index = index of ChapterStep with skill "shenbi-chapter-revision"
-            _REVISION_STEP_IDX = next(
-                i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-chapter-revision"
-            )
-            state.chapter_loop.step_index = _REVISION_STEP_IDX - 1
-            log.info("audit_blocking_revision_loop", chapter=chapter,
+        # Inline revision loop (spec A8): audit steps precede revision
+        # in the linear sequence, so step_index rollback cannot reach
+        # audits again. Loop inline instead.
+        while cs.audit_retry_count < state.config.max_audit_retries:
+            cs.audit_retry_count += 1
+            log.info("audit_blocking_revision", chapter=chapter,
                      retry=cs.audit_retry_count)
-            return False  # don't advance, loop will re-run from revision step
-        else:
-            # Max retries exhausted → escalation (will be fully wired in Task 4)
+            rev_result = dispatch_skill(
+                "shenbi-chapter-revision", project_dir,
+                f"Revise chapter {chapter}. Project dir: {project_dir}"
+            )
+            if not rev_result.success:
+                break
+            audit_result = run_audit_layer(project_dir, chapter, gc)
+            if not audit_result.blocking_found:
+                break
+        if audit_result.blocking_found:
+            from shenbi.pipeline.revision_router import dispatch_escalation
+            dispatch_escalation(project_dir, chapter)
             set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
                           artifact=f"audits/escalation-{chapter}-report.md")
             return True  # checkpoint raised
@@ -595,11 +613,18 @@ elif decision == ReviewDecision.MODIFY:
     from shenbi.pipeline.checkpoint import clear_staging
     clear_staging(project_dir)
     state.modify_feedback = feedback
-    state.modify_pending_step = _step_number_for_checkpoint(cp)
+    state.modify_pending_step = _checkpoint_to_step_number(cp)
 elif decision == ReviewDecision.REJECT:
-    # B5: Reset step_index for redo
+    # B5: Reset step for redo, phase-aware
     clear_staging(project_dir)
-    state.chapter_loop.step_index = _step_index_for_checkpoint(cp)
+    if state.phase == PipelinePhase.GENESIS:
+        state.genesis.current_step = 0
+        state.genesis.skills_done.clear()
+    elif state.phase == PipelinePhase.CHAPTER_LOOP:
+        state.chapter_loop.step_index = _checkpoint_to_step_index(cp)
+    elif state.phase == PipelinePhase.CLOSURE:
+        state.closure_step = 0
+        state.closure_skills_done.clear()
 ```
 
 - [ ] **Step 4: Add feedback injection in dispatch prompt**
@@ -803,15 +828,17 @@ def test_optional_reads_filtered_before_dispatch():
     """Reads containing N template or marked optional are filtered if not present."""
     pass
 
-def test_requires_independent_fail_closed_for_scoring():
-    """For known scoring skills, requires_independent returns True on error."""
+def test_requires_independent_fail_closed_on_contract_error():
+    """When contract read fails, requires_independent returns True (fail-closed)."""
     pass
 ```
 
 - [ ] **Step 2: Implement**
 
 B1: Add `_OPTIONAL_READ_PATTERNS` set and filter in dispatch_skill before subprocess call.
-B4: For known scoring skills, catch exceptions and return `True` (fail-closed).
+B4: In requires_independent(), change except to return True (fail-closed).
+On contract read failure, assume skill requires independence (safety-first).
+This covers ALL skills with requires_independent_agent: true in their contract.
 
 - [ ] **Step 3: Run tests, commit**
 
