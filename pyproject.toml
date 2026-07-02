@@ -78,6 +78,10 @@ disable_error_code = ["prop-decorator"]
 module = "jieba.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_errors = true
+
 [tool.mutmut]
 # mutmut 3.x reads underscored keys; the prior hyphenated names
 # (paths-to-mutate / tests-dir / do-not-mutate) were silently ignored, so

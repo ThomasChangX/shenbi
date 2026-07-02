@@ -38,11 +38,11 @@ def _flock_acquire(fd: int, shared: bool, timeout: float, lockfile: Path) -> Non
     """
     import fcntl
 
-    operation = fcntl.LOCK_SH if shared else fcntl.LOCK_EX
+    operation = fcntl.LOCK_SH if shared else fcntl.LOCK_EX  # type: ignore[attr-defined, unused-ignore]
     deadline = time.monotonic() + timeout
     while True:
         try:
-            fcntl.flock(fd, operation | fcntl.LOCK_NB)
+            fcntl.flock(fd, operation | fcntl.LOCK_NB)  # type: ignore[attr-defined, unused-ignore]
             return
         except (BlockingIOError, OSError):
             if time.monotonic() > deadline:
@@ -54,7 +54,7 @@ def _flock_release(fd: int) -> None:
     """Release a POSIX advisory lock."""
     import fcntl
 
-    fcntl.flock(fd, fcntl.LOCK_UN)
+    fcntl.flock(fd, fcntl.LOCK_UN)  # type: ignore[attr-defined, unused-ignore]
 
 
 def _windows_acquire(lockfile: Path, timeout: float) -> tuple[Any, Callable[[], None]]:
