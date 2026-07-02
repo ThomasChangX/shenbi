@@ -50,8 +50,6 @@ docs = [
 shenbi-validate = "shenbi.gates.cli:main"
 shenbi-dispatch = "shenbi.dispatcher.cli:main"
 shenbi-score = "shenbi.scoring:main"
-shenbi-summarize = "shenbi.summarize_round:main"
-shenbi-progress = "shenbi.update_progress:main"
 shenbi-phase = "shenbi.phase_runner:main"
 shenbi-sync-contracts = "shenbi.sync_contracts:main"
 shenbi-generate-plugins = "shenbi.plugins.generate:main"
@@ -90,15 +88,10 @@ ignore_errors = true
 # tests that subprocess-run gates needing skills/, which is absent in mutants/).
 paths_to_mutate = ["src/shenbi/exceptions.py", "src/shenbi/logging.py", "src/shenbi/gates/shared.py"]
 pytest_add_cli_args_test_selection = ["tests/unit/"]
-do_not_mutate = ["tests/rounds/archived/**"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = [
-    "tests/rounds/archived",
-    "tests/rounds/round-[0-9][0-9][0-9]-*",
-]
 
 [tool.ruff.lint]
 select = [
@@ -361,8 +354,6 @@ no_implicit_optional = true
 [tool.basedpyright]
 include = ["tests", "src/shenbi"]
 exclude = [
-    "tests/rounds/archived",
-    "tests/rounds/round-[0-9][0-9][0-9]-*",
     "**/__pycache__",
     # P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions
 ]
@@ -398,7 +389,6 @@ executionEnvironments = [
 minversion = "8.0"
 testpaths = ["tests"]
 norecursedirs = [
-    "tests/rounds",
     "tests/fixtures",
     "tests/baselines",
     "tests/coverage",

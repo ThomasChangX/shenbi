@@ -9,13 +9,11 @@ log = get_logger(__name__)
 
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 
 from shenbi.gates.shared import (
     ALL_SKILLS,
-    TESTS,
     fail,
     jload,
     passed,
@@ -105,37 +103,6 @@ def gate_G7(round_dir: str) -> str:
             c.append({"id": "G7.6", "s": "PASS"})
     else:
         c.append({"id": "G7.6", "s": "SKIP", "r": "truth/ not found"})
-
-    # G7.7 — CHANGELOG appended or creatable
-    changelog = TESTS / "rounds" / "CHANGELOG.md"
-    if changelog.exists():
-        try:
-            # Verify writable for auto-append
-            if os.access(str(changelog), os.W_OK):
-                c.append(
-                    {
-                        "id": "G7.7",
-                        "s": "PASS",
-                        "note": "CHANGELOG exists and writable",
-                    }
-                )
-            else:
-                mf.append("G7.7:changelog_not_writable")
-        except Exception:
-            mf.append("G7.7:changelog_access_error")
-    else:
-        # Check if parent dir is writable (so file can be created)
-        changelog_parent = changelog.parent
-        if changelog_parent.exists() and os.access(str(changelog_parent), os.W_OK):
-            c.append(
-                {
-                    "id": "G7.7",
-                    "s": "PASS",
-                    "note": "CHANGELOG.md not found but parent writable; auto-create on first use",
-                }
-            )
-        else:
-            mf.append("G7.7:no_changelog_and_cannot_create")
 
     # G7.2 / G7.3 / G7.4 / G7.8 — sampled / deferred
     c.append({"id": "G7.2", "s": "PASS", "note": "skill-traces check deferred"})

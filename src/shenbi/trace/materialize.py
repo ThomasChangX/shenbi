@@ -1,6 +1,6 @@
 """materialize_progress：progress.json 降级为 trace 派生视图（spec 支柱四）。
 重放 INIT/MARK_DONE 重建 progress dict，经 safe_write 落盘。语义对齐
-update_progress.py（三个 test_type 均 done/skip → completed）。
+原 update_progress（三个 test_type 均 done/skip → completed）。
 """
 
 from __future__ import annotations

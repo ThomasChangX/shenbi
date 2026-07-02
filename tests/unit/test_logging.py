@@ -170,17 +170,3 @@ def test_phase_runner_cli_logs_to_stderr_not_stdout() -> None:
     rc, stdout, stderr = _run_framework_cli(["shenbi-phase"])
     logs = _parse_json_log_lines(stderr)
     assert logs, "expected JSON log lines on stderr from phase_runner usage banner"
-
-
-def test_summarize_cli_logs_to_stderr() -> None:
-    """shenbi-summarize must route logs to stderr."""
-    rc, stdout, stderr = _run_framework_cli(["shenbi-summarize"])
-    logs = _parse_json_log_lines(stderr)
-    assert logs, "expected JSON log lines on stderr from summarize usage banner"
-
-
-def test_update_progress_cli_logs_to_stderr() -> None:
-    """shenbi-progress must route logs to stderr."""
-    rc, stdout, stderr = _run_framework_cli(["shenbi-progress"])
-    logs = _parse_json_log_lines(stderr)
-    assert logs, "expected JSON log lines on stderr from update_progress usage banner"

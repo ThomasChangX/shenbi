@@ -33,7 +33,6 @@ ALLOWED_MISSING: set[str] = {
 }
 
 CODESPAN_PATTERN = re.compile(r"`([.\w][\w./-]*\.\w+)`")
-HISTORICAL_PATH_PATTERN = re.compile(r"tests/rounds/round-\d+")
 
 
 def extract_paths_from_doc(doc_path: Path) -> list[Path]:
@@ -55,8 +54,6 @@ def extract_paths_from_doc(doc_path: Path) -> list[Path]:
                 ".sh",
             )
         ):
-            if HISTORICAL_PATH_PATTERN.search(candidate):
-                continue
             paths.append(REPO_ROOT / candidate)
     return paths
 

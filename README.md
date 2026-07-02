@@ -44,7 +44,7 @@ Full documentation is published at https://thomaschangx.github.io/shenbi/
 
 | 文档 / Docs | 说明 / Description |
 |-------------|-------------------|
-| [核心概念 / Concepts](docs/getting-started/concepts.md) | 技能、真相文件、门控、轮次、评分 / Skills, truth files, gates, rounds, scoring |
+| [核心概念 / Concepts](docs/getting-started/concepts.md) | 技能、真相文件、门控、评分 / Skills, truth files, gates, scoring |
 | [第一本小说 / First Novel](docs/getting-started/first-novel.md) | 完整长篇小说创作流程 / Complete long-form pipeline walkthrough |
 | [技能目录 / Skills](docs/skills/index.md) | 全部 69 个技能的完整目录 / Full catalog of all 69 skills |
 | [架构概览 / Architecture](docs/architecture/overview.md) | 流水线、门控链、评分系统 / Pipeline, gate chain, scoring system |

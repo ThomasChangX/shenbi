@@ -195,7 +195,6 @@ Import existing works into Shenbi for analysis, continuation, or fanfic creation
 After each round, run summary and audit:
 
 ```bash
-uv run shenbi-summarize <round_dir>
 uv run shenbi-validate G7 <round_dir>
 ```
 
