@@ -43,6 +43,17 @@ contract:
 | 卷边界（volume_map 声明的卷末章） | L3 卷摘要（复用 volume-consolidation 逻辑）+ L5 滚动复核 |
 | 大弧边界（chapter % 36 == 0） | L5 滚动复核（合并 author_intent，更新进度） |
 
+## 密度驱动触发 (Pipeline 集成)
+
+当由 pipeline 编排时,除了固定间隔 (chapter%12/36),还检查密度触发:
+
+- 弧内累计 state-settling 变更条目 > 60 条
+- 弧内 pending_hooks 新增/推进 > 15 条
+- 弧内 character_matrix 变更 > 20 处
+
+满足任一条件时提前触发 L2 蒸馏 (不必等到 chapter%12)。
+**跨波依赖**: Wave 3 的 `triggers.py` 需要增加密度检查逻辑 (累计变更/hook新增/角色变更阈值)。在 Wave 3 实现前，此规则为声明性文档 (skill 描述了应有的行为, 运行时触发逻辑在 orchestrator 中)。
+
 ## 流程
 
 ```dot
