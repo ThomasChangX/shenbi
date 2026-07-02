@@ -565,7 +565,7 @@ Phase 1 (正确性阻塞): A3 → A8 → A5 → A4 → A1 → A2 → A6 → A7
 Phase 2 (补充正确性): E1, E2, E3, E5 (相互独立), E4 (stub 修复)
 Phase 3 (健壮性):     B1, B2, B3, B4, B5 (相互独立)
 Phase 4 (测试补全):   C1-C5, F1-F7 (相互独立)
-Phase 5 (代码清理):   D1-D4, G1-G7, H1-H2 (相互独立)
+Phase 5 (代码清理):   D1-D4, G1-G7, H1-H2, I1-I3 (相互独立)
 ```
 
 Phase 2 可与 Phase 1 的独立项 (A1, A2, A6, A7) 并行。
@@ -582,3 +582,44 @@ Phase 2 可与 Phase 1 的独立项 (A1, A2, A6, A7) 并行。
 6. **Spec coverage matrix 更新为 20/20**
 7. **无 broad `except Exception`** 不带 try/finally 的资源泄漏 (E1)
 8. **所有 CLI 命令在错误输入时返回 error envelope** 而非 traceback (E3)
+
+### 7.5 Category I: 流程与文档根因修复
+
+以下 3 个发现来自审查 M1-M3，根因不在代码缺陷本身，而在导致缺陷残留或被掩盖的流程/文档问题。
+
+#### I1. Progress ledger TODO 残留误导 (M1 根因)
+
+- **来源:** 审查 M1
+- **表面问题:** progress ledger (`.superpowers/sdd/novel-pipeline/progress.md`) 中仍有 `TODO W3T5: chapter-revision runs unconditionally`，但代码在 commit `e3c2ffb` 已修复 (`if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter)`)。
+- **根因:** SDD 流程缺少"修复后清理 ledger TODO 标记"的步骤。progress ledger 是手工维护的追踪文档，代码修复后没有同步更新。残留的 TODO 标记会误导后续工作——有人读 ledger 后认为问题未修复而重新工作，或在批判性审核中误报为未修复项。
+- **影响:** 文档与代码状态不一致；后续 SDD 执行或审核可能重复劳动或产生误报。
+- **方案:**
+  1. 逐行审查 progress ledger 中的所有 `TODO`、`Follow-up`、`CONCERN` 标记
+  2. 对每个标记，grep 对应代码确认是否已修复
+  3. 已修复的标记：标注 "(resolved in commit XXXX)" 或删除
+  4. 未修复的标记：确认在本次 fixes spec 中有对应修复项
+- **修改文件:** `.superpowers/sdd/novel-pipeline/progress.md` (gitignored, 本地文件)
+- **验收标准:** progress ledger 中无残留的已修复 TODO 标记；每个未修复标记都能追溯到 fixes spec 中的对应项。
+
+#### I2. ClosureStateData 设计决策未文档化 (M3/G7 根因深化)
+
+- **来源:** 审查 M3 + G7
+- **表面问题:** Wave 1 Task 1 的 brief 在 "Produces" 接口列表中列出了 `ClosureStateData`，但实际实现使用 `closure: ClosureState` + `closure_step: int` 扁平化到 `PipelineState`。grep 确认无代码引用 `ClosureStateData`。
+- **根因:** brief 是一次性文档，代码迭代后 brief 不更新。代码实现选择了更简单的扁平化设计（合理——closure 只有 state + step 两个字段，不值得单独 dataclass），但这个设计决策从未在代码注释、模块文档字符串或任何 spec 中记录。后续开发者如果按 brief 的 "Produces" 列表查找 `ClosureStateData`，会发现它不存在且无解释。
+- **影响:** 接口预期与实际实现不一致；新开发者困惑。
+- **方案:**
+  1. 在 `src/shenbi/pipeline/state.py` 的 `PipelineState` 类文档字符串中添加说明：closure 状态为何扁平化到顶层字段而非独立 dataclass
+  2. 明确列出 closure 相关字段：`closure: ClosureState`、`closure_step: int`、`closure_retry_counts: dict`
+  3. 不修改任何代码逻辑——纯文档对齐
+- **修改文件:** `src/shenbi/pipeline/state.py` (文档字符串)
+- **验收标准:** `PipelineState` 文档字符串明确说明 closure 字段结构和设计决策；无代码引用 `ClosureStateData`。
+
+#### I3. D2 常量循环依赖根因 (M2 根因深化)
+
+- **来源:** 审查 M2 + D2
+- **表面问题:** `MAX_DISPATCH_RETRIES` 和 `MAX_AUDIT_RETRIES` 常量在 `error_handler.py` 中定义但不被逻辑读取（逻辑读 `state.config` 的值），仅被测试断言。
+- **根因:** 常量最初从 spec §11 的值直接定义在 `error_handler.py`。后来 `PipelineConfig` 添加了 `max_revision_retries` 和 `max_audit_retries` 字段（也默认为 3），但 `error_handler.py` 的常量没有同步删除或连接到 config。这导致同一值在两处定义（DRY 违规），且如果 config 默认值改变，常量会静默偏移。
+- **注意:** D2 方案已在本次 spec 更新中修订为"将常量移到 `state.py` 作为 `DEFAULT_MAX_DISPATCH_RETRIES`，`PipelineConfig` 引用它作为默认值"。此处补充根因记录：这是 SDD 分阶段实施导致的增量 DRY 违规——W3T1 创建常量，W3T8 添加 config 字段，两个阶段没有交叉清理。
+- **影响:** 如果 `PipelineConfig.max_revision_retries` 默认值从 3 改为 4，`error_handler.py` 的常量仍为 3，测试断言会失败或误导。
+- **方案:** 已在 D2 中定义（常量移到 `state.py`）。此处仅记录根因。
+- **验收标准:** 见 D2。
