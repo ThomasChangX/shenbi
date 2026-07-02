@@ -135,3 +135,75 @@ class TestRunGateG3:
         run_gate_g3("shenbi-review-resonance", tmp_path)
         cmd = mock_run.call_args[0][0]
         assert "generative" in cmd
+
+
+class TestOptionalReads:
+    """Tests for the OPTIONAL_READS dict and env-var integration."""
+
+    def test_optional_reads_has_context_composing(self):
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        assert "shenbi-context-composing" in OPTIONAL_READS
+
+    def test_optional_reads_has_drift_guidance(self):
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        assert "shenbi-drift-guidance" in OPTIONAL_READS
+
+    def test_optional_reads_globs(self):
+        from shenbi.pipeline.dispatch_helper import OPTIONAL_READS
+
+        patterns = OPTIONAL_READS["shenbi-context-composing"]
+        assert "arc-*.md" in patterns  # glob pattern, not literal filename
+        assert "volume_summaries.md" in patterns
+
+    @patch(PATCH)
+    def test_dispatch_with_known_skill_sets_env(self, mock_run, tmp_path):
+        """Known skill with optional reads sets SHENBI_G1_SKIP_READS."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        dispatch_skill("shenbi-context-composing", tmp_path, "prompt")
+        env = mock_run.call_args[1].get("env", {})
+        skip = env.get("SHENBI_G1_SKIP_READS", "")
+        assert "arc-*.md" in skip
+        assert "volume_summaries.md" in skip
+
+    @patch(PATCH)
+    def test_dispatch_with_unknown_skill_no_env(self, mock_run, tmp_path):
+        """Unknown skill without optional reads does not set the env var."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt")
+        env = mock_run.call_args[1].get("env", {})
+        assert "SHENBI_G1_SKIP_READS" not in env
+
+    @patch(PATCH)
+    def test_skip_reads_merges_with_optional(self, mock_run, tmp_path):
+        """Explicit skip_reads merges with OPTIONAL_READS."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        dispatch_skill(
+            "shenbi-context-composing",
+            tmp_path,
+            "prompt",
+            skip_reads=["extra.md"],
+        )
+        env = mock_run.call_args[1].get("env", {})
+        skip = env.get("SHENBI_G1_SKIP_READS", "")
+        assert "extra.md" in skip
+        assert "arc-*.md" in skip  # from OPTIONAL_READS
+
+    @patch(PATCH)
+    def test_skip_reads_with_unknown_skill(self, mock_run, tmp_path):
+        """Explicit skip_reads work even without OPTIONAL_READS entry."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt", skip_reads=["temp.md"])
+        env = mock_run.call_args[1].get("env", {})
+        skip = env.get("SHENBI_G1_SKIP_READS", "")
+        assert "temp.md" in skip
+
+    @patch(PATCH)
+    def test_subprocess_uses_copied_env(self, mock_run, tmp_path):
+        """Subprocess gets a modified env copy, not os.environ directly."""
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        dispatch_skill("shenbi-context-composing", tmp_path, "prompt")
+        env = mock_run.call_args[1].get("env", {})
+        assert env is not None
+        assert env.get("SHENBI_G1_SKIP_READS", "") != ""

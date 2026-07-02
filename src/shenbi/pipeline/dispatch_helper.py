@@ -9,6 +9,7 @@ independence) and G4 (skill-specific structure) on top.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -46,6 +47,17 @@ def requires_independent(skill: str) -> bool:
         return False
 
 
+#: Skills and their reads that are optional (produced late, missing in ramp-up).
+# These paths are excluded from G1 input validation so early chapters don't
+# fail G1 on files that later chapters will produce.
+OPTIONAL_READS: dict[str, list[str]] = {
+    "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
+    "shenbi-drift-guidance": ["arc-*.md"],
+}
+
+_G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
+
+
 def dispatch_skill(
     skill: str,
     project_dir: Path | str,
@@ -53,6 +65,7 @@ def dispatch_skill(
     test_type: str = "generative",
     round_dir: Path | str | None = None,
     timeout: int = 900,
+    skip_reads: list[str] | None = None,
 ) -> DispatchResult:
     """Dispatch a skill via ``shenbi.dispatcher.cli``.
 
@@ -60,11 +73,19 @@ def dispatch_skill(
     G1 + G2 and the write-overreach audit. Returns a :class:`DispatchResult`
     capturing the subprocess outcome.
     """
+    # Merge explicit skip_reads with known optional reads for this skill.
+    patterns = list(skip_reads or [])
+    patterns.extend(OPTIONAL_READS.get(skill, []))
+
     rd = str(round_dir) if round_dir else str(project_dir)
     cmd = [sys.executable, "-m", "shenbi.dispatcher.cli", skill, test_type, rd, prompt]
     log.info("dispatch_start", skill=skill, test_type=test_type, round_dir=rd)
+    env = os.environ.copy()
+    if patterns:
+        env[_G1_SKIP_ENV_VAR] = ",".join(patterns)
+        log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
     except subprocess.TimeoutExpired as exc:
         log.error("dispatch_timeout", skill=skill, timeout=timeout)
         return DispatchResult(False, -1, "", str(exc))
