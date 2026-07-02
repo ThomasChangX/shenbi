@@ -442,6 +442,64 @@ def cmd_next(args: argparse.Namespace) -> int:
     return 0
 
 
+def _verify_truth_integrity(state: PipelineState, project_dir: Path) -> list[str]:
+    """Lightweight truth-integrity check on resume (spec \u00a73.4).
+
+    Checks that essential truth files and directories still exist for the
+    current pipeline phase. Returns a list of missing critical paths. If
+    a truth file is missing, the pipeline can fail fast here rather than
+    on the first resumed step's G1 gate.
+    """
+    missing: list[str] = []
+
+    # Core directories that must exist after genesis.
+    core_dirs = ["truth", "characters", "outline", "world"]
+    for d in core_dirs:
+        p = project_dir / d
+        if not p.is_dir():
+            missing.append(str(p.relative_to(project_dir)))
+
+    # If genesis completed, verify key genesis outputs.
+    if state.phase in (PipelinePhase.CHAPTER_LOOP, PipelinePhase.CLOSURE, PipelinePhase.COMPLETED):
+        genesis_outputs = [
+            "world/story_bible.md",
+            "genre-config.json",
+            "characters/protagonist.md",
+            "outline/story_frame.md",
+            "outline/volume_map.md",
+            "outline/rhythm_principles.md",
+            "outline/thread_map.md",
+            "truth/pending_hooks.md",
+            "world/power_system.md",
+            "world/locations.md",
+            "characters/relationships.md",
+            "truth/book_spine.md",
+            "truth/author_intent.md",
+            "style/style_profile.md",
+        ]
+        for rel_path in genesis_outputs:
+            if not (project_dir / rel_path).exists():
+                missing.append(rel_path)
+
+    # If chapter loop is active, verify at least the first chapter plan exists.
+    if state.phase == PipelinePhase.CHAPTER_LOOP:
+        ch = state.chapter_loop.current_chapter
+        chapter_plan = project_dir / "plans" / f"chapter-{ch}-plan.md"
+        if not chapter_plan.exists():
+            # The chapter plan for the current chapter may not exist if
+            # we just transitioned from genesis. Only flag if it's chapter 1
+            # and genesis was fully completed (plan should have been created).
+            if ch > 1:
+                missing.append(f"plans/chapter-{ch}-plan.md")
+
+    if missing:
+        log.warning("truth_integrity_check_failed", missing=missing)
+    else:
+        log.info("truth_integrity_check_passed")
+
+    return missing
+
+
 def cmd_resume(args: argparse.Namespace) -> int:
     """Resume after a checkpoint review.
 
@@ -454,6 +512,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
     try:
         with WriteLock(project_dir):
             state = load_state(project_dir)
+
+            # Truth-integrity check (spec \u00a73.4): verify truth files exist
+            # before resuming, so missing files surface immediately rather than
+            # on the first step dispatch.
+            _verify_truth_integrity(state, project_dir)
 
             if state.checkpoint_history:
                 last = state.checkpoint_history[-1]

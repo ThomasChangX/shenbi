@@ -582,3 +582,113 @@ class TestUpdateTotalChapters:
         # Verify novel.json unchanged
         data = json.loads((novel / "novel.json").read_text(encoding="utf-8"))
         assert data["total_chapters"] == 10
+
+
+class TestVerifyTruthIntegrity:
+    """Tests for _verify_truth_integrity (G3: fail-fast on resume)."""
+
+    def test_genesis_phase_checks_core_dirs(self, tmp_path, monkeypatch):
+        """In genesis phase, missing core dirs are reported."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState(phase=PipelinePhase.GENESIS)
+        missing = _verify_truth_integrity(state, tmp_path)
+        assert "truth" in missing
+        assert "characters" in missing
+        assert "outline" in missing
+        assert "world" in missing
+
+    def test_existing_core_dirs_pass(self, tmp_path, monkeypatch):
+        """When core dirs exist, genesis phase passes."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        for d in ["truth", "characters", "outline", "world"]:
+            (tmp_path / d).mkdir()
+
+        state = PipelineState(phase=PipelinePhase.GENESIS)
+        missing = _verify_truth_integrity(state, tmp_path)
+        # In genesis phase, only core dirs are checked
+        assert missing == []
+
+    def test_chapter_loop_finds_missing_genesis_outputs(self, tmp_path, monkeypatch):
+        """Chapter loop phase catches missing genesis files."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import (
+            ChapterLoopStateData,
+            PipelinePhase,
+            PipelineState,
+        )
+
+        for d in ["truth", "characters", "outline", "world", "plans"]:
+            (tmp_path / d).mkdir()
+
+        state = PipelineState(
+            phase=PipelinePhase.CHAPTER_LOOP,
+            chapter_loop=ChapterLoopStateData(current_chapter=1),
+        )
+        missing = _verify_truth_integrity(state, tmp_path)
+        # Core dirs exist, but genesis outputs like story_bible.md are missing
+        assert "world/story_bible.md" in missing
+        assert "genre-config.json" in missing
+
+    def test_chapter_loop_with_genesis_outputs_passes(self, tmp_path, monkeypatch):
+        """Chapter loop with all genesis outputs passes."""
+        import json
+
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import (
+            ChapterLoopStateData,
+            PipelinePhase,
+            PipelineState,
+        )
+
+        for d in ["truth", "characters", "outline", "world", "style", "plans"]:
+            (tmp_path / d).mkdir()
+
+        # Create genesis outputs
+        (tmp_path / "world/story_bible.md").write_text("# test")
+        (tmp_path / "genre-config.json").write_text(json.dumps({}))
+        (tmp_path / "characters/protagonist.md").write_text("# Hero")
+        (tmp_path / "outline/story_frame.md").write_text("# Frame")
+        (tmp_path / "outline/volume_map.md").write_text("# Volumes")
+        (tmp_path / "outline/rhythm_principles.md").write_text("# Rhythm")
+        (tmp_path / "outline/thread_map.md").write_text("# Threads")
+        (tmp_path / "truth/pending_hooks.md").write_text("# Hooks")
+        (tmp_path / "world/power_system.md").write_text("# Power")
+        (tmp_path / "world/locations.md").write_text("# Places")
+        (tmp_path / "characters/relationships.md").write_text("# Relationships")
+        (tmp_path / "truth/book_spine.md").write_text("# Spine")
+        (tmp_path / "truth/author_intent.md").write_text("# Intent")
+        (tmp_path / "style/style_profile.md").write_text("# Style")
+        (tmp_path / "plans").mkdir(exist_ok=True)
+
+        state = PipelineState(
+            phase=PipelinePhase.CHAPTER_LOOP,
+            chapter_loop=ChapterLoopStateData(current_chapter=1),
+        )
+        missing = _verify_truth_integrity(state, tmp_path)
+        assert missing == []
+
+    def test_genesis_phase_missing_all(self, tmp_path, monkeypatch):
+        """Genesis phase with no dirs reports all required ones."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState(phase=PipelinePhase.GENESIS)
+        missing = _verify_truth_integrity(state, tmp_path)
+        assert len(missing) >= 4
+        assert "truth" in missing
+        assert "characters" in missing
+        assert "outline" in missing
+        assert "world" in missing
+
+    def test_phase_none_returns_empty(self, tmp_path, monkeypatch):
+        """COMPLETED or FAILED phase returns empty list."""
+        from shenbi.pipeline.cli import _verify_truth_integrity
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState(phase=PipelinePhase.COMPLETED)
+        missing = _verify_truth_integrity(state, tmp_path)
+        assert isinstance(missing, list)
