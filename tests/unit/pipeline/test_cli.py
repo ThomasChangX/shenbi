@@ -506,3 +506,79 @@ class TestRollbackCommand:
 
         assert rc == 0
         assert result["status"] == "not_implemented"
+
+
+class TestUpdateTotalChapters:
+    """Tests for _update_total_chapters (G2: dynamic total_chapters re-update)."""
+
+    def test_update_from_volume_map_end_pattern(self, tmp_path, monkeypatch):
+        """Volume map with Chapter End: N sets total_chapters correctly."""
+        from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
+
+        novel = tmp_path / "novel"
+        novel.mkdir()
+        outline = novel / "outline"
+        outline.mkdir()
+
+        # Write novel.json with old total
+        import json
+
+        (novel / "novel.json").write_text(
+            json.dumps({"title": "Test", "total_chapters": 15}), encoding="utf-8"
+        )
+
+        # Write volume map with Chapter End: 30
+        (outline / "volume_map.md").write_text(
+            "# Volume Map\n\n"
+            "## Volume 1\nChapters 1-10\nChapter End: 10\n\n"
+            "## Volume 2\nChapters 11-30\nChapter End: 30\n",
+            encoding="utf-8",
+        )
+
+        result = _update_total_chapters(novel)
+        assert result == 30
+        assert _read_total_chapters(novel) == 30
+
+    def test_update_from_chapter_range(self, tmp_path, monkeypatch):
+        """Volume map using Chapters N-M notation sets total_chapters."""
+        from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
+
+        novel = tmp_path / "novel"
+        novel.mkdir()
+        outline = novel / "outline"
+        outline.mkdir()
+
+        import json
+
+        (novel / "novel.json").write_text(
+            json.dumps({"title": "Test", "total_chapters": 8}), encoding="utf-8"
+        )
+
+        # Volume map only has range notation
+        (outline / "volume_map.md").write_text(
+            "# Volume Map\n\n## Volume 1\nChapters 1-8\n\n## Volume 2\nChapters 9-20\n",
+            encoding="utf-8",
+        )
+
+        result = _update_total_chapters(novel)
+        assert result == 20
+        assert _read_total_chapters(novel) == 20
+
+    def test_no_volume_map_returns_zero(self, tmp_path, monkeypatch):
+        """No volume_map.md returns 0 and leaves total_chapters unchanged."""
+        from shenbi.pipeline.cli import _update_total_chapters
+
+        novel = tmp_path / "novel"
+        novel.mkdir()
+
+        import json
+
+        (novel / "novel.json").write_text(
+            json.dumps({"title": "Test", "total_chapters": 10}), encoding="utf-8"
+        )
+
+        result = _update_total_chapters(novel)
+        assert result == 0
+        # Verify novel.json unchanged
+        data = json.loads((novel / "novel.json").read_text(encoding="utf-8"))
+        assert data["total_chapters"] == 10

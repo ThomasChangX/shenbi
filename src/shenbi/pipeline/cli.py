@@ -64,6 +64,34 @@ def _read_total_chapters(project_dir: Path) -> int:
     return int(total) if isinstance(total, (int, float)) else 0
 
 
+def _update_total_chapters(project_dir: Path) -> int:
+    """Re-read volume_map.md and update novel.json.total_chapters.
+
+    Called after volume-boundary expansion so the chapter-loop termination
+    check reflects the revised count (spec \u00a74.2 [I3], \u00a76.5). Returns the
+    new total, or 0 when the volume map cannot be read.
+    """
+    from shenbi.pipeline.triggers import read_volume_boundaries
+
+    boundaries = read_volume_boundaries(project_dir)
+    if not boundaries:
+        return 0
+    new_total = max(boundaries)
+    novel_path = project_dir / "novel.json"
+    if not novel_path.exists():
+        return 0
+    try:
+        data = json.loads(novel_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError):
+        return 0
+    data["total_chapters"] = new_total
+    from shenbi.safe_write import safe_write
+
+    safe_write(novel_path, json.dumps(data, indent=2, ensure_ascii=False))
+    log.info("total_chapters_updated", total_chapters=new_total)
+    return new_total
+
+
 def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     """Run pipeline steps until a checkpoint is reached or the pipeline completes.
 
@@ -442,6 +470,10 @@ def cmd_resume(args: argparse.Namespace) -> int:
                         # that was held pending checkpoint clearance (spec
                         # section 6.4: [CHECKPOINT] -> snapshot-manage).
                         from shenbi.pipeline.dispatch_helper import dispatch_skill
+
+                        # Update total_chapters from the revised volume map
+                        # (volume-boundary expansion may change the chapter count).
+                        _update_total_chapters(project_dir)
 
                         snap_ch = last.get("chapter")
                         dispatch_skill(
