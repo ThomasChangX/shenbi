@@ -21,7 +21,7 @@ bash tests/round-exec.sh claude T1
 
 输出包含 G0 结果。G0 通过 → 继续第二步。G0 失败 → 按 G0 输出的 `must_fix` 逐条修复，重新运行 G0。**G0 不通过不 dispatch 任何 skill。**
 
-**注意**：修改 validate-gate.py / scoring.py / phase-runner.py / summarize-round.py 后，必须运行 `bash tests/lock-tool-hashes.sh` 更新 `deps.json` 中的 SHA256 锁定值，否则 G0.13 阻断。
+**注意**：修改 validate-gate.py / scoring.py / phase-runner.py 后，必须运行 `bash tests/lock-tool-hashes.sh` 更新 `deps.json` 中的 SHA256 锁定值，否则 G0.13 阻断。
 
 ### 第二步：确认进度
 

@@ -34,8 +34,7 @@ class TestG7ErrorPaths:
 
     G7 reads ALL_SKILLS (from skills/) to validate summary.json coverage,
     scans round_dir/skill-output/ for placeholders and pending truth files,
-    re-runs PASS
-    gate markers. Tests use a round_dir under tmp_path and, where the gate
+    re-runs PASS gate markers. Tests use a round_dir under tmp_path and, where the gate
     references module-level constants, monkeypatch them.
     """
 
