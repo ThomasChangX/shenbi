@@ -19,6 +19,7 @@ in the SDD progress ledger ("Tests in tests/unit/pipeline/") and to share the
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import ExitStack
 from pathlib import Path
 from types import SimpleNamespace
@@ -51,7 +52,7 @@ def seeded_project(tmp_path: Path, sample_seed_content: str) -> Path:
 
 
 @pytest.fixture
-def genesis_succeeds() -> SimpleNamespace:
+def genesis_succeeds() -> Iterator[SimpleNamespace]:
     """Stub the four external boundaries genesis depends on so all 17 steps run.
 
     ``requires_independent`` returns True only for step 17
@@ -82,7 +83,7 @@ def genesis_succeeds() -> SimpleNamespace:
 
 
 @pytest.fixture
-def chapter_loop_succeeds() -> SimpleNamespace:
+def chapter_loop_succeeds() -> Iterator[SimpleNamespace]:
     """Stub chapter-loop dispatch + G4 so the loop runs cleanly past entry.
 
     Only ``dispatch_skill`` and ``run_gate_g4`` are stubbed: the transition
