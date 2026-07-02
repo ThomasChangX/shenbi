@@ -156,7 +156,7 @@ def _update_route_b(
 
     hooks = getattr(index, "hooks", {})
     rules = getattr(index, "rules", {})
-    store = EmbeddingStore(project_dir / "embeddings.db")
+    store = EmbeddingStore(project_dir / "truth-embeddings.db")
     embedded = 0
     for hook_id, entry in hooks.items():
         text = str(entry.extra.get("content_keywords", ""))

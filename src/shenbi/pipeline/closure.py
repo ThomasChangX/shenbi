@@ -25,6 +25,8 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import is_at_checkpoint, set_checkpoint
+from shenbi.pipeline.error_handler import handle_dispatch_failure
+from shenbi.pipeline.triggers import read_volume_boundaries
 from shenbi.pipeline.state import CheckpointType, ClosureState, PipelineState
 from shenbi.status import GateStatus
 
@@ -129,6 +131,75 @@ def _record_done(state: PipelineState, skill: str) -> None:
     """Append *skill* to the closure skills-done list."""
     if skill not in state.closure_skills_done:
         state.closure_skills_done.append(skill)
+    _reset_closure_retries(state, skill)
+
+
+def _substitute_volume(path: str, volume: int) -> str:
+    """Replace N placeholder with the actual volume number (I5)."""
+    return path.replace("N", str(volume))
+
+
+def _current_volume(project_dir: Path) -> int:
+    """Determine the current (last) volume number from volume_map.md (I5).
+
+    Returns the volume count (the last volume index) when boundaries are
+    found, falling back to 1 when the volume map is absent or empty.
+    """
+    boundaries = read_volume_boundaries(project_dir)
+    return len(boundaries) if boundaries else 1
+
+
+def _resolve_closure_g4_path(step: ClosureStep, project_dir: Path) -> str:
+    """Resolve the output path for G4 validation, substituting N (I5).
+
+    Returns the path with volume number substituted, or empty string when
+    the step has no single output file.
+    """
+    if not step.output_path:
+        return ""
+    if "N" in step.output_path:
+        vol = _current_volume(project_dir)
+        return _substitute_volume(step.output_path, vol)
+    return step.output_path
+
+
+def _handle_closure_failure(
+    state: PipelineState,
+    step: ClosureStep,
+    failure: str,
+) -> bool:
+    """Record a closure step failure and decide retry vs escalate (I2).
+
+    Returns True when the step should be retried (attempt < limit), False
+    when retries are exhausted. Mirrors the genesis/chapter_loop pattern
+    via :func:`handle_dispatch_failure`.
+    """
+    skill = step.skill
+    count = state.closure_retry_counts.get(skill, 0) + 1
+    state.closure_retry_counts[skill] = count
+    if handle_dispatch_failure(state, skill, count):
+        log.warning(
+            "closure_step_failed_retrying",
+            step=step.step_num,
+            skill=skill,
+            failure=failure,
+            attempt=count,
+            limit=state.config.max_revision_retries,
+        )
+        return True
+    log.error(
+        "closure_step_escalation",
+        step=step.step_num,
+        skill=skill,
+        failure=failure,
+        attempts=count,
+    )
+    return False
+
+
+def _reset_closure_retries(state: PipelineState, skill: str) -> None:
+    """Clear closure retry count after a successful step."""
+    state.closure_retry_counts.pop(skill, None)
 
 
 # ---------------------------------------------------------------------------
@@ -178,38 +249,32 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     )
 
     # Dispatch.
-    disp = dispatch_skill(step.skill, project_dir, prompt)
-    if not disp.success:
-        log.error(
-            "closure_dispatch_failed",
-            step=step.step_num,
-            skill=step.skill,
-            returncode=disp.returncode,
-        )
-        return False
-
-    # G4: skill-specific structural validation.
-    g4_file = step.output_path if step.output_path else ""
-    g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
-    if not _gate_passed(g4):
-        log.error(
-            "closure_g4_failed",
-            step=step.step_num,
-            skill=step.skill,
-            g4=g4,
-        )
-        return False
-
-    # G3: scoring independence for requires_independent_agent skills.
-    if step.requires_g3 or requires_independent(step.skill):
-        g3 = run_gate_g3(step.skill, project_dir)
-        if not _gate_passed(g3):
-            log.error(
-                "closure_g3_failed",
-                step=step.step_num,
-                skill=step.skill,
-            )
+    # Dispatch + gate with retry loop (I2): retries on dispatch/gate failure
+    # up to max_revision_retries, then returns False for escalation.
+    while True:
+        disp = dispatch_skill(step.skill, project_dir, prompt)
+        if not disp.success:
+            if _handle_closure_failure(state, step, "dispatch"):
+                continue
             return False
+
+        # G4: skill-specific structural validation (with volume substitution I5).
+        g4_file = _resolve_closure_g4_path(step, project_dir)
+        g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
+        if not _gate_passed(g4):
+            if _handle_closure_failure(state, step, "gate"):
+                continue
+            return False
+
+        # G3: scoring independence for requires_independent_agent skills.
+        if step.requires_g3 or requires_independent(step.skill):
+            g3 = run_gate_g3(step.skill, project_dir)
+            if not _gate_passed(g3):
+                if _handle_closure_failure(state, step, "gate"):
+                    continue
+                return False
+
+        break  # all dispatch + gate checks passed
 
     # Success: record and advance.
     _record_done(state, step.skill)

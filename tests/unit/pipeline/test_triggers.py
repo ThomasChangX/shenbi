@@ -461,7 +461,7 @@ class TestRunTriggeredSkills:
         state = PipelineState.default(str(tmp_path))
         result = TriggerResult(l2_distill=True, score_arc=True, style_learning=True)
         raised = run_triggered_skills(state, tmp_path, 12, result)
-        assert raised is False
+        assert raised is True  # I1: True = all skills succeeded (no checkpoint)
         assert state.pending_checkpoint.type == CheckpointType.NONE
 
     @patch("shenbi.pipeline.triggers.dispatch_skill")

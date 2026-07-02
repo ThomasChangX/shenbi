@@ -466,6 +466,12 @@ def run_triggered_skills(
     (volume boundary), False otherwise. Stops on first dispatch/gate
     failure; the caller can retry.
 
+    Return semantics (I1 fix): True means all triggered skills completed
+    successfully (checkpoint may or may not have been raised -- check
+    ``is_at_checkpoint``). False means at least one skill failed, or no
+    triggers were active. The caller must check the return value to avoid
+    silently swallowing failures.
+
     For a volume boundary the snapshot-manage dispatch is NOT performed here:
     it is deferred to the caller, which runs it only after the human reviews
     and clears the checkpoint (spec section 6.4: [CHECKPOINT] -> snapshot).
@@ -551,7 +557,7 @@ def run_triggered_skills(
         )
         return True
 
-    return False
+    return True
 
 
 def volume_snapshot_pending(state: PipelineState) -> bool:

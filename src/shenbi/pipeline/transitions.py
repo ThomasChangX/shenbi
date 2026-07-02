@@ -81,3 +81,25 @@ def transition_to_failed(state: PipelineState, reason: str) -> None:
     """
     state.phase = PipelinePhase.FAILED
     log.error("phase_transition_failed", reason=reason, project_dir=state.project_dir)
+
+
+def transition_closure_to_chapter_loop(state: PipelineState) -> None:
+    """Book-closure checkpoint rejected -> return to chapter loop.
+
+    Resets closure state (step cursor, skills-done, retry counts) so the
+    human can revise the book and re-close it. The chapter-loop cursor is
+    reset to step_index 0 so periodic triggers re-evaluate on the next
+    ``next``/``resume`` call.
+    """
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.closure = ClosureState.PENDING
+    state.closure_step = 0
+    state.closure_skills_done = []
+    state.closure_retry_counts = {}
+    state.chapter_loop.step_index = 0
+    log.info(
+        "phase_transition",
+        from_phase=PipelinePhase.CLOSURE.value,
+        to_phase=PipelinePhase.CHAPTER_LOOP.value,
+        project_dir=state.project_dir,
+    )

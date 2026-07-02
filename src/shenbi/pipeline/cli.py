@@ -100,15 +100,47 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                     if result.book_closure:
                         result.book_closure = False
                         if result.any_triggered():
-                            run_triggered_skills(state, project_dir, prev_ch, result)
+                            ok = run_triggered_skills(state, project_dir, prev_ch, result)
+                            if not ok:
+                                log.warning(
+                                    "triggered_skill_failed_before_closure",
+                                    chapter=prev_ch,
+                                )
+                                set_checkpoint(
+                                    state,
+                                    CheckpointType.ESCALATION,
+                                    chapter=prev_ch,
+                                    context=(
+                                        f"Triggered skill failed for chapter "
+                                        f"{prev_ch} before book closure"
+                                    ),
+                                )
+                                save_state(project_dir, state)
+                                return
                             if is_at_checkpoint(state):
+                                cl.step_index = 1  # C1: prevent re-fire
                                 save_state(project_dir, state)
                                 return
                         transition_chapter_to_closure(state)
                         continue
                     if result.any_triggered():
-                        run_triggered_skills(state, project_dir, prev_ch, result)
+                        ok = run_triggered_skills(state, project_dir, prev_ch, result)
+                        if not ok:
+                            log.warning(
+                                "triggered_skill_failed",
+                                chapter=prev_ch,
+                            )
+                            set_checkpoint(
+                                state,
+                                CheckpointType.ESCALATION,
+                                chapter=prev_ch,
+                                context=(f"Triggered skill failed for chapter {prev_ch}"),
+                            )
+                            save_state(project_dir, state)
+                            return
                         if is_at_checkpoint(state):
+                            cl.step_index = 1  # C1: prevent re-fire
+                            save_state(project_dir, state)
                             return
 
             if run_chapter_step(state, project_dir):
@@ -168,7 +200,14 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         chapter = cp.chapter or 1
         targets = [f"plans/chapter-{chapter}-plan.md"]
     elif cp.type == CheckpointType.STATE_SETTLE:
-        targets = ["truth/current_state.md"]
+        # I3: glob all staged truth files rather than hardcoding one.
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        staging_truth = project_dir / STAGING_DIR / "truth"
+        if staging_truth.is_dir():
+            targets = [f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))]
+        else:
+            targets = []
     else:
         return
 
@@ -310,6 +349,15 @@ def cmd_review(args: argparse.Namespace) -> int:
 
             clear_checkpoint(state, decision)
 
+            # I4: Rejecting a book-closure checkpoint transitions back to
+            # chapter loop so the human can revise and re-close.
+            if decision == ReviewDecision.REJECT and cp.type == CheckpointType.BOOK_CLOSURE:
+                from shenbi.pipeline.transitions import (
+                    transition_closure_to_chapter_loop,
+                )
+
+                transition_closure_to_chapter_loop(state)
+
             if feedback:
                 state.checkpoint_history[-1]["feedback"] = feedback
 
@@ -389,6 +437,28 @@ def cmd_resume(args: argparse.Namespace) -> int:
                         )
 
                         transition_genesis_to_chapter_loop(state)
+                    elif cp_type == CheckpointType.VOLUME_BOUNDARY.value:
+                        # C1: dispatch the deferred volume-boundary snapshot
+                        # that was held pending checkpoint clearance (spec
+                        # section 6.4: [CHECKPOINT] -> snapshot-manage).
+                        from shenbi.pipeline.dispatch_helper import dispatch_skill
+
+                        snap_ch = last.get("chapter")
+                        dispatch_skill(
+                            "shenbi-snapshot-manage",
+                            project_dir,
+                            f"Volume-boundary snapshot after chapter {snap_ch}.",
+                        )
+                        # If this boundary was also the book-closure point,
+                        # transition to closure (the step_index guard prevents
+                        # the trigger block from re-firing on re-entry).
+                        total = _read_total_chapters(project_dir)
+                        if total > 0 and snap_ch and snap_ch >= total:
+                            from shenbi.pipeline.transitions import (
+                                transition_chapter_to_closure,
+                            )
+
+                            transition_chapter_to_closure(state)
                     # Book-closure approval does NOT complete the pipeline here.
                     # The closure runner paused before step 10 (snapshot-manage);
                     # the checkpoint was already cleared by ``review``, so falling
