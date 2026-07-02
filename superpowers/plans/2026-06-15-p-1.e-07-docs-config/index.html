@@ -1,0 +1,2094 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-07-docs-config/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.E Plan 7: Docs & Config Drift Cleanup (PR-44 ~ PR-46) - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.E Plan 7: Docs &amp; Config Drift Cleanup (PR-44 ~ PR-46) - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-07-docs-config.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-07-docs-config/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.E Plan 7: Docs &amp; Config Drift Cleanup (PR-44 ~ PR-46) - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-07-docs-config.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1e-plan-7-docs-config-drift-cleanup-pr-44-pr-46" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.E Plan 7: Docs &amp; Config Drift Cleanup (PR-44 ~ PR-46)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-0-pre-flight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: Pre-flight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-44-multi-agent-entry-file-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-44: Multi-Agent Entry File Sync
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-44: Multi-Agent Entry File Sync">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-update-agentsmd-to-post-p-1e-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Update AGENTS.md to post-P-1.E state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-update-geminimd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Update GEMINI.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-update-claudemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Update CLAUDE.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-update-command-to-givemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Update command-to-give.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-45-plugin-manifest-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-45: Plugin Manifest Generator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-45: Plugin Manifest Generator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-5-create-pluginsmasterjson-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Create plugins/master.json + generator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-46-doc-accuracy-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-46: Doc Accuracy CI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-46: Doc Accuracy CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-6-create-testsintegrationtest_docs_accuracypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Create tests/integration/test_docs_accuracy.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-final-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Final verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#placeholder-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Placeholder scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk highlights
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1e-plan-7-docs-config-drift-cleanup-pr-44-pr-46">P-1.E Plan 7: Docs &amp; Config Drift Cleanup (PR-44 ~ PR-46)</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans.</p>
+</blockquote>
+<p><strong>Goal:</strong> Sync all multi-agent entry files to post-P-1.E reality; replace 4 hand-synced plugin manifests with one generator + master.json; add doc accuracy CI test.</p>
+<p><strong>Architecture:</strong> Three PRs. PR-44 sweeps AGENTS.md, GEMINI.md, CLAUDE.md, command-to-give.md to post-P-1.E state (final pass; PR-18 already did minimal updates). PR-45 creates single-source plugin generator + master.json, generates 4 platform manifests. PR-46 adds <code>tests/integration/test_docs_accuracy.py</code> to catch stale path references.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, jsonschema (optional), markdown-link-check.</p>
+<p><strong>Spec reference:</strong> <a href="../../specs/2026-06-15-p-1.e-foundation-completion/07-docs-config-drift/"><code>docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/07-docs-config-drift.md</code></a></p>
+<p><strong>Depends on:</strong> Plans 1 + 2 (src layout + PR-22 rename), Plan 3 (PR-24 structlog), Plan 6 (PR-41 PEP 735 groups + PR-42 justfile).</p>
+<p><strong>Blocks:</strong> None.</p>
+<p><strong>Estimated effort:</strong> M (3-5 days).</p>
+<hr />
+<h2 id="tasks">Tasks</h2>
+<h3 id="task-0-pre-flight">Task 0: Pre-flight</h3>
+<ul>
+<li>[ ] Plans 1 + 2 merged (PR-18 + PR-22 specifically).</li>
+<li>[ ] Plan 3 merged (PR-24 structlog integration) -- required for the no-<code>print()</code> convention in <code>generate.py</code> (Task 5).</li>
+<li>[ ] Plan 6 merged (PR-41 PEP 735 <code>--group dev</code> + PR-42 justfile) -- required: the synced docs (Tasks 1-4) reference <code>just</code> commands and <code>uv sync --group dev</code>, and the CI job (Task 5) uses <code>uv sync --frozen --group dev</code>.</li>
+<li>[ ] Clean tree.</li>
+<li>[ ] <code>just check</code> passes.</li>
+</ul>
+<hr />
+<h2 id="pr-44-multi-agent-entry-file-sync">PR-44: Multi-Agent Entry File Sync</h2>
+<h3 id="task-1-update-agentsmd-to-post-p-1e-state">Task 1: Update <code>AGENTS.md</code> to post-P-1.E state</h3>
+<p><strong>Files:</strong>
+- Modify: <code>AGENTS.md</code>
+- Modify: <code>GEMINI.md</code>
+- Modify: <code>CLAUDE.md</code>
+- Modify: <code>command-to-give.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Rewrite <code>AGENTS.md</code> project structure section</strong></li>
+</ul>
+<p>Find the project structure block in <code>AGENTS.md</code>. Replace with:</p>
+<p><div class="highlight"><pre><span></span><code><span class="gu">### Project Structure</span>
+</code></pre></div>
+shenbi/
+├── src/shenbi/             # Framework runtime code
+│   ├── exceptions.py       # Typed exception hierarchy
+│   ├── logging.py          # structlog configuration
+│   ├── scoring.py          # Rubric-based 0-100 scorer
+│   ├── phase_runner.py     # T2/T3 phase state machine
+│   ├── summarize_round.py  # Round aggregation + G7 close
+│   ├── update_progress.py  # progress.json single-writer
+│   ├── gates/              # G0-G7 gate enforcement
+│   ├── dispatcher/         # Sub-agent dispatch
+│   └── skill_utils/        # Skill Python helpers
+├── tests/                  # Test code only (unit, integration, property, benchmark)
+│   ├── rounds/             # Active + archived rounds
+│   ├── fixtures/           # Real skill outputs (no mocks)
+│   └── baselines/          # Differential testing baselines
+├── skills/                 # 58 functional (shenbi-<em>) + 1 meta (using-shenbi) = 59 total
+├── docs/                   # Documentation, ADRs, specs, plans
+├── .github/workflows/      # CI: ci, security, docs, codeql, release
+├── pyproject.toml          # PEP 621 + tool config
+├── uv.lock                 # Locked deps with hashes
+├── justfile                # Task runner (just check, just test, etc.)
+├── CLAUDE.md / GEMINI.md / AGENTS.md  # Multi-agent entry points
+└── command-to-give.md      # Execution protocol
+<div class="highlight"><pre><span></span><code>### Key Commands
+
+Use entry points (not `python3 tests/X.py`):
+
+- `just check` — Run all CI checks locally
+- `just test` — Fast unit tests only
+- `shenbi-validate G0 &lt;seed&gt;` — Gate 0: environment check
+- `shenbi-validate G2 &lt;files&gt; &lt;type&gt;` — Gate 2: output validation
+- `shenbi-validate G4 &lt;skill&gt; &lt;files&gt;` — Gate 4: skill-specific structural check
+- `shenbi-score &lt;rubric&gt; &lt;scores.json&gt; --test-type generative` — Score output
+- `shenbi-summarize &lt;round_dir&gt;` — Aggregate round scores + G7 close
+- `shenbi-progress init &lt;round_dir&gt; &lt;tier&gt;` — Initialize progress.json
+- `shenbi-phase start &lt;phase&gt; --round-dir &lt;dir&gt;` — Phase state machine
+- `shenbi-dispatch &lt;skill&gt; &lt;test_type&gt; &lt;round_dir&gt; &lt;prompt&gt;` — Sub-agent dispatch
+
+Or via `just`:
+- `just gate G0 outline-example.md`
+- `just dispatch shenbi-worldbuilding generative /tmp/round &quot;prompt&quot;`
+
+Install: `uv sync --group dev` (PEP 735 dependency groups, not extras).
+</code></pre></div>
+- [ ] </em><em>Step 2: Commit AGENTS.md</em>*</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>AGENTS.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-44): sync AGENTS.md to post-P-1.E structure&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-update-geminimd">Task 2: Update <code>GEMINI.md</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Replace tool mapping section</strong></li>
+</ul>
+<p>Find the tool mapping table and P-1.E note added in PR-18. Replace the P-1.E note with a comprehensive section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## P-1.E Layout (2026-06-15)</span>
+
+Framework runtime code lives under <span class="sb">`src/shenbi/`</span>. Invoke via entry points:
+
+| Old (pre-P-1.E) | New (post-P-1.E) |
+|---|---|
+| <span class="sb">`python3 tests/scoring.py ...`</span> | <span class="sb">`shenbi-score ...`</span> |
+| <span class="sb">`python3 tests/summarize-round.py ...`</span> | <span class="sb">`shenbi-summarize ...`</span> |
+| <span class="sb">`python3 tests/update-progress.py ...`</span> | <span class="sb">`shenbi-progress ...`</span> |
+| <span class="sb">`python3 tests/phase-runner.py ...`</span> | <span class="sb">`shenbi-phase ...`</span> |
+| <span class="sb">`python3 tests/validate-gate.py ...`</span> | <span class="sb">`shenbi-validate ...`</span> |
+| <span class="sb">`bash tests/dispatch-subagent.sh ...`</span> | <span class="sb">`shenbi-dispatch ...`</span> |
+
+Or use <span class="sb">`just`</span>:
+<span class="k">-</span><span class="w"> </span><span class="sb">`just check`</span> — all CI checks
+<span class="k">-</span><span class="w"> </span><span class="sb">`just test`</span> — unit tests
+<span class="k">-</span><span class="w"> </span><span class="sb">`just gate G0 &lt;seed&gt;`</span> — gate invocation
+<span class="k">-</span><span class="w"> </span><span class="sb">`just dispatch &lt;skill&gt; &lt;type&gt; &lt;round&gt; &lt;prompt&gt;`</span>
+
+Install: <span class="sb">`uv sync --group dev`</span> (PEP 735 dependency groups).
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update skill count</strong></li>
+</ul>
+<p>Find any "All 59 skills are listed in <code>.claude-plugin/plugin.json</code>" reference.
+Update to: <code>58 functional skills (shenbi-*) + 1 meta (using-shenbi) = 59 total, listed in plugins/master.json (single source; manifests generated via shenbi-generate-plugins).</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>GEMINI.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-44): sync GEMINI.md to entry points + plugin generator&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-update-claudemd">Task 3: Update <code>CLAUDE.md</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Replace the P-1.E section added in PR-18</strong></li>
+</ul>
+<p>Find the "P-1.E Foundation Update" section. Expand it:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## P-1.E Foundation (2026-06-15)</span>
+
+Framework runtime code migrated from <span class="sb">`tests/`</span> to <span class="sb">`src/shenbi/`</span>. Contributors should:
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Use entry points**</span>: <span class="sb">`shenbi-score`</span>, <span class="sb">`shenbi-progress`</span>, <span class="sb">`shenbi-phase`</span>, <span class="sb">`shenbi-summarize`</span>, <span class="sb">`shenbi-validate`</span>, <span class="sb">`shenbi-dispatch`</span> (not <span class="sb">`python3 tests/X.py`</span>)
+<span class="k">-</span><span class="w"> </span><span class="gs">**Use `just`**</span>: <span class="sb">`just check`</span> runs all CI checks; <span class="sb">`just test`</span> runs unit tests
+<span class="k">-</span><span class="w"> </span><span class="gs">**Find framework code**</span> under <span class="sb">`src/shenbi/`</span> (not <span class="sb">`tests/`</span>)
+<span class="k">-</span><span class="w"> </span><span class="gs">**Install dev deps**</span> via <span class="sb">`uv sync --group dev`</span> (PEP 735, not <span class="sb">`--extra dev`</span>)
+<span class="k">-</span><span class="w"> </span><span class="gs">**Coverage thresholds**</span>: 80% branch, 90% line, 0.10 test density (per <span class="sb">`docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/README.md#threshold-justification`</span>)
+<span class="k">-</span><span class="w"> </span><span class="gs">**No `print()`**</span> in framework code; use structlog
+<span class="k">-</span><span class="w"> </span><span class="gs">**No `ignore_errors`**</span> in mypy overrides; no overrides at all post-P-1.E
+<span class="k">-</span><span class="w"> </span><span class="gs">**No deferral comments**</span>: every PR is complete or links a tracking issue
+
+Full P-1.E details: <span class="sb">`docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/README.md`</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>CLAUDE.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-44): expand CLAUDE.md P-1.E section with conventions&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-update-command-to-givemd">Task 4: Update <code>command-to-give.md</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Verify no <code>novel-output</code> references remain</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span><span class="s2">&quot;novel-output&quot;</span><span class="w"> </span>command-to-give.md
+</code></pre></div>
+<p>Expected: empty (PR-22 should have renamed these). If non-empty, replace with <code>skill-output</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify no <code>python3 tests/X.py</code> references remain</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span><span class="s2">&quot;python3 tests/&quot;</span><span class="w"> </span>command-to-give.md
+</code></pre></div>
+<p>Expected: empty (PR-18 should have switched to entry points). If non-empty, replace per the table in Task 2.</p>
+<ul>
+<li>[ ] <strong>Step 3: Add note about <code>just</code> shortcuts at top</strong></li>
+</ul>
+<p>After the document title, add:</p>
+<div class="highlight"><pre><span></span><code><span class="k">&gt; </span><span class="ge">**Quick reference**: All commands have `just` shortcuts. Run `just --list` for the full list. Key commands: `just check`, `just test`, `just gate G0 &lt;seed&gt;`, `just dispatch &lt;skill&gt; &lt;type&gt; &lt;round&gt; &lt;prompt&gt;`.</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>command-to-give.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-44): sync command-to-give.md to entry points + just shortcuts&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-45-plugin-manifest-generator">PR-45: Plugin Manifest Generator</h2>
+<h3 id="task-5-create-pluginsmasterjson-generator">Task 5: Create <code>plugins/master.json</code> + generator</h3>
+<p><strong>Files:</strong>
+- Create: <code>plugins/master.json</code>
+- Create: <code>src/shenbi/plugins/__init__.py</code>
+- Create: <code>src/shenbi/plugins/generate.py</code>
+- Modify: <code>pyproject.toml</code> (add <code>shenbi-generate-plugins</code> entry point)
+- Modify: <code>.github/workflows/ci.yml</code> (add manifest verification step)</p>
+<ul>
+<li>[ ] <strong>Step 1: Create <code>plugins/master.json</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>plugins
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>&gt;<span class="w"> </span>plugins/master.json<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">{</span>
+<span class="s">  &quot;name&quot;: &quot;shenbi&quot;,</span>
+<span class="s">  &quot;version&quot;: &quot;0.2.0&quot;,</span>
+<span class="s">  &quot;description&quot;: &quot;AI skill framework for novel writing&quot;,</span>
+<span class="s">  &quot;author&quot;: &quot;shenbi&quot;,</span>
+<span class="s">  &quot;homepage&quot;: &quot;https://github.com/ThomasChangX/shenbi&quot;,</span>
+<span class="s">  &quot;license&quot;: &quot;MIT&quot;,</span>
+<span class="s">  &quot;skills&quot;: [</span>
+<span class="s">    &quot;skills/using-shenbi/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-writing-skills/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-worldbuilding/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-location-builder/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-character-design/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-relationship-map/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-faction-builder/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-power-system/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-story-architecture/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-volume-outlining/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-chapter-planning/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-pacing-design/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-plot-thread-weaver/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-foreshadowing-plant/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-foreshadowing-track/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-foreshadowing-resolve/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-context-composing/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-chapter-drafting/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-state-settling/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-length-normalizing/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-continuity/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-character/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-world-rules/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-pacing/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-foreshadowing/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-anti-ai/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-sensitivity/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-reader-pull/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-memo-compliance/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-dialogue/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-motivation/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-pov/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-texture/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-highpoint/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-long-span/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-era/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-fanfic/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-review-spinoff/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-chapter-revision/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-style-polishing/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-anti-detect/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-import-analysis/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-style-learning/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-character-extraction/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-world-extraction/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-canon-import/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-short-outline/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-short-drafting/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-short-packaging/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-truth-sync/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-snapshot-manage/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-market-radar/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-foundation-review/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-genre-config/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-volume-consolidation/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-drift-guidance/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-intent-management/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-chapter-pattern/SKILL.md&quot;,</span>
+<span class="s">    &quot;skills/shenbi-sequel-writing/SKILL.md&quot;</span>
+<span class="s">  ],</span>
+<span class="s">  &quot;platforms&quot;: {</span>
+<span class="s">    &quot;claude&quot;: {</span>
+<span class="s">      &quot;output&quot;: &quot;.claude-plugin/plugin.json&quot;,</span>
+<span class="s">      &quot;format&quot;: &quot;claude-code&quot;</span>
+<span class="s">    },</span>
+<span class="s">    &quot;codex&quot;: {</span>
+<span class="s">      &quot;output&quot;: &quot;.codex-plugin/plugin.json&quot;,</span>
+<span class="s">      &quot;format&quot;: &quot;codex-cli&quot;,</span>
+<span class="s">      &quot;fields&quot;: {</span>
+<span class="s">        &quot;marketplace&quot;: &quot;shenbi&quot;,</span>
+<span class="s">        &quot;type&quot;: &quot;skill-pack&quot;</span>
+<span class="s">      }</span>
+<span class="s">    },</span>
+<span class="s">    &quot;cursor&quot;: {</span>
+<span class="s">      &quot;output&quot;: &quot;.cursor-plugin/plugin.json&quot;,</span>
+<span class="s">      &quot;format&quot;: &quot;cursor&quot;,</span>
+<span class="s">      &quot;fields&quot;: {</span>
+<span class="s">        &quot;pluginRoot&quot;: &quot;.cursor-plugin&quot;,</span>
+<span class="s">        &quot;hooks&quot;: {</span>
+<span class="s">          &quot;sessionStart&quot;: &quot;hooks/hooks-cursor.json&quot;</span>
+<span class="s">        }</span>
+<span class="s">      }</span>
+<span class="s">    },</span>
+<span class="s">    &quot;opencode&quot;: {</span>
+<span class="s">      &quot;output&quot;: &quot;.opencode/plugins/shenbi.js&quot;,</span>
+<span class="s">      &quot;format&quot;: &quot;opencode-js&quot;</span>
+<span class="s">    }</span>
+<span class="s">  }</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Verify skill list matches actual</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json</span>
+<span class="s2">master = json.load(open(&#39;plugins/master.json&#39;))</span>
+<span class="s2">declared = set(master[&#39;skills&#39;])</span>
+<span class="s2">import os</span>
+<span class="s2">actual = {f&#39;skills/{d}/SKILL.md&#39; for d in os.listdir(&#39;skills&#39;) if os.path.exists(f&#39;skills/{d}/SKILL.md&#39;)}</span>
+<span class="s2">missing = actual - declared</span>
+<span class="s2">extra = declared - actual</span>
+<span class="s2">print(f&#39;Declared: {len(declared)}, Actual: {len(actual)}&#39;)</span>
+<span class="s2">print(f&#39;Missing from master.json: {missing}&#39;)</span>
+<span class="s2">print(f&#39;Extra in master.json: {extra}&#39;)</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>Expected: 59 declared, 59 actual, no missing/extra.</p>
+<p><strong>Design choice — explicit list vs auto-discovery</strong>: The skill list in <code>master.json</code> is explicit (hardcoded paths) rather than auto-discovered via <code>skills/*/SKILL.md</code>. Trade-offs:</p>
+<ul>
+<li><strong>Explicit (chosen)</strong>: Adding a skill requires a 2-line PR edit (add to <code>master.json</code>, add the skill directory). The CI freshness check catches omissions. Reviewers see the skill roster in the PR diff.</li>
+<li><strong>Auto-discovery (rejected)</strong>: Generator globs <code>skills/*/SKILL.md</code> at runtime. Pro: zero maintenance. Con: a misnamed skill folder (e.g., <code>skills/shenbi_worldbuilding/</code> instead of <code>skills/shenbi-worldbuilding/</code>) silently appears in the manifest with a broken identifier; no PR-level review of skill roster changes; harder to mark skills as "disabled" or "internal-only".</li>
+</ul>
+<p>If the project grows to 100+ skills and maintenance becomes painful, switch to auto-discovery + an explicit denylist. Tracked as future work, not P-1.E scope.</p>
+<ul>
+<li>[ ] <strong>Step 3: Create <code>src/shenbi/plugins/__init__.py</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Plugin manifest generator package.&quot;&quot;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Create <code>src/shenbi/plugins/generate.py</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Generate per-platform plugin manifests from master.json.</span>
+
+<span class="sd">Single source of truth: plugins/master.json</span>
+<span class="sd">Output: 4 platform manifests (.claude-plugin/, .codex-plugin/,</span>
+<span class="sd">.cursor-plugin/, .opencode/).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">MASTER_PATH</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;plugins&quot;</span> <span class="o">/</span> <span class="s2">&quot;master.json&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_master</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load master.json (structural validation is a future enhancement).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">MASTER_PATH</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Master plugin file not found: </span><span class="si">{</span><span class="n">MASTER_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">MASTER_PATH</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+
+<span class="c1"># Each generator builds its output dict/list in the platform&#39;s canonical key</span>
+<span class="c1"># order and pulls platform-specific fields from config[&quot;fields&quot;]. Keeping the</span>
+<span class="c1"># order explicit makes generated output match the existing committed manifests</span>
+<span class="c1"># (so `git diff` after regeneration shows only real changes).</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_common_header</span><span class="p">(</span><span class="n">master</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fields shared by all JSON platforms, in canonical key order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_claude</span><span class="p">(</span><span class="n">master</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_common_header</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_codex</span><span class="p">(</span><span class="n">master</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_common_header</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;marketplace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;marketplace&quot;</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_cursor</span><span class="p">(</span><span class="n">master</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_common_header</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;pluginRoot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;pluginRoot&quot;</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;hooks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;hooks&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_opencode</span><span class="p">(</span><span class="n">master</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OpenCode uses an ES module (export default) with single-quoted strings.&quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;export default {&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;  name: &#39;</span><span class="si">{</span><span class="n">master</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;  version: &#39;</span><span class="si">{</span><span class="n">master</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;  description: &#39;</span><span class="si">{</span><span class="n">master</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;  author: &#39;</span><span class="si">{</span><span class="n">master</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;  skills: [&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;skills&quot;</span><span class="p">]:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    &#39;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">)</span>
+    <span class="c1"># Drop trailing comma on the final entry to match the committed file.</span>
+    <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  ]&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;};&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="n">GENERATORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;claude-code&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">gen_claude</span><span class="p">),</span>
+    <span class="s2">&quot;codex-cli&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">gen_codex</span><span class="p">),</span>
+    <span class="s2">&quot;cursor&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">gen_cursor</span><span class="p">),</span>
+    <span class="s2">&quot;opencode-js&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="n">gen_opencode</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_all</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate all platform manifests from master.json.&quot;&quot;&quot;</span>
+    <span class="n">master</span> <span class="o">=</span> <span class="n">load_master</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">platform_name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">master</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+        <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GENERATORS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;unknown_format&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">platform_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+        <span class="n">output_type</span><span class="p">,</span> <span class="n">generator</span> <span class="o">=</span> <span class="n">GENERATORS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">generator</span><span class="p">(</span><span class="n">master</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+            <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;generated&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">REPO_ROOT</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">generate_all</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Add entry point to <code>pyproject.toml</code></strong></li>
+</ul>
+<p>In <code>[project.scripts]</code>, add:</p>
+<div class="highlight"><pre><span></span><code><span class="n">shenbi-generate-plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.plugins.generate:main&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Sync + re-install</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: Run generator</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-generate-plugins
+</code></pre></div>
+<p>Expected: logs "generated" for <code>.claude-plugin/plugin.json</code> etc. (via structlog).</p>
+<ul>
+<li>[ ] <strong>Step 8: Verify outputs match existing manifests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>diff<span class="w"> </span>.claude-plugin/<span class="w"> </span>.codex-plugin/<span class="w"> </span>.cursor-plugin/<span class="w"> </span>.opencode/
+</code></pre></div>
+<p>Expected: content matches the committed manifests. JSON platforms should match field-for-field; the OpenCode JS file should be byte-identical. Any remaining diff (e.g., canonical 2-space indent vs. hand-mixed indentation) is formatting only. If structural diffs appear, investigate.</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit generated outputs</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>plugins/master.json<span class="w"> </span>src/shenbi/plugins/<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>.claude-plugin/<span class="w"> </span>.codex-plugin/<span class="w"> </span>.cursor-plugin/<span class="w"> </span>.opencode/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-45): single-source plugin manifest generator</span>
+
+<span class="s2">plugins/master.json is the canonical source. shenbi-generate-plugins</span>
+<span class="s2">entry point emits 4 platform manifests (.claude-plugin, .codex-plugin,</span>
+<span class="s2">.cursor-plugin, .opencode). Eliminates hand-sync drift across platforms.&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 10: Document the plugin manifest workflow in <code>CONTRIBUTING.md</code></strong></li>
+</ul>
+<p>Required by spec PR-45 acceptance ("<code>CONTRIBUTING.md</code> updated: 'When adding/removing
+a skill, update <code>plugins/master.json</code> and run <code>shenbi-generate-plugins</code>'"). Create (or
+extend) <code>CONTRIBUTING.md</code> with a "Plugin Manifests" section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Plugin Manifests</span>
+
+The four platform plugin manifests (<span class="sb">`.claude-plugin/`</span>, <span class="sb">`.codex-plugin/`</span>,
+<span class="sb">`.cursor-plugin/`</span>, <span class="sb">`.opencode/`</span>) are generated from a single source:
+<span class="sb">`plugins/master.json`</span>.
+
+When adding or removing a skill:
+
+<span class="k">1.</span> Add or remove the skill directory under <span class="sb">`skills/`</span>.
+<span class="k">2.</span> Add or remove its path in <span class="sb">`plugins/master.json`</span> (<span class="sb">`skills`</span> array).
+<span class="k">3.</span> Run <span class="sb">`shenbi-generate-plugins`</span> (or <span class="sb">`uv run shenbi-generate-plugins`</span>).
+<span class="k">4.</span> Commit <span class="sb">`plugins/master.json`</span> plus all regenerated manifest files.
+
+CI verifies the manifests are up to date; an ungenerated change fails the
+<span class="sb">`plugin-manifest-freshness`</span> job (added in the next step).
+</code></pre></div>
+<p>Commit:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>CONTRIBUTING.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-45): document plugin manifest workflow in CONTRIBUTING.md&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 11: Add CI verification step</strong></li>
+</ul>
+<p>In <code>.github/workflows/ci.yml</code>, add to <code>action-validation</code> job (or new job):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">plugin-manifest-freshness</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Verify plugin manifests are up to date</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">uv run shenbi-generate-plugins</span>
+<span class="w">          </span><span class="no">git diff --exit-code .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/</span>
+</code></pre></div>
+<p>Commit:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci(P-1.E PR-45): verify plugin manifests freshness&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-46-doc-accuracy-ci">PR-46: Doc Accuracy CI</h2>
+<h3 id="task-6-create-testsintegrationtest_docs_accuracypy">Task 6: Create <code>tests/integration/test_docs_accuracy.py</code></h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/integration/test_docs_accuracy.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write doc accuracy test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify documentation accuracy.</span>
+
+<span class="sd">Scans markdown files for code-span references to file paths (e.g.,</span>
+<span class="sd">`tests/validate-gate.py`) and verifies those files exist. Catches the</span>
+<span class="sd">most common doc drift: stale path references.</span>
+
+<span class="sd">Not a substitute for semantic review — only catches missing-file drift.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># docs/getting-started/* are intentionally excluded: that directory does not</span>
+<span class="c1"># exist yet and is not P-1.E scope (it arrives with the P0 user-guide work).</span>
+<span class="c1"># The test skips any listed file that is missing, so they can be re-added later.</span>
+<span class="n">DOCS_TO_CHECK</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AGENTS.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CLAUDE.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GEMINI.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;README.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CONTRIBUTING.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SECURITY.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CHANGELOG.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;command-to-give.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;goal-prompt.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;docs/index.md&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Paths referenced in docs that may not exist in main branch yet</span>
+<span class="c1"># (e.g., referenced as &quot;future&quot; or in spec context). Add here with reason.</span>
+<span class="n">ALLOWED_MISSING</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Example: &quot;docs/api/exceptions.md&quot; might be referenced in nav but is a stub</span>
+<span class="p">}</span>
+
+<span class="c1"># Match relative-path codespans: letters, digits, dots, slashes, hyphens, underscores.</span>
+<span class="c1"># Reject commands-with-args (&quot;bash tests/foo.sh&quot;), template placeholders</span>
+<span class="c1"># (&quot;skills/&lt;skill&gt;/SKILL.md&quot;), and URLs.</span>
+<span class="n">CODESPAN_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;`([\w][\w./-]*\.\w+)`&quot;</span><span class="p">)</span>
+<span class="n">HISTORICAL_PATH_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;tests/rounds/round-\d+&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_paths_from_doc</span><span class="p">(</span><span class="n">doc_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract code-span file path references from a markdown doc.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">CODESPAN_PATTERN</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Only consider paths with slashes or known extensions</span>
+        <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">candidate</span> <span class="ow">or</span> <span class="n">candidate</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span>
+            <span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;.yml&quot;</span><span class="p">,</span> <span class="s2">&quot;.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.sh&quot;</span><span class="p">,</span>
+        <span class="p">)):</span>
+            <span class="c1"># Skip historical round references</span>
+            <span class="k">if</span> <span class="n">HISTORICAL_PATH_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="n">candidate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">paths</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;doc_relative&quot;</span><span class="p">,</span> <span class="n">DOCS_TO_CHECK</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_doc_references_existing_files</span><span class="p">(</span><span class="n">doc_relative</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Each code-span file reference in docs must point to an existing file.&quot;&quot;&quot;</span>
+    <span class="n">doc_path</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="n">doc_relative</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc_relative</span><span class="si">}</span><span class="s2"> not present (may be added by later PR)&quot;</span><span class="p">)</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">referenced</span> <span class="ow">in</span> <span class="n">extract_paths_from_doc</span><span class="p">(</span><span class="n">doc_path</span><span class="p">):</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">referenced</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">REPO_ROOT</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">ALLOWED_MISSING</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">referenced</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc_relative</span><span class="si">}</span><span class="s2">: references `</span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s2">` which does not exist&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;Documentation references missing files:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test (expect possible failures)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/integration/test_docs_accuracy.py<span class="w"> </span>-v
+</code></pre></div>
+<p>If failures: fix each missing-file reference in the docs.</p>
+<ul>
+<li>[ ] <strong>Step 3: Add internal-link checker (<code>tests/integration/test_doc_links.py</code>)</strong></li>
+</ul>
+<p>Spec OQ #3 decided "Yes" (add <code>markdown-link-check</code> to PR-46) as a separate
+test file. This implements that decision (not optional): broken doc-to-doc
+links fail CI. <code>markdown-link-check</code> is an npm tool, so it is installed in CI
+and invoked via subprocess; local runs skip gracefully when it is absent.</p>
+<p>Create <code>tests/integration/test_doc_links.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify internal markdown links resolve.</span>
+
+<span class="sd">Complements test_docs_accuracy.py (code-span file paths) by checking the</span>
+<span class="sd">markdown [text](link) links that test_docs_accuracy does not cover.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">MLC_CONFIG</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span> <span class="o">/</span> <span class="s2">&quot;mlc-config.json&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_mlc</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;markdown-link-check&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;markdown-link-check not installed (npm i -g markdown-link-check)&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_markdown_docs</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">REPO_ROOT</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">REPO_ROOT</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;.venv&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">parts</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;doc&quot;</span><span class="p">,</span> <span class="n">_markdown_docs</span><span class="p">())</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_internal_links_resolve</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">_require_mlc</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;markdown-link-check&quot;</span><span class="p">,</span> <span class="s2">&quot;--config&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">MLC_CONFIG</span><span class="p">),</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">doc</span><span class="p">],</span>
+        <span class="n">cwd</span><span class="o">=</span><span class="n">REPO_ROOT</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Broken links in </span><span class="si">{</span><span class="n">doc</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Create <code>tests/fixtures/mlc-config.json</code> (skip http links; only check local):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ignorePatterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^https?://&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10s&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;retryOn429&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Document installation in <code>CONTRIBUTING.md</code> (Step 10 of Task 5): <code>npm i -g
+markdown-link-check</code>.</p>
+<p>Add a CI job in <code>.github/workflows/ci.yml</code> that installs it before the test:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">doc-links</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm install -g markdown-link-check</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v5</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest tests/integration/test_doc_links.py -q</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/integration/test_docs_accuracy.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-46): add doc accuracy CI test</span>
+
+<span class="s2">Scans 10 markdown docs for code-span file path references and verifies</span>
+<span class="s2">those files exist. Catches stale path references (the most common doc</span>
+<span class="s2">drift). Run on every PR via existing pytest CI.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-final-verification">Task 7: Final verification</h3>
+<ul>
+<li>[ ] All 3 PRs merged.</li>
+<li>[ ] <code>just check</code> passes including new doc accuracy test.</li>
+<li>[ ] <code>shenbi-generate-plugins</code> produces output matching committed manifests (CI freshness check passes).</li>
+<li>[ ] No stale references in any of the 10 checked markdown docs.</li>
+<li>[ ] <code>markdown-link-check</code> CI job passes (internal links resolve).</li>
+<li>[ ] <code>CONTRIBUTING.md</code> documents the plugin manifest workflow.</li>
+</ul>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<h3 id="spec-coverage">Spec coverage</h3>
+<table>
+<thead>
+<tr>
+<th>Spec PR</th>
+<th>Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR-44 docs sync</td>
+<td>Tasks 1-4</td>
+</tr>
+<tr>
+<td>PR-45 plugin manifest generator</td>
+<td>Task 5</td>
+</tr>
+<tr>
+<td>PR-46 doc accuracy CI</td>
+<td>Task 6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="placeholder-scan">Placeholder scan</h3>
+<ul>
+<li>✅ Full master.json content with all 59 skills</li>
+<li>✅ Complete generator Python code</li>
+<li>✅ Complete test code with ALLOWED_MISSING pattern</li>
+<li>⚠️ Plugin generator covers 4 platform formats. If a 5th platform is added, generator must be extended (noted as future work).</li>
+</ul>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li><strong>PR-44 requires PR-22 (rename), PR-18 (src layout), PR-41 (PEP 735), PR-42 (justfile)</strong> merged first. Docs reference <code>just</code> commands and <code>uv sync --group dev</code>; without PR-41/PR-42 the synced content would describe commands that do not exist.</li>
+<li><strong>PR-45 requires PR-18 (entry points) + PR-24 (structlog)</strong> -- the generator runs as a <code>shenbi-generate-plugins</code> entry point and uses structlog (no <code>print()</code>). Easier to test after PR-44 lands.</li>
+<li><strong>PR-46 independent</strong>.</li>
+</ul>
+<h3 id="risk-highlights">Risk highlights</h3>
+<ul>
+<li><strong>Plugin generator format coverage</strong>: only 4 platforms. Adding 5th (e.g., Aider) requires extending <code>GENERATORS</code> dict + master.json.</li>
+<li><strong>Doc accuracy test may fail on legitimate future references</strong> (e.g., docs that mention a file that will be created in a future PR). Use <code>ALLOWED_MISSING</code> set with comment explaining why.</li>
+</ul>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan saved to <code>docs/superpowers/plans/2026-06-15-p-1.e-07-docs-config.md</code>. Two execution options:</p>
+<p><strong>1. Subagent-Driven</strong> — one subagent per PR.
+<strong>2. Inline Execution</strong> — small PRs, can batch.</p>
+<p>After this plan, <strong>all P-1.E clusters complete</strong>. Spec acceptance criteria fully met. Proceed to P0 spec writing per Cluster 08 patches.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

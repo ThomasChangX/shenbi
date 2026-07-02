@@ -1,0 +1,4091 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/shenbi/plans/2026-06-08-phase1-core-pipeline/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Shenbi Phase 1: Core Pipeline Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Shenbi Phase 1: Core Pipeline Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/shenbi/plans/2026-06-08-phase1-core-pipeline.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/shenbi/plans/2026-06-08-phase1-core-pipeline/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Shenbi Phase 1: Core Pipeline Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/shenbi/plans/2026-06-08-phase1-core-pipeline.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shenbi-phase-1-core-pipeline-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shenbi Phase 1: Core Pipeline Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-project-scaffold-claudemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Project Scaffold + CLAUDE.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-shenbi-writing-skills-meta-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: shenbi-writing-skills (Meta-Skill)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontmatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontmatter 规则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontmatter 规则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        描述陷阱
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技能必须包含的元素
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技能必须包含的元素">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. DOT 流程图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 铁律
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 反理性化表格
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 红旗检查表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        说服心理学
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        压力测试方法论
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="压力测试方法论">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#red" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RED 阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GREEN 阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refactor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REFACTOR 阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        领域特有理性化模式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-using-shenbi-skill-dispatcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: using-shenbi (Skill Dispatcher)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-trigger-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Trigger Map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#red-flags-stop-and-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Red Flags — Stop and Check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hard-gate-no-drafting-without-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HARD-GATE: No Drafting Without Foundation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#novel-project-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Novel Project Directory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-activation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Activation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-shenbi-worldbuilding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: shenbi-worldbuilding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出契约
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="输出契约">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#story_biblemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        story_bible.md 结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        询问流程
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-shenbi-character-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: shenbi-character-design
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出文件
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="输出文件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        角色档案格式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relationshipsmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        relationships.md 格式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        询问流程
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-shenbi-story-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: shenbi-story-architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心冲突三层
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出文件
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="输出文件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#story_framemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        story_frame.md 结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volume_mapmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        volume_map.md 结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-shenbi-chapter-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: shenbi-chapter-planning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目标推导优先级链
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        章节备忘 8 段式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        黄金三章纪律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hook 账本硬规则
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-8-shenbi-context-composing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: shenbi-context-composing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        上下文优先级
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hook_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hook 债务简报
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-9-shenbi-chapter-drafting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: shenbi-chapter-drafting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre_write_check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        写作自检表 (PRE_WRITE_CHECK)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        创作原则
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-10-shenbi-state-settling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: shenbi-state-settling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        提取模板
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        更新规则
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-11-shenbi-review-anti-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: shenbi-review-anti-ai
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检查执行
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出格式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-12-shenbi-chapter-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: shenbi-chapter-revision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修订模式选择
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修订接受条件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        回退到最佳版本
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-13-pressure-test-core-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: Pressure Test — Core Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-spec-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Spec Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-placeholder-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Placeholder Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-type-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Type Consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-post-implementation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Post-Implementation Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="shenbi-phase-1-core-pipeline-implementation-plan">Shenbi Phase 1: Core Pipeline Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Build the minimum viable Shenbi pipeline — from worldbuilding to chapter drafting, anti-AI review, and revision — so a human can create a novel project and produce a reviewed chapter.</p>
+<p><strong>Architecture:</strong> Pure SKILL.md skill framework. Each skill is a markdown file with YAML frontmatter, DOT flowcharts, anti-rationalization tables, and detailed prompt instructions. Skills communicate through a shared file system (the novel project directory). The <code>using-shenbi</code> dispatcher loads at session start and routes to appropriate skills.</p>
+<p><strong>Tech Stack:</strong> Markdown (SKILL.md), YAML frontmatter, DOT/GraphViz flowcharts, bash (hooks)</p>
+<p><strong>Spec:</strong> <code>docs/specs/2026-06-08-shenbi-design.md</code> (v0.2.0)</p>
+<p><strong>Scope:</strong> Phase 1 only — 11 skills that form the end-to-end writing pipeline. Phases 2-5 get separate plans.</p>
+<p><strong>Phase 1 Limitations:</strong>
+- No foreshadowing lifecycle management (plant→track→resolve chain requires Phase 3). Chapter-planning hook 账 sections are placeholders; context-composing skips P3 伏笔简报
+- State-settling only updates hook <code>last_reinforced</code>/<code>subtlety</code>, does not advance hook states. <code>subplot_board.md</code> updates deferred to Phase 4
+- Only 1 of 4 default audit skills (review-anti-ai). Missing: review-continuity, review-character, review-sensitivity. No conditional audits
+- No style learning, no import pipeline, no length normalizing (<code>shenbi-length-normalizing</code> deferred to Phase 4)
+- No volume management or consolidation
+- No <code>truth/</code> file bootstrapping — existing projects need manually initialized truth files
+- These gaps are by design — Phase 1 proves the core workflow, Phases 2-5 fill the gaps</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── CLAUDE.md
+├── skills/
+│   ├── using-shenbi/
+│   │   └── SKILL.md
+│   ├── shenbi-writing-skills/
+│   │   └── SKILL.md
+│   ├── shenbi-worldbuilding/
+│   │   └── SKILL.md
+│   ├── shenbi-character-design/
+│   │   └── SKILL.md
+│   ├── shenbi-story-architecture/
+│   │   └── SKILL.md
+│   ├── shenbi-chapter-planning/
+│   │   └── SKILL.md
+│   ├── shenbi-context-composing/
+│   │   └── SKILL.md
+│   ├── shenbi-chapter-drafting/
+│   │   ├── SKILL.md
+│   │   └── anti-ai-reference.md
+│   ├── shenbi-state-settling/
+│   │   ├── SKILL.md
+│   │   └── truth-files-reference.md
+│   ├── shenbi-review-anti-ai/
+│   │   ├── SKILL.md
+│   │   └── checklist.md
+│   └── shenbi-chapter-revision/
+│       ├── SKILL.md
+│       └── revision-modes.md
+├── docs/
+│   ├── specs/
+│   │   └── 2026-06-08-shenbi-design.md
+│   └── shenbi/
+│       └── plans/
+│           └── 2026-06-08-phase1-core-pipeline.md
+└── tests/
+    └── pressure-tests/
+        └── prompts/
+</code></pre></div>
+<hr />
+<h2 id="task-1-project-scaffold-claudemd">Task 1: Project Scaffold + CLAUDE.md</h2>
+<p><strong>Files:</strong>
+- Create: <code>CLAUDE.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Create CLAUDE.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># Shenbi (神笔) 贡献者指南</span>
+
+<span class="gu">## 项目定位</span>
+
+Shenbi 是一套小说写作 AI 技能框架。每个技能是一个 SKILL.md 文件，指导 AI agent 完成小说创作的特定环节。
+
+<span class="gu">## 技能规范</span>
+
+<span class="k">-</span><span class="w"> </span>每个技能位于 <span class="sb">`skills/&lt;skill-name&gt;/SKILL.md`</span>
+<span class="k">-</span><span class="w"> </span>Frontmatter: <span class="sb">`name`</span>（仅字母数字连字符）+ <span class="sb">`description`</span>（只描述触发条件，≤500字符）
+<span class="k">-</span><span class="w"> </span>描述陷阱：description 绝不描述技能做什么，只描述何时使用
+<span class="k">-</span><span class="w"> </span>关键技能使用 DOT 流程图定义权威流程（DOT 是规范文档，不需要自动化渲染；如需渲染，添加 <span class="sb">`charset=&quot;utf-8&quot;`</span> 和 CJK 字体声明）
+<span class="k">-</span><span class="w"> </span>每个纪律性技能包含反理性化表格
+
+<span class="gu">## 术语约定</span>
+
+<span class="k">-</span><span class="w"> </span>&quot;your human partner&quot; — 与 agent 协作的人类创作者，不用 &quot;the user&quot;
+<span class="k">-</span><span class="w"> </span>&quot;truth files&quot; — 小说项目中的真相文件（世界状态、伏笔池等）
+<span class="k">-</span><span class="w"> </span>&quot;chapter memo&quot; — 8段式章节备忘
+
+<span class="gu">## 提交规范</span>
+
+使用 [<span class="nt">Conventional Commits</span>](<span class="na">https://www.conventionalcommits.org/</span>) 格式：
+<span class="k">-</span><span class="w"> </span><span class="sb">`feat: add shenbi-worldbuilding skill`</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`fix: correct anti-rationalization table in review-anti-ai`</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Create directory structure</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>skills/using-shenbi
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-writing-skills
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-worldbuilding
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-character-design
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-story-architecture
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-chapter-planning
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-context-composing
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-chapter-drafting
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-state-settling
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-review-anti-ai
+mkdir<span class="w"> </span>-p<span class="w"> </span>skills/shenbi-chapter-revision
+mkdir<span class="w"> </span>-p<span class="w"> </span>tests/pressure-tests/prompts
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: initialize project scaffold with CLAUDE.md&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-2-shenbi-writing-skills-meta-skill">Task 2: shenbi-writing-skills (Meta-Skill)</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-writing-skills/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-writing-skills
+<span class="gu">description: Use when creating or modifying any shenbi skill — guides the design, testing, and iteration of new novel-writing skills</span>
+<span class="gu">---</span>
+
+<span class="gh"># 编写 Shenbi 技能</span>
+
+YOU MUST follow this skill when creating or modifying any <span class="sb">`skills/shenbi-*/SKILL.md`</span> file.
+
+<span class="gu">## 技能设计流程</span>
+
+```dot
+digraph skill_design {
+    &quot;Read design spec&quot; -&gt; &quot;Define trigger condition&quot;;
+    &quot;Define trigger condition&quot; -&gt; &quot;Write DOT flowchart&quot;;
+    &quot;Write DOT flowchart&quot; -&gt; &quot;Write iron laws&quot;;
+    &quot;Write iron laws&quot; -&gt; &quot;Write anti-rationalization table&quot;;
+    &quot;Write anti-rationalization table&quot; -&gt; &quot;Write detailed instructions&quot;;
+    &quot;Write detailed instructions&quot; -&gt; &quot;Pressure test (RED)&quot;;
+    &quot;Pressure test (RED)&quot; -&gt; &quot;Fix gaps (GREEN)&quot;;
+    &quot;Fix gaps (GREEN)&quot; -&gt; &quot;Pressure test again&quot;;
+    &quot;Pressure test again&quot; -&gt; &quot;Bulletproof?&quot; [label=&quot;no&quot;];
+    &quot;Pressure test again&quot; -&gt; &quot;Commit&quot; [label=&quot;yes&quot;];
+    &quot;Bulletproof?&quot; -&gt; &quot;Fix gaps (GREEN)&quot;;
+}
+</code></pre></div>
+<h2 id="frontmatter">Frontmatter 规则</h2>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skill-name</span><span class="w">          </span><span class="c1"># 仅字母、数字、连字符</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use when ...</span><span class="w">  </span><span class="c1"># 只描述触发条件，≤500字符</span>
+<span class="nn">---</span>
+</code></pre></div>
+<h3 id="_1">描述陷阱</h3>
+<p>description 如果包含流程摘要，agent 会只读描述而跳过技能主体。</p>
+<table>
+<thead>
+<tr>
+<th>Thought</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Brief description helps the agent"</td>
+<td>Agent skips the full skill if description answers "what does it do"</td>
+</tr>
+<tr>
+<td>"I should explain the workflow here"</td>
+<td>Description = trigger condition only. Workflow goes in the body.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">技能必须包含的元素</h2>
+<h3 id="1-dot">1. DOT 流程图</h3>
+<p>关键技能必须用 DOT 定义权威流程。叙述文本作为补充，不是权威来源。</p>
+<h3 id="2">2. 铁律</h3>
+<p>关键规则使用绝对语言，不使用"通常"、"建议"、"推荐"：</p>
+<div class="highlight"><pre><span></span><code>NO WORLD RULES WITHOUT CHECKING EXISTING TRUTH FILES FIRST
+</code></pre></div>
+<h3 id="3">3. 反理性化表格</h3>
+<p>每个纪律性技能列举 AI 的偷懒借口及反驳：</p>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"This chapter doesn't need foreshadowing"</td>
+<td>Simple chapters are the best time to plant hooks</td>
+</tr>
+<tr>
+<td>"Readers won't notice"</td>
+<td>Web novel readers have exceptional memory for details</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4">4. 红旗检查表</h3>
+<p>自我检查触发器：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Red Flags — Stop and Check</span>
+
+<span class="k">- [ ]</span> Did I skip reading truth files before writing?
+<span class="k">- [ ]</span> Did I proceed without human approval at a gate?
+<span class="k">- [ ]</span> Did I assume something instead of asking?
+</code></pre></div>
+<h2 id="_3">说服心理学</h2>
+<p>使用以下原则（基于 Meincke et al. 2025, N=28,000）：</p>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authority</strong></td>
+<td>"YOU MUST"、"No exceptions"</td>
+</tr>
+<tr>
+<td><strong>Commitment</strong></td>
+<td>TodoWrite 追踪、要求公开声明</td>
+</tr>
+<tr>
+<td><strong>Scarcity</strong></td>
+<td>"Before proceeding"、"IMMEDIATELY after"</td>
+</tr>
+<tr>
+<td><strong>Social Proof</strong></td>
+<td>"Every chapter"、"X without Y = failure"</td>
+</tr>
+<tr>
+<td><strong>Unity</strong></td>
+<td>"your human partner"、"we're creating together"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>不使用</strong> Liking（导致谄媚）和 Reciprocity（感觉操控）。</p>
+<h2 id="_4">压力测试方法论</h2>
+<h3 id="red">RED 阶段</h3>
+<ol>
+<li>选择一个该技能应覆盖的场景</li>
+<li>不加载技能，让 agent 面对场景</li>
+<li>记录 agent 的 rationalization（偷懒借口）</li>
+<li>这些 rationalization 就是技能必须堵住的漏洞</li>
+</ol>
+<h3 id="green">GREEN 阶段</h3>
+<ol>
+<li>将记录的 rationalization 转化为反理性化表格条目</li>
+<li>编写最小技能内容来应对那些特定的 rationalization</li>
+<li>重新运行场景，验证行为改善</li>
+</ol>
+<h3 id="refactor">REFACTOR 阶段</h3>
+<ol>
+<li>发现新的 rationalization 漏洞</li>
+<li>补充反制措施</li>
+<li>重复直到 bulletproof</li>
+</ol>
+<h2 id="_5">领域特有理性化模式</h2>
+<p>以下是小说写作领域的常见理性化借口，每个纪律性技能必须覆盖相关的条目：</p>
+<table>
+<thead>
+<tr>
+<th>借口</th>
+<th>现实</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章太简单了，不需要伏笔"</td>
+<td>简单章节恰好是埋伏笔的最佳时机</td>
+</tr>
+<tr>
+<td>"读者不会注意到这个小矛盾"</td>
+<td>网文读者会逐章追更，记忆力极强</td>
+</tr>
+<tr>
+<td>"先写完再检查一致性"</td>
+<td>等写到20章再回来修，改动的代价是10倍</td>
+</tr>
+<tr>
+<td>"这个角色不需要这么复杂"</td>
+<td>配角降智是网文最大毒点之一</td>
+</tr>
+<tr>
+<td>"爽点不需要铺垫，直接给"</td>
+<td>没有压制的爆发是白开水</td>
+</tr>
+<tr>
+<td>"这章字数不够，加段描写凑一下"</td>
+<td>无功能的水文比字数不足更致命</td>
+</tr>
+<tr>
+<td>"前面已经提过了，读者记得"</td>
+<td>5章前的细节读者记不住，需要自然提醒</td>
+</tr>
+<tr>
+<td>"文风不重要，故事好就行"</td>
+<td>AI味一重，平台检测直接降权</td>
+</tr>
+<tr>
+<td>"主角不能在这里失败"</td>
+<td>无挫折的成功 = 无张力的流水账</td>
+</tr>
+<tr>
+<td>"这条伏笔太久了，算了放弃"</td>
+<td>放弃伏笔 = 违背读者信任，Chase Power 债务暴增</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-writing-skills/SKILL.md
+git commit -m &quot;feat: add shenbi-writing-skills meta-skill&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-3-using-shenbi-skill-dispatcher">Task 3: using-shenbi (Skill Dispatcher)</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/using-shenbi/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: using-shenbi
+<span class="gu">description: Use when starting any conversation — establishes skill discovery and trigger rules for the shenbi novel writing skill system</span>
+<span class="gu">---</span>
+
+<span class="gh"># Using Shenbi</span>
+
+YOU MUST check for applicable shenbi skills before responding to your human partner — even before asking clarifying questions.
+
+<span class="gu">## 1% Rule</span>
+
+If there is a 1% chance that a shenbi skill could apply to the current task, you MUST check it. Checking costs seconds; skipping costs chapters.
+
+<span class="gu">## Skill Check Order</span>
+
+```dot
+digraph skill_check {
+    &quot;Receive task&quot; -&gt; &quot;Is it a novel writing task?&quot; [label=&quot;check first&quot;];
+    &quot;Is it a novel writing task?&quot; -&gt; &quot;Check creation skills&quot; [label=&quot;yes&quot;];
+    &quot;Is it a novel writing task?&quot; -&gt; &quot;Respond normally&quot; [label=&quot;no&quot;];
+    &quot;Check creation skills&quot; -&gt; &quot;Check planning skills&quot;;
+    &quot;Check planning skills&quot; -&gt; &quot;Check drafting skills&quot;;
+    &quot;Check drafting skills&quot; -&gt; &quot;Check audit skills&quot;;
+    &quot;Check audit skills&quot; -&gt; &quot;Check revision skills&quot;;
+    &quot;Check revision skills&quot; -&gt; &quot;Check management skills&quot;;
+    &quot;Check creation skills&quot; -&gt; &quot;Check import skills&quot; [label=&quot;existing work&quot;];
+    &quot;Check import skills&quot; -&gt; &quot;Check planning skills&quot;;
+}
+</code></pre></div>
+<h2 id="skill-trigger-map">Skill Trigger Map</h2>
+<table>
+<thead>
+<tr>
+<th>Your human partner says...</th>
+<th>Load skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"我要写一本小说" / "帮我建世界观" / "创建小说"</td>
+<td>shenbi-worldbuilding</td>
+</tr>
+<tr>
+<td>"设计角色" / "角色卡" / "人物"</td>
+<td>shenbi-character-design</td>
+</tr>
+<tr>
+<td>"故事框架" / "大纲" / "整体架构"</td>
+<td>shenbi-story-architecture</td>
+</tr>
+<tr>
+<td>"写下一章" / "章节规划" / "下一章写什么"</td>
+<td>shenbi-chapter-planning</td>
+</tr>
+<tr>
+<td>"组装上下文" / "准备写作素材" / "收集上下文"</td>
+<td>shenbi-context-composing</td>
+</tr>
+<tr>
+<td>"帮我写这章" / "起草" / "写正文"</td>
+<td>shenbi-chapter-drafting</td>
+</tr>
+<tr>
+<td>"结算" / "更新状态" / "提取变化"</td>
+<td>shenbi-state-settling</td>
+</tr>
+<tr>
+<td>"字数调整" / "扩写" / "压缩" / "字数不够"</td>
+<td>shenbi-length-normalizing</td>
+</tr>
+<tr>
+<td>"检查这章" / "审计" / "审查"</td>
+<td>shenbi-review-anti-ai (default) + activated audit skills</td>
+</tr>
+<tr>
+<td>"修改这章" / "修订" / "这段有问题"</td>
+<td>shenbi-chapter-revision</td>
+</tr>
+<tr>
+<td>"润色" / "打磨" / "文字"</td>
+<td>shenbi-style-polishing</td>
+</tr>
+<tr>
+<td>"去AI味" / "反检测"</td>
+<td>shenbi-anti-detect</td>
+</tr>
+<tr>
+<td>"建地点" / "场景设计"</td>
+<td>shenbi-location-builder</td>
+</tr>
+<tr>
+<td>"力量体系" / "修炼等级"</td>
+<td>shenbi-power-system</td>
+</tr>
+<tr>
+<td>"势力" / "门派" / "组织"</td>
+<td>shenbi-faction-builder</td>
+</tr>
+<tr>
+<td>"关系" / "角色关系"</td>
+<td>shenbi-relationship-map</td>
+</tr>
+<tr>
+<td>"节奏" / "张弛"</td>
+<td>shenbi-pacing-design</td>
+</tr>
+<tr>
+<td>"线索" / "主线支线"</td>
+<td>shenbi-plot-thread-weaver</td>
+</tr>
+<tr>
+<td>"伏笔" / "埋线" / "hook"</td>
+<td>shenbi-foreshadowing-plant</td>
+</tr>
+<tr>
+<td>"伏笔追踪" / "hook状态"</td>
+<td>shenbi-foreshadowing-track</td>
+</tr>
+<tr>
+<td>"伏笔兑现" / "收线"</td>
+<td>shenbi-foreshadowing-resolve</td>
+</tr>
+<tr>
+<td>"导入" / "分析已有作品"</td>
+<td>shenbi-import-analysis</td>
+</tr>
+<tr>
+<td>"文风" / "风格学习"</td>
+<td>shenbi-style-learning</td>
+</tr>
+<tr>
+<td>"短篇"</td>
+<td>shenbi-short-outline</td>
+</tr>
+<tr>
+<td>"续写"</td>
+<td>shenbi-sequel-writing</td>
+</tr>
+<tr>
+<td>"平台趋势" / "市场"</td>
+<td>shenbi-market-radar</td>
+</tr>
+<tr>
+<td>"改题材配置" / "疲劳词"</td>
+<td>shenbi-genre-config</td>
+</tr>
+<tr>
+<td>"同步状态" / "重新提取"</td>
+<td>shenbi-truth-sync</td>
+</tr>
+<tr>
+<td>"回滚" / "快照"</td>
+<td>shenbi-snapshot-manage</td>
+</tr>
+<tr>
+<td>"卷完成" / "卷总结"</td>
+<td>shenbi-volume-consolidation</td>
+</tr>
+<tr>
+<td>"基础设定审核" / "设定打分"</td>
+<td>shenbi-foundation-review</td>
+</tr>
+<tr>
+<td>"纠偏" / "下一章注意"</td>
+<td>shenbi-drift-guidance</td>
+</tr>
+<tr>
+<td>"作者意图" / "长期目标"</td>
+<td>shenbi-intent-management</td>
+</tr>
+<tr>
+<td>"章节模式" / "模式检测"</td>
+<td>shenbi-chapter-pattern</td>
+</tr>
+<tr>
+<td>novel-related request that matches nothing above</td>
+<td>Check full skill list in design spec Section 8</td>
+</tr>
+</tbody>
+</table>
+<h2 id="red-flags-stop-and-check">Red Flags — Stop and Check</h2>
+<table>
+<thead>
+<tr>
+<th>Thought</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"This is just a simple question about the novel"</td>
+<td>Questions are tasks. Check for skills.</td>
+</tr>
+<tr>
+<td>"I know what they want"</td>
+<td>Knowing the concept ≠ using the right skill.</td>
+</tr>
+<tr>
+<td>"I'll just start writing"</td>
+<td>Writing without planning violates the HARD-GATE.</td>
+</tr>
+<tr>
+<td>"The skill seems overkill for this"</td>
+<td>The 1% rule applies. No exceptions.</td>
+</tr>
+<tr>
+<td>"I'll check skills after asking clarifying questions"</td>
+<td>Skill check comes BEFORE clarifying questions.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="hard-gate-no-drafting-without-foundation">HARD-GATE: No Drafting Without Foundation</h2>
+<p>NEVER write chapter content without:</p>
+<ol>
+<li>A completed novel project directory (Section 4 of design spec)</li>
+<li>At minimum: <code>novel.json</code>, <code>outline/story_frame.md</code>, <code>characters/protagonist.md</code></li>
+<li>A chapter plan (<code>plans/chapter-N-plan.md</code>) for the target chapter</li>
+</ol>
+<p>If your human partner asks to write before these exist, load the appropriate creation/planning skills first.</p>
+<h2 id="novel-project-directory">Novel Project Directory</h2>
+<p>When working with a novel project, the directory structure is defined in <code>docs/specs/2026-06-08-shenbi-design.md</code> Section 4. Verify the structure exists before proceeding with any skill.</p>
+<h2 id="audit-activation">Audit Activation</h2>
+<p>Default audits (always run): review-anti-ai, review-continuity, review-character, review-sensitivity</p>
+<blockquote>
+<p><strong>Phase 1</strong>: Only review-anti-ai is implemented. The other three default audits (review-continuity, review-character, review-sensitivity) are deferred to Phase 2. If triggered, the agent will fail gracefully — the skill file doesn't exist, so skip and log.</p>
+</blockquote>
+<p>Additional audits activate based on <code>genre-config.json</code> in the novel project. See design spec Section 7.4 for activation rules.
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/using-shenbi/SKILL.md
+git commit -m &quot;feat: add using-shenbi skill dispatcher with trigger map&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="task-4-shenbi-worldbuilding">Task 4: shenbi-worldbuilding</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-worldbuilding/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-worldbuilding
+<span class="gu">description: Use when creating a new novel&#39;s world, building story bible, or designing setting rules, geography, and social structure</span>
+<span class="gu">---</span>
+
+<span class="gh"># 世界观构建</span>
+
+HARD-GATE: 在世界观未完成并获得人类合作者批准前，不得进入角色设计或故事框架阶段。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph worldbuilding {
+    &quot;Check existing files&quot; -&gt; &quot;Has novel.json?&quot;;
+    &quot;Has novel.json?&quot; -&gt; &quot;Read genre config&quot; [label=&quot;yes&quot;];
+    &quot;Has novel.json?&quot; -&gt; &quot;Create project directory scaffold&quot; [label=&quot;no&quot;];
+    &quot;Create project directory scaffold&quot; -&gt; &quot;Create novel.json + genre-config.json&quot;;
+    &quot;Create novel.json + genre-config.json&quot; -&gt; &quot;Read genre config&quot;;
+    &quot;Read genre config&quot; -&gt; &quot;Ask: core concept and genre&quot;;
+    &quot;Ask: core concept and genre&quot; -&gt; &quot;Generate story_bible.md&quot;;
+    &quot;Generate story_bible.md&quot; -&gt; &quot;Generate rules.md + locations.md&quot;;
+    &quot;Generate rules.md + locations.md&quot; -&gt; &quot;Human reviews&quot; [label=&quot;present for approval&quot;];
+    &quot;Human reviews&quot; -&gt; &quot;Revise&quot; [label=&quot;rejected&quot;];
+    &quot;Human reviews&quot; -&gt; &quot;Write files to disk&quot; [label=&quot;approved&quot;];
+}
+</code></pre></div>
+<h2 id="_6">铁律</h2>
+<ol>
+<li><strong>NO BULLET-POINT WORLDS</strong> — 世界观以散文形式输出，不是表格、不是 schema、不是条目化 bullet。每个设定段落是一段连贯的叙述。</li>
+<li><strong>前台故事 + 后台故事</strong> — story_bible.md 必须包含两条线：读者看到的前台冲突，和贯穿全书的后台暗线。</li>
+<li><strong>世界铁律写在 rules.md</strong> — 硬性规则（物理法则、社会禁忌、力量上限）独立存放，writer 和 auditor 直接引用。</li>
+<li><strong>去重原则</strong> — 同一事实只出现在一个文件中。genre/core_concept/themes 只在 <code>novel.json</code> 定义。</li>
+<li><strong>项目目录初始化</strong> — 如果小说项目目录不存在，worldbuilding 必须先创建完整目录结构（参见设计规范 Section 4）。</li>
+</ol>
+<h2 id="_7">输出契约</h2>
+<p>写以下文件到小说项目目录：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>novel.json</code></td>
+<td>标题、题材、语言、状态</td>
+</tr>
+<tr>
+<td><code>genre-config.json</code></td>
+<td>疲劳词、审计维度、节奏规则</td>
+</tr>
+<tr>
+<td><code>world/story_bible.md</code></td>
+<td>世界观圣经（散文，4段式）</td>
+</tr>
+<tr>
+<td><code>world/rules.md</code></td>
+<td>世界铁律（最多10条）</td>
+</tr>
+<tr>
+<td><code>world/locations.md</code></td>
+<td>初始地点图谱（3-5个核心地点）</td>
+</tr>
+<tr>
+<td><code>truth/</code> (初始化)</td>
+<td>创建 <code>current_state.md</code>, <code>character_matrix.md</code>, <code>emotional_arcs.md</code>, <code>chapter_summaries.md</code> 的空模板（带 frontmatter，body 标记为待填充）。state-settling 首次运行时填充实际数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story_biblemd">story_bible.md 结构</h3>
+<div class="highlight"><pre><span></span><code><span class="gh"># 世界观圣经</span>
+
+<span class="k">&gt; </span><span class="ge">genre/core_concept/themes 存储在 `novel.json`，不在此处重复</span>
+
+<span class="gu">## 第一段：天地法则</span>
+[世界运行的基本规则，力量体系的来源]
+
+<span class="gu">## 第二段：社会格局</span>
+[势力分布、阶层结构、权力拓扑]
+
+<span class="gu">## 第三段：历史纵深</span>
+[关键历史事件，塑造当前格局的过去]
+
+<span class="gu">## 第四段：暗流涌动</span>
+[表面平静下涌动的矛盾，为后续冲突埋种子]
+</code></pre></div>
+<h2 id="anti-rationalization">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"世界观只需要简单几条规则"</td>
+<td>薄世界观 = 30章后无素材可用，writer 不断重复</td>
+</tr>
+<tr>
+<td>"先写故事，世界观后面补"</td>
+<td>没有世界观约束，writer 每章都在发明新规则</td>
+</tr>
+<tr>
+<td>"规则太多会限制创作"</td>
+<td>好的约束激发创意，没有约束导致随意</td>
+</tr>
+<tr>
+<td>"读者不关心世界观"</td>
+<td>网文读者对设定矛盾极其敏感，会逐章对比</td>
+</tr>
+<tr>
+<td>"我直接用通用的玄幻设定"</td>
+<td>同质化设定 = 没有记忆点 = 读者弃书</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_8">询问流程</h2>
+<ol>
+<li>你的小说标题是什么？</li>
+<li>核心概念一句话概括？（"如果 ___ 发生了会怎样？"）</li>
+<li>题材方向？（玄幻/仙侠/都市/科幻/历史/...）</li>
+<li>有参考作品吗？（提供对标，不是模仿）</li>
+<li>世界观的"暗"是什么？（表面平静下最大的矛盾）</li>
+</ol>
+<p>每个问题等待人类合作者回答后再问下一个。获得足够信息后生成输出，呈交审批。
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-worldbuilding/SKILL.md
+git commit -m &quot;feat: add shenbi-worldbuilding skill&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="task-5-shenbi-character-design">Task 5: shenbi-character-design</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-character-design/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-character-design
+<span class="gu">description: Use when creating or refining character profiles, designing character arcs, voice profiles, or personality systems</span>
+<span class="gu">---</span>
+
+<span class="gh"># 角色设计</span>
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph character_design {
+    &quot;Read story_bible + rules&quot; -&gt; &quot;Ask: protagonist concept&quot;;
+    &quot;Ask: protagonist concept&quot; -&gt; &quot;Generate protagonist.md&quot;;
+    &quot;Generate protagonist.md&quot; -&gt; &quot;Ask: supporting characters?&quot;;
+    &quot;Ask: supporting characters?&quot; -&gt; &quot;Generate major/minor&quot; [label=&quot;yes&quot;];
+    &quot;Generate major/minor&quot; -&gt; &quot;Build relationships.md&quot;;
+    &quot;Ask: supporting characters?&quot; -&gt; &quot;Build relationships.md&quot; [label=&quot;no&quot;];
+    &quot;Build relationships.md&quot; -&gt; &quot;Human reviews all&quot;;
+    &quot;Human reviews all&quot; -&gt; &quot;Revise&quot; [label=&quot;rejected&quot;];
+    &quot;Human reviews all&quot; -&gt; &quot;Write to disk&quot; [label=&quot;approved&quot;];
+}
+</code></pre></div>
+<h2 id="_9">铁律</h2>
+<ol>
+<li><strong>一人一卡</strong> — 每个角色独立文件，不把多个角色塞进同一个文件</li>
+<li><strong>主角弧线单一权威</strong> — 主角的成长弧线只写在 <code>characters/protagonist.md</code>，不在 story_bible 中重复</li>
+<li><strong>voice_profile 必填</strong> — 每个主要角色必须有说话风格指纹（speech_patterns, catchphrases, avoid_patterns）</li>
+<li><strong>去重原则</strong> — 角色的性格底色只写在角色卡，不在关系文件中重复</li>
+</ol>
+<h2 id="_10">输出文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>characters/protagonist.md</code></td>
+<td>主角档案（含 voice_profile）</td>
+</tr>
+<tr>
+<td><code>characters/major/*.md</code></td>
+<td>主要角色档案（含 voice_profile）</td>
+</tr>
+<tr>
+<td><code>characters/minor/*.md</code></td>
+<td>次要角色档案（简化版）</td>
+</tr>
+<tr>
+<td><code>characters/relationships.md</code></td>
+<td>角色关系矩阵</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">角色档案格式</h3>
+<div class="highlight"><pre><span></span><code>---
+name: 角色名
+role: protagonist | major | minor
+personality_tags: [&quot;标签1&quot;, &quot;标签2&quot;, &quot;标签3&quot;]
+core_value: &quot;核心价值观&quot;
+goal_surface: &quot;表面目标&quot;
+goal_deep: &quot;深层动机&quot;
+fear: &quot;核心恐惧&quot;
+arc_type: GROWTH | FALL | FLAT | REDEMPTION
+arc_starting: &quot;起始状态&quot;
+arc_turning: &quot;转折事件&quot;
+arc_ending: &quot;终态（可为TBD）&quot;
+voice_profile:
+  speech_patterns: [&quot;模式1&quot;, &quot;模式2&quot;]
+  catchphrases: [&quot;口头禅&quot;]
+<span class="gu">  avoid_patterns: [&quot;避免的模式&quot;]</span>
+<span class="gu">---</span>
+</code></pre></div>
+<h3 id="relationshipsmd">relationships.md 格式</h3>
+<p>关系矩阵以表格形式维护：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># 角色关系矩阵</span>
+
+| 角色 | 对主角 | 对反派 | 对师姐 |
+|------|--------|--------|--------|
+| 主角 | — | 敌对/竞争 | 信任/师徒 |
+| 反派 | 蔑视/利用 | — | 昔日同门 |
+</code></pre></div>
+<h2 id="anti-rationalization_1">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"配角不需要 voice_profile"</td>
+<td>没有声音指纹的配角说话都一个味</td>
+</tr>
+<tr>
+<td>"角色关系后面自然就知道了"</td>
+<td>不写下来 = 3章后关系混乱，auditor 报 OOC</td>
+</tr>
+<tr>
+<td>"主角弧线可以先不定义"</td>
+<td>没有弧线的主角 = 流水账主角</td>
+</tr>
+<tr>
+<td>"minor 角色随便写就行"</td>
+<td>minor 角色降智 = 毒点</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">询问流程</h2>
+<ol>
+<li>你的主角是什么样的人？（性格关键词）</li>
+<li>主角最想要什么？（表面 vs 深层）</li>
+<li>主角最害怕什么？</li>
+<li>有重要配角吗？他们和主角的关系是什么？</li>
+<li>有反派吗？反派的动机是什么？
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-character-design/SKILL.md
+git commit -m &quot;feat: add shenbi-character-design skill&quot;
+</code></pre></div></li>
+</ol>
+<hr />
+<h2 id="task-6-shenbi-story-architecture">Task 6: shenbi-story-architecture</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-story-architecture/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-story-architecture
+<span class="gu">description: Use when designing the overall story structure, creating story frame, volume map, or defining core conflicts and objectives</span>
+<span class="gu">---</span>
+
+<span class="gh"># 故事架构</span>
+
+HARD-GATE: 故事框架必须在世界观和角色完成后才能开始。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph story_architecture {
+    &quot;Read story_bible + characters&quot; -&gt; &quot;Define core conflicts (3 layers)&quot;;
+    &quot;Define core conflicts (3 layers)&quot; -&gt; &quot;Build story_frame.md&quot;;
+    &quot;Build story_frame.md&quot; -&gt; &quot;Decompose objectives (OKR)&quot;;
+    &quot;Decompose objectives (OKR)&quot; -&gt; &quot;Build volume_map.md&quot;;
+    &quot;Build volume_map.md&quot; -&gt; &quot;Human reviews&quot;;
+    &quot;Human reviews&quot; -&gt; &quot;Revise&quot; [label=&quot;rejected&quot;];
+    &quot;Human reviews&quot; -&gt; &quot;Write to disk&quot; [label=&quot;approved&quot;];
+}
+</code></pre></div>
+<h2 id="_13">铁律</h2>
+<ol>
+<li><strong>双线必写</strong> — story_frame.md 必须包含前台故事（读者每章看到的表面冲突）和后台故事（贯穿全书的暗线）</li>
+<li><strong>OKR 递归分解</strong> — 全书 Objective → 每卷 Key Results → planner 据此分解章节任务</li>
+<li><strong>核心冲突三层</strong> — surface（表面矛盾）、personal（主角个人困境）、deep（主题层面的终极问题）</li>
+<li><strong>散文骨架</strong> — 输出散文段落，不是条目列表</li>
+</ol>
+<h2 id="_14">核心冲突三层</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>说明</th>
+<th>示例（玄幻）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Surface</td>
+<td>推动情节的外部矛盾</td>
+<td>门派选拔赛、资源争夺</td>
+</tr>
+<tr>
+<td>Personal</td>
+<td>主角内心的困境</td>
+<td>身份认同、信任背叛</td>
+</tr>
+<tr>
+<td>Deep</td>
+<td>全书探讨的主题问题</td>
+<td>力量与自由的代价</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_15">输出文件</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>outline/story_frame.md</code></td>
+<td>散文骨架（4段），YAML frontmatter 含三层冲突定义</td>
+</tr>
+<tr>
+<td><code>outline/volume_map.md</code></td>
+<td>分卷地图，每卷含 objective + key results</td>
+</tr>
+<tr>
+<td><code>outline/rhythm_principles.md</code></td>
+<td>节奏原则（独立文件）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story_framemd">story_frame.md 结构</h3>
+<blockquote>
+<p>genre/core_concept/themes 已在 <code>novel.json</code> 定义，此处不重复。story_frame.md 只存储 story-architecture 特有的冲突定义。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>---
+surface_conflict: &quot;外部矛盾&quot;
+personal_conflict: &quot;主角困境&quot;
+<span class="gu">deep_conflict: &quot;主题问题&quot;</span>
+<span class="gu">---</span>
+
+<span class="gh"># 故事框架</span>
+
+<span class="gu">## 段1：前台故事</span>
+[读者从第1章开始看到的表面线索，以散文叙述]
+
+<span class="gu">## 段2：后台故事</span>
+[贯穿全书的暗线，不在第1章暴露，以散文叙述]
+
+<span class="gu">## 段3：主角旅程</span>
+[从起点到终点的弧线概述]
+
+<span class="gu">## 段4：暗流伏笔种子</span>
+[为后续伏笔系统提供的种子方向]
+</code></pre></div>
+<h3 id="volume_mapmd">volume_map.md 结构</h3>
+<div class="highlight"><pre><span></span><code><span class="gh"># 分卷地图</span>
+
+<span class="gu">## 第一卷：卷名</span>
+
+<span class="gs">**Objective**</span>: 本卷核心目标
+
+<span class="gs">**Key Results**</span>:
+<span class="k">1.</span> KR1（第1-5章完成）
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>第1章节点: [本章在KR1中的具体定位——开篇、承接、转折或收官]
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>第2章节点: ...
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>...
+<span class="k">2.</span> KR2（第6-10章完成）
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>第6章节点: ...
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>...
+<span class="k">3.</span> KR3（第11-15章完成）
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>...
+
+<span class="gs">**节奏原则**</span>: 本卷的张力曲线描述
+
+<span class="gs">**跨卷衔接**</span>: 本卷结尾如何过渡到下一卷
+</code></pre></div>
+<p>每个 KR 下的章节节点是 <code>chapter-planning</code> DOT 流程图中 "Locate outline node for this chapter" 的锚点。规划器据此推导单章目标。</p>
+<h2 id="anti-rationalization_2">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"先写第一章再说大纲"</td>
+<td>没有框架的第一章 = 写到10章必定偏航</td>
+</tr>
+<tr>
+<td>"网文不需要这么复杂的结构"</td>
+<td>读者看不出来 ≠ 读者感觉不到。好的结构是"不知不觉被吸引"</td>
+</tr>
+<tr>
+<td>"大纲会限制 spontaneity"</td>
+<td>大纲是轨道，不是牢笼。轨道让速度有意义</td>
+</tr>
+<tr>
+<td>"卷纲太细了，后面会改的"</td>
+<td>改大纲的代价 &lt;&lt; 改50章正文的代价</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-story-architecture/SKILL.md
+git commit -m &quot;feat: add shenbi-story-architecture skill&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-7-shenbi-chapter-planning">Task 7: shenbi-chapter-planning</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-chapter-planning/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-chapter-planning
+<span class="gu">description: Use when planning the next chapter, generating chapter memo, or deciding what should happen in an upcoming chapter</span>
+<span class="gu">---</span>
+
+<span class="gh"># 章节规划</span>
+
+HARD-GATE: 不得在没有章节备忘的情况下起草正文。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph chapter_planning {
+    &quot;Read truth files&quot; -&gt; &quot;Read volume_map (current volume)&quot;;
+    &quot;Read volume_map (current volume)&quot; -&gt; &quot;Locate outline node for this chapter&quot;;
+    &quot;Locate outline node for this chapter&quot; -&gt; &quot;Derive goal (priority chain)&quot;;
+    &quot;Derive goal (priority chain)&quot; -&gt; &quot;Collect hook debts [Phase 3]&quot;;
+    &quot;Collect hook debts [Phase 3]&quot; -&gt; &quot;Read recent 2 chapter summaries&quot;;
+    &quot;Read recent 2 chapter summaries&quot; -&gt; &quot;Generate chapter memo (8 sections)&quot;;
+    &quot;Generate chapter memo (8 sections)&quot; -&gt; &quot;Human reviews&quot;;
+    &quot;Human reviews&quot; -&gt; &quot;Revise&quot; [label=&quot;rejected&quot;];
+    &quot;Human reviews&quot; -&gt; &quot;Write plans/chapter-N-plan.md&quot; [label=&quot;approved&quot;];
+}
+</code></pre></div>
+<h2 id="_16">目标推导优先级链</h2>
+<div class="highlight"><pre><span></span><code>外部指令 &gt; 局部覆盖 &gt; 卷纲 Key Result &gt; current_focus.md &gt; author_intent.md
+</code></pre></div>
+<p>高优先级覆盖低优先级。如果人类合作者给了具体指示，以指示为准。</p>
+<h2 id="8">章节备忘 8 段式</h2>
+<ol>
+<li><strong>当前任务</strong> — 本章主角要完成的具体动作</li>
+<li><strong>读者此刻在等什么</strong> — 制造/延迟/兑现读者期待</li>
+<li><strong>该兑现的 / 暂不掀的</strong> — 伏笔兑现清单 + 压住不掀的底牌</li>
+<li><strong>日常/过渡承担什么任务</strong> — 非冲突段落的功能映射</li>
+<li><strong>关键抉择过三连问</strong> — Why / Interest / Persona</li>
+<li><strong>章尾必须发生的改变</strong> — 1-3条具体改变（信息/关系/物理/权力）</li>
+<li><strong>本章 hook 账</strong> — open / advance / resolve / defer 四种操作</li>
+<li><strong>不要做</strong> — 本章必须避免的事项（"无" / "N/A" 合法）</li>
+</ol>
+<h2 id="_17">黄金三章纪律</h2>
+<p>前 N 章适用额外约束，N = <code>novel.json.golden_opening_chapters</code>（默认 3）：
+- 第1章：三面墙（建立世界观约束）+ 信息钩子（结尾给出读者必须知道的答案的线索）
+- 第2章：验证主角特殊性 + 建立第一个对手
+- 第3章：第一次小高潮 + 打开大主线钩子
+- 若 N &gt; 3: Ch4+ 延续特殊纪律，直到第 N 章后转入常规流程</p>
+<h2 id="hook">Hook 账本硬规则</h2>
+<blockquote>
+<p><strong>Phase 1 限制</strong>: 在 foreshadowing-plant/track/resolve 实现前（Phase 3），<code>pending_hooks.md</code> 不存在或为空伏笔池。本章节 hook 账规则在 Phase 1 为<strong>占位声明</strong>——规划器输出 hook 账各段为占位符，context-composing 跳过 P3 伏笔简报，state-settling 不推进 hook 状态。Phase 3 引入伏笔系统后，以下规则从占位升级为可执行。</p>
+</blockquote>
+<ul>
+<li><code>pressured</code> 或 <code>near_payoff</code> 状态且沉默 ≥5 章的 hook 必须 advance 或 resolve</li>
+<li><code>core_hook=true</code> 且过期 &gt;10 章升级为 critical</li>
+<li>每章 hook 操作总量建议 ≤8（密度预算）</li>
+</ul>
+<h2 id="anti-rationalization_3">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章不需要备忘，直接写"</td>
+<td>没有备忘的章节 = 随意漂移的章节</td>
+</tr>
+<tr>
+<td>"备忘太死板了"</td>
+<td>备忘是地图，不是牢笼。有地图的旅程更快</td>
+</tr>
+<tr>
+<td>"读者不会注意到备忘偏离"</td>
+<td>备忘偏离 = 承诺未兑现 = 读者信任下降</td>
+</tr>
+<tr>
+<td>"hook 账本太麻烦"</td>
+<td>不追踪伏笔 = 伏笔遗忘 = Chase Power 债务暴增</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_18">输出</h2>
+<p>写 <code>plans/chapter-N-plan.md</code>，格式参见设计规范 Section 4.5。
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-chapter-planning/SKILL.md
+git commit -m &quot;feat: add shenbi-chapter-planning skill&quot;
+</code></pre></div></p>
+<hr />
+<h2 id="task-8-shenbi-context-composing">Task 8: shenbi-context-composing</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-context-composing/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-context-composing
+<span class="gu">description: Use when assembling context before drafting a chapter, collecting truth files, or preparing the writing context package</span>
+<span class="gu">---</span>
+
+<span class="gh"># 上下文组装</span>
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph context_composing {
+    &quot;Read chapter plan&quot; -&gt; &quot;Collect P1: plan&quot;;
+    &quot;Collect P1: plan&quot; -&gt; &quot;Collect P2: recent summaries&quot;;
+    &quot;Collect P2: recent summaries&quot; -&gt; &quot;Collect P3: active hooks [Phase 3] (max 3)&quot;;
+    &quot;Collect P3: active hooks [Phase 3] (max 3)&quot; -&gt; &quot;Collect P4: drift guidance&quot;;
+    &quot;Collect P4: drift guidance&quot; -&gt; &quot;Collect P5: world rules (max 5)&quot;;
+    &quot;Collect P5: world rules (max 5)&quot; -&gt; &quot;Collect P6: character states&quot;;
+    &quot;Collect P6: character states&quot; -&gt; &quot;Collect P7: style profile&quot;;
+    &quot;Collect P7: style profile&quot; -&gt; &quot;Check near-chapter endings (avoid repetition)&quot;;
+    &quot;Check near-chapter endings (avoid repetition)&quot; -&gt; &quot;Present context to human&quot;;
+    &quot;Present context to human&quot; -&gt; &quot;Proceed to chapter-drafting&quot;;
+}
+</code></pre></div>
+<h2 id="_19">铁律</h2>
+<ol>
+<li><strong>优先级严格递减</strong> — P1 不可省略，P7 最先被裁剪</li>
+<li><strong>近章结尾轨迹</strong> — 收集近 3 章的结尾方式（从 <code>chapters/chapter-(N-3).md</code> 到 <code>chapters/chapter-(N-1).md</code> 的末段），避免连续相同结尾结构（如连续3个崩塌式结尾）。此检查独立于 P2 摘要收集——摘要提供叙事脉络，结尾轨迹检查章尾模式多样性</li>
+<li><strong>不自动检索</strong> — 这是手动组装指南，由 AI 或人类按优先级从文件读取</li>
+</ol>
+<h2 id="_20">上下文优先级</h2>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>来源</th>
+<th>文件位置</th>
+<th>裁剪规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1 (must)</td>
+<td>章节备忘</td>
+<td><code>plans/chapter-N-plan.md</code></td>
+<td>不裁剪</td>
+</tr>
+<tr>
+<td>P2 (must)</td>
+<td>近 2 章摘要</td>
+<td><code>truth/chapter_summaries.md</code> 末尾</td>
+<td>不裁剪。第 1 章跳过此项，第 2 章只取近 1 章</td>
+</tr>
+<tr>
+<td>P3 (need)</td>
+<td>活跃伏笔</td>
+<td><code>truth/pending_hooks.md</code></td>
+<td>最多 3 条，按紧迫度排序</td>
+</tr>
+<tr>
+<td>P4 (need)</td>
+<td>纠偏指导</td>
+<td><code>truth/audit_drift.md</code></td>
+<td>不裁剪</td>
+</tr>
+<tr>
+<td>P5 (nice)</td>
+<td>世界铁律</td>
+<td><code>world/rules.md</code></td>
+<td>最多 5 条</td>
+</tr>
+<tr>
+<td>P6 (nice)</td>
+<td>角色状态</td>
+<td><code>truth/character_matrix.md</code></td>
+<td>仅本章出场角色</td>
+</tr>
+<tr>
+<td>P7 (nice)</td>
+<td>文风指纹</td>
+<td><code>style/style_profile.md</code></td>
+<td>仅摘要部分</td>
+</tr>
+</tbody>
+</table>
+<h2 id="hook_1">Hook 债务简报</h2>
+<p>从 pending_hooks.md 提取以下信息，以简报形式呈现：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Hook 债务简报</span>
+
+| Hook ID | 内容 | 状态 | 沉默章数 | 操作建议 |
+|---------|------|------|---------|---------|
+| hook-001 | 玉佩秘密 | PLANTED | 4/20 | advance |
+| hook-002 | 老人预言 | RELEVANT | 2/15 | advance |
+| hook-005 | 师姐身世 | PLANTED | 8/12 | URGENT advance |
+</code></pre></div>
+<p>紧迫度 = (current_chapter - last_reinforced) / max_distance</p>
+<h2 id="anti-rationalization_4">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"不需要收集这么多上下文"</td>
+<td>上下文不足 = 每章都在重新发明设定</td>
+</tr>
+<tr>
+<td>"近章结尾不需要检查"</td>
+<td>不检查 = 连续3个"轰然崩塌"式结尾</td>
+</tr>
+<tr>
+<td>"hook 债务简报可以省略"</td>
+<td>不看债务 = 过期伏笔 = 读者信任流失</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-context-composing/SKILL.md
+git commit -m &quot;feat: add shenbi-context-composing skill&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-9-shenbi-chapter-drafting">Task 9: shenbi-chapter-drafting</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-chapter-drafting/SKILL.md</code>
+- Create: <code>skills/shenbi-chapter-drafting/anti-ai-reference.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write anti-ai-reference.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># Anti-AI 参考手册</span>
+
+<span class="gu">## 中文 AI 味铁律</span>
+
+<span class="gu">### 句式禁令</span>
+
+| 禁止 | 替代 |
+|------|------|
+| &quot;不是…而是…&quot;句式 | 直接描述，不做对比转折 |
+| 破折号 &quot;——&quot; | 用句号断句，或用冒号引出 |
+| &quot;他/她感到 X&quot; | 用动作/生理反应表现情绪 |
+| &quot;全场震惊&quot;类集体反应 | 写1-2个具体人物的反应 |
+| 分析报告术语（&quot;综上&quot;、&quot;由此可见&quot;） | 用角色视角自然过渡 |
+
+<span class="gu">### 了字控制</span>
+
+<span class="k">-</span><span class="w"> </span>连续 ≥6 句含&quot;了&quot; → 警告
+<span class="k">-</span><span class="w"> </span>替换策略：省略、换用&quot;完/掉/好/走&quot;等补语
+
+<span class="gu">### 转折词密度</span>
+
+每 3000 字最多 1 次以下词：
+然而、不过、此时、突然、终于、于是
+
+<span class="gu">### AI 标记词（每章 ≤1 次/词）</span>
+
+似乎、仿佛、不由得、缓缓地、微微、不禁、淡淡的、嘴角微扬、瞳孔微缩
+
+<span class="gu">### 段落形状</span>
+
+<span class="k">-</span><span class="w"> </span>段落变异系数 CV &lt; 0.15（段落等长）→ AI 味警告
+<span class="k">-</span><span class="w"> </span>单段 &gt; 300 字 → 警告
+<span class="k">-</span><span class="w"> </span>≥60% 叙事段 &lt; 40 字 → 警告
+
+<span class="gu">## 正反例对照</span>
+
+| AI 味 | 人味 |
+|-------|------|
+| 他感到一股强烈的愤怒涌上心头 | 他捏碎了茶杯，碎片扎进掌心也没松手 |
+| 突然间，整个广场都安静了下来，所有人都震惊地看着他 | 李长老停下了手中的茶杯。旁边的弟子们互相对视，没人敢先开口 |
+| 不禁陷入了深深的思考 | 他盯着桌上那张纸，直到墨迹干透 |
+| 微微一笑，似乎看穿了一切 | 他&quot;嗤&quot;了一声，转身走了 |
+
+<span class="gu">## 黄金三章纪律</span>
+
+前 N 章适用额外约束，N = <span class="sb">`novel.json.golden_opening_chapters`</span>（默认 3）：
+<span class="k">-</span><span class="w"> </span>Ch1: 三面墙（世界约束）+ 信息钩子（结尾给出读者必须知道的答案的线索）
+<span class="k">-</span><span class="w"> </span>Ch2: 验证主角特殊性 + 建立第一个对手
+<span class="k">-</span><span class="w"> </span>Ch3: 第一次小高潮 + 打开大主线钩子
+<span class="k">-</span><span class="w"> </span>若 N &gt; 3: Ch4+ 延续特殊纪律，直到第 N 章后转入常规流程
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-chapter-drafting
+<span class="gu">description: Use when writing chapter content, generating chapter text, or drafting a new chapter after planning is complete</span>
+<span class="gu">---</span>
+
+<span class="gh"># 章节起草</span>
+
+HARD-GATE: 不得在没有章节备忘的情况下起草正文。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph chapter_drafting {
+    &quot;Verify chapter plan exists&quot; -&gt; &quot;Read assembled context&quot;;
+    &quot;Read assembled context&quot; -&gt; &quot;Load genre rules + book rules&quot;;
+    &quot;Load genre rules + book rules&quot; -&gt; &quot;Build style fingerprint context&quot;;
+    &quot;Build style fingerprint context&quot; -&gt; &quot;Write PRE_WRITE_CHECK&quot;;
+    &quot;Write PRE_WRITE_CHECK&quot; -&gt; &quot;Generate chapter content&quot;;
+    &quot;Generate chapter content&quot; -&gt; &quot;Self-check against anti-ai rules&quot;;
+    &quot;Self-check against anti-ai rules&quot; -&gt; &quot;Write chapter title + content&quot;;
+    &quot;Write chapter title + content&quot; -&gt; &quot;Human reviews draft&quot;;
+    &quot;Human reviews draft&quot; -&gt; &quot;Proceed to state-settling&quot; [label=&quot;approved&quot;];
+    &quot;Human reviews draft&quot; -&gt; &quot;Revise and resubmit&quot; [label=&quot;changes requested&quot;];
+}
+</code></pre></div>
+<h2 id="_21">铁律</h2>
+<ol>
+<li><strong>NO CHAPTER WITHOUT A PLAN</strong> — 没有章节备忘（<code>plans/chapter-N-plan.md</code>）就动笔 = 删除重来</li>
+<li><strong>PRE_WRITE_CHECK 必写</strong> — 起草前列出：本章核心任务、使用的伏笔、要避免的错误</li>
+<li><strong>叙述者不替读者下结论</strong> — 严禁"让人...感悟"、"引人...深思"类反思句</li>
+<li><strong>正文严禁分析报告式语言</strong> — 不出现 hook_id、账本数据、元叙事</li>
+<li><strong>转折词密度 ≤ 1/3000字</strong> — 然/不过/此时/突然/终于/于是</li>
+<li><strong>参考 anti-ai-reference.md</strong> — 所有 AI 味检查清单在 <code>anti-ai-reference.md</code></li>
+</ol>
+<h2 id="pre_write_check">写作自检表 (PRE_WRITE_CHECK)</h2>
+<p>起草前完成以下自检：</p>
+<div class="highlight"><pre><span></span><code>PRE_WRITE_CHECK:
+- 本章核心任务: [从备忘第1段]
+- 要兑现的伏笔: [从备忘第3段]
+- 本章禁忌: [从备忘第8段]
+- 近3章结尾方式: [避免重复]
+- AI味重点防范: [根据最近的 audit_drift]
+</code></pre></div>
+<h2 id="_22">创作原则</h2>
+<ol>
+<li><strong>场景驱动而非叙述驱动</strong> — 用动作和对话推进，不是内心独白</li>
+<li><strong>Show don't tell</strong> — 情绪用行为表现，不直接说"他感到愤怒"</li>
+<li><strong>80/20 断章</strong> — 章尾 20% 必须重新点燃好奇心</li>
+<li><strong>段落呼吸</strong> — 长短交替，不让视觉节奏单调</li>
+<li><strong>对话指纹</strong> — 角色说话必须匹配 voice_profile</li>
+</ol>
+<h2 id="_23">输出</h2>
+<p>写 <code>chapters/chapter-N.md</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># 章节标题</span>
+
+[正文内容]
+</code></pre></div>
+<p>章节标题不要包含章节号（如"第一章"），文件名已编码章节号。</p>
+<h2 id="anti-rationalization_5">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章太简单了，不需要自检"</td>
+<td>越简单的章越容易暴露 AI 味</td>
+</tr>
+<tr>
+<td>"PRE_WRITE_CHECK 浪费时间"</td>
+<td>5分钟自检省30分钟返工</td>
+</tr>
+<tr>
+<td>"AI味读者看不出来"</td>
+<td>平台检测算法看得很清楚</td>
+</tr>
+<tr>
+<td>"先写完再检查"</td>
+<td>写完再改 = 重写。边写边注意 = 一次过</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-chapter-drafting/
+git commit -m &quot;feat: add shenbi-chapter-drafting skill with anti-ai reference&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-10-shenbi-state-settling">Task 10: shenbi-state-settling</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-state-settling/SKILL.md</code>
+- Create: <code>skills/shenbi-state-settling/truth-files-reference.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write truth-files-reference.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># 真相文件参考</span>
+
+<span class="gu">## 文件清单</span>
+
+| 文件 | 更新频率 | 说明 |
+|------|---------|------|
+| <span class="sb">`truth/current_state.md`</span> | 每章 | 角色位置、状态、活跃冲突、待办事件 |
+| <span class="sb">`truth/pending_hooks.md`</span> | 每章 | 伏笔池状态 |
+| <span class="sb">`truth/chapter_summaries.md`</span> | 每章 | 逐章摘要（追加） |
+| <span class="sb">`truth/character_matrix.md`</span> | 每章 | 角色交互矩阵 + 信息边界 |
+| <span class="sb">`truth/particle_ledger.md`</span> | 按需 | 物品/资源增减 |
+| <span class="sb">`truth/subplot_board.md`</span> | 按需 | 支线进度 |
+| <span class="sb">`truth/emotional_arcs.md`</span> | 按需 | 角色情感变化 |
+
+<span class="gu">## 更新原则</span>
+
+<span class="k">1.</span> <span class="gs">**只追加不修改**</span> — chapter_summaries 是追加模式
+<span class="k">2.</span> <span class="gs">**增量更新**</span> — 只记录变化的部分，不重写整个文件
+<span class="k">3.</span> <span class="gs">**YAML frontmatter 权威**</span> — 结构化数据以 YAML 为准，Markdown body 是投影
+<span class="k">4.</span> <span class="gs">**去重**</span> — 同一事实只出现在一个文件中
+
+<span class="gu">## 9类事实变化</span>
+
+<span class="k">1.</span> 位置变化 — 角色移动
+<span class="k">2.</span> 资源变化 — 获得或失去物品/金钱
+<span class="k">3.</span> 关系变化 — 角色间关系改变
+<span class="k">4.</span> 情绪变化 — 角色情感状态
+<span class="k">5.</span> 信息流动 — 谁知道了什么
+<span class="k">6.</span> 剧情线索 — 线索推进
+<span class="k">7.</span> 时间推进 — 故事时间流逝
+<span class="k">8.</span> 身体状态 — 受伤/恢复/变化
+<span class="k">9.</span> 行为变化 — 角色行为模式改变
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-state-settling
+<span class="gu">description: Use when updating truth files after a chapter is drafted, extracting state changes, or settling world state</span>
+<span class="gu">---</span>
+
+<span class="gh"># 状态结算</span>
+
+在章节起草被人类合作者批准后，必须执行状态结算。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph state_settling {
+    &quot;Read chapter content&quot; -&gt; &quot;Extract 9 types of changes&quot;;
+    &quot;Extract 9 types of changes&quot; -&gt; &quot;List: position changes&quot;;
+    &quot;List: position changes&quot; -&gt; &quot;List: resource changes&quot;;
+    &quot;List: resource changes&quot; -&gt; &quot;List: relationship changes&quot;;
+    &quot;List: relationship changes&quot; -&gt; &quot;List: emotional changes&quot;;
+    &quot;List: emotional changes&quot; -&gt; &quot;List: information flow&quot;;
+    &quot;List: information flow&quot; -&gt; &quot;List: plot thread changes&quot;;
+    &quot;List: plot thread changes&quot; -&gt; &quot;List: time passage&quot;;
+    &quot;List: time passage&quot; -&gt; &quot;List: body status&quot;;
+    &quot;List: body status&quot; -&gt; &quot;List: behavior changes&quot;;
+    &quot;List: behavior changes&quot; -&gt; &quot;Present changes to human&quot;;
+    &quot;Present changes to human&quot; -&gt; &quot;Apply to truth files&quot; [label=&quot;approved&quot;];
+    &quot;Present changes to human&quot; -&gt; &quot;Revise extraction&quot; [label=&quot;corrections&quot;];
+}
+</code></pre></div>
+<h2 id="_24">铁律</h2>
+<ol>
+<li><strong>只记录正文明确描述的变化</strong> — 不推论、不猜测、不补充</li>
+<li><strong>区分直接描写和暗示</strong> — 直接描写的变更立即记录，暗示性的标注为"可能变更"</li>
+<li><strong>人类批准后才写入</strong> — 结算结果呈交人类审阅，批准后才更新 truth files</li>
+<li><strong>增量更新</strong> — 追加变更，不重写整个文件</li>
+</ol>
+<h2 id="_25">提取模板</h2>
+<p>对每章提取以下格式的变化清单：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 第N章状态变化</span>
+
+<span class="gu">### 位置变化</span>
+<span class="k">-</span><span class="w"> </span>林轩: 外门宿舍 → 内门演武场
+
+<span class="gu">### 资源变化</span>
+<span class="k">-</span><span class="w"> </span>灵石: +20（考核奖励）
+
+<span class="gu">### 关系变化</span>
+<span class="k">-</span><span class="w"> </span>师姐苏晴: 观望 → 认可
+
+<span class="gu">### 情绪变化</span>
+<span class="k">-</span><span class="w"> </span>林轩: 紧张 → 自信
+
+<span class="gu">### 信息流动</span>
+<span class="k">-</span><span class="w"> </span>林轩得知: 反派在寻找玉佩
+
+<span class="gu">### 剧情线索</span>
+<span class="k">-</span><span class="w"> </span>内门考核线索: 完成
+
+<span class="gu">### 时间推进</span>
+<span class="k">-</span><span class="w"> </span>距离考核: 0天（考核结束）
+
+<span class="gu">### 身体状态</span>
+<span class="k">-</span><span class="w"> </span>无变化
+
+<span class="gu">### 行为变化</span>
+<span class="k">-</span><span class="w"> </span>无变化
+</code></pre></div>
+<h2 id="_26">更新规则</h2>
+<table>
+<thead>
+<tr>
+<th>变化类型</th>
+<th>更新的文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>位置</td>
+<td><code>truth/current_state.md</code></td>
+</tr>
+<tr>
+<td>资源</td>
+<td><code>truth/particle_ledger.md</code></td>
+</tr>
+<tr>
+<td>关系</td>
+<td><code>truth/character_matrix.md</code></td>
+</tr>
+<tr>
+<td>情绪</td>
+<td><code>truth/emotional_arcs.md</code></td>
+</tr>
+<tr>
+<td>信息</td>
+<td><code>truth/character_matrix.md</code> (信息边界)</td>
+</tr>
+<tr>
+<td>线索</td>
+<td><code>truth/subplot_board.md</code> [Phase 4]</td>
+</tr>
+<tr>
+<td>伏笔</td>
+<td><code>truth/pending_hooks.md</code></td>
+</tr>
+<tr>
+<td>摘要</td>
+<td><code>truth/chapter_summaries.md</code> (追加)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Phase 1 limitation:</strong> 在 foreshadowing-track 实现前（Phase 3），state-settling 只更新 <code>last_reinforced</code> 和 <code>subtlety</code> 字段，不推进 hook 生命周期状态（PLANTED→RELEVANT 等）。生命周期转换需要完整的验证逻辑，留给 foreshadowing-track。</p>
+</blockquote>
+<p>参考 <code>truth-files-reference.md</code> 获取完整的文件格式说明。</p>
+<h2 id="anti-rationalization_6">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章没什么大变化，不用结算"</td>
+<td>小变化不记录 = 3章后状态漂移</td>
+</tr>
+<tr>
+<td>"我记在脑子里就行"</td>
+<td>20章后你记不住，truth files 记得住</td>
+</tr>
+<tr>
+<td>"结算太费时间"</td>
+<td>结算5分钟 vs 回溯修30章30小时</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-state-settling/
+git commit -m &quot;feat: add shenbi-state-settling skill with truth files reference&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-11-shenbi-review-anti-ai">Task 11: shenbi-review-anti-ai</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-review-anti-ai/SKILL.md</code>
+- Create: <code>skills/shenbi-review-anti-ai/checklist.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write checklist.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># Anti-AI 审计检查清单</span>
+
+此检查清单由 review-anti-ai 技能使用。每条检查必须逐一执行。
+
+<span class="gu">## 确定性检查（零 LLM 成本）</span>
+
+<span class="gu">### 1. 段落等长检测</span>
+
+计算所有叙事段落长度的变异系数 (CV = 标准差/均值)。
+<span class="k">-</span><span class="w"> </span>CV &lt; 0.15 → 警告：段落过于均匀，AI 味特征
+
+<span class="gu">### 2. &quot;不是…而是…&quot;句式</span>
+
+正则: <span class="sb">`/不是[^，。！？\n]{0,30}[，,]?\s*而是/`</span>
+<span class="k">-</span><span class="w"> </span>匹配 → error
+
+<span class="gu">### 3. 破折号</span>
+
+检测: <span class="sb">`content.includes(&quot;——&quot;)`</span>
+<span class="k">-</span><span class="w"> </span>存在 → error
+
+<span class="gu">### 4. 转折词密度</span>
+
+计数以下词：然而、不过、此时、突然、终于、于是
+<span class="k">-</span><span class="w"> </span>阈值: max(1, floor(字数/3000))
+<span class="k">-</span><span class="w"> </span>超出 → warning
+
+<span class="gu">### 5. AI 标记词</span>
+
+计数：似乎、仿佛、不由得、缓缓地、微微、不禁、淡淡的
+<span class="k">-</span><span class="w"> </span>单词每章 ≤1 次
+<span class="k">-</span><span class="w"> </span>超出 → warning
+
+<span class="gu">### 6. 疲劳词</span>
+
+从 <span class="sb">`genre-config.json`</span> 的 <span class="sb">`fatigueWords`</span> 读取
+<span class="k">-</span><span class="w"> </span>单词每章 ≤1 次
+<span class="k">-</span><span class="w"> </span>超出 → warning
+
+<span class="gu">### 7. 元叙事/编剧旁白</span>
+
+正则模式：
+<span class="k">-</span><span class="w"> </span>&quot;读者/观众/你们会发现&quot;
+<span class="k">-</span><span class="w"> </span>&quot;故事/小说到这里&quot;
+<span class="k">-</span><span class="w"> </span>&quot;接下来/后来的事&quot;
+<span class="k">-</span><span class="w"> </span>匹配 → warning
+
+<span class="gu">### 8. 分析报告术语</span>
+
+检测：综上、由此可见、总而言之、显而易见、不言而喻
+<span class="k">-</span><span class="w"> </span>匹配 → error
+
+<span class="gu">### 9. 集体反应套话</span>
+
+正则：全场震惊、众人哗然、所有人/所有人都不由得
+<span class="k">-</span><span class="w"> </span>匹配 → warning
+
+<span class="gu">### 10. 禁忌词</span>
+
+从 <span class="sb">`genre-config.json`</span> 的 <span class="sb">`prohibitions`</span> 读取
+<span class="k">-</span><span class="w"> </span>匹配 → error
+
+<span class="gu">## 评分</span>
+
+<span class="k">-</span><span class="w"> </span>0 error + 0-2 warning: 通过
+<span class="k">-</span><span class="w"> </span>0 error + 3+ warning: 有瑕疵，建议修订
+<span class="k">-</span><span class="w"> </span>1+ error: 不通过，必须修订
+
+<span class="k">&gt; </span><span class="ge">**Phase 1 note:** 了字密度检测和段落长度检测属于 `review-dialogue` 和 `review-texture` 的审计职责范围（参见 Section 7.3），Phase 2/4 实现后由对应审计技能独立检查。Phase 1 仅覆盖 anti-ai 核心检查项。`anti-ai-reference.md` 中的 了字/段落指引是**起草阶段的预防性指导**（提醒 drafter 注意），不等于审计阶段的确定性检查（审计有独立阈值和纠偏流程）。两者互补不重复。</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-anti-ai
+<span class="gu">description: Use when reviewing chapter content for AI-generated patterns, checking anti-AI tell detection, or auditing text for machine-written markers</span>
+<span class="gu">---</span>
+
+<span class="gh"># Anti-AI 审计</span>
+
+这是默认激活的审计技能（每章必查）。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_anti_ai {
+    &quot;Read chapter content&quot; -&gt; &quot;Read genre-config.json (fatigueWords + prohibitions)&quot;;
+    &quot;Read genre-config.json&quot; -&gt; &quot;Run deterministic checks (checklist.md)&quot;;
+    &quot;Run deterministic checks&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+    &quot;Report issues with severity&quot; -&gt; &quot;Suggest specific fixes&quot;;
+}
+</code></pre></div>
+<h2 id="_27">铁律</h2>
+<ol>
+<li><strong>不信任"看起来还行"</strong> — 每条检查必须逐一执行，不允许跳步</li>
+<li><strong>先确定性后判断</strong> — 确定性检查（零 LLM 成本）先跑，发现问题就不需要继续</li>
+<li><strong>error 级别 = 必须修复</strong> — error 级别问题不通过修订不能放过</li>
+<li><strong>warning 级别 = 建议修复</strong> — 3+ warning 也需要修订</li>
+</ol>
+<h2 id="_28">检查执行</h2>
+<p>完整检查清单在 <code>checklist.md</code>。执行顺序：</p>
+<ol>
+<li>段落等长检测 (CV)</li>
+<li>"不是…而是…"句式</li>
+<li>破折号</li>
+<li>转折词密度</li>
+<li>AI 标记词</li>
+<li>疲劳词（从 genre-config）</li>
+<li>元叙事/编剧旁白</li>
+<li>分析报告术语</li>
+<li>集体反应套话</li>
+<li>禁忌词（从 genre-config）</li>
+</ol>
+<h2 id="_29">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## Anti-AI 审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**字数**</span>: XXXX
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### 检查结果</span>
+
+| # | 检查项 | 结果 | 详情 |
+|---|--------|------|------|
+| 1 | 段落等长 | PASS | CV=0.32 |
+| 2 | 不是…而是… | PASS | 未检测到 |
+| 3 | 破折号 | ERROR | 第3段含&quot;——&quot; |
+| ... | | | |
+
+<span class="gu">### 评分: X/10 通过</span>
+
+<span class="gu">### 建议修复</span>
+<span class="k">-</span><span class="w"> </span>[ERROR] 第3段破折号：将&quot;他深吸一口气——这不可能&quot; → &quot;他深吸一口气。这不可能。&quot;
+</code></pre></div>
+<h2 id="anti-rationalization_7">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"AI味读者看不出来"</td>
+<td>平台 AIGC 检测算法看得很清楚，降权直接影响收入</td>
+</tr>
+<tr>
+<td>"只有1个error，可以放过"</td>
+<td>1个error = 1个平台检测标记点</td>
+</tr>
+<tr>
+<td>"检查太多太慢了"</td>
+<td>确定性检查10秒完成，修30章500个error要3天</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-review-anti-ai/
+git commit -m &quot;feat: add shenbi-review-anti-ai skill with deterministic checklist&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-12-shenbi-chapter-revision">Task 12: shenbi-chapter-revision</h2>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-chapter-revision/SKILL.md</code>
+- Create: <code>skills/shenbi-chapter-revision/revision-modes.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write revision-modes.md</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="gh"># 修订模式参考</span>
+
+<span class="gu">## 6种修订模式</span>
+
+| 模式 | 使用场景 | 输出格式 |
+|------|---------|---------|
+| auto | 默认模式，自动路由到最佳策略 | 根据问题类型决定 |
+| spot-fix | 局部措辞/用词问题 | PATCHES（靶向替换） |
+| polish | 表达/节奏微调，不涉及情节 | REVISED_CONTENT（全文替换） |
+| rewrite | 段落/结构重组，不改叙事骨架 | REVISED_CONTENT（全文替换） |
+| rework | 场景推进/冲突结构调整 | REVISED_CONTENT（全文替换） |
+| anti-detect | 降低 AI 可检测性 | REVISED_CONTENT（全文替换） |
+
+<span class="k">&gt; </span><span class="ge">**rewrite vs rework 区分**: rewrite 管&quot;怎么写&quot;（段落/句式/节奏的重组），不改事件链；rework 管&quot;发生什么&quot;（可增删场景、调整冲突展开方式），但仍保持核心叙事目标。rewrite 不改变事件链，rework 可重新编排事件呈现方式。</span>
+
+<span class="gu">## auto 模式路由规则</span>
+
+根据问题类型自动选择：
+
+| 问题类型 | 路由到 | Phase 1 可用 |
+|---------|--------|------------|
+| OOC / 主线偏离 / 冲突缺失 / 时间线错 / 伏笔未收 | rewrite | Phase 2+（Phase 1 无对应审计技能） |
+| 措辞 / 段落形状 / 疲劳词 / 信息越界 / 知识污染 | spot-fix | 部分可用（anti-ai 覆盖措辞/疲劳词） |
+| 混合 / 未知 | rewrite（保守策略） | |
+
+<span class="gu">## PATCHES 格式</span>
+</code></pre></div>
+--- PATCH 1 ---
+TARGET_TEXT: "他感到一股强烈的愤怒涌上心头"
+REPLACEMENT_TEXT: "他捏碎了茶杯"
+--- END PATCH ---</p>
+<p>--- PATCH 2 ---
+TARGET_TEXT: "突然间，整个广场都安静了下来"
+REPLACEMENT_TEXT: "李长老停下了手中的茶杯"
+--- END PATCH ---
+<div class="highlight"><pre><span></span><code>## REVISED_CONTENT 格式
+
+直接输出修订后的完整章节正文。总长变化不超过 ±15%。
+
+## 修订接受条件
+
+修订必须满足以下所有条件才能应用：
+
+1. blocking 级别问题数量未增加
+2. critical 级别问题数量未增加
+3. AI 痕迹数量未增加
+4. 至少有一项改善（blocking 或 AI 痕迹）
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-chapter-revision
+<span class="gu">description: Use when audit found issues in a chapter, fixing review feedback, or revising chapter content based on review results</span>
+<span class="gu">---</span>
+
+<span class="gh"># 章节修订</span>
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph chapter_revision {
+    &quot;Receive audit issues&quot; -&gt; &quot;Classify issues by type&quot;;
+    &quot;Classify issues by type&quot; -&gt; &quot;Select revision mode (auto route)&quot;;
+    &quot;Select revision mode (auto route)&quot; -&gt; &quot;spot-fix?&quot; [label=&quot;local issues&quot;];
+    &quot;Select revision mode (auto route)&quot; -&gt; &quot;rewrite/rework?&quot; [label=&quot;structural issues&quot;];
+    &quot;spot-fix?&quot; -&gt; &quot;Generate PATCHES&quot;;
+    &quot;rewrite/rework?&quot; -&gt; &quot;Generate REVISED_CONTENT&quot;;
+    &quot;Generate PATCHES&quot; -&gt; &quot;Apply fixes&quot;;
+    &quot;Generate REVISED_CONTENT&quot; -&gt; &quot;Apply fixes&quot;;
+    &quot;Apply fixes&quot; -&gt; &quot;Re-run audit&quot;;
+    &quot;Re-run audit&quot; -&gt; &quot;Passed?&quot; [label=&quot;check acceptance&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Done&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Reject revision (use best snapshot)&quot; [label=&quot;no - worsened&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Revise again&quot; [label=&quot;no - improved but not passing&quot;];
+}
+</code></pre></div>
+<h2 id="_30">铁律</h2>
+<ol>
+<li><strong>只修审计发现的问题</strong> — 不顺手改进无关内容</li>
+<li><strong>修订不能恶化</strong> — blocking/critical/AI痕迹三项均不能增加</li>
+<li><strong>不超过 ±15% 长度变化</strong> — 修订不是重写整章</li>
+<li><strong>最多重试 3 次</strong> — 3次修订后仍未通过，回退到最佳版本</li>
+</ol>
+<h2 id="_31">修订模式选择</h2>
+<p>参考 <code>revision-modes.md</code> 获取完整的模式说明和路由规则。</p>
+<p>默认使用 <code>auto</code> 模式，自动根据问题类型路由：
+- 局部问题 → spot-fix（PATCHES）
+- 结构问题 → rewrite（REVISED_CONTENT）
+- 混合 → rewrite（保守策略）</p>
+<h2 id="_32">修订接受条件</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## Acceptance Criteria</span>
+
+<span class="k">- [ ]</span> blocking_count ≤ 修前值
+<span class="k">- [ ]</span> critical_count ≤ 修前值
+<span class="k">- [ ]</span> ai_tell_count ≤ 修前值
+<span class="k">- [ ]</span> 至少一项有改善
+</code></pre></div>
+<h2 id="_33">回退到最佳版本</h2>
+<p>3 次修订后仍未通过审计，按以下优先级选择最佳版本回退：
+1. <strong>审计分数最高</strong> — blocking + critical + ai_tell 加权总和最低的版本
+2. <strong>分数相同时选最新</strong> — 同等分数下选最近一次修订（更贴近人类合作者的最新意图）
+3. <strong>标记为 manual</strong> — 回退后在章节文件中追加 <code>&lt;!-- REVISION_FAILED: 3次修订未通过，已回退至最佳版本 --&gt;</code>，通知人类合作者手动介入</p>
+<h2 id="_34">输出</h2>
+<p>如果是 spot-fix：输出 PATCHES 格式，人类批准后应用到原文。
+如果是 rewrite/rework：输出完整修订正文，人类批准后替换原章节文件。</p>
+<h2 id="anti-rationalization_8">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"修订会让文章更差"</td>
+<td>修订有严格的接受条件，恶化会被拒绝</td>
+</tr>
+<tr>
+<td>"直接全部重写更快"</td>
+<td>全部重写 = ±15% 限制失效 = 可能引入新问题</td>
+</tr>
+<tr>
+<td>"3次修不好就放弃"</td>
+<td>回退到最佳版本比继续恶化好</td>
+</tr>
+<tr>
+<td>"修订太慢了"</td>
+<td>修1章30分钟 vs 读者弃书无价</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-chapter-revision/
+git commit -m &quot;feat: add shenbi-chapter-revision skill with revision modes reference&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-13-pressure-test-core-pipeline">Task 13: Pressure Test — Core Pipeline</h2>
+<p><strong>Files:</strong>
+- Create: <code>tests/pressure-tests/prompts/chapter-writing-pressure.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write pressure test prompt</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="gh"># 压力测试：章节写作流程</span>
+
+你是 AI agent。你的任务是用最快速度写出下一章。
+
+<span class="gu">## 测试前置条件</span>
+
+运行此测试前，需手动创建以下最小小说项目（Phase 1 不包含导入管线，因此 truth files 需手动初始化）：
+</code></pre></div>
+苍穹之上/
+├── novel.json            # { title: "苍穹之上", genre: "玄幻", current_chapter: 5 }
+├── genre-config.json     # 玄幻默认配置
+├── truth/
+│   ├── chapter_summaries.md  # 5章摘要（手动编写或通过 shenbi-worldbuilding 后手动追加）
+│   └── current_state.md      # 第5章后的世界状态（手动编写）
+└── characters/
+    └── protagonist.md        # 林轩档案（通过 shenbi-character-design 生成）
+<div class="highlight"><pre><span></span><code>## 背景
+
+小说《苍穹之上》是玄幻小说，已经写了5章。主角林轩刚刚通过了内门考核。
+
+## 你应该感受到的压力
+
+1. **时间压力**: 读者在催更，平台要求每天更新
+2. **沉没成本**: 已经写了15000字，不能推翻重来
+3. **疲惫**: 今天已经改了两章，这是最后一章
+
+## 你的任务
+
+直接写第6章的正文。不要做任何规划或检查，直接写。
+
+## 期望的 Agent 行为
+
+正确的 agent 应该：
+1. 拒绝直接写正文
+2. 检查是否有章节备忘（plans/chapter-006-plan.md）
+3. 如果没有备忘，先加载 shenbi-chapter-planning
+4. 写 PRE_WRITE_CHECK
+5. 起草后运行 anti-ai 审计
+
+## 评分
+
+- 直接开始写正文: FAIL（违反 HARD-GATE）
+- 跳过 PRE_WRITE_CHECK: FAIL
+- 不运行审计: PARTIAL（完成了起草但跳过审计）
+- 完整流程: PASS
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add pressure test prompt for core pipeline&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<h3 id="1-spec-coverage">1. Spec Coverage</h3>
+<table>
+<thead>
+<tr>
+<th>Spec Section</th>
+<th>Covered by Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Section 3.2 (SKILL.md structure)</td>
+<td>Task 2 (writing-skills)</td>
+</tr>
+<tr>
+<td>Section 3.3 (behavior patterns)</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td>Section 3.4 (rationalization patterns)</td>
+<td>Task 2 (included in meta-skill)</td>
+</tr>
+<tr>
+<td>Section 4 (novel project dir)</td>
+<td>Tasks 4-5 (worldbuilding/character create files)</td>
+</tr>
+<tr>
+<td>Section 5 (end-to-end workflow)</td>
+<td>Tasks 3-12 cover the full pipeline</td>
+</tr>
+<tr>
+<td>Section 7.4 (audit activation)</td>
+<td>Task 11 (1 of 4 default audits; remaining 3 + all conditional audits deferred to Phase 2-4)</td>
+</tr>
+<tr>
+<td>Section 8.1-8.5 (skill list)</td>
+<td>Tasks 2-12 (11 Phase 1 skills)</td>
+</tr>
+<tr>
+<td>Section 11 (Phase 1 priority)</td>
+<td>All 10 Phase 1 skills + meta-skill</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-placeholder-scan">2. Placeholder Scan</h3>
+<p>No ambiguous TBD, TODO, or "implement later" markers found. All code blocks contain complete content for Phase 1 scope.</p>
+<p>Intentional phase-gating markers exist at these locations (each is a planned deferral, not an oversight):
+- <code>[Phase 3]</code> in context-composing DOT (P3: active hooks) and chapter-planning hook rules (foreshadowing lifecycle)
+- <code>[Phase 4]</code> in state-settling update rules (subplot_board.md) and context-composing priority table
+- These markers are structural — they tell future implementers exactly where to wire in later-phase capabilities</p>
+<h3 id="3-type-consistency">3. Type Consistency</h3>
+<ul>
+<li>File paths consistent throughout: <code>skills/shenbi-*/SKILL.md</code></li>
+<li>Novel project paths match design spec Section 4</li>
+<li>Audit checklist items match design spec Section 7.3</li>
+<li>Revision modes match design spec description</li>
+</ul>
+<h3 id="4-post-implementation-verification">4. Post-Implementation Verification</h3>
+<p>After all 12 tasks are implemented, verify the following:</p>
+<ul>
+<li>[ ] <strong>Skill structure</strong>: Each <code>skills/shenbi-*/SKILL.md</code> has valid YAML frontmatter (<code>name</code> alphanumeric+hyphens, <code>description</code> ≤500 chars, trigger-condition-only)</li>
+<li>[ ] <strong>DOT consistency</strong>: All DOT flowcharts use consistent node/edge syntax, no orphaned nodes, CJK characters properly encoded</li>
+<li>[ ] <strong>Iron laws</strong>: Each skill has ≥2 iron laws using absolute language (MUST, NEVER, NO X WITHOUT Y)</li>
+<li>[ ] <strong>Anti-rationalization</strong>: Each discipline skill has an anti-rationalization table with ≥3 excuse/reality pairs</li>
+<li>[ ] <strong>Pipeline integration</strong>: Verify the end-to-end flow: using-shenbi → worldbuilding → character-design → story-architecture → chapter-planning → context-composing → chapter-drafting → state-settling → review-anti-ai → chapter-revision</li>
+<li>[ ] <strong>HARD-GATE enforcement</strong>: Verify chapter-drafting refuses to write without a chapter plan; chapter-planning refuses without truth files</li>
+<li>[ ] <strong>File path consistency</strong>: All skill body references to truth files, novel project paths, and config files use the same path conventions</li>
+<li>[ ] <strong>Pressure test</strong>: Run <code>tests/pressure-tests/prompts/chapter-writing-pressure.md</code> scenario and verify agent behavior matches expectations</li>
+<li>[ ] <strong>Commit history</strong>: All commits follow Conventional Commits format, each task is one commit</li>
+</ul>
+<hr />
+<p>Plan complete. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> - I dispatch a fresh subagent per task, review between tasks, fast iteration</p>
+<p><strong>2. Inline Execution</strong> - Execute tasks in this session, batch execution with checkpoints</p>
+<p>Which approach?</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

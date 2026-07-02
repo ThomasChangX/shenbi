@@ -1,0 +1,1542 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-13-test-integrity-hardening-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Test Framework Integrity Hardening Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Test Framework Integrity Hardening Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-13-test-integrity-hardening-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-13-test-integrity-hardening-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Test Framework Integrity Hardening Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-13-test-integrity-hardening-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#test-framework-integrity-hardening-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Test Framework Integrity Hardening Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#root-causes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Causes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-three-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design: Three Layers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design: Three Layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-1-guidance-protocol-state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 1: Guidance (Protocol + State Machine)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer 1: Guidance (Protocol + State Machine)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#t2t3-protocol-in-command-to-givemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T2/T3 protocol in command-to-give.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-runnerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-runner.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-2-hard-check-gate-markers-scoringpy-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 2: Hard Check (Gate Markers + scoring.py enforcement)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer 2: Hard Check (Gate Markers + scoring.py enforcement)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validate-gatepy-writes-pass-markers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate-gate.py writes PASS markers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scoringpy-requires-gate-markers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scoring.py requires gate markers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-3-audit-g7-post-round-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 3: Audit (G7 post-round verification)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer 3: Audit (G7 post-round verification)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#g713-gate-re-run-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7.13: Gate re-run verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g714-score-timeline-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7.14: Score timeline consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g715-score-pattern-suspiciousness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7.15: Score pattern suspiciousness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g716-phase-state-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7.16: Phase state verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-result-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit result handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summaryjson-additions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summary.json additions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files Modified
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-does-not-prevent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What This Does NOT Prevent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#r6-execution-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R6 Execution Plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="test-framework-integrity-hardening-design">Test Framework Integrity Hardening Design</h1>
+<p><strong>Date</strong>: 2026-06-13
+<strong>Status</strong>: Draft
+<strong>Motivation</strong>: R5 round exposed 12 integrity violations — self-scoring, gate bypass, batch-generated outputs, mid-round code patching. All caused by structural gaps in the test framework, not by missing rules.</p>
+<h2 id="root-causes">Root Causes</h2>
+<ol>
+<li><strong>No T2/T3 protocol</strong> — command-to-give.md only covers T1; T2/T3 have no step-by-step execution steps</li>
+<li><strong>Gates are soft blocks</strong> — G5/G6 FAIL does not prevent scoring from proceeding</li>
+<li><strong>No provenance</strong> — score files don't record who scored, whether gates passed, or when</li>
+<li><strong>No post-round verification</strong> — G7 checks structure but not whether gates actually passed against real files</li>
+</ol>
+<h2 id="design-three-layers">Design: Three Layers</h2>
+<h3 id="layer-1-guidance-protocol-state-machine">Layer 1: Guidance (Protocol + State Machine)</h3>
+<h4 id="t2t3-protocol-in-command-to-givemd">T2/T3 protocol in command-to-give.md</h4>
+<p>Append after the existing "第五步：推进" section. Two new sections:</p>
+<p><strong>第六步：T2 Phase 执行</strong></p>
+<p>For each phase in <code>tests/tiers/deps.json</code> → <code>t2-phases</code>:</p>
+<ol>
+<li><code>python3 tests/phase-runner.py start &lt;phase&gt; --round-dir &lt;round-dir&gt; --project-dir &lt;round-dir&gt;/project-output</code></li>
+<li>For each skill in the phase's <code>prerequisites</code> list, in order:</li>
+<li><code>python3 tests/phase-runner.py pre-skill &lt;phase&gt; &lt;skill&gt; --round-dir &lt;round-dir&gt;</code></li>
+<li>Read <code>skills/&lt;skill&gt;/SKILL.md</code>, execute skill, output to <code>&lt;round-dir&gt;/project-output/</code></li>
+<li><code>python3 tests/phase-runner.py post-skill &lt;phase&gt; &lt;skill&gt; --round-dir &lt;round-dir&gt; --project-dir &lt;round-dir&gt;/project-output</code></li>
+<li><code>python3 tests/phase-runner.py pre-score &lt;phase&gt; --round-dir &lt;round-dir&gt;</code></li>
+<li>Dispatch independent scoring subagent (same isolation rules as T1)</li>
+<li><code>python3 tests/scoring.py tests/tiers/t2-phase/&lt;phase&gt;/rubric.md &lt;score-file&gt; --test-type generative --round-dir &lt;round-dir&gt;</code></li>
+<li><code>python3 tests/phase-runner.py post-score &lt;phase&gt; &lt;score-file&gt; --round-dir &lt;round-dir&gt;</code></li>
+<li><code>python3 tests/phase-runner.py finalize &lt;phase&gt; --round-dir &lt;round-dir&gt; --project-dir &lt;round-dir&gt;/project-output&gt;</code></li>
+</ol>
+<p><strong>第七步：T3 Pipeline 执行</strong></p>
+<p>For each pipeline in <code>tests/tiers/deps.json</code> → <code>t3-pipelines</code>:</p>
+<ol>
+<li>Confirm all T2 phases finalized and ≥ 94 (read from <code>summary.json</code>)</li>
+<li><code>python3 tests/validate-gate.py G6 &lt;pipeline&gt; &lt;round-dir&gt; &lt;round-dir&gt;/project-output</code></li>
+<li>Dispatch independent scoring subagent</li>
+<li><code>python3 tests/scoring.py tests/tiers/t3-pipeline/&lt;pipeline&gt;/rubric.md &lt;score-file&gt; --test-type generative --round-dir &lt;round-dir&gt;</code></li>
+<li>Record to <code>&lt;round-dir&gt;/t3-reports/&lt;pipeline&gt;-generative-scores.json</code></li>
+</ol>
+<h4 id="phase-runnerpy">phase-runner.py</h4>
+<p>Location: <code>tests/phase-runner.py</code></p>
+<p>State machine with subcommands. Does NOT dispatch subagents — only checks preconditions and records state.</p>
+<p><strong>State file</strong>: <code>&lt;round-dir&gt;/phase-state/&lt;phase&gt;.json</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;genesis&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;started&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;start&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;g5_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post-skill&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;g2&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;g4&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post-skill&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-power-system&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;g2&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;g4&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>States: <code>created</code> → <code>started</code> → <code>skills_done</code> → <code>scored</code> → <code>finalized</code></p>
+<p>Each subcommand checks the current state and refuses to proceed if preconditions aren't met. State transitions are append-only.</p>
+<p><strong>Subcommands</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Precondition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start &lt;phase&gt;</code></td>
+<td>None</td>
+<td>Run G5, write state=started if PASS</td>
+</tr>
+<tr>
+<td><code>pre-skill &lt;phase&gt; &lt;skill&gt;</code></td>
+<td>state=started</td>
+<td>Check upstream gate markers exist</td>
+</tr>
+<tr>
+<td><code>post-skill &lt;phase&gt; &lt;skill&gt;</code></td>
+<td>state=started</td>
+<td>Run G2+G4. Write G4 gate marker only if PASS (G2 does not write markers)</td>
+</tr>
+<tr>
+<td><code>pre-score &lt;phase&gt;</code></td>
+<td>state=started, all skills have markers</td>
+<td>Check expected outputs exist</td>
+</tr>
+<tr>
+<td><code>post-score &lt;phase&gt; &lt;file&gt;</code></td>
+<td>state=skills_done</td>
+<td>Verify score file exists, record result in state file (does NOT run scoring.py)</td>
+</tr>
+<tr>
+<td><code>finalize &lt;phase&gt;</code></td>
+<td>state=scored</td>
+<td>Re-run G5, verify markers, set state=finalized</td>
+</tr>
+</tbody>
+</table>
+<h3 id="layer-2-hard-check-gate-markers-scoringpy-enforcement">Layer 2: Hard Check (Gate Markers + scoring.py enforcement)</h3>
+<h4 id="validate-gatepy-writes-pass-markers">validate-gate.py writes PASS markers</h4>
+<p>When a gate returns PASS and <code>round_dir</code> is provided, write a marker file to:</p>
+<p><code>&lt;round-dir&gt;/gate-markers/&lt;gate&gt;-&lt;target&gt;-&lt;test-type&gt;.json</code></p>
+<p>The marker contains the full PASS JSON output (timestamp, checks) plus a <code>files_checked</code> field listing the file paths that were validated. G7.13 uses this list to re-validate the same files.</p>
+<p>Implementation: in <code>main()</code>, after parsing gate result, if status == "PASS" and round_dir is available, write marker. For G4, the round_dir comes from the existing <code>--round-dir</code> CLI argument. For G6, same.</p>
+<p>Gates that write markers: G4, G6. G2 does not write markers (it's a per-file format check, not a skill-level gate).</p>
+<h4 id="scoringpy-requires-gate-markers">scoring.py requires gate markers</h4>
+<p>Add <code>--round-dir &lt;path&gt;</code> argument to scoring.py. When provided:</p>
+<ol>
+<li>Infer tier and target from rubric path (reuse existing path-parsing logic at scoring.py:204-205 which already extracts skill_name from rubric directory structure):</li>
+<li>Path contains <code>t1-skill/</code> → extract skill name, check <code>gate-markers/G4-&lt;skill&gt;-&lt;test-type&gt;.json</code></li>
+<li>Path contains <code>t2-phase/</code> → read <code>deps.json</code> prerequisites, check <code>gate-markers/G4-&lt;skill&gt;-generative.json</code> for each</li>
+<li>Path contains <code>t3-pipeline/</code> → check <code>gate-markers/G6-&lt;pipeline&gt;.json</code></li>
+<li>If any required marker is missing → exit(3) with error message listing missing markers (exit code 3 distinguishes from exit code 2 which is score validation failure)</li>
+<li>If <code>--round-dir</code> is not provided → skip marker check (backward compatible for development)</li>
+</ol>
+<h3 id="layer-3-audit-g7-post-round-verification">Layer 3: Audit (G7 post-round verification)</h3>
+<p>Add four new checks to G7 in validate-gate.py:</p>
+<h4 id="g713-gate-re-run-verification">G7.13: Gate re-run verification</h4>
+<p>Iterate all files in <code>&lt;round-dir&gt;/gate-markers/</code>. For each marker:
+- Parse gate, target, test-type from filename pattern <code>&lt;gate&gt;-&lt;target&gt;-&lt;test-type&gt;.json</code>
+- Re-run the corresponding gate function using the marker's <code>files_checked</code> list as <code>file_paths</code>
+  - For G4 markers: <code>gate_G4(target, test_type, files_checked, round_dir)</code> — <code>target</code> is the skill name
+  - For G6 markers: <code>gate_G6(pipeline_name=target, round_dir=round_dir, project_dir=&lt;round-dir&gt;/project-output)</code> — <code>project_dir</code> is reconstructed as <code>&lt;round-dir&gt;/project-output</code> (same convention as T3 protocol)
+- If re-run result is FAIL but marker records PASS → VIOLATION (G7 FAIL)</p>
+<p>Note: phases with <code>g4_checker: null</code> in deps.json (audit, management, import, foundation, short-story) use <code>g4_generic_generative</code> as fallback. These markers are still valid — the generic checker is the gate function for these skills.</p>
+<h4 id="g714-score-timeline-consistency">G7.14: Score timeline consistency</h4>
+<p>For all score files in <code>t1-reports/</code>, <code>t2-reports/</code>, <code>t3-reports/</code>:
+- Score file mtime must be &gt; output file mtime (can't score before output exists)
+- Score file mtime must be &gt; gate marker mtime (can't score before gate passes)
+- Violation → TIMELINE_VIOLATION (G7 WARN, not blocking)</p>
+<h4 id="g715-score-pattern-suspiciousness">G7.15: Score pattern suspiciousness</h4>
+<p>For all generative score files, grouped by tier:
+- Compute score vectors (tuple of dimension scores)
+- If ≥3 skills share identical score vector → DUPLICATE_PATTERN warning
+- If score file has no <code>scorer</code> field or scorer is "MISSING" → NO_PROVENANCE warning
+- These are warnings, written to <code>summary.json</code> <code>audit_warnings</code> array, not blocking</p>
+<h4 id="g716-phase-state-verification">G7.16: Phase state verification</h4>
+<p>For each phase in <code>summary.json</code> <code>t2_scores</code>:
+- Check <code>&lt;round-dir&gt;/phase-state/&lt;phase&gt;.json</code> exists and state is "finalized"
+- If phase has score but state is not finalized → INCOMPLETE_PHASE (G7 FAIL)</p>
+<p>For each pipeline in <code>summary.json</code> <code>t3_scores</code>:
+- Check <code>&lt;round-dir&gt;/gate-markers/G6-&lt;pipeline&gt;.json</code> exists
+- If missing → MISSING_GATE (G7 FAIL)</p>
+<p>Note: T3 pipelines do NOT use phase-runner.py. They go directly through G6 validation and independent scoring, as shown in the T3 protocol steps.</p>
+<h4 id="audit-result-handling">Audit result handling</h4>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Blocking</th>
+<th>Written to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G7.13 gate re-run mismatch</td>
+<td>Yes (FAIL)</td>
+<td>must_fix</td>
+</tr>
+<tr>
+<td>G7.14 timeline violation</td>
+<td>No (WARN)</td>
+<td>summary.json audit_warnings</td>
+</tr>
+<tr>
+<td>G7.15 pattern/provenance</td>
+<td>No (WARN)</td>
+<td>summary.json audit_warnings</td>
+</tr>
+<tr>
+<td>G7.16 phase state mismatch</td>
+<td>Yes (FAIL)</td>
+<td>must_fix</td>
+</tr>
+</tbody>
+</table>
+<h3 id="summaryjson-additions">summary.json additions</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;audit_warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DUPLICATE_PATTERN&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8 skills share identical score vector in t1 generative&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NO_PROVENANCE&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;29 t1 score files lack scorer field&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="files-modified">Files Modified</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>command-to-give.md</code></td>
+<td>Add 第六步 (T2) and 第七步 (T3) protocol sections</td>
+</tr>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>Write gate markers on PASS; add G7.13–G7.16 checks</td>
+</tr>
+<tr>
+<td><code>tests/scoring.py</code></td>
+<td>Add <code>--round-dir</code> flag; verify gate markers before scoring</td>
+</tr>
+<tr>
+<td><code>tests/phase-runner.py</code></td>
+<td>New file. State machine for T2/T3 execution</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-this-does-not-prevent">What This Does NOT Prevent</h2>
+<ul>
+<li>An agent determined to fake results can forge gate markers and score files. The audit layer (G7.13) catches this by re-running gates against actual files.</li>
+<li>An agent can skip using phase-runner.py entirely. The guidance layer reduces motivation, not ability.</li>
+<li>An agent can modify validate-gate.py mid-round. No hash lock is applied. The audit layer re-runs gates with the current code, so if code was patched to always PASS, G7.13 won't catch it. This is an accepted limitation.</li>
+</ul>
+<h2 id="r6-execution-plan">R6 Execution Plan</h2>
+<p>After implementing these changes, R6 must be re-run from scratch:</p>
+<ol>
+<li>T1: Re-run all 58 skills using existing protocol (fix the 29 batch-generated outputs)</li>
+<li>T2: Use phase-runner.py to execute all 9 phases</li>
+<li>T3: Use G6 gate + independent scoring for all 3 pipelines</li>
+<li>G7: Post-round audit must pass with zero VIOLATIONS</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

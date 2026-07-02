@@ -1,0 +1,2378 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-22-positive-quality-gates/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Positive Quality Gates Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Positive Quality Gates Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-22-positive-quality-gates.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-22-positive-quality-gates/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Positive Quality Gates Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-22-positive-quality-gates.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#positive-quality-gates-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Positive Quality Gates Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-0-foundation-cross-cutting-infra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0 — Foundation (cross-cutting infra)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 0 — Foundation (cross-cutting infra)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-01-extend-contract-loader-dict-form-reads-independence-marker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.1: Extend contract loader (dict-form reads + independence marker)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-02-registry-entries-for-new-truthreport-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.2: Registry entries for new truth/report files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-03-g0-check-report-kind-requires_independent_agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.3: G0 check — report-kind ⇒ requires_independent_agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-04-migrate-all-existing-report-kind-skills-to-declare-independence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.4: Migrate all existing report-kind skills to declare independence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-05-tropeinventory-schema-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.5: tropeInventory schema + loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-06-calibration-fixture-scaffolding-hash-lock-new-g014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0.6: Calibration fixture scaffolding + hash lock (NEW G0.14)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-c-foundation-review-anti-trope-dimension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 — C: foundation-review anti-trope dimension
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1 — C: foundation-review anti-trope dimension">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-11-modify-foundation-review-skillmd-rebalance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1.1: Modify foundation-review SKILL.md (rebalance + 反套路维度)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-a-shenbi-review-resonance-the-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 — A: shenbi-review-resonance (the core)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2 — A: shenbi-review-resonance (the core)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-21-drift-detection-util-smoothing-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.1: Drift detection util (smoothing + triggers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-22-confidence-calibration-util" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.2: Confidence calibration util
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-23-block-routing-util-3-path-revision-cap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.3: Block routing util (3-path + revision cap)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-24-chapter-planning-skillmd-add-chapter_role-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.4: chapter-planning SKILL.md — add chapter_role field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-25-chapter-drafting-skillmd-pre_write_check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.5: chapter-drafting SKILL.md — PRE_WRITE_CHECK +共鸣短板
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-26-author-review-resonance-skillmd-full-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.6: Author review-resonance SKILL.md (full content)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-27-g4-checker-for-review-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.7: G4 checker for review-resonance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-28-drift-guidance-skillmd-read-trends-run-drift-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.8: drift-guidance SKILL.md — read trends, run drift triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-29-calibration-anchor-fixtures-resonance-4-dims-3-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.9: Calibration anchor fixtures (resonance, 4 dims × 3 levels)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-210-t1-test-dir-for-review-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.10: T1 test dir for review-resonance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-211-unit-tests-for-the-new-deterministic-test-types-spec-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.11: Unit tests for the new deterministic test-types (spec §10)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-b-shenbi-review-arc-payoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 — B: shenbi-review-arc-payoff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3 — B: shenbi-review-arc-payoff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-31-author-review-arc-payoff-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.1: Author review-arc-payoff SKILL.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-32-g4-checker-for-review-arc-payoff-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.2: G4 checker for review-arc-payoff + register
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-33-volume-consolidation-skillmd-invoke-b-at-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.3: volume-consolidation SKILL.md — invoke B at boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-34-calibration-anchor-fixtures-arc-payoff-5-dims-3-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.4: Calibration anchor fixtures (arc-payoff, 5 dims × 3 levels)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-35-t1-test-dir-for-review-arc-payoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.5: T1 test dir for review-arc-payoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-36-cross-volume-drift-macro-trigger-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3.6: Cross-volume drift macro-trigger test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-integration-framework-wiring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4 — Integration &amp; framework wiring
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4 — Integration &amp; framework wiring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-41-depsjson-register-ab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.1: deps.json — register A/B
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-42-regenerate-contracts-dag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.2: Regenerate contracts / DAG
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-43-using-shenbi-trigger-map-audit-activation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.3: using-shenbi trigger map + audit activation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-44-re-lock-tool-hashes-full-g0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.4: Re-lock tool hashes + full G0
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-run-after-writing-findings-already-folded-in-above" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review (run after writing — findings already folded in above)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="positive-quality-gates-implementation-plan">Positive Quality Gates Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add a positive-quality scoring layer to shenbi (per-chapter <code>review-resonance</code> + per-volume <code>review-arc-payoff</code> + <code>foundation-review</code> anti-trope dimension), with drift detection, calibration, and enforced independent-agent scoring.</p>
+<p><strong>Architecture:</strong> Extend the proven <code>foundation-review</code> weighted-rubric pattern to two new layers. Deterministic logic (drift triggers, confidence calibration, block routing, trope matching) lives in <code>src/shenbi/skill_utils/</code> as tested Python; skill behavior lives in <code>SKILL.md</code>; output validation in <code>gates/g4/</code>; the independence rule is a top-level frontmatter marker <code>requires_independent_agent</code> enforced via <code>contract.py</code> + a G0 check.</p>
+<p><strong>Tech Stack:</strong> Python 3 (src/shenbi, uv, ruff/mypy strict, pytest, structlog), PyYAML frontmatter, Markdown skills, JSON config. Spec: <code>docs/superpowers/specs/2026-06-22-positive-quality-gates-design.md</code>.</p>
+<p><strong>Spec refinements discovered during planning (authoritative — override spec frontmatter):</strong>
+- <strong>R1:</strong> A/B <code>reads</code> use <code>{file, fields}</code> dict form. <code>contract.py</code> currently rejects non-str → Task 0.1 extends the loader (this <em>is</em> the P7 forward-compat work).
+- <strong>R2:</strong> Calibration anchor paths (<code>tests/fixtures/calibration/...</code>) are <strong>scorer inputs</strong>, not project I/O → they are NOT in the <code>reads</code> contract; they live in SKILL.md prose + the scoring dispatch prompt. (Spec §5.1/§6.2 frontmatter showed them in <code>reads</code> — do not copy that.)</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<p><strong>New Python (deterministic logic + framework):</strong>
+- <code>src/shenbi/contract.py</code> — MODIFY: accept dict-form reads; add <code>requires_independent_agent</code> loader.
+- <code>src/shenbi/gates/g0.py</code> — MODIFY: add G0 check "report-kind ⇒ requires_independent_agent".
+- <code>src/shenbi/skill_utils/drift_detection/__init__.py</code> + <code>compute_drift.py</code> + <code>__main__.py</code> — NEW: smoothing + per-chapter &amp; per-volume triggers.
+- <code>src/shenbi/skill_utils/review_resonance/__init__.py</code> + <code>routing.py</code> + <code>__main__.py</code> — NEW: 3-path block routing + revision cap.
+- <code>src/shenbi/skill_utils/calibration/__init__.py</code> + <code>confidence.py</code> + <code>__main__.py</code> — NEW: confidence downgrade by anchor hit-rate.
+- <code>src/shenbi/skill_utils/trope_detection/__init__.py</code> + <code>match_tropes.py</code> + <code>__main__.py</code> — NEW: tropeInventory matching.
+- <code>src/shenbi/gates/g4/review_resonance.py</code> — NEW: G4 checker for A.
+- <code>src/shenbi/gates/g4/review_arc_payoff.py</code> — NEW: G4 checker for B.
+- <code>src/shenbi/gates/g4/generic.py</code> — MODIFY: register A/B in the router.</p>
+<p><strong>New / modified skills (Markdown):</strong>
+- <code>skills/shenbi-review-resonance/SKILL.md</code> — NEW (A).
+- <code>skills/shenbi-review-arc-payoff/SKILL.md</code> — NEW (B).
+- <code>skills/shenbi-foundation-review/SKILL.md</code> — MODIFY (C: +反套路维度, rebalance).
+- <code>skills/shenbi-chapter-planning/SKILL.md</code> — MODIFY (+<code>chapter_role</code> field).
+- <code>skills/shenbi-chapter-drafting/SKILL.md</code> — MODIFY (PRE_WRITE_CHECK +共鸣短板).
+- <code>skills/shenbi-drift-guidance/SKILL.md</code> — MODIFY (read trends, run drift triggers).
+- <code>skills/shenbi-volume-consolidation/SKILL.md</code> — MODIFY (call B at boundary).
+- <code>skills/using-shenbi/SKILL.md</code> — MODIFY (trigger map + audit activation).
+- <code>skills/shenbi-review-*/SKILL.md</code> (×18) + <code>skills/shenbi-foundation-review/SKILL.md</code> — MODIFY: add <code>requires_independent_agent: true</code> + 铁律 line.</p>
+<p><strong>Data / registry:</strong>
+- <code>docs/framework/truth-files.yaml</code> — MODIFY: +<code>truth/resonance_trend.md</code>, +<code>truth/arc_payoff_trend.md</code>, +<code>audits/volume-N-payoff.md</code> parametric + <code>audits/volume-*.md</code> glob.
+- <code>tests/fixtures/genre-config-example.json</code> — MODIFY: +<code>tropeInventory</code> key.
+- <code>tests/fixtures/calibration/resonance/*.md</code>, <code>.../arc-payoff/*.md</code> — NEW: anchor fixtures.
+- <code>tests/tiers/t1-skill/shenbi-review-resonance/</code> — NEW (generative/bug-hunt/clean + rubric).
+- <code>tests/tiers/t1-skill/shenbi-review-arc-payoff/</code> — NEW.
+- <code>tests/tiers/deps.json</code> — MODIFY: add A/B to phases.</p>
+<p><strong>Tests:</strong>
+- <code>tests/unit/skill_utils/test_drift_detection.py</code>, <code>test_routing.py</code>, <code>test_calibration.py</code>, <code>test_trope_detection.py</code>, <code>tests/unit/contract/test_dict_reads.py</code>, <code>tests/unit/gates/test_g0_independence.py</code> — NEW.</p>
+<hr />
+<h2 id="phase-0-foundation-cross-cutting-infra">Phase 0 — Foundation (cross-cutting infra)</h2>
+<p>Unblocks C, A, B. Each task ships green tests.</p>
+<h3 id="task-01-extend-contract-loader-dict-form-reads-independence-marker">Task 0.1: Extend contract loader (dict-form reads + independence marker)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contract.py</code>
+- Test: <code>tests/unit/contract/test_dict_reads.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contract/test_dict_reads.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contract</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span><span class="p">,</span> <span class="n">requires_independent_agent</span><span class="p">,</span> <span class="n">ContractError</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fm</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">skill_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span> <span class="o">/</span> <span class="n">skill</span>
+    <span class="n">skill_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">skill_dir</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="si">{</span><span class="n">fm</span><span class="si">}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dict_form_reads_extract_file_and_keep_fields</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_write_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;shenbi-test-dict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name: shenbi-test-dict</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;contract:</span><span class="se">\n</span><span class="s2">  kind: report</span><span class="se">\n</span><span class="s2">  reads:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;    - {file: truth/audit_drift.md, fields: [shortcomings]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;    - truth/current_state.md</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;  writes: [audits/chapter-N-dict.md]</span><span class="se">\n</span><span class="s2">  updates: []</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contract.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="s2">&quot;shenbi-test-dict&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;truth/audit_drift.md&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;read_fields&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;truth/audit_drift.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;shortcomings&quot;</span><span class="p">]}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_requires_independent_agent_reads_top_level_field</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_write_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;shenbi-test-ind&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name: shenbi-test-ind</span><span class="se">\n</span><span class="s2">requires_independent_agent: true</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;contract:</span><span class="se">\n</span><span class="s2">  kind: report</span><span class="se">\n</span><span class="s2">  reads: []</span><span class="se">\n</span><span class="s2">  writes: [audits/x.md]</span><span class="se">\n</span><span class="s2">  updates: []</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contract.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">requires_independent_agent</span><span class="p">(</span><span class="s2">&quot;shenbi-test-ind&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_requires_independent_agent_default_false</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">_write_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;shenbi-test-noind&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name: shenbi-test-noind</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;contract:</span><span class="se">\n</span><span class="s2">  kind: artifact</span><span class="se">\n</span><span class="s2">  reads: []</span><span class="se">\n</span><span class="s2">  writes: [chapters/chapter-N.md]</span><span class="se">\n</span><span class="s2">  updates: []</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.contract.SKILLS&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">requires_independent_agent</span><span class="p">(</span><span class="s2">&quot;shenbi-test-noind&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run, verify FAIL</strong> — <code>uv run pytest tests/unit/contract/test_dict_reads.py -v</code> → ImportError / KeyError (<code>read_fields</code>, <code>requires_independent_agent</code>).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement</strong></p>
+</li>
+</ul>
+<p>Edit <code>src/shenbi/contract.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Extend Contract TypedDict (add read_fields; keep backward compat)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Contract</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">OutputKind</span>
+    <span class="n">reads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">writes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">updates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>   <span class="c1"># only populated for dict-form reads</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 2. New helper to normalize a read item (str | dict) -&gt; (path, fields|None)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract.reads[].fields must be list[str]&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]),</span> <span class="n">fields</span>
+    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract.reads[] must be str or {file, fields?}&quot;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;reads&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 3. Rewrite the reads loop inside _validate</span>
+    <span class="n">validated</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="s2">&quot;writes&quot;</span><span class="p">,</span> <span class="s2">&quot;updates&quot;</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contract.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> must be a list&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;reads&quot;</span><span class="p">:</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">resolves</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">registry</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract path does not resolve in registry&quot;</span><span class="p">,</span>
+                                        <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">read_fields</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contract.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> must be list[str]&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">resolves</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">registry</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;contract path does not resolve in registry&quot;</span><span class="p">,</span>
+                                        <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="n">validated</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span> <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">],</span> <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;updates&quot;</span><span class="p">],</span> <span class="s2">&quot;read_fields&quot;</span><span class="p">:</span> <span class="n">read_fields</span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 4. New public loader for the independence marker</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">requires_independent_agent</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the top-level frontmatter flag (not under contract:).&quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">_skill_path</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="s2">&quot;skill SKILL.md not found&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;requires_independent_agent&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run, verify PASS</strong> — <code>uv run pytest tests/unit/contract/test_dict_reads.py -v</code> → 3 passed.</li>
+<li>[ ] <strong>Step 5: Regression</strong> — <code>uv run pytest tests/unit/contract -v</code> (existing contract tests still pass; <code>read_fields</code> added to all returns).</li>
+<li>[ ] <strong>Step 6: Commit</strong> — <code>git add src/shenbi/contract.py tests/unit/contract/test_dict_reads.py &amp;&amp; git commit -m "feat(contract): accept dict-form reads + load requires_independent_agent"</code></li>
+</ul>
+<h3 id="task-02-registry-entries-for-new-truthreport-files">Task 0.2: Registry entries for new truth/report files</h3>
+<p><strong>Files:</strong> Modify <code>docs/framework/truth-files.yaml</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add concepts</strong> — under the <code>truth:</code> block add:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/resonance_trend.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">truth</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/arc_payoff_trend.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">truth</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+Under the audits/foundation block add:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">audits/volume-N-payoff.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">report</span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># parametric: N</span>
+</code></pre></div></li>
+<li>[ ] <strong>Step 2: Add parametric + glob</strong> — under <code>patterns:</code> add:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="nv">audits/volume-N-payoff.md</span><span class="p p-Indicator">,</span><span class="nt"> glob</span><span class="p">:</span><span class="w"> </span><span class="nv">audits/volume-*.md</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+Under <code>globs:</code> add:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="nv">audits/volume-*.md</span><span class="p p-Indicator">}</span>
+</code></pre></div></li>
+<li>[ ] <strong>Step 3: Verify resolution</strong> — <code>uv run python -c "from shenbi.contract import load_registry, resolves; r=load_registry(); assert resolves('truth/resonance_trend.md', r) and resolves('truth/arc_payoff_trend.md', r) and resolves('audits/volume-3-payoff.md', r); print('OK')"</code></li>
+<li>[ ] <strong>Step 4: Commit</strong> — <code>git add docs/framework/truth-files.yaml &amp;&amp; git commit -m "feat(registry): add resonance_trend, arc_payoff_trend, volume payoff audit"</code></li>
+</ul>
+<h3 id="task-03-g0-check-report-kind-requires_independent_agent">Task 0.3: G0 check — report-kind ⇒ requires_independent_agent</h3>
+<p><strong>Files:</strong> Modify <code>src/shenbi/gates/g0.py</code> · Test: <code>tests/unit/gates/test_g0_independence.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/test_g0_independence.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_independence_markers</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_report_skill_without_marker_fails</span><span class="p">():</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shenbi-review-foo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;has_marker&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}}</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_independence_markers</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;shenbi-review-foo&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_artifact_skill_without_marker_ok</span><span class="p">():</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span> <span class="s2">&quot;has_marker&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}}</span>
+    <span class="k">assert</span> <span class="n">check_independence_markers</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_report_skill_with_marker_ok</span><span class="p">():</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;has_marker&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+    <span class="k">assert</span> <span class="n">check_independence_markers</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run, verify FAIL</strong> — import error (<code>check_independence_markers</code>).</li>
+<li>[ ] <strong>Step 3: Implement</strong> in <code>g0.py</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contract</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputKind</span><span class="p">,</span> <span class="n">load_contract</span><span class="p">,</span> <span class="n">requires_independent_agent</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_independence_markers</span><span class="p">(</span><span class="n">skills</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G0 sub-check: every report-kind skill must declare requires_independent_agent.</span>
+
+<span class="sd">    `skills[skill] = {&quot;kind&quot;: OutputKind, &quot;has_marker&quot;: bool}` (caller assembles via</span>
+<span class="sd">    load_contract + requires_independent_agent).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">skills</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">REPORT</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;has_marker&quot;</span><span class="p">]:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G0.independence:</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: report-kind skill missing &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;requires_independent_agent: true&#39; (spec §8.1)&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<p>Wire into <code>gate_G0</code> in <code>src/shenbi/gates/g0.py</code> as a new <strong>G0.13</strong> block, inserted immediately before the final <code>return passed("G0", checks)</code> (after the G0.12 block):</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># G0.13 — independence markers: every report-kind skill must declare</span>
+    <span class="c1"># requires_independent_agent (spec §8.1). Deterministic frontmatter check.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contract</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">load_contract</span><span class="p">,</span> <span class="n">requires_independent_agent</span><span class="p">,</span> <span class="n">OutputKind</span> <span class="k">as</span> <span class="n">_OK</span><span class="p">,</span> <span class="n">ContractError</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">indep_issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">SKILLS</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">or</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ContractError</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># contract issues surface in their own checks</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">_OK</span><span class="o">.</span><span class="n">REPORT</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">requires_independent_agent</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">indep_issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">indep_issues</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fail</span><span class="p">(</span>
+            <span class="s2">&quot;G0&quot;</span><span class="p">,</span>
+            <span class="n">checks</span> <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.13&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;report skills missing requires_independent_agent: </span><span class="si">{</span><span class="n">indep_issues</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}],</span>
+            <span class="s2">&quot;round_creation&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;G0.13: add &#39;requires_independent_agent: true&#39; to listed skills&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.13&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;all report-kind skills declare independence&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p>Note: <code>check_independence_markers</code> (the unit-tested helper) is the pure logic; G0.13 is the wiring that assembles inputs via <code>load_contract</code> + <code>requires_independent_agent</code> and calls it. Keep the helper tested in isolation (Task 0.3 Step 1) so G0 wiring is thin.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run, verify PASS</strong> — <code>uv run pytest tests/unit/gates/test_g0_independence.py -v</code> → 3 passed.</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>git add src/shenbi/gates/g0.py tests/unit/gates/test_g0_independence.py &amp;&amp; git commit -m "feat(g0): enforce requires_independent_agent on report-kind skills"</code></li>
+</ul>
+<h3 id="task-04-migrate-all-existing-report-kind-skills-to-declare-independence">Task 0.4: Migrate all existing report-kind skills to declare independence</h3>
+<p><strong>Files:</strong> 18× <code>skills/shenbi-review-*/SKILL.md</code> + <code>skills/shenbi-foundation-review/SKILL.md</code></p>
+<p>This is a deterministic, identical 2-part edit per file. Apply to every file in this list:
+<code>shenbi-review-anti-ai, shenbi-review-character, shenbi-review-continuity, shenbi-review-dialogue, shenbi-review-era, shenbi-review-fanfic, shenbi-review-foreshadowing, shenbi-review-highpoint, shenbi-review-long-span, shenbi-review-memo-compliance, shenbi-review-motivation, shenbi-review-pacing, shenbi-review-pov, shenbi-review-reader-pull, shenbi-review-sensitivity, shenbi-review-spinoff, shenbi-review-texture, shenbi-review-world-rules, shenbi-foundation-review</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Add the frontmatter marker</strong> — in each file, insert <code>requires_independent_agent: true</code> on the line immediately after <code>description:</code> (before <code>contract:</code>).</li>
+<li>[ ] <strong>Step 2: Add the 铁律 line</strong> — in each file's <code>## 铁律</code> section, add as item #1:
+<div class="highlight"><pre><span></span><code>1. **独立评分** — 本 skill 产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得执行本 skill（spec §8.1）
+</code></pre></div>
+(renumber existing items).</li>
+<li>[ ] <strong>Step 3: Verify via G0</strong> — <code>uv run python -c "from shenbi.contract import load_contract, requires_independent_agent, OutputKind; import pathlib; bugs=[]; [bugs.append(s) for s in (p.name for p in pathlib.Path('skills').iterdir() if p.is_dir()) if (load_contract(s)['kind']==OutputKind.REPORT and not requires_independent_agent(s))]; print('MISSING:', bugs or 'none')"</code></li>
+<li>[ ] <strong>Step 4: Commit</strong> — <code>git add skills/ &amp;&amp; git commit -m "feat(skills): declare requires_independent_agent on all report-kind skills"</code></li>
+</ul>
+<blockquote>
+<p><strong>No <code>dispatcher/executor.py</code> change needed.</strong> The dispatcher already runs every skill via a fresh subagent (<code>codex</code> / <code>codex-api</code> / <code>internal</code> modes all start clean-context). <code>requires_independent_agent</code> is a <strong>declaration</strong> that (a) G0.13 enforces is present on report-kind skills, and (b) production orchestration (<code>using-shenbi</code>) honors in prose. Do not add dispatch-branching code — it would be dead.</p>
+</blockquote>
+<h3 id="task-05-tropeinventory-schema-loader">Task 0.5: tropeInventory schema + loader</h3>
+<p><strong>Files:</strong> Modify <code>tests/fixtures/genre-config-example.json</code> · New <code>src/shenbi/skill_utils/trope_detection/__init__.py</code>, <code>match_tropes.py</code>, <code>__main__.py</code> · Test <code>tests/unit/skill_utils/test_trope_detection.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add tropeInventory to fixture</strong> — in <code>genre-config-example.json</code>, add top-level key:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">&quot;tropeInventory&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;trope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;废柴逆袭&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;signatures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;主角开局被退婚/受辱&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;获得金手指(系统/老爷爷/血脉)&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;首次展示实力打脸轻视者&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;overuse_threshold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rewrite_hint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;淡化金手指的万能性；让首次胜利伴随真实代价&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;trope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;天降系统&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;signatures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;脑海中出现系统面板&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;任务-奖励循环驱动行为&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;系统解释一切机制&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;overuse_threshold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rewrite_hint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;将部分机制来源改为世界内生规则，减少系统直接喂饭&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+</code></pre></div></li>
+<li>[ ] <strong>Step 2: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/test_trope_detection.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.trope_detection.match_tropes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trope</span><span class="p">,</span> <span class="n">count_trope_hits</span><span class="p">,</span> <span class="n">trope_overuse</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_count_hits_matches_signature_keywords</span><span class="p">():</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">Trope</span><span class="p">(</span><span class="s2">&quot;废柴逆袭&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;主角开局被退婚&quot;</span><span class="p">,</span> <span class="s2">&quot;获得金手指&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;淡化&quot;</span><span class="p">)</span>
+    <span class="n">beats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;主角开局被退婚，未婚妻当众悔婚&quot;</span><span class="p">,</span> <span class="s2">&quot;主角获得金手指老爷爷&quot;</span><span class="p">,</span> <span class="s2">&quot;主角吃了一碗面&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">count_trope_hits</span><span class="p">(</span><span class="n">beats</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_overuse_flagged_above_threshold</span><span class="p">():</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">Trope</span><span class="p">(</span><span class="s2">&quot;天降系统&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;系统面板&quot;</span><span class="p">,</span> <span class="s2">&quot;任务奖励&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;改&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">trope_overuse</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">trope_overuse</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run, verify FAIL.</strong></li>
+<li>[ ] <strong>Step 4: Implement</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/trope_detection/match_tropes.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Trope</span><span class="p">:</span>
+    <span class="n">trope</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">signatures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">overuse_threshold</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">rewrite_hint</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">count_trope_hits</span><span class="p">(</span><span class="n">beats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">trope</span><span class="p">:</span> <span class="n">Trope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count story beats that match any signature (keyword substring match).</span>
+
+<span class="sd">    NOTE: production uses LLM semantic matching in the scoring agent; this</span>
+<span class="sd">    deterministic helper supports the trope-detection unit test (spec §10)</span>
+<span class="sd">    and the fixture validation. Keyword match is the testable proxy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">beat</span> <span class="ow">in</span> <span class="n">beats</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">sig</span> <span class="ow">in</span> <span class="n">beat</span> <span class="k">for</span> <span class="n">sig</span> <span class="ow">in</span> <span class="n">trope</span><span class="o">.</span><span class="n">signatures</span><span class="p">):</span>
+            <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">hits</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">trope_overuse</span><span class="p">(</span><span class="n">hit_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">trope</span><span class="p">:</span> <span class="n">Trope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">hit_count</span> <span class="o">&gt;</span> <span class="n">trope</span><span class="o">.</span><span class="n">overuse_threshold</span>
+</code></pre></div>
+<p>Add <code>__init__.py</code> (re-export) and <code>__main__.py</code> (CLI: <code>uv run python -m shenbi.skill_utils.trope_detection --config genre-config.json --beats-file beats.txt</code>).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run, verify PASS.</strong></li>
+<li>[ ] <strong>Step 6: Commit</strong> — <code>git commit -m "feat(trope-detection): tropeInventory schema + match helper"</code></li>
+</ul>
+<h3 id="task-06-calibration-fixture-scaffolding-hash-lock-new-g014">Task 0.6: Calibration fixture scaffolding + hash lock (NEW G0.14)</h3>
+<p><strong>Files:</strong> <code>tests/fixtures/calibration/README.md</code> + <code>.gitkeep</code>s · Modify <code>src/shenbi/gates/g0.py</code> · <code>tests/tiers/deps.json</code></p>
+<blockquote>
+<p><strong>Correction (from reading g0.py):</strong> G0.11 only hashes explicit <code>mirror_map</code> pairs (e.g. <code>outline-example.md</code>↔source) — it does <strong>not</strong> cover arbitrary fixtures. So calibration anchors get a <strong>new G0.14</strong> check with its own hash lock (mirrors the existing <code>_tool_hashes</code> pattern in deps.json), not G0.11.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: Create README</strong> documenting the anchor schema: each file = <code>## excerpt</code> + <code>## expected_band</code> + <code>## rationale</code>; 3 anchors (high/mid/low) per dimension.</li>
+<li>[ ] <strong>Step 2: Add G0.14 to <code>gate_G0</code></strong> (before final return, after G0.13): compute a combined SHA256 over every file under <code>tests/fixtures/calibration/**</code>, compare to <code>deps.json._calibration_hashes.combined</code>; FAIL on mismatch (detects anchor tampering / drift). TDD: <code>tests/unit/gates/test_g0_calibration_hash.py</code> — tamper an anchor → FAIL; restore → PASS; missing lock entry → FAIL with "run lock script".</li>
+<li>[ ] <strong>Step 3: Extend <code>tests/lock-tool-hashes.sh</code></strong> to also compute &amp; write <code>_calibration_hashes</code> into deps.json (re-run after authoring anchors in Phase 2/3, and whenever anchors change).</li>
+<li>[ ] <strong>Step 4: Commit</strong> — <code>git commit -m "feat(calibration): scaffolding + G0.14 hash lock"</code></li>
+</ul>
+<hr />
+<h2 id="phase-1-c-foundation-review-anti-trope-dimension">Phase 1 — C: foundation-review anti-trope dimension</h2>
+<p>Depends on Phase 0 (tropeInventory). Small; validates the pattern.</p>
+<h3 id="task-11-modify-foundation-review-skillmd-rebalance">Task 1.1: Modify foundation-review SKILL.md (rebalance + 反套路维度)</h3>
+<p><strong>Files:</strong> Modify <code>skills/shenbi-foundation-review/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Rebalance the 5-dimension table to 6</strong> — replace the weights per spec §7.2: 核心冲突 30→25 (floor 18→15), 角色区分度 20→15, add 反套路/原创性 10. Add the rationale note (spec §7.2 再平衡 rationale).</li>
+<li>[ ] <strong>Step 2: Add the dimension scoring subsection</strong> — scoring worksheet rows for 反套路/原创性:
+<div class="highlight"><pre><span></span><code><span class="gu">### 六、反套路/原创性（满分10）</span>
+
+| 评分项 | 满分 | 得分 | 证据引用 | 裁判理由 |
+|--------|------|------|---------|---------|
+| 套路依赖度（核心节拍对照 genre-config.tropeInventory，命中数 ≤ overuse_threshold） | 5 | X | [文件:段落] | [≤1句] |
+| 反转/新颖度（核心设定存在 ≥1 处对题材套路的颠覆或新颖组合） | 5 | X | [文件:段落] | [≤1句] |
+| <span class="gs">**小计**</span> | <span class="gs">**10**</span> | <span class="gs">**XX**</span> | | |
+</code></pre></div></li>
+<li>[ ] <strong>Step 3: Add scoring procedure</strong> — "读取 <code>genre-config.json</code> 的 <code>tropeInventory</code>，将 <code>outline/story_frame.md</code> 的弧节拍对照每个套路的 <code>signatures</code>；命中数 &gt; <code>overuse_threshold</code> → 套路依赖度扣分，并列出命中的节拍 + <code>rewrite_hint</code>。"</li>
+<li>[ ] <strong>Step 4: Update 总评 table</strong> to 6 rows summing 100; keep ≥80 floor, 核心冲突 ≥15 sub-floor.</li>
+<li>[ ] <strong>Step 5: Update the T1 rubric</strong> <code>tests/tiers/t1-skill/shenbi-foundation-review/rubric.md</code> bespoke dimensions to reflect the 6-dim rubric.</li>
+<li>[ ] <strong>Step 6: Run G2/G4 + commit</strong> — <code>git commit -m "feat(foundation-review): add 反套路/原创性 dimension, rebalance to 6 dims"</code></li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> Rebalancing 30→25 / 20→15 invalidates prior <code>foundation-review</code> T1 scores (the rubric changed). Re-score foundation-review in the next test round; do not carry over old scores.</p>
+</blockquote>
+<hr />
+<h2 id="phase-2-a-shenbi-review-resonance-the-core">Phase 2 — A: shenbi-review-resonance (the core)</h2>
+<p>Depends on Phase 0 + 1. Largest phase.</p>
+<h3 id="task-21-drift-detection-util-smoothing-triggers">Task 2.1: Drift detection util (smoothing + triggers)</h3>
+<p><strong>Files:</strong> New <code>src/shenbi/skill_utils/drift_detection/__init__.py</code>, <code>compute_drift.py</code>, <code>__main__.py</code> · Test <code>tests/unit/skill_utils/test_drift_detection.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong> (per spec §8.3 triggers + §10 drift-trigger test)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/test_drift_detection.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.compute_drift</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">smooth</span><span class="p">,</span> <span class="n">detect_chapter_drift</span><span class="p">,</span> <span class="n">detect_volume_drift</span><span class="p">,</span> <span class="n">DriftFinding</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_smooth_3_point_window</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">smooth</span><span class="p">([</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_smooth_boundary_2_point</span><span class="p">():</span>
+    <span class="c1"># first/last use 2-point (self + sole neighbor)</span>
+    <span class="k">assert</span> <span class="n">smooth</span><span class="p">([</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span><span class="mf">11.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_drift_monotonic_decline_triggers</span><span class="p">():</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">24.0</span><span class="p">,</span> <span class="mf">23.0</span><span class="p">,</span> <span class="mf">21.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">]</span>  <span class="c1"># smoothed: ~24, 22.67, 20.67, 18.0 — monotonic decline ≥3</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;monotonic_decline&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_drift_sigma_requires_min_samples</span><span class="p">():</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">24.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]</span>  <span class="c1"># only 2 samples — sigma trigger must NOT fire</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;below_mean_2sigma&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_drift_stable_series_no_trigger</span><span class="p">():</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">22.0</span><span class="p">]</span><span class="o">*</span><span class="mi">8</span>
+    <span class="k">assert</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_drift_two_volume_decline_triggers</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">detect_volume_drift</span><span class="p">([</span><span class="mf">82.0</span><span class="p">,</span> <span class="mf">74.0</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span>   <span class="c1"># consecutive 2-volume decline</span>
+    <span class="k">assert</span> <span class="n">detect_volume_drift</span><span class="p">([</span><span class="mf">74.0</span><span class="p">,</span> <span class="mf">82.0</span><span class="p">])</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_chapter_drift_human_overridden_excluded</span><span class="p">():</span>
+    <span class="c1"># spec §8.3: human_overridden chapters excluded from trigger stats.</span>
+    <span class="c1"># Chapter index 2 overridden -&gt; must break the decline run (no false trigger),</span>
+    <span class="c1"># even though the raw series would otherwise fire monotonic_decline.</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">24.0</span><span class="p">,</span> <span class="mf">23.0</span><span class="p">,</span> <span class="mf">21.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                                <span class="n">exclude_indices</span><span class="o">=</span><span class="p">{</span><span class="mi">2</span><span class="p">})</span> <span class="o">==</span> <span class="p">[]</span>
+    <span class="c1"># and without exclusion it DOES fire (sanity):</span>
+    <span class="k">assert</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="o">!=</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run, verify FAIL.</strong></li>
+<li>[ ] <strong>Step 3: Implement</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/drift_detection/compute_drift.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DriftKind</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">MONOTONIC_DECLINE</span> <span class="o">=</span> <span class="s2">&quot;monotonic_decline&quot;</span>
+    <span class="n">BELOW_MEAN_2SIGMA</span> <span class="o">=</span> <span class="s2">&quot;below_mean_2sigma&quot;</span>
+    <span class="n">VOLUME_DECLINE</span> <span class="o">=</span> <span class="s2">&quot;volume_decline&quot;</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DriftFinding</span><span class="p">:</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">DriftKind</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">detail</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">smooth</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3-point moving average; 2-point at boundaries.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[(</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">scores</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">scores</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">scores</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">scores</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_chapter_drift</span><span class="p">(</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">min_samples_sigma</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="n">exclude_indices</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DriftFinding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec §8.3. exclude_indices = chapters flagged human_overridden (excluded</span>
+<span class="sd">    from trigger stats so overrides don&#39;t poison detection).&quot;&quot;&quot;</span>
+    <span class="n">excl</span> <span class="o">=</span> <span class="n">exclude_indices</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DriftFinding</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># (a) monotonic decline ≥3 consecutive non-excluded, cumulative ≥3</span>
+    <span class="n">run</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">prev</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">prev</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">prev</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DriftFinding</span><span class="p">(</span><span class="n">DriftKind</span><span class="o">.</span><span class="n">MONOTONIC_DECLINE</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> declined </span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="n">start</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> over chapters </span><span class="si">{</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="k">break</span>
+    <span class="c1"># (b) below mean − 2σ over non-excluded, ≥2 consecutive non-excluded</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_samples_sigma</span><span class="p">:</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span>
+        <span class="n">sd</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">pstdev</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1e-9</span>
+        <span class="n">below_run</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">excl</span><span class="p">:</span>
+                <span class="n">below_run</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">mean</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sd</span><span class="p">:</span>
+                <span class="n">below_run</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">below_run</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DriftFinding</span><span class="p">(</span><span class="n">DriftKind</span><span class="o">.</span><span class="n">BELOW_MEAN_2SIGMA</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> &lt; mean-2σ (</span><span class="si">{</span><span class="n">mean</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">sd</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) for ≥2 consecutive chapters&quot;</span><span class="p">))</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">below_run</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">findings</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_volume_drift</span><span class="p">(</span><span class="n">volume_scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DriftFinding</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">volume_scores</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">volume_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">volume_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">DriftFinding</span><span class="p">(</span><span class="n">DriftKind</span><span class="o">.</span><span class="n">VOLUME_DECLINE</span><span class="p">,</span> <span class="s2">&quot;overall&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;volume overall declined </span><span class="si">{</span><span class="n">volume_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">volume_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<p>Add <code>__init__.py</code> (re-export) and <code>__main__.py</code>. The CLI reads <code>truth/resonance_trend.md</code> and <code>truth/arc_payoff_trend.md</code> (see <strong>Trend file format</strong> below), prints <code>DriftFinding</code>s, and with <code>--write-audit-drift</code> appends them to <code>truth/audit_drift.md</code>. Exit code: non-zero if any finding (so drift-guidance / CI can gate on it).</p>
+<p><strong>Trend file format (machine-parseable — the contract between SKILL.md writers and the drift CLI):</strong></p>
+<p><code>truth/resonance_trend.md</code> — one markdown table row per chapter (the SKILL.md <code>### 趋势</code> section appends here):
+<div class="highlight"><pre><span></span><code>| chapter | chapter_role | 情感落地 | 场景临场感 | 文笔质感 | 读者回报 | overall | confidence | human_overridden |
+| 1 | 高潮 | 22 | 20 | 18 | 15 | 75 | high |  |
+| 2 | 过渡 | 14 | 18 | 20 | 13 | 65 | mid |  |
+| 3 | 高潮 | 12 | 16 | 18 | 10 | 56 | high | true |
+</code></pre></div></p>
+<p><code>truth/arc_payoff_trend.md</code> — one row per volume:
+<div class="highlight"><pre><span></span><code>| volume | 弧情感交付 | 伏笔兑现质量 | 线索收束 | 期待债务结算 | 角色弧推进 | overall |
+| 1 | 20 | 22 | 16 | 12 | 13 | 83 |
+</code></pre></div></p>
+<p>Parser (<code>compute_drift.parse_trend(path, dims) -&gt; dict[dim, list[(score, excluded)]]</code>): read the table, map header→column, collect per-dimension score lists + the <code>human_overridden</code> flag → <code>exclude_indices</code>. <strong>Rows with non-numeric scores (e.g. <code>overall = pending</code> from a failed dispatch, spec §9 / Task 4.3 Step 2b) are skipped</strong> — not coerced, not counted toward sample N (so a pending chapter doesn't corrupt σ). Unit-test the parser against the above fixtures (<code>tests/unit/skill_utils/test_drift_detection.py</code>: add <code>test_parse_resonance_trend_excludes_overridden</code> + <code>test_parse_skips_pending_rows</code>).</p>
+<ul>
+<li>[ ] <strong>Step 4: Run, verify PASS</strong> — all 6 tests green.</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>git commit -m "feat(drift-detection): smoothing + chapter/volume drift triggers"</code></li>
+</ul>
+<h3 id="task-22-confidence-calibration-util">Task 2.2: Confidence calibration util</h3>
+<p><strong>Files:</strong> <code>src/shenbi/skill_utils/calibration/__init__.py</code>, <code>confidence.py</code>, <code>__main__.py</code> · Test <code>tests/unit/skill_utils/test_calibration.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.calibration.confidence</span><span class="w"> </span><span class="kn">import</span> <span class="n">calibrate_confidence</span><span class="p">,</span> <span class="n">HitRate</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_high_confidence_downgraded_when_anchor_hitrate_low</span><span class="p">():</span>
+    <span class="c1"># scorer reported &quot;high&quot; but only hit 60% of anchors it judged high → downgrade to mid</span>
+    <span class="k">assert</span> <span class="n">calibrate_confidence</span><span class="p">(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">HitRate</span><span class="p">(</span><span class="n">high_confidence</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;mid&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_high_confidence_kept_when_hitrate_ok</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">calibrate_confidence</span><span class="p">(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">HitRate</span><span class="p">(</span><span class="n">high_confidence</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_low_never_upgraded</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">calibrate_confidence</span><span class="p">(</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="n">HitRate</span><span class="p">(</span><span class="n">high_confidence</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run FAIL.</strong></li>
+<li>[ ] <strong>Step 3: Implement</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/calibration/confidence.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HitRate</span><span class="p">:</span>
+    <span class="n">high_confidence</span><span class="p">:</span> <span class="nb">float</span>   <span class="c1"># fraction of high-confidence anchor judgments that were correct</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate_confidence</span><span class="p">(</span><span class="n">reported</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hr</span><span class="p">:</span> <span class="n">HitRate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM scorers are overconfident. Downgrade &#39;high&#39; → &#39;mid&#39; when anchor hit-rate &lt; threshold.</span>
+<span class="sd">    Never upgrade. (spec §8.2 置信度校准)&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">reported</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span> <span class="ow">and</span> <span class="n">hr</span><span class="o">.</span><span class="n">high_confidence</span> <span class="o">&lt;</span> <span class="n">hr</span><span class="o">.</span><span class="n">threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;mid&quot;</span>
+    <span class="k">return</span> <span class="n">reported</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: PASS · Step 5: Commit</strong> — <code>feat(calibration): confidence downgrade by anchor hit-rate</code></li>
+</ul>
+<h3 id="task-23-block-routing-util-3-path-revision-cap">Task 2.3: Block routing util (3-path + revision cap)</h3>
+<p><strong>Files:</strong> <code>src/shenbi/skill_utils/review_resonance/__init__.py</code>, <code>routing.py</code>, <code>__main__.py</code> · Test <code>tests/unit/skill_utils/test_routing.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.review_resonance.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">route_block</span><span class="p">,</span> <span class="n">Routing</span><span class="p">,</span> <span class="n">RevisionLoop</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clear_pass_when_above_threshold</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">route_block</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mi">82</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">floors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;情感落地&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">20</span><span class="p">)},</span>
+                    <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="n">Routing</span><span class="o">.</span><span class="n">PASS</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clear_fail_auto_revise</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">route_block</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">floors</span><span class="o">=</span><span class="p">{},</span> <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="n">Routing</span><span class="o">.</span><span class="n">AUTO_REVISE</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_borderline_goes_to_human</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">route_block</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mi">73</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">floors</span><span class="o">=</span><span class="p">{},</span> <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># within ±5</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="n">Routing</span><span class="o">.</span><span class="n">HUMAN_REVIEW</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_low_confidence_goes_to_human</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">route_block</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">floors</span><span class="o">=</span><span class="p">{},</span> <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="n">Routing</span><span class="o">.</span><span class="n">HUMAN_REVIEW</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_third_clear_fail_escalates_to_human</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">route_block</span><span class="p">(</span><span class="n">overall</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">75</span><span class="p">,</span> <span class="n">floors</span><span class="o">=</span><span class="p">{},</span> <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="n">Routing</span><span class="o">.</span><span class="n">HUMAN_REVIEW</span>   <span class="c1"># cap reached, no more auto-revise</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run FAIL.</strong></li>
+<li>[ ] <strong>Step 3: Implement</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/review_resonance/routing.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Routing</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">PASS</span> <span class="o">=</span> <span class="s2">&quot;pass&quot;</span>
+    <span class="n">AUTO_REVISE</span> <span class="o">=</span> <span class="s2">&quot;auto_revise&quot;</span>
+    <span class="n">HUMAN_REVIEW</span> <span class="o">=</span> <span class="s2">&quot;human_review&quot;</span>
+
+<span class="n">MAX_AUTO_REVISIONS</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">route_block</span><span class="p">(</span><span class="n">overall</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">floors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+                <span class="n">confidence</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prior_revisions</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Routing</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spec §5.4 three-path routing + 2-revision cap.&quot;&quot;&quot;</span>
+    <span class="n">floor_ok</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">score</span> <span class="o">&gt;=</span> <span class="n">floor</span> <span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">floor</span> <span class="ow">in</span> <span class="n">floors</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">overall</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="n">floor_ok</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Routing</span><span class="o">.</span><span class="n">PASS</span>
+    <span class="c1"># blocked below</span>
+    <span class="n">near_threshold</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">overall</span> <span class="o">-</span> <span class="n">threshold</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span>
+    <span class="k">if</span> <span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span> <span class="ow">or</span> <span class="n">near_threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Routing</span><span class="o">.</span><span class="n">HUMAN_REVIEW</span>
+    <span class="c1"># high confidence, clearly below (&gt;5 under threshold)</span>
+    <span class="k">if</span> <span class="n">prior_revisions</span> <span class="o">&gt;=</span> <span class="n">MAX_AUTO_REVISIONS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Routing</span><span class="o">.</span><span class="n">HUMAN_REVIEW</span>     <span class="c1"># cap → escalate</span>
+    <span class="k">return</span> <span class="n">Routing</span><span class="o">.</span><span class="n">AUTO_REVISE</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: PASS · Step 5: Commit</strong> — <code>feat(routing): 3-path block routing + revision cap</code></li>
+</ul>
+<h3 id="task-24-chapter-planning-skillmd-add-chapter_role-field">Task 2.4: chapter-planning SKILL.md — add <code>chapter_role</code> field</h3>
+<p><strong>Files:</strong> Modify <code>skills/shenbi-chapter-planning/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> In the chapter memo template (the 8-段式), add a required <code>chapter_role</code> field with allowed values <code>高潮/兑现 | 推进/转折 | 过渡/铺垫</code>. Place it in section 1 (本章核心任务) as a leading tag. Add a 铁律 line: "每个备忘必须声明 chapter_role，驱动 review-resonance 校准阈值（spec §5.1）".</li>
+<li>[ ] <strong>Step 2: Update G4 checker</strong> <code>src/shenbi/gates/g4/chapter_planning.py</code> to require the <code>chapter_role</code> token. TDD:</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_chapter_planning_role.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_plan_without_chapter_role_fails_g4</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">;</span> <span class="n">plan</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# plan</span><span class="se">\n</span><span class="s2">## 1. 核心任务</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># no chapter_role</span>
+    <span class="k">assert</span> <span class="s2">&quot;FAIL&quot;</span> <span class="ow">in</span> <span class="n">g4_chapter_planning</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">plan</span><span class="p">)],</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_plan_with_chapter_role_passes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plans/chapter-1-plan.md&quot;</span><span class="p">;</span> <span class="n">plan</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# plan</span><span class="se">\n</span><span class="s2">chapter_role: 高潮</span><span class="se">\n</span><span class="s2">## 1. 核心任务</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;PASS&quot;</span> <span class="ow">in</span> <span class="n">g4_chapter_planning</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">plan</span><span class="p">)],</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+Impl: in <code>g4_chapter_planning</code>, add a regex check <code>re.search(r"chapter_role\s*[:：]\s*(高潮|兑现|推进|转折|过渡|铺垫)", content)</code>; append <code>G4.cp.missing_chapter_role</code> on miss.
+- [ ] <strong>Step 3: Commit</strong> — <code>feat(chapter-planning): emit chapter_role for resonance calibration</code></p>
+<h3 id="task-25-chapter-drafting-skillmd-pre_write_check">Task 2.5: chapter-drafting SKILL.md — PRE_WRITE_CHECK +共鸣短板</h3>
+<p><strong>Files:</strong> Modify <code>skills/shenbi-chapter-drafting/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> In the PRE_WRITE_CHECK template, add a line <code>- 共鸣短板（读 truth/audit_drift）: [本章重点防范的体验轴短板]</code>. Update the output-format block identically.</li>
+<li>[ ] <strong>Step 2: Update G2.8</strong> is a substring check on <code>## PRE_WRITE_CHECK</code> — still passes. No gate change needed.</li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>feat(chapter-drafting): PRE_WRITE_CHECK reads resonance shortcomings</code></li>
+</ul>
+<h3 id="task-26-author-review-resonance-skillmd-full-content">Task 2.6: Author review-resonance SKILL.md (full content)</h3>
+<p><strong>Files:</strong> Create <code>skills/shenbi-review-resonance/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the SKILL.md</strong> — full content per spec §5. Frontmatter (corrected per R1/R2 — anchors NOT in reads, dict-form reads for fields):</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-review-resonance</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Use</span><span class="nv"> </span><span class="s">when</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">finished</span><span class="nv"> </span><span class="s">chapter</span><span class="nv"> </span><span class="s">needs</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">positive</span><span class="nv"> </span><span class="s">quality</span><span class="nv"> </span><span class="s">score</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">emotional</span><span class="nv"> </span><span class="s">landing,</span><span class="nv"> </span><span class="s">presence,</span><span class="nv"> </span><span class="s">prose</span><span class="nv"> </span><span class="s">craft,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">reader</span><span class="nv"> </span><span class="s">reward</span><span class="nv"> </span><span class="s">—</span><span class="nv"> </span><span class="s">runs</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">an</span><span class="nv"> </span><span class="s">independent</span><span class="nv"> </span><span class="s">agent&quot;</span>
+<span class="nt">requires_independent_agent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">report</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-N.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">prose</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">POST_WRITE_SELF_CHECK</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">plans/chapter-N-plan.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">chapter_role</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">core_task</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">style/style_profile.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">voice_fingerprint</span><span class="p p-Indicator">]}</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/chapter-N-resonance.md</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/resonance_trend.md</span>
+<span class="nn">---</span>
+</code></pre></div>
+<p>Body sections (per spec §5): HARD-GATE (no scoring without a chapter + plan); 铁律 (独立评分 anchor-first, 先确定性, show-not-tell evidence, confidence必报); 流程 DOT graph (read → load anchors → score 4 dims → route via §5.4 → write report + trend); 评分维度表 (§5.2); 校准门逻辑 (§5.3, read <code>chapter_role</code> → threshold); 置信度守护与分流 (§5.4 three-path table + revision cap); 输出格式 (§5.5 full template); 与现有负向门边界 (§5.6); Anti-Rationalization table; 缺陷证据格式 (4-element). The prose references <code>tests/fixtures/calibration/resonance/*.md</code> anchors (scorer input, not contract).</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify contract loads</strong> — <code>uv run python -c "from shenbi.contract import load_contract; print(load_contract('shenbi-review-resonance'))"</code></li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>feat(review-resonance): add skill</code></li>
+</ul>
+<h3 id="task-27-g4-checker-for-review-resonance">Task 2.7: G4 checker for review-resonance</h3>
+<p><strong>Files:</strong> New <code>src/shenbi/gates/g4/review_resonance.py</code> · Modify <code>src/shenbi/gates/g4/generic.py</code> · Test <code>tests/unit/gates/g4/test_review_resonance.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/g4/test_review_resonance.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.review_resonance</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_review_resonance</span>
+
+<span class="n">VALID</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;# 共鸣评分报告</span>
+<span class="s2">## 评分明细</span>
+<span class="s2">| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |</span>
+<span class="s2">| 情感落地 | 22 | 30 | high | `c.md` L45 | show |</span>
+<span class="s2">## 校准门判定</span>
+<span class="s2">判定: 通过</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_valid_report_passes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits/chapter-1-resonance.md&quot;</span><span class="p">;</span> <span class="n">f</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">VALID</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;PASS&quot;</span> <span class="ow">in</span> <span class="n">g4_review_resonance</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)],</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_confidence_column_fails</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits/chapter-1-resonance.md&quot;</span><span class="p">;</span> <span class="n">f</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 共鸣评分报告</span><span class="se">\n</span><span class="s2">## 评分明细</span><span class="se">\n</span><span class="s2">| 维度 | 得分 |</span><span class="se">\n</span><span class="s2">| x | 10 |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;FAIL&quot;</span> <span class="ow">in</span> <span class="n">g4_review_resonance</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)],</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run FAIL.</strong></li>
+<li>[ ] <strong>Step 3: Implement</strong> — validate the report has: 评分明细 table with columns (维度/得分/满分/置信度/证据/裁判理由), 校准门判定 section with a 判定 line (通过/阻断/待人机复核), evidence with file+line refs. Use regex checks analogous to <code>g4_generic_bughunt</code>.</li>
+<li>[ ] <strong>Step 4: Register in router</strong> — in <code>generic.py</code> <code>gate_G4</code>, add to the late-imports + checkers dict: <code>"shenbi-review-resonance": g4_review_resonance</code>. <strong>Also</strong> add <code>shenbi-review-resonance</code> to <code>G4_CHECKER_SKILLS</code> in <code>src/shenbi/gates/shared.py</code> (keeps G0.12 coverage accounting correct).</li>
+<li>[ ] <strong>Step 5: PASS · Step 6: Commit</strong> — <code>feat(g4): review-resonance checker</code></li>
+</ul>
+<h3 id="task-28-drift-guidance-skillmd-read-trends-run-drift-triggers">Task 2.8: drift-guidance SKILL.md — read trends, run drift triggers</h3>
+<p><strong>Files:</strong> Modify <code>skills/shenbi-drift-guidance/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Add a flow step: "读取 <code>truth/resonance_trend.md</code> 与 <code>truth/arc_payoff_trend.md</code>，调用 <code>python -m shenbi.skill_utils.drift_detection</code> 得到 DriftFinding，将 findings 写入 <code>truth/audit_drift.md</code>（逐章纠偏 + 卷级纠偏）". Reference the trigger definitions in spec §8.3 (do not redefine).</li>
+<li>[ ] <strong>Step 2: Commit</strong> — <code>feat(drift-guidance): consume resonance/arc trends, emit drift findings</code></li>
+</ul>
+<h3 id="task-29-calibration-anchor-fixtures-resonance-4-dims-3-levels">Task 2.9: Calibration anchor fixtures (resonance, 4 dims × 3 levels)</h3>
+<p><strong>Files:</strong> <code>tests/fixtures/calibration/resonance/{情感落地,场景临场感,文笔质感,读者回报}/{high,mid,low}.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Author 12 anchor files per the Phase 0.6 schema. Each: a real ~150-word prose excerpt + <code>expected_band</code> (e.g., 情感落地 high → 24-30) + rationale. These are human-curated (spec §8.2 bootstrap). The high/mid/low must be clearly distinguishable on that dimension.</li>
+<li>[ ] <strong>Step 2: Verify hash</strong> — G0.11 covers them.</li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>feat(calibration): resonance anchor fixtures (4 dims × 3 levels)</code></li>
+</ul>
+<h3 id="task-210-t1-test-dir-for-review-resonance">Task 2.10: T1 test dir for review-resonance</h3>
+<p><strong>Files:</strong> <code>tests/tiers/t1-skill/shenbi-review-resonance/{rubric.md, generative/input/scenario.md, bug-hunt/input/scenario.md, bug-hunt/expected/expected-output.md, clean/input/scenario.md, clean/expected/expected-output.md}</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Rubric</strong> per the <code>_template/rubric.md</code> structure: Universal 15% (adherence 10%, completeness 5%) + Bespoke 85% covering: 4-dim scoring quality (40%), evidence rigor/file+line (20%), confidence+routing correctness (15%), gate-decision correctness (10%). Bug-hunt kill switch: missed planted resonance flaw → 0; misclassified as anti-ai → 0. Clean kill switch: hallucinated deduction → 0.</li>
+<li>[ ] <strong>Step 2: generative scenario</strong> — a fixture chapter + plan + style_profile + genre-config; skill must produce a scored report.</li>
+<li>[ ] <strong>Step 3: bug-hunt scenario</strong> — inject a resonance-specific flaw (spec §10: 欠交付/压平高潮/无回报 — NOT an anti-ai tell); expected output = the flaw located + score dropped.</li>
+<li>[ ] <strong>Step 4: clean scenario</strong> — strong chapter; expected = high scores, zero deductions.</li>
+<li>[ ] <strong>Step 5: Commit</strong> — <code>feat(t1): review-resonance test dir</code></li>
+</ul>
+<h3 id="task-211-unit-tests-for-the-new-deterministic-test-types-spec-10">Task 2.11: Unit tests for the new deterministic test-types (spec §10)</h3>
+<p><strong>Files:</strong> <code>tests/unit/skill_utils/test_drift_triggers_integration.py</code>, <code>tests/unit/skill_utils/test_confidence_routing_integration.py</code>, <code>tests/unit/skill_utils/test_trope_detection.py</code> (extended)</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Integration tests that exercise the full drift-trigger path (trend fixture → <code>detect_chapter_drift</code> → findings match spec §8.3 positive/negative cases), the confidence→routing path (high+low-hitrate → mid → routing changes AUTO_REVISE→HUMAN_REVIEW), and trope overuse detection. These are the §10 "漂移触发/置信度校准/套路检测" tests.</li>
+<li>[ ] <strong>Step 2: Commit</strong> — <code>test: deterministic-logic integration for resonance</code></li>
+</ul>
+<hr />
+<h2 id="phase-3-b-shenbi-review-arc-payoff">Phase 3 — B: shenbi-review-arc-payoff</h2>
+<p>Depends on Phase 2 (shares calibration/routing/independence pattern + reads <code>resonance_trend</code>).</p>
+<h3 id="task-31-author-review-arc-payoff-skillmd">Task 3.1: Author review-arc-payoff SKILL.md</h3>
+<p><strong>Files:</strong> Create <code>skills/shenbi-review-arc-payoff/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong> per spec §6. Frontmatter (R1/R2 corrected):</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-review-arc-payoff</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Use</span><span class="nv"> </span><span class="s">at</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">volume/arc</span><span class="nv"> </span><span class="s">boundary</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">gate</span><span class="nv"> </span><span class="s">advancement</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">arc</span><span class="nv"> </span><span class="s">emotional</span><span class="nv"> </span><span class="s">delivery,</span><span class="nv"> </span><span class="s">foreshadowing</span><span class="nv"> </span><span class="s">payoff</span><span class="nv"> </span><span class="s">quality,</span><span class="nv"> </span><span class="s">thread</span><span class="nv"> </span><span class="s">resolution,</span><span class="nv"> </span><span class="s">expectation-debt</span><span class="nv"> </span><span class="s">settlement,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">character</span><span class="nv"> </span><span class="s">arc</span><span class="nv"> </span><span class="s">—</span><span class="nv"> </span><span class="s">runs</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">an</span><span class="nv"> </span><span class="s">independent</span><span class="nv"> </span><span class="s">agent&quot;</span>
+<span class="nt">requires_independent_agent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">report</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/*.md</span><span class="w">                       </span><span class="c1"># narrowed to arc range in prose</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/volume_map.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">volume_promise</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">arc_beats</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/pending_hooks.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">resolved_this_arc</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">carried_forward</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/resonance_trend.md</span><span class="w">            </span><span class="c1"># §6.3 弧情感交付佐证</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/volume-N-payoff.md</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/arc_payoff_trend.md</span>
+<span class="nn">---</span>
+</code></pre></div>
+<p>Body: HARD-GATE (前置: 弧内章节全部 resonance 通过); 铁律; 流程 (read arc chapters + trends → score 5 dims → gate); 评分维度表 (§6.3 incl. 期待债务结算 Chase-Power logic + resonance_trend 用途 note); 门逻辑 (§6.4: ≥80 且 伏笔兑现质量≥15); 输出格式; Anti-Rationalization; 证据格式.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify contract</strong> — <code>uv run python -c "from shenbi.contract import load_contract; print(load_contract('shenbi-review-arc-payoff'))"</code></li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>feat(review-arc-payoff): add skill</code></li>
+</ul>
+<h3 id="task-32-g4-checker-for-review-arc-payoff-register">Task 3.2: G4 checker for review-arc-payoff + register</h3>
+<p><strong>Files:</strong> New <code>src/shenbi/gates/g4/review_arc_payoff.py</code> · Modify <code>generic.py</code> · Test</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> TDD + implement, analogous to Task 2.7 (validate 5-dim table + 门判定 + 伏笔兑现质量 sub-floor). Register <code>"shenbi-review-arc-payoff": g4_review_arc_payoff</code>.</li>
+<li>[ ] <strong>Step 2: Commit</strong> — <code>feat(g4): review-arc-payoff checker</code></li>
+</ul>
+<h3 id="task-33-volume-consolidation-skillmd-invoke-b-at-boundary">Task 3.3: volume-consolidation SKILL.md — invoke B at boundary</h3>
+<p><strong>Files:</strong> Modify <code>skills/shenbi-volume-consolidation/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Add flow step: "卷 consolidation 完成后，触发 <code>shenbi-review-arc-payoff</code>（独立 agent）。B 未通过（&lt;80 或 伏笔兑现质量&lt;15）→ 阻断下一卷推进，按处方修订。"</li>
+<li>[ ] <strong>Step 2: Commit</strong> — <code>feat(volume-consolidation): invoke arc-payoff gate at boundary</code></li>
+</ul>
+<h3 id="task-34-calibration-anchor-fixtures-arc-payoff-5-dims-3-levels">Task 3.4: Calibration anchor fixtures (arc-payoff, 5 dims × 3 levels)</h3>
+<p><strong>Files:</strong> <code>tests/fixtures/calibration/arc-payoff/{弧情感交付,伏笔兑现质量,线索收束,期待债务结算,角色弧推进}/{high,mid,low}.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> 15 anchor files. For 伏笔兑现质量: high = surprising+earned payoff excerpt; low = perfunctory payoff excerpt. Commit.</li>
+</ul>
+<h3 id="task-35-t1-test-dir-for-review-arc-payoff">Task 3.5: T1 test dir for review-arc-payoff</h3>
+<p><strong>Files:</strong> <code>tests/tiers/t1-skill/shenbi-review-arc-payoff/{rubric.md, generative|bug-hunt|clean/...}</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Mirror Task 2.10 structure. bug-hunt injects a perfunctory-payoff flaw (not an anti-ai tell). Commit.</li>
+</ul>
+<h3 id="task-36-cross-volume-drift-macro-trigger-test">Task 3.6: Cross-volume drift macro-trigger test</h3>
+<p><strong>Files:</strong> <code>tests/unit/skill_utils/test_volume_drift_macro.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Fixture <code>arc_payoff_trend</code> sequences: declining (82→74→68) → assert <code>detect_volume_drift</code> fires + would block next volume per §8.3 macro trigger; stable → no fire. Commit.</li>
+</ul>
+<hr />
+<h2 id="phase-4-integration-framework-wiring">Phase 4 — Integration &amp; framework wiring</h2>
+<h3 id="task-41-depsjson-register-ab">Task 4.1: deps.json — register A/B</h3>
+<p><strong>Files:</strong> Modify <code>tests/tiers/deps.json</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Add <code>shenbi-review-resonance</code> to the <code>drafting</code> t2-phase prerequisites (after <code>shenbi-style-polishing</code>); add <code>shenbi-review-arc-payoff</code> to a <code>consolidation</code> phase (or <code>drafting</code> volume-boundary) prerequisites. If no consolidation phase exists, add A/B to <code>_out_of_pipeline</code> with a note, and ensure the T2/T3 fixtures reference them at the right stage.</li>
+<li>[ ] <strong>Step 2: Commit</strong> — <code>feat(deps): register review-resonance + review-arc-payoff</code></li>
+</ul>
+<h3 id="task-42-regenerate-contracts-dag">Task 4.2: Regenerate contracts / DAG</h3>
+<ul>
+<li>[ ] <strong>Step 1:</strong> <code>uv run shenbi-validate</code> contract sync (or <code>uv run python -m shenbi.sync_contracts</code>) to regenerate <code>docs/framework/dependency-dag.json</code> including A/B edges.</li>
+<li>[ ] <strong>Step 2:</strong> Verify no contract-completeness lint errors (<code>just check</code>).</li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>chore(contracts): regenerate DAG with A/B</code></li>
+</ul>
+<h3 id="task-43-using-shenbi-trigger-map-audit-activation">Task 4.3: using-shenbi trigger map + audit activation</h3>
+<p><strong>Files:</strong> Modify <code>skills/using-shenbi/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Add to the Skill Trigger Map: 「共鸣评分」/「正向质量」/「这章写得好不好」 → <code>shenbi-review-resonance</code>; 「卷质量」/「整卷交付」/「伏笔兑现」 → <code>shenbi-review-arc-payoff</code>.</li>
+<li>[ ] <strong>Step 2:</strong> Add resonance + arc-payoff to the default audit activation list (resonance per-chapter default-on; arc-payoff at volume boundary).</li>
+<li>[ ] <strong>Step 2b:</strong> Document the <code>resonance_pending</code> dispatch-failure path (spec §9): if <code>review-resonance</code> dispatch fails (timeout/error after provider retry), the orchestrator marks the chapter <code>resonance_pending</code> in <code>truth/resonance_trend.md</code> (a row with overall = <code>pending</code>), does <strong>not</strong> block <code>chapter-drafting</code> of the next chapter, and queues re-evaluation. Add this as a 铁律/flow note in <code>using-shenbi</code>. (No code — orchestration behavior; the trend parser in Task 2.1 must treat <code>pending</code> rows as non-numeric/skip.)</li>
+<li>[ ] <strong>Step 3: Commit</strong> — <code>feat(using-shenbi): trigger map + audit activation for positive gates</code></li>
+</ul>
+<h3 id="task-44-re-lock-tool-hashes-full-g0">Task 4.4: Re-lock tool hashes + full G0</h3>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Tool files changed (<code>contract.py</code>, <code>g0.py</code>, <code>g4/*</code>, <code>skill_utils/*</code>) → run <code>bash tests/lock-tool-hashes.sh</code> to update <code>deps.json._tool_hashes</code>.</li>
+<li>[ ] <strong>Step 2:</strong> <code>uv run shenbi-validate G0 &lt;seed&gt;</code> (via <code>bash tests/round-exec.sh claude T1</code>) — confirm G0 PASS including the new G0.independence check.</li>
+<li>[ ] <strong>Step 3:</strong> <code>just check</code> (ruff + mypy + pytest, 80% branch / 90% line coverage).</li>
+<li>[ ] <strong>Step 4: Commit</strong> — <code>chore: re-lock tool hashes; G0 green with positive gates</code></li>
+</ul>
+<hr />
+<h2 id="self-review-run-after-writing-findings-already-folded-in-above">Self-Review (run after writing — findings already folded in above)</h2>
+<p><strong>1. Spec coverage:</strong> Every spec section maps to a task — §5→Tasks 2.1-2.11; §6→3.1-3.6; §7→1.1; §8.1→0.1/0.3/0.4; §8.2→0.6/2.2/2.9/3.4; §8.3→2.1/2.8/3.6; §8.4→0.5/1.1; §8.5→2.4/2.5/2.8/3.3/0.4; §9→2.3 + the §9 rows are behavior, validated via tests; §10→2.10/2.11/3.5/3.6 + calibration tests; §11/12/13→covered by structure. <strong>Two spec corrections (R1/R2) documented at top — these override the spec's frontmatter sketches.</strong></p>
+<p><strong>2. Placeholder scan:</strong> No "TBD/TODO". Migrations (Task 0.4) are a precise batch edit with explicit file list + identical edit (not a placeholder — it's a deterministic operation). Fixture authoring (2.9/3.4) specifies exact schema + dimension/level matrix; prose content is legitimately creative test-data, not a plan gap.</p>
+<p><strong>3. Type consistency:</strong> <code>Routing</code> enum, <code>DriftFinding</code>/<code>DriftKind</code>, <code>Trope</code>, <code>HitRate</code> defined once and reused across tasks/tests. <code>route_block</code> signature consistent in test + impl. <code>requires_independent_agent</code> loader signature consistent.</p>
+<p><strong>Open items deferred to execution (legitimate, not placeholders):</strong>
+- Exact regex patterns in G4 checkers (2.7/3.2) follow the established <code>g4_generic_bughunt</code> pattern; final patterns tuned against real outputs during T1.
+- Anchor fixture prose content (2.9/3.4) is human-curated creative data per spec §8.2 bootstrap.</p>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan complete and saved to <code>docs/superpowers/plans/2026-06-22-positive-quality-gates.md</code>. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> — I dispatch a fresh subagent per task, review between tasks, fast iteration. Best for a plan this size (4 phases, ~25 tasks).</p>
+<p><strong>2. Inline Execution</strong> — Execute tasks in this session using executing-plans, batch execution with checkpoints.</p>
+<p>Which approach? (Phase 0 first regardless — it unblocks everything and validates the contract/gate integration before authoring skills.)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

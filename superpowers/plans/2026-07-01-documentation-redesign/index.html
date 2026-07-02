@@ -1,0 +1,1845 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-01-documentation-redesign/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Documentation Redesign — Wave 1 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Documentation Redesign — Wave 1 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-01-documentation-redesign.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-01-documentation-redesign/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Documentation Redesign — Wave 1 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-01-documentation-redesign.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation-redesign-wave-1-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation Redesign — Wave 1 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-infrastructure-pymdown-extensions-mermaid-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Infrastructure — pymdown-extensions + Mermaid config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-skill-catalog-docsskillsindexmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Skill catalog — docs/skills/index.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-architecture-overview-docsarchitectureoverviewmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Architecture overview — docs/architecture/overview.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-landing-page-docsindexmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Landing page — docs/index.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-installation-guide-docsgetting-startedinstallationmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Installation guide — docs/getting-started/installation.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-core-concepts-docsgetting-startedconceptsmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Core concepts — docs/getting-started/concepts.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-first-novel-walkthrough-docsgetting-startedfirst-novelmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: First novel walkthrough — docs/getting-started/first-novel.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-readme-readmemd-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: README — README.md (root)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-update-mkdocsyml-nav-final-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: Update mkdocs.yml nav + final verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="documentation-redesign-wave-1-implementation-plan">Documentation Redesign — Wave 1 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Rewrite Shenbi's entire user-facing documentation surface (README + 6 docs pages) into substantive bilingual content, replacing current stubs.</p>
+<p><strong>Architecture:</strong> Nine tasks building from infrastructure (Mermaid config, dependency) through individual page writes, ending with nav update and full build verification. Each task produces a committable, build-verifiable deliverable. All factual claims sourced from <code>tests/tiers/deps.json</code>.</p>
+<p><strong>Tech Stack:</strong> mkdocs-material, pymdown-extensions (Mermaid), Markdown, Python (uv for dep management).</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Bilingual: Chinese-primary, English below it, consistently across all pages</li>
+<li>Phase data source of truth: <code>tests/tiers/deps.json</code> (<code>t2-phases</code>, <code>t3-pipelines</code>, <code>_out_of_pipeline</code>)</li>
+<li>Scoring thresholds: <code>tests/tiers/acceptance.json</code> (<code>{"t1":94,"t2":94,"t3":94}</code>)</li>
+<li>Skill descriptions pulled verbatim from SKILL.md frontmatter <code>description</code> field</li>
+<li>Nav policy: additive (preserve existing Framework/API/ADR nav entries)</li>
+<li>Python: <code>&gt;=3.11</code>, uv: <code>&gt;=0.5</code> (required — the justfile uses <code>uv run</code> for all recipes), just: required</li>
+<li>Docs build verification: <code>uv run mkdocs build --strict</code> (CI uses this; strict = warnings are errors)</li>
+<li>69 skills total: 67 writing + 2 meta</li>
+<li>9 T2 phases: genesis, architecture, planning, drafting, audit, foundation, management, import, short-story</li>
+<li>3 T3 pipelines: long-form, short-form, import-form</li>
+<li>GitHub repo: <code>ThomasChangX/shenbi</code></li>
+</ul>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Action</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>Modify</td>
+<td>Add <code>pymdown-extensions</code> to <code>[dependency-groups] docs</code></td>
+</tr>
+<tr>
+<td><code>mkdocs.yml</code></td>
+<td>Modify</td>
+<td>Add <code>markdown_extensions</code> (Mermaid) + update <code>nav</code> (additive)</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Rewrite</td>
+<td>Repo landing: pitch, quick start, skill overview, links</td>
+</tr>
+<tr>
+<td><code>docs/index.md</code></td>
+<td>Rewrite</td>
+<td>Docs landing: problem, feature cards, dual audience paths</td>
+</tr>
+<tr>
+<td><code>docs/getting-started/installation.md</code></td>
+<td>Rewrite</td>
+<td>Setup guide: prerequisites, install, verify</td>
+</tr>
+<tr>
+<td><code>docs/getting-started/concepts.md</code></td>
+<td>Rewrite</td>
+<td>Core vocabulary: skills, truth files, gates, rounds, scoring</td>
+</tr>
+<tr>
+<td><code>docs/getting-started/first-novel.md</code></td>
+<td>Rewrite</td>
+<td>End-to-end long-form workflow walkthrough</td>
+</tr>
+<tr>
+<td><code>docs/skills/index.md</code></td>
+<td>Rewrite</td>
+<td>Full 69-skill catalog grouped by 9 phases + out-of-pipeline</td>
+</tr>
+<tr>
+<td><code>docs/architecture/overview.md</code></td>
+<td>Create</td>
+<td>Pipeline + gates + scoring + truth files with Mermaid diagrams</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-infrastructure-pymdown-extensions-mermaid-config">Task 1: Infrastructure — pymdown-extensions + Mermaid config</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (add dependency)
+- Modify: <code>mkdocs.yml</code> (add markdown_extensions)</p>
+<p><strong>Interfaces:</strong>
+- Produces: Mermaid rendering capability for all subsequent pages</p>
+<ul>
+<li>[ ] <strong>Step 1: Add pymdown-extensions to docs dependency group</strong></li>
+</ul>
+<p>In <code>pyproject.toml</code>, find the <code>[dependency-groups] docs</code> section and add <code>pymdown-extensions</code>:</p>
+<pre><code>docs = [
+    "mkdocs&gt;=1.5.3",
+    "mkdocs-material[imaging]&gt;=9.5.4",
+    "mkdocstrings[python]&gt;=0.24.0",
+    "pymdown-extensions&gt;=10.0",
+]
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Sync dependencies</strong></li>
+</ul>
+<p>Run: <code>uv sync --group docs</code>
+Expected: <code>pymdown-extensions</code> installed successfully.</p>
+<ul>
+<li>[ ] <strong>Step 3: Add markdown_extensions to mkdocs.yml</strong></li>
+</ul>
+<p>In <code>mkdocs.yml</code>, add a <code>markdown_extensions</code> section after the <code>theme</code> block (before <code>plugins</code>):</p>
+<pre><code>markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Create architecture directory</strong></li>
+</ul>
+<p>Run: <code>mkdir -p docs/architecture</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Verify existing build still passes</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds with no errors.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+<p>git add pyproject.toml uv.lock mkdocs.yml
+git commit -m "docs: add pymdown-extensions and Mermaid config for documentation redesign"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-2-skill-catalog-docsskillsindexmd">Task 2: Skill catalog — docs/skills/index.md</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>docs/skills/index.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: skill descriptions from SKILL.md frontmatter; phase groupings from <code>tests/tiers/deps.json</code>
+- Produces: the authoritative skill catalog referenced by README, architecture, and first-novel pages</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete skill catalog page</strong></li>
+</ul>
+<p>Write the following content to <code>docs/skills/index.md</code>. Phase groupings and skill lists come from <code>tests/tiers/deps.json</code> <code>t2-phases[].prerequisites</code>. Descriptions are pulled from each skill's <code>SKILL.md</code> frontmatter <code>description</code> field (truncated to ~100 chars where needed). Chinese phase headers; English descriptions as-is from frontmatter.</p>
+<p>The page structure is:</p>
+<pre><code># 技能目录 / Skill Catalog
+
+Shenbi 包含 67 个写作技能和 2 个元技能，按 9 个 T2 阶段组织。以下数据源自 tests/tiers/deps.json。
+
+Shenbi includes 67 writing skills and 2 meta-skills, organized by 9 T2 phases. All groupings below are sourced from tests/tiers/deps.json.
+</code></pre>
+<p>Then for each of the 9 phases, a section with bilingual header, a 1-2 sentence description, and a table of skills. The exact phase content:</p>
+<p><strong>Genesis / 创世</strong> (11 skills): worldbuilding, power-system, faction-builder, location-builder, character-design, relationship-map, story-architecture, volume-outlining, genre-config, pacing-design, book-spine-init</p>
+<p><strong>Architecture / 架构</strong> (5 skills): story-architecture, volume-outlining, pacing-design, plot-thread-weaver, genre-config. Note: some overlap with Genesis.</p>
+<p><strong>Planning / 规划</strong> (3 skills): chapter-planning, foreshadowing-plant, context-composing</p>
+<p><strong>Drafting / 起草</strong> (9 skills): chapter-drafting, state-settling, foreshadowing-track, style-polishing, review-resonance, anti-detect, length-normalizing, foreshadowing-recall, score-arc</p>
+<p><strong>Audit / 审计</strong> (18 skills): review-character, review-continuity, review-dialogue, review-pacing, review-anti-ai, review-foreshadowing, review-world-rules, review-sensitivity, review-memo-compliance, review-motivation, review-pov, review-reader-pull, review-highpoint, review-texture, review-long-span, review-era, review-fanfic, review-spinoff</p>
+<p><strong>Foundation / 基设</strong> (4 skills): foundation-review, chapter-revision, truth-sync, style-learning</p>
+<p><strong>Management / 管理</strong> (9 skills): snapshot-manage, drift-guidance, intent-management, chapter-pattern, volume-consolidation, review-arc-payoff, memory-distill, score-volume, score-stratum</p>
+<p><strong>Import / 导入</strong> (4 skills): import-analysis, character-extraction, world-extraction, canon-import</p>
+<p><strong>Short Story / 短篇</strong> (3 skills): short-outline, short-drafting, short-packaging</p>
+<p>Then an <strong>Out-of-Pipeline</strong> section with three subsections:
+- Auxiliary (4): market-radar, sequel-writing, anchor-curate, escalation-review
+- Meta (2): using-shenbi, shenbi-writing-skills
+- Drafting Helper (1): foreshadowing-resolve</p>
+<p>Each table row: <code>| shenbi-&lt;name&gt; | &lt;description from SKILL.md frontmatter&gt; |</code></p>
+<p>End with a note: some skills appear in multiple phases (e.g., genre-config in both Genesis and Architecture). This reflects deps.json, not an error. Total unique: 69 (67 writing + 2 meta).</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify docs build</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify skill count</strong></li>
+</ul>
+<p>Skills appear in multiple phases (e.g., genre-config in both Genesis and Architecture), so total rows will exceed unique count. Verify both row count and unique count:</p>
+<p>Run: <code>rg "^\\| shenbi-" docs/skills/index.md | wc -l</code>
+Expected: 72 (total rows including cross-phase duplicates: 66 in phase tables + 4 auxiliary + 1 writing-skills + 1 foreshadowing-resolve)</p>
+<p>Run: <code>rg "^\\| shenbi-" docs/skills/index.md | sed 's/| shenbi-//' | sed 's/ |.*//' | sort -u | wc -l</code>
+Expected: 68 (unique shenbi-* skills: 67 functional + 1 meta writing-skills; using-shenbi is excluded by the regex)</p>
+<p>Run: <code>rg "^\\| using-shenbi" docs/skills/index.md | wc -l</code>
+Expected: 1</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: Commit</strong></p>
+<p>git add docs/skills/index.md
+git commit -m "docs: rewrite skill catalog with all 69 skills grouped by 9 T2 phases"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-3-architecture-overview-docsarchitectureoverviewmd">Task 3: Architecture overview — docs/architecture/overview.md</h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/architecture/overview.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete architecture overview page</strong></li>
+</ul>
+<p>Write a page with 4 sections, each a few paragraphs with Mermaid diagrams. Bilingual (Chinese first, English below).</p>
+<p><strong>Section 1: 流水线 / The Pipeline</strong></p>
+<p>Mermaid diagram (use this exact code):</p>
+<pre><code>```mermaid
+graph LR
+    subgraph Long-Form["长篇 / Long-Form"]
+        G["创世&lt;br/&gt;Genesis"] --&gt;|"truth files"| A["架构&lt;br/&gt;Architecture"]
+        A --&gt;|"truth files"| P["规划&lt;br/&gt;Planning"]
+        P --&gt;|"truth files"| D["起草&lt;br/&gt;Drafting"]
+        D --&gt;|"truth files"| AU["审计&lt;br/&gt;Audit"]
+        AU --&gt;|"truth files"| F["基设&lt;br/&gt;Foundation"]
+        F --&gt;|"truth files"| M["管理&lt;br/&gt;Management"]
+    end
+    subgraph Short["短篇 / Short-Form"]
+        S["短篇&lt;br/&gt;Short Story"]
+    end
+    subgraph Import["导入 / Import-Form"]
+        I["导入&lt;br/&gt;Import"]
+    end
+```
+</code></pre>
+<p>Table of 3 T3 pipelines (from deps.json <code>t3-pipelines</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Phase Sequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Long-form</td>
+<td>genesis -&gt; architecture -&gt; planning -&gt; drafting -&gt; audit -&gt; foundation -&gt; management</td>
+</tr>
+<tr>
+<td>Short-form</td>
+<td>short-story</td>
+</tr>
+<tr>
+<td>Import-form</td>
+<td>import</td>
+</tr>
+</tbody>
+</table>
+<p>Note: data flows between phases via truth files.</p>
+<p><strong>Section 2: 门控链 / The Gate Chain</strong></p>
+<p>Table of G0-G7 (8 gates) with checkpoint and purpose:</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Checkpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0</td>
+<td>Round creation</td>
+<td>Environment integrity: tool hashes, fixture purity, progress.json consistency</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>Pre-dispatch</td>
+<td>Input file validation</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Output validation</td>
+<td>Output file structure and content validation</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Scoring readiness</td>
+<td>Scoring precondition check</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Skill quality</td>
+<td>Skill-specific structural check + gate marker generation</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Phase boundary</td>
+<td>T2 phase transition validation</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>Pipeline integrity</td>
+<td>T3 end-to-end validation</td>
+</tr>
+<tr>
+<td>G7</td>
+<td>Post-round audit</td>
+<td>Round closure audit: tool tamper, gate mismatch</td>
+</tr>
+</tbody>
+</table>
+<p>Mermaid gate chain flow (use this exact code):</p>
+<pre><code>```mermaid
+graph LR
+    S["开始 / Start"] --&gt; G0{"G0&lt;br/&gt;环境?"}
+    G0 --&gt;|Pass| G1{"G1&lt;br/&gt;输入?"}
+    G0 --&gt;|Fail| FIX["修复 / Fix"]
+    FIX --&gt; G0
+    G1 --&gt;|Pass| DISP["分派技能 / Dispatch"]
+    G1 --&gt;|Fail| FIX
+    DISP --&gt; G2{"G2&lt;br/&gt;输出?"}
+    G2 --&gt;|Pass| G4{"G4&lt;br/&gt;质量?"}
+    G2 --&gt;|Fail| DISP
+    G4 --&gt;|Pass| G3{"G3&lt;br/&gt;评分就绪?"}
+    G4 --&gt;|Fail| DISP
+    G3 --&gt;|Pass| SCORE["独立评分 / Score"]
+    G3 --&gt;|Fail| FIX
+    SCORE --&gt; G7{"G7&lt;br/&gt;审计?"}
+    G7 --&gt;|Pass| DONE["完成 / Done"]
+    G7 --&gt;|Fail| FIX
+```
+</code></pre>
+<p>Caption below the diagram: "Note: This diagram shows the per-dispatch quality loop. G5 (phase boundary) and G6 (pipeline integrity) fire at T2 phase transitions and T3 pipeline boundaries respectively, outside this per-skill loop."</p>
+<p>Gate rules: G0 block = fix and re-pass; G2/G4 fail = not scored; scoring must use independent subagent (G3.4).</p>
+<p><strong>Section 3: 评分层级 / The Scoring Tiers</strong></p>
+<p>Table of T1/T2/T3 with scope and threshold (94 for all, from acceptance.json):</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Scope</th>
+<th>Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>Per-skill</td>
+<td>&gt;= 94</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Per-phase (9 phases)</td>
+<td>&gt;= 94</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>End-to-end (3 pipelines)</td>
+<td>&gt;= 94</td>
+</tr>
+</tbody>
+</table>
+<p>Three test types: generative (generate output and score), bug-hunt (detect injected defects), clean (review clean input; hallucinated defect = score 0).</p>
+<p>Convergence target: 100. Repair loop for &lt;94: read scoring report, identify root cause (missing template / rubric conflict / output defect), fix and re-run.</p>
+<p><strong>Section 4: 真相文件 / Truth Files</strong></p>
+<p>Explanation: truth files persist project state between skills.</p>
+<p>Table of 5 core categories (from truth-files.yaml, which defines 15 <code>kind</code> values total):</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Example Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config</td>
+<td><code>novel.json</code>, <code>genre-config.json</code></td>
+</tr>
+<tr>
+<td>World</td>
+<td><code>world/story_bible.md</code>, <code>world/rules.md</code>, <code>world/locations.md</code>, <code>world/power_system.md</code>, <code>world/factions.md</code></td>
+</tr>
+<tr>
+<td>Character</td>
+<td><code>characters/protagonist.md</code>, <code>characters/relationships.md</code></td>
+</tr>
+<tr>
+<td>Outline</td>
+<td><code>outline/story_frame.md</code>, <code>outline/volume_map.md</code>, <code>outline/rhythm_principles.md</code>, <code>outline/thread_map.md</code></td>
+</tr>
+<tr>
+<td>Truth</td>
+<td><code>truth/current_state.md</code>, <code>truth/pending_hooks.md</code>, <code>truth/chapter_summaries.md</code>, <code>truth/character_matrix.md</code>, <code>truth/emotional_arcs.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Note: full 15 categories in <code>docs/framework/truth-files.yaml</code>.</p>
+<p>Workflow: Read (skill reads truth files for current state) -&gt; Execute (skill performs task) -&gt; Update (state-settling extracts changes and updates truth files).</p>
+<p>Mermaid truth file cycle (use this exact code):</p>
+<pre><code>```mermaid
+graph LR
+    TF["真相文件&lt;br/&gt;Truth Files"] --&gt;|读取 / Read| SK["技能执行&lt;br/&gt;Skill"]
+    SK --&gt;|产出 / Output| SS["状态结算&lt;br/&gt;State Settling"]
+    SS --&gt;|更新 / Update| TF
+```
+</code></pre>
+<p>Reference: full vocabulary in <code>docs/framework/truth-files.yaml</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify docs build</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<p>Note: <code>mkdocs build --strict</code> verifies page structure and links but does NOT render Mermaid diagrams (they render client-side in the browser). After writing this page, run <code>just docs</code> and visually verify all Mermaid diagrams render correctly at <code>http://127.0.0.1:8000/architecture/overview/</code>.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add docs/architecture/overview.md
+git commit -m "docs: add architecture overview with Mermaid pipeline and gate diagrams"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-4-landing-page-docsindexmd">Task 4: Landing page — docs/index.md</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>docs/index.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete landing page</strong></li>
+</ul>
+<p>Structure:</p>
+<pre><code># Shenbi (神笔)
+</code></pre>
+<p>Bilingual tagline (same as README). Then:</p>
+<p><strong>解决什么问题 / The Problem</strong> — 2-3 sentence paragraph explaining the problem (coordinating dozens of specialized tasks while maintaining consistency across hundreds of thousands of words).</p>
+<p><strong>核心能力 / Core Capabilities</strong> — Three subsections, each with a short bilingual paragraph and a link:
+- 技能编排 / Skill Orchestration -&gt; links to skills/index.md
+- 质量门控 / Quality Gates -&gt; links to architecture/overview.md
+- 可测量的质量 / Measurable Quality -&gt; links to architecture/overview.md</p>
+<p><strong>从这里开始 / Get Started</strong> — Two paths:
+- 我想写小说 / I Want to Write a Novel -&gt; links to getting-started/installation.md
+- 我想理解框架 / I Want to Understand the Framework -&gt; links to architecture/overview.md</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify docs build</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add docs/index.md
+git commit -m "docs: rewrite landing page with feature cards and dual audience paths"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-5-installation-guide-docsgetting-startedinstallationmd">Task 5: Installation guide — docs/getting-started/installation.md</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>docs/getting-started/installation.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete installation page</strong></li>
+</ul>
+<p>Structure:</p>
+<ol>
+<li><strong>前提条件 / Prerequisites</strong> — Table: Python 3.11+, uv 0.5+ (required), just (latest). With install links. Note: uv is required because the justfile uses <code>uv run</code> for every recipe.</li>
+<li><strong>安装步骤 / Installation Steps</strong> — Four numbered steps:</li>
+<li>Clone: <code>git clone https://github.com/ThomasChangX/shenbi.git &amp;&amp; cd shenbi</code></li>
+<li>Install: <code>uv sync --group dev</code></li>
+<li>Install docs (optional): <code>uv sync --group docs</code></li>
+<li>Pre-commit: <code>uv run pre-commit install</code></li>
+<li><strong>验证安装 / Verify Installation</strong> — <code>just check</code>, <code>just test</code>, <code>just docs</code></li>
+<li><strong>常用命令 / Common Commands</strong> — Table: just check, just test, just fix, just docs, just --list</li>
+<li>
+<p><strong>测试数据说明 / Test Data Note</strong> — Brief callout: <code>tests/fixtures/</code> contains real skill outputs (not hand-crafted mocks, per G0.9). Round directories live under <code>tests/rounds/</code>. These are used by the testing framework, not required for normal novel writing.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Verify docs build</strong></p>
+</li>
+</ol>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add docs/getting-started/installation.md
+git commit -m "docs: rewrite installation guide with prerequisites, steps, and verification"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-6-core-concepts-docsgetting-startedconceptsmd">Task 6: Core concepts — docs/getting-started/concepts.md</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>docs/getting-started/concepts.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete concepts page</strong></li>
+</ul>
+<p>Five concepts, each 3-5 sentences bilingual (Chinese first, English below):</p>
+<ol>
+<li><strong>技能 / Skill</strong> — what a SKILL.md is, 9 pipeline phases, how agents discover skills via using-shenbi trigger map. Link to skills/index.md.</li>
+<li><strong>真相文件 / Truth Files</strong> — persistent project state. truth-files.yaml defines 15 <code>kind</code> values; the 5 core categories are config, world, character, outline, truth. State-settling updates them. Reference to truth-files.yaml for the full vocabulary. Core mechanism for consistency.</li>
+<li><strong>门控 / Gates</strong> — G0-G7, what each guards, "no gate skipped" principle, gate failure = rejected. Link to architecture overview.</li>
+<li><strong>轮次 / Rounds</strong> — what a round directory is, reproducibility property, command to create.</li>
+<li>
+<p><strong>评分层级 / Scoring Tiers</strong> — T1/T2/T3 table with scope, 94 threshold, 100 convergence target, three test types. Link to architecture overview.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Verify docs build</strong></p>
+</li>
+</ol>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add docs/getting-started/concepts.md
+git commit -m "docs: rewrite core concepts with 5 concepts (skills, truth files, gates, rounds, scoring)"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-7-first-novel-walkthrough-docsgetting-startedfirst-novelmd">Task 7: First novel walkthrough — docs/getting-started/first-novel.md</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>docs/getting-started/first-novel.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: long-form T3 pipeline order from <code>deps.json</code> <code>t3-pipelines.long-form.prerequisites</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete first-novel walkthrough</strong></li>
+</ul>
+<p>Follow the actual long-form T3 pipeline order: genesis -&gt; architecture -&gt; planning -&gt; drafting -&gt; audit -&gt; foundation -&gt; management. For each phase, provide:</p>
+<ul>
+<li>Bilingual heading</li>
+<li>1-2 sentence description of what it does</li>
+<li>Skill list (from deps.json, exact skill names)</li>
+<li>Truth files read/written (specific file paths, see mapping below)</li>
+<li>Example dispatch command</li>
+</ul>
+<p>Prerequisites section at top: Shenbi installed + seed file.</p>
+<p><strong>Phase-to-truth-file mapping</strong> (use these exact file references per phase):</p>
+<ul>
+<li><strong>Genesis</strong>: Reads: <code>novel.json</code> (config). Writes: <code>world/story_bible.md</code>, <code>world/rules.md</code>, <code>world/locations.md</code>, <code>world/power_system.md</code>, <code>world/factions.md</code>, <code>characters/protagonist.md</code>, <code>characters/relationships.md</code>, <code>outline/story_frame.md</code>, <code>outline/volume_map.md</code></li>
+<li><strong>Architecture</strong>: Reads: <code>outline/story_frame.md</code>, <code>outline/volume_map.md</code>. Writes: <code>outline/rhythm_principles.md</code>, <code>outline/thread_map.md</code></li>
+<li><strong>Planning</strong>: Reads: <code>outline/</code> files, <code>truth/current_state.md</code>. Writes: <code>plans/chapter-N-plan.md</code> (kind: plan), <code>truth/pending_hooks.md</code></li>
+<li><strong>Drafting</strong>: Reads: <code>plans/chapter-N-plan.md</code>, <code>truth/current_state.md</code>, <code>truth/pending_hooks.md</code>. Writes: <code>chapters/chapter-N.md</code> (kind: chapter), <code>truth/current_state.md</code> (updated), <code>truth/chapter_summaries.md</code></li>
+<li><strong>Audit</strong>: Reads: all truth files + <code>chapters/chapter-N.md</code>. Writes: <code>audits/</code> directory reports (kind: report)</li>
+<li><strong>Foundation</strong>: Reads: <code>world/</code>, <code>characters/</code>, <code>outline/</code>, <code>truth/</code> (all). Writes: revised chapters, <code>truth/</code> (updated via truth-sync)</li>
+<li><strong>Management</strong>: Reads: <code>truth/</code> (all), <code>audits/</code>. Writes: <code>truth/drift_guidance.md</code>, <code>truth/volume_summaries.md</code> (kind: truth), <code>audits/</code> scoring reports</li>
+</ul>
+<p>Bottom section: Other Pipelines — brief mention of short-form (short-outline -&gt; short-drafting -&gt; short-packaging) and import-form (import-analysis -&gt; character-extraction/world-extraction -&gt; canon-import).</p>
+<blockquote>
+<p>Note: skill lists per phase are sourced from <code>tests/tiers/deps.json</code> <code>t2-phases[].prerequisites</code> — the same authoritative source used in Task 2. Truth file categories come from <code>docs/framework/truth-files.yaml</code>. Both are independently verifiable; do not copy from Task 2, read from the source files.</p>
+</blockquote>
+<p>Closing: after completion, run <code>uv run shenbi-summarize &lt;round_dir&gt;</code> and <code>uv run shenbi-validate G7 &lt;round_dir&gt;</code>. Reference command-to-give.md for full protocol.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify docs build</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add docs/getting-started/first-novel.md
+git commit -m "docs: rewrite first-novel walkthrough following actual long-form pipeline order"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-8-readme-readmemd-root">Task 8: README — README.md (root)</h3>
+<p><strong>Files:</strong>
+- Rewrite: <code>README.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the complete README</strong></li>
+</ul>
+<p>Structure:
+1. Title + bilingual tagline
+2. Badges: CI (ci.yml), Docs (docs.yml), Python 3.11+, MIT
+3. <strong>什么是 Shenbi / What is Shenbi</strong> — ~150 words bilingual. Problem + solution (67 skills + 2 meta, 8 gates (G0-G7), T1/T2/T3, truth files)
+4. <strong>为什么选择 Shenbi / Why Shenbi</strong> — 3 bilingual bullets: skill orchestration, quality gates, measurable quality
+5. <strong>快速开始 / Quick Start</strong> — clone, uv sync, just check
+6. <strong>文档 / Documentation</strong> — links to docs site (thomaschangx.github.io/shenbi/) with descriptions
+7. <strong>技能一览 / Skills at a Glance</strong> — table of 9 phases + out-of-pipeline with skill counts and descriptions
+8. <strong>贡献 / Contributing</strong> — link to CONTRIBUTING.md + roadmap.md
+9. <strong>License</strong> — MIT</p>
+<p>Badge URLs: <code>https://github.com/ThomasChangX/shenbi/actions/workflows/ci.yml/badge.svg</code></p>
+<ul>
+<li>[ ] <strong>Step 2: Verify README structure</strong></li>
+</ul>
+<p>Run: <code>rg "^#" README.md | wc -l</code>
+Expected: 9 (the 9 numbered sections: title, badges line doesn't use #, What is, Why, Quick Start, Documentation, Skills at a Glance, Contributing, License)</p>
+<p>Run: <code>rg "badge.svg" README.md | wc -l</code>
+Expected: 2 (CI badge + Docs badge)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+<p>git add README.md
+git commit -m "docs: rewrite README with bilingual pitch, badges, skill overview, and doc links"</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-9-update-mkdocsyml-nav-final-verification">Task 9: Update mkdocs.yml nav + final verification</h3>
+<p><strong>Files:</strong>
+- Modify: <code>mkdocs.yml</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Update the nav section in mkdocs.yml</strong></li>
+</ul>
+<p>Replace the existing <code>nav</code> with an additive nav. New entries use bilingual labels; existing entries keep their current labels.</p>
+<p>Note: the existing nav has <code>Skills</code> as a nested section (<code>Skills: - Index: skills/index.md</code>). The new nav flattens this to a direct page (<code>技能目录 / Skills: skills/index.md</code>). This is an intentional structural change consistent with the spec, not a pure addition. All other existing entries (Framework, API, Architecture Decisions) are preserved exactly.</p>
+<p>The proposed nav:</p>
+<pre><code>nav:
+  - 首页 / Home: index.md
+  - 快速开始 / Getting Started:
+      - 安装 / Installation: getting-started/installation.md
+      - 核心概念 / Concepts: getting-started/concepts.md
+      - 第一本小说 / Your First Novel: getting-started/first-novel.md
+  - 技能目录 / Skills: skills/index.md
+  - 架构概览 / Architecture: architecture/overview.md
+  - Framework:
+      - Gates: framework/gates.md
+      - Scoring: framework/scoring.md
+      - Dispatcher: framework/dispatcher.md
+      - Logging: framework/logging.md
+  - API:
+      - Exceptions: api/exceptions.md
+      - Logging: api/logging.md
+  - Architecture Decisions: adr/index.md
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Build docs site in strict mode</strong></li>
+</ul>
+<p>Run: <code>uv run mkdocs build --strict</code>
+Expected: Build succeeds with zero warnings or errors.</p>
+<ul>
+<li>[ ] <strong>Step 3: Run full CI checks</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: All checks pass.</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: Commit</strong></p>
+<p>git add mkdocs.yml
+git commit -m "docs: update nav with bilingual labels for Wave 1 pages, preserve existing entries"</p>
+</li>
+</ul>
+<p>This completes Wave 1 of the documentation redesign.</p>
+<blockquote>
+<p><strong>Note for Wave 2:</strong> The existing <code>docs/framework/gates.md</code> says "7 validation gates" but lists G0-G7 (8 gates). This pre-existing typo should be fixed when the framework docs are expanded in Wave 2. Wave 1 correctly uses "8 gates (G0-G7)" throughout.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

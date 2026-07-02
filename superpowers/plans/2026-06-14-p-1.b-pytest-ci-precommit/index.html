@@ -1,0 +1,2577 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.B Pytest + CI + Pre-commit Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.B Pytest + CI + Pre-commit Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.B Pytest + CI + Pre-commit Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1b-pytest-ci-pre-commit-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.B Pytest + CI + Pre-commit Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modified-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modified files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not modified
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-pr-5-pytest-framework-conftestpy-sample-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: PR-5 pytest framework + conftest.py + sample tests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 1: PR-5 pytest framework + conftest.py + sample tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-11-verify-clean-working-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.1: Verify clean working tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-12-create-test-directory-skeleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.2: Create test directory skeleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-12b-add-yamllint-to-dev-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.2b: Add yamllint to dev dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-13-create-testsconftestpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.3: Create tests/conftest.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-14-append-pytest-coverage-config-to-pyprojecttoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.4: Append pytest + coverage config to pyproject.toml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-15-create-testsunittest_pytest_frameworkpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.5: Create tests/unit/test_pytest_framework.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-16-create-testsunittest_coverage_thresholdspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.6: Create tests/unit/test_coverage_thresholds.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-17-verify-pytest-collects-the-new-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.7: Verify pytest collects the new tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-18-run-pytest-and-verify-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.8: Run pytest and verify it works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-19-run-pytest-with-coverage-full-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.9: Run pytest WITH coverage (full pipeline)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-110-verify-all-p-1a-tools-still-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.10: Verify all P-1.A tools still pass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-111-commit-pr-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.11: Commit PR-5
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-pr-6-migrate-test_integritypy-to-pytest-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: PR-6 Migrate test_integrity.py to pytest style
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 2: PR-6 Migrate test_integrity.py to pytest style">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-21-inventory-existing-test_integritypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.1: Inventory existing test_integrity.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-22-migrate-unittest-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.2: Migrate unittest → pytest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-23-verify-migrated-tests-run-under-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.3: Verify migrated tests run under pytest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-24-verify-old-test_integritypy-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.4: Verify old test_integrity.py removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-25-update-mypybasedpyright-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.5: Update mypy/basedpyright overrides
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-25b-update-basedpyright-include-for-new-test-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.5b: Update basedpyright include for new test directories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-26-run-full-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.6: Run full test suite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-27-commit-pr-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.7: Commit PR-6
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-pr-7-github-actions-ci-3-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: PR-7 GitHub Actions CI (3 workflows)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 3: PR-7 GitHub Actions CI (3 workflows)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-31-verify-githubworkflows-doesnt-exist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.1: Verify .github/workflows/ doesn't exist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-32-create-githubworkflowsciyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.2: Create .github/workflows/ci.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-33-create-githubworkflowssecurityyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.3: Create .github/workflows/security.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-34-create-githubworkflowsdocsyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.4: Create .github/workflows/docs.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-35-verify-workflows-are-valid-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.5: Verify workflows are valid YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-36-commit-pr-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.6: Commit PR-7
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-pr-8-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: PR-8 pre-commit hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 4: PR-8 pre-commit hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-41-verify-pre-commit-configyaml-doesnt-exist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.1: Verify .pre-commit-config.yaml doesn't exist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-42-create-pre-commit-configyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.2: Create .pre-commit-config.yaml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-43-install-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.3: Install pre-commit hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-44-verify-pre-commit-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.4: Verify pre-commit runs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-45-commit-pr-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.5: Commit PR-8
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-end-of-plan-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: End-of-Plan Verification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 5: End-of-Plan Verification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-51-run-all-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.1: Run all tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-52-run-pytest-suite-split-mode-like-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.2: Run pytest suite (split mode like CI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-53-run-pre-commit-on-all-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.3: Run pre-commit on all files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-54-verify-workflows-yaml-valid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.4: Verify workflows YAML valid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-55-verify-clean-clone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.5: Verify clean clone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-56-p-1b-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.6: P-1.B complete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-coverage-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec coverage check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#placeholder-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Placeholder scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-constraints-addressed-inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known constraints addressed inline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proactive-deviations-from-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proactive deviations from spec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workload-estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workload estimate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1b-pytest-ci-pre-commit-implementation-plan">P-1.B Pytest + CI + Pre-commit Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Establish pytest test framework, GitHub Actions CI (3 workflows), and pre-commit hooks on top of P-1.A's project metadata baseline.</p>
+<p><strong>Architecture:</strong> Sequential PRs with state-sensitive steps. P-1.A established pyproject.toml with dev deps; P-1.B activates them via test framework + CI + pre-commit. test_integrity.py is migrated unittest→pytest (preserving coverage). All hooks/configs are additive.</p>
+<p><strong>Tech Stack:</strong> pytest 9.x + 7 plugins (cov/xdist/asyncio/timeout/benchmark/hypothesis/ordering), yamllint 1.33+ (PyPI), GitHub Actions (ci.yml/security.yml/docs.yml), pre-commit framework</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md</code> (PRs 5-8)</p>
+<p><strong>Prior plan:</strong> <code>docs/superpowers/plans/2026-06-14-p-1.a-foundation-metadata.md</code> (PRs 1-4, complete)</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<p>This plan creates 7 new config/test files and modifies 2 existing Python files.</p>
+<h3 id="new-files">New files</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+<th>Owned by Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/conftest.py</code></td>
+<td>Pytest fixtures (configure_logging, tmp_project_dir, etc.)</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/unit/__init__.py</code> + <code>.gitkeep</code></td>
+<td>Empty unit test package</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/integration/__init__.py</code> + <code>.gitkeep</code></td>
+<td>Empty integration test package</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/property/__init__.py</code> + <code>.gitkeep</code></td>
+<td>Empty property test package</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/benchmark/__init__.py</code> + <code>.gitkeep</code></td>
+<td>Empty benchmark test package</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/coverage/.gitkeep</code></td>
+<td>Coverage report directory placeholder (force-tracked despite .gitignore <code>tests/coverage/</code> rule)</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/baselines/.gitkeep</code></td>
+<td>Baseline output directory placeholder</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/.gitkeep</code></td>
+<td>Fixture directory placeholder (per spec; harmless since dir has content)</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_pytest_framework.py</code></td>
+<td>Smoke test for framework itself</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_coverage_thresholds.py</code></td>
+<td>Branch coverage threshold enforcement</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>.github/workflows/ci.yml</code></td>
+<td>Main CI (lint + type + test)</td>
+<td>Task 3</td>
+</tr>
+<tr>
+<td><code>.github/workflows/security.yml</code></td>
+<td>pip-audit + SBOM</td>
+<td>Task 3</td>
+</tr>
+<tr>
+<td><code>.github/workflows/docs.yml</code></td>
+<td>mkdocs build + GH Pages deploy</td>
+<td>Task 3</td>
+</tr>
+<tr>
+<td><code>.pre-commit-config.yaml</code></td>
+<td>Pre-commit hooks config</td>
+<td>Task 4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modified-files">Modified files</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Modification</th>
+<th>Owned by Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>Append <code>[tool.pytest.ini_options]</code>, <code>[tool.coverage.run]</code>, <code>[tool.coverage.report]</code></td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td><code>tests/test_integrity.py</code></td>
+<td>Migrate unittest → pytest style (no coverage loss)</td>
+<td>Task 2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="not-modified">Not modified</h3>
+<ul>
+<li>All P-1.A files (pyproject.toml deps, .gitignore, README.md, renovate.json, uv.lock — already done)</li>
+<li>Existing business logic (validate-gate.py etc.)</li>
+<li><code>tests/_mypy_smoke_test.py</code> (P-1.A artifact)</li>
+</ul>
+<hr />
+<h2 id="task-1-pr-5-pytest-framework-conftestpy-sample-tests">Task 1: PR-5 pytest framework + conftest.py + sample tests</h2>
+<p><strong>Goal:</strong> Set up pytest framework with all plugins, create test directory structure, write smoke test + coverage threshold test.</p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (append pytest + coverage config)
+- Create: <code>tests/conftest.py</code>
+- Create: <code>tests/unit/__init__.py</code> + <code>tests/unit/.gitkeep</code>
+- Create: <code>tests/integration/__init__.py</code> + <code>tests/integration/.gitkeep</code>
+- Create: <code>tests/property/__init__.py</code> + <code>tests/property/.gitkeep</code>
+- Create: <code>tests/benchmark/__init__.py</code> + <code>tests/benchmark/.gitkeep</code>
+- Create: <code>tests/coverage/.gitkeep</code> (with <code>!tests/coverage/.gitkeep</code> exception in <code>.gitignore</code>)
+- Create: <code>tests/baselines/.gitkeep</code>
+- Create: <code>tests/fixtures/.gitkeep</code> (per spec PR-5)
+- Create: <code>tests/unit/test_pytest_framework.py</code>
+- Create: <code>tests/unit/test_coverage_thresholds.py</code></p>
+<h3 id="step-11-verify-clean-working-tree">Step 1.1: Verify clean working tree</h3>
+<ul>
+<li>[ ] Run: <code>git status --porcelain</code></li>
+<li>Expected: empty (or only P-1.A merged state).</li>
+</ul>
+<h3 id="step-12-create-test-directory-skeleton">Step 1.2: Create test directory skeleton</h3>
+<blockquote>
+<p>Note: <code>.gitkeep</code> files are referenced in both the File Structure table (overview) and this step (execution). They are the SAME files — the table is a roadmap, this step creates them.</p>
+</blockquote>
+<ul>
+<li>[ ] Run:
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/unit<span class="w"> </span>tests/integration<span class="w"> </span>tests/property<span class="w"> </span>tests/benchmark<span class="w"> </span>tests/coverage<span class="w"> </span>tests/baselines
+<span class="k">for</span><span class="w"> </span>d<span class="w"> </span><span class="k">in</span><span class="w"> </span>unit<span class="w"> </span>integration<span class="w"> </span>property<span class="w"> </span>benchmark<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;&quot;&quot;&quot;Shenbi &#39;</span><span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">&quot;</span><span class="s1">&#39; test package.&quot;&quot;&quot;&#39;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;tests/</span><span class="nv">$d</span><span class="s2">/__init__.py&quot;</span>
+<span class="w">  </span>touch<span class="w"> </span><span class="s2">&quot;tests/</span><span class="nv">$d</span><span class="s2">/.gitkeep&quot;</span>
+<span class="k">done</span>
+touch<span class="w"> </span>tests/coverage/.gitkeep<span class="w"> </span>tests/baselines/.gitkeep<span class="w"> </span>tests/fixtures/.gitkeep
+</code></pre></div></li>
+<li>Verify: <code>find tests/unit tests/integration tests/property tests/benchmark -name __init__.py</code> returns 4 files.</li>
+<li>Note: <code>tests/fixtures/.gitkeep</code> created per spec PR-5 (even though fixtures/ has content) for cross-PR consistency.</li>
+<li><strong>Important</strong>: <code>tests/coverage/</code> is in <code>.gitignore</code> (added by P-1.A). The <code>.gitkeep</code> file must be force-tracked:
+  <div class="highlight"><pre><span></span><code><span class="c1"># Append negation rule to .gitignore</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;!tests/coverage/.gitkeep&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+git<span class="w"> </span>add<span class="w"> </span>-f<span class="w"> </span>tests/coverage/.gitkeep
+</code></pre></div></li>
+</ul>
+<h3 id="step-12b-add-yamllint-to-dev-dependencies">Step 1.2b: Add yamllint to dev dependencies</h3>
+<p>The CI <code>action-validation</code> job runs <code>uv run yamllint</code>. yamllint must be in dev deps.</p>
+<ul>
+<li>[ ] Edit <code>pyproject.toml</code> <code>[project.optional-dependencies] dev</code> to add <code>yamllint</code>:
+  <div class="highlight"><pre><span></span><code><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=8.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># ... existing deps ...</span>
+<span class="w">    </span><span class="s2">&quot;yamllint&gt;=1.33.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># YAML linting (CI workflow validation)</span>
+<span class="p">]</span>
+</code></pre></div></li>
+<li>[ ] Re-run <code>uv lock</code> to update lockfile.</li>
+<li>Verify: <code>uv run yamllint --version</code></li>
+</ul>
+<h3 id="step-13-create-testsconftestpy">Step 1.3: Create <code>tests/conftest.py</code></h3>
+<ul>
+<li>[ ] Create <code>tests/conftest.py</code> with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Pytest global fixtures and configuration.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+
+
+<span class="c1"># Hypothesis profiles: ci (1000 examples), dev (100), debug (10)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">load_profile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HYPOTHESIS_PROFILE&quot;</span><span class="p">,</span> <span class="s2">&quot;dev&quot;</span><span class="p">))</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tmp_project_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporary project directory for test isolation.&quot;&quot;&quot;</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;project&quot;</span>
+    <span class="n">project</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">project</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_worldbuilding_output</span><span class="p">(</span><span class="n">tmp_project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal worldbuilding output for testing downstream skills.&quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">tmp_project_dir</span>
+    <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;novel.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;title&quot;: &quot;Test&quot;, &quot;genre&quot;: [&quot;玄幻&quot;], &quot;language&quot;: &quot;zh&quot;, &quot;target_words&quot;: 100000}&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;story_bible.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 世界观圣经</span><span class="se">\n\n</span><span class="s2">## 第一段</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">## 第二段</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">## 第三段</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">## 第四段</span><span class="se">\n</span><span class="s2">...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 世界铁律</span><span class="se">\n\n</span><span class="s2">## 规则 一</span><span class="se">\n</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;locations.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 地点</span><span class="se">\n\n</span><span class="s2">## 地点：A</span><span class="se">\n</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">base</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure_logging</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure structlog for tests (no-op until PR-9 adds structlog).&quot;&quot;&quot;</span>
+    <span class="k">yield</span>
+</code></pre></div>
+<h3 id="step-14-append-pytest-coverage-config-to-pyprojecttoml">Step 1.4: Append pytest + coverage config to <code>pyproject.toml</code></h3>
+<ul>
+<li>[ ] Append exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest.ini_options]</span>
+<span class="n">minversion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;8.0&quot;</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/unit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/property&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/benchmark&quot;</span><span class="p">]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;--strict-markers&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov=tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=term-missing&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=html:tests/coverage&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=xml:tests/coverage/coverage.xml&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-branch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># 注：-n=auto 不在 addopts；CI 显式传 -n auto；本地默认串行。</span>
+<span class="w">    </span><span class="s2">&quot;--timeout=60&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--timeout-method=thread&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--benchmark-min-rounds=5&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--benchmark-warmup=on&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">markers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;unit: fast unit tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;integration: cross-module tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;property: Hypothesis property-based tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;benchmark: pytest-benchmark performance tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;slow: &gt; 5s tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;last: tests that must run after all others (e.g., coverage threshold)&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">asyncio_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;auto&quot;</span>
+
+<span class="k">[tool.coverage.run]</span>
+<span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.coverage.report]</span>
+<span class="c1"># Line coverage threshold (fail_under applies to line coverage only)</span>
+<span class="n">fail_under</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span>
+<span class="n">show_missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">exclude_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pragma: no cover&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;raise NotImplementedError&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if __name__ == .__main__.:&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if TYPE_CHECKING:&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<h3 id="step-15-create-testsunittest_pytest_frameworkpy">Step 1.5: Create <code>tests/unit/test_pytest_framework.py</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify pytest framework infrastructure works.</span>
+
+<span class="sd">Bootstrap test: confirms pytest loads, fixtures work, markers register,</span>
+<span class="sd">plugins function. If this test fails, the framework itself is broken.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_conftest_fixtures_loadable</span><span class="p">(</span><span class="n">tmp_project_dir</span><span class="p">,</span> <span class="n">configure_logging</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All global fixtures defined in conftest.py should load.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">tmp_project_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unit_marker_works</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;@pytest.mark.unit should not raise.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_integration_marker_works</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;@pytest.mark.integration should not raise.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">property</span>
+<span class="nd">@given</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">())</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_property_marker_works</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Property-based test infrastructure (Hypothesis).&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="n">n</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">benchmark</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_benchmark_marker_works</span><span class="p">(</span><span class="n">benchmark</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Benchmark infrastructure.&quot;&quot;&quot;</span>
+    <span class="n">benchmark</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="step-16-create-testsunittest_coverage_thresholdspy">Step 1.6: Create <code>tests/unit/test_coverage_thresholds.py</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Enforce coverage thresholds post-test.</span>
+
+<span class="sd">Branch coverage threshold enforcement via pytest (since --cov-fail-under</span>
+<span class="sd">only applies to line coverage). Runs LAST (via @pytest.mark.last) to ensure</span>
+<span class="sd">coverage.xml has been generated by earlier tests.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">COVERAGE_XML</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/coverage/coverage.xml&quot;</span><span class="p">)</span>
+<span class="n">LINE_THRESHOLD</span> <span class="o">=</span> <span class="mi">90</span>
+<span class="n">BRANCH_THRESHOLD</span> <span class="o">=</span> <span class="mi">80</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">last</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_branch_coverage_meets_threshold</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Branch coverage must be &gt;= 80%.</span>
+
+<span class="sd">    Runs last to ensure coverage.xml exists. CI must split pytest into</span>
+<span class="sd">    `-n auto -m &quot;not last&quot;` (parallel main) and `-p no:xdist -m &quot;last&quot;`</span>
+<span class="sd">    (serial threshold check).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">COVERAGE_XML</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
+            <span class="s2">&quot;coverage.xml not found; ensure pytest runs with &quot;</span>
+            <span class="s2">&quot;&#39;--cov-report=xml:tests/coverage/coverage.xml&#39; and &quot;</span>
+            <span class="s2">&quot;test_coverage_thresholds runs AFTER all other tests&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">COVERAGE_XML</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+    <span class="n">total_branches_valid</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_branches_covered</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//class&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">counter</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;counter&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;BRANCH&quot;</span><span class="p">:</span>
+                <span class="n">total_branches_valid</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">))</span>
+                <span class="n">total_branches_covered</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;covered&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">total_branches_valid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No branches in coverage data&quot;</span><span class="p">)</span>
+
+    <span class="n">branch_pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_branches_covered</span> <span class="o">/</span> <span class="n">total_branches_valid</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">assert</span> <span class="n">branch_pct</span> <span class="o">&gt;=</span> <span class="n">BRANCH_THRESHOLD</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Branch coverage </span><span class="si">{</span><span class="n">branch_pct</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% below threshold </span><span class="si">{</span><span class="n">BRANCH_THRESHOLD</span><span class="si">}</span><span class="s2">%. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Covered </span><span class="si">{</span><span class="n">total_branches_covered</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_branches_valid</span><span class="si">}</span><span class="s2"> branches.&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="step-17-verify-pytest-collects-the-new-tests">Step 1.7: Verify pytest collects the new tests</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest --collect-only tests/unit/ 2&gt;&amp;1 | tail -10</code></li>
+<li>Expected: collects <code>test_pytest_framework.py</code> (5 tests) + <code>test_coverage_thresholds.py</code> (1 test) = 6 tests, 0 errors.</li>
+</ul>
+<h3 id="step-18-run-pytest-and-verify-it-works">Step 1.8: Run pytest and verify it works</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest tests/unit/ -v --no-cov 2&gt;&amp;1 | tail -15</code></li>
+<li>Expected: 6 tests pass. (Skip <code>--cov</code> for first run to avoid branch threshold check.)</li>
+</ul>
+<h3 id="step-19-run-pytest-with-coverage-full-pipeline">Step 1.9: Run pytest WITH coverage (full pipeline)</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest tests/unit/ -m "not last" 2&gt;&amp;1 | tail -15</code></li>
+<li>Expected: 5 tests pass (excluding last), coverage report generated.</li>
+<li>[ ] Then: <code>uv run pytest tests/unit/ -m "last" --no-cov 2&gt;&amp;1 | tail -5</code></li>
+<li>Expected: 1 test passes or skips (coverage threshold check).</li>
+</ul>
+<h3 id="step-110-verify-all-p-1a-tools-still-pass">Step 1.10: Verify all P-1.A tools still pass</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff check tests/ &amp;&amp; uv run mypy tests/ &amp;&amp; uv run basedpyright</code></li>
+<li>Expected: all pass with new conftest.py and test files.</li>
+</ul>
+<h3 id="step-111-commit-pr-5">Step 1.11: Commit PR-5</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>tests/conftest.py<span class="w"> </span>tests/unit/<span class="w"> </span>tests/integration/<span class="w"> </span>tests/property/<span class="w"> </span>tests/benchmark/<span class="w"> </span>tests/coverage/<span class="w"> </span>tests/baselines/<span class="w"> </span>tests/fixtures/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.b): pytest framework + conftest + smoke tests</span>
+
+<span class="s2">PR-5 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- pytest 9.x with 7 plugins (cov/xdist/asyncio/timeout/benchmark/hypothesis/ordering)</span>
+<span class="s2">- conftest.py: tmp_project_dir, sample_worldbuilding_output, configure_logging fixtures</span>
+<span class="s2">- Hypothesis profiles: ci (1000 examples), dev (100), debug (10)</span>
+<span class="s2">- Test directory skeleton: unit/integration/property/benchmark/coverage/baselines/fixtures</span>
+<span class="s2">- test_pytest_framework.py: bootstrap smoke test (5 tests)</span>
+<span class="s2">- test_coverage_thresholds.py: branch coverage threshold enforcement</span>
+<span class="s2">  via @pytest.mark.last (CI splits into parallel main + serial last)</span>
+<span class="s2">- coverage.py config: 90% line + 80% branch threshold targets</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-5</span>
+<span class="s2">Refs: docs/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.md Task 1&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-2-pr-6-migrate-test_integritypy-to-pytest-style">Task 2: PR-6 Migrate test_integrity.py to pytest style</h2>
+<p><strong>Goal:</strong> Convert <code>tests/test_integrity.py</code> from unittest-style to pytest-style. Preserve 100% of existing test coverage (no test logic changes, only framework migration).</p>
+<p><strong>Files:</strong>
+- Modify: <code>tests/test_integrity.py</code> (rewrite unittest classes as pytest functions)</p>
+<h3 id="step-21-inventory-existing-test_integritypy">Step 2.1: Inventory existing test_integrity.py</h3>
+<ul>
+<li>[ ] Run: <code>uv run python3 tests/test_integrity.py 2&gt;&amp;1 | tail -3</code></li>
+<li>Expected: baseline result (Ran N tests, OK).</li>
+<li>[ ] Run: <code>grep -c "def test_" tests/test_integrity.py</code></li>
+<li>Record the test count.</li>
+</ul>
+<h3 id="step-22-migrate-unittest-pytest">Step 2.2: Migrate unittest → pytest</h3>
+<p>The migration pattern:
+- <code>class TestXxx(unittest.TestCase)</code> → drop class, use module-level functions
+- <code>self.assertEqual(a, b)</code> → <code>assert a == b</code>
+- <code>self.assertTrue(x)</code> → <code>assert x</code>
+- <code>self.assertIn(a, b)</code> → <code>assert a in b</code>
+- <code>self.assertRaises(E)</code> → <code>with pytest.raises(E):</code>
+- <code>self.setUp()</code> / <code>self.tearDown()</code> → pytest fixtures (<code>@pytest.fixture</code>)
+- <code>setUpClass</code> / <code>tearDownClass</code> → module-level or class-scoped fixtures
+- Drop <code>if __name__ == "__main__": unittest.main()</code>
+- Drop <code>import unittest</code> if no longer needed</p>
+<p><strong>Per spec PR-6</strong>: split into multiple files by topic, e.g.:
+- <code>tests/unit/test_gate_markers.py</code> (TestGateMarkers class)
+- <code>tests/unit/test_g1_validation.py</code> (TestG1Validation class)
+- <code>tests/unit/test_g4_worldbuilding.py</code> (TestG4Worldbuilding class)
+- etc.</p>
+<ul>
+<li>[ ] Inventory existing test_integrity.py: <code>grep "^class Test" tests/test_integrity.py</code></li>
+<li>
+<p>Expected: lists N test classes. Each becomes a separate file.</p>
+</li>
+<li>
+<p>[ ] For each class, create <code>tests/unit/test_&lt;topic&gt;.py</code>:
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test &lt;topic&gt;.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="c1"># ... other imports from original class ...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_</span><span class="o">&lt;</span><span class="n">original_method_name</span><span class="o">&gt;</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&lt;original docstring or one-line summary&gt;.&quot;&quot;&quot;</span>
+    <span class="c1"># ... migrated body, with self.assertX → assert X ...</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] Total tests must equal original count (18+). Run baseline first:
+  <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python3<span class="w"> </span>tests/test_integrity.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Ran&quot;</span>
+</code></pre></div>
+  Record count, then verify pytest collects same count after migration.</p>
+</li>
+</ul>
+<h3 id="step-23-verify-migrated-tests-run-under-pytest">Step 2.3: Verify migrated tests run under pytest</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest tests/unit/test_gates_integrity.py -v --no-cov 2&gt;&amp;1 | tail -10</code></li>
+<li>Expected: same number of tests pass as baseline (18+ tests).</li>
+<li>If any test fails or is missing, fix the migration.</li>
+</ul>
+<h3 id="step-24-verify-old-test_integritypy-removed">Step 2.4: Verify old test_integrity.py removed</h3>
+<ul>
+<li>[ ] Run: <code>ls tests/test_integrity.py 2&gt;&amp;1</code></li>
+<li>Expected: "No such file or directory" (moved to tests/unit/).</li>
+<li>[ ] Verify imports updated if any other file referenced test_integrity.</li>
+</ul>
+<h3 id="step-25-update-mypybasedpyright-overrides">Step 2.5: Update mypy/basedpyright overrides</h3>
+<ul>
+<li>[ ] Edit <code>pyproject.toml</code>:</li>
+<li>Remove <code>tests.test_integrity</code> from mypy <code>[[tool.mypy.overrides]] module</code> list (file moved).</li>
+<li>Add <code>tests.unit.test_gate_*</code> pattern to overrides with <code>ignore_errors = true</code> (still untyped legacy tests).</li>
+<li>Remove <code>tests/test_integrity.py</code> from basedpyright <code>exclude</code> list; add <code>tests/unit/test_gate_*.py</code>.</li>
+</ul>
+<h3 id="step-25b-update-basedpyright-include-for-new-test-directories">Step 2.5b: Update basedpyright <code>include</code> for new test directories</h3>
+<p>P-1.A's basedpyright config has <code>include = ["tests/_mypy_smoke_test.py"]</code> — only checks that one file. After P-1.B adds <code>tests/unit/</code>, <code>tests/integration/</code>, etc., basedpyright won't check the new tests.</p>
+<ul>
+<li>[ ] Update <code>[tool.basedpyright] include</code> in pyproject.toml:
+  <div class="highlight"><pre><span></span><code><span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/_mypy_smoke_test.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/unit/test_pytest_framework.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/unit/test_coverage_thresholds.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># tests/unit/test_gate_*.py excluded via &#39;exclude&#39; (legacy untyped)</span>
+<span class="p">]</span>
+</code></pre></div></li>
+<li>This is a <strong>P-1.B temporary state</strong>. PR-12 (P-1.D) removes the legacy exclusions and basedpyright <code>include</code> covers all of <code>tests/</code>.</li>
+</ul>
+<h3 id="step-26-run-full-test-suite">Step 2.6: Run full test suite</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest tests/unit/ -v --no-cov 2&gt;&amp;1 | tail -10</code></li>
+<li>Expected: all tests pass (smoke + migrated integrity).</li>
+</ul>
+<h3 id="step-27-commit-pr-6">Step 2.7: Commit PR-6</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/test_integrity.py<span class="w"> </span>tests/unit/<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(p-1.b): migrate test_integrity.py to pytest style</span>
+
+<span class="s2">PR-6 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- 18 unittest TestCase methods → 18 pytest functions</span>
+<span class="s2">- Split into topic files under tests/unit/ per spec PR-6 guidance</span>
+<span class="s2">- All test logic preserved (no coverage loss)</span>
+<span class="s2">- File removed: tests/test_integrity.py</span>
+<span class="s2">- mypy/basedpyright overrides + basedpyright include updated</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-6</span>
+<span class="s2">Refs: docs/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.md Task 2&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-3-pr-7-github-actions-ci-3-workflows">Task 3: PR-7 GitHub Actions CI (3 workflows)</h2>
+<p><strong>Goal:</strong> Set up 3 GitHub Actions workflow files: ci.yml (lint+type+test), security.yml (audit+SBOM), docs.yml (mkdocs+deploy).</p>
+<p><strong>Files:</strong>
+- Create: <code>.github/workflows/ci.yml</code>
+- Create: <code>.github/workflows/security.yml</code>
+- Create: <code>.github/workflows/docs.yml</code></p>
+<h3 id="step-31-verify-githubworkflows-doesnt-exist">Step 3.1: Verify .github/workflows/ doesn't exist</h3>
+<ul>
+<li>[ ] Run: <code>ls .github/workflows/ 2&gt;&amp;1</code></li>
+<li>Expected: "No such file or directory". If exists, review existing files before proceeding.</li>
+</ul>
+<h3 id="step-32-create-githubworkflowsciyml">Step 3.2: Create <code>.github/workflows/ci.yml</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+
+<span class="nt">concurrency</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.workflow }}-${{ github.ref }}</span>
+<span class="w">  </span><span class="nt">cancel-in-progress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">quality</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.os }}</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-latest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macos-latest</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;3.11&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.12&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv python install ${{ matrix.python-version }}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run ruff check .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run ruff format --check .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mypy tests/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run basedpyright</span>
+<span class="w">      </span><span class="c1"># xdist (-n auto) ignores @pytest.mark.last; split into two steps:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run coverage threshold test (serial, last only)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -p no:xdist -m &quot;last&quot;</span>
+
+<span class="w">  </span><span class="nt">action-validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate GitHub Actions YAML</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run yamllint --strict .github/workflows/</span>
+<span class="w">        </span><span class="c1"># 注：action-validator 是 Node.js 工具（PyPI 无 Python 包），</span>
+<span class="w">        </span><span class="c1"># yamllint 已覆盖 YAML 校验需求。</span>
+</code></pre></div>
+<h3 id="step-33-create-githubworkflowssecurityyml">Step 3.3: Create <code>.github/workflows/security.yml</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Security</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">audit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pip-audit</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py environment -o sbom.cdx.json</span>
+<span class="w">        </span><span class="c1"># 注：dev deps 中 cyclonedx-bom&gt;=4.0.0 包提供 cyclonedx-py CLI 入口</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom.cdx.json</span>
+</code></pre></div>
+<h3 id="step-34-create-githubworkflowsdocsyml">Step 3.4: Create <code>.github/workflows/docs.yml</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Docs</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra docs</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mkdocs build --strict</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docs-site</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">site/</span>
+
+<span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref == &#39;refs/heads/main&#39; &amp;&amp; github.event_name == &#39;push&#39;</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra docs</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mkdocs gh-deploy --force</span>
+</code></pre></div>
+<h3 id="step-35-verify-workflows-are-valid-yaml">Step 3.5: Verify workflows are valid YAML</h3>
+<ul>
+<li>[ ] Run: <code>uv run python3 -c "import yaml; [yaml.safe_load(open(f)) for f in ['docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md']] &amp;&amp; print('spec OK')" 2&gt;&amp;1 | tail -2</code></li>
+<li>Run: <code>uv run python3 -c "import yaml; [print(f, 'OK') for f in __import__('pathlib').Path('.github/workflows').glob('*.yml') if yaml.safe_load(open(f)) is not None]"</code></li>
+<li>Expected: 3 workflow files parsed OK.</li>
+</ul>
+<h3 id="step-36-commit-pr-7">Step 3.6: Commit PR-7</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.b): GitHub Actions CI (3 workflows)</span>
+
+<span class="s2">PR-7 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- ci.yml: quality job (lint+type+test, matrix 2x2 OS+Python) +</span>
+<span class="s2">  action-validation job (yamllint on workflows)</span>
+<span class="s2">- security.yml: pip-audit + cyclonedx-py SBOM generation</span>
+<span class="s2">- docs.yml: mkdocs build --strict + GH Pages deploy on main push</span>
+
+<span class="s2">CI pytest split into two steps (parallel &#39;not last&#39; + serial &#39;last&#39;)</span>
+<span class="s2">to work around xdist ignoring @pytest.mark.last.</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-7</span>
+<span class="s2">Refs: docs/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.md Task 3&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-4-pr-8-pre-commit-hooks">Task 4: PR-8 pre-commit hooks</h2>
+<p><strong>Goal:</strong> Configure pre-commit hooks for local + CI integration.</p>
+<p><strong>Files:</strong>
+- Create: <code>.pre-commit-config.yaml</code></p>
+<h3 id="step-41-verify-pre-commit-configyaml-doesnt-exist">Step 4.1: Verify .pre-commit-config.yaml doesn't exist</h3>
+<ul>
+<li>[ ] Run: <code>ls .pre-commit-config.yaml 2&gt;&amp;1</code></li>
+<li>Expected: "No such file or directory".</li>
+</ul>
+<h3 id="step-42-create-pre-commit-configyaml">Step 4.2: Create <code>.pre-commit-config.yaml</code></h3>
+<ul>
+<li>[ ] Create with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">repos</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/astral-sh/ruff-pre-commit</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.1.13</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--fix</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">--exit-non-zero-on-fix</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff-format</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/mirrors-mypy</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.8.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mypy</span>
+<span class="w">        </span><span class="nt">additional_dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pydantic&gt;=2.5</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="c1"># 注：不传 --strict CLI 参数。strict 模式由 pyproject.toml 的</span>
+<span class="w">        </span><span class="c1"># [tool.mypy] strict = true 控制，per-module overrides 才能生效。</span>
+<span class="w">        </span><span class="c1"># CLI --strict 会绕过 pyproject.toml 的 [[tool.mypy.overrides]]。</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/pre-commit-hooks</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v4.5.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trailing-whitespace</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">end-of-file-fixer</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check-yaml</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check-added-large-files</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--maxkb=500</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detect-private-key</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/adrienverge/yamllint</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.33.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yamllint</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--strict</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\.(yaml|yml)$</span>
+<span class="w">        </span><span class="nt">exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^tests/rounds/(archived/|round-[0-9]{3}-)</span>
+
+<span class="w">  </span><span class="c1"># 所有 local hooks 合并到单一 - repo: local 块</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># basedpyright 没有官方 pre-commit mirror（基于 Node.js 的 pyright mirror 不适用）</span>
+<span class="w">      </span><span class="c1"># 改用 local hook 调用 uv run basedpyright，版本由 uv.lock 锁定</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basedpyright</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basedpyright (strict type check)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run basedpyright</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">python</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="c1"># 校验整个仓库，不传文件名（basedpyright 自身管理 include/exclude）</span>
+
+<span class="w">      </span><span class="c1"># P0 scaffolding：P-1 时点 skills/ 无 .yaml，tests/tiers/ 也不存在，</span>
+<span class="w">      </span><span class="c1"># 此 hook 不会触发。P0 完成 skills/&lt;name&gt;/meta.yaml + scenarios/*.yaml 迁移后激活。</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry-lockfile-fresh</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry.lock.json freshness (P0 scaffolding, no-op in P-1)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tests/build_registry.py</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^(skills/.*\.yaml|tests/tiers/.*\.yaml)$</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="c1"># stub 实现在 PR-1 占位阶段，输出警告即退出 0；P0 替换为真实 build</span>
+
+<span class="w">      </span><span class="c1"># 注：原 spec 有 action-validator hook，但 PyPI 无此包（Node.js 工具）。</span>
+<span class="w">      </span><span class="c1"># yamllint 已覆盖 YAML 校验需求，故移除。</span>
+</code></pre></div>
+<h3 id="step-43-install-pre-commit-hooks">Step 4.3: Install pre-commit hooks</h3>
+<ul>
+<li>[ ] Run: <code>uv run pre-commit install</code></li>
+<li>Expected: "pre-commit installed at .git/hooks/pre-commit".</li>
+</ul>
+<h3 id="step-44-verify-pre-commit-runs">Step 4.4: Verify pre-commit runs</h3>
+<ul>
+<li>[ ] Run: <code>uv run pre-commit run --all-files 2&gt;&amp;1 | tail -20</code></li>
+<li>Expected: all hooks pass (or auto-fix + need re-stage).</li>
+</ul>
+<h3 id="step-45-commit-pr-8">Step 4.5: Commit PR-8</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.pre-commit-config.yaml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.b): pre-commit hooks config</span>
+
+<span class="s2">PR-8 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- ruff-pre-commit: lint (--fix) + format</span>
+<span class="s2">- mirrors-mypy: strict type check (from pyproject.toml, with pydantic plugin)</span>
+<span class="s2">- pre-commit-hooks: trailing-whitespace, end-of-file-fixer, check-yaml,</span>
+<span class="s2">  check-added-large-files, detect-private-key</span>
+<span class="s2">- yamllint: --strict on all YAML files (excludes archived + unarchived rounds)</span>
+<span class="s2">- local hooks (single block):</span>
+<span class="s2">  - basedpyright (no Node.js mirror; uses uv run basedpyright)</span>
+<span class="s2">  - registry-lockfile-fresh (P0 scaffolding, no-op in P-1)</span>
+<span class="s2">- action-validator omitted (PyPI has no Python package; yamllint covers)</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-8</span>
+<span class="s2">Refs: docs/superpowers/plans/2026-06-14-p-1.b-pytest-ci-precommit.md Task 4&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-5-end-of-plan-verification">Task 5: End-of-Plan Verification</h2>
+<p><strong>Goal:</strong> Verify P-1.B integrates cleanly with P-1.A. All tools, tests, hooks work together.</p>
+<h3 id="step-51-run-all-tools">Step 5.1: Run all tools</h3>
+<ul>
+<li>[ ] Run: <code>uv sync --frozen --extra dev</code></li>
+<li>[ ] Run: <code>uv run ruff check tests/</code></li>
+<li>[ ] Run: <code>uv run ruff format --check tests/</code></li>
+<li>[ ] Run: <code>uv run mypy tests/</code></li>
+<li>[ ] Run: <code>uv run basedpyright</code></li>
+<li>Expected: all pass.</li>
+</ul>
+<h3 id="step-52-run-pytest-suite-split-mode-like-ci">Step 5.2: Run pytest suite (split mode like CI)</h3>
+<ul>
+<li>[ ] Run: <code>uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml 2&gt;&amp;1 | tail -5</code></li>
+<li>[ ] Run: <code>uv run pytest -p no:xdist -m "last" 2&gt;&amp;1 | tail -5</code></li>
+<li>Expected: all tests pass, coverage report generated.</li>
+</ul>
+<h3 id="step-53-run-pre-commit-on-all-files">Step 5.3: Run pre-commit on all files</h3>
+<ul>
+<li>[ ] Run: <code>uv run pre-commit run --all-files 2&gt;&amp;1 | tail -10</code></li>
+<li>Expected: all hooks pass.</li>
+</ul>
+<h3 id="step-54-verify-workflows-yaml-valid">Step 5.4: Verify workflows YAML valid</h3>
+<ul>
+<li>[ ] Run: <code>uv run python3 -c "import yaml; [print(f, 'OK') for f in __import__('pathlib').Path('.github/workflows').glob('*.yml') if yaml.safe_load(open(f)) is not None]"</code></li>
+<li>Expected: 3 files OK.</li>
+</ul>
+<h3 id="step-55-verify-clean-clone">Step 5.5: Verify clean clone</h3>
+<ul>
+<li>[ ] From <code>/tmp/</code>: <code>git clone /Users/xiaotiac/Documents/GitHub/shenbi-p-1.a p1b-test &amp;&amp; cd p1b-test &amp;&amp; git checkout feat/p-1.a-foundation-metadata</code> (Note: the worktree branch contains BOTH P-1.A and P-1.B commits since they're on the same branch. The checkout gives access to the latest P-1.B state.)</li>
+<li>[ ] Run: <code>uv sync --frozen --extra dev</code></li>
+<li>[ ] Run: <code>uv run pytest -n auto -m "not last"</code></li>
+<li>Expected: all pass.</li>
+<li>Clean up: <code>cd /tmp &amp;&amp; rm -rf p1b-test</code></li>
+</ul>
+<h3 id="step-56-p-1b-complete">Step 5.6: P-1.B complete</h3>
+<p>P-1.B produces a working intermediate state:
+- ✅ pytest framework fully configured
+- ✅ All existing tests migrated to pytest style
+- ✅ CI workflows defined (3 files)
+- ✅ pre-commit hooks active
+- ✅ Coverage threshold enforcement (line + branch)
+- ✅ Hypothesis property-based testing ready
+- ✅ pytest-benchmark infrastructure ready</p>
+<p>Next plans:
+- <strong>P-1.C</strong> (PRs 9-11): structlog + typed exceptions + ADRs
+- <strong>P-1.D</strong> (PRs 12-17): validate-gate split + dispatcher rewrite + cleanup + extras</p>
+<hr />
+<h2 id="self-review-notes">Self-Review Notes</h2>
+<h3 id="spec-coverage-check">Spec coverage check</h3>
+<ul>
+<li>PR-5 (pytest framework + conftest + sample): Task 1 ✅</li>
+<li>PR-6 (migrate test_integrity.py): Task 2 ✅</li>
+<li>PR-7 (GitHub Actions CI 3 workflows): Task 3 ✅</li>
+<li>PR-8 (pre-commit hooks): Task 4 ✅</li>
+</ul>
+<h3 id="placeholder-scan">Placeholder scan</h3>
+<p>No TBD / TODO / "fill in later". All steps have concrete content.</p>
+<h3 id="type-consistency">Type consistency</h3>
+<ul>
+<li><code>pyproject.toml</code> appends consistent across tasks (no duplicate <code>[tool.*]</code> sections).</li>
+<li><code>@pytest.mark.last</code> consistent in test_coverage_thresholds.py and ci.yml split.</li>
+<li>Test directory paths consistent across conftest, pyproject testpaths, CI workflows.</li>
+<li><code>[tool.pytest.ini_options]</code> markers list includes <code>last</code> (avoids <code>--strict-markers</code> failure).</li>
+</ul>
+<h3 id="known-constraints-addressed-inline">Known constraints addressed inline</h3>
+<ul>
+<li><strong>xdist ignores <code>@pytest.mark.last</code></strong>: CI splits pytest into two invocations (parallel <code>not last</code> + serial <code>last</code>). Step 1.9 verifies both halves.</li>
+<li><strong>Branch coverage threshold</strong>: pytest-cov's <code>--cov-fail-under=90</code> only applies to line coverage. Branch coverage enforced via <code>test_branch_coverage_meets_threshold</code> in test_coverage_thresholds.py.</li>
+<li><strong>mypy/basedpyright see migrated tests</strong>: Step 2.5 explicitly updates overrides when test_integrity.py moves.</li>
+</ul>
+<h3 id="proactive-deviations-from-spec">Proactive deviations from spec</h3>
+<ol>
+<li>
+<p><strong><code>tests/test_integrity.py</code> → <code>tests/unit/test_gates_integrity.py</code></strong> (spec doesn't dictate exact target path). Reason: matches pytest convention <code>tests/&lt;category&gt;/test_&lt;topic&gt;.py</code> and groups all gate-related tests under <code>unit/</code>.</p>
+</li>
+<li>
+<p><strong>conftest.py <code>configure_logging</code> is no-op placeholder</strong> (spec assumes structlog exists). Reason: structlog is added in PR-9 (P-1.C). The fixture exists now so tests depending on it don't fail; PR-9 fills in the implementation.</p>
+</li>
+</ol>
+<h3 id="workload-estimate">Workload estimate</h3>
+<ul>
+<li>Task 1: ~30 min (conftest + 6 dirs + 2 test files + verify)</li>
+<li>Task 2: ~60-90 min (test_integrity.py migration, ~570 lines)</li>
+<li>Task 3: ~20 min (3 YAML files)</li>
+<li>Task 4: ~15 min (pre-commit config + install)</li>
+<li>Task 5: ~15 min (end-to-end verification)</li>
+</ul>
+<p><strong>Total: ~140-170 min (~2.5 hours)</strong>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

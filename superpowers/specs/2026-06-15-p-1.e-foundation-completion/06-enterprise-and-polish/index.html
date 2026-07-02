@@ -1,0 +1,1995 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 06: Enterprise Baseline Files & Engineering Polish - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 06: Enterprise Baseline Files &amp; Engineering Polish - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 06: Enterprise Baseline Files &amp; Engineering Polish - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-06-enterprise-baseline-files-engineering-polish" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 06: Enterprise Baseline Files &amp; Engineering Polish
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evidence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f26-missing-standard-project-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F26: Missing standard project files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f27-no-task-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F27: No task runner
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f28-pep-735-dependency-groups-not-adopted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F28: PEP 735 dependency groups not adopted
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f29-mkdocsyml-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F29: mkdocs.yml minimal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f30-sbom-generated-but-not-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F30: SBOM generated but not stored
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f31-hypothesis-failure-cases-not-committed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F31: Hypothesis failure cases not committed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-1-project-was-prototype-grade-not-production-grade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 1: Project was prototype-grade, not production-grade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-2-modern-python-tooling-adoption-lagged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 2: Modern Python tooling adoption lagged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-3-sbom-treated-as-ci-check-not-as-deliverable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 3: SBOM treated as CI check, not as deliverable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components (PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components (PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-40-enterprise-baseline-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-40: enterprise baseline files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-40: enterprise baseline files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#license-mit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LICENSE (MIT)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#securitymd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SECURITY.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributingmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CONTRIBUTING.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code_of_conductmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CODE_OF_CONDUCT.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changelogmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CHANGELOG.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#githubcodeowners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .github/CODEOWNERS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#githubpull_request_templatemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .github/PULL_REQUEST_TEMPLATE.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#githubissue_template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .github/ISSUE_TEMPLATE/
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-41-pep-735-dependency-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-41: PEP 735 dependency groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-42-task-runner-justfile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-42: task runner (justfile)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-43-mkdocs-navigation-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-43: mkdocs navigation + plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-33-hypothesis-failure-case-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-33: hypothesis failure case persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cluster-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cluster Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-06-enterprise-baseline-files-engineering-polish">Cluster 06: Enterprise Baseline Files &amp; Engineering Polish</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F26–F31</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>The repository lacks standard enterprise/open-source project hygiene files
+and several modern Python engineering conveniences. Audit found 6 categories
+of missing or incomplete items.</p>
+<h3 id="evidence">Evidence</h3>
+<h4 id="f26-missing-standard-project-files">F26: Missing standard project files</h4>
+<div class="highlight"><pre><span></span><code>✗ LICENSE                   # pyproject.toml declares MIT but no file
+✗ SECURITY.md               # no vulnerability disclosure policy
+✗ CONTRIBUTING.md           # no contributor guide
+✗ CODEOWNERS                # no code ownership rules
+✗ CHANGELOG.md              # no release notes
+✗ CODE_OF_CONDUCT.md        # no community standards
+✗ .github/PULL_REQUEST_TEMPLATE.md
+✗ .github/ISSUE_TEMPLATE/   # no issue templates
+✗ .github/CODEOWNERS
+✗ .github/SECURITY.md       # GitHub security policy pointer
+</code></pre></div>
+<p><code>pyproject.toml:6</code> declares <code>license = { text = "MIT" }</code> — SPDX notation
+implies the license text exists somewhere. Without a LICENSE file, this is
+non-binding under most legal interpretations.</p>
+<h4 id="f27-no-task-runner">F27: No task runner</h4>
+<p>Every CI job, every dev command, every documentation example uses a different
+verbose uv invocation:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># CI</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span>--hypothesis-profile<span class="o">=</span>ci
+
+<span class="c1"># Dev (current docs say)</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/test_scoring.py<span class="w"> </span>-v
+
+<span class="c1"># Local sanity check</span>
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>src/shenbi/<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</code></pre></div>
+<p>No <code>justfile</code>, no <code>mise.toml</code>, no <code>Makefile</code>. Commands drift between
+contexts.</p>
+<h4 id="f28-pep-735-dependency-groups-not-adopted">F28: PEP 735 dependency groups not adopted</h4>
+<p><code>pyproject.toml:17-36</code> uses <code>[project.optional-dependencies]</code> (PEP 508
+extras):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project.optional-dependencies]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="err">...]</span>
+<span class="n">docs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="err">...]</span>
+</code></pre></div>
+<p>Issues with extras:
+- They're included in wheel metadata. Anyone who installs <code>shenbi[dev]</code>
+  from PyPI gets test deps in their environment.
+- They pollute the package's dependency graph for downstream consumers.
+- uv 0.5+ (2024) supports PEP 735 <code>[dependency-groups]</code> which are
+  dev-only and never enter wheel metadata.</p>
+<h4 id="f29-mkdocsyml-minimal">F29: <code>mkdocs.yml</code> minimal</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">site_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Shenbi</span>
+<span class="nt">theme</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">material</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">search</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mkdocstrings</span>
+</code></pre></div>
+<p>No <code>nav</code>, no <code>awesome-pages</code> plugin, no versioning, no social cards, no
+i18n. For a 59-skill framework, navigation is essential. Currently the docs
+site is unusable.</p>
+<h4 id="f30-sbom-generated-but-not-stored">F30: SBOM generated but not stored</h4>
+<p><code>.github/workflows/security.yml:14-19</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py environment -o sbom.cdx.json</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom.cdx.json</span>
+</code></pre></div>
+<p>Generated as artifact (deleted after 90 days), not attached to releases.
+<code>.gitignore:59</code> excludes <code>sbom.cdx.json</code> from git. <strong>SBOM is ephemeral.</strong></p>
+<h4 id="f31-hypothesis-failure-cases-not-committed">F31: Hypothesis failure cases not committed</h4>
+<p>Already covered in Cluster 04 PR-33.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="root-cause-1-project-was-prototype-grade-not-production-grade">Root cause 1: Project was prototype-grade, not production-grade</h3>
+<p>Original Shenbi was a personal project. LICENSE/SECURITY/CONTRIBUTING were
+deferred until "the project matures". P-1 was supposed to bring it to
+enterprise baseline but the scope was deferred (Cluster 01).</p>
+<p><strong>Fix</strong>: PR-40 adds all standard files in one PR. None optional.</p>
+<h3 id="root-cause-2-modern-python-tooling-adoption-lagged">Root cause 2: Modern Python tooling adoption lagged</h3>
+<p>PEP 735 was accepted 2024-07. <code>just</code> has been popular since 2020. mkdocs
+Material has had nav since 2018. None of these were adopted because P-1.B
+was scoped to "minimal viable tooling".</p>
+<p><strong>Fix</strong>: PR-41 (PEP 735), PR-42 (justfile), PR-43 (mkdocs nav).</p>
+<h3 id="root-cause-3-sbom-treated-as-ci-check-not-as-deliverable">Root cause 3: SBOM treated as CI check, not as deliverable</h3>
+<p>The security workflow generates SBOM as a CI artifact, signaling "we
+generated it" but not preserving it. <strong>Industry practice</strong> (SLSA Level 3):
+SBOM is a release artifact, attached to every published version.</p>
+<p><strong>Fix</strong>: PR-39 (Cluster 05) attaches SBOM to GitHub releases.</p>
+<h2 id="target-state">Target State</h2>
+<p>After P-1.E Cluster 06 completes:</p>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── LICENSE                            # NEW
+├── SECURITY.md                        # NEW
+├── CONTRIBUTING.md                    # NEW
+├── CODE_OF_CONDUCT.md                 # NEW (Contributor Covenant 2.1)
+├── CHANGELOG.md                       # NEW
+├── README.md                          # UPDATED
+├── justfile                           # NEW: task runner
+├── pyproject.toml                     # UPDATED: PEP 735 groups
+├── mkdocs.yml                         # UPDATED: nav, plugins
+├── .github/
+│   ├── CODEOWNERS                     # NEW
+│   ├── SECURITY.md                    # NEW (pointer to /SECURITY.md)
+│   ├── PULL_REQUEST_TEMPLATE.md       # NEW
+│   └── ISSUE_TEMPLATE/
+│       ├── bug.md                     # NEW
+│       ├── feature.md                 # NEW
+│       ├── skill-proposal.md          # NEW
+│       └── config.yml                 # NEW (contact links)
+└── docs/
+    └── ...
+</code></pre></div>
+<h2 id="components-prs">Components (PRs)</h2>
+<h3 id="pr-40-enterprise-baseline-files">PR-40: enterprise baseline files</h3>
+<p><strong>Files created</strong>:</p>
+<h4 id="license-mit"><code>LICENSE</code> (MIT)</h4>
+<div class="highlight"><pre><span></span><code>MIT License
+
+Copyright (c) 2026 ThomasChangX
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</code></pre></div>
+<h4 id="securitymd"><code>SECURITY.md</code></h4>
+<div class="highlight"><pre><span></span><code><span class="gh"># Security Policy</span>
+
+<span class="gu">## Supported Versions</span>
+
+| Version | Supported |
+|---------|-----------|
+| latest main | ✅ |
+| &lt; 1.0 | ❌ (pre-release) |
+
+<span class="gu">## Reporting a Vulnerability</span>
+
+Email: &lt;security email or GitHub Security Advisory&gt;
+
+Please <span class="gs">**do not**</span> open a public GitHub issue for security vulnerabilities.
+Use GitHub&#39;s &quot;Report a vulnerability&quot; feature under the Security tab, or
+email directly.
+
+<span class="gs">**Response time**</span>: 72 hours for initial response, 14 days for fix or
+disclosure timeline agreement.
+
+<span class="gu">## Disclosure</span>
+
+We follow coordinated disclosure. Once a fix is available, we publish a
+GitHub Security Advisory with CVE assignment (if applicable).
+
+<span class="gu">## Supply Chain</span>
+
+<span class="k">-</span><span class="w"> </span>All dependencies locked in <span class="sb">`uv.lock`</span> with hashes
+<span class="k">-</span><span class="w"> </span>SBOM (CycloneDX format) generated per release and attached to GitHub Releases
+<span class="k">-</span><span class="w"> </span>pip-audit runs on every PR and weekly
+<span class="k">-</span><span class="w"> </span>CodeQL static analysis runs on every PR and weekly
+</code></pre></div>
+<h4 id="contributingmd"><code>CONTRIBUTING.md</code></h4>
+<p>Sections: development environment setup, code style, PR process, CI checks,
+testing guidelines, ADR process, the no-deferral rule (see Cluster 01 root
+cause 2).</p>
+<h4 id="code_of_conductmd"><code>CODE_OF_CONDUCT.md</code></h4>
+<p>Contributor Covenant 2.1 (standard).</p>
+<h4 id="changelogmd"><code>CHANGELOG.md</code></h4>
+<div class="highlight"><pre><span></span><code><span class="gh"># Changelog</span>
+
+All notable changes to Shenbi are documented here.
+The format follows [<span class="nt">Keep a Changelog</span>](<span class="na">https://keepachangelog.com/en/1.1.0/</span>),
+and this project adheres to [<span class="nt">Semantic Versioning</span>](<span class="na">https://semver.org/</span>).
+
+<span class="gu">## [Unreleased]</span>
+
+<span class="gu">### Added</span>
+<span class="k">-</span><span class="w"> </span>P-1.E Foundation Completion: enterprise baseline files, src layout migration,
+  structural fixes (see <span class="sb">`docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/`</span>)
+
+<span class="gu">## [0.2.0] - 2026-06-14</span>
+
+<span class="gu">### Added</span>
+<span class="k">-</span><span class="w"> </span>P-1 Foundation Hygiene: uv, ruff, mypy, basedpyright, pytest, structlog,
+  typed exceptions, ADRs (partial — see P-1.E for completion)
+
+<span class="gu">## [0.1.0] - 2026-05-XX</span>
+
+<span class="gu">### Added</span>
+<span class="k">-</span><span class="w"> </span>Initial Shenbi framework with 59 skills
+<span class="k">-</span><span class="w"> </span>7-gate validation system (G0-G7)
+<span class="k">-</span><span class="w"> </span>Three-tier testing (T1/T2/T3)
+</code></pre></div>
+<h4 id="githubcodeowners"><code>.github/CODEOWNERS</code></h4>
+<div class="highlight"><pre><span></span><code># Default owner
+*                       @ThomasChangX
+
+# Framework code
+src/shenbi/             @ThomasChangX
+tests/                  @ThomasChangX
+
+# Documentation
+docs/                   @ThomasChangX
+
+# Skills (per-domain ownership can be added as project grows)
+skills/                 @ThomasChangX
+</code></pre></div>
+<h4 id="githubpull_request_templatemd"><code>.github/PULL_REQUEST_TEMPLATE.md</code></h4>
+<div class="highlight"><pre><span></span><code><span class="gu">## Summary</span>
+
+&lt;!-- One sentence describing what this PR changes --&gt;
+
+<span class="gu">## Type of change</span>
+
+<span class="k">- [ ]</span> bug fix
+<span class="k">- [ ]</span> new feature
+<span class="k">- [ ]</span> refactor
+<span class="k">- [ ]</span> documentation
+<span class="k">- [ ]</span> test
+<span class="k">- [ ]</span> build/CI
+
+<span class="gu">## Checklist</span>
+
+<span class="k">- [ ]</span> This PR fulfills all stated goals (no work deferred without linked issue)
+<span class="k">- [ ]</span> No new <span class="sb">`print()`</span> in <span class="sb">`src/shenbi/`</span> framework code
+<span class="k">- [ ]</span> No new <span class="sb">`ignore_errors`</span> or <span class="sb">`exclude`</span> in tooling config
+<span class="k">- [ ]</span> No <span class="sb">`P-1.E`</span>-style deferral comments added
+<span class="k">- [ ]</span> Tests added/updated; <span class="sb">`pytest`</span> passes locally
+<span class="k">- [ ]</span> <span class="sb">`ruff check`</span>, <span class="sb">`mypy`</span>, <span class="sb">`basedpyright`</span> all pass
+<span class="k">- [ ]</span> CHANGELOG.md updated (or N/A: &lt;reason&gt;)
+<span class="k">- [ ]</span> ADR added/updated for any architectural decision
+
+<span class="gu">## Test plan</span>
+
+&lt;!-- How did you verify this works? --&gt;
+
+<span class="gu">## Linked issues</span>
+
+&lt;!-- &quot;Closes <span class="ni">#N</span>&quot; or &quot;Refs <span class="ni">#N</span>&quot; --&gt;
+</code></pre></div>
+<h4 id="githubissue_template"><code>.github/ISSUE_TEMPLATE/</code></h4>
+<p>3 templates: <code>bug.md</code>, <code>feature.md</code>, <code>skill-proposal.md</code>. Plus <code>config.yml</code>
+with contact links.</p>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] All 8 enterprise files present at repo root or <code>.github/</code></li>
+<li>[ ] LICENSE matches <code>pyproject.toml</code> declaration</li>
+<li>[ ] First-time contributor experience tested (clone → read CONTRIBUTING.md → set up dev env)</li>
+<li>[ ] GitHub UI recognizes templates (PR template auto-fills, issue template picker works)</li>
+</ul>
+<h3 id="pr-41-pep-735-dependency-groups">PR-41: PEP 735 dependency groups</h3>
+<p><strong><code>pyproject.toml</code> changes</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pydantic&gt;=2.5.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pyyaml&gt;=6.0.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;structlog&gt;=24.1.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[dependency-groups]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=8.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-cov&gt;=4.1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># ... all current dev deps</span>
+<span class="p">]</span>
+<span class="n">docs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs&gt;=1.5.3&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs-material&gt;=9.5.4&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mkdocstrings[python]&gt;=0.24.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Remove <code>[project.optional-dependencies]</code>. Update CI to use
+<code>uv sync --group dev</code> instead of <code>uv sync --extra dev</code>.</p>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] No <code>[project.optional-dependencies]</code> in <code>pyproject.toml</code></li>
+<li>[ ] <code>[dependency-groups]</code> section present</li>
+<li>[ ] <code>uv sync --group dev</code> works</li>
+<li>[ ] CI uses <code>--group dev</code> and <code>--group docs</code></li>
+<li>[ ] Built wheel (<code>uv build --wheel</code>) doesn't include dev deps in metadata
+      (verify via <code>unzip -p dist/*.whl '*/METADATA' | grep Requires-Dist</code>)</li>
+</ul>
+<h3 id="pr-42-task-runner-justfile">PR-42: task runner (justfile)</h3>
+<p><strong>Files created</strong>: <code>justfile</code></p>
+<div class="highlight"><pre><span></span><code><span class="c"># Run from project root</span>
+<span class="nf">set dotenv-load </span><span class="o">:</span>= <span class="n">true</span>
+<span class="nf">set positional-arguments </span><span class="o">:</span>= <span class="n">true</span>
+
+<span class="c"># Default: show available recipes</span>
+<span class="nf">default</span><span class="o">:</span>
+<span class="w">    </span>@just<span class="w"> </span>--list
+
+<span class="c"># Install dependencies (dev group by default)</span>
+<span class="nf">install group=&quot;dev&quot;</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span><span class="o">{{</span>group<span class="o">}}</span>
+
+<span class="c"># Run all checks (ruff + mypy + basedpyright + tests)</span>
+<span class="nf">check</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>src/shenbi/
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>basedpyright
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span>--hypothesis-profile<span class="o">=</span>ci
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-p<span class="w"> </span>no:xdist<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;last&quot;</span><span class="w"> </span>--no-cov<span class="w"> </span>--hypothesis-profile<span class="o">=</span>ci
+
+<span class="c"># Run tests only (fast unit tests)</span>
+<span class="nf">test *args</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;unit&quot;</span><span class="w"> </span><span class="o">{{</span>args<span class="o">}}</span>
+
+<span class="c"># Run tests including integration</span>
+<span class="nf">test-all *args</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span><span class="o">{{</span>args<span class="o">}}</span>
+
+<span class="c"># Run a single test file</span>
+<span class="nf">test-file file</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span><span class="o">{{</span>file<span class="o">}}</span><span class="w"> </span>-v
+
+<span class="c"># Fix lint and formatting</span>
+<span class="nf">fix</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>--fix<span class="w"> </span>.
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>.
+
+<span class="c"># Run gates CLI (e.g., just gate G0 &lt;seed&gt;)</span>
+<span class="nf">gate name *args</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>shenbi-validate<span class="w"> </span><span class="o">{{</span>name<span class="o">}}</span><span class="w"> </span><span class="o">{{</span>args<span class="o">}}</span>
+
+<span class="c"># Dispatch a skill</span>
+<span class="nf">dispatch skill test_type round_dir *prompt</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>shenbi-dispatch<span class="w"> </span><span class="o">{{</span>skill<span class="o">}}</span><span class="w"> </span><span class="o">{{</span>test_type<span class="o">}}</span><span class="w"> </span><span class="o">{{</span>round_dir<span class="o">}}</span><span class="w"> </span><span class="o">{{</span>prompt<span class="o">}}</span>
+
+<span class="c"># Build docs site</span>
+<span class="nf">docs</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>serve
+
+<span class="c"># Build wheel and sdist</span>
+<span class="nf">build</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>build
+
+<span class="c"># Clean all build artifacts</span>
+<span class="nf">clean</span><span class="o">:</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>dist/<span class="w"> </span>build/<span class="w"> </span>src/shenbi.egg-info/
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>tests/coverage/
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>.pytest_cache<span class="w"> </span>.ruff_cache<span class="w"> </span>.mypy_cache<span class="w"> </span>.basedpyright_cache
+
+<span class="c"># Pre-commit run on all files</span>
+<span class="nf">precommit</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+
+<span class="c"># Migration testing (mutmut)</span>
+<span class="nf">mutate</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>mutmut<span class="w"> </span>run<span class="w"> </span>--use-cache
+
+<span class="c"># Compare mutation score to baseline</span>
+<span class="nf">mutate-check</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/compare_mutation_score.py<span class="w"> </span>--baseline<span class="w"> </span>tests/baselines/mutation-score.txt
+</code></pre></div>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>justfile</code> exists at project root</li>
+<li>[ ] <code>just</code> is mentioned in <code>CONTRIBUTING.md</code> as the primary command entry point</li>
+<li>[ ] <code>just check</code> runs all CI checks locally</li>
+<li>[ ] <code>just test &lt;filename&gt;</code> works for individual test files</li>
+</ul>
+<h3 id="pr-43-mkdocs-navigation-plugins">PR-43: mkdocs navigation + plugins</h3>
+<p><strong><code>mkdocs.yml</code> (new content)</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">site_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Shenbi</span>
+<span class="nt">site_description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Novel-writing AI skill framework</span>
+<span class="nt">repo_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/ThomasChangX/shenbi</span>
+<span class="nt">repo_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ThomasChangX/shenbi</span>
+<span class="nt">edit_uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edit/main/docs/</span>
+
+<span class="nt">theme</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">material</span>
+<span class="w">  </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zh</span>
+<span class="w">  </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.tabs</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.sections</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.expand</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.indexes</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.top</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">search.suggest</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">search.highlight</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content.code.copy</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content.code.annotate</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content.tabs.link</span>
+<span class="w">  </span><span class="nt">palette</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">scheme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<span class="w">      </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indigo</span>
+<span class="w">      </span><span class="nt">toggle</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">icon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">material/brightness-7</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Switch to dark mode</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">scheme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">slate</span>
+<span class="w">      </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indigo</span>
+<span class="w">      </span><span class="nt">toggle</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">icon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">material/brightness-4</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Switch to light mode</span>
+
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">search</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">lang</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zh</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">en</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">mkdocstrings</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">handlers</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">python</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">show_source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">show_signature_annotations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">separate_signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">show_category_heading</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">heading_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">            </span><span class="nt">docstring_style</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awesome-pages</span>
+
+<span class="nt">nav</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Home</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">index.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Getting Started</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Installation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/installation.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">First novel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/first-novel.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Concepts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/concepts.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Skills</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Index</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/index.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Foundation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/foundation.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Architecture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/architecture.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Planning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/planning.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Drafting</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/drafting.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Review</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/review.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Management</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/management.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Framework</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Gates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">framework/gates.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Scoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">framework/scoring.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Dispatcher</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">framework/dispatcher.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">framework/logging.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">API</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Exceptions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api/exceptions.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Logging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api/logging.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Architecture Decisions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adr/index.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Contributing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contributing.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Changelog</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">changelog.md</span>
+</code></pre></div>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>mkdocs build --strict</code> passes</li>
+<li>[ ] Site has multi-level nav</li>
+<li>[ ] API docs auto-generated from <code>src/shenbi/</code> docstrings</li>
+<li>[ ] ADRs listed in their own section</li>
+<li>[ ] Dark mode toggle works</li>
+</ul>
+<h3 id="pr-33-hypothesis-failure-case-persistence">PR-33: hypothesis failure case persistence</h3>
+<p>Covered in Cluster 04 PR-33 (duplicated for visibility here; PR number
+reserved).</p>
+<h2 id="cross-cluster-dependencies">Cross-cluster Dependencies</h2>
+<ul>
+<li><strong>PR-40 is independent</strong> — can land first.</li>
+<li><strong>PR-41 is independent</strong> — but CI workflow (PR-35) should land in same
+  batch to update <code>--extra dev</code> → <code>--group dev</code>.</li>
+<li><strong>PR-42 is independent</strong>.</li>
+<li><strong>PR-43 depends on PR-18</strong> — mkdocstrings generates from <code>src/shenbi/</code>.</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PEP 735 not supported by older uv versions</td>
+<td>Document minimum uv version (0.5+) in CONTRIBUTING.md; setup-uv@v3 uses recent version</td>
+</tr>
+<tr>
+<td><code>just</code> not installed on dev machines</td>
+<td>CONTRIBUTING.md documents <code>brew install just</code> / <code>cargo install just</code></td>
+</tr>
+<tr>
+<td>LICENSE choice (MIT vs Apache 2.0) might be wrong for project goals</td>
+<td>Confirm with decider; default to MIT per existing declaration</td>
+</tr>
+<tr>
+<td>MkDocs nav reveals gaps in docs (many sections empty)</td>
+<td>Stub all sections with "TODO"; track in issue tracker</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Add <code>mkdocs-material-social-cards</code>?</td>
+<td><strong>Yes.</strong></td>
+<td>Free for OSS; auto-generates OpenGraph images per page; improves social shares and link previews in Slack/Discord/Twitter. Low effort, real engagement value.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Require DCO (Developer Certificate of Origin) sign-off?</td>
+<td><strong>No — small project.</strong></td>
+<td>DCO adds friction (<code>git commit -s</code>) without legal benefit until corporate contributors arrive. Revisit at v1.0 or when a non-original-author contributes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>GitFlow or trunk-based?</td>
+<td><strong>Trunk-based with feature branches.</strong></td>
+<td>Trunk-based is <a href="https://trunkbaseddevelopment.com/">industry standard for small/medium projects</a>; GitFlow's release branches add ceremony without value for pre-1.0 software. Feature branches with squash-merge + short-lived (&lt; 1 week) is the pattern.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Auto-generate CHANGELOG from conventional commits?</td>
+<td><strong>Yes — <code>git-cliff</code>.</strong></td>
+<td><code>commitizen</code> is interactive (bad for CI); <code>git-cliff</code> is config-driven. Conventional Commits already required by <code>CLAUDE.md</code>. <code>git-cliff</code> reads commit history and emits Keep-a-Changelog format. Add to PR-41 (PEP 735) and configure in <code>cliff.toml</code>.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

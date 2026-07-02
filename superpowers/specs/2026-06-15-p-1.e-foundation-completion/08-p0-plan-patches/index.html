@@ -1,0 +1,2279 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 08: P0 Plan Patches (Informational — Executed in P0 Spec) - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 08: P0 Plan Patches (Informational — Executed in P0 Spec) - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 08: P0 Plan Patches (Informational — Executed in P0 Spec) - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-08-p0-plan-patches-informational-executed-in-p0-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 08: P0 Plan Patches (Informational — Executed in P0 Spec)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defects-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defects summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-01-graphyaml-role-clarification-q3-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-01: graph.yaml role clarification (Q3 fix)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-01: graph.yaml role clarification (Q3 fix)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision-line-949-967-of-session-8031a07e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision (line 949-967 of session 8031a07e)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-02-pydantic-json-schema-export-q5-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-02: Pydantic → JSON Schema export (Q5 fix)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-02: Pydantic → JSON Schema export (Q5 fix)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision-line-978-994" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision (line 978-994)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-03-lockfile-migration-mechanism-q7-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-03: lockfile migration mechanism (Q7 fix)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-03: lockfile migration mechanism (Q7 fix)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision-line-1003-1016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision (line 1003-1016)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-04-n5-llm-consensus-n2-differential-property-q8-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-04: N=5 LLM consensus → N=2 + differential + property (Q8 fix)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-04: N=5 LLM consensus → N=2 + differential + property (Q8 fix)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision-line-1024-1042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision (line 1024-1042)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard (2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-05-foundation-first-spike-first-approach-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-05: Foundation-First → Spike-First (Approach fix)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-05: Foundation-First → Spike-First (Approach fix)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision-line-1042-1057" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision (line 1042-1057)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-06-observability-story-new-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-06: Observability story (new section)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-06: Observability story (new section)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#industry-standard_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#patch-07-projectscripts-entry-points-new-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patch-07: [project.scripts] entry points (new section)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Patch-07: [project.scripts] entry points (new section)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-brainstorming-decision_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original brainstorming decision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defect_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patched-design_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patched design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0-spec-must-say_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 spec must say
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-what-the-p0-spec-must-incorporate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary: What the P0 spec must incorporate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cluster-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cluster Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-08-p0-plan-patches-informational-executed-in-p0-spec">Cluster 08: P0 Plan Patches (Informational — Executed in P0 Spec)</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F35–F41</li>
+<li><strong>Execution context</strong>: This cluster is NOT executed in P-1.E. It documents
+  design defects in the original P0 brainstorming (session <code>8031a07e</code>) that
+  must be patched into the P0 spec when it is written. P-1.E's role is to
+  surface them; P0's role is to incorporate them.</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>The P0 brainstorming (session <code>8031a07e</code>, lines 922-1075) reached 8 settled
+design decisions through extensive Q&amp;A. Audit found <strong>7 design defects</strong>
+that diverge from industry best practice. Each defect is documented below
+with the brainstorming decision, the audit finding, and the corrected
+design to be incorporated into the P0 spec.</p>
+<h3 id="defects-summary">Defects summary</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Decision</th>
+<th>Defect</th>
+<th>Patch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F35</td>
+<td>Q3 graph.yaml = only place for relations</td>
+<td>Confuses derived data with curated data</td>
+<td>Patch-01 below</td>
+</tr>
+<tr>
+<td>F36</td>
+<td>Q5 Pydantic as schema</td>
+<td>Missing JSON Schema export step</td>
+<td>Patch-02</td>
+</tr>
+<tr>
+<td>F37</td>
+<td>Q7 manifest + lockfile</td>
+<td>Missing lockfile migration mechanism</td>
+<td>Patch-03</td>
+</tr>
+<tr>
+<td>F38</td>
+<td>Q8 N=5 LLM consensus</td>
+<td>Suboptimal vs. differential + reviewer pattern</td>
+<td>Patch-04</td>
+</tr>
+<tr>
+<td>F39</td>
+<td>Approach 1 Foundation-First</td>
+<td>Industry favors Spike-First for migrations</td>
+<td>Patch-05</td>
+</tr>
+<tr>
+<td>F40</td>
+<td>(missing)</td>
+<td>No observability story for AI framework</td>
+<td>Patch-06</td>
+</tr>
+<tr>
+<td>F41</td>
+<td>(missing)</td>
+<td><code>[project.scripts]</code> deferred indefinitely</td>
+<td>Patch-07</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="patch-01-graphyaml-role-clarification-q3-fix">Patch-01: graph.yaml role clarification (Q3 fix)</h2>
+<h3 id="original-brainstorming-decision-line-949-967-of-session-8031a07e">Original brainstorming decision (line 949-967 of session 8031a07e)</h3>
+<blockquote>
+<p>meta.yaml only carries per-skill unchanging attributes + own role tag.
+Cross-skill relationships maintained in independent <code>tests/tiers/graph.yaml</code>.
+graph.yaml is the <strong>唯一关系源</strong> (only source of relationships).</p>
+</blockquote>
+<h3 id="defect">Defect</h3>
+<p>The decision treats <strong>all</strong> cross-skill data as "relationships" and routes
+them through graph.yaml. But there are two distinct kinds of cross-skill
+data:</p>
+<ol>
+<li><strong>Derived data</strong>: Skill A's <code>reads: [world/story_bible.md]</code> implies
+   "A depends on whatever skill writes story_bible.md". This is derivable
+   from per-skill meta.yaml.</li>
+<li><strong>Curated data</strong>: "Skill A belongs to phase 'genesis' and pipeline
+   'long-form'". This is editorial categorization, not derivable.</li>
+</ol>
+<p><strong>Putting derived data in graph.yaml means it lives in two places</strong>
+(meta.yaml's <code>reads</code>/<code>writes</code>, AND graph.yaml's <code>edges</code>), which guarantees
+drift.</p>
+<h3 id="industry-standard">Industry standard</h3>
+<p>npm <code>package.json</code> <code>dependencies</code>, Cargo <code>Cargo.toml</code> <code>[dependencies]</code>,
+Python <code>pyproject.toml</code> <code>dependencies</code>: all follow <strong>单向声明 + 派生反向索引</strong>
+(unidirectional declaration + derived reverse index). The dependent declares;
+the dependency doesn't. Tools (<code>cargo tree</code>, <code>pipdeptree</code>) derive the
+reverse index on demand.</p>
+<h3 id="patched-design">Patched design</h3>
+<p><strong>Two distinct data layers</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Per-skill meta.yaml (source of truth for skill identity + IO contract)</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-character-design</span>
+<span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">world/story_bible.md</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">novel.json</span><span class="p p-Indicator">}</span>
+<span class="nt">writes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">characters/protagonist.md</span><span class="p p-Indicator">,</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">schemas/protagonist.py</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">characters/major_characters.md</span><span class="p p-Indicator">,</span><span class="nt"> schema</span><span class="p">:</span><span class="w"> </span><span class="nv">schemas/major_characters.py</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 2. tests/tiers/graph.yaml (curated editorial data ONLY)</span>
+<span class="c1"># No dependency edges here — those are derived from per-skill reads/writes.</span>
+<span class="nt">vertical_slice</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">skills</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-worldbuilding</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-character-design</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-story-architecture</span>
+<span class="w">    </span><span class="c1"># ...</span>
+<span class="w">  </span><span class="nt">chapter_target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+
+<span class="nt">phases</span><span class="p">:</span><span class="w">                                  </span><span class="c1"># phase membership is curated</span>
+<span class="w">  </span><span class="nt">genesis</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-genre-config</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-worldbuilding</span>
+<span class="w">  </span><span class="nt">architecture</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-story-architecture</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-power-system</span>
+<span class="w">  </span><span class="nt">planning</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-chapter-planning</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-foreshadowing-plant</span>
+<span class="w">  </span><span class="c1"># ...</span>
+
+<span class="nt">pipelines</span><span class="p">:</span><span class="w">                               </span><span class="c1"># pipeline membership is curated</span>
+<span class="w">  </span><span class="nt">long-form</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">phases</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">genesis</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">architecture</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">planning</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">drafting</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">audit</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">foundation</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">management</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">short-form</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">phases</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">genesis</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">architecture</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">planning</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">drafting</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">packaging</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p><strong><code>build_registry.py</code> derives the dependency graph</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">derive_dependencies</span><span class="p">(</span><span class="n">skills</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SkillMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DependencyGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build dependency graph from per-skill reads/writes declarations.</span>
+
+<span class="sd">    For each file path, find the skill that writes it. Any skill that reads</span>
+<span class="sd">    that path depends on the writer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_writers</span> <span class="o">=</span> <span class="n">build_file_writer_index</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">skills</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">read</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">reads</span><span class="p">:</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">file_writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">read</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">writer</span> <span class="ow">and</span> <span class="n">writer</span> <span class="o">!=</span> <span class="n">skill_name</span><span class="p">:</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">skill_name</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="s2">&quot;depends_on&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">DependencyGraph</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Result</strong>: <code>registry.lock.json</code> contains both the curated graph.yaml
+data AND the derived dependency edges. Downstream consumers don't care
+which is which.</p>
+<h3 id="p0-spec-must-say">P0 spec must say</h3>
+<blockquote>
+<p>meta.yaml holds per-skill IO contract. graph.yaml holds phase/pipeline
+membership. Dependencies are <strong>derived</strong> from reads/writes by
+<code>build_registry.py</code>. Never declared in two places.</p>
+</blockquote>
+<hr />
+<h2 id="patch-02-pydantic-json-schema-export-q5-fix">Patch-02: Pydantic → JSON Schema export (Q5 fix)</h2>
+<h3 id="original-brainstorming-decision-line-978-994">Original brainstorming decision (line 978-994)</h3>
+<blockquote>
+<p>Each output file uses a Pydantic model. Pydantic is the AI ecosystem
+fact standard (OpenAI Function Calling, LangChain, DSPy, Anthropic,
+FastAPI, Hugging Face).</p>
+</blockquote>
+<h3 id="defect_1">Defect</h3>
+<p>Pydantic models are only consumable by Python. Non-Python consumers
+(Cursor, Codex, Gemini, future Rust dispatcher, future TypeScript types,
+any agent SDK in another language) cannot import Python modules.</p>
+<p>For an AI framework explicitly designed for multi-agent use (Claude Code,
+Codex CLI, Gemini CLI, Cursor, OpenCode — at least 4 non-Python
+consumers), <strong>Pydantic alone is insufficient</strong>.</p>
+<h3 id="industry-standard_1">Industry standard</h3>
+<p>OpenAI's structured output API accepts JSON Schema. Anthropic's tool use
+API accepts JSON Schema. JSON Schema is the lingua franca of cross-language
+data contracts. Pydantic v2's <code>model.model_json_schema()</code> produces
+standards-compliant JSON Schema (Draft 2020-12).</p>
+<h3 id="patched-design_1">Patched design</h3>
+<p><strong>Two-layer schema</strong>:</p>
+<div class="highlight"><pre><span></span><code>skills/&lt;name&gt;/
+└── schemas/
+    ├── protagonist.py              # Pydantic model (Python source)
+    └── generated/
+        └── protagonist.schema.json # JSON Schema (generated, git-tracked)
+</code></pre></div>
+<p><strong><code>build_registry.py</code> step</strong>: For every Pydantic model in
+<code>skills/&lt;name&gt;/schemas/*.py</code>, generate
+<code>skills/&lt;name&gt;/schemas/generated/&lt;ModelName&gt;.schema.json</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_json_schemas</span><span class="p">(</span><span class="n">skills</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SkillMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">skills</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">write</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">writes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">write</span><span class="o">.</span><span class="n">schema</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">pydantic_module</span> <span class="o">=</span> <span class="n">import_pydantic_module</span><span class="p">(</span><span class="n">write</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>  <span class="c1"># e.g., &quot;schemas/protagonist.py&quot;</span>
+            <span class="k">for</span> <span class="n">model_class</span> <span class="ow">in</span> <span class="n">iter_pydantic_models</span><span class="p">(</span><span class="n">pydantic_module</span><span class="p">):</span>
+                <span class="n">schema</span> <span class="o">=</span> <span class="n">model_class</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">SKILLS_DIR</span> <span class="o">/</span> <span class="n">skill_name</span> <span class="o">/</span> <span class="s2">&quot;schemas&quot;</span> <span class="o">/</span> <span class="s2">&quot;generated&quot;</span>
+                    <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.schema.json&quot;</span>
+                <span class="p">)</span>
+                <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Consumers</strong>:
+- Python tools: import Pydantic models directly.
+- Non-Python tools: read <code>generated/*.schema.json</code>.
+- IDE plugins: read JSON Schema for autocomplete in skill output files.</p>
+<h3 id="p0-spec-must-say_1">P0 spec must say</h3>
+<blockquote>
+<p>Every Pydantic schema has a corresponding JSON Schema export. The export
+is generated by <code>build_registry.py</code> and committed. Non-Python consumers
+MUST consume the JSON Schema, not the Pydantic source.</p>
+</blockquote>
+<hr />
+<h2 id="patch-03-lockfile-migration-mechanism-q7-fix">Patch-03: lockfile migration mechanism (Q7 fix)</h2>
+<h3 id="original-brainstorming-decision-line-1003-1016">Original brainstorming decision (line 1003-1016)</h3>
+<blockquote>
+<p>Manifest + Lockfile mode. <code>registry.lock.json</code> contains
+<code>source_hashes</code>, <code>aggregated snapshot</code>. Git-tracked.</p>
+</blockquote>
+<h3 id="defect_2">Defect</h3>
+<p>The lockfile has <code>schema_version: "2026.1"</code> but no mechanism for:
+- When to bump schema_version
+- How to migrate old lockfiles to new schema_version
+- How downstream consumers detect stale lockfiles</p>
+<p>Cargo has <code>Cargo.lock</code> <code>version = 3</code> with documented migrations.
+npm has <code>lockfileVersion</code> with changelog. Terraform has state mv commands.
+<strong>Shenbi has nothing</strong>.</p>
+<h3 id="industry-standard_2">Industry standard</h3>
+<p>Three components:</p>
+<ol>
+<li><strong>Versioned schema</strong> with explicit <code>schema_version</code> field.</li>
+<li><strong>Migration functions</strong>: <code>migrate_v1_to_v2(lockfile) → lockfile_v2</code>.</li>
+<li><strong>Auto-upgrade on read</strong>: <code>load_registry.py</code> detects old schema_version,
+   migrates in-place, writes back, logs warning.</li>
+</ol>
+<h3 id="patched-design_2">Patched design</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/registry/migrations.py</span>
+
+<span class="n">SCHEMA_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2026.2&quot;</span>  <span class="c1"># current</span>
+
+<span class="n">MIGRATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># from_version → migration_function</span>
+    <span class="s2">&quot;2026.1&quot;</span><span class="p">:</span> <span class="n">migrate_v1_to_v2</span><span class="p">,</span>
+    <span class="s2">&quot;2026.2&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># current, no migration needed</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_lockfile</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Lockfile</span><span class="p">:</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema_version&quot;</span><span class="p">,</span> <span class="s2">&quot;2026.1&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">version</span> <span class="o">!=</span> <span class="n">SCHEMA_VERSION</span><span class="p">:</span>
+        <span class="n">migrator</span> <span class="o">=</span> <span class="n">MIGRATIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">migrator</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RegistryCorruptError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No migration from schema_version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">migrator</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;schema_version&quot;</span><span class="p">]</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;registry_lockfile_migrated&quot;</span><span class="p">,</span>
+                    <span class="n">from_version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">to_version</span><span class="o">=</span><span class="n">raw</span><span class="p">[</span><span class="s2">&quot;schema_version&quot;</span><span class="p">])</span>
+    <span class="c1"># Write back if migrated</span>
+    <span class="k">if</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;schema_version&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">original_version</span><span class="p">:</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Lockfile</span><span class="p">(</span><span class="o">**</span><span class="n">raw</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Versioning rules</strong>:
+- Patch version bump (2026.1 → 2026.1.1): backward-compatible (renames,
+  documentation). Old code reads new lockfile fine.
+- Minor version bump (2026.1 → 2026.2): additive (new optional fields).
+  Old code reads new lockfile but ignores new fields; new code reads old
+  lockfile via migration.
+- Major version bump (2026 → 2027): breaking. Migration function required.</p>
+<h3 id="p0-spec-must-say_2">P0 spec must say</h3>
+<blockquote>
+<p><code>registry.lock.json</code> is versioned. <code>load_registry.py</code> auto-migrates
+old lockfiles. Major version bumps require explicit migration function
+in <code>src/shenbi/registry/migrations.py</code>. Consumers MUST support at least
+one prior schema version via auto-migration.</p>
+</blockquote>
+<hr />
+<h2 id="patch-04-n5-llm-consensus-n2-differential-property-q8-fix">Patch-04: N=5 LLM consensus → N=2 + differential + property (Q8 fix)</h2>
+<h3 id="original-brainstorming-decision-line-1024-1042">Original brainstorming decision (line 1024-1042)</h3>
+<blockquote>
+<p>N=5 LLM consensus mechanism. Five independent LLM instances generate
+the schema; supermajority (4/5) or unanimity required. This is
+N-version programming, NASA standard for high-reliability firmware.</p>
+</blockquote>
+<h3 id="defect_3">Defect</h3>
+<p>N-version LLM programming was popularized by Microsoft AutoGen (2023).
+<strong>2024-2025 research</strong> showed N-version LLM has lower ROI than
+alternatives:</p>
+<ol>
+<li><strong>LLMs share failure modes</strong>. All 5 instances may make the same
+   mistake (e.g., misread a skill's contract). N-version assumes
+   independent failures, which LLMs violate.</li>
+<li><strong>Cost scales linearly</strong>. N=5 costs 5× a single generation, but
+   reliability gain is sub-linear.</li>
+<li><strong>Property-based testing catches more bugs</strong>. Hypothesis with
+   1000 iterations explores more edge cases than 5 LLM guesses.</li>
+</ol>
+<h3 id="industry-standard-2025">Industry standard (2025)</h3>
+<p><strong>Generator + Reviewer + Property testing</strong> (the "RAG + Critic" pattern):</p>
+<ol>
+<li><strong>Generator</strong> (1 LLM call): produces schema candidate.</li>
+<li><strong>Reviewer</strong> (1 LLM call, different model): critiques the candidate.
+   If reviewer approves, accept. If reviewer rejects, generator revises
+   (max 3 iterations).</li>
+<li><strong>Property-based testing</strong> (Hypothesis, 1000 iterations): generates
+   random instances of the schema and verifies round-trip
+   serialization/deserialization, constraint satisfaction, etc.</li>
+<li><strong>Mutation testing</strong> (10+ mutations per schema): manually construct
+   schema-violating instances and verify the schema rejects them.</li>
+<li><strong>Static analysis on generated code</strong>: ruff + mypy strict on the
+   Pydantic model itself (catches the model definition being malformed).</li>
+</ol>
+<p>Total LLM calls: 2-4 (vs 5 for N-version). Reliability: equivalent or
+better. Cost: 40-60% lower.</p>
+<h3 id="patched-design_3">Patched design</h3>
+<p>Replace "N=5 consensus" with "Generator + Reviewer + Property + Mutation":</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">migrate_skill_schema</span><span class="p">(</span><span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">generator</span><span class="p">:</span> <span class="n">AgentFn</span><span class="p">,</span> <span class="n">reviewer</span><span class="p">:</span> <span class="n">AgentFn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MigrationResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Migrate one skill&#39;s schema with generator+reviewer+testing pattern.&quot;&quot;&quot;</span>
+    <span class="c1"># 1. Generate candidate</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="n">generator</span><span class="p">(</span><span class="n">skill_name</span><span class="p">)</span>
+
+    <span class="c1"># 2. Review (max 3 iterations)</span>
+    <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">review</span> <span class="o">=</span> <span class="n">reviewer</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">review</span><span class="o">.</span><span class="n">approved</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">generator</span><span class="p">(</span><span class="n">skill_name</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="n">review</span><span class="o">.</span><span class="n">feedback</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MigrationResult</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;review_failed&quot;</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">candidate</span><span class="p">)</span>
+
+    <span class="c1"># 3. Property-based testing (1000 iterations)</span>
+    <span class="n">property_results</span> <span class="o">=</span> <span class="n">run_property_tests</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">property_results</span><span class="o">.</span><span class="n">all_passed</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MigrationResult</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;property_failed&quot;</span><span class="p">,</span>
+                               <span class="n">candidate</span><span class="o">=</span><span class="n">candidate</span><span class="p">,</span>
+                               <span class="n">failures</span><span class="o">=</span><span class="n">property_results</span><span class="o">.</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="c1"># 4. Mutation testing</span>
+    <span class="n">mutation_results</span> <span class="o">=</span> <span class="n">run_mutation_tests</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mutation_results</span><span class="o">.</span><span class="n">survival_rate</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>  <span class="c1"># &gt; 10% mutations survive</span>
+        <span class="k">return</span> <span class="n">MigrationResult</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;mutation_failed&quot;</span><span class="p">,</span>
+                               <span class="n">candidate</span><span class="o">=</span><span class="n">candidate</span><span class="p">,</span>
+                               <span class="n">results</span><span class="o">=</span><span class="n">mutation_results</span><span class="p">)</span>
+
+    <span class="c1"># 5. Static analysis</span>
+    <span class="n">static_results</span> <span class="o">=</span> <span class="n">run_static_analysis</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>  <span class="c1"># ruff + mypy</span>
+    <span class="k">if</span> <span class="n">static_results</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MigrationResult</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;static_failed&quot;</span><span class="p">,</span>
+                               <span class="n">candidate</span><span class="o">=</span><span class="n">candidate</span><span class="p">,</span>
+                               <span class="n">errors</span><span class="o">=</span><span class="n">static_results</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">MigrationResult</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;accepted&quot;</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">candidate</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Reviewer agent</strong> must use a different model family from generator (e.g.,
+generator=Sonnet, reviewer=GPT-4o) to reduce shared-failure-mode risk.</p>
+<h3 id="p0-spec-must-say_3">P0 spec must say</h3>
+<blockquote>
+<p>Migration tooling uses Generator+Reviewer+Property+Mutation+Static
+pattern. Generator and Reviewer use different model families. Total
+LLM calls per skill: 2-4. N-version consensus (N≥3) is NOT used.</p>
+</blockquote>
+<hr />
+<h2 id="patch-05-foundation-first-spike-first-approach-fix">Patch-05: Foundation-First → Spike-First (Approach fix)</h2>
+<h3 id="original-brainstorming-decision-line-1042-1057">Original brainstorming decision (line 1042-1057)</h3>
+<blockquote>
+<p>Approach 1: Foundation-First. Write all infrastructure first, then
+migrate. Each step has clear deliverable.</p>
+</blockquote>
+<h3 id="defect_4">Defect</h3>
+<p>Foundation-First has a known failure mode for migration projects: the
+infrastructure is built without real consumer feedback, leading to over-
+or under-engineering. <strong>Industry consensus</strong> (Cargo, npm, Babel, Webpack,
+all major migrations) favors Spike-First or Parallel Tracks.</p>
+<h3 id="industry-standard_3">Industry standard</h3>
+<p><strong>Spike-First migration</strong>:</p>
+<ol>
+<li>Pick 3 representative skills (one foundation, one drafting, one review).</li>
+<li>Migrate them MANUALLY (no tools, just hand-craft meta.yaml + schemas).</li>
+<li>Extract patterns and edge cases from the manual migration.</li>
+<li>Build tools based on real needs (codemod, validators, etc.).</li>
+<li>Use tools to migrate remaining 55 skills.</li>
+</ol>
+<p>This avoids the "generalizing from theory" trap. The Shenbi audit already
+showed a similar failure mode: <code>voice_profile</code> field was discovered to
+cause skill bloat during brainstorming, which would have been caught
+earlier with a spike.</p>
+<h3 id="patched-design_4">Patched design</h3>
+<div class="highlight"><pre><span></span><code>Phase 1: Spike (3 skills manually migrated, 1-2 weeks)
+  - shenbi-worldbuilding (foundation skill, complex IO contract)
+  - shenbi-chapter-drafting (drafting skill, prose-heavy output)
+  - shenbi-review-character (review skill, scoring-heavy)
+  Output: 3 reference migrations + spike report documenting patterns
+
+Phase 2: Tooling (based on spike findings, 1-2 weeks)
+  - Pydantic base classes
+  - build_registry.py + load_registry.py
+  - validate_skill.py + validate_registry.py
+  - migrate_skill.py codemod (informed by spike manual migrations)
+  - LLM generator+reviewer tools (Patch-04)
+  Output: tool suite with 100% spike-skill coverage
+
+Phase 3: Batch migration (remaining 55 skills, 1-2 weeks)
+  - Run codemod + LLM tools on each skill
+  - Per-skill review + iteration (max 5 attempts)
+  Output: all 58 shenbi-* skills migrated
+
+Phase 4: Validation (1 week)
+  - Property-based testing across all skills
+  - Mutation testing across all skills
+  - Human review sample (10%)
+  Output: validation report
+</code></pre></div>
+<p><strong>Spike skill selection criteria</strong>:
+- Covers different IO contract shapes (JSON, prose-md, truth-md)
+- Covers different skill categories (foundation, drafting, review)
+- Covers different complexity (high IO + schema, low IO + schema)
+- Has historical run data (already tested in some round) — for sanity check</p>
+<h3 id="p0-spec-must-say_4">P0 spec must say</h3>
+<blockquote>
+<p>P0 follows Spike-First approach. Phase 1 migrates 3 skills manually
+before any tooling is written. Tooling design in Phase 2 is informed
+by Phase 1 findings. Foundation-First is explicitly rejected.</p>
+</blockquote>
+<hr />
+<h2 id="patch-06-observability-story-new-section">Patch-06: Observability story (new section)</h2>
+<h3 id="original-brainstorming-decision">Original brainstorming decision</h3>
+<p><strong>No observability discussion.</strong> Brainstorming covered schemas, registry,
+scenarios, defects, migration — but never how to observe the framework
+running.</p>
+<h3 id="defect_5">Defect</h3>
+<p>For an AI framework where:
+- Skills execute via LLM calls (non-deterministic, slow, expensive)
+- Migration tooling uses LLM calls (Patch-04)
+- Tests run sub-agent dispatches
+- Round execution takes hours</p>
+<p>...observability is essential. Without it, debugging "why did this skill
+fail?" requires re-running the skill, hoping for the same outcome.</p>
+<h3 id="industry-standard_4">Industry standard</h3>
+<p><strong>OpenTelemetry</strong> (OTLP) is the 2024+ standard for observability.
+<strong>Phoenix</strong> (Arize), <strong>LangSmith</strong> (LangChain), <strong>Helicone</strong> are
+AI-specific observability backends. All support OpenTelemetry export.</p>
+<p>A framework that doesn't emit OTLP-compatible traces is invisible to
+modern observability stacks.</p>
+<h3 id="patched-design_5">Patched design</h3>
+<p><strong>Define metrics schema, don't implement collector</strong> (P3 scope):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/observability/metrics.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SkillExecutionMetric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OTLP-compatible metric for a single skill execution.&quot;&quot;&quot;</span>
+    <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">test_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="s2">&quot;bug-hunt&quot;</span><span class="p">,</span> <span class="s2">&quot;clean&quot;</span><span class="p">]</span>
+    <span class="n">round_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">duration_ms</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">token_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>         <span class="c1"># None if not reported</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">int</span>                       <span class="c1"># 0-100</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pass&quot;</span><span class="p">,</span> <span class="s2">&quot;fail&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">]</span>
+    <span class="n">error_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>          <span class="c1"># if status == &quot;error&quot;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SchemaValidationMetric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OTLP-compatible metric for a schema validation.&quot;&quot;&quot;</span>
+    <span class="n">schema_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instance_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">valid</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">error_count</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">duration_ms</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MigrationMetric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OTLP-compatible metric for a single skill migration attempt.&quot;&quot;&quot;</span>
+    <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">generator_model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reviewer_model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;accepted&quot;</span><span class="p">,</span> <span class="s2">&quot;review_failed&quot;</span><span class="p">,</span> <span class="s2">&quot;property_failed&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;mutation_failed&quot;</span><span class="p">,</span> <span class="s2">&quot;static_failed&quot;</span><span class="p">]</span>
+    <span class="n">duration_ms</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+<p><strong>Emitters</strong>: structlog can emit these as JSON log lines. P3 work adds
+OTLP exporter for direct collector integration.</p>
+<p><strong>Trace context</strong>: every skill execution starts a new trace span.
+Sub-skills (chapter drafting during chapter planning) nest under parent
+spans. W3C TraceContext headers propagate through sub-agent dispatch.</p>
+<h3 id="p0-spec-must-say_5">P0 spec must say</h3>
+<blockquote>
+<p>P0 defines metrics schema (<code>src/shenbi/observability/metrics.py</code>) and
+emits metrics via structlog. OTLP collector integration is P3 scope.
+Every skill execution creates a trace span; trace context propagates
+through sub-agent dispatch via W3C TraceContext headers.</p>
+</blockquote>
+<hr />
+<h2 id="patch-07-projectscripts-entry-points-new-section">Patch-07: <code>[project.scripts]</code> entry points (new section)</h2>
+<h3 id="original-brainstorming-decision_1">Original brainstorming decision</h3>
+<p>P-1.E defers <code>[project.scripts]</code> (see Cluster 02 root cause 2). P0
+brainstorming didn't address this either.</p>
+<h3 id="defect_6">Defect</h3>
+<p>P0 introduces <code>build_registry.py</code>, <code>load_registry.py</code>,
+<code>validate_registry.py</code>, <code>validate_skill.py</code>, <code>migrate_skill.py</code> — 5 new
+tools. Without entry points, users invoke them as
+<code>python tests/build_registry.py ...</code> (or <code>python src/shenbi/registry/build.py ...</code>
+post Cluster 02). Not discoverable, not installable, not scriptable.</p>
+<h3 id="patched-design_6">Patched design</h3>
+<p>P-1.E PR-18 adds entry points for existing tools. P0 adds new entry
+points for its tools:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project.scripts]</span>
+<span class="c1"># From P-1.E</span>
+<span class="n">shenbi-validate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.gates.cli:main&quot;</span>
+<span class="n">shenbi-dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.dispatcher.cli:main&quot;</span>
+<span class="n">shenbi-score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.scoring:main&quot;</span>
+<span class="n">shenbi-summarize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.summarize_round:main&quot;</span>
+<span class="n">shenbi-progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.update_progress:main&quot;</span>
+<span class="n">shenbi-phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.phase_runner:main&quot;</span>
+<span class="n">shenbi-generate-plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.plugins.generate:main&quot;</span>
+
+<span class="c1"># From P0</span>
+<span class="n">shenbi-build-registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.registry.build:main&quot;</span>
+<span class="n">shenbi-load-registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.registry.load:main&quot;</span>
+<span class="n">shenbi-validate-registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.registry.validate:main&quot;</span>
+<span class="n">shenbi-validate-skill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.skills.validate:main&quot;</span>
+<span class="n">shenbi-migrate-skill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.skills.migrate:main&quot;</span>
+</code></pre></div>
+<p><strong>Discoverability</strong>: <code>just gate G0 &lt;seed&gt;</code> becomes the user-facing alias.
+Entry points enable <code>just</code> to call them consistently.</p>
+<h3 id="p0-spec-must-say_6">P0 spec must say</h3>
+<blockquote>
+<p>All P0 tools (<code>shenbi-build-registry</code>, <code>shenbi-load-registry</code>,
+<code>shenbi-validate-registry</code>, <code>shenbi-validate-skill</code>,
+<code>shenbi-migrate-skill</code>) are installed as <code>[project.scripts]</code> entry
+points. Users invoke via <code>just</code> (e.g., <code>just build-registry</code>) or
+directly (<code>shenbi-build-registry</code>).</p>
+</blockquote>
+<hr />
+<h2 id="summary-what-the-p0-spec-must-incorporate">Summary: What the P0 spec must incorporate</h2>
+<p>When the P0 spec is written (after P-1.E completes), it must include:</p>
+<ol>
+<li><strong>Q3 restated</strong>: meta.yaml has IO contract; graph.yaml has phase/pipeline
+   membership only; dependencies derived by <code>build_registry.py</code>.</li>
+<li><strong>Q5 supplemented</strong>: every Pydantic schema has JSON Schema export.</li>
+<li><strong>Q7 supplemented</strong>: lockfile has versioning + migration mechanism.</li>
+<li><strong>Q8 replaced</strong>: Generator + Reviewer + Property + Mutation + Static,
+   not N=5 consensus.</li>
+<li><strong>Approach changed</strong>: Spike-First, not Foundation-First.</li>
+<li><strong>New section: Observability</strong>: metrics schema defined; trace context
+   propagated; collector integration deferred to P3.</li>
+<li><strong>New section: Entry points</strong>: all P0 tools installed as
+   <code>[project.scripts]</code>.</li>
+</ol>
+<h2 id="cross-cluster-dependencies">Cross-cluster Dependencies</h2>
+<p>This cluster has no P-1.E PRs. It's purely informational. The 7 patches
+are referenced from the P0 spec when it's written.</p>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0 spec writer ignores this cluster</td>
+<td>P0 brainstorming skill requires reading <code>08-p0-plan-patches.md</code> before starting spec</td>
+</tr>
+<tr>
+<td>Industry best practice shifts again before P0 starts</td>
+<td>Spec author re-verifies each patch against current industry state at P0 spec time</td>
+</tr>
+<tr>
+<td>Spike-First discovers skills are even more divergent than expected</td>
+<td>Spike report informs Phase 2 tooling scope; budget contingency in P0 plan</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Generator + Reviewer same vendor (Anthropic) or cross-vendor (Anthropic + OpenAI)?</td>
+<td><strong>Cross-vendor.</strong></td>
+<td>Per Cluster 08 Patch-04: "Generator and Reviewer use different model families to reduce shared-failure-mode risk." Same-vendor models share training data biases and failure modes. Cross-vendor maximizes independence. P0 spec time picks the specific pair based on benchmark results.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Include LLM cost in observability metrics?</td>
+<td><strong>Yes — <code>cost_usd</code> field in <code>SkillExecutionMetric</code>.</strong></td>
+<td>Cost tracking is essential for any LLM-heavy framework. Without it, runaway skill execution (e.g., infinite retry loop) is invisible until invoice arrives. Pydantic field with 2 decimal precision; populated from provider's pricing API.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Lockfile migration: auto-write or explicit invocation?</td>
+<td><strong>Auto-write with <code>log.warning</code> for minor/patch bumps; explicit <code>shenbi-migrate-lockfile --major</code> invocation required for major bumps.</strong></td>
+<td>Minor/patch migrations are non-destructive (additive); auto-write reduces friction. Major bumps may delete/rename fields; explicit invocation forces operator awareness. Two-tier policy matches Cargo/npm/terraform conventions.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

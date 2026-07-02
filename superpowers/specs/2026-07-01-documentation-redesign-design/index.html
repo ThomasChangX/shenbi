@@ -1,0 +1,1437 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-01-documentation-redesign-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Documentation Redesign — Wave 1 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Documentation Redesign — Wave 1 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-01-documentation-redesign-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-01-documentation-redesign-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Documentation Redesign — Wave 1 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-01-documentation-redesign-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation-redesign-wave-1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation Redesign — Wave 1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals-wave-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals (Wave 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approach
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#information-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Information Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#page-specifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page Specifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Page Specifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#readmemd-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        README.md (root)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsindexmd-landing-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/index.md — Landing page
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsgetting-startedinstallationmd-setup-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/getting-started/installation.md — Setup guide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsgetting-startedconceptsmd-core-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/getting-started/concepts.md — Core vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsgetting-startedfirst-novelmd-end-to-end-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/getting-started/first-novel.md — End-to-end workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsskillsindexmd-full-skill-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/skills/index.md — Full skill catalog
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docsarchitectureoverviewmd-how-it-fits-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs/architecture/overview.md — How it fits together
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wave-2-deferred" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wave 2 (Deferred)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="documentation-redesign-wave-1">Documentation Redesign — Wave 1</h1>
+<p><strong>Date</strong>: 2026-07-01
+<strong>Status</strong>: Approved (design phase)
+<strong>Scope</strong>: Wave 1 only (user-facing + architecture overview); Wave 2 (developer reference) deferred.</p>
+<h2 id="problem">Problem</h2>
+<p>Shenbi's documentation does not match the substance of the project. The actual project contains 69 novel-writing skills, an 8-gate quality system (G0-G7), a three-tier testing framework (T1/T2/T3), truth-file state management, and a detailed execution protocol. But the documentation surface is almost entirely stubs:</p>
+<ul>
+<li>README: two lines ("Novel-writing AI skill framework")</li>
+<li>docs/index.md: four lines</li>
+<li>Getting-started guides: 3-8 sentences each, no actual walkthrough</li>
+<li>Framework docs: one-liners that don't explain concepts</li>
+<li>No skill catalog, no architecture overview, no "why does this exist"</li>
+</ul>
+<p>There is a massive gap between the richness of the project and what the docs communicate. The internal protocol docs (<code>command-to-give.md</code>, <code>goal-prompt.md</code>) are dense and detailed but are in Chinese, oriented toward execution, and not structured for onboarding.</p>
+<h2 id="goals">Goals</h2>
+<ul>
+<li>Serve two audiences: novel writers using AI (user guide) and framework developers/contributors (architecture reference).</li>
+<li>Language: bilingual, Chinese-primary, with English translations for key pages.</li>
+<li>Core framing: Shenbi's contribution is (1) orchestration of many specialized skills and (2) a rigorous testing/scoring framework that measures whether those skills work.</li>
+<li>Ship Wave 1 as a complete, credible documentation surface. Wave 2 (developer deep-dive) comes later.</li>
+</ul>
+<h2 id="non-goals-wave-2">Non-Goals (Wave 2)</h2>
+<ul>
+<li>Individual skill detail pages (auto-generated from SKILL.md metadata).</li>
+<li>Gate internals deep-dive (how each G0-G7 check works internally).</li>
+<li>Scoring mechanics deep-dive (rubric structure, dimension weights, conservative merge).</li>
+<li>API reference pages (already exist as stubs, remain stubs until Wave 2).</li>
+<li>"How to add a new skill" contributor guide.</li>
+<li>ADR reorganization.</li>
+</ul>
+<h2 id="approach">Approach</h2>
+<p>Phased rollout (Approach C modified). Wave 1 delivers everything a user needs plus a concise architecture overview so readers immediately understand what makes Shenbi different. The deep-dive developer reference is deferred to Wave 2.</p>
+<h2 id="information-architecture">Information Architecture</h2>
+<div class="highlight"><pre><span></span><code>docs/
+  index.md                      # Landing: what is Shenbi, why it exists, key links
+  getting-started/
+    installation.md             # Real setup guide (uv, just, Python 3.11+)
+    concepts.md                 # Core vocabulary: skills, gates, truth files, rounds
+    first-novel.md              # End-to-end workflow walkthrough by pipeline phase
+  skills/
+    index.md                    # Full skill catalog: 69 skills grouped by phase
+  architecture/
+    overview.md                 # How it fits together: pipeline, gates, scoring, truth files
+  (existing framework/, api/, adr/ remain untouched until Wave 2)
+</code></pre></div>
+<p>Root README gets a full rewrite (bilingual, elevator pitch, quick start, badge row).</p>
+<p>mkdocs nav (Wave 1):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">nav</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">首页 / Home</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">index.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">快速开始 / Getting Started</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">安装 / Installation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/installation.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">核心概念 / Concepts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/concepts.md</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">第一本小说 / Your First Novel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">getting-started/first-novel.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">技能目录 / Skills</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skills/index.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">架构概览 / Architecture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">architecture/overview.md</span>
+</code></pre></div>
+<p>Audience separation: getting-started is for someone who wants to <em>use</em> Shenbi (workflow-oriented). Architecture is for someone who wants to <em>understand</em> it (gate chain, scoring tiers, truth-file lifecycle). Both audiences hit the landing page, then diverge.</p>
+<h2 id="page-specifications">Page Specifications</h2>
+<h3 id="readmemd-root">README.md (root)</h3>
+<p>The single most important page. Must work for a GitHub visitor who has never heard of Shenbi and someone who cloned the repo.</p>
+<p>Structure:
+1. <strong>Title + bilingual one-liner</strong>: <code># Shenbi (神笔)</code> + bilingual tagline
+2. <strong>Badges</strong>: CI, License, Python version
+3. <strong>What is Shenbi / 什么是 Shenbi</strong>: ~150 words. Core problem (writing a full novel with AI agents means orchestrating dozens of specialized tasks while keeping consistency across hundreds of pages). What Shenbi provides (67 writing skills + 2 meta-skills, 8-gate quality system (G0-G7), three-tier testing framework across 3 pipelines, truth files). Chinese version follows English, same content.
+4. <strong>Why Shenbi / 为什么选择 Shenbi</strong>: three bullet points:
+   - Skill orchestration: 67 writing skills + 2 meta-skills cover worldbuilding through anti-AI-detection, organized by pipeline phase
+   - Quality gates: 8 validation gates (G0-G7) enforce integrity at every stage — no stage can be skipped
+   - Measurable quality: T1/T2/T3 scoring against rubrics, 0-100, with convergence targets
+5. <strong>Quick start / 快速开始</strong>: clone, uv sync, just check
+6. <strong>Documentation / 文档</strong>: links to published docs site with one-line descriptions
+7. <strong>Skills at a glance / 技能一览</strong>: compact table of 9 pipeline phases + out-of-pipeline group, with one-line description per phase. Per-phase skill counts sourced from <code>tests/tiers/deps.json</code>. No full catalog (that's the skills/ page).
+8. <strong>Contributing / 贡献</strong>: link to CONTRIBUTING.md
+9. <strong>License</strong>: MIT</p>
+<p>Bilingual sections are stacked (English then Chinese), not side-by-side.</p>
+<h3 id="docsindexmd-landing-page">docs/index.md — Landing page</h3>
+<p>Not a stub. Opens with the same bilingual one-liner as the README, then a short "what problem does this solve" paragraph, then three feature cards (skill orchestration, quality gates, measurable quality) each linking to the relevant page. Ends with two clear paths: "I want to write a novel / 我想写小说" -&gt; getting-started, and "I want to understand the framework / 我想理解框架" -&gt; architecture.</p>
+<h3 id="docsgetting-startedinstallationmd-setup-guide">docs/getting-started/installation.md — Setup guide</h3>
+<p>Expand from current 4 lines. Cover:
+- Prerequisites: Python 3.11+, uv 0.5+, just
+- Clone and sync commands
+- Verifying the install (<code>just check</code> passes)
+- Note about test fixtures and round directories
+- Bilingual</p>
+<h3 id="docsgetting-startedconceptsmd-core-vocabulary">docs/getting-started/concepts.md — Core vocabulary</h3>
+<p>Five concepts a user needs before anything makes sense:
+1. <strong>Skill (技能)</strong> — what a SKILL.md is, how skills are organized by phase, how an agent discovers and loads them
+2. <strong>Truth files (真相文件)</strong> — project state files that persist between skills; backbone of consistency
+3. <strong>Gates (门控)</strong> — G0-G7, what each guards, the "no gate skipped" principle
+4. <strong>Rounds (轮次)</strong> — what a round directory is, why it matters for reproducibility
+5. <strong>Scoring tiers (评分层级)</strong> — T1/T2/T3, what each measures, the 94 threshold</p>
+<p>Each concept: 3-5 sentences, bilingual. Enough to orient, not a deep dive (architecture page handles that).</p>
+<h3 id="docsgetting-startedfirst-novelmd-end-to-end-workflow">docs/getting-started/first-novel.md — End-to-end workflow</h3>
+<p>Walks through the long-form T3 pipeline (genesis -&gt; architecture -&gt; planning -&gt; drafting -&gt; audit -&gt; foundation -&gt; management) as a narrative. This follows the actual <code>t3-pipelines.long-form.prerequisites</code> order from <code>tests/tiers/deps.json</code>. The walkthrough also briefly mentions the short-form and import-form pipelines so readers know those exist.</p>
+<ol>
+<li>Genesis (创世) — worldbuilding, power system, factions, locations, character design, relationship map, story architecture, volume outlining, genre config, pacing, book spine init</li>
+<li>Architecture (架构) — story architecture, volume outlining, pacing, plot thread weaver, genre config (note: some skills overlap with genesis)</li>
+<li>Planning (规划) — chapter planning, foreshadowing plant, context composing</li>
+<li>Drafting (起草) — chapter drafting, state settling, foreshadowing track/recall, style polishing, anti-detect, length normalizing, score arc</li>
+<li>Audit (审计) — 18 review skills (review-character, review-continuity, review-dialogue, review-pacing, review-anti-ai, etc.)</li>
+<li>Foundation (基设) — foundation review, chapter revision, truth sync, style learning</li>
+<li>Management (管理) — snapshot manage, drift guidance, intent management, chapter pattern, volume consolidation, review arc payoff, memory distill, score volume, score stratum</li>
+</ol>
+<p>Each phase: what it does, which skills are involved (from deps.json prerequisites), what truth files it reads/writes, and a command example. Goal: someone reads this and understands the shape of writing a novel with Shenbi.</p>
+<h3 id="docsskillsindexmd-full-skill-catalog">docs/skills/index.md — Full skill catalog</h3>
+<p>Single comprehensive page listing all 69 skills grouped by T2 phase, sourced from <code>tests/tiers/deps.json</code> → <code>t2-phases</code>. For each phase, a table:</p>
+<div class="highlight"><pre><span></span><code>## Genesis / 创世
+
+| Skill | Description |
+|-------|-------------|
+| shenbi-worldbuilding | 世界观构建 — Build the world... |
+| shenbi-power-system | 力量体系 — Design the magic/power system... |
+</code></pre></div>
+<p>Table pulls <code>name</code> and <code>description</code> from each SKILL.md frontmatter directly — no manual summarizing. Bilingual headers per phase.</p>
+<p><strong>9 T2 phases</strong> (from <code>deps.json</code> <code>t2-phases[].prerequisites</code>):
+1. Genesis (创世) — worldbuilding, power-system, faction-builder, location-builder, character-design, relationship-map, story-architecture, volume-outlining, genre-config, pacing-design, book-spine-init (11 skills)
+2. Architecture (架构) — story-architecture, volume-outlining, pacing-design, plot-thread-weaver, genre-config (5 skills; some overlap with genesis)
+3. Planning (规划) — chapter-planning, foreshadowing-plant, context-composing (3 skills)
+4. Drafting (起草) — chapter-drafting, state-settling, foreshadowing-track, style-polishing, review-resonance, anti-detect, length-normalizing, foreshadowing-recall, score-arc (9 skills)
+5. Audit (审计) — 18 review skills (review-character through review-spinoff)
+6. Foundation (基设) — foundation-review, chapter-revision, truth-sync, style-learning (4 skills)
+7. Management (管理) — snapshot-manage, drift-guidance, intent-management, chapter-pattern, volume-consolidation, review-arc-payoff, memory-distill, score-volume, score-stratum (9 skills)
+8. Import (导入) — import-analysis, character-extraction, world-extraction, canon-import (4 skills)
+9. Short Story (短篇) — short-outline, short-drafting, short-packaging (3 skills)</p>
+<p><strong>Out-of-pipeline skills</strong> (from <code>deps.json</code> <code>_out_of_pipeline</code>):
+- Auxiliary: market-radar, sequel-writing, anchor-curate, escalation-review (4 skills)
+- Meta: using-shenbi, shenbi-writing-skills (2 skills)
+- Drafting helper: foreshadowing-resolve (1 skill)</p>
+<p>Note: skills can appear in multiple phases (e.g., genre-config is in both genesis and architecture). Phase assignments come exclusively from <code>deps.json</code>, NOT from SKILL.md frontmatter (which has no phase field). The implementer must source all phase groupings from <code>deps.json</code> <code>t2-phases</code> and <code>_out_of_pipeline</code>.</p>
+<h3 id="docsarchitectureoverviewmd-how-it-fits-together">docs/architecture/overview.md — How it fits together</h3>
+<p>Four sections, each a few paragraphs with Mermaid diagrams:</p>
+<ol>
+<li><strong>The pipeline</strong> — visual showing the 9 T2 phases flowing left to right (genesis -&gt; architecture -&gt; planning -&gt; drafting -&gt; audit -&gt; foundation -&gt; management, with import and short-story as parallel tracks), truth files passed between them. Also shows the 3 T3 pipelines: long-form (the main 7-phase sequence), short-form (short-story phase only), and import-form (import phase only). Mental model for the orchestration contribution.</li>
+<li><strong>The gate chain</strong> — G0 through G7, what boundary each guards, the rule that no gate can be skipped. Table or sequence diagram.</li>
+<li><strong>The scoring tiers</strong> — T1 (per-skill), T2 (per-phase, 9 phases), T3 (end-to-end, 3 pipelines: long-form, short-form, import-form). The 0-100 rubric system, 94 threshold for advancement, convergence toward 100.</li>
+<li><strong>Truth files</strong> — state management backbone. How truth files flow through the pipeline, how skills read and update them, why this keeps a 200,000-word novel from contradicting itself.</li>
+</ol>
+<p>Bilingual throughout. Mermaid diagrams require configuration beyond mkdocs-material defaults — see Implementation Notes.</p>
+<h2 id="implementation-notes">Implementation Notes</h2>
+<ul>
+<li>All new pages are bilingual (Chinese-primary, English secondary). Each section presents Chinese first, then the English translation below it. This is consistent across all Wave 1 pages.</li>
+<li>Skill descriptions in the catalog are pulled from SKILL.md frontmatter, not hand-written.</li>
+<li><strong>Mermaid rendering is not configured.</strong> <code>mkdocs.yml</code> has no <code>markdown_extensions</code> section. mkdocs-material does NOT render <code>```mermaid</code> blocks out of the box — it requires <code>pymdownx.superfences</code> with a mermaid custom fence, or the <code>mkdocs-mermaid2-plugin</code>. The implementer must add this configuration to <code>mkdocs.yml</code> as a prerequisite task before the architecture page can use diagrams. Example config:
+  <div class="highlight"><pre><span></span><code><span class="nt">markdown_extensions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pymdownx.superfences</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">custom_fences</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mermaid</span>
+<span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mermaid</span>
+<span class="w">          </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="kt">!!python/name:pymdownx.superfences.fence_code_format</span>
+</code></pre></div></li>
+<li><strong>Nav policy: additive, not replacement.</strong> The proposed nav entries (Home, Getting Started, Skills, Architecture) are INSERTED into the existing nav. The existing Framework, API, and Architecture Decisions sections remain. The implementer should preserve all existing nav entries and add the new ones. The bilingual label convention ("首页 / Home") is an intentional style change applied to the new entries only; existing entries keep their current labels until Wave 2.</li>
+<li><strong>Phase data source of truth.</strong> All phase groupings, skill-to-phase assignments, and pipeline definitions come from <code>tests/tiers/deps.json</code>. Do NOT derive phases from SKILL.md content or from prose descriptions. <code>deps.json</code> is the single authoritative source.</li>
+<li><strong>Factual claims data sources.</strong> For auditability:</li>
+<li>Skill count, phase groupings, pipeline definitions: <code>tests/tiers/deps.json</code></li>
+<li>Scoring thresholds: <code>tests/tiers/acceptance.json</code></li>
+<li>Gate definitions: <code>docs/framework/gates.md</code>, <code>src/shenbi/gates/</code></li>
+<li>Truth file structure: <code>docs/framework/truth-files.yaml</code>, <code>docs/framework/truth-files.index.json</code></li>
+<li>Python version: <code>pyproject.toml</code> <code>requires-python</code></li>
+<li><code>docs/roadmap.md</code> exists and should be linked from the README or landing page.</li>
+<li>README badge URLs need to be constructed from the actual CI workflow file names.</li>
+<li>The existing <code>docs/framework/</code> pages (gates.md, scoring.md, dispatcher.md, logging.md) remain as-is until Wave 2. They are linked from the existing nav entries but not cross-linked from new Wave 1 pages.</li>
+</ul>
+<h2 id="wave-2-deferred">Wave 2 (Deferred)</h2>
+<p>After Wave 1 ships:
+- Individual skill detail pages
+- Gate internals deep-dive (expand framework/gates.md)
+- Scoring mechanics deep-dive (expand framework/scoring.md)
+- API reference pages
+- "How to add a new skill" contributor guide
+- ADR index cleanup</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

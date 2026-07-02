@@ -1,0 +1,1744 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/architecture/overview/">
+      
+      
+        <link rel="prev" href="../../skills/">
+      
+      
+        <link rel="next" href="../../framework/gates/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>架构概览 / Architecture - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="架构概览 / Architecture - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/architecture/overview.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/architecture/overview/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="架构概览 / Architecture - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/architecture/overview.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture-overview" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              架构概览 / Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        流水线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="流水线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        门控链
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="门控链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-gate-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Gate Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        评分层级
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分层级">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-scoring-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Scoring Tiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        真相文件
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="真相文件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#truth-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Truth Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        延伸阅读 / Further Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        流水线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="流水线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        门控链
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="门控链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-gate-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Gate Chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        评分层级
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分层级">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-scoring-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Scoring Tiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        真相文件
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="真相文件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#truth-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Truth Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        延伸阅读 / Further Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="architecture-overview">架构概览 / Architecture Overview</h1>
+<hr />
+<h2 id="_1">流水线</h2>
+<p>Shenbi 的长篇小说创作沿一条多阶段流水线推进：创世 → 架构 → 规划 → 起草 → 审计 → 基设 → 管理。短篇与导入形态各自走独立的单阶段路径。阶段之间不直接传递数据——所有上下文都通过<strong>真相文件</strong>流动，确保每个技能都能从持久化项目状态中读取一致的输入。</p>
+<p>框架定义了三条 T3 端到端流水线（源自 <code>tests/tiers/deps.json</code> 的 <code>t3-pipelines</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>流水线</th>
+<th>阶段序列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长篇 Long-form</td>
+<td>genesis → architecture → planning → drafting → audit → foundation → management</td>
+</tr>
+<tr>
+<td>短篇 Short-form</td>
+<td>short-story</td>
+</tr>
+<tr>
+<td>导入 Import-form</td>
+<td>import</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>数据在阶段之间通过真相文件流转。</p>
+</blockquote>
+<pre class="mermaid"><code>graph LR
+    subgraph Long-Form["长篇 / Long-Form"]
+        G["创世&lt;br/&gt;Genesis"] --&gt;|"truth files"| A["架构&lt;br/&gt;Architecture"]
+        A --&gt;|"truth files"| P["规划&lt;br/&gt;Planning"]
+        P --&gt;|"truth files"| D["起草&lt;br/&gt;Drafting"]
+        D --&gt;|"truth files"| AU["审计&lt;br/&gt;Audit"]
+        AU --&gt;|"truth files"| F["基设&lt;br/&gt;Foundation"]
+        F --&gt;|"truth files"| M["管理&lt;br/&gt;Management"]
+    end
+    subgraph Short["短篇 / Short-Form"]
+        S["短篇&lt;br/&gt;Short Story"]
+    end
+    subgraph Import["导入 / Import-Form"]
+        I["导入&lt;br/&gt;Import"]
+    end</code></pre>
+<h3 id="the-pipeline">The Pipeline</h3>
+<p>Shenbi's long-form novel writing advances along a multi-stage pipeline: genesis → architecture → planning → drafting → audit → foundation → management. Short-form and import-form each follow their own single-stage paths. Phases never hand data directly to each other — all context flows through <strong>truth files</strong>, ensuring every skill reads consistent input from a persistent project state.</p>
+<p>The framework defines three T3 end-to-end pipelines (from <code>tests/tiers/deps.json</code>, key <code>t3-pipelines</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Phase Sequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Long-form</td>
+<td>genesis → architecture → planning → drafting → audit → foundation → management</td>
+</tr>
+<tr>
+<td>Short-form</td>
+<td>short-story</td>
+</tr>
+<tr>
+<td>Import-form</td>
+<td>import</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Data flows between phases via truth files.</p>
+</blockquote>
+<hr />
+<h2 id="_2">门控链</h2>
+<p>质量不是事后的打分，而是门控（Gate）的强制保证。八道门（G0–G7）分布在创建、分派、产出、评分、阶段边界、流水线完整性和收尾审计各环节。G0 环境门若未通过，必须修复后重新检查；G2 或 G4 未通过的产出不会进入评分；而评分<strong>必须</strong>由独立子代理完成（G3.4），分派方自行评分的结果无效。</p>
+<table>
+<thead>
+<tr>
+<th>门控</th>
+<th>检查点</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0</td>
+<td>创建轮次</td>
+<td>环境完整性：工具哈希、夹具纯净度、progress.json 一致性</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>分派前</td>
+<td>输入文件验证</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>产出验证</td>
+<td>产出文件结构与内容验证</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>评分就绪</td>
+<td>评分前置条件检查</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>技能质量</td>
+<td>技能专属结构检查 + 门控标记生成</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>阶段边界</td>
+<td>T2 阶段过渡验证</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>流水线完整性</td>
+<td>T3 端到端验证</td>
+</tr>
+<tr>
+<td>G7</td>
+<td>轮次后审计</td>
+<td>轮次收尾审计：工具篡改、门控不匹配</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>graph LR
+    S["开始 / Start"] --&gt; G0{"G0&lt;br/&gt;环境?"}
+    G0 --&gt;|Pass| G1{"G1&lt;br/&gt;输入?"}
+    G0 --&gt;|Fail| FIX["修复 / Fix"]
+    FIX --&gt; G0
+    G1 --&gt;|Pass| DISP["分派技能 / Dispatch"]
+    G1 --&gt;|Fail| FIX
+    DISP --&gt; G2{"G2&lt;br/&gt;输出?"}
+    G2 --&gt;|Pass| G4{"G4&lt;br/&gt;质量?"}
+    G2 --&gt;|Fail| DISP
+    G4 --&gt;|Pass| G3{"G3&lt;br/&gt;评分就绪?"}
+    G4 --&gt;|Fail| DISP
+    G3 --&gt;|Pass| SCORE["独立评分 / Score"]
+    G3 --&gt;|Fail| FIX
+    SCORE --&gt; DONE["完成 / Done"]</code></pre>
+<blockquote>
+<p>注：此图展示的是每次分派的质量循环。G5（阶段边界）、G6（流水线完整性）和 G7（轮次后审计）分别在 T2 阶段过渡、T3 流水线边界和轮次收尾时触发，处于该逐技能循环之外。</p>
+</blockquote>
+<h3 id="the-gate-chain">The Gate Chain</h3>
+<p>Quality is not a retrospective score; it is enforced by Gates. Eight gates (G0–G7) sit at creation, dispatch, output, scoring, phase boundaries, pipeline integrity, and post-round audit. A blocked G0 environment gate must be fixed and re-checked; output that fails G2 or G4 is never scored; and scoring <strong>must</strong> be performed by an independent sub-agent (G3.4) — dispatcher-scored results are invalid.</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Checkpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0</td>
+<td>Round creation</td>
+<td>Environment integrity: tool hashes, fixture purity, progress.json consistency</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>Pre-dispatch</td>
+<td>Input file validation</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Output validation</td>
+<td>Output file structure and content validation</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Scoring readiness</td>
+<td>Scoring precondition check</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Skill quality</td>
+<td>Skill-specific structural check + gate marker generation</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Phase boundary</td>
+<td>T2 phase transition validation</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>Pipeline integrity</td>
+<td>T3 end-to-end validation</td>
+</tr>
+<tr>
+<td>G7</td>
+<td>Post-round audit</td>
+<td>Round closure audit: tool tamper, gate mismatch</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: This diagram shows the per-dispatch quality loop. G5 (phase boundary), G6 (pipeline integrity), and G7 (post-round audit) fire at T2 phase transitions, T3 pipeline boundaries, and round closure respectively, outside this per-skill loop.</p>
+</blockquote>
+<hr />
+<h2 id="_3">评分层级</h2>
+<p>Shenbi 采用三层测试，单次测试以 <strong>90 分</strong>为通过门槛，<strong>94 分</strong>为阶段推进门槛（94 分源自 <code>tests/tiers/acceptance.json</code>，90 分为项目约定），收敛目标为满分 100。三种测试类型各有侧重：generative 生成产出并评分；bug-hunt 检测注入缺陷；clean 审查干净输入，幻觉出的缺陷直接记 0 分。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>范围</th>
+<th>门槛</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>单技能</td>
+<td>≥ 94</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>单阶段（9 个阶段）</td>
+<td>≥ 94</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>端到端（3 条流水线）</td>
+<td>≥ 94</td>
+</tr>
+</tbody>
+</table>
+<p>三种测试类型：generative（生成产出并评分）、bug-hunt（检测注入缺陷）、clean（审查干净输入；幻觉出的缺陷记 0 分）。</p>
+<p>收敛目标为 100。低于 94 时进入修复循环：阅读评分报告，定位根因（缺失模板 / 评分细则冲突 / 产出缺陷），修复后重新运行。</p>
+<h3 id="the-scoring-tiers">The Scoring Tiers</h3>
+<p>Shenbi uses a three-tier testing scheme, where an individual test <strong>&gt;= 90 is a pass</strong> and <strong>&gt;= 94 is the advancement threshold</strong> (per <code>tests/tiers/acceptance.json</code>), with a convergence target of a perfect 100. Three test types each probe a different dimension: generative generates output and scores it; bug-hunt detects injected defects; clean reviews clean input, where a hallucinated defect scores 0.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Scope</th>
+<th>Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>Per-skill</td>
+<td>≥ 94</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Per-phase (9 phases)</td>
+<td>≥ 94</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>End-to-end (3 pipelines)</td>
+<td>≥ 94</td>
+</tr>
+</tbody>
+</table>
+<p>Three test types: generative (generate output and score), bug-hunt (detect injected defects), clean (review clean input; a hallucinated defect scores 0).</p>
+<p>Convergence target: 100. A repair loop handles scores below 94: read the scoring report, identify the root cause (missing template / rubric conflict / output defect), fix, and re-run.</p>
+<hr />
+<h2 id="_4">真相文件</h2>
+<p><strong>真相文件</strong>是技能之间共享项目状态的唯一通道。每个技能读取真相文件获取当前状态，执行任务，再由状态结算环节提取变更并更新真相文件，形成闭环。这使得阶段之间无需直接通信即可保持上下文一致。</p>
+<p><code>docs/framework/truth-files.yaml</code> 共定义了 15 种 <code>kind</code> 值。以下为核心五类：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>示例文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config 配置</td>
+<td><code>novel.json</code>, <code>genre-config.json</code></td>
+</tr>
+<tr>
+<td>World 世界</td>
+<td><code>world/story_bible.md</code>, <code>world/rules.md</code>, <code>world/locations.md</code>, <code>world/power_system.md</code>, <code>world/factions.md</code></td>
+</tr>
+<tr>
+<td>Character 角色</td>
+<td><code>characters/protagonist.md</code>, <code>characters/relationships.md</code></td>
+</tr>
+<tr>
+<td>Outline 大纲</td>
+<td><code>outline/story_frame.md</code>, <code>outline/volume_map.md</code>, <code>outline/rhythm_principles.md</code>, <code>outline/thread_map.md</code></td>
+</tr>
+<tr>
+<td>Truth 状态</td>
+<td><code>truth/current_state.md</code>, <code>truth/pending_hooks.md</code>, <code>truth/chapter_summaries.md</code>, <code>truth/character_matrix.md</code>, <code>truth/emotional_arcs.md</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>完整 15 类见 <code>docs/framework/truth-files.yaml</code>。</p>
+</blockquote>
+<p>工作流：读取（技能读取真相文件获取当前状态）→ 执行（技能执行任务）→ 更新（状态结算提取变更并更新真相文件）。</p>
+<pre class="mermaid"><code>graph LR
+    TF["真相文件&lt;br/&gt;Truth Files"] --&gt;|读取 / Read| SK["技能执行&lt;br/&gt;Skill"]
+    SK --&gt;|产出 / Output| SS["状态结算&lt;br/&gt;State Settling"]
+    SS --&gt;|更新 / Update| TF</code></pre>
+<h3 id="truth-files">Truth Files</h3>
+<p><strong>Truth files</strong> are the sole channel through which skills share project state. Each skill reads truth files for current state, performs its task, and a state-settling step extracts the changes and updates the truth files — a closed loop. This lets phases stay contextually consistent without communicating directly.</p>
+<p><code>docs/framework/truth-files.yaml</code> defines 15 <code>kind</code> values in total. The five core categories:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Example Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config</td>
+<td><code>novel.json</code>, <code>genre-config.json</code></td>
+</tr>
+<tr>
+<td>World</td>
+<td><code>world/story_bible.md</code>, <code>world/rules.md</code>, <code>world/locations.md</code>, <code>world/power_system.md</code>, <code>world/factions.md</code></td>
+</tr>
+<tr>
+<td>Character</td>
+<td><code>characters/protagonist.md</code>, <code>characters/relationships.md</code></td>
+</tr>
+<tr>
+<td>Outline</td>
+<td><code>outline/story_frame.md</code>, <code>outline/volume_map.md</code>, <code>outline/rhythm_principles.md</code>, <code>outline/thread_map.md</code></td>
+</tr>
+<tr>
+<td>Truth</td>
+<td><code>truth/current_state.md</code>, <code>truth/pending_hooks.md</code>, <code>truth/chapter_summaries.md</code>, <code>truth/character_matrix.md</code>, <code>truth/emotional_arcs.md</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The full 15 categories live in <code>docs/framework/truth-files.yaml</code>.</p>
+</blockquote>
+<p>Workflow: Read (the skill reads truth files for current state) → Execute (the skill performs its task) → Update (state settling extracts changes and updates the truth files).</p>
+<hr />
+<h2 id="further-reading">延伸阅读 / Further Reading</h2>
+<ul>
+<li>→ <a href="../../getting-started/concepts/">核心概念 / Core Concepts</a></li>
+<li>→ <a href="../../skills/">技能目录 / Skill Catalog</a></li>
+<li>→ <a href="../../getting-started/first-novel/">第一本小说 / Your First Novel</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

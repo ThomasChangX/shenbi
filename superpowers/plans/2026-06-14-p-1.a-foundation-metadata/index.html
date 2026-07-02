@@ -1,0 +1,2576 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-14-p-1.a-foundation-metadata/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.A Foundation Metadata Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.A Foundation Metadata Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-14-p-1.a-foundation-metadata.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-14-p-1.a-foundation-metadata/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.A Foundation Metadata Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-14-p-1.a-foundation-metadata.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1a-foundation-metadata-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.A Foundation Metadata Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modified-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modified files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-modified-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not modified (yet)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-pr-1-project-metadata-pyprojecttoml-uvlock-gitignore-renovatejson-readmemd-testsinitpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: PR-1 Project Metadata (pyproject.toml + uv.lock + .gitignore + renovate.json + README.md + tests/init.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 1: PR-1 Project Metadata (pyproject.toml + uv.lock + .gitignore + renovate.json + README.md + tests/init.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-11-inventory-existing-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.1: Inventory existing state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-12-create-readmemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.2: Create README.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-13-create-tests__init__py" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.3: Create tests/__init__.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-14-merge-gitignore-do-not-overwrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.4: Merge .gitignore (DO NOT overwrite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-15-create-pyprojecttoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.5: Create pyproject.toml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-16-create-renovatejson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.6: Create renovate.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-17-install-uv-if-not-present" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.7: Install uv (if not present)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-18-generate-uvlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.8: Generate uv.lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-19-verify-clean-install-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.9: Verify clean install works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-110-verify-uv-build-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.10: Verify uv build works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-111-commit-pr-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1.11: Commit PR-1
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-pr-2-ruff-config-auto-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: PR-2 ruff config + auto-fix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 2: PR-2 ruff config + auto-fix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-21-verify-clean-working-tree-record-baseline-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.1: Verify clean working tree + record baseline behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-22-append-ruff-config-to-pyprojecttoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.2: Append ruff config to pyproject.toml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-23-verify-ruff-sees-the-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.3: Verify ruff sees the config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-24-baseline-check-count-current-violations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.4: Baseline check (count current violations)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-25-run-ruff-auto-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.5: Run ruff auto-fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-26-run-ruff-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.6: Run ruff format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-27-verify-behavior-unchanged-critical-must-pass-before-continuing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.7: Verify behavior unchanged (CRITICAL — must pass before continuing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-28-verify-ruff-passes-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.8: Verify ruff passes now
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-29-verify-ruff-format-check-passes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.9: Verify ruff format check passes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-210-review-the-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.10: Review the diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-211-commit-pr-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2.11: Commit PR-2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-pr-3-mypy-strict-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: PR-3 mypy --strict config
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 3: PR-3 mypy --strict config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-31-verify-clean-working-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.1: Verify clean working tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-32-append-mypy-config-to-pyprojecttoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.2: Append mypy config to pyproject.toml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-33-verify-mypy-version-pydantic-plugin-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.3: Verify mypy version + pydantic plugin available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-34-run-mypy-on-the-codebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.4: Run mypy on the codebase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-35-create-smoke-test-file-to-verify-mypy-actually-checks-something" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.5: Create smoke-test file to verify mypy actually checks something
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-36-verify-mypy-catches-the-intentional-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.6: Verify mypy catches the intentional error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-37-verify-mypy-passes-on-entire-codebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.7: Verify mypy passes on entire codebase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-38-commit-pr-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3.8: Commit PR-3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-pr-4-basedpyright-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: PR-4 basedpyright config
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 4: PR-4 basedpyright config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-41-verify-clean-working-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.1: Verify clean working tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-42-append-basedpyright-config-to-pyprojecttoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.2: Append basedpyright config to pyproject.toml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-43-verify-basedpyright-is-installed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.3: Verify basedpyright is installed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-44-run-basedpyright-on-the-codebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.4: Run basedpyright on the codebase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-45-verify-smoke-test-catches-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.5: Verify smoke test catches errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-46-commit-pr-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4.6: Commit PR-4
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-end-of-plan-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: End-of-Plan Verification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 5: End-of-Plan Verification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-51-verify-all-tools-still-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.1: Verify all tools still pass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-52-verify-existing-tests-still-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.2: Verify existing tests still pass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-53-verify-clean-checkout-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.3: Verify clean checkout works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-54-verify-git-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.4: Verify git log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-55-p-1a-is-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5.5: P-1.A is complete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-coverage-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec coverage check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#placeholder-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Placeholder scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-gaps-addressed-inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known gaps addressed inline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proactive-deviations-from-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proactive deviations from spec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workload-estimate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workload estimate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1a-foundation-metadata-implementation-plan">P-1.A Foundation Metadata Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Establish modern Python project metadata baseline (pyproject.toml + uv + ruff + mypy + basedpyright) so all subsequent P-1 PRs build on standardized tooling.</p>
+<p><strong>Architecture:</strong> Single-commit-per-PR strangler fig pattern. P-1.A produces zero behavior change to existing code; it only adds config files and runs auto-fixers on existing source. Legacy modules (validate-gate.py, scoring.py, etc.) get temporary <code>ignore_errors</code> overrides removed in PR-12 (P-1.D).</p>
+<p><strong>Tech Stack:</strong> Python ≥3.11, uv (package manager), ruff (lint+format), mypy --strict (type check), basedpyright (pure-Python pyright fork, type check)</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md</code></p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<p>This plan creates 5 new files, merges 1 existing file, and modifies 6 existing Python files (auto-fix only, no logic change).</p>
+<h3 id="new-files">New files</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+<th>Owned by Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>Project intro (required by pyproject.toml <code>readme</code> field)</td>
+<td>Task 1 (Step 1.2)</td>
+</tr>
+<tr>
+<td><code>tests/__init__.py</code></td>
+<td>Makes <code>tests/</code> a Python package (required by hatchling <code>packages = ["tests"]</code>)</td>
+<td>Task 1 (Step 1.3)</td>
+</tr>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>Project metadata + tool config (uv, ruff, mypy, basedpyright, pytest, coverage, mutmut)</td>
+<td>Task 1 (Step 1.5)</td>
+</tr>
+<tr>
+<td><code>renovate.json</code></td>
+<td>Automated dependency updates</td>
+<td>Task 1 (Step 1.6)</td>
+</tr>
+<tr>
+<td><code>uv.lock</code></td>
+<td>Pinned dependency versions with hashes (auto-generated)</td>
+<td>Task 1 (Step 1.8)</td>
+</tr>
+<tr>
+<td><code>tests/_mypy_smoke_test.py</code></td>
+<td>Canary file verifying mypy is actually running</td>
+<td>Task 3 (Step 3.5)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modified-files">Modified files</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Modification</th>
+<th>Owned by Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Append (merge) P-1.A entries to existing 31-line Shenbi-specific <code>.gitignore</code></td>
+<td>Task 1 (Step 1.4)</td>
+</tr>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>ruff auto-fix (whitespace, import sort, etc.) — no logic change</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>tests/scoring.py</code></td>
+<td>ruff auto-fix</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>tests/phase-runner.py</code></td>
+<td>ruff auto-fix</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>tests/summarize-round.py</code></td>
+<td>ruff auto-fix</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>tests/update-progress.py</code></td>
+<td>ruff auto-fix</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>tests/test_integrity.py</code></td>
+<td>ruff auto-fix</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>Append <code>[tool.ruff]</code> (Task 2), <code>[tool.mypy]</code> (Task 3), <code>[tool.basedpyright]</code> (Task 4)</td>
+<td>Tasks 2-4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="not-modified-yet">Not modified (yet)</h3>
+<ul>
+<li><code>tests/dispatch-subagent.sh</code> — shell script, not subject to Python tooling</li>
+<li><code>tests/round-exec.sh</code>, <code>tests/test-gates.sh</code>, <code>tests/lock-tool-hashes.sh</code> — shell scripts</li>
+<li>All <code>skills/</code>, <code>tests/fixtures/</code>, <code>tests/rounds/</code>, <code>tests/tiers/</code> content</li>
+</ul>
+<hr />
+<h2 id="task-1-pr-1-project-metadata-pyprojecttoml-uvlock-gitignore-renovatejson-readmemd-testsinitpy">Task 1: PR-1 Project Metadata (pyproject.toml + uv.lock + .gitignore + renovate.json + README.md + tests/<strong>init</strong>.py)</h2>
+<p><strong>Goal of this task:</strong> Create the foundation config files and verify uv can resolve dependencies on the existing repo. Sensitive to existing state (<code>.gitignore</code>, README.md, etc.).</p>
+<p><strong>Files:</strong>
+- Create: <code>README.md</code> (does NOT exist currently)
+- Create: <code>tests/__init__.py</code> (does NOT exist; needed for <code>tests</code> to be a wheel package)
+- Create: <code>pyproject.toml</code>
+- Modify (merge, not overwrite): <code>.gitignore</code> (already exists with 31 lines of Shenbi-specific patterns)
+- Create: <code>renovate.json</code>
+- Create: <code>uv.lock</code> (auto-generated by <code>uv lock</code>)</p>
+<h3 id="step-11-inventory-existing-state">Step 1.1: Inventory existing state</h3>
+<ul>
+<li>[ ] Run: <code>cat .gitignore | head -5</code></li>
+<li>
+<p>Expected: file exists with content like <code># OS / Editor\n.DS_Store\n*.swp...</code>. Note: existing <code>.gitignore</code> has 31 lines covering Shenbi-specific patterns (<code>tests/rounds/round-*</code>, <code>tests/tiers/t1-skill/*</code> reports). These MUST be preserved.</p>
+</li>
+<li>
+<p>[ ] Run: <code>ls README.md tests/__init__.py tests/gates/ tests/dispatcher/ docs/adr/ 2&gt;&amp;1</code></p>
+</li>
+<li>Expected: ALL of these do NOT exist (<code>No such file or directory</code> for each). Plan must create README.md and tests/<strong>init</strong>.py in this task. (tests/gates/, tests/dispatcher/, docs/adr/ are created in later P-1.B/P-1.C tasks, NOT this plan.)</li>
+</ul>
+<h3 id="step-12-create-readmemd">Step 1.2: Create <code>README.md</code></h3>
+<ul>
+<li>[ ] Create <code>README.md</code> at repo root with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># Shenbi (神笔)</span>
+
+Novel-writing AI skill framework. See <span class="sb">`docs/superpowers/specs/`</span> for design specs and <span class="sb">`docs/superpowers/plans/`</span> for implementation plans.
+</code></pre></div>
+<p>This file is referenced by <code>pyproject.toml</code>'s <code>readme = "README.md"</code> and is required for <code>uv build</code> to succeed.</p>
+<h3 id="step-13-create-tests__init__py">Step 1.3: Create <code>tests/__init__.py</code></h3>
+<ul>
+<li>[ ] Create <code>tests/__init__.py</code> with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Shenbi test package.&quot;&quot;&quot;</span>
+</code></pre></div>
+<p>This makes <code>tests/</code> a Python package so hatchling can include it in the wheel as specified by <code>[tool.hatch.build.targets.wheel.packages]</code>.</p>
+<h3 id="step-14-merge-gitignore-do-not-overwrite">Step 1.4: Merge <code>.gitignore</code> (DO NOT overwrite)</h3>
+<p>The existing <code>.gitignore</code> (31 lines) has Shenbi-specific patterns that must be preserved. Append new entries; do NOT replace.</p>
+<ul>
+<li>[ ] Append the following to existing <code>.gitignore</code> (run <code>cat &gt;&gt; .gitignore</code> and paste the block, then Ctrl-D):</li>
+</ul>
+<div class="highlight"><pre><span></span><code># P-1.A additions (Python tooling artifacts)
+
+# Pytest
+.pytest_cache/
+tests/coverage/
+
+# Type checkers
+.mypy_cache/
+.ruff_cache/
+.basedpyright_cache/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Docs (auto-generated by mkdocstrings)
+docs/api/
+site/
+
+# SBOM and mutation testing
+sbom.cdx.json
+.mutmut-cache
+</code></pre></div>
+<ul>
+<li>[ ] Verify: <code>cat .gitignore | tail -30</code></li>
+<li>Expected: existing patterns (<code>tests/rounds/round-*</code>, <code>tests/tiers/t1-skill/*</code>, etc.) preserved, new P-1.A additions at bottom.</li>
+<li>Critical check: <code>grep "tests/rounds/round-" .gitignore</code> MUST return at least one line.</li>
+</ul>
+<h3 id="step-15-create-pyprojecttoml">Step 1.5: Create <code>pyproject.toml</code></h3>
+<ul>
+<li>[ ] Create <code>pyproject.toml</code> at repo root with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Shenbi novel-writing AI skill framework&quot;</span>
+<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span>
+<span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;MIT&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;ThomasChangX&quot;</span><span class="w"> </span><span class="p">}]</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.11&quot;</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pydantic&gt;=2.5.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># P-1 不用；为 P0 schemas 准备</span>
+<span class="w">    </span><span class="s2">&quot;pyyaml&gt;=6.0.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;structlog&gt;=24.1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># 注：去除 patch&gt;=1.16（unmaintained since 2016, codebase 用 unittest.mock）</span>
+<span class="w">    </span><span class="c1"># 注：去除 click&gt;=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）</span>
+<span class="p">]</span>
+
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=8.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-cov&gt;=4.1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-xdist&gt;=3.5.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-asyncio&gt;=0.23.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-timeout&gt;=2.2.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-benchmark&gt;=4.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-ordering&gt;=0.6&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;hypothesis&gt;=6.97.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mypy&gt;=1.8.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;basedpyright&gt;=1.13.0&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1"># 纯 Python 的 pyright fork，避免 Node.js 依赖</span>
+<span class="w">    </span><span class="s2">&quot;ruff&gt;=0.1.13&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pre-commit&gt;=3.6.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pip-audit&gt;=2.7.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;cyclonedx-bom&gt;=4.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mutmut&gt;=3.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;coverage&gt;=7.4.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">docs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs&gt;=1.5.3&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs-material&gt;=9.5.4&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mkdocstrings[python]&gt;=0.24.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># 注：[project.scripts] 暂不定义。</span>
+<span class="c1"># tests.gates.cli 和 tests.dispatcher.cli 由 P-1.B/P-1.C 创建。</span>
+<span class="c1"># 等 P-1.C PR-13 完成后再加 entry points。</span>
+
+<span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;hatchling&quot;</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hatchling.build&quot;</span>
+
+<span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="c1"># 注：docs/adr/ 暂不 force-include（目录由 P-1.C PR-11 创建）。</span>
+<span class="c1"># P-1.C PR-11 完成后追加此行： &quot;docs/adr/&quot; = &quot;docs/adr/&quot;</span>
+
+<span class="c1"># Mutation testing configuration (P-1 加成项 19，baseline 跑在 PR-16)</span>
+<span class="k">[tool.mutmut]</span>
+<span class="n">paths-to-mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/exceptions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/logging.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/gates/shared.py&quot;</span><span class="p">]</span>
+<span class="n">tests-dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests/unit/&quot;</span>
+<span class="n">do-not-mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/rounds/archived/**&quot;</span><span class="p">]</span>
+<span class="c1"># 注：上述路径在 P-1.A 时不存在（exceptions.py/logging.py 由 PR-9/10 创建，</span>
+<span class="c1"># gates/shared.py 由 PR-12 创建，tests/unit/ 由 PR-5 创建）。</span>
+<span class="c1"># PR-16 首次跑 mutmut 时验证配置生效。</span>
+</code></pre></div>
+<h3 id="step-16-create-renovatejson">Step 1.6: Create <code>renovate.json</code></h3>
+<ul>
+<li>[ ] Create <code>renovate.json</code> at repo root with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://docs.renovatebot.com/renovate-schema.json&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;extends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;config:recommended&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;:semanticCommits&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;schedule&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;before 6am on monday&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;timezone&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Asia/Shanghai&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;packageRules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;groupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matchPackagePatterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ruff&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;groupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pytest&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matchPackagePatterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pytest&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;matchUpdateTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;automerge&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;automergeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pr&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;automergeStrategy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;squash&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;matchUpdateTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;major&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;automerge&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;major-bump&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="step-17-install-uv-if-not-present">Step 1.7: Install uv (if not present)</h3>
+<ul>
+<li>[ ] Run: <code>command -v uv &amp;&amp; uv --version</code></li>
+<li>Expected: <code>uv 0.x.x</code>. If missing, install:
+  <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</code></pre></div>
+  Then re-verify with <code>uv --version</code>.</li>
+</ul>
+<h3 id="step-18-generate-uvlock">Step 1.8: Generate <code>uv.lock</code></h3>
+<ul>
+<li>[ ] Run: <code>uv lock</code></li>
+<li>Expected: resolves all dependencies, generates <code>uv.lock</code> at repo root. Should complete in 30-90 seconds.</li>
+<li>Verify: <code>ls uv.lock &amp;&amp; head -5 uv.lock</code></li>
+<li>Expected: file exists, starts with <code>version = 1</code> and revision line.</li>
+<li><strong>Note</strong>: Step 1.8 only resolves and writes the lock file. Step 1.9 actually installs dependencies.</li>
+</ul>
+<h3 id="step-19-verify-clean-install-works">Step 1.9: Verify clean install works</h3>
+<ul>
+<li>[ ] Run: <code>uv sync --frozen --extra dev</code></li>
+<li>Expected: installs all main + dev dependencies from <code>uv.lock</code>. May take 1-3 minutes.</li>
+<li>Verify pytest is installed: <code>uv run pytest --version</code></li>
+<li>Expected: <code>pytest 8.x.x</code></li>
+</ul>
+<h3 id="step-110-verify-uv-build-works">Step 1.10: Verify uv build works</h3>
+<ul>
+<li>[ ] Run: <code>uv build --wheel</code></li>
+<li>Expected: builds wheel in <code>dist/</code>, no warnings.</li>
+<li>Verify wheel structure: <code>unzip -l dist/*.whl | head -20</code></li>
+<li>Expected: wheel contains <code>tests/__init__.py</code>, <code>tests/validate-gate.py</code>, etc., plus <code>skills/</code> directory at root.</li>
+<li><strong>If <code>uv build</code> fails</strong>, first clean any partial output: <code>rm -rf dist/</code>. Common causes:</li>
+<li>README.md missing → Step 1.2 not done</li>
+<li>tests/<strong>init</strong>.py missing → Step 1.3 not done</li>
+<li>pyproject.toml syntax invalid → run <code>python3 -c "import tomllib; tomllib.load(open('pyproject.toml','rb'))"</code>
+  Recovery: fix the specific cause and re-run.</li>
+<li>Clean up: <code>rm -rf dist/</code></li>
+</ul>
+<h3 id="step-111-commit-pr-1">Step 1.11: Commit PR-1</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>.gitignore<span class="w"> </span>renovate.json<span class="w"> </span>uv.lock<span class="w"> </span>README.md<span class="w"> </span>tests/__init__.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.a): add project metadata (pyproject.toml + uv + .gitignore merge + renovate)</span>
+
+<span class="s2">PR-1 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- README.md: project intro (required by hatchling readme field)</span>
+<span class="s2">- tests/__init__.py: makes tests/ a wheel package (required by [tool.hatch.build.targets.wheel] packages = [&#39;tests&#39;])</span>
+<span class="s2">- pyproject.toml: PEP 621 metadata, hatchling build, uv-managed deps</span>
+<span class="s2">- .gitignore: MERGED with existing 31-line Shenbi-specific patterns</span>
+<span class="s2">- renovate.json: automated dependency updates (Mon 6am Asia/Shanghai)</span>
+<span class="s2">- uv.lock: pinned dependencies with hashes</span>
+
+<span class="s2">[project.scripts] intentionally empty; entry points added in P-1.C after</span>
+<span class="s2">tests.gates.cli and tests.dispatcher.cli modules exist.</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-1&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] Verify: <code>git log -1 --stat</code></li>
+<li>Expected: 6 files changed (README.md, tests/<strong>init</strong>.py, pyproject.toml, .gitignore, renovate.json, uv.lock).</li>
+</ul>
+<hr />
+<h2 id="task-2-pr-2-ruff-config-auto-fix">Task 2: PR-2 ruff config + auto-fix</h2>
+<p><strong>Goal of this task:</strong> Add ruff configuration to pyproject.toml and auto-fix all existing code.</p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (append ruff config)
+- Modify: <code>tests/*.py</code> (auto-fix only; no logic change)</p>
+<h3 id="step-21-verify-clean-working-tree-record-baseline-behavior">Step 2.1: Verify clean working tree + record baseline behavior</h3>
+<ul>
+<li>[ ] Run: <code>git status --porcelain</code></li>
+<li>
+<p>Expected: empty.</p>
+</li>
+<li>
+<p>[ ] Record baseline test result BEFORE ruff touches anything:
+  <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python3<span class="w"> </span>tests/test_integrity.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>/tmp/p1a-baseline-test.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-5
+</code></pre></div></p>
+</li>
+<li>Save the result line (e.g. "Ran 12 tests in 0.5s OK"). This is the <strong>baseline</strong> to verify ruff auto-fix doesn't break behavior in Step 2.9.</li>
+</ul>
+<h3 id="step-22-append-ruff-config-to-pyprojecttoml">Step 2.2: Append ruff config to <code>pyproject.toml</code></h3>
+<ul>
+<li>[ ] Append exact content to <code>pyproject.toml</code> (at end of file):</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff]</span>
+<span class="n">line-length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="n">target-version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py311&quot;</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># unarchived rounds (PR-14 will move to archived/)</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;E&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;W&quot;</span><span class="p">,</span><span class="w">      </span><span class="c1"># pycodestyle / pyflakes</span>
+<span class="w">    </span><span class="s2">&quot;I&quot;</span><span class="p">,</span><span class="w">                 </span><span class="c1"># isort</span>
+<span class="w">    </span><span class="s2">&quot;N&quot;</span><span class="p">,</span><span class="w">                 </span><span class="c1"># pep8-naming</span>
+<span class="w">    </span><span class="s2">&quot;B&quot;</span><span class="p">,</span><span class="w">                 </span><span class="c1"># bugbear</span>
+<span class="w">    </span><span class="s2">&quot;A&quot;</span><span class="p">,</span><span class="w">                 </span><span class="c1"># builtins</span>
+<span class="w">    </span><span class="s2">&quot;C4&quot;</span><span class="p">,</span><span class="w">                </span><span class="c1"># comprehensions</span>
+<span class="w">    </span><span class="s2">&quot;PIE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SIM&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1"># misc</span>
+<span class="w">    </span><span class="s2">&quot;PL&quot;</span><span class="p">,</span><span class="w">                </span><span class="c1"># pylint</span>
+<span class="w">    </span><span class="s2">&quot;UP&quot;</span><span class="p">,</span><span class="w">                </span><span class="c1"># pyupgrade</span>
+<span class="w">    </span><span class="s2">&quot;RUF&quot;</span><span class="p">,</span><span class="w">               </span><span class="c1"># ruff-specific</span>
+<span class="w">    </span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="w">                 </span><span class="c1"># pydocstyle (Google style)</span>
+<span class="p">]</span>
+<span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D100&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D104&quot;</span><span class="p">,</span><span class="w">      </span><span class="c1"># missing docstring in module/package (overkill)</span>
+<span class="w">    </span><span class="s2">&quot;PLR0913&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1"># too many arguments (we&#39;ll allow up to 8)</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff.lint.pydocstyle]</span>
+<span class="n">convention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;google&quot;</span>
+
+<span class="k">[tool.ruff.lint.per-file-ignores]</span>
+<span class="s2">&quot;tests/*&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D103&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># test functions don&#39;t need docstrings (test names document)</span>
+</code></pre></div>
+<h3 id="step-23-verify-ruff-sees-the-config">Step 2.3: Verify ruff sees the config</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff check --show-settings 2&gt;&amp;1 | head -20</code></li>
+<li>Expected: output shows <code>line-length: 100</code>, <code>target-version: py311</code>, etc. No errors.</li>
+</ul>
+<h3 id="step-24-baseline-check-count-current-violations">Step 2.4: Baseline check (count current violations)</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff check tests/ 2&gt;&amp;1 | tail -3</code></li>
+<li>Expected: lists existing violations across <code>tests/*.py</code>. Note the count of violations (e.g. "Found 50 errors").</li>
+</ul>
+<h3 id="step-25-run-ruff-auto-fix">Step 2.5: Run ruff auto-fix</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff check --fix tests/</code></li>
+<li>Expected: ruff auto-fixes what it can (import sorting, unused imports, etc.).</li>
+</ul>
+<h3 id="step-26-run-ruff-format">Step 2.6: Run ruff format</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff format tests/</code></li>
+<li>Expected: reformats <code>tests/*.py</code> files in place. Output: "N files reformatted".</li>
+</ul>
+<h3 id="step-27-verify-behavior-unchanged-critical-must-pass-before-continuing">Step 2.7: Verify behavior unchanged (CRITICAL — must pass before continuing)</h3>
+<ul>
+<li>[ ] Run: <code>uv run python3 tests/test_integrity.py 2&gt;&amp;1 | tee /tmp/p1a-after-test.log | tail -5</code></li>
+<li>Expected: SAME result as baseline (Step 2.1). Same number of tests run, same OK/FAILED status.</li>
+<li>Compare: <code>diff /tmp/p1a-baseline-test.log /tmp/p1a-after-test.log</code></li>
+<li>Expected: empty diff (or only timing differences).</li>
+<li><strong>If diff is non-trivial</strong>, ruff auto-fix changed behavior. Revert: <code>git checkout tests/</code>. Manually apply only safe fixes (import sorting, whitespace) file-by-file and re-run.</li>
+</ul>
+<h3 id="step-28-verify-ruff-passes-now">Step 2.8: Verify ruff passes now</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff check tests/</code></li>
+<li>Expected: "All checks passed!" or empty output.</li>
+<li>If violations remain that can't be auto-fixed:</li>
+<li><strong>Preferred</strong>: add to <code>[tool.ruff.lint.per-file-ignores]</code> in pyproject.toml with comment explaining why</li>
+<li><strong>Last resort</strong>: add <code># noqa: &lt;rule&gt;</code> on the specific line with comment</li>
+</ul>
+<h3 id="step-29-verify-ruff-format-check-passes">Step 2.9: Verify ruff format check passes</h3>
+<ul>
+<li>[ ] Run: <code>uv run ruff format --check tests/</code></li>
+<li>Expected: exit code 0, no diff output.</li>
+</ul>
+<h3 id="step-210-review-the-diff">Step 2.10: Review the diff</h3>
+<ul>
+<li>[ ] Run: <code>git diff --stat tests/</code></li>
+<li>Expected: all 6 .py files modified, total &lt; 500 lines diff. If &gt; 500, may have over-aggressive fixes; review carefully.</li>
+<li>[ ] Run: <code>git diff pyproject.toml</code></li>
+<li>Expected: only ruff config appended, no other changes.</li>
+</ul>
+<h3 id="step-211-commit-pr-2">Step 2.11: Commit PR-2</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>tests/*.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;style(p-1.a): ruff config + auto-fix existing code</span>
+
+<span class="s2">PR-2 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- ruff lint: E/F/W/I/N/B/A/C4/PIE/RET/SIM/PL/UP/RUF/D rule sets</span>
+<span class="s2">- ruff format: 100 char line, Google docstring convention</span>
+<span class="s2">- All tests/*.py auto-fixed (import sort, unused imports, whitespace)</span>
+<span class="s2">- Behavior verified unchanged via test_integrity.py before/after diff</span>
+<span class="s2">- No logic changes</span>
+
+<span class="s2">tests/rounds/* excluded from linting (test fixture data).</span>
+<span class="s2">tests/* per-file-ignores: D103 (test docstrings optional).</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-2&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-3-pr-3-mypy-strict-config">Task 3: PR-3 mypy --strict config</h2>
+<p><strong>Goal of this task:</strong> Add mypy --strict config with temporary overrides for legacy untyped modules (removed in PR-12/P-1.D). Includes smoke test to prove mypy actually runs.</p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (append mypy config)
+- Create: <code>tests/_mypy_smoke_test.py</code> (verifies mypy is active, not silently skipping)</p>
+<h3 id="step-31-verify-clean-working-tree">Step 3.1: Verify clean working tree</h3>
+<ul>
+<li>[ ] Run: <code>git status --porcelain</code></li>
+<li>Expected: empty.</li>
+</ul>
+<h3 id="step-32-append-mypy-config-to-pyprojecttoml">Step 3.2: Append mypy config to <code>pyproject.toml</code></h3>
+<ul>
+<li>[ ] Append exact content to <code>pyproject.toml</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.mypy]</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_return_any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_unused_configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_redundant_casts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_unreachable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_incomplete_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">check_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_untyped_decorators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">no_implicit_optional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">no_implicit_reexport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">namespace_packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pydantic.mypy&quot;</span><span class="p">]</span>
+
+<span class="c1"># P-1.A temporary overrides: legacy untyped code in tests/*.py</span>
+<span class="c1"># These modules pre-date P-1 and don&#39;t have type hints yet.</span>
+<span class="c1"># PR-12 (P-1.D) will add type hints and remove these overrides.</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests.validate-gate&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.scoring&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.phase-runner&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.summarize-round&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.update-progress&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.test_integrity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Third-party stubs for missing types</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span>
+<span class="n">ignore_missing_imports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Forward declarations (no-op until those modules exist):</span>
+<span class="c1"># tests.gates.g4.* created by PR-12 (P-1.D), removed by P2 schema rewrite</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.gates.g4.*&quot;</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="c1"># tests.rounds.archived.* created by PR-14 (P-1.D)</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.rounds.archived.*&quot;</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div>
+<h3 id="step-33-verify-mypy-version-pydantic-plugin-available">Step 3.3: Verify mypy version + pydantic plugin available</h3>
+<ul>
+<li>[ ] Run: <code>uv run mypy --version</code></li>
+<li>Expected: <code>mypy 1.x.x (compiled: yes)</code>.</li>
+<li>Pydantic is in <code>[project] dependencies</code> so mypy will load <code>pydantic.mypy</code> plugin automatically.</li>
+</ul>
+<h3 id="step-34-run-mypy-on-the-codebase">Step 3.4: Run mypy on the codebase</h3>
+<ul>
+<li>[ ] Run: <code>uv run mypy</code></li>
+<li>Expected: with the overrides above, mypy should report 0 errors (legacy modules have <code>ignore_errors = true</code>).</li>
+<li>If errors appear:</li>
+<li>File not in overrides? Add to <code>[[tool.mypy.overrides]] module = [...]</code> list.</li>
+<li>TOML syntax error? Verify with <code>python3 -c "import tomllib; tomllib.load(open('pyproject.toml','rb'))"</code>.</li>
+</ul>
+<p>(Note: Step 3.4 and 3.7 both run mypy. Step 3.4 establishes baseline; Step 3.7 verifies after smoke-test edit. Single command <code>uv run mypy</code> covers both since pyproject.toml has no <code>files</code> directive — mypy auto-discovers all <code>tests/</code> modules.)</p>
+<h3 id="step-35-create-smoke-test-file-to-verify-mypy-actually-checks-something">Step 3.5: Create smoke-test file to verify mypy actually checks something</h3>
+<p>Without this step, mypy could be silently skipping all files due to misconfigured overrides. The smoke test proves mypy is active.</p>
+<ul>
+<li>[ ] Create <code>tests/_mypy_smoke_test.py</code> with exact content:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Smoke test file to verify mypy --strict is active.</span>
+
+<span class="sd">If mypy is correctly configured, this file&#39;s intentional type error</span>
+<span class="sd">will be caught when uncommented. The file should NOT be imported or</span>
+<span class="sd">executed by pytest (it&#39;s purely a mypy canary).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return sum of two integers.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+
+<span class="c1"># Intentional type error (uncomment to verify mypy catches it):</span>
+<span class="c1"># result: str = add(1, 2)</span>
+</code></pre></div>
+<ul>
+<li>[ ] Verify mypy runs on this file with no errors:
+  <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>tests/_mypy_smoke_test.py
+</code></pre></div></li>
+<li>Expected: <code>Success: no issues found in 1 source file</code>.</li>
+</ul>
+<h3 id="step-36-verify-mypy-catches-the-intentional-error">Step 3.6: Verify mypy catches the intentional error</h3>
+<ul>
+<li>[ ] Temporarily edit <code>tests/_mypy_smoke_test.py</code>: uncomment the last line so it reads:
+  <div class="highlight"><pre><span></span><code><span class="n">result</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></li>
+<li>[ ] Run: <code>uv run mypy tests/_mypy_smoke_test.py</code></li>
+<li>Expected: <code>error: Incompatible types in assignment (expression has type "int", variable has type "str")</code>.</li>
+<li><strong>If no error reported</strong>, mypy is silently skipping — recheck overrides in Step 3.2.</li>
+<li>[ ] Re-comment the line (back to <code># result: str = add(1, 2)</code>).</li>
+</ul>
+<h3 id="step-37-verify-mypy-passes-on-entire-codebase">Step 3.7: Verify mypy passes on entire codebase</h3>
+<ul>
+<li>[ ] Run: <code>uv run mypy</code></li>
+<li>Expected: <code>Success: no issues found in N files</code> (N includes _mypy_smoke_test.py and any other non-ignored files).</li>
+</ul>
+<h3 id="step-38-commit-pr-3">Step 3.8: Commit PR-3</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>tests/_mypy_smoke_test.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.a): mypy --strict config + legacy module overrides</span>
+
+<span class="s2">PR-3 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- mypy --strict mode (warn_return_any, disallow_untyped_defs, etc.)</span>
+<span class="s2">- pydantic.mypy plugin enabled</span>
+<span class="s2">- Legacy untyped modules (validate-gate, scoring, phase-runner,</span>
+<span class="s2">  summarize-round, update-progress, test_integrity) under</span>
+<span class="s2">  ignore_errors override; PR-12 (P-1.D) adds type hints and removes</span>
+<span class="s2">- yaml third-party stub: ignore_missing_imports</span>
+<span class="s2">- Forward overrides for tests.gates.g4.* (P-1.D) and archived rounds</span>
+<span class="s2">- _mypy_smoke_test.py verifies mypy actually runs (not silently skipping)</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-3&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-4-pr-4-basedpyright-config">Task 4: PR-4 basedpyright config</h2>
+<p><strong>Goal of this task:</strong> Add basedpyright config as second type checker alongside mypy. Together they form "dual type-check" coverage.</p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (append basedpyright config)</p>
+<h3 id="step-41-verify-clean-working-tree">Step 4.1: Verify clean working tree</h3>
+<ul>
+<li>[ ] Run: <code>git status --porcelain</code></li>
+<li>Expected: empty.</li>
+</ul>
+<h3 id="step-42-append-basedpyright-config-to-pyprojecttoml">Step 4.2: Append basedpyright config to <code>pyproject.toml</code></h3>
+<ul>
+<li>[ ] Append exact content to <code>pyproject.toml</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.basedpyright]</span>
+<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;**/__pycache__&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># P-1.A: legacy untyped code; P-1.D PR-12 onward fixes</span>
+<span class="c1"># P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;**/__pycache__&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/validate-gate.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/scoring.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/phase-runner.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/summarize-round.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/update-progress.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/test_integrity.py&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">typeCheckingMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;strict&quot;</span>
+<span class="n">pythonVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">reportMissingTypeStubs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span>
+<span class="n">reportUnknownMemberType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span>
+</code></pre></div>
+<h3 id="step-43-verify-basedpyright-is-installed">Step 4.3: Verify basedpyright is installed</h3>
+<ul>
+<li>[ ] Run: <code>uv run basedpyright --version</code></li>
+<li>Expected: <code>basedpyright X.Y.Z</code>.</li>
+</ul>
+<h3 id="step-44-run-basedpyright-on-the-codebase">Step 4.4: Run basedpyright on the codebase</h3>
+<ul>
+<li>[ ] Run: <code>uv run basedpyright</code></li>
+<li>Expected: 0 errors. The legacy files are excluded via <code>exclude</code>. Only <code>_mypy_smoke_test.py</code> is fully checked.</li>
+<li>If errors appear:</li>
+<li>Check if any non-excluded file has issues. Fix or add to <code>exclude</code>.</li>
+</ul>
+<h3 id="step-45-verify-smoke-test-catches-errors">Step 4.5: Verify smoke test catches errors</h3>
+<ul>
+<li>[ ] Temporarily edit <code>tests/_mypy_smoke_test.py</code>: uncomment <code>result: str = add(1, 2)</code>.</li>
+<li>[ ] Run: <code>uv run basedpyright</code></li>
+<li>Expected: error reported on the line. Something like: <code>error: Cannot assign member "result" of type "str" with value of type "int"</code>.</li>
+<li>[ ] Re-comment the line.</li>
+</ul>
+<h3 id="step-46-commit-pr-4">Step 4.6: Commit PR-4</h3>
+<ul>
+<li>[ ] Stage and commit:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(p-1.a): basedpyright config (pure-Python pyright fork)</span>
+
+<span class="s2">PR-4 of P-1 Foundation Hygiene.</span>
+
+<span class="s2">- basedpyright strict mode (no Node.js dependency)</span>
+<span class="s2">- typeCheckingMode = strict + reportMissingTypeStubs = warning</span>
+<span class="s2">- Legacy untyped modules (validate-gate, scoring, phase-runner,</span>
+<span class="s2">  summarize-round, update-progress, test_integrity) excluded via</span>
+<span class="s2">  exclude; PR-12 (P-1.D) removes exclusions after type hints added</span>
+<span class="s2">- tests/rounds/archived + unarchived rounds also excluded</span>
+<span class="s2">- Provides second type checker alongside mypy --strict (dual coverage)</span>
+
+<span class="s2">Refs: docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md PR-4&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-5-end-of-plan-verification">Task 5: End-of-Plan Verification</h2>
+<p><strong>Goal:</strong> Verify all four PRs work together. If the implementer executes PR-1 through PR-4 in sequence, this task catches integration issues.</p>
+<h3 id="step-51-verify-all-tools-still-pass">Step 5.1: Verify all tools still pass</h3>
+<ul>
+<li>[ ] Run: <code>uv sync --frozen --extra dev</code></li>
+<li>
+<p>Expected: no errors.</p>
+</li>
+<li>
+<p>[ ] Run: <code>uv run ruff check tests/</code></p>
+</li>
+<li>
+<p>Expected: "All checks passed!"</p>
+</li>
+<li>
+<p>[ ] Run: <code>uv run ruff format --check tests/</code></p>
+</li>
+<li>
+<p>Expected: exit code 0.</p>
+</li>
+<li>
+<p>[ ] Run: <code>uv run mypy</code></p>
+</li>
+<li>
+<p>Expected: "Success: no issues found".</p>
+</li>
+<li>
+<p>[ ] Run: <code>uv run basedpyright</code></p>
+</li>
+<li>Expected: "0 errors, 0 warnings".</li>
+</ul>
+<h3 id="step-52-verify-existing-tests-still-pass">Step 5.2: Verify existing tests still pass</h3>
+<ul>
+<li>[ ] Run: <code>uv run python tests/test_integrity.py</code></li>
+<li>Expected: all unittest-style tests pass.</li>
+</ul>
+<h3 id="step-53-verify-clean-checkout-works">Step 5.3: Verify clean checkout works</h3>
+<ul>
+<li>[ ] From a different parent directory (e.g. <code>/tmp/</code>), clone this repo:
+  <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/tmp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>/Users/xiaotiac/Documents/GitHub/shenbi<span class="w"> </span>shenbi-test<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>shenbi-test
+</code></pre></div>
+  Adjust the source path if your repo lives elsewhere (<code>$(pwd)</code> from inside the repo works).</li>
+<li>[ ] Run: <code>uv sync --frozen --extra dev</code></li>
+<li>Expected: clean install succeeds.</li>
+<li>[ ] Run: <code>uv run ruff check tests/ &amp;&amp; uv run mypy &amp;&amp; uv run basedpyright</code></li>
+<li>Expected: all pass.</li>
+<li>[ ] Clean up: <code>cd /tmp &amp;&amp; rm -rf shenbi-test</code></li>
+</ul>
+<h3 id="step-54-verify-git-log">Step 5.4: Verify git log</h3>
+<ul>
+<li>[ ] Run: <code>git log --oneline -5</code></li>
+<li>Expected: 4 new commits on top of P-1 spec commit, each prefixed with <code>feat(p-1.a)</code> or <code>style(p-1.a)</code>.</li>
+</ul>
+<h3 id="step-55-p-1a-is-complete">Step 5.5: P-1.A is complete</h3>
+<p>P-1.A produces a working, testable intermediate state:
+- ✅ Project metadata exists (pyproject.toml + uv.lock)
+- ✅ All Python tooling configured (ruff, mypy, basedpyright)
+- ✅ Build artifacts ignored (.gitignore)
+- ✅ Dependency updates automated (renovate.json)
+- ✅ Existing code passes lint + dual type-check
+- ✅ No behavior change to framework logic</p>
+<p>Next plans:
+- <strong>P-1.B</strong> (PRs 5-8): pytest framework + CI + pre-commit
+- <strong>P-1.C</strong> (PRs 9-11): structlog + typed exceptions + ADRs
+- <strong>P-1.D</strong> (PRs 12-17): validate-gate split + dispatcher rewrite + cleanup + extras</p>
+<hr />
+<h2 id="self-review-notes">Self-Review Notes</h2>
+<h3 id="spec-coverage-check">Spec coverage check</h3>
+<ul>
+<li>PR-1 (pyproject + uv + .gitignore + renovate + README + tests/<strong>init</strong>.py): Task 1 ✅</li>
+<li>PR-2 (ruff config + auto-fix): Task 2 ✅</li>
+<li>PR-3 (mypy --strict): Task 3 ✅</li>
+<li>PR-4 (basedpyright): Task 4 ✅</li>
+</ul>
+<p>All four PRs covered. Acceptance criteria for these PRs from spec Section 6:
+- ✅ <code>uv build --wheel</code> succeeds (Step 1.10)
+- ✅ <code>uv sync --frozen</code> works (Step 1.9)
+- ✅ ruff/mypy/basedpyright pass on existing code (Steps 2.8, 3.7, 4.4)</p>
+<h3 id="placeholder-scan">Placeholder scan</h3>
+<p>No TBD / TODO / "fill in later" in this plan. All steps have concrete content.</p>
+<h3 id="type-consistency">Type consistency</h3>
+<ul>
+<li>pyproject.toml structure consistent across tasks (no duplicate <code>[tool.*]</code> sections).</li>
+<li>Override module list consistent between mypy (Step 3.2) and basedpyright (Step 4.2) — same 6 legacy files.</li>
+<li>Smoke test file <code>tests/_mypy_smoke_test.py</code> consistent across Tasks 3 and 4.</li>
+</ul>
+<h3 id="known-gaps-addressed-inline">Known gaps addressed inline</h3>
+<ul>
+<li><strong>Spec didn't address how mypy/basedpyright handle existing legacy code in P-1.A</strong>: Plan adds explicit <code>ignore_errors</code> / <code>exclude</code> overrides with comment "PR-12 (P-1.D) will add type hints and remove these overrides".</li>
+<li><strong>pydantic mypy plugin requires pydantic installed</strong>: Already in <code>[project] dependencies</code> (PR-1).</li>
+</ul>
+<h3 id="proactive-deviations-from-spec">Proactive deviations from spec</h3>
+<p>These deviations improve on the spec for P-1.A's reality (existing repo with state not anticipated by spec):</p>
+<ol>
+<li>
+<p><strong>Ruff <code>extend-exclude</code> adds <code>tests/rounds/round-[0-9][0-9][0-9]-*</code> pattern</strong> (spec only lists <code>tests/rounds/archived</code>). Reason: P-1.A executes BEFORE PR-14 archives existing rounds; without this pattern, ruff would lint fixture data in unarchived rounds. Reverts to spec-only pattern after PR-14.</p>
+</li>
+<li>
+<p><strong>mypy <code>[[tool.mypy.overrides]] module = [...]</code> includes 6 legacy test files</strong> (spec doesn't address). Reason: spec assumes validate-gate.py is split (PR-12) before mypy --strict is enforced. P-1.A precedes PR-12, so legacy files need temporary <code>ignore_errors</code>.</p>
+</li>
+<li>
+<p><strong>basedpyright <code>exclude</code> includes same 6 legacy files</strong> (spec doesn't address). Same reason as #2.</p>
+</li>
+<li>
+<p><strong><code>[tool.mutmut]</code> config uses hyphenated keys</strong> (<code>paths-to-mutate</code>, <code>tests-dir</code>, <code>do-not-mutate</code>) instead of spec's underscored (<code>paths_to_mutate</code>, <code>tests_dir</code>, <code>do_not_mutate</code>). Reason: mutmut CLI docs use hyphens; underscores are TOML key convention but mutmut doesn't enforce. Hyphens are mutmut-canonical. (If this fails at PR-16, switch back to underscores.)</p>
+</li>
+<li>
+<p><strong><code>[project.scripts]</code> empty</strong> (spec defines <code>shenbi-validate-gate</code> and <code>shenbi-dispatch</code>). Reason: target modules <code>tests.gates.cli</code> and <code>tests.dispatcher.cli</code> don't exist in P-1.A; created in P-1.B/P-1.C. Spec implicitly assumes P-1.D PR-13 complete. Plan defers entry points to P-1.C PR-13.</p>
+</li>
+</ol>
+<h3 id="workload-estimate">Workload estimate</h3>
+<ul>
+<li>Task 1: ~30 min (uv install + lock + verify)</li>
+<li>Task 2: ~30 min (ruff fix + review)</li>
+<li>Task 3: ~20 min (mypy config + smoke test)</li>
+<li>Task 4: ~15 min (basedpyright config + verify)</li>
+<li>Task 5: ~15 min (end-to-end verification)</li>
+</ul>
+<p><strong>Total: ~110 min (~2 hours)</strong>, excluding ruff auto-fix review time (may add 30-60 min if many manual fixes needed).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

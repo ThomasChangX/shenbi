@@ -1,0 +1,3296 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-01-novel-pipeline-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Novel Pipeline 设计 spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Novel Pipeline 设计 spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-01-novel-pipeline-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-01-novel-pipeline-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Novel Pipeline 设计 spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-01-novel-pipeline-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#novel-pipeline-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Novel Pipeline 设计 spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景与动机
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景与动机">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 非目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-skill-58-11-out-of-scope-69" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Skill 覆盖声明 (58 编排 + 11 out-of-scope = 69)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 三层分离
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 命令接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 并发约束 (多用户)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Gate 使用策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-g3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 G3 独立性强制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 嵌入式人工交互与延迟写入
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 状态机
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 状态机">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 状态转换表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 每步完成后的统一动作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-pipeline-statejson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 pipeline-state.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 中断与恢复
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-seed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Seed 文件解析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Seed 文件解析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 解析映射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-total_chapters-i3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 total_chapters 定义与更新 [I3]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-seed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 可选 seed 增强
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phase-1-genesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phase 1: Genesis (创世层)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Phase 1: Genesis (创世层)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 执行序列
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-genesis-checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Genesis Checkpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 渐进式创建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-bootstrap-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 风格 Bootstrap (步骤 15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 锚点策展 (步骤 16, 可选)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-phase-2-per-chapter-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Phase 2: Per-Chapter Loop (逐章循环)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Phase 2: Per-Chapter Loop (逐章循环)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 完整步骤流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-step-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 审计层设计 (Step 8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-step-10-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 修订闭环 (Step 10-11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 分层记忆与评分触发 (每章完成后)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 卷边界扩展 (渐进式创建)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-genre-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 Genre-Config 运行时更新
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-audit_driftmd-i10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.7 audit_drift.md 有界化 [I10]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-context-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Context Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Context Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 三路检索 + 确定性重排
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-token-budget-token-i13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 自适应 Token Budget (统一 token 单位) [I13]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-route-b-i11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Route B 降级路径 [I11]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-route-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Route B 分块策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-memory-distill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 自适应压缩 (memory-distill)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-500-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 效果对比 (第500章, token 单位)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-phase-3-book-closure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Phase 3: Book Closure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Checkpoint 设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Checkpoint 设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 类型清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-review-modify-truth-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Review modify 后的 truth-sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 审核配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Snapshot 改进
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Snapshot 改进">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-i9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 增量 + 全量混合快照 [I9]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-checksum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Checksum 强制验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-m4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 快照清单更新 [M4]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 回滚完整性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 错误处理与恢复
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 现有 skill 改动
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 新增编排器模块
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 设计决策记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 验收标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-genesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Genesis 依赖验证表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-ramp-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Ramp-Up 读取覆盖
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-g4-staging-r2-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. G4 Staging 验证目标 [R2-4]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-foreshadowing-plant-mode-genesis-r2-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. foreshadowing-plant --mode genesis [R2-2]
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="novel-pipeline-spec">Novel Pipeline 设计 spec</h1>
+<blockquote>
+<p>日期: 2026-07-01
+状态: 已批准 (brainstorming) + code review R2 (target 9+)
+目的: 设计 <code>pipeline</code> -- 从小说构思种子到完整小说的全自动生成流水线,以生成质量为最高优先级</p>
+</blockquote>
+<h2 id="1">1. 背景与动机</h2>
+<h3 id="11">1.1 问题</h3>
+<p>框架有完整的逐章设计(13步循环、审计/评分/修正闭环、分层记忆、gate链),但<strong>没有自动化执行器</strong>。Round test 001 暴露的核心问题:所有步骤需要人工编排器手动调用,导致大量治理步骤被跳过。</p>
+<h3 id="12">1.2 目标</h3>
+<ol>
+<li><strong>完整端到端</strong>: 从种子文件到完整小说</li>
+<li><strong>充分利用所有 skill/gate/helper</strong>: 全部 69 个 skill 被编排或明确标记 out-of-scope</li>
+<li><strong>质量优先</strong>: gate链100%执行、独立agent评分(G3强制)、审计闭环、人工审核checkpoint</li>
+<li><strong>人工可介入</strong>: 分层审核checkpoint</li>
+<li><strong>可扩展</strong>: 支持超长篇(1000+章)</li>
+<li><strong>未来 web UI 就绪</strong>: 命令式API、无状态进程、多用户并发</li>
+</ol>
+<h3 id="13">1.3 非目标</h3>
+<ul>
+<li>不实现 web UI 本身</li>
+<li>不替换现有 gate/scoring/dispatcher 基础设施</li>
+</ul>
+<h3 id="14-skill-58-11-out-of-scope-69">1.4 Skill 覆盖声明 (58 编排 + 11 out-of-scope = 69)</h3>
+<p><strong>Pipeline 编排的 skill (58 unique)</strong>:</p>
+<p>创世层 (16): worldbuilding, genre-config, character-design, faction-builder, story-architecture, volume-outlining, pacing-design, plot-thread-weaver, foreshadowing-plant, power-system, location-builder, relationship-map, book-spine-init, intent-management, style-learning, anchor-curate</p>
+<p>逐章循环 (16): intent-management, chapter-planning, foreshadowing-plant, context-composing, chapter-drafting, state-settling, foreshadowing-track, foreshadowing-recall, foreshadowing-resolve, drift-guidance, snapshot-manage, escalation-review, anti-detect, length-normalizing, style-polishing, chapter-revision</p>
+<p>审计层 (20): review-anti-ai, review-continuity, review-character, review-pacing, review-foreshadowing, review-memo-compliance, review-pov, review-era, review-fanfic, review-world-rules, review-sensitivity, review-dialogue, review-motivation, review-texture, review-reader-pull, review-highpoint, review-long-span, review-arc-payoff, review-spinoff, chapter-pattern</p>
+<p>评分层 (5): review-resonance, score-arc, score-stratum, score-volume, foundation-review</p>
+<p>封印层 (5): memory-distill, volume-consolidation, foreshadowing-resolve(final), style-learning(final), foundation-review(final)</p>
+<p>辅助 (1): truth-sync (post-edit/post-rollback)</p>
+<p>注: intent-management, foreshadowing-plant, foreshadowing-resolve, style-learning, foundation-review, memory-distill 在多个阶段出现,计为 1 个 unique skill。</p>
+<p><strong>明确 out-of-scope (11)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>排除原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>short-outline</td>
+<td>短篇流水线</td>
+</tr>
+<tr>
+<td>short-drafting</td>
+<td>短篇流水线</td>
+</tr>
+<tr>
+<td>short-packaging</td>
+<td>短篇流水线</td>
+</tr>
+<tr>
+<td>sequel-writing</td>
+<td>续写,在 book closure 之后单独触发</td>
+</tr>
+<tr>
+<td>import-analysis</td>
+<td>导入已有作品,本 pipeline 从 seed 创建新小说</td>
+</tr>
+<tr>
+<td>character-extraction</td>
+<td>反向提取,本 pipeline 正向创建</td>
+</tr>
+<tr>
+<td>world-extraction</td>
+<td>反向提取,本 pipeline 正向创建</td>
+</tr>
+<tr>
+<td>canon-import</td>
+<td>同人原作导入,如 seed 指定同人题材则作为可选 genesis 前置</td>
+</tr>
+<tr>
+<td>market-radar</td>
+<td>市场趋势分析,非生成环节</td>
+</tr>
+<tr>
+<td>writing-skills</td>
+<td>元技能,skill 管理用</td>
+</tr>
+<tr>
+<td>using-shenbi</td>
+<td>元技能,skill 发现用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2">2. 架构</h2>
+<h3 id="21">2.1 三层分离</h3>
+<div class="highlight"><pre><span></span><code>+---------------------------------------------+
+|           调用层 (Driver)                     |
+|   Codex agent (现在) / Web UI (未来)          |
++------------------+--------------------------+
+                   | 命令式调用
+                   v
++---------------------------------------------+
+|         编排层 (Orchestrator)                 |
+|   pipeline (Python 状态机)                    |
+|   职责: 流程控制、gate 强制、checkpoint 暂停  |
+|         状态序列化、重试/升级逻辑             |
+|         memory-distill 触发                   |
+|         truth-index/embed 维护               |
+|         context assembly                     |
++------------------+--------------------------+
+                   | dispatch / validate / score
+                   v
++---------------------------------------------+
+|         执行层 (Skills + Gates + Helpers)    |
+|   69 个 skill / G0-G7 / scoring / progress   |
++---------------------------------------------+
+</code></pre></div>
+<h3 id="22">2.2 命令接口</h3>
+<div class="highlight"><pre><span></span><code>pipeline init &lt;seed-file&gt; [--project-dir &lt;dir&gt;]
+    # 解析种子文件, 创建项目骨架, 初始化 pipeline-state.json + novel.json
+    # 跑 G0 环境检查
+    # 幂等: 如 pipeline-state.json 已存在则报错
+
+pipeline next &lt;project-dir&gt;
+    # 执行到下一个 checkpoint 并暂停
+
+pipeline status &lt;project-dir&gt;
+    # 查询当前状态 (只读, 不需要写锁)
+
+pipeline review &lt;project-dir&gt; approve
+pipeline review &lt;project-dir&gt; reject --feedback &lt;file&gt;
+pipeline review &lt;project-dir&gt; modify --feedback &lt;file&gt;
+
+pipeline resume &lt;project-dir&gt;
+    # 审核通过后继续执行到下一个 checkpoint
+
+pipeline chapters &lt;project-dir&gt;
+    # 查看章节进度概览 (只读)
+
+pipeline rollback &lt;project-dir&gt; --chapter &lt;N&gt;
+    # 回滚到某章快照 (破坏性操作, 需确认)
+</code></pre></div>
+<h3 id="23">2.3 生命周期</h3>
+<p><strong>Phase 1: Genesis</strong> -- 一次性执行
+<strong>Phase 2: Per-Chapter Loop</strong> -- 重复执行直到全书完成
+<strong>Phase 3: Book Closure</strong> -- 一次性执行</p>
+<h3 id="24">2.4 并发约束 (多用户)</h3>
+<ul>
+<li><strong>进程无状态</strong>: 每个命令是独立进程。</li>
+<li><strong>读写锁分离</strong>: <code>status</code> 和 <code>chapters</code> 使用只读锁 (共享,不阻塞其他读)。<code>next</code>/<code>review</code>/<code>resume</code>/<code>rollback</code>/<code>init</code> 使用排他写锁。</li>
+<li><strong>文件锁</strong>: <code>pipeline-state.json.lock</code> (排他写, timeout 300s 因 next 可能长时间运行), <code>pipeline-state.json.readlock</code> (共享读)。</li>
+<li><strong>Init 幂等</strong>: 如 <code>pipeline-state.json</code> 已存在则报错,防止重复 init 同一 project_dir。</li>
+<li><strong>项目隔离</strong>: 每本小说独立 project_dir。</li>
+<li><strong>dispatch agent 隔离</strong>: agent_id 含 project_dir.name。</li>
+<li><strong>路径隔离</strong>: 所有产出路径基于 project_dir。</li>
+</ul>
+<h3 id="25-gate">2.5 Gate 使用策略</h3>
+<p><strong>结构验证 gate</strong>:
+- <strong>G0</strong>: init 时环境检查
+- <strong>G1</strong>: 每次 dispatch 时由 dispatcher executor 自动调用 (输入验证)
+- <strong>G2</strong>: 每次 dispatch 后由 dispatcher executor 自动调用 (输出验证)。Pipeline <strong>不重复运行 G2</strong> (依赖 dispatcher 已执行),仅在特殊场景追加验证。
+- <strong>G3</strong>: 每次评分/review dispatch 前独立性检查 (见 2.6)
+- <strong>G4</strong>: 每次 dispatch 后 pipeline 追加运行 (skill-specific 结构验证)</p>
+<p>Pipeline 依赖 dispatcher executor 内置的 G1+G2,自身只追加 G4。</p>
+<p><strong>测试框架 gate (不使用)</strong>: G5/G6/G7 属于 phase_runner.py 的 T2/T3 流程,pipeline 不使用。</p>
+<h3 id="26-g3">2.6 G3 独立性强制</h3>
+<p><code>g3_independence.py</code> 是 fail-closed。Pipeline dispatch <code>requires_independent_agent: true</code> skill 前:
+1. 确保 dispatch 使用全新 agent_id
+2. 在 pipeline-state.json 中记录 scorer agent 信息
+3. 运行 G3 验证
+4. G3 FAIL -&gt; 评分无效,重新 dispatch</p>
+<h3 id="27">2.7 嵌入式人工交互与延迟写入</h3>
+<p>多个 skill 内部有"人工批准后才写入"步骤。但 dispatch 是单次无状态调用,skill 在调用内部直接写入文件。Pipeline 通过<strong>延迟写入 staging 机制</strong>解决:</p>
+<p><strong>Staging area</strong>: <code>staging/</code> 目录在 project_dir 下。</p>
+<p><strong>工作方式</strong>:
+1. Pipeline dispatch 需要人工审核的 skill (chapter-planning, state-settling) 时,dispatch prompt 指示 skill 将产出写入 <code>staging/</code> 而非 truth/ 目录
+2. Skill 执行完成,产出在 staging/ 中
+3. Pipeline 暂停为 checkpoint,展示 staging/ 内容供人工审核
+4. <code>review approve</code>: Pipeline 将 staging/ 内容 commit 到正式路径 (truth/, plans/, chapters/)
+5. <code>review modify</code>: feedback 传给 skill,skill 重新写入 staging/,重新审核
+6. <code>review reject</code>: 清空 staging/,按 reject 语义重做</p>
+<p><strong>映射关系</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Skill 内部步骤</th>
+<th>Pipeline checkpoint</th>
+<th>Staging 路径</th>
+<th>Commit 目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chapter-planning: "Human reviews"</td>
+<td>chapter-memo (step 2)</td>
+<td>staging/plans/chapter-N-plan.md</td>
+<td>plans/chapter-N-plan.md</td>
+</tr>
+<tr>
+<td>state-settling: "审批门禁"</td>
+<td>state-settle (step 5)</td>
+<td>staging/truth/*.md (变更部分)</td>
+<td>truth/*.md</td>
+</tr>
+</tbody>
+</table>
+<p>其他 skill (intent-management 等) 无内置审批,pipeline 直接让 skill 写入正式路径。</p>
+<h2 id="3">3. 状态机</h2>
+<h3 id="31">3.1 状态转换表</h3>
+<table>
+<thead>
+<tr>
+<th>当前状态</th>
+<th>事件</th>
+<th>新状态</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(none)</td>
+<td>init</td>
+<td>genesis:in-progress</td>
+<td>创建项目,解析seed,跑G0,开始genesis step 1</td>
+</tr>
+<tr>
+<td>genesis:in-progress</td>
+<td>next (step完成)</td>
+<td>genesis:in-progress</td>
+<td>执行下一步</td>
+</tr>
+<tr>
+<td>genesis:in-progress</td>
+<td>next (step 16完成)</td>
+<td>genesis:checkpoint-pending</td>
+<td>暂停,设置genesis-complete checkpoint</td>
+</tr>
+<tr>
+<td>genesis:checkpoint-pending</td>
+<td>review approve</td>
+<td>chapter-loop:in-progress</td>
+<td>commit staging,genesis snapshot,开始ch1 step1</td>
+</tr>
+<tr>
+<td>genesis:checkpoint-pending</td>
+<td>review modify</td>
+<td>genesis:in-progress</td>
+<td>依赖重算</td>
+</tr>
+<tr>
+<td>genesis:checkpoint-pending</td>
+<td>review reject</td>
+<td>genesis:in-progress</td>
+<td>清空genesis产出,从头重来</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (step完成,非checkpoint)</td>
+<td>chapter-loop:in-progress</td>
+<td>执行下一步</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (step 2完成)</td>
+<td>chapter-loop:checkpoint-pending</td>
+<td>暂停,设置chapter-memo checkpoint</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (step 5完成)</td>
+<td>chapter-loop:checkpoint-pending</td>
+<td>暂停,设置state-settle checkpoint</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (step 13完成,per_chapter on)</td>
+<td>chapter-loop:checkpoint-pending</td>
+<td>暂停,设置per-chapter checkpoint</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (step 13完成,per_chapter off)</td>
+<td>chapter-loop:in-progress</td>
+<td>继续触发检查+下一章step1</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>next (volume boundary)</td>
+<td>chapter-loop:checkpoint-pending</td>
+<td>暂停,设置volume-boundary checkpoint</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review approve</td>
+<td>chapter-loop:in-progress</td>
+<td>commit staging,继续</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review modify</td>
+<td>chapter-loop:in-progress</td>
+<td>feedback传入,重做相关step</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review reject (chapter-memo)</td>
+<td>chapter-loop:in-progress</td>
+<td>清staging,重做step2</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review reject (state-settle)</td>
+<td>chapter-loop:in-progress</td>
+<td>清staging,回退到step4重写章节</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review reject (per-chapter)</td>
+<td>chapter-loop:in-progress</td>
+<td>回滚到上一章snapshot,从step1重做</td>
+</tr>
+<tr>
+<td>chapter-loop:checkpoint-pending</td>
+<td>review reject (volume)</td>
+<td>chapter-loop:in-progress</td>
+<td>回滚整卷</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>escalation triggered</td>
+<td>chapter-loop:checkpoint-pending</td>
+<td>暂停,设置escalation checkpoint</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>N==total_chapters</td>
+<td>closure:in-progress</td>
+<td>开始closure step1</td>
+</tr>
+<tr>
+<td>chapter-loop:in-progress</td>
+<td>unrecoverable error</td>
+<td>failed</td>
+<td>记录错误,等待人工</td>
+</tr>
+<tr>
+<td>closure:in-progress</td>
+<td>next (step 8完成)</td>
+<td>closure:checkpoint-pending</td>
+<td>暂停,设置book-closure checkpoint</td>
+</tr>
+<tr>
+<td>closure:checkpoint-pending</td>
+<td>review approve</td>
+<td>closure:completed</td>
+<td>final snapshot,pipeline status: completed</td>
+</tr>
+<tr>
+<td>closure:checkpoint-pending</td>
+<td>review reject</td>
+<td>chapter-loop:in-progress</td>
+<td>标记问题章/卷,回滚重做</td>
+</tr>
+<tr>
+<td>(any)</td>
+<td>resume (crash recovery)</td>
+<td>原状态</td>
+<td>验证truth完整性(见3.4),从当前step重做</td>
+</tr>
+<tr>
+<td>(any)</td>
+<td>rollback --chapter N</td>
+<td>chapter-loop:in-progress</td>
+<td>恢复snapshot,运行truth-sync</td>
+</tr>
+<tr>
+<td>failed</td>
+<td>resume (after manual fix)</td>
+<td>原状态</td>
+<td>人工修复后恢复</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 每步完成后的统一动作</h3>
+<p>每个 skill dispatch + gate 检查完成后,pipeline 执行:</p>
+<ol>
+<li>(G1+G2 已由 dispatcher executor 自动运行)</li>
+<li><code>shenbi-validate G4 &lt;skill&gt; &lt;files&gt;</code> -- pipeline 追加的 skill-specific 验证</li>
+<li>验证 contract reads 是否存在 (确保下一步输入完整)</li>
+<li><strong>条件性 truth-index/embed 更新</strong>: 仅当该 skill 的 contract <code>writes</code>/<code>updates</code> 包含 truth/chapter/style/outline/characters/world 文件时,才运行 <code>pipeline-truth-index update</code> 和 <code>pipeline-truth-embed update</code>。ephemeral skill (如 context-composing) 跳过。</li>
+<li><strong>pipeline-state.json 原生进度跟踪</strong>: 更新 <code>genesis.skills_done</code> 或 <code>chapter_states[N].steps_done</code>。不使用 <code>shenbi-progress mark-done</code> (该命令是 T1 测试框架专用,签名为 <code>&lt;round_dir&gt; &lt;skill&gt; &lt;test_type&gt; &lt;score&gt;</code>,不适用于 novel 生成)。</li>
+</ol>
+<p>对于 <code>requires_independent_agent: true</code> skill,额外:
+6. 运行 G3 独立性检查</p>
+<h3 id="33-pipeline-statejson">3.3 pipeline-state.json</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;project_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/novel-project&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;genesis | chapter-loop | closure | completed | failed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;genesis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;in-progress | checkpoint-pending | completed&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;current_step&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;skills_done&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;retry_counts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;chapter_loop&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;current_chapter&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;current_step&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chapter-planning&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;step_index&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;chapter_states&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;5&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;steps_done&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;intent-management&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;in-progress&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;resonance_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;audit_results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nt">&quot;revision_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;per_chapter_review_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;retry_counts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;closure&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending | in-progress | checkpoint-pending | completed&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;pending_checkpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;null&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;checkpoint_history&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;last_snapshot&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chapter-004&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;checksum&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;genesis_review_required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;chapter_memo_review_required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;state_settle_review_required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;per_chapter_review_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;volume_boundary_review_required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max_revision_retries&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max_audit_retries&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;context_budget_override&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;style_learning_interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;genre_config_update_on_drift&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;resonance_global_floor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;snapshot_retention_chapters&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="34">3.4 中断与恢复</h3>
+<ul>
+<li><strong>Resume 时 truth 完整性验证</strong>: <code>resume</code> 时,pipeline 对比当前 truth files 与 <code>last_snapshot</code> 的 checksum:</li>
+<li>如一致 -&gt; 正常恢复</li>
+<li>如不一致 (可能 dispatch 中途崩溃导致部分写入) -&gt; 强制运行 <code>truth-sync</code> 从最近完整章节重新提取,然后恢复</li>
+<li><strong>checkpoint 等待中进程终止</strong>: 无影响,状态已持久化。</li>
+<li><strong>web UI 场景</strong>: 关闭浏览器 -&gt; 重开 -&gt; <code>status</code> -&gt; <code>review</code> -&gt; <code>resume</code>。</li>
+</ul>
+<h2 id="4-seed">4. Seed 文件解析</h2>
+<h3 id="41">4.1 解析映射</h3>
+<div class="highlight"><pre><span></span><code>seed sections -&gt; 目标:
+  基本信息       -&gt; novel.json (含 total_chapters, 见 4.2)
+  主角设定       -&gt; genesis context
+  世界观设定     -&gt; genesis context
+  势力/组织      -&gt; genesis context
+  核心冲突       -&gt; genesis context
+  情节线         -&gt; genesis context
+  章节大纲       -&gt; genesis context
+  三幕结构       -&gt; genesis context
+  叙事技巧       -&gt; genre-config.json
+</code></pre></div>
+<h3 id="42-total_chapters-i3">4.2 total_chapters 定义与更新 [I3]</h3>
+<p><code>total_chapters</code> 是 Phase 3 closure 的触发条件,必须有明确来源。</p>
+<ul>
+<li><strong>初始设定</strong>: 由 <code>volume-outlining</code> (genesis step 6) 计算并写入 <code>novel.json.total_chapters</code>。计算方式: volume_map 中所有卷的章节数之和。如 seed 提供了章数,以 seed 为准。</li>
+<li><strong>动态更新</strong>: 卷边界扩展 (§6.5) 时,如新卷改变了总章数,更新 <code>novel.json.total_chapters</code>。</li>
+<li><strong>Closure 检查</strong>: <code>chapter-loop</code> 每章完成后读取 <code>novel.json.total_chapters</code> 动态比对,不硬编码。</li>
+</ul>
+<h3 id="43-seed">4.3 可选 seed 增强</h3>
+<p>风格参考文件路径、参考作品路径、关键配角草图、卷数偏好、题材疲劳词列表、每章目标字数。</p>
+<h2 id="5-phase-1-genesis">5. Phase 1: Genesis (创世层)</h2>
+<h3 id="51">5.1 执行序列</h3>
+<p>严格串行,每步 dispatch 独立 agent + gate 检查:</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Skill</th>
+<th>追加 Gate</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0</td>
+<td>--</td>
+<td>G0</td>
+<td>环境检查</td>
+</tr>
+<tr>
+<td>1</td>
+<td>worldbuilding</td>
+<td>G4</td>
+<td>novel.json, world/, truth/*.md</td>
+</tr>
+<tr>
+<td>2</td>
+<td>genre-config</td>
+<td>G4</td>
+<td>genre-config.json</td>
+</tr>
+<tr>
+<td>3</td>
+<td>character-design (genesis)</td>
+<td>G4</td>
+<td>characters/*.md</td>
+</tr>
+<tr>
+<td>4</td>
+<td>story-architecture</td>
+<td>G4</td>
+<td>outline/story_frame.md, volume_map.md, rhythm_principles.md</td>
+</tr>
+<tr>
+<td>5</td>
+<td>faction-builder</td>
+<td>G4</td>
+<td>world/factions.md</td>
+</tr>
+<tr>
+<td>6</td>
+<td>volume-outlining</td>
+<td>G4</td>
+<td>outline/volume_map.md (含 total_chapters -&gt; novel.json)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>pacing-design</td>
+<td>G4</td>
+<td>outline/rhythm_principles.md</td>
+</tr>
+<tr>
+<td>8</td>
+<td>plot-thread-weaver</td>
+<td>G4</td>
+<td>outline/thread_map.md</td>
+</tr>
+<tr>
+<td>9</td>
+<td>foreshadowing-plant (genesis mode)</td>
+<td>G4</td>
+<td>truth/pending_hooks.md</td>
+</tr>
+<tr>
+<td>10</td>
+<td>power-system</td>
+<td>G4</td>
+<td>world/power_system.md</td>
+</tr>
+<tr>
+<td>11</td>
+<td>location-builder</td>
+<td>G4</td>
+<td>world/locations.md</td>
+</tr>
+<tr>
+<td>12</td>
+<td>relationship-map</td>
+<td>G4</td>
+<td>characters/relationships.md, truth/character_matrix.md</td>
+</tr>
+<tr>
+<td>13</td>
+<td>book-spine-init</td>
+<td>G4</td>
+<td>truth/book_spine.md</td>
+</tr>
+<tr>
+<td>14</td>
+<td>intent-management</td>
+<td>G4</td>
+<td>truth/author_intent.md, truth/current_focus.md</td>
+</tr>
+<tr>
+<td>15</td>
+<td>style-learning (bootstrap)</td>
+<td>G4</td>
+<td>style/style_profile.md</td>
+</tr>
+<tr>
+<td>16</td>
+<td>anchor-curate (optional)</td>
+<td>G4</td>
+<td>benchmarks/anchors/AC-*.md</td>
+</tr>
+<tr>
+<td>17</td>
+<td>foundation-review</td>
+<td>G3+G4</td>
+<td>foundation/review_report.md</td>
+</tr>
+</tbody>
+</table>
+<p>步骤 17 完成后: <strong>[CHECKPOINT: genesis-complete]</strong></p>
+<p><strong>注</strong>: <code>foundation-review</code> 的 contract writes 为 <code>foundation/review_report.md</code> (非 <code>audits/</code>)。Pipeline 使用此路径。</p>
+<h3 id="52-genesis-checkpoint">5.2 Genesis Checkpoint</h3>
+<ul>
+<li><strong>approve</strong> -&gt; commit staging, genesis snapshot, 进入逐章循环</li>
+<li><strong>modify + feedback</strong> -&gt; 依赖重算 (基于 contract writes -&gt; reads 图)</li>
+<li><strong>reject + feedback</strong> -&gt; 创世层重来</li>
+</ul>
+<h3 id="53">5.3 渐进式创建</h3>
+<p>Genesis 只创建核心阵容。后续角色在卷边界扩展时引入。character-design 增加 <code>--mode expand</code>。</p>
+<h3 id="54-bootstrap-15">5.4 风格 Bootstrap (步骤 15)</h3>
+<ul>
+<li><strong>有参考文件</strong>: style-learning 从 <code>import/source/*.txt</code> 提取</li>
+<li><strong>无参考文件</strong>: 从 seed 叙事技巧 + genre-config 生成种子指纹 (标 <code>bootstrap: true</code>)</li>
+<li><strong>首次正式提取</strong>: 前3章完成后重新提取</li>
+<li><strong>定期更新</strong>: 每 <code>config.style_learning_interval</code> 章 (默认12) 或卷边界</li>
+</ul>
+<h3 id="55-16">5.5 锚点策展 (步骤 16, 可选)</h3>
+<ul>
+<li><strong>有参考作品</strong>: anchor-curate 生成 AC-NNN.md</li>
+<li><strong>无参考作品</strong>: 跳过。resonance 降级运行</li>
+<li><strong>前章补采</strong>: 前3章完成后可选从前3章高分段落生成初始锚点</li>
+</ul>
+<h2 id="6-phase-2-per-chapter-loop">6. Phase 2: Per-Chapter Loop (逐章循环)</h2>
+<h3 id="61">6.1 完整步骤流程</h3>
+<div class="highlight"><pre><span></span><code>Step 1:  intent-management        -&gt; 更新 truth/current_focus.md
+Step 2:  chapter-planning         -&gt; 产出 plans/chapter-N-plan.md (staging)
+         [CHECKPOINT: chapter-memo] (必审)
+Step 2b: foreshadowing-plant      -&gt; 根据 step 2 的 hook 账 OPEN 项种植新伏笔
+Step 3:  context-composing        -&gt; 组装上下文包 (见 Section 7)
+Step 4:  chapter-drafting         -&gt; 读上下文包产出 chapters/chapter-N.md
+Step 5:  state-settling           -&gt; 提取 9 类变化, 写入 staging/truth/
+         [CHECKPOINT: state-settle] (标准审)
+Step 6:  foreshadowing-track      -&gt; 更新 pending_hooks.md 生命周期
+Step 7:  foreshadowing-recall     -&gt; 检查超期伏笔
+Step 7b: foreshadowing-resolve    -&gt; 如 track 检测到 TRIGGERED hooks, 运行 resolve
+Step 8:  审计层 (gate-driven)     -&gt; 三圈审计 (见 6.2)
+Step 9:  review-resonance         -&gt; 独立 agent 评分 (G3 强制)
+Step 10: revision_routing         -&gt; 诊断分类 -&gt; 路由修订 (见 6.3)
+Step 11: 修订执行 (条件触发)      -&gt; 分流到 polishing/anti-detect/length/revision
+Step 12: snapshot-manage          -&gt; 增量快照 (见 10.1)
+Step 13: drift-guidance           -&gt; 纠偏传导到下一章
+         escalation_check         -&gt; 如触发, dispatch escalation-review
+         [CHECKPOINT: per-chapter] (可选)
+         定期触发检查 -&gt; 见 6.4-6.6
+</code></pre></div>
+<h3 id="62-step-8">6.2 审计层设计 (Step 8)</h3>
+<p><strong>核心圈 (每章必跑,串行)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>审计 Skill</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>review-anti-ai</td>
+<td>BLOCKING</td>
+</tr>
+<tr>
+<td>review-continuity</td>
+<td>BLOCKING</td>
+</tr>
+<tr>
+<td>review-character</td>
+<td>BLOCKING</td>
+</tr>
+<tr>
+<td>review-pacing</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>review-foreshadowing</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>review-memo-compliance</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>review-pov</td>
+<td>BLOCKING</td>
+</tr>
+</tbody>
+</table>
+<p>BLOCKING -&gt; 立即停止,进入 revision。</p>
+<p><strong>题材圈 (gate-driven 激活,核心圈全PASS后并行)</strong>:</p>
+<p>审计维度激活矩阵 (<code>genre-config.json</code> 的 <code>audit_dimensions</code> -&gt; review skill 映射):</p>
+<table>
+<thead>
+<tr>
+<th>genre-config dimension 值</th>
+<th>激活的 review skill</th>
+<th>激活条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>era: true</code></td>
+<td>review-era</td>
+<td>题材含历史/年代标签</td>
+</tr>
+<tr>
+<td><code>fanfic: true</code></td>
+<td>review-fanfic</td>
+<td>novel.json is_fanfic = true</td>
+</tr>
+<tr>
+<td><code>world_rules: true</code></td>
+<td>review-world-rules</td>
+<td>world/rules.md 存在且 &gt; 3 条规则</td>
+</tr>
+<tr>
+<td><code>sensitivity: true</code></td>
+<td>review-sensitivity</td>
+<td>genre 标签含争议性题材</td>
+</tr>
+<tr>
+<td><code>dialogue_focus: true</code></td>
+<td>review-dialogue</td>
+<td>genre-config 声明</td>
+</tr>
+<tr>
+<td><code>motivation_focus: true</code></td>
+<td>review-motivation</td>
+<td>genre-config 声明</td>
+</tr>
+<tr>
+<td><code>texture_focus: true</code></td>
+<td>review-texture</td>
+<td>genre-config 声明</td>
+</tr>
+<tr>
+<td><code>reader_pull_focus: true</code></td>
+<td>review-reader-pull</td>
+<td>genre-config 声明</td>
+</tr>
+<tr>
+<td><code>highpoint_focus: true</code></td>
+<td>review-highpoint</td>
+<td>genre-config 声明</td>
+</tr>
+</tbody>
+</table>
+<p>Pipeline 的 <code>triggers.py</code> 读取此矩阵,确定性激活。</p>
+<p><strong>边界圈 (确定性触发,评分前)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>审计 Skill</th>
+<th>触发条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>review-long-span</td>
+<td>chapter % 24 == 0 或卷边界</td>
+</tr>
+<tr>
+<td>review-arc-payoff</td>
+<td>卷边界</td>
+</tr>
+<tr>
+<td>review-spinoff</td>
+<td>pipeline-state 标记章节为衍生</td>
+</tr>
+<tr>
+<td>chapter-pattern</td>
+<td>chapter % 6 == 0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-step-10-11">6.3 修订闭环 (Step 10-11)</h3>
+<div class="highlight"><pre><span></span><code>审计完成
+  +-- 无 BLOCKING + resonance &gt;= max(校准阈值, config.resonance_global_floor) -&gt; 通过
+  +-- 无 BLOCKING + resonance 边界/不确定 -&gt; [CHECKPOINT: escalation]
+  +-- 无 BLOCKING + resonance &lt; 阈值 -&gt; revision_routing 分流
+  +-- 有 BLOCKING -&gt; revision -&gt; 重跑审计 (最多 3 次)
+        +-- 3 次失败 -&gt; dispatch escalation-review -&gt; [CHECKPOINT: escalation]
+</code></pre></div>
+<p><strong>resonance 全局地板</strong>: <code>config.resonance_global_floor</code> (默认 50)。即使 chapter_role 校准阈值低于此值,全局地板仍然适用。如 escalation checkpoint 被关闭 (auto-approve) 且章节低于全局地板 -&gt; pipeline 输出警告日志。</p>
+<p><strong>revision_routing 分流</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>诊断结果</th>
+<th>委派 skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>表达层质感</td>
+<td>style-polishing</td>
+</tr>
+<tr>
+<td>AI 可检测性</td>
+<td>anti-detect</td>
+</tr>
+<tr>
+<td>字数越界</td>
+<td>length-normalizing</td>
+</tr>
+<tr>
+<td>结构/情节</td>
+<td>chapter-revision</td>
+</tr>
+<tr>
+<td>混合</td>
+<td>先专项后通用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>escalation-review dispatch</strong>: 读 contract 实际 reads: <code>truth/resonance_trend.md</code>, <code>audits/volume-N-score.md</code>, <code>audits/arc-N-score.md</code>, <code>audits/stratum-N-score.md</code>, <code>audits/chapter-N-sensitivity.md</code>。编译升级上下文 + 决策选项 -&gt; <code>audits/escalation-N-report.md</code>。</p>
+<h3 id="64">6.4 分层记忆与评分触发 (每章完成后)</h3>
+<p><strong>写顺序约束 [I14]</strong>: 当 <code>chapter % 36 == is_volume_boundary(N)</code> 同时触发 memory-distill L4 和 score-stratum 时,执行顺序固定: <strong>memory-distill 先写数据字段 -&gt; score-stratum 后写诊断字段</strong>。book_spine.md 的字段分区: memory-distill 写数据值 (进度/状态),score-stratum 写诊断值 (漂移/达成),不冲突。</p>
+<div class="highlight"><pre><span></span><code>if N % 12 == 0:
+  -&gt; memory-distill L2 (弧段蒸馏)
+  -&gt; score-arc (弧段级评分, G3)
+  -&gt; style-learning (定期更新)
+
+if N % 36 == 0:
+  -&gt; memory-distill L4 (大弧蒸馏) -- 先执行
+  -&gt; score-stratum (大弧评分, G3) -- 后执行
+
+if is_volume_boundary(N):
+  -&gt; foreshadowing-resolve (卷尾伏笔盘点 + CP 债务)
+  -&gt; volume-consolidation L3 (卷摘要)
+  -&gt; review-arc-payoff (体验质量门)
+  -&gt; score-volume (目标达成门, G3)
+  -&gt; memory-distill L5 (书脊滚动复核)
+  -&gt; style-learning (卷级更新)
+  -&gt; drift-guidance 卷级
+  -&gt; 卷边界扩展 (见 6.5)
+  -&gt; [CHECKPOINT: volume-boundary] (必审)
+  -&gt; snapshot-manage (volume-boundary 全量快照)
+</code></pre></div>
+<h3 id="65">6.5 卷边界扩展 (渐进式创建)</h3>
+<p>在 drift-guidance 卷级之后 (所有当前卷评分和审核完成后):</p>
+<div class="highlight"><pre><span></span><code>1. 读下一卷 volume_map -&gt; 识别需求
+2. character-design --mode expand (G2+G4 验证)
+3. faction-builder (G2+G4 验证)
+4. location-builder (G2+G4 验证)
+5. relationship-map (G2+G4 验证)
+6. foreshadowing-plant (G2+G4 验证)
+7. plot-thread-weaver (G2+G4 验证)
+8. pipeline-truth-index rebuild + pipeline-truth-embed rebuild
+9. 更新 novel.json.total_chapters (如卷数变化)
+</code></pre></div>
+<h3 id="66-genre-config">6.6 Genre-Config 运行时更新</h3>
+<p>drift-guidance 检测到反复疲劳词 (同一 warning 传导 &gt;= 3 次) 且 config.genre_config_update_on_drift: dispatch genre-config -&gt; 审批 -&gt; 后续章节使用新配置。</p>
+<h3 id="67-audit_driftmd-i10">6.7 audit_drift.md 有界化 [I10]</h3>
+<p>drift-guidance 作为 <code>audit_drift.md</code> 的合并器/最终写者,维护<strong>滚动窗口</strong>:
+- 保留最近 12 章的纠偏条目 (YAML frontmatter 格式)
+- 超过 12 章的历史条目归档到 <code>truth/audit_drift_archive.md</code>
+- Route C 加载时只加载当前 <code>audit_drift.md</code> (&lt;= 12 章 * 5 条 = &lt;= 60 条),有界</p>
+<h2 id="7-context-architecture">7. Context Architecture</h2>
+<h3 id="71">7.1 三路检索 + 确定性重排</h3>
+<div class="highlight"><pre><span></span><code>P1 章节备忘 (语义查询)
+  |
+  +-&gt; Route A: 实体索引 (确定性, pipeline-truth-index)
+  +-&gt; Route B: 向量检索 (bge-large-zh, pipeline-truth-embed)
+  +-&gt; Route C: 规则路由 (确定性固定加载)
+  |
+  v
+候选上下文池 (~20-30K tokens)
+  |
+  v
+确定性重排 (Python, 非 LLM):
+  - Route A 结果优先级 = P1 直接涉及 (权重 1.0)
+  - Route B 结果优先级 = cosine_similarity * 0.8
+  - Route C 结果优先级 = 0.6 (固定上下文)
+  - 同一片段多路命中 -&gt; 取最高权重, 合并
+  |
+  v
+LLM 策展层 (context-composing agent):
+  - 去重 (确定性重排后残留的重复)
+  - 冲突检测
+  - 按裁剪到 budget
+  |
+  v
+context/chapter-N-context.md (物化文件)
+</code></pre></div>
+<p><strong>Context package 物化 [I1]</strong>: <code>pipeline-context-assemble</code> 将策展后的上下文写入 <code>context/chapter-N-context.md</code>。此文件路径需加入 <code>chapter-drafting</code> 的 contract reads。context-composing 的 contract 保持 ephemeral (它不产出持久文件,只做策展决策;持久化由 orchestrator 完成)。</p>
+<h3 id="72-token-budget-token-i13">7.2 自适应 Token Budget (统一 token 单位) [I13]</h3>
+<p>所有 budget 以 <strong>token</strong> 为单位。中文字符到 token 的转换因子: 1 中文字符 ≈ 1.5 token (基于常见中文 tokenizer 如 cl100k_base)。§7.4 的效果对比也以 token 为单位。</p>
+<table>
+<thead>
+<tr>
+<th>chapter_role</th>
+<th>budget (tokens)</th>
+<th>约等于中文字符</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高潮/兑现</td>
+<td>18,000</td>
+<td>~12,000 字</td>
+</tr>
+<tr>
+<td>推进/转折</td>
+<td>12,000</td>
+<td>~8,000 字</td>
+</tr>
+<tr>
+<td>过渡/铺垫</td>
+<td>8,000</td>
+<td>~5,300 字</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-route-b-i11">7.3 Route B 降级路径 [I11]</h3>
+<p>如 embedding 模型不可用 (加载失败/API 超时):
+1. 跳过 Route B
+2. 在 pipeline-state.json 标记 <code>route_b_degraded: true</code>
+3. 日志输出降级警告 (减少召回率)
+4. Routes A+C 继续工作 (精确实体 + 固定规则)
+5. 下次 dispatch 时自动重试 Route B</p>
+<h3 id="74-route-b">7.4 Route B 分块策略</h3>
+<p>Embedding 分块规则:
+- <strong>chapter_summary</strong>: 每章摘要独立 1 chunk (~200-400 字)
+- <strong>arc_synthesis</strong>: 每弧段合成独立 1 chunk (~800 字)
+- <strong>character_arc</strong>: 每角色弧线描述独立 1 chunk
+- <strong>hook</strong>: 每个 hook 的 content + keywords 独立 1 chunk
+- <strong>rule</strong>: 每条世界规则独立 1 chunk
+- <strong>volume_summary</strong>: 每卷摘要独立 1 chunk</p>
+<h3 id="75-memory-distill">7.5 自适应压缩 (memory-distill)</h3>
+<p>密度驱动触发: 累计变更&gt;60条 / hook新增&gt;15条 / 角色变更&gt;20处 (保底chapter%12)。</p>
+<h3 id="76-500-token">7.6 效果对比 (第500章, token 单位)</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>原始(整文件)</th>
+<th>优化后(三路)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>character_matrix</td>
+<td>~15,000 tokens</td>
+<td>~800 tokens</td>
+</tr>
+<tr>
+<td>pending_hooks</td>
+<td>~6,000 tokens</td>
+<td>~600 tokens</td>
+</tr>
+<tr>
+<td>chapter_summaries</td>
+<td>~4,000 tokens</td>
+<td>~1,500 tokens</td>
+</tr>
+<tr>
+<td>总 context</td>
+<td>~32,000 tokens</td>
+<td>~9,000-12,000 tokens</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-phase-3-book-closure">8. Phase 3: Book Closure</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Skill</th>
+<th>产出路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>foreshadowing-resolve (final)</td>
+<td>truth/pending_hooks.md</td>
+<td>全书伏笔盘点: 所有 hooks 必须 RESOLVED</td>
+</tr>
+<tr>
+<td>2</td>
+<td>memory-distill L4+L5</td>
+<td>truth/book_strata.md, book_spine.md</td>
+<td>最终合成+复核(complete)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>volume-consolidation L3</td>
+<td>truth/volume_summaries.md</td>
+<td>末卷卷摘要</td>
+</tr>
+<tr>
+<td>4</td>
+<td>score-volume (G3)</td>
+<td>audits/volume-N-score.md</td>
+<td>末卷评分</td>
+</tr>
+<tr>
+<td>5</td>
+<td>review-arc-payoff</td>
+<td>audits/volume-N-payoff.md</td>
+<td>全书体验质量门</td>
+</tr>
+<tr>
+<td>6</td>
+<td>review-long-span</td>
+<td>audits/chapter-N-long-span.md</td>
+<td>跨卷长程一致性</td>
+</tr>
+<tr>
+<td>7</td>
+<td>chapter-pattern</td>
+<td>outline/chapter_patterns.md</td>
+<td>全书模式分布</td>
+</tr>
+<tr>
+<td>8</td>
+<td>foundation-review (G3+G4)</td>
+<td>foundation/review_report.md</td>
+<td>终态基础设定审核</td>
+</tr>
+<tr>
+<td>9</td>
+<td>style-learning (final)</td>
+<td>style/style_profile.md</td>
+<td>最终风格指纹</td>
+</tr>
+<tr>
+<td>--</td>
+<td><strong>[CHECKPOINT: book-closure]</strong></td>
+<td>--</td>
+<td>必审</td>
+</tr>
+<tr>
+<td>10</td>
+<td>snapshot-manage</td>
+<td>final-snapshot/</td>
+<td>全量快照</td>
+</tr>
+</tbody>
+</table>
+<p>终审检查项: master hooks全RESOLVED / core_hook全RESOLVED / 主角弧线到终点 / 三层冲突全收束 / 主题全探索 / 模式熵&gt;=阈值 / 无UNVERIFIED章节。</p>
+<h2 id="9-checkpoint">9. Checkpoint 设计</h2>
+<h3 id="91">9.1 类型清单</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>触发</th>
+<th>必审/可选</th>
+<th>审核选项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>genesis-complete</td>
+<td>创世层完成</td>
+<td>必审</td>
+<td>approve / modify / reject</td>
+</tr>
+<tr>
+<td>chapter-memo</td>
+<td>每章step2</td>
+<td>必审</td>
+<td>approve / modify / reject</td>
+</tr>
+<tr>
+<td>state-settle</td>
+<td>每章step5</td>
+<td>标准审</td>
+<td>approve / modify / reject</td>
+</tr>
+<tr>
+<td>escalation</td>
+<td>重试上限</td>
+<td>必审</td>
+<td>accept / rollback / modify-upstream</td>
+</tr>
+<tr>
+<td>per-chapter</td>
+<td>每章step13</td>
+<td>可选</td>
+<td>approve / modify / reject</td>
+</tr>
+<tr>
+<td>volume-boundary</td>
+<td>卷边界</td>
+<td>必审</td>
+<td>approve / modify / reject</td>
+</tr>
+<tr>
+<td>book-closure</td>
+<td>Phase3</td>
+<td>必审</td>
+<td>approve / modify</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-review-modify-truth-sync">9.2 Review modify 后的 truth-sync</h3>
+<p>modify feedback 导致章节内容修改时 (per-chapter, state-settle modify 后 chapter-revision 执行了):
+- 修改后<strong>必须运行 truth-sync</strong>: 从修改后的章节正文重新反推 truth files,确保一致
+- truth-sync 的冲突必须经人工仲裁 (skill 铁律)</p>
+<h3 id="93">9.3 审核配置</h3>
+<p>pipeline-state.json 的 config 可调整。关闭时自动 approve。如 escalation 被关闭且章节低于 <code>resonance_global_floor</code> -&gt; 输出警告。</p>
+<h2 id="10-snapshot">10. Snapshot 改进</h2>
+<h3 id="101-i9">10.1 增量 + 全量混合快照 [I9]</h3>
+<p><strong>章节快照 (每章,增量)</strong>:
+- truth/<em>.md (全部 truth 文件,含 foreshadowing_recall_result.md [M4])
+- chapters/chapter-NNN.md (仅当前章)
+- plans/chapter-NNN-plan.md (仅当前章备忘)
+- style/style_profile.md
+- characters/</em>.md (仅当本章有角色变更时)
+- manifest (含 checksum)
+- 大小: ~50-100KB/章</p>
+<p><strong>全量快照 (仅卷边界 + genesis + closure)</strong>:
+- 完整项目状态 (truth/ + characters/ + world/ + outline/ + plans/ + chapters/ + style/)
+- 大小: 随章节数增长,但只在卷边界创建 (~20-50个全量快照)</p>
+<p><strong>保留策略 [I9]</strong>: <code>config.snapshot_retention_chapters</code> (默认 50)。超过此数量的旧章节快照可清理 (保留全量快照)。</p>
+<h3 id="102-checksum">10.2 Checksum 强制验证</h3>
+<p>每次快照: Python hashlib 计算 SHA256 -&gt; 随机重验 1 个文件 -&gt; 不一致则中止。</p>
+<h3 id="103-m4">10.3 快照清单更新 [M4]</h3>
+<p>truth 文件清单 (all truth files via glob, includes foreshadowing_recall_result.md):</p>
+<h3 id="104">10.4 回滚完整性</h3>
+<p>恢复快照覆盖项目 -&gt; 标记后续章节 UNVERIFIED -&gt; <strong>必须运行 truth-sync</strong>。</p>
+<h2 id="11_1">11. 错误处理与恢复</h2>
+<ul>
+<li>dispatch/gate失败: 重试最多2次,3次失败-&gt;dispatch escalation-review-&gt;escalation checkpoint</li>
+<li>审计BLOCKING: revision闭环最多3次,3次失败-&gt;回退最佳版本-&gt;escalation checkpoint</li>
+<li>评分失败: scoring exit code 2-&gt;重dispatch(G3重验),exit code 3-&gt;先跑G4</li>
+<li>state-settling失败: 标记 settling_failed,暂停 (状态: chapter-loop:in-progress,等待人工)</li>
+<li>中断规则: 同类失败&gt;=3次-&gt;暂停修根因</li>
+<li>不可恢复错误 -&gt; 状态: <code>failed</code>,等待人工修复后 <code>resume</code></li>
+</ul>
+<h2 id="12-skill">12. 现有 skill 改动</h2>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>改动</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>character-design</td>
+<td>增加 <code>--mode expand</code></td>
+<td>渐进式创建</td>
+</tr>
+<tr>
+<td>foreshadowing-plant</td>
+<td>增加 <code>--mode genesis</code></td>
+<td>Genesis 无 chapter plan,需从 volume_map 提取 master hooks</td>
+</tr>
+<tr>
+<td>snapshot-manage</td>
+<td>全量快照清单 (truth glob) + foreshadowing_recall_result.md</td>
+<td>回滚完整性</td>
+</tr>
+<tr>
+<td>context-composing</td>
+<td>接收预检索包做策展</td>
+<td>三路检索架构</td>
+</tr>
+<tr>
+<td>chapter-drafting</td>
+<td>contract reads 增加 <code>context/chapter-N-context.md</code></td>
+<td>context package 物化 [I1]</td>
+</tr>
+<tr>
+<td>memory-distill</td>
+<td>支持密度驱动触发</td>
+<td>自适应压缩</td>
+</tr>
+<tr>
+<td>style-learning</td>
+<td>支持从 seed 叙事技巧生成 bootstrap 指纹</td>
+<td>风格 bootstrap</td>
+</tr>
+<tr>
+<td>drift-guidance</td>
+<td>audit_drift.md 滚动窗口 (12章)</td>
+<td>有界化 [I10]</td>
+</tr>
+</tbody>
+</table>
+<h2 id="13_1">13. 新增编排器模块</h2>
+<p>注: 编排器模块使用 <code>pipeline-</code> 前缀 (非 <code>shenbi-</code> skill 前缀),避免与 69 个 skill 混淆 [M1]。</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pipeline (CLI)</td>
+<td>命令式入口 (init/next/status/review/resume/rollback)</td>
+</tr>
+<tr>
+<td>pipeline.state</td>
+<td>状态机管理 + 转换表</td>
+</tr>
+<tr>
+<td>pipeline.seed_parser</td>
+<td>种子文件解析</td>
+</tr>
+<tr>
+<td>pipeline.genesis</td>
+<td>创世层编排</td>
+</tr>
+<tr>
+<td>pipeline.chapter_loop</td>
+<td>逐章循环编排</td>
+</tr>
+<tr>
+<td>pipeline.closure</td>
+<td>全书封印编排</td>
+</tr>
+<tr>
+<td>pipeline.triggers</td>
+<td>确定性触发器 (memory/volume/expansion/style/genre-config)</td>
+</tr>
+<tr>
+<td>pipeline.checkpoint</td>
+<td>checkpoint 处理 + staging commit</td>
+</tr>
+<tr>
+<td>pipeline.retry</td>
+<td>重试/升级逻辑</td>
+</tr>
+<tr>
+<td>pipeline.dependency_graph</td>
+<td>genesis modify 依赖重算</td>
+</tr>
+<tr>
+<td>pipeline.revision_router</td>
+<td>revision_routing 分流</td>
+</tr>
+<tr>
+<td>pipeline-truth-index</td>
+<td>实体索引 (Route A)</td>
+</tr>
+<tr>
+<td>pipeline-truth-embed</td>
+<td>向量检索 (Route B)</td>
+</tr>
+<tr>
+<td>pipeline-context-assemble</td>
+<td>三路检索组装 + 物化</td>
+</tr>
+</tbody>
+</table>
+<h2 id="14">14. 设计决策记录</h2>
+<ol>
+<li><strong>混合编排</strong>: Python控制流 + skill创意执行</li>
+<li><strong>命令式API</strong>: 无状态,水平扩展,web UI就绪</li>
+<li><strong>三路检索 + 确定性重排</strong>: Route A精确 + Route B语义 + Route C规则,Python重排优先于LLM策展</li>
+<li><strong>渐进式创建</strong>: 超长篇分卷引入角色/地点/势力</li>
+<li><strong>增量+全量混合快照</strong>: 章节快照增量,卷边界全量,有保留策略</li>
+<li><strong>G3强制</strong>: 评分必须独立agent (fail-closed)</li>
+<li><strong>Staging 延迟写入</strong>: checkpoint-gated skill 产出先入 staging/,approve 后 commit</li>
+<li><strong>foreshadowing 完整生命周期</strong>: plant(每章+创世+卷边界) -&gt; track(每章) -&gt; recall(每章) -&gt; resolve(条件+卷尾+封印)</li>
+<li><strong>style-learning bootstrap</strong>: 种子 -&gt; 前3章正式 -&gt; 定期更新</li>
+<li><strong>revision 分流</strong>: 专项问题委派专项 skill</li>
+<li><strong>pipeline-state.json 原生进度</strong>: 不复用 shenbi-progress (T1专用)</li>
+<li><strong>读写锁分离</strong>: status 只读不阻塞,next 排他写</li>
+<li><strong>resume truth 完整性验证</strong>: 对比 snapshot checksum,不一致则 truth-sync</li>
+</ol>
+<h2 id="15">15. 验收标准</h2>
+<ol>
+<li>init 解析种子,创建项目,跑通 G0,幂等</li>
+<li>Genesis 17 步全部 dispatch+gate,到 checkpoint 暂停</li>
+<li>逐章循环完整步骤 (含 foreshadowing-plant step 2b) 执行</li>
+<li>审计层三圈正确编排,激活矩阵确定性</li>
+<li>foreshadowing 完整生命周期闭环</li>
+<li>revision_routing 正确分流</li>
+<li>memory/volume/style/genre-config 触发器正确触发</li>
+<li>卷边界扩展 (G2+G4 验证) + total_chapters 更新</li>
+<li>三路检索组装 + 确定性重排 + context 物化文件</li>
+<li>所有 checkpoint 正确暂停/review/resume + staging commit</li>
+<li>modify 后 truth-sync 同步</li>
+<li>snapshot 增量+全量混合 + checksum + 回滚 + truth-sync</li>
+<li>G3 独立性在所有评分前强制</li>
+<li>escalation-review 在升级时被 dispatch</li>
+<li>进度跟踪在 pipeline-state.json 中 (不用 shenbi-progress)</li>
+<li>状态转换表完整,含 failed 终态</li>
+<li>并发安全 (读写锁分离,init 幂等)</li>
+<li>resume 时 truth 完整性验证</li>
+<li>audit_drift.md 有界 (12章滚动)</li>
+<li>Route B 降级路径</li>
+</ol>
+<h2 id="16-genesis">16. Genesis 依赖验证表</h2>
+<p>每个 genesis 步骤的 contract reads 必须在执行前存在 (G1 检查)。以下为完整验证:</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>Skill</th>
+<th>Contract reads</th>
+<th>产出来源</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>worldbuilding</td>
+<td>novel.json</td>
+<td>init</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>2</td>
+<td>genre-config</td>
+<td>novel.json, genre-config.json</td>
+<td>step 1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>3</td>
+<td>character-design</td>
+<td>world/story_bible.md, world/rules.md</td>
+<td>step 1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>4</td>
+<td>story-architecture</td>
+<td>world/story_bible.md, characters/*<em>/</em>.md</td>
+<td>step 1, step 3</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>5</td>
+<td>faction-builder</td>
+<td>novel.json, world/story_bible.md, world/rules.md, characters/*<em>/</em>.md, outline/story_frame.md</td>
+<td>steps 1-4</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>6</td>
+<td>volume-outlining</td>
+<td>outline/story_frame.md, outline/volume_map.md, truth/author_intent.md</td>
+<td>steps 4-5, step 1 (empty template)</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>7</td>
+<td>pacing-design</td>
+<td>novel.json, outline/story_frame.md, outline/volume_map.md, genre-config.json</td>
+<td>steps 1-4</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>8</td>
+<td>plot-thread-weaver</td>
+<td>outline/story_frame.md, outline/volume_map.md, outline/rhythm_principles.md, truth/pending_hooks.md</td>
+<td>steps 4-7, step 1 (empty template)</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>9</td>
+<td>foreshadowing-plant (genesis)</td>
+<td>outline/story_frame.md, outline/volume_map.md, truth/pending_hooks.md, genre-config.json</td>
+<td>steps 4-8, step 2</td>
+<td>OK (--mode genesis)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>power-system</td>
+<td>novel.json, world/story_bible.md, world/rules.md, outline/story_frame.md</td>
+<td>steps 1-4</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>11</td>
+<td>location-builder</td>
+<td>novel.json, world/story_bible.md, world/rules.md, world/locations.md, outline/story_frame.md</td>
+<td>steps 1-4</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>12</td>
+<td>relationship-map</td>
+<td>characters/*<em>/</em>.md, characters/relationships.md, truth/character_matrix.md, world/factions.md</td>
+<td>steps 3, 1, 5</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>13</td>
+<td>book-spine-init</td>
+<td>outline/story_frame.md, outline/volume_map.md, novel.json</td>
+<td>steps 4-5, 1</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>14</td>
+<td>intent-management</td>
+<td>truth/author_intent.md, truth/audit_drift.md</td>
+<td>step 1 (empty templates)</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>15</td>
+<td>style-learning</td>
+<td>import/source/<em>.txt 或 chapters/</em>.md</td>
+<td>seed 或 bootstrap</td>
+<td>OK (bootstrap)</td>
+</tr>
+<tr>
+<td>16</td>
+<td>anchor-curate (optional)</td>
+<td>import/source/*.txt</td>
+<td>seed (optional)</td>
+<td>OK (optional)</td>
+</tr>
+<tr>
+<td>17</td>
+<td>foundation-review</td>
+<td>world/<em>.md, characters/</em><em>/</em>.md, outline/*.md, truth/current_state.md, truth/chapter_summaries.md</td>
+<td>steps 1-14, 1 (templates)</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注</strong>: worldbuilding (step 1) 写 <code>truth/*.md</code> 创建所有 truth 文件的空模板。G1 检查文件存在性,不检查内容。因此 <code>truth/author_intent.md</code>、<code>truth/pending_hooks.md</code> 等在 step 1 后即存在 (空模板),后续 skill 读取不会 G1 失败。</p>
+<h2 id="17-ramp-up">17. Ramp-Up 读取覆盖</h2>
+<p>某些 skill 的 contract reads 包含在小说早期不存在的文件。Pipeline 在 dispatch 这些 skill 时,对 G1 输入进行预处理 (跳过不存在的可选读取):</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>不存在的 reads</th>
+<th>首次产出时机</th>
+<th>Pipeline 处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>drift-guidance</td>
+<td>truth/volume_score_trend.md, truth/arc_payoff_trend.md</td>
+<td>首个卷边界</td>
+<td>Ramp-up 章节跳过这两个 reads,仅加载 truth/resonance_trend.md + audits/</td>
+</tr>
+<tr>
+<td>context-composing</td>
+<td>truth/arcs/arc-N.md, truth/book_strata.md, truth/volume_summaries.md</td>
+<td>ch12/ch36/卷边界</td>
+<td>Skill SKILL.md 已有爬坡期处理 (缺失层跳过)。Pipeline 在 dispatch 时对 G1 跳过这些可选 reads</td>
+</tr>
+<tr>
+<td>drift-guidance</td>
+<td>truth/resonance_trend.md</td>
+<td>ch1 step 9 (首次 review-resonance)</td>
+<td>ch1 step 13 时已由 step 9 产出。OK</td>
+</tr>
+<tr>
+<td>escalation-review</td>
+<td>audits/chapter-N-sensitivity.md</td>
+<td>仅 genre-config sensitivity=true 时产出</td>
+<td>如 sensitivity 维度未激活,跳过此 read (§17 条件性 read)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实现</strong>: Pipeline 在 dispatch 前解析 contract reads。对于标记为 <code>optional</code> 或在 ramp-up 阶段可能不存在的 reads,pipeline 从 G1 输入列表中移除。G1 只验证必须存在的 reads。</p>
+<p>可选 reads 判定规则: 文件路径含 <code>N</code> 模板变量 (如 <code>arc-N.md</code>) 或文件首次产出在运行时后期 (如 trend files)。</p>
+<h2 id="18-g4-staging-r2-4">18. G4 Staging 验证目标 [R2-4]</h2>
+<p>对于 checkpoint-gated skill (chapter-planning, state-settling),dispatch 将产出写入 <code>staging/</code>。G4 验证目标:</p>
+<ol>
+<li><strong>G4 在 staging 内容上运行</strong>: dispatch 完成后,pipeline 运行 G4 验证 staging 路径下的产出 (如 <code>staging/plans/chapter-N-plan.md</code>)</li>
+<li><strong>G4 通过 -&gt; checkpoint 暂停</strong>: staging 内容验证合格,呈交人工审核</li>
+<li><strong>review approve -&gt; commit</strong>: pipeline 将 staging 内容复制到正式路径,然后<strong>不再重复 G4</strong> (已验证)</li>
+<li><strong>G4 失败</strong>: 按 §11 重试逻辑,重新 dispatch 该 skill</li>
+</ol>
+<h2 id="19-foreshadowing-plant-mode-genesis-r2-2">19. foreshadowing-plant --mode genesis [R2-2]</h2>
+<p>现有 foreshadowing-plant 的 contract reads <code>plans/chapter-N-plan.md</code>。Genesis 阶段无章节备忘,需要 genesis 模式:</p>
+<ul>
+<li><code>--mode genesis</code>: reads <code>outline/story_frame.md</code> + <code>outline/volume_map.md</code> (跨卷 master hooks 从 volume_map 提取),而非 chapter plan。产出仍 updates <code>truth/pending_hooks.md</code></li>
+<li><code>--mode per-chapter</code> (默认): 现有行为,reads <code>plans/chapter-N-plan.md</code></li>
+</ul>
+<p>Pipeline 通过 dispatch prompt 传递 mode。SKILL.md 需增加 genesis mode 流程说明 (见 §12)。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

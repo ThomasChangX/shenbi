@@ -1,0 +1,2434 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-novel-pipeline-root-cause-fixes/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Novel Pipeline 根因修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Novel Pipeline 根因修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-novel-pipeline-root-cause-fixes.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-novel-pipeline-root-cause-fixes/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Novel Pipeline 根因修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-novel-pipeline-root-cause-fixes.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#novel-pipeline-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Novel Pipeline 根因修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-helper-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Helper Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-tasks-1-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: 正确性阻塞修复 (Tasks 1-8)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: 正确性阻塞修复 (Tasks 1-8)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-a3-genre-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: A3 — genre-config 审计维度对齐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-a8-blocking-genre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: A8 — 审计 BLOCKING 即时停止 + genre 圈接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-a5-error_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: A5 — error_handler 三函数接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-a4-escalation-review-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: A4 — escalation-review dispatch 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-a1-total_chapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: A1 — total_chapters 动态重算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-a2-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: A2 — resonance 评分解析器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-a6-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: A6 — modify 决策行为修正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-a7-state-settling-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: A7 — state-settling G4 目录验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-tasks-9-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: 补充正确性 (Tasks 9-10)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: 补充正确性 (Tasks 9-10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-9-e1-e3e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: E1-E3+E5 — 小修复批次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-e4-cmd_rollback-stub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: E4 — cmd_rollback stub 修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-tasks-11-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: 健壮性增强 (Tasks 11-13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: 健壮性增强 (Tasks 11-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-11-b1b4-g1-fail-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: B1+B4 — G1 可选过滤 + fail-closed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-b2-resume-checksum-b5-reject-step-reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: B2 — Resume checksum 校验 + B5 reject step reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-b3-truth-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: B3 — truth-sync 传播标记
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-tasks-14-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: 测试补全 (Tasks 14-17)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4: 测试补全 (Tasks 14-17)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-14-c1c2-cli-dispatch-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 14: C1+C2 — CLI 冒烟 + dispatch chain 集成测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-15-c3c4c5-route-b-closure-cmd_next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 15: C3+C4+C5 — Route B 向量 + closure + cmd_next 测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-16-c6-blocking-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 16: C6 — 审计 BLOCKING revision 闭环端到端测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-17-f1-f7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 17: F1-F7 — 序列化往返 + 覆盖率补全
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-5-tasks-18-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: 代码清理 + 文档 (Tasks 18-20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 5: 代码清理 + 文档 (Tasks 18-20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-18-d1d2g1-_gate_passed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 18: D1+D2+G1 — _gate_passed 提取 + 常量连接 + 类型一致
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-19-d3d4g2-g7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 19: D3+D4+G2-G7 — 代码质量批次
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-20-h1h2i1-i3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 20: H1+H2+I1-I3 — 文档与流程修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final Task: 批判性审核
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="novel-pipeline-implementation-plan">Novel Pipeline 根因修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Fix all 55 discovered correctness defects, robustness gaps, test coverage blind spots, and code debt in the novel-pipeline through root-cause analysis and targeted fixes.</p>
+<p><strong>Architecture:</strong> Modifications to existing <code>src/shenbi/pipeline/</code> modules (19 files) following established patterns: TDD, structlog logging, safe_write for state, StrEnum typing. No new modules — all fixes are within existing files.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, json, structlog, pytest, existing pipeline framework</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design.md</code></p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> in all modified files</li>
+<li><code>pathlib.Path</code> for all file I/O, <code>json</code> for structured output</li>
+<li>No <code>print()</code> in framework code; use structlog (stderr) + <code>cli_utils.emit_json</code> (stdout)</li>
+<li><code>safe_write</code> for all state file writes (atomic, fsync, lock)</li>
+<li>Typed enums via <code>StrEnum</code> (matching <code>status.py</code> pattern)</li>
+<li>Tests in <code>tests/unit/pipeline/</code></li>
+<li>Conventional Commits: <code>feat:</code>, <code>fix:</code>, <code>test:</code>, <code>docs:</code>, <code>chore:</code></li>
+<li>Branch: <code>codex/novel-pipeline</code> (existing)</li>
+<li>Use <code>io.StringIO</code>-via-monkeypatch test pattern (NOT capsys, see W1T6 lesson)</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<p>Files modified / created:</p>
+<div class="highlight"><pre><span></span><code>src/shenbi/pipeline/
+    state.py              # +audit_retry_count, +modify_feedback, +modify_pending_step, +needs_truth_sync, +DEFAULT_MAX_*_RETRIES
+    machine.py            # clear_checkpoint idempotency guard
+    audit_layer.py        # GENRE_ACTIVATION_MATRIX rewrite
+    chapter_loop.py       # audit wiring, BLOCKING loop, G4 staging glob, resonance parser, dispatch prompt
+    cli.py                # modify behavior, rollback stub, feedback error, genesis save
+    error_handler.py      # import constants from state.py
+    genesis.py            # escalation dispatch, modify prompt
+    closure.py            # escalation dispatch
+    revision_router.py    # _gate_passed removal
+    dispatch_helper.py    # _gate_passed extraction, fail-closed, G1 optional filter
+    context_assemble.py   # try/finally for store
+    truth_index.py        # sorted() returns
+    truth_embed.py        # rebuild log
+    triggers.py           # total_chapters recompute, run_triggered_skills return check
+
+tests/unit/pipeline/
+    test_audit_layer.py
+    test_chapter_loop.py
+    test_chapter_loop_full.py
+    test_cli.py
+    test_error_handler.py
+    test_machine.py
+    test_state.py
+    test_context_assemble.py
+    test_truth_index.py
+    test_truth_embed.py
+    test_genesis.py
+    test_closure.py
+    test_dispatch_helper.py
+    test_revision_router.py
+    test_triggers.py
+    test_root_cause_fixes.py  # NEW: cross-cutting fix tests
+</code></pre></div>
+<h2 id="new-helper-functions">New Helper Functions</h2>
+<p>Four helper functions are created within the tasks that use them. Signatures and logic:</p>
+<ol>
+<li>
+<p><code>_checkpoint_to_step_number(cp: CheckpointData) -&gt; int</code> — Task 7. Maps checkpoint type to genesis step number for modify re-dispatch:
+   <div class="highlight"><pre><span></span><code><span class="n">_CHECKPOINT_STEP_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">GENESIS_COMPLETE</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># restart genesis</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">CHAPTER_MEMO</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>          <span class="c1"># re-run chapter-planning</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">STATE_SETTLE</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>          <span class="c1"># re-run state-settling</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">PER_CHAPTER</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>           <span class="c1"># restart chapter</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">VOLUME_BOUNDARY</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>       <span class="c1"># restart chapter</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><code>_checkpoint_to_step_index(cp: CheckpointData) -&gt; int</code> — Task 7. Maps checkpoint type to CHAPTER_STEPS 0-based index:
+   <div class="highlight"><pre><span></span><code><span class="n">_CHECKPOINT_INDEX_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">CHAPTER_MEMO</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>    <span class="c1"># index of chapter-planning</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">STATE_SETTLE</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>    <span class="c1"># index of state-settling</span>
+    <span class="n">CheckpointType</span><span class="o">.</span><span class="n">PER_CHAPTER</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># restart from first</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><code>_count_total_chapters(volume_map_text: str) -&gt; int</code> — Task 5. Parses volume_map.md, sums all volume chapter counts using regex.</p>
+</li>
+<li>
+<p><code>_verify_truth_checksums(project_dir: Path, checksums: dict[str, str]) -&gt; list[str]</code> — Task 12. Computes SHA256 of each truth file, compares against stored manifest, returns list of mismatched paths.</p>
+</li>
+</ol>
+<hr />
+<h2 id="phase-1-tasks-1-8">Phase 1: 正确性阻塞修复 (Tasks 1-8)</h2>
+<p>Dependency chain: Task 1 → Task 2 → Task 3 → Task 4. Tasks 5-8 independent.</p>
+<h3 id="task-1-a3-genre-config">Task 1: A3 — genre-config 审计维度对齐</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_layer.py:40-55</code> (GENRE_ACTIVATION_MATRIX + get_active_genre_audits)
+- Test: <code>tests/unit/pipeline/test_audit_layer.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>genre_config: Mapping[str, object]</code> (genre-config.json parsed)
+- Produces: <code>GENRE_ACTIVATION_MATRIX</code> with camelCase keys matching real fixture; <code>get_active_genre_audits</code> reads <code>auditDimensions</code> top-level key</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_audit_layer.py — add to existing file</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestGenreActivationMatrixRealFormat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests that the activation matrix matches real genre-config.json format.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_reads_audit_dimensions_camel_case</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Real fixture uses auditDimensions (camelCase), not audit_dimensions.&quot;&quot;&quot;</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;sensitivity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;worldRules&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-sensitivity&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-world-rules&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_motivation_activates_review</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;motivation&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-motivation&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dialogue_activates_review</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-dialogue&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_texture_activates_review</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-texture&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_era_dimension_supported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;era is a spec §6.2 dimension not yet in real fixture but supported.&quot;&quot;&quot;</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;era&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-era&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fanfic_dimension_supported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fanfic&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-fanfic&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_core_circle_keys_not_in_genre_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;antiAi, character, pacing, continuity, foreshadowing are core circle.&quot;&quot;&quot;</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;pacing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="c1"># These should NOT activate genre-circle skills</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-anti-ai&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-character&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-pacing&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_audit_dimensions_returns_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">assert</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_audit_dimensions_returns_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">assert</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_snake_case_fallback_still_works</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Backward compat: if someone uses audit_dimensions (snake_case).&quot;&quot;&quot;</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;audit_dimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;sensitivity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_active_genre_audits</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-review-sensitivity&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_audit_layer.py::TestGenreActivationMatrixRealFormat -v</code>
+Expected: FAIL — current matrix uses snake_case keys and reads <code>audit_dimensions</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Implement the fix</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/audit_layer.py — replace GENRE_ACTIVATION_MATRIX and get_active_genre_audits</span>
+
+<span class="c1"># Maps genre-config.json ``auditDimensions`` keys to review skills.</span>
+<span class="c1"># Keys match the real genre-config.json fixture produced by shenbi-genre-config</span>
+<span class="c1"># (camelCase). Core-circle dimensions (antiAi, character, pacing, continuity,</span>
+<span class="c1"># foreshadowing) are NOT here — they run as chapter_loop steps 10-16.</span>
+<span class="n">GENRE_ACTIVATION_MATRIX</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sensitivity&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-sensitivity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worldRules&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-world-rules&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motivation&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-motivation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-dialogue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-texture&quot;</span><span class="p">,</span>
+    <span class="c1"># Spec §6.2 dimensions not yet in real fixture but supported for forward compat:</span>
+    <span class="s2">&quot;era&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-era&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fanfic&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-fanfic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;readerPull&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-reader-pull&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;highpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-review-highpoint&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_active_genre_audits</span><span class="p">(</span><span class="n">genre_config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine which genre-circle audits to run based on genre-config.json.</span>
+
+<span class="sd">    Reads the ``auditDimensions`` sub-dict (camelCase, matching real fixture).</span>
+<span class="sd">    Falls back to ``audit_dimensions`` (snake_case) for backward compat.</span>
+<span class="sd">    Every key set to a truthy value maps (via :data:`GENRE_ACTIVATION_MATRIX`)</span>
+<span class="sd">    to a review skill.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audit_dims</span> <span class="o">=</span> <span class="n">genre_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">audit_dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">audit_dims</span> <span class="o">=</span> <span class="n">genre_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;audit_dimensions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audit_dims</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">skill</span>
+        <span class="k">for</span> <span class="n">dim_key</span><span class="p">,</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">GENRE_ACTIVATION_MATRIX</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">audit_dims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dim_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_audit_layer.py -v</code>
+Expected: PASS — all existing + new tests</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_layer.py<span class="w"> </span>tests/unit/pipeline/test_audit_layer.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: align genre-config activation matrix with real fixture format (A3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-a8-blocking-genre">Task 2: A8 — 审计 BLOCKING 即时停止 + genre 圈接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (replace TODO(W3T4) markers, add audit retry loop)
+- Modify: <code>src/shenbi/pipeline/state.py</code> (add <code>audit_retry_count</code> to ChapterState)
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>run_audit_layer(project_dir, chapter, genre_config)</code> from <code>audit_layer.py</code> (Task 1)
+- Consumes: <code>handle_audit_blocking(state, chapter)</code> from <code>error_handler.py</code>
+- Produces: chapter_loop step 8 now calls audit layer; BLOCKING triggers step_index rollback</p>
+<p><strong>Prerequisite:</strong> Task 1 complete (genre-config matrix aligned).</p>
+<ul>
+<li>[ ] <strong>Step 1: Add audit_retry_count to ChapterState</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/state.py — in ChapterState dataclass, add field:</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChapterState</span><span class="p">:</span>
+    <span class="n">steps_done</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
+    <span class="n">resonance_score</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">audit_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">revision_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">audit_retry_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># NEW: tracks audit BLOCKING revision attempts</span>
+</code></pre></div>
+<p>Also update <code>to_dict</code> and <code>from_dict</code> for ChapterState to serialize this field.</p>
+<ul>
+<li>[ ] <strong>Step 2: Write failing test for audit layer call</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_chapter_loop.py — add class</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAuditLayerWiring</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests that audit layer is called and BLOCKING findings trigger revision loop.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_audit_layer_called_after_core_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;run_audit_layer is called after the last core-circle audit step.&quot;&quot;&quot;</span>
+        <span class="c1"># Setup: state at step 16 (last core-circle audit) complete</span>
+        <span class="c1"># Mock run_audit_layer to return AuditResult(blocking_found=False)</span>
+        <span class="c1"># Run one more step</span>
+        <span class="c1"># Assert run_audit_layer was called</span>
+        <span class="k">pass</span>  <span class="c1"># Implement with real fixtures</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_blocking_finds_triggers_step_rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BLOCKING audit finding rolls step_index back to revision step.&quot;&quot;&quot;</span>
+        <span class="c1"># Setup: state at audit complete, mock audit_result.blocking_found=True</span>
+        <span class="c1"># Run the audit step</span>
+        <span class="c1"># Assert step_index rolled back to revision step index - 1</span>
+        <span class="c1"># Assert audit_retry_count incremented</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_max_audit_retries_triggers_escalation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;After max_audit_retries BLOCKING findings, escalation checkpoint is set.&quot;&quot;&quot;</span>
+        <span class="c1"># Setup: audit_retry_count = config.max_audit_retries - 1</span>
+        <span class="c1"># Mock audit_result.blocking_found=True</span>
+        <span class="c1"># Assert CheckpointType.ESCALATION is set</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_blocking_advances_normally</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No BLOCKING findings → normal step advancement.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_loop.py::TestAuditLayerWiring -v</code>
+Expected: FAIL — audit layer not wired</p>
+<ul>
+<li>[ ] <strong>Step 4: Wire audit layer into chapter_loop</strong></li>
+</ul>
+<p>Replace the <code>TODO(W3T4)</code> blocks in <code>chapter_loop.py</code> with actual audit layer calls. Key logic:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># After last core-circle audit step (step 16):</span>
+<span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">is_audit</span> <span class="ow">and</span> <span class="n">step_idx</span> <span class="o">==</span> <span class="n">_LAST_AUDIT_IDX</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_layer</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_audit_layer</span>
+
+    <span class="n">gc_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+    <span class="n">gc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">gc_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">gc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gc_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+    <span class="n">audit_result</span> <span class="o">=</span> <span class="n">run_audit_layer</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">gc</span><span class="p">)</span>
+
+    <span class="c1"># Store audit results for revision routing</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)]</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;blocking_found&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="s2">&quot;issues&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;model_dump&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">issues</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+        <span class="c1"># Inline revision loop (spec A8): audit steps precede revision</span>
+        <span class="c1"># in the linear sequence, so step_index rollback cannot reach</span>
+        <span class="c1"># audits again. Loop inline instead.</span>
+        <span class="k">while</span> <span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span> <span class="o">&lt;</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="p">:</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;audit_blocking_revision&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                     <span class="n">retry</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span><span class="p">)</span>
+            <span class="n">rev_result</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span>
+                <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Revise chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">. Project dir: </span><span class="si">{</span><span class="n">project_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rev_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">audit_result</span> <span class="o">=</span> <span class="n">run_audit_layer</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">gc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_escalation</span>
+            <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+            <span class="n">set_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">CheckpointType</span><span class="o">.</span><span class="n">ESCALATION</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                          <span class="n">artifact</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;audits/escalation-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-report.md&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># checkpoint raised</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_loop.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full pipeline suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/ -v</code>
+Expected: PASS, no regressions</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>tests/unit/pipeline/test_chapter_loop.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: wire audit layer into chapter_loop with BLOCKING revision loop (A8)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-a5-error_handler">Task 3: A5 — error_handler 三函数接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (wire handle_scoring_failure, handle_state_settle_failure)
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code>, <code>tests/unit/pipeline/test_error_handler.py</code></p>
+<p><strong>Prerequisite:</strong> Task 2 complete (audit wiring + handle_audit_blocking already called).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test that scoring failure exit codes are checked</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestScoringFailureWiring</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exit_code_2_triggers_redispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;review-resonance returncode=2 → re-dispatch with G3 re-verify.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exit_code_3_triggers_g4_first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;review-resonance returncode=3 → run G4 then re-dispatch.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<span class="c1"># Test that state-settling failure marks settling_failed</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestStateSettleFailureWiring</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_state_settle_failure_marks_settling_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;state-settling dispatch failure → status=&#39;settling_failed&#39;, checkpoint.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run tests to verify they fail</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Wire scoring failure handling</strong></p>
+</li>
+</ul>
+<p>In <code>chapter_loop.py</code>, after review-resonance dispatch:
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="s2">&quot;review-resonance&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># existing</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span> <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.error_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_scoring_failure</span>
+        <span class="n">should_retry</span> <span class="o">=</span> <span class="n">handle_scoring_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">should_retry</span><span class="p">:</span>
+            <span class="c1"># Re-dispatch (exit code 2 or 3)</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># don&#39;t advance, retry this step</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_handle_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 4: Wire state-settling failure handling</strong></li>
+</ul>
+<p>In <code>chapter_loop.py</code>, for state-settling step:
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="s2">&quot;state-settling&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.error_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_state_settle_failure</span>
+        <span class="n">handle_state_settle_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># checkpoint set, pause for human</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 5: Run tests, full suite, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: wire scoring and state-settle failure handlers into chapter_loop (A5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-a4-escalation-review-dispatch">Task 4: A4 — escalation-review dispatch 接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/genesis.py</code>, <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/closure.py</code>
+- Test: corresponding test files</p>
+<p><strong>Prerequisite:</strong> Task 3 complete.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_escalation_dispatched_before_checkpoint</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;When retries exhausted, dispatch_escalation runs before set_checkpoint.&quot;&quot;&quot;</span>
+    <span class="c1"># Mock dispatch_escalation to track call</span>
+    <span class="c1"># Trigger max retries failure</span>
+    <span class="c1"># Assert dispatch_escalation called BEFORE set_checkpoint</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Wire escalation dispatch</strong></li>
+</ul>
+<p>In <code>_handle_failure</code> functions (genesis, chapter_loop, closure), when <code>handle_dispatch_failure</code> returns <code>False</code>:
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="ow">not</span> <span class="n">handle_dispatch_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">attempt</span><span class="p">):</span>
+    <span class="c1"># A4: Dispatch escalation-review before checkpoint</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_escalation</span>
+    <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># signature: (project_dir, chapter, context=&quot;&quot;)</span>
+    <span class="n">set_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">CheckpointType</span><span class="o">.</span><span class="n">ESCALATION</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                   <span class="n">artifact</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;audits/escalation-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-report.md&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, full suite, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: dispatch escalation-review before checkpoint on retry exhaustion (A4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-a1-total_chapters">Task 5: A1 — total_chapters 动态重算</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/triggers.py</code>
+- Test: <code>tests/unit/pipeline/test_triggers.py</code></p>
+<p><strong>Independent of Tasks 1-4.</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_total_chapters_recomputed_after_volume_expansion</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;After volume boundary expansion, total_chapters is recalculated.&quot;&quot;&quot;</span>
+    <span class="c1"># Create volume_map.md with 3 volumes (5+5+3 = 13 chapters)</span>
+    <span class="c1"># Set novel.json total_chapters = 10 (original estimate)</span>
+    <span class="c1"># Run run_triggered_skills with volume_boundary</span>
+    <span class="c1"># Assert novel.json total_chapters updated to 13</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement recompute</strong></li>
+</ul>
+<p>In <code>triggers.py</code>, after volume expansion steps complete in <code>run_triggered_skills</code>:
+<div class="highlight"><pre><span></span><code><span class="c1"># After expansion, recompute total_chapters</span>
+<span class="n">volume_map</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;outline&quot;</span> <span class="o">/</span> <span class="s2">&quot;volume_map.md&quot;</span>
+<span class="k">if</span> <span class="n">volume_map</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">new_total</span> <span class="o">=</span> <span class="n">_count_total_chapters</span><span class="p">(</span><span class="n">volume_map</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">novel_json</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;novel.json&quot;</span>
+    <span class="k">if</span> <span class="n">novel_json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">novel_json</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">old_total</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_chapters&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">old_total</span> <span class="o">!=</span> <span class="n">new_total</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total_chapters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_total</span>
+            <span class="n">safe_write</span><span class="p">(</span><span class="n">novel_json</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;total_chapters_updated&quot;</span><span class="p">,</span> <span class="n">old</span><span class="o">=</span><span class="n">old_total</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">new_total</span><span class="p">)</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: recompute total_chapters after volume boundary expansion (A1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-a2-resonance">Task 6: A2 — resonance 评分解析器</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (add <code>_parse_resonance_score</code> and call after review-resonance)
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code></p>
+<p><strong>Independent.</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_resonance_score_extracted_from_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resonance score is parsed from audits/chapter-N-resonance.md.&quot;&quot;&quot;</span>
+    <span class="c1"># Create a resonance report with score 72</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-resonance.md&quot;</span>
+    <span class="n">report</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">report</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;共振分数: 72</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">_parse_resonance_score</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">score</span> <span class="o">==</span> <span class="mi">72</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resonance_score_none_on_missing_file</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">_parse_resonance_score</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;nonexistent.md&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement parser</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">_RESONANCE_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;共振分数[:\s]*(\d+)&quot;</span><span class="p">),</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;resonance[_\s]*score[:\s]*(\d+)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_resonance_score</span><span class="p">(</span><span class="n">report_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">report_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">report_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_RESONANCE_PATTERNS</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Call it after review-resonance dispatch completes successfully:
+<div class="highlight"><pre><span></span><code><span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span> <span class="o">=</span> <span class="n">_parse_resonance_score</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-resonance.md&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: parse resonance score from review report (A2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-a6-modify">Task 7: A6 — modify 决策行为修正</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py</code> (+modify_feedback, +modify_pending_step fields)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (cmd_review MODIFY branch)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (dispatch prompt feedback injection)
+- Modify: <code>src/shenbi/pipeline/genesis.py</code> (dispatch prompt feedback injection)
+- Test: <code>tests/unit/pipeline/test_cli.py</code>, <code>tests/unit/pipeline/test_state.py</code></p>
+<p><strong>Independent.</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: Add state fields</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># state.py PipelineState:</span>
+<span class="n">modify_feedback</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">modify_pending_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">needs_truth_sync</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">needs_truth_sync_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<p>Update <code>to_dict</code> / <code>from_dict</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_modify_does_not_commit_staging</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MODIFY clears staging and sets modify_pending, does NOT commit.&quot;&quot;&quot;</span>
+    <span class="c1"># Setup checkpoint with staging content</span>
+    <span class="c1"># Call cmd_review with modify + feedback</span>
+    <span class="c1"># Assert staging cleared (not committed)</span>
+    <span class="c1"># Assert state.modify_feedback set</span>
+    <span class="c1"># Assert state.modify_pending_step set to checkpoint step</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_modify_feedback_injected_into_dispatch</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;On resume after modify, feedback is injected into dispatch prompt.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Fix cmd_review MODIFY branch</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># cli.py cmd_review:</span>
+<span class="k">if</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">APPROVE</span><span class="p">:</span>
+    <span class="n">_commit_staging_for_checkpoint</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">cp</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">MODIFY</span><span class="p">:</span>
+    <span class="c1"># A6: Do NOT commit staging. Clear it, set modify_pending.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_staging</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="o">=</span> <span class="n">feedback</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">modify_pending_step</span> <span class="o">=</span> <span class="n">_checkpoint_to_step_number</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">decision</span> <span class="o">==</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">REJECT</span><span class="p">:</span>
+    <span class="c1"># B5: Reset step for redo, phase-aware</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">PipelinePhase</span><span class="o">.</span><span class="n">GENESIS</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">genesis</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">genesis</span><span class="o">.</span><span class="n">skills_done</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">state</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">PipelinePhase</span><span class="o">.</span><span class="n">CHAPTER_LOOP</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">=</span> <span class="n">_checkpoint_to_step_index</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">state</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">PipelinePhase</span><span class="o">.</span><span class="n">CLOSURE</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">closure_step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">closure_skills_done</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Add feedback injection in dispatch prompt</strong></li>
+</ul>
+<p>In chapter_loop and genesis dispatch:
+<div class="highlight"><pre><span></span><code><span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Execute </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="si">}</span><span class="s2">. Project dir: </span><span class="si">{</span><span class="n">project_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">modify_pending_step</span> <span class="o">==</span> <span class="n">step</span><span class="o">.</span><span class="n">number</span><span class="p">:</span>
+    <span class="n">prompt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">## Reviewer Feedback</span><span class="se">\n</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">modify_feedback</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">modify_feedback</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">modify_pending_step</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 5: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: modify decision clears staging and re-dispatches with feedback (A6+B5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-a7-state-settling-g4">Task 8: A7 — state-settling G4 目录验证</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code></p>
+<p><strong>Independent.</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_state_settle_g4_validates_staging_truth_glob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;State-settling G4 validates staging/truth/*.md, not empty list.&quot;&quot;&quot;</span>
+    <span class="c1"># Create staging/truth/character_matrix.md, staging/truth/current_state.md</span>
+    <span class="c1"># Mock run_gate_g4 to capture args</span>
+    <span class="c1"># Run state-settling step</span>
+    <span class="c1"># Assert run_gate_g4 called with list of staging/truth/*.md paths (not empty)</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement glob validation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In chapter_loop, after state-settling dispatch:</span>
+<span class="k">if</span> <span class="s2">&quot;state-settling&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>
+    <span class="n">staging_truth</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="k">if</span> <span class="n">staging_truth</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">truth_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">staging_truth</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">truth_files</span><span class="p">:</span>
+            <span class="n">g4_result</span> <span class="o">=</span> <span class="n">run_gate_g4</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">,</span> <span class="n">truth_files</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: state-settling G4 validates staging/truth glob (A7)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-2-tasks-9-10">Phase 2: 补充正确性 (Tasks 9-10)</h2>
+<h3 id="task-9-e1-e3e5">Task 9: E1-E3+E5 — 小修复批次</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/context_assemble.py</code> (E1: try/finally for store)
+- Modify: <code>src/shenbi/pipeline/machine.py</code> (E2: clear_checkpoint guard)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (E3: feedback FileNotFoundError)
+- Modify: <code>src/shenbi/pipeline/truth_index.py</code> (E5: sorted returns)
+- Test: corresponding test files</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests for all 4 fixes</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># E1: store.close in finally</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_route_b_store_closed_on_exception</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Even if search_cosine raises, store.close() is called.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># E2: clear_checkpoint idempotent</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clear_checkpoint_already_none_is_noop</span><span class="p">():</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">pending_checkpoint</span> <span class="o">=</span> <span class="n">CheckpointData</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">CheckpointType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
+    <span class="n">clear_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">ReviewDecision</span><span class="o">.</span><span class="n">APPROVE</span><span class="p">)</span>
+    <span class="c1"># Should NOT append to history</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">checkpoint_history</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="c1"># E3: feedback file not found</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_feedback_file_not_found_returns_error</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Missing feedback file returns error envelope, not traceback.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># E5: sorted returns</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extract_entities_sorted</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Characters/rules lists are sorted.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement all 4 fixes</strong></li>
+</ul>
+<p>E1 — wrap store in try/finally:
+<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">EmbeddingStore</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">search_cosine</span><span class="p">(</span><span class="n">query_vec</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></p>
+<p>E2 — guard in clear_checkpoint:
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">decision</span><span class="p">:</span> <span class="n">ReviewDecision</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cp</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">pending_checkpoint</span>
+    <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CheckpointType</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="c1"># ... rest unchanged</span>
+</code></pre></div></p>
+<p>E3 — wrap feedback read:
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">feedback</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">feedback</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">feedback</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="n">emit_json</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">CommandStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;feedback file not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">feedback</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</code></pre></div></p>
+<p>E5 — sorted returns in extract_entities_from_plan:
+<div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="p">{</span>
+    <span class="s2">&quot;characters&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">char_hits</span><span class="p">),</span>
+    <span class="s2">&quot;hooks&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hook_hits</span><span class="p">),</span>
+    <span class="s2">&quot;rules&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rule_hits</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: SQLite leak + clear_checkpoint guard + feedback error + sorted returns (E1-E3,E5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-10-e4-cmd_rollback-stub">Task 10: E4 — cmd_rollback stub 修复</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py</code>
+- Test: <code>tests/unit/pipeline/test_cli.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_rollback_returns_nonzero_for_stub</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rollback stub returns exit code 1 (not 0).&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rollback_validates_project_exists</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rollback on missing project returns error.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Fix rollback stub</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cmd_rollback</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">WriteLock</span><span class="p">(</span><span class="n">project_dir</span><span class="p">):</span>
+            <span class="n">load_state</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># validate project exists</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="n">emit_json</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">CommandStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;project not found&quot;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rollback_requested&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">chapter</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">chapter</span><span class="p">)</span>
+    <span class="n">emit_json</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;not_implemented&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Rollback not yet implemented&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># non-zero: this is a stub</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: rollback stub returns non-zero + validates project (E4)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-3-tasks-11-13">Phase 3: 健壮性增强 (Tasks 11-13)</h2>
+<h3 id="task-11-b1b4-g1-fail-closed">Task 11: B1+B4 — G1 可选过滤 + fail-closed</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>
+- Test: <code>tests/unit/pipeline/test_dispatch_helper.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_optional_reads_filtered_before_dispatch</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads containing N template or marked optional are filtered if not present.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_requires_independent_fail_closed_on_contract_error</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;When contract read fails, requires_independent returns True (fail-closed).&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement</strong></li>
+</ul>
+<p>B1: Add <code>_OPTIONAL_READ_PATTERNS</code> set and filter in dispatch_skill before subprocess call.
+B4: In requires_independent(), change except to return True (fail-closed).
+On contract read failure, assume skill requires independence (safety-first).
+This covers ALL skills with requires_independent_agent: true in their contract.</p>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: G1 optional read filtering + requires_independent fail-closed (B1+B4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-12-b2-resume-checksum-b5-reject-step-reset">Task 12: B2 — Resume checksum 校验 + B5 reject step reset</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (cmd_resume checksum check)
+- Test: <code>tests/unit/pipeline/test_cli.py</code></p>
+<p>Note: B5 (reject step_index reset) was partially implemented in Task 7. This task completes it for non-modify rejects.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_resume_checksum_mismatch_triggers_truth_sync</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resume with corrupted truth files triggers truth-sync warning.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_reject_resets_step_index</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reject checkpoint resets step_index to redo the step.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Implement checksum check in cmd_resume</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In cmd_resume, after load_state:</span>
+<span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span> <span class="ow">and</span> <span class="s2">&quot;checksums&quot;</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">:</span>
+    <span class="n">mismatches</span> <span class="o">=</span> <span class="n">_verify_truth_checksums</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;checksums&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">mismatches</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">needs_truth_sync</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">needs_truth_sync_files</span> <span class="o">=</span> <span class="n">mismatches</span>
+        <span class="n">save_state</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="n">emit_json</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;blocked&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;truth_sync_needed&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="n">mismatches</span><span class="p">})</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: resume checksum verification + reject step reset (B2+B5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-13-b3-truth-sync">Task 13: B3 — truth-sync 传播标记</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py</code> (already added in Task 7)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (cmd_status shows warning)</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_status_shows_truth_sync_warning</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;cmd_status shows truth_sync_needed when flag is set.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Add warning to cmd_status output</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In cmd_status, after building status dict:</span>
+<span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">needs_truth_sync</span><span class="p">:</span>
+    <span class="n">status</span><span class="p">[</span><span class="s2">&quot;warnings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;truth_sync_needed: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">needs_truth_sync_files</span><span class="p">)]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: truth-sync propagation marking on modify (B3)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-4-tasks-14-17">Phase 4: 测试补全 (Tasks 14-17)</h2>
+<h3 id="task-14-c1c2-cli-dispatch-chain">Task 14: C1+C2 — CLI 冒烟 + dispatch chain 集成测试</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/pipeline/test_root_cause_fixes.py</code> (new file)</p>
+<ul>
+<li>[ ] <strong>Step 1: Write CLI smoke tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestCLISmokeTests</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_truth_index_main_smoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;pipeline-truth-index main() with rebuild returns 0.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_index</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+        <span class="c1"># Setup minimal project, call main([&quot;rebuild&quot;, ...]), assert exit 0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_truth_embed_main_smoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_embed</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+        <span class="c1"># call main([&quot;query&quot;, ...]), assert exit 0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_context_assemble_main_smoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+        <span class="c1"># call main([...]), assert exit 0</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDispatchChainIntegration</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_skill_returns_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dispatch_skill end-to-end against a minimal fixture skill.&quot;&quot;&quot;</span>
+        <span class="c1"># Use a real (non-mocked) subprocess against a tiny test skill</span>
+        <span class="c1"># Assert DispatchResult.success == True</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add CLI smoke tests + dispatch chain integration test (C1+C2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-15-c3c4c5-route-b-closure-cmd_next">Task 15: C3+C4+C5 — Route B 向量 + closure + cmd_next 测试</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/pipeline/test_root_cause_fixes.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write tests</strong></li>
+</ul>
+<p>C3: Fix Route B test to use 1024-dim vectors (or use mock model with matching dim).
+C4: Integration test: book-closure approve → resume → snapshot dispatch → completed.
+C5: Test cmd_next behavior when checkpoint pending vs cleared.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: fix Route B vector dim + closure e2e + cmd_next behavior (C3+C4+C5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-16-c6-blocking-revision">Task 16: C6 — 审计 BLOCKING revision 闭环端到端测试</h3>
+<p><strong>Prerequisite:</strong> Task 2 complete.</p>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/pipeline/test_root_cause_fixes.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write comprehensive e2e test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestAuditBlockingRevisionLoop</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_blocking_to_revision_to_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BLOCKING → revision → re-audit → pass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_blocking_to_revision_to_blocking_to_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BLOCKING → revision → still BLOCKING → revision → pass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_max_retries_to_escalation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BLOCKING × max_audit_retries → escalation checkpoint.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: audit BLOCKING revision loop end-to-end (C6)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-17-f1-f7">Task 17: F1-F7 — 序列化往返 + 覆盖率补全</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/pipeline/test_state.py</code>, <code>tests/unit/pipeline/test_machine.py</code>, <code>tests/unit/pipeline/test_genesis.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write all 7 test additions</strong></li>
+</ul>
+<p>F1: ChapterState round-trip with populated chapter_states.
+F2: Checkpoint options/context round-trip assertions.
+F3: Full 12-field PipelineConfig round-trip.
+F4: Rename test_save_is_atomic → test_save_writes_valid_json.
+F5: embed_and_store mock model success path.
+F6: G4 assert_called_with argument verification.
+F7: genesis phase transition + save_state before orchestration.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run tests, commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: complete serialization round-trips + coverage gaps (F1-F7)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-5-tasks-18-20">Phase 5: 代码清理 + 文档 (Tasks 18-20)</h2>
+<h3 id="task-18-d1d2g1-_gate_passed">Task 18: D1+D2+G1 — _gate_passed 提取 + 常量连接 + 类型一致</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (add <code>gate_passed(result, allow_skip=False)</code> shared helper + G1 <code>GateStatus.FAIL.value</code>)
+- Modify: <code>src/shenbi/pipeline/state.py</code> (add <code>DEFAULT_MAX_DISPATCH_RETRIES</code>/<code>DEFAULT_MAX_AUDIT_RETRIES</code>)
+- Modify: <code>src/shenbi/pipeline/error_handler.py</code> (import from state.py)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>audit_layer.py</code>, <code>closure.py</code>, <code>genesis.py</code>, <code>triggers.py</code> (replace local <code>_gate_passed</code> with import; triggers.py passes <code>allow_skip=True</code>)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write tests verifying shared gate_passed</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Implement extraction + constant connection</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Run full suite, commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: extract gate_passed + connect retry constants + type consistency (D1+D2+G1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-19-d3d4g2-g7">Task 19: D3+D4+G2-G7 — 代码质量批次</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/audit_layer.py</code> (D3: comments on dead entries)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (G2: conditional resolve G4, G3: staging_path(), D4: prompt comment)
+- Modify: <code>src/shenbi/pipeline/truth_embed.py</code> (G4: rebuild log)
+- Modify: <code>src/shenbi/pipeline/truth_index.py</code> (G5: update alias)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (G6: remove redundant save)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Make all changes</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run full suite, commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: dead entry comments + G2/G3 fixes + rebuild log + update alias (D3+D4+G2-G7)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-20-h1h2i1-i3">Task 20: H1+H2+I1-I3 — 文档与流程修复</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/plans/2026-07-02-pipeline-coverage-matrix.md</code> (H1: update to 20/20)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (H2: rollback stub message)
+- Modify: <code>src/shenbi/pipeline/state.py</code> (I2: PipelineState docstring for closure fields)
+- Modify: <code>.superpowers/sdd/novel-pipeline/progress.md</code> (I1: clean stale TODOs)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Make all changes</strong></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: update coverage matrix + cleanup ledger + state docstring (H1+H2+I1-I3)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="final-task">Final Task: 批判性审核</h2>
+<p>After all 20 tasks complete, dispatch a final whole-branch code review using <code>superpowers:requesting-code-review</code>.</p>
+<p>Review package: <code>scripts/review-package MERGE_BASE HEAD</code></p>
+<p>Focus areas:
+1. State consistency across all transition paths
+2. Flow correctness (genesis → chapter-loop → closure)
+3. Error recovery completeness
+4. Concurrency safety
+5. Cross-module interface consistency</p>
+<p><strong>Pass criteria:</strong> No Critical or Important findings.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4866 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/specs/2026-06-11-test-plan-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Shenbi Test, Log, and Analysis Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Shenbi Test, Log, and Analysis Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/specs/2026-06-11-test-plan-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/specs/2026-06-11-test-plan-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Shenbi Test, Log, and Analysis Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/specs/2026-06-11-test-plan-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shenbi-test-log-and-analysis-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shenbi Test, Log, and Analysis Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-three-tier-testing-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Three-Tier Testing Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Three-Tier Testing Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-tier-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Tier Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-test-types-t1-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Test Types (T1 level)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-phase-definitions-t2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Phase Definitions (T2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-pipeline-variants-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Pipeline Variants (T3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-scoring-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Scoring System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Scoring System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-universal-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Universal Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-universal-kill-switches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Universal Kill Switches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-universal-dimensions-15-apply-to-all-t1-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Universal Dimensions (15%, apply to all T1 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-t1-per-skill-rating-standards-85-remaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. T1: Per-Skill Rating Standards (85% remaining)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. T1: Per-Skill Rating Standards (85% remaining)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#40-dispatcher-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.0 Dispatcher Skill
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.0 Dispatcher Skill">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-shenbi-5-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        using-shenbi (5 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-genesis-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Genesis Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Genesis Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-worldbuilding-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-worldbuilding (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-character-design-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-character-design (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-story-architecture-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-story-architecture (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-power-system-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-power-system (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-faction-builder-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-faction-builder (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-location-builder-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-location-builder (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-relationship-map-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-relationship-map (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-pacing-design-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-pacing-design (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-plot-thread-weaver-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-plot-thread-weaver (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-genre-config-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-genre-config (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-volume-outlining-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-volume-outlining (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-planning-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Planning Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2 Planning Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-chapter-planning-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-chapter-planning (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-foreshadowing-plant-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-foreshadowing-plant (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-foreshadowing-track-5-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-foreshadowing-track (5 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-foreshadowing-resolve-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-foreshadowing-resolve (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-context-composing-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-context-composing (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-drafting-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Drafting Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3 Drafting Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-chapter-drafting-8-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-chapter-drafting (8 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-style-polishing-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-style-polishing (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-anti-detect-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-anti-detect (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-length-normalizing-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-length-normalizing (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-style-learning-5-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-style-learning (5 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-audit-skills-18-review-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Audit Skills (18 review-* skills)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Audit Skills (18 review-* skills)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shared-audit-dimensions-65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared audit dimensions (65%)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-audit-skill-unique-dimension-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-audit-skill unique dimension (20%)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-revision-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Revision Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 Revision Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-chapter-revision-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-chapter-revision (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-state-management-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 State Management Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.6 State Management Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-state-settling-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-state-settling (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-truth-sync-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-truth-sync (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-snapshot-manage-5-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-snapshot-manage (5 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-volume-consolidation-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-volume-consolidation (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-foundation-review-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-foundation-review (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-drift-guidance-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-drift-guidance (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-intent-management-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-intent-management (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-chapter-pattern-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-chapter-pattern (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47-import-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 Import Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.7 Import Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-import-analysis-7-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-import-analysis (7 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-character-extraction-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-character-extraction (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-world-extraction-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-world-extraction (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-canon-import-4-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-canon-import (4 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48-short-story-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8 Short Story Layer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.8 Short Story Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-short-outline-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-short-outline (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-short-drafting-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-short-drafting (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-short-packaging-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-short-packaging (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#49-special-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9 Special Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.9 Special Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-market-radar-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-market-radar (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-sequel-writing-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-sequel-writing (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shenbi-writing-skills-6-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shenbi-writing-skills (6 dimensions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-t2-phase-level-rating-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. T2: Phase-Level Rating Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. T2: Phase-Level Rating Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-sequential-phase-dimensions-genesis-architecture-planning-drafting-import-management-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Sequential Phase Dimensions (Genesis, Architecture, Planning, Drafting, Import, Management, Foundation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-parallel-phase-dimensions-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Parallel Phase Dimensions (Audit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-short-story-phase-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Short Story Phase Dimensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-t3-pipeline-level-rating-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. T3: Pipeline-Level Rating Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. T3: Pipeline-Level Rating Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-universal-pipeline-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Universal Pipeline Dimensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-variant-specific-dimension-replacements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Variant-Specific Dimension Replacements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-skill-trace-and-enhancement-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Skill Trace and Enhancement Feedback
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Skill Trace and Enhancement Feedback">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-skill-trace-per-test-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Skill Trace (per test report)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-enhancement-signals-aggregated-per-round" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Enhancement Signals (aggregated per round)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-changelog-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 CHANGELOG Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-model-improvement-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Model Improvement Loop
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Model Improvement Loop">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-cycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Cycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-what-gets-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 What Gets Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-success-criteria-and-convergence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Success Criteria and Convergence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-secondary-output-model-comparison-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Secondary Output: Model Comparison Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-round-execution-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Round Execution Protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="shenbi-test-log-and-analysis-design">Shenbi Test, Log, and Analysis Design</h1>
+<h2 id="1-purpose">1. Purpose</h2>
+<p>Build a skill framework capable of producing great Chinese novels — long form (&gt;5M words) and short form — at professional quality. The test system drives skills toward that goal through iterative testing, logging, analysis, and enhancement.</p>
+<p>Model switching is an <strong>improvement strategy</strong>: each model's failures become skill improvements that persist for all subsequent runs. By the end, SKILL.md files contain instructions robust enough that any competent model can follow them to produce quality output.</p>
+<p>Secondary output: model comparison data collected as a byproduct.</p>
+<h2 id="2-three-tier-testing-architecture">2. Three-Tier Testing Architecture</h2>
+<h3 id="21-tier-structure">2.1 Tier Structure</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Scope</th>
+<th>Goal</th>
+<th>Starts after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1: Skill</td>
+<td>Single skill in isolation</td>
+<td>Certify each skill works correctly on its own</td>
+<td>—</td>
+</tr>
+<tr>
+<td>T2: Phase</td>
+<td>All skills within one creative phase</td>
+<td>Catch intra-phase interactions</td>
+<td>T1 for that phase = 100</td>
+</tr>
+<tr>
+<td>T3: Pipeline</td>
+<td>Full creative pipeline end-to-end</td>
+<td>Catch cross-phase cascades; validate novel quality</td>
+<td>T1 + T2 all = 100</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-test-types-t1-level">2.2 Test Types (T1 level)</h3>
+<ul>
+<li><strong>Bug-hunt</strong> (planted defect): agent must find the known bug. Input has a specific defect planted. Pass = agent detects it at correct severity.</li>
+<li><strong>Clean</strong> (no defect): agent must not hallucinate problems. Input is correct. Pass = agent reports zero issues.</li>
+<li><strong>Generative</strong> (open-ended): agent produces novel output (chapter, world, character, etc.). Evaluated against a rubric. No <code>expected/</code> directory.</li>
+</ul>
+<p><strong>Test-type to dimension mapping:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimension scope</th>
+<th>Bug-hunt</th>
+<th>Clean</th>
+<th>Generative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Universal (instruction adherence, output completeness)</td>
+<td>Applies</td>
+<td>Applies</td>
+<td>Applies</td>
+</tr>
+<tr>
+<td>Kill switches (false negative for bug-hunt, false positive for clean)</td>
+<td>Bug-hunt kill switch only</td>
+<td>Clean kill switch only</td>
+<td>No kill switch</td>
+</tr>
+<tr>
+<td>Skill-specific output quality dimensions</td>
+<td>Applies to detection/report quality</td>
+<td>Applies to report quality</td>
+<td>Applies to output quality</td>
+</tr>
+<tr>
+<td>Prose/narrative quality dimensions (e.g., "Prose quality", "Show-don't-tell")</td>
+<td>Does not apply (input is pre-made)</td>
+<td>Does not apply (input is pre-made)</td>
+<td>Applies</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-phase-definitions-t2">2.3 Phase Definitions (T2)</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Skills involved</th>
+<th>Seed input</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Genesis</td>
+<td>worldbuilding → power-system → faction-builder → location-builder → character-design → relationship-map</td>
+<td><code>outline-example.md</code></td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>story-architecture → volume-outlining → pacing-design → plot-thread-weaver → genre-config</td>
+<td>Genesis output</td>
+</tr>
+<tr>
+<td>Planning</td>
+<td>chapter-planning → foreshadowing-plant → context-composing</td>
+<td>Architecture output</td>
+</tr>
+<tr>
+<td>Drafting</td>
+<td>chapter-drafting → state-settling → foreshadowing-track → style-polishing / anti-detect / length-normalizing</td>
+<td>Planning output</td>
+</tr>
+<tr>
+<td>Audit (batch)</td>
+<td>All 18 review-* skills run on drafted chapter</td>
+<td>Drafting output</td>
+</tr>
+<tr>
+<td>Import</td>
+<td>import-analysis → character-extraction → world-extraction → canon-import</td>
+<td><code>report-example.txt</code></td>
+</tr>
+<tr>
+<td>Management</td>
+<td>snapshot-manage → drift-guidance → intent-management → chapter-pattern → volume-consolidation</td>
+<td>Drafting output</td>
+</tr>
+<tr>
+<td>Short story</td>
+<td>short-outline → short-drafting → short-packaging</td>
+<td><code>outline-example.md</code></td>
+</tr>
+<tr>
+<td>Foundation</td>
+<td>foundation-review → chapter-revision → truth-sync → style-learning</td>
+<td>Genesis + Architecture + Drafting output (full mini-project required)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Skills not in any T2 phase</strong> (T1-only, enter T3 directly): sequel-writing, market-radar, writing-skills, shenbi-drift-guidance (also in Management), foreshadowing-resolve, shenbi-chapter-pattern (also in Management). These skills are tested at T1 level only; their integration is validated at the pipeline level in T3.</p>
+<h3 id="24-pipeline-variants-t3">2.4 Pipeline Variants (T3)</h3>
+<ul>
+<li><strong>Long-form</strong>: <code>outline-example.md</code> → genesis → architecture → planning → drafting (5+ chapters) → audit → revision → state-settling → management. Produces a mini-novel project. After 5 chapters, runs a state-accumulation integrity check (see T3 dimension 9 in Section 6.1).</li>
+<li><strong>Short-form</strong>: <code>outline-example.md</code> → short-outline → short-drafting → short-packaging. Produces a complete short story.</li>
+<li><strong>Import-form</strong>: <code>report-example.txt</code> → import-analysis → character-extraction → world-extraction → canon-import. Produces extracted project files from existing novel.</li>
+</ul>
+<h2 id="3-scoring-system">3. Scoring System</h2>
+<h3 id="31-universal-rules">3.1 Universal Rules</h3>
+<ul>
+<li>All scores are 0–100.</li>
+<li>Each dimension scored 0–100, weighted sum = final score.</li>
+<li>Thresholds:</li>
+<li>90–100: PASS (excellent)</li>
+<li>75–89: PASS (acceptable, enhancement signals logged)</li>
+<li>60–74: CONDITIONAL (skill needs improvement)</li>
+<li>0–59: FAIL (skill not usable)</li>
+</ul>
+<h3 id="32-universal-kill-switches">3.2 Universal Kill Switches</h3>
+<p>Any violation = total test score 0:</p>
+<ul>
+<li>HARD-GATE violation in the skill spec</li>
+<li>Bug-hunt: missed a planted defect (false negative)</li>
+<li>Clean test: hallucinated a defect (false positive)</li>
+<li>Extraction/audit skills: content not groundable to source text</li>
+<li>T2: any skill's T1 score drops below 90 during integration</li>
+<li>T3: any chapter fails sensitivity audit (platform-prohibited content)</li>
+</ul>
+<h3 id="33-universal-dimensions-15-apply-to-all-t1-tests">3.3 Universal Dimensions (15%, apply to all T1 tests)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Instruction adherence</td>
+<td>10%</td>
+<td>Every SKILL.md section executed; no skips, no reordering without justification</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Output completeness</td>
+<td>5%</td>
+<td>All required output files/sections produced; no empty or placeholder content</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-t1-per-skill-rating-standards-85-remaining">4. T1: Per-Skill Rating Standards (85% remaining)</h2>
+<p>Each skill has 4–8 bespoke dimensions with explicit critical standards. Full rubrics live in <code>tests/tiers/t1-skill/&lt;skill-name&gt;/rubric.md</code>.</p>
+<p>All bespoke dimension weights sum to exactly 85% per skill. Combined with 15% universal = 100%.</p>
+<h3 id="40-dispatcher-skill">4.0 Dispatcher Skill</h3>
+<h4 id="using-shenbi-5-dimensions">using-shenbi (5 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Trigger accuracy</td>
+<td>25%</td>
+<td>Given test phrases from skill-triggering tests, routes to the correct skill. Wrong route = 0 per instance; 3+ wrong routes in a round = kill switch</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1% rule compliance</td>
+<td>20%</td>
+<td>For borderline requests that could match multiple skills, checks all applicable skills before responding. Skipping the check = 0 per instance</td>
+</tr>
+<tr>
+<td>5</td>
+<td>HARD-GATE enforcement</td>
+<td>20%</td>
+<td>Rejects attempts to proceed without prerequisite (e.g., drafting without a plan, auditing without truth files). Allowing bypass = kill switch</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Full skill list coverage</td>
+<td>10%</td>
+<td>Can route to all 59 skills; no skill is unreachable from the trigger map</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Red flag detection</td>
+<td>10%</td>
+<td>Detects and flags red-flag conditions from using-shenbi's Red Flags table</td>
+</tr>
+</tbody>
+</table>
+<h3 id="41-genesis-skills">4.1 Genesis Skills</h3>
+<h4 id="shenbi-worldbuilding-7-dimensions">shenbi-worldbuilding (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Internal consistency</td>
+<td>15%</td>
+<td>Zero contradictions within world rules; hard rules are mutually compatible</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Prose quality</td>
+<td>10%</td>
+<td>story_bible.md is narrative prose paragraphs; bullet-point lists = 0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Deduplication</td>
+<td>10%</td>
+<td>Each fact appears in exactly one canonical file</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Hook potential</td>
+<td>15%</td>
+<td>"Undercurrent" section seeds ≥3 future conflict sources</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Scalability</td>
+<td>15%</td>
+<td>Structure supports 200+ chapters without retcon</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Rule enforceability</td>
+<td>10%</td>
+<td>Hard rules are concrete and testable; "magic is mysterious" = fail</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Template completeness</td>
+<td>10%</td>
+<td>All required output files present with all required fields</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-character-design-7-dimensions">shenbi-character-design (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Voice distinctness</td>
+<td>20%</td>
+<td>Each major character has unique speech markers; interchangeable dialogue = fail</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Arc definition</td>
+<td>15%</td>
+<td>Protagonist has start state, turning point, end state; missing arc = 0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Motivation depth</td>
+<td>15%</td>
+<td>Surface goals AND deep motivations both explicit</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Minor character respect</td>
+<td>10%</td>
+<td>Minor characters have agency and independent motivation</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Relationship coherence</td>
+<td>10%</td>
+<td>Matrix consistent with character profiles</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Voice profile operability</td>
+<td>10%</td>
+<td>Patterns specific enough for downstream audit skills to use</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Fear/weakness grounding</td>
+<td>5%</td>
+<td>Every character has explicit fears</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-story-architecture-6-dimensions">shenbi-story-architecture (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Three-layer conflict coherence</td>
+<td>20%</td>
+<td>Surface, personal, deep conflicts are mutually reinforcing</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Dual-line integrity</td>
+<td>15%</td>
+<td>Front-stage AND back-stage storylines both defined</td>
+</tr>
+<tr>
+<td>5</td>
+<td>OKR executability</td>
+<td>15%</td>
+<td>KRs are measurable and map to chapter ranges; "protagonist grows" = fail</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Prose quality</td>
+<td>15%</td>
+<td>story_frame.md is narrative paragraphs, not bullet lists</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Foreshadowing seeding</td>
+<td>10%</td>
+<td>Story frame seeds ≥3 foreshadowing lines</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Volume map scalability</td>
+<td>10%</td>
+<td>Volume structure supports full novel length</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-power-system-6-dimensions">shenbi-power-system (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Cost enforcement</td>
+<td>20%</td>
+<td>Every power use has visible cost; costless power = 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Ceiling definition</td>
+<td>15%</td>
+<td>Explicit top tier with population count</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Level gap significance</td>
+<td>15%</td>
+<td>Each gap is qualitative (new ability type), not just "stronger"</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Boundary clarity</td>
+<td>15%</td>
+<td>Each level lists can-do / barely-can-do / cannot-do</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Protagonist constraint</td>
+<td>10%</td>
+<td>Power source has precedent or equivalent cost</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Milestone alignment</td>
+<td>10%</td>
+<td>Level progression maps to story milestones</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-faction-builder-6-dimensions">shenbi-faction-builder (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Interest-driven realism</td>
+<td>20%</td>
+<td>Faction behavior explainable by interest logic; no "evil for evil's sake"</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Internal conflict</td>
+<td>15%</td>
+<td>Every faction has ≥1 internal factional split</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cross-faction dynamics</td>
+<td>15%</td>
+<td>≥2 factions have explicit relationships</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Anchor character consistency</td>
+<td>15%</td>
+<td>Referenced characters exist in characters/*.md</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Behavioral predictability</td>
+<td>10%</td>
+<td>"In situation X, faction does Y" patterns defined</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Prose quality</td>
+<td>10%</td>
+<td>Faction descriptions are narrative prose</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-location-builder-6-dimensions">shenbi-location-builder (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Spatial consistency</td>
+<td>20%</td>
+<td>Distances/directions/travel times never contradict established facts</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Atmosphere quality</td>
+<td>15%</td>
+<td>Sensory signatures (sight/sound/smell) and time-of-day associations</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Prose format</td>
+<td>15%</td>
+<td>Narrative prose, not bullet-point feature lists</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Functional clarity</td>
+<td>15%</td>
+<td>Each location has a primary plot function</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Walk-through-ability</td>
+<td>10%</td>
+<td>Spatial layout detailed enough to mentally "walk through"</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cross-location consistency</td>
+<td>10%</td>
+<td>New locations don't break distance/travel time to existing ones</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-relationship-map-6-dimensions">shenbi-relationship-map (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Interest-grounded relationships</td>
+<td>20%</td>
+<td>Every relationship traceable to interest/emotion/bloodline/mentorship</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Information boundary rigor</td>
+<td>15%</td>
+<td>Who knows what about whom explicitly recorded</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Evolution planning</td>
+<td>15%</td>
+<td>Each relationship defines start, turning points, expected end state</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Deduplication</td>
+<td>10%</td>
+<td>Relationship data in relationships.md only, not duplicated in character cards</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Asymmetry tracking</td>
+<td>15%</td>
+<td>Information asymmetries tracked as dramatic tension sources</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Character reference integrity</td>
+<td>10%</td>
+<td>All referenced characters exist in character files</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-pacing-design-6-dimensions">shenbi-pacing-design (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Four-beat completeness</td>
+<td>20%</td>
+<td>Every cycle includes buildup/escalation/explosion/aftermath</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Three-line balance</td>
+<td>15%</td>
+<td>QUEST/FIRE/CONSTELLATION ratios all present</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Monotony prevention</td>
+<td>15%</td>
+<td>No more than 3 consecutive chapters of same type</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Genre alignment</td>
+<td>15%</td>
+<td>Pacing matches genre expectations (xianxia = longer buildup, urban = faster pace)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Actionability</td>
+<td>10%</td>
+<td>Principles detectable and correctable by downstream skills</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Scene type catalog</td>
+<td>10%</td>
+<td>6–8 scene types minimum defined with explicit detection criteria</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-plot-thread-weaver-6-dimensions">shenbi-plot-thread-weaver (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>No blank chapters</td>
+<td>20%</td>
+<td>Every chapter advances ≥1 thread</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Long-line contact discipline</td>
+<td>15%</td>
+<td>A-lines don't exceed max_gap (default 2 chapters for P0)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Short-line closure</td>
+<td>15%</td>
+<td>C-lines resolve within their planned span</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Climax window coordination</td>
+<td>15%</td>
+<td>Subplot climaxes complement volume climaxes</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Crossing point purpose</td>
+<td>10%</td>
+<td>Thread crossings serve dramatic effect</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Priority classification accuracy</td>
+<td>10%</td>
+<td>P0 = novel-critical, P1 = volume-critical, P2 = arc-supporting, P3 = flavor; classification per definitions in thread_map.md</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-genre-config-6-dimensions">shenbi-genre-config (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Change safety</td>
+<td>20%</td>
+<td>Backup before modification; rollback capability</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Conflict prevention</td>
+<td>15%</td>
+<td>Modifications don't contradict existing audit corrections</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Fatigue word balance</td>
+<td>15%</td>
+<td>Banned words ≤50; caution words have viable replacements</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Audit dimension calibration</td>
+<td>15%</td>
+<td>Selectively enabled; no false positive floods</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Human approval enforcement</td>
+<td>10%</td>
+<td>All changes require explicit sign-off</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Config structural validity</td>
+<td>10%</td>
+<td>JSON is well-formed; all required fields present</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-volume-outlining-6-dimensions">shenbi-volume-outlining (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>OKR executability</td>
+<td>20%</td>
+<td>KRs map to specific chapter ranges; no vague statements</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Tension curve design</td>
+<td>15%</td>
+<td>Wave pattern (buildup/rising/explosion/aftermath)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cross-volume bridging</td>
+<td>15%</td>
+<td>Volume ending leaves ≥1 tangible hook</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Golden chapters accommodation</td>
+<td>10%</td>
+<td>Early chapters may deviate for world-building</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Conflict advancement</td>
+<td>15%</td>
+<td>Surface/personal/deep conflicts explicitly advanced</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Chapter range realism</td>
+<td>10%</td>
+<td>Chapter counts match KR complexity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-planning-skills">4.2 Planning Skills</h3>
+<h4 id="shenbi-chapter-planning-7-dimensions">shenbi-chapter-planning (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Goal derivation rigor</td>
+<td>15%</td>
+<td>Follows priority chain: instruction &gt; override &gt; volume KR &gt; focus &gt; intent</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reader expectation management</td>
+<td>15%</td>
+<td>Explicitly states what readers wait for and create/delay/satisfy strategy</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Hook accounting</td>
+<td>15%</td>
+<td>All hooks tracked; pressured hooks advanced after 5+ chapters silence</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Golden chapters discipline</td>
+<td>10%</td>
+<td>First N chapters enforce extra constraints</td>
+</tr>
+<tr>
+<td>7</td>
+<td>End-of-chapter change</td>
+<td>15%</td>
+<td>1–3 concrete changes defined (information/relationship/physical/power)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Memo 8-section completeness</td>
+<td>10%</td>
+<td>All 8 sections populated</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Prohibition specificity</td>
+<td>5%</td>
+<td>"Do not do" list names specific avoid-patterns, not generic advice</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-foreshadowing-plant-6-dimensions">shenbi-foreshadowing-plant (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Budget enforcement</td>
+<td>20%</td>
+<td>≤8 operations per chapter; violation = 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Metadata completeness</td>
+<td>15%</td>
+<td>All required fields present; depends_on never omitted</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Smokescreen accountability</td>
+<td>15%</td>
+<td>Every SMOKESCREEN has documented exit strategy</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Existing hook awareness</td>
+<td>15%</td>
+<td>Reads pending_hooks.md first; no duplication/contradiction</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Strategic placement</td>
+<td>10%</td>
+<td>Planting guidance references scene type appropriateness</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Type/dimension classification</td>
+<td>10%</td>
+<td>Hook type (GENUINE/SMOKESCREEN/SIDE_SHADOW) and dimension (THEMATIC/CHARACTER/SYMBOLIC/STRUCTURAL) assigned per taxonomy in foreshadowing-plant SKILL.md</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-foreshadowing-track-5-dimensions">shenbi-foreshadowing-track (5 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Complete evaluation</td>
+<td>20%</td>
+<td>Every active hook assessed, none skipped</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Textual evidence</td>
+<td>20%</td>
+<td>State transitions require specific text evidence</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Core hook protection</td>
+<td>15%</td>
+<td>core_hook: true never ABANDONED</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Expiry detection</td>
+<td>15%</td>
+<td>Hooks exceeding max_distance correctly flagged</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Density budget reporting</td>
+<td>15%</td>
+<td>Operations vs. budget clearly reported; over-budget items explicitly listed</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-foreshadowing-resolve-6-dimensions">shenbi-foreshadowing-resolve (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Chase Power management</td>
+<td>20%</td>
+<td>CP above 200 triggers mandatory immediate resolution</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Resolution quality</td>
+<td>15%</td>
+<td>Core hooks achieve ≥PARTIAL_PAYOFF, never FLAT_PAYOFF</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Prioritization</td>
+<td>15%</td>
+<td>High-CP hooks resolved first</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Volume completeness</td>
+<td>15%</td>
+<td>Every active hook inventoried at volume end</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Smokescreen handling</td>
+<td>10%</td>
+<td>Smoke screens include truth revelation when resolved</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Human gate</td>
+<td>10%</td>
+<td>ABANDON operations require explicit human approval</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-context-composing-6-dimensions">shenbi-context-composing (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Completeness</td>
+<td>20%</td>
+<td>All P1 items present; higher-priority items never trimmed before lower</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Accuracy</td>
+<td>15%</td>
+<td>Extracted summaries match source truth files word-for-word for key facts; no paraphrase drift</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Hook urgency calculation</td>
+<td>15%</td>
+<td>Computes (current_chapter - last_reinforced) / max_distance; matches test harness computation</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Ending diversity check</td>
+<td>15%</td>
+<td>Flags if recent 3 chapters share same ending pattern (type classification per chapter-pattern skill)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Recency</td>
+<td>10%</td>
+<td>Only summaries from last 3 chapters and hooks with urgency &gt; 0.5 included</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Hook debt brief quality</td>
+<td>10%</td>
+<td>Debt brief lists every active hook with status, silence chapters, and action suggestion</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-drafting-skills">4.3 Drafting Skills</h3>
+<h4 id="shenbi-chapter-drafting-8-dimensions">shenbi-chapter-drafting (8 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Plan compliance</td>
+<td>15%</td>
+<td>Chapter executes memo specifications</td>
+</tr>
+<tr>
+<td>4</td>
+<td>AI-flavor avoidance</td>
+<td>15%</td>
+<td>Transition word density ≤1/3000 words; zero meta-narrative prose</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Voice fidelity</td>
+<td>15%</td>
+<td>Every dialogue line matches character voice_profile</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Show-don't-tell</td>
+<td>10%</td>
+<td>Emotions shown through action/sensation, not stated</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Chapter-end hook</td>
+<td>10%</td>
+<td>Last 300 words create pull</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Foreshadowing integrity</td>
+<td>10%</td>
+<td>Claimed foreshadowing items present in text</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Paragraph rhythm</td>
+<td>5%</td>
+<td>Varied paragraph lengths</td>
+</tr>
+<tr>
+<td>10</td>
+<td>PRE_WRITE_CHECK</td>
+<td>5%</td>
+<td>Check completed before drafting</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-style-polishing-7-dimensions">shenbi-style-polishing (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Content preservation</td>
+<td>20%</td>
+<td>Zero changes to plot, character behavior, or emotional tone</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Word count stability</td>
+<td>15%</td>
+<td>Changes bounded to ±15%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>AI-flavor avoidance</td>
+<td>15%</td>
+<td>Polishing does not introduce AI-typical phrasing</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Style fidelity</td>
+<td>15%</td>
+<td>If style_profile.md exists, polish respects it</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Restraint</td>
+<td>10%</td>
+<td>Does not over-polish or rewrite</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Report completeness</td>
+<td>5%</td>
+<td>Polishing report lists all changes with before/after</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Structural flag quality</td>
+<td>5%</td>
+<td>[polisher-note] annotations are specific and actionable</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-anti-detect-6-dimensions">shenbi-anti-detect (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Content preservation</td>
+<td>15%</td>
+<td>No changes to plot, characters, or foreshadowing</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Targeted intervention</td>
+<td>15%</td>
+<td>Only rewrites at detected marker points; no wholesale rewriting</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Audit pass rate</td>
+<td>15%</td>
+<td>Anti-AI audit passes after rewriting</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Style preservation</td>
+<td>15%</td>
+<td>Does not lose authorial voice; zero new AI-typical patterns introduced</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Bounded iteration</td>
+<td>15%</td>
+<td>After 3 failed passes, reverts to best version</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Before/after audit comparison</td>
+<td>10%</td>
+<td>Clear before/after error and warning counts with per-marker-type breakdown</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-length-normalizing-7-dimensions">shenbi-length-normalizing (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Narrative preservation</td>
+<td>20%</td>
+<td>No events added/removed; no character behavior changes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>25% floor gate</td>
+<td>15%</td>
+<td>Rejects if compression would be too severe</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Voice preservation</td>
+<td>15%</td>
+<td>Expansion does not introduce AI-typical phrasing</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Range compliance</td>
+<td>15%</td>
+<td>Final word count within target ±15% (soft), ±30% (hard)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Meaningful expansion</td>
+<td>10%</td>
+<td>Expansion deepens content rather than padding</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Consistency checklist</td>
+<td>10%</td>
+<td>Confirms no narrative changes</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-style-learning-5-dimensions">shenbi-style-learning (5 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Reproducibility</td>
+<td>25%</td>
+<td>Same input produces identical output (pure computation)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Statistical validity</td>
+<td>20%</td>
+<td>Minimum sample size enforced; insufficient data flagged</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Objectivity</td>
+<td>15%</td>
+<td>Reports "what is," never "what is good or bad"</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Completeness of metrics</td>
+<td>15%</td>
+<td>All 7 statistical dimensions computed</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Downstream usability</td>
+<td>10%</td>
+<td>Profile structured for other skills to reference</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-audit-skills-18-review-skills">4.4 Audit Skills (18 review-* skills)</h3>
+<p>Shared dimensions (65%) + unique dimension (20%) = 85%. Combined with 15% universal = 100%.</p>
+<h4 id="shared-audit-dimensions-65">Shared audit dimensions (65%)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>True positive rate</td>
+<td>20%</td>
+<td>100% of planted defects found; miss = 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>False positive rate</td>
+<td>15%</td>
+<td>Zero hallucinated findings</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Evidence grounding</td>
+<td>10%</td>
+<td>Every finding cites specific text (chapter + paragraph) + specific source file and line</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Severity accuracy</td>
+<td>10%</td>
+<td>Error vs warning classification matches expected severity per finding</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Fix actionability</td>
+<td>10%</td>
+<td>Each finding has a concrete fix (specific text to change, not vague advice)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="per-audit-skill-unique-dimension-20">Per-audit-skill unique dimension (20%)</h4>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Unique Dimension</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shenbi-review-character</td>
+<td>BDI coverage</td>
+<td>All speaking/acting characters assessed; protagonist + every character with dialogue lines mandatory</td>
+</tr>
+<tr>
+<td>shenbi-review-continuity</td>
+<td>Timeline extraction precision</td>
+<td>Time markers extracted and cross-compared across ≥2 chapters; every explicit time reference accounted for</td>
+</tr>
+<tr>
+<td>shenbi-review-dialogue</td>
+<td>Voice fingerprint matching</td>
+<td>Per-speaker: sentence length, vocabulary range, sentence pattern deviation quantified against voice_profile baseline</td>
+</tr>
+<tr>
+<td>shenbi-review-pacing</td>
+<td>Chapter type classification accuracy</td>
+<td>QUEST/FIRE/CONSTELLATION assigned per definitions in rhythm_principles.md for last 5 chapters</td>
+</tr>
+<tr>
+<td>shenbi-review-anti-ai</td>
+<td>Pattern coverage</td>
+<td>All 10 deterministic checks (per SKILL.md checklist) executed; zero skipped; each check has PASS/ERROR result</td>
+</tr>
+<tr>
+<td>shenbi-review-foreshadowing</td>
+<td>Lifecycle tracking</td>
+<td>Every hook state transition has text evidence citing chapter and specific prose passage</td>
+</tr>
+<tr>
+<td>shenbi-review-world-rules</td>
+<td>Numerical cross-reference</td>
+<td>Every numerical claim (ages/dates/distances/counts) verified against truth files with file+field reference</td>
+</tr>
+<tr>
+<td>shenbi-review-sensitivity</td>
+<td>Platform rule application</td>
+<td>Platform rules from novel.json target_platform applied; every prohibited word from fatigue list checked</td>
+</tr>
+<tr>
+<td>shenbi-review-memo-compliance</td>
+<td>Section-by-section verification</td>
+<td>All 8 memo sections checked independently; each section gets fulfill/partial/missing verdict</td>
+</tr>
+<tr>
+<td>shenbi-review-motivation</td>
+<td>Causal chain reconstruction</td>
+<td>Every major action has complete chain: trigger → judgment → action → consequence; missing links flagged</td>
+</tr>
+<tr>
+<td>shenbi-review-pov</td>
+<td>Information leakage detection</td>
+<td>Every piece of character knowledge verified against POV character's presence and acquisition channel</td>
+</tr>
+<tr>
+<td>shenbi-review-reader-pull</td>
+<td>Hook strength assessment</td>
+<td>Opening hook type classified; chapter-end suspense type classified; mid-chapter traction points counted per 800–1200 word interval</td>
+</tr>
+<tr>
+<td>shenbi-review-highpoint</td>
+<td>Buildup-payoff comparison</td>
+<td>Every climax segment has buildup level and payoff level rated on 1–5 scale with text evidence; deflation = payoff &lt; buildup</td>
+</tr>
+<tr>
+<td>shenbi-review-texture</td>
+<td>Laundry-list detection</td>
+<td>Sequential markers (然后/接着/之后/随后) counted per paragraph; paragraphs with ≥3 sequential markers and zero conflict flagged</td>
+</tr>
+<tr>
+<td>shenbi-review-long-span</td>
+<td>N-gram extraction accuracy</td>
+<td>6-char n-gram repetition rate computed per formula in SKILL.md against last 5 chapters; threshold cross-checked with test harness</td>
+</tr>
+<tr>
+<td>shenbi-review-era</td>
+<td>Anachronism detection</td>
+<td>Every artifact/vocabulary/institution verified against the declared time period; unverified items flagged</td>
+</tr>
+<tr>
+<td>shenbi-review-fanfic</td>
+<td>Mode strictness application</td>
+<td>Canon/AU/OOC/CP mode determines severity per SKILL.md severity table; undeclared deviations always error</td>
+</tr>
+<tr>
+<td>shenbi-review-spinoff</td>
+<td>Timeline-aware leakage</td>
+<td>Every piece of information in spinoff verified against parent timeline; info revealed in parent chapter N is forbidden in spinoff chapter &lt; N</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-revision-skills">4.5 Revision Skills</h3>
+<h4 id="shenbi-chapter-revision-7-dimensions">shenbi-chapter-revision (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Non-regression</td>
+<td>20%</td>
+<td>Blocking/critical/AI-trace counts do not increase</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Scope discipline</td>
+<td>15%</td>
+<td>Only fixes audit findings; no unrelated changes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Length constraint</td>
+<td>15%</td>
+<td>Change within ±15% of original length</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Fallback correctness</td>
+<td>10%</td>
+<td>Best-version selected by lowest weighted issue count; ties broken by most recent version</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Fix accuracy</td>
+<td>15%</td>
+<td>Targeted fix resolves the specific issue found</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Content preservation</td>
+<td>10%</td>
+<td>Plot, character, foreshadowing unchanged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46-state-management-skills">4.6 State Management Skills</h3>
+<h4 id="shenbi-state-settling-7-dimensions">shenbi-state-settling (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Extraction accuracy</td>
+<td>20%</td>
+<td>Only explicit chapter changes recorded; no inference</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Category completeness</td>
+<td>15%</td>
+<td>All 9 change categories evaluated</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Certainty distinction</td>
+<td>15%</td>
+<td>Direct vs. implied changes tagged differently</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Incremental correctness</td>
+<td>15%</td>
+<td>Appends without rewriting truth files</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Human gate</td>
+<td>10%</td>
+<td>No truth file updated before human approval</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cross-reference consistency</td>
+<td>10%</td>
+<td>Changes to one truth file reflected in related files</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-truth-sync-7-dimensions">shenbi-truth-sync (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Extraction accuracy</td>
+<td>20%</td>
+<td>Extracted facts faithfully represent chapter text</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Conflict detection completeness</td>
+<td>20%</td>
+<td>Every inconsistency between chapter and truth files caught</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Incremental correctness</td>
+<td>15%</td>
+<td>Only changed portions updated</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Auditability</td>
+<td>15%</td>
+<td>Before/after diffs preserved</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Scope precision</td>
+<td>15%</td>
+<td>Only syncs chapters within specified scope</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-snapshot-manage-5-dimensions">shenbi-snapshot-manage (5 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Snapshot completeness</td>
+<td>25%</td>
+<td>All 11 truth files included; verify by file count and size &gt; 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Immutability</td>
+<td>20%</td>
+<td>Post-creation checksum matches; no byte difference after any operation</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Human-gate enforcement</td>
+<td>20%</td>
+<td>Rollback requires explicit human confirmation (no auto-proceed)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Post-rollback integrity</td>
+<td>15%</td>
+<td>Chapters after rollback point flagged as UNVERIFIED in metadata</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Operation correctness</td>
+<td>5%</td>
+<td>create/view/rollback/list all produce output matching spec format</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-volume-consolidation-6-dimensions">shenbi-volume-consolidation (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Conciseness</td>
+<td>20%</td>
+<td>Volume summary ≤500 words (word count verified)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Unresolved hook completeness</td>
+<td>20%</td>
+<td>Every hook in pending_hooks.md with status ≠ RESOLVED is listed</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Retrievability</td>
+<td>15%</td>
+<td>Archived per-chapter summaries accessible at expected paths</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Narrative arc accuracy</td>
+<td>15%</td>
+<td>Every major event in volume summary traceable to specific chapter</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Key event selection</td>
+<td>15%</td>
+<td>Only events affecting character arcs, plot threads, or world state included</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-foundation-review-6-dimensions">shenbi-foundation-review (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Scoring rigor</td>
+<td>20%</td>
+<td>Every deduction has a concrete improvement suggestion (which file, which paragraph, what to change)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Threshold enforcement</td>
+<td>20%</td>
+<td>80-point minimum and core-conflict veto (&lt; 18/30 = fail) unconditional</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Evidence-based evaluation</td>
+<td>15%</td>
+<td>Only existing content scored; no assumed content</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Actionability</td>
+<td>15%</td>
+<td>Fix suggestions point to exact files/paragraphs</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Dimension balance</td>
+<td>15%</td>
+<td>All 5 dimensions scored independently; dimension scores sum to total</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-drift-guidance-6-dimensions">shenbi-drift-guidance (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Correct classification</td>
+<td>20%</td>
+<td>Errors never conducted forward; only warnings pass</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Actionability of guidance</td>
+<td>20%</td>
+<td>Each item says "what next chapter should do" (specific action, not just "improve X")</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cap enforcement</td>
+<td>15%</td>
+<td>≤5 drift items (exact count verified)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Target specificity</td>
+<td>15%</td>
+<td>Every item has a targeted_chapter field with chapter number</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Source traceability</td>
+<td>15%</td>
+<td>Each drift item traceable to specific audit finding (audit name + finding ID)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-intent-management-6-dimensions">shenbi-intent-management (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Human sovereignty</td>
+<td>25%</td>
+<td>AI never makes creative decisions; only organizes human input (verify output matches human input verbatim for factual content)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Drift integration completeness</td>
+<td>20%</td>
+<td>All drift guidance items merged into current focus (cross-reference drift file with focus file)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Priority clarity</td>
+<td>20%</td>
+<td>P0/P1/P2 assigned per definitions: P0 = blocks writing, P1 = quality risk, P2 = nice-to-have</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Timeliness</td>
+<td>10%</td>
+<td>current_focus.md timestamp is after most recent audit/drift</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Format compliance</td>
+<td>10%</td>
+<td>Both truth/author_intent.md and truth/current_focus.md follow YAML frontmatter schema from SKILL.md</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-chapter-pattern-6-dimensions">shenbi-chapter-pattern (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Classification accuracy</td>
+<td>25%</td>
+<td>Every chapter assigned to ≥1 of 13 patterns per definitions in SKILL.md; test includes known-type chapters</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Threshold strictness</td>
+<td>20%</td>
+<td>Hard limits on consecutive patterns enforced (count verified)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Entropy calculation correctness</td>
+<td>15%</td>
+<td>Shannon entropy matches independent test harness computation (H = -Σ p_i log2(p_i) over pattern distribution)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Actionability of recommendations</td>
+<td>15%</td>
+<td>Next-chapter suggestion names specific primary/secondary patterns and patterns to avoid</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Distribution coverage</td>
+<td>10%</td>
+<td>Minimum distinct patterns in rolling window verified against SKILL.md threshold</td>
+</tr>
+</tbody>
+</table>
+<h3 id="47-import-skills">4.7 Import Skills</h3>
+<h4 id="shenbi-import-analysis-7-dimensions">shenbi-import-analysis (7 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Traceability</td>
+<td>20%</td>
+<td>Every extracted fact has source chapter + paragraph number reference</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Zero guessing</td>
+<td>15%</td>
+<td>Non-locatable items marked "unconfirmed" (count verified); no fabricated facts</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Pipeline correctness</td>
+<td>15%</td>
+<td>Data dependencies between 8 passes respected (pass N reads only outputs of pass &lt; N)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Unconfirmed item completeness</td>
+<td>10%</td>
+<td>Exhaustive list; every item not derivable from text is on the list</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Pass completeness</td>
+<td>10%</td>
+<td>All 8 passes executed; each pass output file non-empty</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cross-pass consistency</td>
+<td>10%</td>
+<td>No contradictions between pass outputs (characters in pass 2 exist in pass 1)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Statistics accuracy</td>
+<td>5%</td>
+<td>Chapter/word/character counts match source file (byte-verified)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-character-extraction-6-dimensions">shenbi-character-extraction (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Evidence grounding</td>
+<td>25%</td>
+<td>Every personality tag, speech pattern, and relationship has ≥1 quoted passage with chapter.paragraph reference</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Voice fingerprint accuracy</td>
+<td>20%</td>
+<td>Statistical extraction from actual dialogue (sentence length mean/std verified against source)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Arc evidence</td>
+<td>15%</td>
+<td>Start and turning points backed by chapter-specific behavioral evidence with text quotes</td>
+</tr>
+<tr>
+<td>6</td>
+<td>No fabrication</td>
+<td>15%</td>
+<td>Non-derivable items marked "unconfirmed"; count verified against source coverage</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Relationship network completeness</td>
+<td>10%</td>
+<td>All named character pairs with interaction scenes have relationship entries</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-world-extraction-6-dimensions">shenbi-world-extraction (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Rule evidence threshold</td>
+<td>20%</td>
+<td>Each rule has ≥2 independent textual evidence citations with chapter.paragraph references</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Violation-based inference</td>
+<td>15%</td>
+<td>Rules inferred from failures and avoidances, not just successes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Power system completeness</td>
+<td>15%</td>
+<td>Level names, advancement conditions, ability boundaries, and costs all present</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Consistency</td>
+<td>10%</td>
+<td>Extracted rules don't contradict story bible narrative</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Location coverage</td>
+<td>10%</td>
+<td>Top locations extracted with atmosphere, function, and first appearance</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Prose format</td>
+<td>15%</td>
+<td>story_bible.md is 4-paragraph narrative prose; rules.md is structured with evidence</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-canon-import-4-dimensions">shenbi-canon-import (4 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Mode fidelity</td>
+<td>25%</td>
+<td>Preservation/deviation rules strictly followed; zero silent mixing of modes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Evidence traceability</td>
+<td>20%</td>
+<td>Every canon entry cites original work (chapter/episode/paragraph)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Deviation transparency</td>
+<td>20%</td>
+<td>All deviations from original explicitly declared in deviation list</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5-section completeness</td>
+<td>20%</td>
+<td>World, character, event, relationship, timeline sections all present and non-empty</td>
+</tr>
+</tbody>
+</table>
+<h3 id="48-short-story-layer">4.8 Short Story Layer</h3>
+<h4 id="shenbi-short-outline-6-dimensions">shenbi-short-outline (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>3-step enforcement</td>
+<td>20%</td>
+<td>Generate → review → revise; no skipped steps; each step produces output</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Chapter task completeness</td>
+<td>15%</td>
+<td>Every chapter has ≥1 task advancing ≥1 thread</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Act proportioning</td>
+<td>15%</td>
+<td>20/60/20 split verified by chapter count per act</td>
+</tr>
+<tr>
+<td>6</td>
+<td>No dead chapters</td>
+<td>15%</td>
+<td>Zero chapters with task = "transition" or no thread advancement</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Thread limit compliance</td>
+<td>10%</td>
+<td>≤1 subplot + ≤1 emotional arc (count verified)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Turning point quality</td>
+<td>10%</td>
+<td>Each turning point is a genuine reversal (situation A → situation B with evidence)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-short-drafting-6-dimensions">shenbi-short-drafting (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Sequential generation</td>
+<td>20%</td>
+<td>Chapters generated strictly in order (verify chapter N truth files exist before N+1 starts)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Per-chapter audit rigor</td>
+<td>20%</td>
+<td>Every chapter passes all audit checks before acceptance; failed chapters have revision log</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cross-chapter consistency</td>
+<td>20%</td>
+<td>Position, timeline, information, relationships, style continuous across all chapters</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Revision discipline</td>
+<td>15%</td>
+<td>3-round cap per chapter; fallback to best version after 3 rounds</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Batch summary completeness</td>
+<td>10%</td>
+<td>Per-chapter status table with word count, audit result, revision rounds, pass/fail</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-short-packaging-6-dimensions">shenbi-short-packaging (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>No spoilers in blurbs</td>
+<td>20%</td>
+<td>Blurb contains zero plot points from act 3 (verified against outline)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Evidence-backed selling points</td>
+<td>15%</td>
+<td>Every selling point cites specific chapter + paragraph</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cover prompt usability</td>
+<td>15%</td>
+<td>Prompts include subject, scene, composition, color palette, style keywords</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Platform keyword alignment</td>
+<td>15%</td>
+<td>Keywords match target platform tag taxonomy (verified against platform-specific lists)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Candidate quantity</td>
+<td>10%</td>
+<td>3–5 titles, 2–3 blurbs, 3–5 selling points (count verified)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Title distinctness</td>
+<td>10%</td>
+<td>Each title candidate is semantically distinct (no two titles share the same imagery/metaphor)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="49-special-skills">4.9 Special Skills</h3>
+<h4 id="shenbi-market-radar-6-dimensions">shenbi-market-radar (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Data-backed claims</td>
+<td>20%</td>
+<td>Every recommendation references specific leaderboard rank or trend data point</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Saturation detection</td>
+<td>15%</td>
+<td>Element occurrence &gt; 60% in top-20 titles flagged as saturated (computation verified against raw data)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Trend vs. imitation distinction</td>
+<td>15%</td>
+<td>Each trend signal includes a differentiation suggestion, not just "use this element"</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Decision checklist actionability</td>
+<td>15%</td>
+<td>Every item is a single action with one-line rationale (follow/avoid/research + reason)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Opening strategy relevance</td>
+<td>10%</td>
+<td>Strategy tied to specific genre + platform data</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Benchmark identification</td>
+<td>10%</td>
+<td>≥2 competitive works named with rationale (why they are comparable)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-sequel-writing-6-dimensions">shenbi-sequel-writing (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Context reconstruction completeness</td>
+<td>25%</td>
+<td>All 6 categories rebuilt from files (world state, character relations, emotional arcs, active threads, style fingerprint, current focus); each category has explicit output</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Drift detection sensitivity</td>
+<td>20%</td>
+<td>Behavioral, voice, style, and setting drift all checked; each drift type produces a finding</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Human intent confirmation</td>
+<td>20%</td>
+<td>Author intent explicitly re-confirmed before writing starts (human interaction logged)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Historical immutability</td>
+<td>10%</td>
+<td>Published chapters never modified; verify checksums match snapshots</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Pre-writing report completeness</td>
+<td>10%</td>
+<td>All sections of pre-writing report present (breakpoint, state, style, drift)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="shenbi-writing-skills-6-dimensions">shenbi-writing-skills (6 dimensions)</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Skill completeness</td>
+<td>20%</td>
+<td>Every created skill has DOT flowchart, iron laws, anti-rationalization table, red flag checklist (count verified)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trigger-only descriptions</td>
+<td>15%</td>
+<td>Description describes when to use, never what it does; violations flagged per CLAUDE.md spec</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Iron law absoluteness</td>
+<td>15%</td>
+<td>Rules use MUST/NEVER/ALWAYS; "should"/"prefer"/"recommend" = fail per instance</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pressure-test rigor</td>
+<td>15%</td>
+<td>Skills tested against ≥3 real rationalization scenarios (not hypothetical)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Persuasion ethics</td>
+<td>10%</td>
+<td>Uses Authority/Commitment/Scarcity/Social Proof/Unity only; Liking/Reciprocity absent</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Output format</td>
+<td>10%</td>
+<td>SKILL.md follows frontmatter + markdown structure from CLAUDE.md conventions</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-t2-phase-level-rating-standards">5. T2: Phase-Level Rating Standards</h2>
+<p>Each phase test scored 0–100. T2 dimensions are <strong>independent</strong> of T1 dimensions — T2 evaluates integration quality, not individual skill quality. Phase-type-specific dimensions are tailored to each phase's interaction pattern (sequential, parallel, or hybrid).</p>
+<h3 id="51-sequential-phase-dimensions-genesis-architecture-planning-drafting-import-management-foundation">5.1 Sequential Phase Dimensions (Genesis, Architecture, Planning, Drafting, Import, Management, Foundation)</h3>
+<p>For phases where skills chain outputs to each other:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Handoff integrity</td>
+<td>20%</td>
+<td>Every skill receives correctly structured input from previous skill; missing fields = -5% per field</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cross-skill consistency</td>
+<td>20%</td>
+<td>Zero contradictions between outputs of different skills in same phase (e.g., character-design doesn't violate worldbuilding rules)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>State propagation accuracy</td>
+<td>15%</td>
+<td>Truth files updated by skill N correctly read by skill N+1; stale reads = -10% per instance</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Phase output completeness</td>
+<td>15%</td>
+<td>All files expected at phase end present and non-empty (file count verified)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Regression within phase</td>
+<td>15%</td>
+<td>No skill's output during T2 run scores below its T1 score on the same input</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Execution time</td>
+<td>5%</td>
+<td>No single skill exceeds 10 minutes; total phase under 60 minutes (wall clock)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Human gate compliance</td>
+<td>10%</td>
+<td>Every hard-gate pause within phase is respected; zero auto-proceeds past hard gates</td>
+</tr>
+</tbody>
+</table>
+<p>Kill switch: any skill's individual output during T2 scores below its T1 score on the same input = phase = 0.</p>
+<h3 id="52-parallel-phase-dimensions-audit">5.2 Parallel Phase Dimensions (Audit)</h3>
+<p>For the audit phase where 18 skills run independently on the same input:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Cross-audit consistency</td>
+<td>25%</td>
+<td>Findings from different audit skills don't contradict each other (e.g., character audit says "in character" but dialogue audit says "voice mismatch")</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Full coverage</td>
+<td>20%</td>
+<td>All 18 audit skills produce reports; none skipped</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Finding deduplication</td>
+<td>15%</td>
+<td>Same issue not reported at different severities by different audits without justification</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Severity alignment</td>
+<td>15%</td>
+<td>Findings about the same passage at different severity levels are cross-referenced and explained</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Phase output completeness</td>
+<td>15%</td>
+<td>All 18 audit reports present and non-empty</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Execution time</td>
+<td>10%</td>
+<td>No single audit skill exceeds 10 minutes; total audit phase under 30 minutes</td>
+</tr>
+</tbody>
+</table>
+<p>Kill switch: any audit skill's individual report during T2 scores below its T1 score on the same chapter = phase = 0. This applies the same regression check as sequential phases.</p>
+<h3 id="53-short-story-phase-dimensions">5.3 Short Story Phase Dimensions</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Handoff integrity</td>
+<td>20%</td>
+<td>Each skill receives complete output from previous skill (outline → drafting → packaging)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cross-skill consistency</td>
+<td>20%</td>
+<td>Drafting matches outline; packaging matches story content</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Phase output completeness</td>
+<td>15%</td>
+<td>Outline, all chapters, and packaging materials all present</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Regression within phase</td>
+<td>15%</td>
+<td>Skills maintain their T1 scores during integration</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Story coherence</td>
+<td>15%</td>
+<td>Zero plot holes (every event caused by prior event); character behavior matches established profiles; all threads opened in act 1 closed by act 3; chapter transitions reference prior events</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Execution time</td>
+<td>5%</td>
+<td>No single skill exceeds 10 minutes; total phase under 45 minutes</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Human gate compliance</td>
+<td>10%</td>
+<td>Every hard-gate pause respected</td>
+</tr>
+</tbody>
+</table>
+<p>Kill switch: any skill's output during T2 scores below its T1 score on the same input = phase = 0.</p>
+<h2 id="6-t3-pipeline-level-rating-standards">6. T3: Pipeline-Level Rating Standards</h2>
+<p>Full end-to-end pipeline scored 0–100. Dimensions apply per pipeline variant; variant-specific replacements noted.</p>
+<h3 id="61-universal-pipeline-dimensions">6.1 Universal Pipeline Dimensions</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Weight</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>End-to-end data integrity</td>
+<td>15%</td>
+<td>Every truth file consistent from genesis through final chapter; zero orphaned or contradictory state entries</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Novel output coherence</td>
+<td>15%</td>
+<td>All character actions groundable to established motivations; no unexplained plot jumps; chapter transitions reference prior events; all planted foreshadowing traceable in text</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cross-phase state consistency</td>
+<td>15%</td>
+<td>Genesis world rules hold through drafting; character arcs from character-design visible in chapters; foreshadowing planted = tracked and resolved or deferred</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Audit pass rate</td>
+<td>15%</td>
+<td>All chapters pass all activated audit dimensions after revision</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Revision non-regression</td>
+<td>10%</td>
+<td>Chapter revision fixes audit issues without introducing new ones; pre/post audit scores only improve</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Foreshadowing lifecycle completeness</td>
+<td>10%</td>
+<td>Every planted hook tracked, advanced, and resolved or explicitly deferred; zero orphaned hooks</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Full project file completeness</td>
+<td>5%</td>
+<td>All expected files exist: novel.json, genre-config.json, world/<em>, characters/</em>, truth/<em>, chapters/</em>, outline/*</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Literary quality</td>
+<td>10%</td>
+<td>Final chapters: zero AI-typical phrasing (per anti-ai audit), chapter openings create pull (per reader-pull), emotional beats land (show-don't-tell), dialogue reads naturally (per dialogue audit)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>State accumulation integrity</td>
+<td>5%</td>
+<td>After 5 chapters: truth files have consistent entries for all chapters, no stale state, character_matrix reflects all relationship changes, pending_hooks has no expired unresolved hooks</td>
+</tr>
+</tbody>
+</table>
+<p>Kill switch: any chapter fails sensitivity audit (platform-prohibited content) = pipeline = 0.</p>
+<h3 id="62-variant-specific-dimension-replacements">6.2 Variant-Specific Dimension Replacements</h3>
+<p><strong>Long-form</strong> (uses outline-example.md): all 9 dimensions apply.</p>
+<p><strong>Short-form</strong> (uses outline-example.md):
+- Replace dimension 1 (End-to-end data integrity) with <strong>Short-form data integrity</strong> (15%): Outline, all chapters, and packaging materials are mutually consistent; character names, settings, and events match across all outputs
+- Replace dimension 3 (Cross-phase state consistency) with <strong>Short-form internal consistency</strong> (15%): Character behavior in chapters matches outline character descriptions; plot events in chapters follow outline chapter tasks; no contradictions between chapters
+- Replace dimension 5 (Revision non-regression) with <strong>Pacing tightness</strong> (10%): No chapter exceeds pacing-design word count range by &gt;30%; act proportions match short-outline spec
+- Replace dimension 6 (Foreshadowing lifecycle) with <strong>Story completeness</strong> (10%): Story has beginning, climax, and resolution; all threads opened in act 1 are closed by act 3
+- Replace dimension 9 (State accumulation) with <strong>Packaging fidelity</strong> (5%): Title, blurb, and selling points accurately represent the generated story content</p>
+<p><strong>Import-form</strong> (uses report-example.txt):
+- Replace dimension 2 (Novel output coherence) with <strong>Extraction fidelity</strong> (15%): All extracted characters/world/events traceable to source with zero fabrication; unconfirmed items list is exhaustive
+- Replace dimension 4 (Audit pass rate) with <strong>Import completeness</strong> (15%): All 4 import skills produce output; character files, world files, canon files, and analysis all present
+- Replace dimension 5 (Revision non-regression) with <strong>Evidence coverage</strong> (10%): ≥80% of extracted facts have chapter.paragraph evidence; &lt;20% marked "unconfirmed"
+- Replace dimension 8 (Literary quality) with <strong>Import report quality</strong> (10%): Analysis summary has accurate statistics; downstream task checklist is complete and actionable
+- Replace dimension 9 (State accumulation) with <strong>Cross-extraction consistency</strong> (5%): Characters extracted in character-extraction match those identified in import-analysis; world rules in world-extraction match story bible</p>
+<h2 id="7-skill-trace-and-enhancement-feedback">7. Skill Trace and Enhancement Feedback</h2>
+<h3 id="71-skill-trace-per-test-report">7.1 Skill Trace (per test report)</h3>
+<p>Every test report includes a skill trace section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Skill Trace: &lt;skill-name&gt; / &lt;test-type&gt;</span>
+
+<span class="gu">### Agent Execution Log</span>
+<span class="k">-</span><span class="w"> </span>Skill loaded: yes/no
+<span class="k">-</span><span class="w"> </span>Sections followed: [list which SKILL.md sections executed]
+<span class="k">-</span><span class="w"> </span>Sections skipped: [list which sections missed or shortcut]
+<span class="k">-</span><span class="w"> </span>Steps reordered: [any deviation from defined flow]
+<span class="k">-</span><span class="w"> </span>Hard-gates triggered: [list any HARD-GATE blocks hit]
+<span class="k">-</span><span class="w"> </span>Anti-rationalization table invoked: yes/no (if applicable)
+
+<span class="gu">### Output Quality</span>
+<span class="k">-</span><span class="w"> </span>Completeness: all expected output sections produced?
+<span class="k">-</span><span class="w"> </span>Accuracy: findings correct (true positives vs false positives)?
+<span class="k">-</span><span class="w"> </span>Actionability: recommendations specific enough to act on?
+
+<span class="gu">### Skill Enhancement Signals</span>
+<span class="k">-</span><span class="w"> </span>Confusion points: where agent misinterpreted instructions
+<span class="k">-</span><span class="w"> </span>Missing coverage: scenarios the skill doesn&#39;t handle but should
+<span class="k">-</span><span class="w"> </span>Over-specification: instructions that are redundant or contradictory
+<span class="k">-</span><span class="w"> </span>Prompt adherence: did agent follow DOT flowcharts exactly?
+<span class="k">-</span><span class="w"> </span>Edge cases: novel situations not covered by current spec
+</code></pre></div>
+<h3 id="72-enhancement-signals-aggregated-per-round">7.2 Enhancement Signals (aggregated per round)</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;enhancement_signals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-review-character&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;signal_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;confusion_point&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent skipped BDI evaluation in 2/3 test types&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;trace_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-review-character.bug-hunt.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;suggested_fix&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Make BDI section a HARD-GATE&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="73-changelog-format">7.3 CHANGELOG Format</h3>
+<div class="highlight"><pre><span></span><code><span class="gu">## Round 001 (2026-06-11) — Claude</span>
+<span class="k">-</span><span class="w"> </span>T1: 42/59 skills at 100. Failures: shenbi-review-character (65), ...
+<span class="k">-</span><span class="w"> </span>T1 band breakdown: 35 PASS excellent (90+), 7 PASS acceptable (75-89), 10 CONDITIONAL (60-74), 7 FAIL (0-59)
+<span class="k">-</span><span class="w"> </span>T2: not started (T1 incomplete)
+<span class="k">-</span><span class="w"> </span>T3: not started
+<span class="k">-</span><span class="w"> </span>Fixes applied: promoted BDI to HARD-GATE in shenbi-review-character
+<span class="k">-</span><span class="w"> </span>Enhancement signals: 12 confusion points, 8 missing coverage items
+
+<span class="gu">## Round 002 (2026-06-12) — Claude</span>
+<span class="k">-</span><span class="w"> </span>T1: 55/59 skills at 100.
+<span class="k">-</span><span class="w"> </span>T1 band breakdown: 48 PASS excellent (90+), 7 PASS acceptable (75-89), 3 CONDITIONAL (60-74), 1 FAIL (0-59)
+<span class="k">-</span><span class="w"> </span>...
+</code></pre></div>
+<h2 id="8-model-improvement-loop">8. Model Improvement Loop</h2>
+<h3 id="81-cycle">8.1 Cycle</h3>
+<ol>
+<li>Model A runs full loop (T1 → T2 → T3), fixing skills until all tiers = 100.</li>
+<li>Model B runs against Model A's improved skills. Catches issues Model A missed. Fixes those too. Loops until all 100.</li>
+<li>Model C runs against A+B improved skills. Catches issues A+B missed. Loops until all 100.</li>
+<li>Continue until no model can find remaining issues.</li>
+</ol>
+<h3 id="82-what-gets-fixed">8.2 What Gets Fixed</h3>
+<ul>
+<li><strong>SKILL.md improvements</strong> (primary): instructions clarified, HARD-GATEs added, anti-rationalization tables expanded, edge cases documented.</li>
+<li><strong>Test case improvements</strong>: better planted bugs, more representative clean scenarios, more realistic generative prompts.</li>
+</ul>
+<h3 id="83-success-criteria-and-convergence">8.3 Success Criteria and Convergence</h3>
+<p>The framework is ready when:</p>
+<ul>
+<li>All 59 skills score 100 on T1 (bug-hunt, clean, generative)</li>
+<li>All phases score 100 on T2</li>
+<li>All pipeline variants (long-form, short-form, import) score 100 on T3</li>
+<li>Generated novel output is human-readable, professional-quality Chinese fiction</li>
+<li>Skills are robust enough that switching models doesn't drop scores below 90</li>
+</ul>
+<p><strong>Convergence failure handling:</strong></p>
+<p>If a skill fails to reach 100 after 5 consecutive rounds with no score improvement:</p>
+<ol>
+<li><strong>Escalate to design review.</strong> The dimension standard may need refinement rather than the skill needing improvement.</li>
+<li><strong>Options:</strong></li>
+<li>(a) Refine the dimension standard to be more precise (add measurable threshold)</li>
+<li>(b) Add a HARD-GATE to the skill for the failing dimension</li>
+<li>(c) Mark dimension as "acceptable at 90+" with documented rationale in the spec</li>
+<li><strong>Decision recorded</strong> in CHANGELOG with explicit justification.</li>
+<li><strong>Hard limit:</strong> If a skill cannot reach 90 after 10 rounds, mark as "design-limited" and file a skill redesign task.</li>
+</ol>
+<h3 id="84-secondary-output-model-comparison-data">8.4 Secondary Output: Model Comparison Data</h3>
+<p>Collected as a byproduct:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>What it measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Score velocity</td>
+<td>Rounds to reach 100 per tier</td>
+</tr>
+<tr>
+<td>Dimension weakness pattern</td>
+<td>Which dimensions consistently score lowest</td>
+</tr>
+<tr>
+<td>Novel output quality</td>
+<td>Blind human evaluation of generated chapters</td>
+</tr>
+<tr>
+<td>Token efficiency</td>
+<td>Total tokens consumed to reach 100</td>
+</tr>
+<tr>
+<td>Fix effectiveness</td>
+<td>Delta per round</td>
+</tr>
+<tr>
+<td>Skill enhancement count</td>
+<td>Number of SKILL.md changes needed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-directory-structure">9. Directory Structure</h2>
+<div class="highlight"><pre><span></span><code>tests/
+├── tiers/
+│   ├── t1-skill/
+│   │   ├── _template/
+│   │   ├── using-shenbi/
+│   │   │   ├── bug-hunt/
+│   │   │   │   ├── input/
+│   │   │   │   ├── expected/
+│   │   │   │   └── rubric.md
+│   │   │   ├── clean/
+│   │   │   │   ├── input/
+│   │   │   │   ├── expected/
+│   │   │   │   └── rubric.md
+│   │   │   └── generative/
+│   │   │       ├── input/
+│   │   │       └── rubric.md
+│   │   ├── shenbi-review-character/
+│   │   │   ├── bug-hunt/
+│   │   │   │   ├── input/
+│   │   │   │   ├── expected/
+│   │   │   │   └── rubric.md
+│   │   │   ├── clean/
+│   │   │   │   ├── input/
+│   │   │   │   ├── expected/
+│   │   │   │   └── rubric.md
+│   │   │   └── generative/
+│   │   │       ├── input/
+│   │   │       └── rubric.md
+│   │   └── ... (59 skills total including using-shenbi)
+│   ├── t2-phase/
+│   │   ├── genesis/
+│   │   │   ├── rubric.md
+│   │   │   ├── input/
+│   │   │   └── expected/
+│   │   ├── architecture/
+│   │   ├── planning/
+│   │   ├── drafting/
+│   │   ├── audit/
+│   │   ├── management/
+│   │   ├── import/
+│   │   ├── foundation/               # requires full mini-project (genesis + drafting output)
+│   │   └── short-story/
+│   └── t3-pipeline/
+│       ├── long-form/
+│       │   ├── rubric.md
+│       │   └── input/
+│       ├── short-form/
+│       │   ├── rubric.md
+│       │   └── input/
+│       └── import-form/
+│           ├── rubric.md
+│           └── input/
+├── rounds/
+│   ├── CHANGELOG.md
+│   └── round-NNN-YYYY-MM-DD/
+│       ├── meta.json
+│       ├── t1-reports/
+│       ├── t2-reports/
+│       ├── t3-reports/
+│       ├── skill-output/  (renamed from novel-output/ in PR-22)
+│       ├── skill-traces/
+│       ├── enhancement-signals.json
+│       └── summary.json
+├── fixtures/
+│   ├── outline-example.md         # copied from project root
+│   └── report-example.txt         # copied from project root (UTF-8 converted)
+└── benchmarks/
+    └── models/
+        ├── claude/
+        ├── gemini/
+        └── ...
+</code></pre></div>
+<h2 id="10-round-execution-protocol">10. Round Execution Protocol</h2>
+<ol>
+<li>Create round directory with meta.json (model, date, skill versions, tier target).</li>
+<li>Run tests for the target tier.</li>
+<li>For each test: execute skill, capture output, score against rubric, generate skill trace.</li>
+<li>Aggregate into summary.json with all scores, kill-switch status, enhancement signals.</li>
+<li>Preserve skill-output/ for human review (renamed from novel-output/ in PR-22).</li>
+<li>If any score &lt; 100: identify fixes, apply to SKILL.md or test cases, increment round.</li>
+<li>If all scores = 100: advance to next tier, or mark round as complete.</li>
+<li>Update CHANGELOG.md with round results, band breakdown, and fixes applied.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

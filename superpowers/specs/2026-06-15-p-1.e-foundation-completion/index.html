@@ -1,0 +1,2061 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.E Foundation Completion & Pre-P0 Enterprise Baseline — Master Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.E Foundation Completion &amp; Pre-P0 Enterprise Baseline — Master Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/index.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.E Foundation Completion &amp; Pre-P0 Enterprise Baseline — Master Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/index.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1e-foundation-completion-pre-p0-enterprise-baseline-master-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.E Foundation Completion &amp; Pre-P0 Enterprise Baseline — Master Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-layering-transparency-about-whats-in-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope Layering (transparency about what's in this spec)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threshold-justification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threshold Justification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Threshold Justification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metric-definitions-canonical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric definitions (canonical)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Background">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-we-got-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How we got here
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-p-1-done-actually-means-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What "P-1 done" actually means today
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture (target state)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Index
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#master-pr-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Master PR Sequence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-criteria-overall-p-1e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance Criteria (overall P-1.E)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#effort-sizing-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Effort Sizing &amp; Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps-acknowledged-not-blocking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known gaps acknowledged, not blocking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1e-foundation-completion-pre-p0-enterprise-baseline-master-spec">P-1.E Foundation Completion &amp; Pre-P0 Enterprise Baseline — Master Spec</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (2026-06-15, post-Round-10 review, score <strong>9.5/10</strong> — target met)</li>
+<li>Date: 2026-06-15</li>
+<li>Deciders: ThomasChangX (sole maintainer)</li>
+<li>Review history: 10 independent codex review rounds; see <a href="REVIEW-LOG/">REVIEW-LOG.md</a> for full trajectory (R1=7, R2=8, R3=8.5, R4=8.8, R5=9.0, R6=9.1, R7=timeout, R7'=7 on README-only, R8=8 on README+03+04, R9=9.3 on README+03+04)</li>
+<li>Supersedes (partial): <code>2026-06-14-p-1-foundation-hygiene-design.md</code> PR-12, PR-13, PR-14, PR-15, PR-16</li>
+</ul>
+<p><strong>Sign-off</strong>: Maintainer accepts this spec as the canonical pre-P0 remediation
+plan. Cluster 08 (P0 plan patches) is informational; all other clusters carry
+implementation authority. Open issues remaining post-Round-7 are documented
+in <a href="REVIEW-LOG/">REVIEW-LOG.md</a> §"Known gaps acknowledged, not blocking".</p>
+<h2 id="tldr">TL;DR</h2>
+<p>P-1 was merged as "Foundation Hygiene complete" but ~40% of its PRs were delivered
+as empty stubs + subprocess forwarders, with the real work explicitly deferred to a
+"P-1.E session" that was never planned. A full audit on 2026-06-15 surfaced 41
+findings (F1–F41) spanning PR fraud, structural layout, tooling configuration,
+testing, CI/supply chain, enterprise baseline, docs drift, P0 plan defects, and
+engineering polish. This master spec groups them into 8 root-cause clusters, each
+with its own design doc, target state, PR plan, and acceptance criteria. <strong>This
+spec blocks P0</strong>: starting P0 before these fixes land would lay new infrastructure
+on a broken base.</p>
+<h2 id="scope-layering-transparency-about-whats-in-this-spec">Scope Layering (transparency about what's in this spec)</h2>
+<p>This spec covers <strong>two distinguishable layers</strong> of work, both required before P0
+starts. They share a single spec because (a) the user explicitly requested one
+comprehensive spec covering all audit findings, (b) all findings were discovered
+in the same pre-P0 audit, and (c) execution dependencies cross the layers
+(e.g., CI hardening depends on src layout migration).</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Clusters</th>
+<th>PRs</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P-1.E proper</strong> (true completion of P-1's promises)</td>
+<td>01, 02, 03, 04</td>
+<td>PR-18 ~ PR-34</td>
+<td>Work P-1's spec promised but didn't deliver. Includes additional tests for modules P-1 introduced.</td>
+</tr>
+<tr>
+<td><strong>Pre-P0 Enterprise Baseline</strong> (newly discovered gaps)</td>
+<td>05, 06, 07</td>
+<td>PR-35 ~ PR-46</td>
+<td>Industry-standard files/practices missing from the project entirely. Not in P-1's original scope, but blocking P0's "enterprise-grade" claim.</td>
+</tr>
+<tr>
+<td><strong>P0 plan patches</strong> (informational)</td>
+<td>08</td>
+<td>—</td>
+<td>7 design defects in the original P0 brainstorming. Documented here for the P0 spec author to incorporate. <strong>No P-1.E PRs.</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Naming</strong>: The directory and master spec retain the "P-1.E" prefix for git-history
+continuity (the audit was framed as "what P-1.E should fix"). The dual scope is
+acknowledged above rather than disguised.</p>
+<p><strong>Alternative considered</strong>: splitting into two spec directories (<code>P-1.E-completion</code>
+and <code>Pre-P0-Enterprise-Baseline</code>). Rejected because (a) the user asked for one spec,
+(b) cluster 05 (CI hardening) straddles both layers — some items are P-1 CI bug
+fixes (uv lock check), others are new (CodeQL, release workflow) — and splitting
+would orphan these.</p>
+<h2 id="threshold-justification">Threshold Justification</h2>
+<p>The spec asserts several numeric thresholds. Each is defended below with industry
+citations. <strong>Single source of truth</strong>: this table. Any cluster file mentioning
+these thresholds must match these values exactly.</p>
+<table>
+<thead>
+<tr>
+<th>Threshold</th>
+<th>Value</th>
+<th>Citation</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maximum file length</td>
+<td>500 lines</td>
+<td><a href="https://rules.sonarsource.com/python/RSPEC-104/">SonarSource RSPEC-104</a> (default 1000; we configure 500)</td>
+<td>SonarSource's default is 1000 lines; <strong>we configure 2× stricter</strong> because Shenbi is a skill framework where modularization aids debugging of LLM-orchestrated pipelines. PEP 8 doesn't specify a number. This is a project-specific choice, not an industry default.</td>
+</tr>
+<tr>
+<td>Branch coverage (post-P-1.E target)</td>
+<td>≥ 80% post-P-1.E merge</td>
+<td><a href="https://docs.sonarsource.com/sonarqube-server/user-guide/metric-definitions/">SonarSource Coverage metric</a> recommends ≥ 80% for new code; <a href="https://coverage.readthedocs.io/en/7.5.0/branch.html">Coverage.py docs</a> notes branch is more meaningful than line</td>
+<td>80% is the SonarSource new-code standard. <strong>No staged ramp</strong> — Cluster 04 is scoped to deliver this immediately via expanded PR-28 ~ PR-32 (target ~600 tests across framework modules, ~0.10 tests/LOC density). The previous "30% then ramp" framing was a cost compromise inconsistent with the user's "no cost compromise" directive; it has been removed.</td>
+</tr>
+<tr>
+<td>Line coverage (post-P-1.E target)</td>
+<td>≥ 90% post-P-1.E merge</td>
+<td>SonarSource; Codecov industry leaders (FastAPI ~95%, pydantic ~97%)</td>
+<td>90% is the standard for "rigorously tested". Delivered by Cluster 04 PR-28 ~ PR-32 expanded scope.</td>
+</tr>
+<tr>
+<td>Test density (definition: test function count per framework LOC)</td>
+<td>≥ 0.10 (i.e., ≥ 1 test function per 10 LOC of framework code)</td>
+<td>Industry observation: <a href="https://github.com/pytest-dev/pytest">pytest-dev/pytest</a> ratio ≈ 0.10; <a href="https://github.com/pydantic/pydantic">pydantic</a> ≈ 0.13; <a href="https://github.com/tiangolo/fastapi">FastAPI</a> ≈ 0.08 (computed 2026-06)</td>
+<td>0.10 is the <strong>typical</strong> floor for "tested project"; 0.05 is the bare minimum; 0.15+ is rigorous. Per the user's "no cost compromise" directive, P-1.E targets the typical floor (0.10), not the bare minimum. Shenbi currently at 0.007 (43 tests / 5921 framework LOC); P-1.E delivers ~600 tests to reach 0.10. Note: JetBrains Python Developer Survey reports testing <em>framework usage</em> (pytest vs unittest), NOT tests/LOC ratio — do not cite it for this metric.</td>
+</tr>
+<tr>
+<td>Acceptable Cyclomatic Complexity per function</td>
+<td>≤ 10 (ruff <code>PLR0912</code> already enforces ≤ 12 branches; we tighten)</td>
+<td><a href="https://rules.sonarsource.com/python/RSPEC-134/">SonarSource RSPEC-134</a> default threshold is 15; we configure 10</td>
+<td>Industry standard threshold; lower (≤ 5) is "clean code" per Uncle Martin, but unrealistic for framework code with many error branches.</td>
+</tr>
+<tr>
+<td>Mutation testing kill rate</td>
+<td>≥ 60% initial, → 80%</td>
+<td><a href="https://www.cs.gmu.edu/~offutt/rsrch/papers/mut-review.pdf">Offutt &amp; Untch 2001</a> "90% is rigorous, 60% is acceptable for new code"</td>
+<td>60% is the floor below which mutation testing provides little signal. 80% is "well-tested".</td>
+</tr>
+<tr>
+<td>Pre-commit hook large-file threshold</td>
+<td>500 KB</td>
+<td><a href="https://github.com/pre-commit/pre-commit-hooks#check-added-large-files">pre-commit-hooks check-added-large-files default</a></td>
+<td>Industry default. Skill SKILL.md files are &lt; 50 KB; test fixtures can be 50-200 KB; anything &gt; 500 KB is suspicious (likely a binary asset that should be LFS or external URL).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="metric-definitions-canonical">Metric definitions (canonical)</h3>
+<p>To prevent unit confusion (see REVIEW-LOG Round 3 R3.3):</p>
+<ul>
+<li><strong>Test density</strong>: <code>test_function_count / framework_loc</code></li>
+<li><code>test_function_count</code> = count of <code>def test_*</code> functions in <code>tests/unit/</code>, <code>tests/integration/</code>, <code>tests/property/</code>, <code>tests/benchmark/</code></li>
+<li><code>framework_loc</code> = total non-blank, non-comment lines in <code>src/shenbi/**/*.py</code> (via <code>cloc</code> or <code>wc -l</code> minus blank/comment lines)</li>
+<li><strong>Branch coverage</strong>: reported by <code>pytest --cov-branch</code> for <code>src/shenbi/</code></li>
+<li><strong>Line coverage</strong>: reported by <code>pytest --cov</code> for <code>src/shenbi/</code></li>
+<li><strong>File length</strong>: <code>wc -l &lt;file&gt;</code> for any single <code>.py</code> file in <code>src/shenbi/</code></li>
+</ul>
+<p><strong>If reviewer disagrees with any threshold</strong>: provide alternative citation. The
+thresholds above are not axioms; they're defensible defaults that can be tightened
+or loosened with new evidence.</p>
+<h2 id="background">Background</h2>
+<h3 id="how-we-got-here">How we got here</h3>
+<ol>
+<li><strong>2026-06-13</strong>: Session <code>8031a07e</code> produced a 7-project roadmap (P0 registry →
+   P1 shared state → ... → P7 productization) plus a discovered prerequisite
+   <strong>P-1 Foundation Hygiene</strong> to bring the codebase to a 2026 Python baseline.</li>
+<li><strong>2026-06-14</strong>: P-1 was brainstormed, spec'd, planned, and executed as
+   sub-phases P-1.A through P-1.D. The final commit (<code>9e5c457</code>) declared
+   P-1 complete.</li>
+<li><strong>2026-06-15</strong>: Pre-P0 audit found that P-1.D PRs 12–16 were delivered as
+   scaffolding only, with real work explicitly punted to a "P-1.E session" that
+   has no plan file. Multiple <code>pyproject.toml</code>, <code>tests/gates/cli.py</code>, and
+   <code>tests/dispatcher/__init__.py</code> comments reference "P-1.E" as the future cleanup
+   session.</li>
+</ol>
+<h3 id="what-p-1-done-actually-means-today">What "P-1 done" actually means today</h3>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Promised</th>
+<th>Delivered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR-12</td>
+<td><code>validate-gate.py</code> split into <code>tests/gates/{g0..g7}.py</code> + per-skill <code>g4/&lt;skill&gt;.py</code></td>
+<td>Empty <code>tests/gates/cli.py</code> (17-line subprocess forwarder) + empty <code>tests/gates/g4/__init__.py</code></td>
+</tr>
+<tr>
+<td>PR-13</td>
+<td><code>dispatch-subagent.sh</code> rewritten in Python</td>
+<td>Empty <code>tests/dispatcher/cli.py</code> (17-line subprocess forwarder)</td>
+</tr>
+<tr>
+<td>PR-14</td>
+<td>Archive phantom rounds 001-007</td>
+<td>Only <code>round-001</code> archived; 002-007 still active</td>
+</tr>
+<tr>
+<td>PR-15</td>
+<td>Rename <code>novel-output/</code> → <code>skill-output/</code> everywhere</td>
+<td>Not done; 7+ references in <code>command-to-give.md</code>, <code>AGENTS.md</code> unchanged</td>
+</tr>
+<tr>
+<td>PR-16</td>
+<td>Mutation testing baseline (<code>.mutmut-cache</code> + <code>tests/baselines/mutation-score.txt</code>)</td>
+<td>Not done; no cache, no baseline file</td>
+</tr>
+<tr>
+<td>PR-9</td>
+<td>structlog integration in all framework modules</td>
+<td><code>tests/logging.py</code> exists but 92 <code>print()</code> vs 4 <code>structlog</code> calls in framework</td>
+</tr>
+<tr>
+<td>PR-10</td>
+<td>typed exceptions used by framework</td>
+<td><code>tests/exceptions.py</code> exists but framework code still raises <code>RuntimeError</code>/<code>ValueError</code></td>
+</tr>
+</tbody>
+</table>
+<p>Plus 25 additional findings not in P-1 scope (CI hardening, enterprise baseline,
+docs drift, etc.) discovered during audit.</p>
+<h2 id="goals">Goals</h2>
+<ol>
+<li><strong>Complete P-1's actual promises.</strong> All deferred PRs are executed to their
+   original acceptance criteria, not weaker substitutes.</li>
+<li><strong>Fix structural problems that block P0.</strong> Specifically: <code>tests/</code> as runtime
+   package, missing <code>[project.scripts]</code>, stale multi-agent docs, pre-commit
+   landmine (<code>tests/build_registry.py</code> referenced but doesn't exist).</li>
+<li><strong>Establish enterprise-grade engineering baseline.</strong> LICENSE, SECURITY.md,
+   CONTRIBUTING.md, CODEOWNERS, CHANGELOG, PR/Issue templates, CodeQL, release
+   workflow.</li>
+<li><strong>Document P0 plan patches</strong> discovered in audit so they shape the P0 spec
+   when written.</li>
+</ol>
+<h2 id="non-goals">Non-Goals</h2>
+<ol>
+<li><strong>No new framework features.</strong> No new skills, no new gates, no behavior changes
+   beyond what P-1 originally promised.</li>
+<li><strong>No P0 work.</strong> P0 is brainstormed but not spec'd; this P-1.E spec only
+   documents P0 plan patches for later use.</li>
+<li><strong>No <code>tests/</code> → <code>src/shenbi/</code> rename of test code.</strong> Only runtime framework
+   code moves; tests stay under <code>tests/</code>.</li>
+<li><strong>No external observability backend integration.</strong> Define metrics schema
+   (OTLP-compatible) only; actual collector hookup is post-P3.</li>
+</ol>
+<h2 id="architecture-target-state">Architecture (target state)</h2>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── src/
+│   └── shenbi/                       # NEW: runtime framework code
+│       ├── __init__.py
+│       ├── exceptions.py             # MOVED from tests/exceptions.py
+│       ├── logging.py                # MOVED from tests/logging.py
+│       ├── gates/
+│       │   ├── __init__.py
+│       │   ├── cli.py                # MOVED + REWRITTEN from tests/gates/cli.py
+│       │   ├── shared.py             # EXTRACTED from validate-gate.py
+│       │   ├── g0.py ... g7.py       # EXTRACTED from validate-gate.py
+│       │   └── g4/                   # EXTRACTED: one file per skill
+│       │       ├── __init__.py
+│       │       ├── worldbuilding.py
+│       │       ├── character_design.py
+│       │       └── ... (28 skill-specific files)
+│       ├── dispatcher/               # MOVED + REWRITTEN
+│       │   ├── __init__.py
+│       │   ├── cli.py
+│       │   └── executor.py
+│       ├── scoring.py                # MOVED + REFACTORED
+│       ├── phase_runner.py           # MOVED + REFACTORED (rename phase-runner.py)
+│       ├── summarize_round.py        # MOVED + REFACTORED
+│       ├── update_progress.py        # MOVED + REFACTORED
+│       └── error_guidance.py         # MOVED
+├── tests/                            # ONLY tests, no runtime code
+│   ├── unit/ integration/ property/ benchmark/
+│   ├── rounds/
+│   ├── fixtures/
+│   └── conftest.py
+├── skills/                           # 59 skills (P0 will restructure)
+├── docs/
+│   ├── adr/                          # 0001-0017 after P-1.E
+│   ├── superpowers/{specs,plans}/
+│   └── ...
+├── .github/
+│   ├── workflows/{ci,security,docs,release,codeql,renovate}.yml
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── ISSUE_TEMPLATE/{bug,feature,skill}.md
+│   └── CODEOWNERS
+├── justfile                          # NEW: task runner
+├── pyproject.toml                    # Updated: scripts entry points, PEP 735 groups
+├── LICENSE                           # NEW
+├── SECURITY.md                       # NEW
+├── CONTRIBUTING.md                   # NEW
+├── CHANGELOG.md                      # NEW
+├── CODE_OF_CONDUCT.md                # NEW
+└── README.md                         # Updated
+</code></pre></div>
+<h2 id="file-index">File Index</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>File</th>
+<th>Cluster</th>
+<th>Audit findings covered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td><a href="01-pr-fraud/">01-pr-fraud.md</a></td>
+<td>P-1 PR completion fraud</td>
+<td>F1–F6</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="02-structural-layout/">02-structural-layout.md</a></td>
+<td><code>tests/</code> as runtime package</td>
+<td>F7–F9</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="03-tooling-invalidation/">03-tooling-invalidation.md</a></td>
+<td>structlog/mypy/coverage/skills exclusions</td>
+<td>F10–F14</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="04-testing-foundation/">04-testing-foundation.md</a></td>
+<td>Test density, hypothesis, markers</td>
+<td>F15–F18</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="05-ci-supply-chain/">05-ci-supply-chain.md</a></td>
+<td>CI hardening, renovate, CodeQL</td>
+<td>F19–F25</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="06-enterprise-and-polish/">06-enterprise-and-polish.md</a></td>
+<td>LICENSE/SECURITY/etc + task runner + SBOM</td>
+<td>F26–F31</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="07-docs-config-drift/">07-docs-config-drift.md</a></td>
+<td>AGENTS/GEMINI sync + plugin manifest generator</td>
+<td>F32–F34</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="08-p0-plan-patches/">08-p0-plan-patches.md</a></td>
+<td>P0 design defects (informational, executed in P0)</td>
+<td>F35–F41</td>
+</tr>
+</tbody>
+</table>
+<h2 id="master-pr-sequence">Master PR Sequence</h2>
+<p>P-1.E introduces <strong>30 PRs</strong> (PR-18 through PR-47). PRs from the original P-1.D
+(PR-12 to PR-16) are <strong>superseded</strong> — their scaffolding stays in tree but real
+work happens in the superseding PR.</p>
+<blockquote>
+<p><strong>Numbering convention</strong>: All PR numbers in this spec are <strong>canonical</strong>
+(used in PR titles, commits, CHANGELOG). Cluster files use the same
+canonical numbers — there is no local/canonical dual scheme.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>PR-18  src/shenbi/ layout migration                     [BLOCKING]  Cluster 02
+  │
+  ├── PR-19  validate-gate.py true modularization       supersedes original PR-12  Cluster 01
+  ├── PR-20  dispatch-subagent.sh true Python rewrite   supersedes original PR-13  Cluster 01
+  ├── PR-21  archive all 7 phantom rounds               supersedes original PR-14  Cluster 01
+  ├── PR-22  rename novel-output → skill-output         supersedes original PR-15  Cluster 01
+  ├── PR-23  mutation testing baseline                  supersedes original PR-16  Cluster 01
+  │
+  ├── PR-24  structlog true integration                                            Cluster 03
+  ├── PR-25  mypy/basedpyright de-ignore                                           Cluster 03
+  ├── PR-26  coverage threshold enforcement + test density check                  Cluster 03
+  ├── PR-27  skill Python scripts lint/type scope                                  Cluster 03
+  │
+  ├── PR-28  unit tests for scoring.py                                             Cluster 04
+  ├── PR-29  unit tests for phase_runner.py                                        Cluster 04
+  ├── PR-30  unit tests for update_progress.py                                     Cluster 04
+  ├── PR-31  unit tests for summarize_round.py                                     Cluster 04
+  ├── PR-32  direct-import unit tests for gates                                    Cluster 04
+  ├── PR-33  hypothesis failure case persistence                                   Cluster 04
+  ├── PR-34  explicit pytest collection rules                                      Cluster 04
+  │
+  ├── PR-35  CI hardening (uv lock check, cache, Python 3.13)                      Cluster 05
+  ├── PR-36  CodeQL workflow                                                       Cluster 05
+  ├── PR-37  renovate policy fix (minor → human review)                            Cluster 05
+  ├── PR-38  pre-commit autoupdate + landmine removal                              Cluster 05
+  ├── PR-39  release workflow + SBOM attach                                        Cluster 05
+  │
+  ├── PR-40  enterprise baseline files (LICENSE/SECURITY/CONTRIBUTING/...)         Cluster 06
+  ├── PR-41  PEP 735 dependency groups                                             Cluster 06
+  ├── PR-42  task runner (justfile)                                                Cluster 06
+  ├── PR-43  mkdocs navigation + plugins                                           Cluster 06
+  │
+  ├── PR-44  docs sync (AGENTS/GEMINI/CLAUDE/command-to-give)                      Cluster 07
+  ├── PR-45  multi-agent plugin manifest generator                                 Cluster 07
+  └── PR-46  doc accuracy CI                                                       Cluster 07
+
+PR-47  remove force-include from wheel build                                     Cluster 02
+</code></pre></div>
+<p><strong>Execution order rules</strong>:</p>
+<ol>
+<li>PR-18 (src layout) lands FIRST. All other PRs assume <code>src/shenbi/</code> exists.</li>
+<li>PR-19 through PR-23 (Cluster 01) can run in parallel after PR-18.</li>
+<li>PR-24 through PR-27 (Cluster 03) require PR-18 + PR-19 (src layout +
+   modularized gates).</li>
+<li>PR-28 through PR-34 (Cluster 04) require PR-19 (modular gates for
+   direct-import testing).</li>
+<li>PR-35 through PR-39 (Cluster 05) are independent but PR-38 Step 1
+   (remove landmine) should land FIRST to unblock P0 brainstorming.</li>
+<li>PR-40 through PR-43 (Cluster 06) are independent.</li>
+<li>PR-44 through PR-46 (Cluster 07) require PR-22 (rename) and PR-18
+   (src layout) so docs reflect final state.</li>
+<li>PR-47 (remove <code>force-include</code> from wheel) is required per the no-cost-compromise directive.</li>
+</ol>
+<h2 id="acceptance-criteria-overall-p-1e">Acceptance Criteria (overall P-1.E)</h2>
+<p>A P-1.E "complete" merge requires:</p>
+<ol>
+<li><strong>No <code>tests/*.py</code> file larger than 500 lines.</strong> <code>validate-gate.py</code> and other
+   monoliths must be split. Verified by <code>find src/shenbi -name '*.py' | xargs wc -l</code>.</li>
+<li><strong>No <code>print()</code> in framework code.</strong> All <code>print()</code> in <code>src/shenbi/**/*.py</code>
+   replaced by <code>structlog.get_logger(__name__).info/error/...</code>. Shell scripts
+   may keep <code>echo</code> for pipeline control only.</li>
+<li><strong>Zero <code>ignore_errors = true</code> in <code>pyproject.toml</code></strong> mypy/basedpyright
+   overrides. All framework modules pass <code>strict</code> check.</li>
+<li><strong>Branch coverage ≥ 80% AND line coverage ≥ 90%</strong> on <code>src/shenbi/</code>.
+   Thresholds enforced in <code>tests/unit/test_coverage_thresholds.py</code>
+   (<code>BRANCH_THRESHOLD_PCT = 80</code>) and <code>pyproject.toml</code>
+   (<code>[tool.coverage.report].fail_under = 90</code>). See <a href="#threshold-justification">Threshold Justification</a>.</li>
+<li><strong>All 7 phantom rounds archived</strong> with per-round README.</li>
+<li><strong>Zero references to <code>novel-output/</code></strong> in tracked files (excluding
+   <code>tests/rounds/archived/</code>).</li>
+<li><strong><code>tests/build_registry.py</code> referenced by pre-commit must exist</strong> OR the
+   pre-commit hook must be removed (no orphan references).</li>
+<li><strong>All enterprise baseline files present</strong> (LICENSE, SECURITY.md,
+   CONTRIBUTING.md, CODEOWNERS, CHANGELOG.md, PR/Issue templates).</li>
+<li><strong>CI runs on Python {3.11, 3.12, 3.13} × {ubuntu, macos}</strong> and uses
+   <code>uv lock --check</code> + <code>enable-cache: true</code>.</li>
+<li><strong><code>AGENTS.md</code>, <code>GEMINI.md</code>, <code>command-to-give.md</code>, <code>CLAUDE.md</code> updated</strong>
+    to reflect post-P-1 reality (no <code>novel-output</code>, structlog mentioned,
+    ADRs referenced, src layout shown).</li>
+<li><strong>Plugin manifests generated from single source.</strong> <code>.claude-plugin/</code>,
+    <code>.codex-plugin/</code>, <code>.cursor-plugin/</code>, <code>.opencode/</code> all generated from
+    <code>plugins/master.json</code> via <code>src/shenbi/plugins/generate.py</code> (entry point <code>shenbi-generate-plugins</code>).</li>
+<li><strong>No "P-1.E" or "future session" deferral comments</strong> in any tracked file.
+    Every deferral is either done or has an open GitHub issue.</li>
+<li><strong>Wheel build is lean</strong> (PR-47, required). <code>[tool.hatch.build.targets.wheel.force-include]</code>
+    block removed; <code>uv build --wheel</code> produces wheel &lt; 100KB containing only
+    <code>src/shenbi/</code> (no skills, no ADRs).</li>
+<li><strong>Mutation testing blocks CI on regression</strong> (PR-35). Mutation score
+    drop &gt; 5% from baseline fails CI; <code>--paths-to-mutate</code> scoped to changed
+    files for incremental speed.</li>
+</ol>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/</code> → <code>src/shenbi/</code> migration breaks downstream agent plugin paths</td>
+<td>Migration script + comprehensive grep for <code>tests.validate-gate</code> etc. before merge</td>
+</tr>
+<tr>
+<td>validate-gate.py rewrite introduces behavioral regressions</td>
+<td>Generate baseline of all G0-G7 outputs before PR-19; differential testing after</td>
+</tr>
+<tr>
+<td>dispatcher rewrite changes dispatch protocol</td>
+<td>Keep <code>tests/dispatch-subagent.sh</code> as 10-line shim during PR-20; remove in PR-22 (rename cleanup point)</td>
+</tr>
+<tr>
+<td>80% branch coverage target requires more tests than initially scoped</td>
+<td>Cluster 04 PRs are scoped to ~600 tests; if measurement falls short, add tests in same PR rather than lowering threshold</td>
+</tr>
+<tr>
+<td>Multi-agent plugin generator produces wrong output</td>
+<td>Generator is deterministic; test fixtures cover all 4 platforms</td>
+</tr>
+</tbody>
+</table>
+<h2 id="effort-sizing-timeline">Effort Sizing &amp; Timeline</h2>
+<p>T-shirt sizing per PR (S ≤ 1 day, M = 1-3 days, L = 3-7 days, XL = 1-2 weeks).
+<strong>No cost compromise</strong>: sizing is informational for sequencing, not for cutting scope.</p>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Size</th>
+<th>Cluster</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR-18</td>
+<td>L</td>
+<td>02</td>
+<td>src layout migration; touches every framework file</td>
+</tr>
+<tr>
+<td>PR-19</td>
+<td>XL</td>
+<td>01</td>
+<td>4318-line validate-gate.py modularization; needs differential baseline</td>
+</tr>
+<tr>
+<td>PR-20</td>
+<td>L</td>
+<td>01</td>
+<td>dispatch-subagent.sh rewrite (203 lines)</td>
+</tr>
+<tr>
+<td>PR-21</td>
+<td>S</td>
+<td>01</td>
+<td>Archive 6 rounds + write READMEs</td>
+</tr>
+<tr>
+<td>PR-22</td>
+<td>M</td>
+<td>01</td>
+<td>Rename novel-output → skill-output; ~7 file updates + shim deletion</td>
+</tr>
+<tr>
+<td>PR-23</td>
+<td>M</td>
+<td>01</td>
+<td>Mutation testing baseline + comparator tool</td>
+</tr>
+<tr>
+<td>PR-24</td>
+<td>L</td>
+<td>03</td>
+<td>structlog integration across ~7 framework modules</td>
+</tr>
+<tr>
+<td>PR-25</td>
+<td>XL</td>
+<td>03</td>
+<td>Type annotations for ~5921 LOC of legacy code</td>
+</tr>
+<tr>
+<td>PR-26</td>
+<td>S</td>
+<td>03</td>
+<td>Threshold config + test density check</td>
+</tr>
+<tr>
+<td>PR-27</td>
+<td>M</td>
+<td>03</td>
+<td>Skill scripts migration + lint/type scope</td>
+</tr>
+<tr>
+<td>PR-28</td>
+<td>L</td>
+<td>04</td>
+<td>~60 scoring tests</td>
+</tr>
+<tr>
+<td>PR-29</td>
+<td>L</td>
+<td>04</td>
+<td>~50 phase_runner tests</td>
+</tr>
+<tr>
+<td>PR-30</td>
+<td>L</td>
+<td>04</td>
+<td>~50 update_progress tests</td>
+</tr>
+<tr>
+<td>PR-31</td>
+<td>M</td>
+<td>04</td>
+<td>~40 summarize_round tests</td>
+</tr>
+<tr>
+<td>PR-32</td>
+<td>XL</td>
+<td>04</td>
+<td>~400 gates direct-import tests (28 G4 modules × ~14 tests)</td>
+</tr>
+<tr>
+<td>PR-33</td>
+<td>S</td>
+<td>04</td>
+<td>Hypothesis examples persistence</td>
+</tr>
+<tr>
+<td>PR-34</td>
+<td>S</td>
+<td>04</td>
+<td>pytest config changes</td>
+</tr>
+<tr>
+<td>PR-35</td>
+<td>M</td>
+<td>05</td>
+<td>CI workflow updates</td>
+</tr>
+<tr>
+<td>PR-36</td>
+<td>S</td>
+<td>05</td>
+<td>CodeQL workflow</td>
+</tr>
+<tr>
+<td>PR-37</td>
+<td>S</td>
+<td>05</td>
+<td>renovate.json edit</td>
+</tr>
+<tr>
+<td>PR-38</td>
+<td>S</td>
+<td>05</td>
+<td>Pre-commit landmine removal + autoupdate workflow</td>
+</tr>
+<tr>
+<td>PR-39</td>
+<td>M</td>
+<td>05</td>
+<td>Release workflow + SBOM attach</td>
+</tr>
+<tr>
+<td>PR-40</td>
+<td>M</td>
+<td>06</td>
+<td>8+ enterprise baseline files</td>
+</tr>
+<tr>
+<td>PR-41</td>
+<td>S</td>
+<td>06</td>
+<td>PEP 735 migration + git-cliff config</td>
+</tr>
+<tr>
+<td>PR-42</td>
+<td>S</td>
+<td>06</td>
+<td>justfile</td>
+</tr>
+<tr>
+<td>PR-43</td>
+<td>M</td>
+<td>06</td>
+<td>mkdocs.yml nav + social cards</td>
+</tr>
+<tr>
+<td>PR-44</td>
+<td>M</td>
+<td>07</td>
+<td>4 multi-agent entry files sync</td>
+</tr>
+<tr>
+<td>PR-45</td>
+<td>L</td>
+<td>07</td>
+<td>Plugin manifest generator (Python)</td>
+</tr>
+<tr>
+<td>PR-46</td>
+<td>S</td>
+<td>07</td>
+<td>doc accuracy CI test</td>
+</tr>
+<tr>
+<td>PR-47</td>
+<td>S</td>
+<td>02</td>
+<td>Remove force-include from pyproject.toml</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total estimated effort</strong>: ~12-16 person-weeks. No deadline set; P0 waits until
+P-1.E completes. <strong>If timeline pressure arises, expand effort (more parallel
+PRs, more reviewers), not compress scope.</strong></p>
+<h2 id="rollback-strategy">Rollback Strategy</h2>
+<p>P-1.E touches many files. If a PR is found broken after merge:</p>
+<ol>
+<li><strong>Single-PR rollback</strong> (preferred): <code>git revert &lt;PR-merge-commit&gt;</code>. Each PR
+   is atomic and self-contained. Most PRs can be reverted without affecting
+   others (verify via dependency graph in Master PR Sequence).</li>
+<li><strong>Cascade rollback</strong> (if dependent PRs landed): revert in reverse dependency
+   order. Example: if PR-25 (mypy de-ignore) is broken, also revert PR-26
+   (coverage threshold, which depends on typed code).</li>
+<li><strong>Migration rollback</strong> (PR-18 specifically): the src layout migration
+   changes import paths across the codebase. If discovered broken after merge,
+   reverting requires also reverting all PRs that depend on PR-18
+   (PR-19 through PR-46, essentially all of P-1.E). To prevent this scenario,
+   PR-18 must land with <strong>complete differential baseline testing</strong> before merge.</li>
+<li><strong>Branch protection</strong>: <code>main</code> branch requires all CI checks green.
+   Reverting a PR creates a new PR; CI must pass before revert merges.</li>
+<li><strong>Communication</strong>: any rollback &gt; 1 PR requires a post in the project's
+   primary communication channel (currently GitHub Discussions) documenting
+   what broke, root cause, and remediation plan.</li>
+</ol>
+<h2 id="known-gaps-acknowledged-not-blocking">Known gaps acknowledged, not blocking</h2>
+<p>(Per Round-7 reviewer feedback, document explicitly rather than fix.)</p>
+<ul>
+<li><strong>Effort estimates are projections, not measurements</strong>. Actual time per PR
+  will vary. The sizing table above is for sequencing only.</li>
+<li><strong>Plugin manifest generator (PR-45) format coverage</strong>: only 4 platform
+  formats are spec'd. If a 5th platform is added (e.g., Aider, Continue),
+  the generator must be extended. Tracked as future work, not P-1.E scope.</li>
+<li><strong>Plugin manifest cross-platform testing</strong>: generator is tested on
+  Linux/macOS; Windows testing deferred until skill Python scripts gain
+  Windows CI coverage (post-P0).</li>
+</ul>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<p>All Round-1 open questions are resolved below. New OQs may appear in cluster
+files as work proceeds; each must be resolved before its PR lands.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Should <code>.opencode/</code> directory stay?</td>
+<td><strong>Keep.</strong></td>
+<td>Low maintenance cost (1 plugin file + .gitignore); OpenCode is a growing platform; removing it sends negative signal to that community. Generator (PR-45) handles sync automatically.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>just</code> or <code>mise</code>?</td>
+<td><strong><code>just</code>.</strong></td>
+<td>More popular in Python ecosystem (<a href="https://github.com/pytest-dev/pytest">pytest-dev/pytest</a>, <a href="https://github.com/tiangolo/fastapi">FastAPI</a>, <a href="https://github.com/pydantic/pydantic">Pydantic</a> all use <code>just</code>). Simpler syntax. <code>mise</code> adds version-management concerns outside Shenbi's scope.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>CodeQL languages?</td>
+<td><strong>Python only.</strong></td>
+<td>Shenbi has no JavaScript/TypeScript code. Adding other languages (Go, Java, C/C++) would inflate CI without benefit. Re-evaluate if frontend is added post-P7.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>[tool.uv.sources]</code> for monorepo?</td>
+<td><strong>No.</strong></td>
+<td>Shenbi is a single-package repo. <code>[tool.uv.sources]</code> is for workspace/monorepo setups (per <a href="https://docs.astral.sh/uv/reference/settings/#sources">uv docs</a>). Reconsider if Shenbi grows sub-packages (e.g., <code>shenbi-core</code> + <code>shenbi-skills</code> split).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ul>
+<li>Audit conversation: session <code>9b3119e1-e6a9-422b-b419-696599a80c7c</code> (2026-06-15)</li>
+<li>Original P-1 spec: <code>docs/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.md</code></li>
+<li>P-1.D plan: <code>docs/superpowers/plans/2026-06-14-p-1.d-refactor-cleanup-extras.md</code></li>
+<li>7-project roadmap: session <code>8031a07e</code> line 922 (2026-06-13)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

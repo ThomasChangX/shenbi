@@ -1,0 +1,2455 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-29-contract-single-source-pillar5-property/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>契约单源架构 - 支柱五（属性测试网）实施计划 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="契约单源架构 - 支柱五（属性测试网）实施计划 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-29-contract-single-source-pillar5-property.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-29-contract-single-source-pillar5-property/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="契约单源架构 - 支柱五（属性测试网）实施计划 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-29-contract-single-source-pillar5-property.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              契约单源架构 - 支柱五（属性测试网）实施计划
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文件结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文件结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-ruff-per-file-ignores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 属性测试网骨架 + ruff per-file-ignores
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-token-cjkcount_punctuation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 标点整-token 计数属性（cjk.count_punctuation，现状正确）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-compute_entropy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 熵归一属性（compute_entropy，现状正确）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-p50median-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 修复 P50≠median + 属性测试（唯一真算术 bug）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-drift-volume_decline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: drift 排除不泄漏 + volume_decline 必触发属性（现状正确）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-task-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 标点属性——已由 Task 2 覆盖（合并，无独立文件）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-g612-cjk-cjkfind_terms-g6py" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: G6.12 CJK 内嵌必检出属性（cjk.find_terms 正确；g6.py 待支柱二）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-g34-fail-closed-score-fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: G3.4 fail-closed 纯函数 + 属性（无 SCORE 必 fail）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-capabilityfs-in-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: CapabilityFS — in-process 纯度运行时兜底 + 属性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: 三表一致属性（REGISTRY 派生，现状已一致）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-jieba-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: jieba 冻结分词基线（真实 token 列表，非猜测）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: 全量回归 + 支柱五完成确认
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="-">契约单源架构 - 支柱五（属性测试网）实施计划</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 建立 <code>tests/property/</code> 属性测试网，以手写 hypothesis strategy 覆盖 spec 列出的全部算术 bug 不变量（判据 6：CI 必过）+ jieba 冻结分词基线，并补齐唯一会违反不变量的真 bug 修复（P50≠median）与 in-process 纯度运行时兜底 CapabilityFS。</p>
+<p><strong>Architecture:</strong> 属性测试网是 spec 的「无法 CI 落地」层：手写 strategy 把跨字段/算术不变量编码成 CI 门。每个不变量<strong>先验证现有代码是否满足</strong>——绝大多数（标点、熵归一、drift 排除、volume_decline）现有代码已正确，属性测试把它们从「样例覆盖」升级为「全输入不变量」；<strong>唯一真 bug 是 <code>compute_percentiles</code> P50≠median</strong>（Task 4 修复）。G3.4 空转与 G6.12 内嵌失效是「门改造」问题（spec 归支柱二），本计划<strong>不改 gate_G3/g6.py</strong>，而是为它们的正确不变量立纯函数 + 属性测试，门接线留给支柱二（与支柱四 <code>audit_trace</code> 不替换 gate_G7 同模式）。CapabilityFS 是 in-process 纯度兜底（判据 4/14），codex subprocess 的 read-provenance 仍是已知盲点（future work）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，pytest + hypothesis（已依赖），jieba==0.42.1（已固定，pyproject.toml:10），mypy strict（已 CI），ruff，pathlib+json。<strong>不引入 hypothesis-jsonschema</strong>（N8 可选，手写 strategy 即可）。</p>
+<p><strong>关联 spec:</strong> <a href="../../specs/2026-06-29-contract-single-source-design/">../specs/2026-06-29-contract-single-source-design.md</a> v5.2 支柱五（成功判据 4/5/6/14）。</p>
+<p><strong>前置依赖:</strong> 支柱一已落地（<code>shenbi.contracts.registry.bootstrap_registry</code>、<code>shenbi.contracts.enums</code>）；支柱三已落地（<code>shenbi.text.cjk</code>：<code>find_terms</code>/<code>count_punctuation</code>/<code>tokenize</code>）。本计划 import 这两者。</p>
+<p><strong>已核实事实（亲手读源码，非转述）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>不变量</th>
+<th>真实位置</th>
+<th>现状</th>
+<th>本计划动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P50==median</td>
+<td><code>style_learning/compute_stats.py:99</code>（P50=<code>values[max(0,int(n*0.50)-1)]</code>）vs <code>:112</code>（median=<code>lengths[n//2]</code>）</td>
+<td><strong>BUG</strong>：n≥2 时索引不同</td>
+<td>Task 4 <strong>修复</strong> P50→<code>values[n//2]</code> + 属性测试</td>
+</tr>
+<tr>
+<td>标点 count==text.count(token)</td>
+<td><code>text/cjk.py:58-70</code>（<code>sum(text.count(token) for token in tokens)</code>）</td>
+<td>正确（整 token）；对照 bug 在 <code>compute_stats.py:223</code>（per-char）</td>
+<td>Task 2 属性测试</td>
+</tr>
+<tr>
+<td>drift 排除不泄漏</td>
+<td><code>drift_detection/compute_drift.py:67-133</code>（excl reset run/below_run at :91/:117，kept 过滤 :110）</td>
+<td>触发层正确</td>
+<td>Task 5 属性测试（触发层；平滑层是已知边界，见风险表）</td>
+</tr>
+<tr>
+<td>熵 sum==1</td>
+<td><code>chapter_pattern/compute_pattern.py:79-104</code>（input⊆PATTERNS 时 Σcount==n）</td>
+<td>正确</td>
+<td>Task 3 属性测试</td>
+</tr>
+<tr>
+<td>volume_decline 必触发</td>
+<td><code>compute_drift.py:136-146</code>（<code>scores[-1] &lt; scores[-2]</code>）</td>
+<td>正确</td>
+<td>Task 5 属性测试</td>
+</tr>
+<tr>
+<td>G6.12 CJK 内嵌必检出</td>
+<td><code>gates/g6.py:399</code>（<code>[^\w]</code> 边界 → CJK 全是 <code>\w</code>，内嵌不检出）= BUG；正确工具 <code>text/cjk.find_terms</code>（substring）</td>
+<td>g6.py 待支柱二改；find_terms 已正确</td>
+<td>Task 7 属性测试（断言 find_terms，不改 g6.py）</td>
+</tr>
+<tr>
+<td>G3.4 无 SCORE 必 fail</td>
+<td><code>gates/g3.py:155</code>（<code>if gen_agent and scorer_agent and ...</code>，缺 scorer→PASS = fail-open）= BUG</td>
+<td>gate 待支柱二改</td>
+<td>Task 8 纯函数 fail-closed + 属性测试（不改 gate_G3）</td>
+</tr>
+<tr>
+<td>门纯度</td>
+<td>gates 写文件是散文约束</td>
+<td>无运行时兜底</td>
+<td>Task 9 CapabilityFS（in-process）</td>
+</tr>
+<tr>
+<td>三表一致</td>
+<td><code>contracts/registry.py:bootstrap_registry</code> 与 <code>contract.py:load_registry</code> 均 read truth-files.yaml</td>
+<td>已一致（实测 54==54）</td>
+<td>Task 10 属性测试</td>
+</tr>
+<tr>
+<td>jieba 冻结</td>
+<td><code>text/cjk.py:96-110</code> tokenize</td>
+<td>固定 0.42.1</td>
+<td>Task 11 真实 token 基线（实测捕获，非猜测）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+；属性测试文件全部在 <code>tests/property/&lt;域&gt;/</code>，每个新域加 <code>__init__.py</code>。</li>
+<li><strong>手写 strategy only</strong>：跨字段不变量用 <code>@composite</code> 手写；不引入 hypothesis-jsonschema（N8 可选，禁加依赖）。</li>
+<li>mypy strict + ruff CI 必须干净。新增测试文件在 <code>[tool.ruff.lint.per-file-ignores]</code> 加完整忽略集（仿现有 <code>"tests/property/cjk/*.py"</code> 块）。</li>
+<li>框架代码无 print()（用 structlog）。</li>
+<li><strong>覆盖率门（关键，导致过以往计划失败）：</strong> <code>pyproject.toml</code> addopts 含 <code>--cov=shenbi</code> + <code>fail_under=90</code>（<code>[tool.coverage.report]</code>）。因此<strong>任何单文件/子集</strong> <code>uv run pytest &lt;path&gt;</code> 都会因覆盖率不足退出码非零。本计划所有单文件/子集 pytest 命令必须追加 <code>--no-cov</code>（如 <code>uv run pytest tests/property/stats/test_percentile_properties.py -q --no-cov</code>）。覆盖率门只在<strong>全量</strong> <code>uv run pytest -q</code> 时生效（Task 12）。下面各步为简洁省略 <code>--no-cov</code>，执行者一律按此规则补上。</li>
+<li><strong>不引用具体测试数</strong>（避免漂移）：写「现有测试集无 regression + 新增测试全通过」，不写「X passed」。</li>
+<li><strong>不修改 gate 行为</strong>：本计划不改 <code>gates/g3.py</code>/<code>gates/g6.py</code>/<code>gates/g7.py</code> 的现有命令逻辑。G3.4/G6.12 的正确不变量以<strong>新纯函数</strong>承载 + 属性测试覆盖；门接线是支柱二。</li>
+<li>jieba 版本固定 <code>0.42.1</code>（pyproject.toml:10 已 pin）；冻结基线来自亲手运行该版本的真实分词，不是同义反复。</li>
+</ul>
+<h2 id="_1">文件结构</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/property/stats/__init__.py</code>、<code>test_percentile_properties.py</code></td>
+<td>P50==median + compute_percentiles 单调性属性（依赖 Task 4 修复）</td>
+</tr>
+<tr>
+<td><code>tests/property/stats/test_entropy_properties.py</code></td>
+<td>熵归一（Σcount==n）+ 熵重算一致</td>
+</tr>
+<tr>
+<td><code>tests/property/drift/__init__.py</code>、<code>test_drift_properties.py</code></td>
+<td>drift 排除不泄漏（触发层）+ volume_decline 必触发</td>
+</tr>
+<tr>
+<td><code>tests/property/cjk/test_punct_properties.py</code></td>
+<td>标点整-token 计数属性（cjk.count_punctuation）</td>
+</tr>
+<tr>
+<td><code>tests/property/cjk/test_g612_embedded_properties.py</code></td>
+<td>G6.12 内嵌 CJK 必检出（cjk.find_terms，含旧 <code>[^\w]</code> 失效对照）</td>
+</tr>
+<tr>
+<td><code>tests/property/gates/test_g34_independence_properties.py</code></td>
+<td>G3.4 fail-closed 属性（新纯函数 <code>gates/g3_independence.py</code>）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g3_independence.py</code></td>
+<td>纯函数 <code>scoring_independence_status</code>（fail-closed；gate_G3 接线=支柱二）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/capability_fs.py</code></td>
+<td><code>CapabilityFS</code>（in-process 只读 FS 句柄；写→PermissionError）</td>
+</tr>
+<tr>
+<td><code>tests/property/gates/test_capability_fs_properties.py</code></td>
+<td>CapabilityFS 纯度属性</td>
+</tr>
+<tr>
+<td><code>tests/property/contracts/test_registry_consistency.py</code></td>
+<td>三表一致：bootstrap_registry==load_registry concepts==truth-files.yaml</td>
+</tr>
+<tr>
+<td><code>tests/property/cjk/test_tokenize_frozen.py</code></td>
+<td>jieba 冻结分词基线（真实 token 列表）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-ruff-per-file-ignores">Task 1: 属性测试网骨架 + ruff per-file-ignores</h3>
+<p><strong>Files:</strong> Create <code>tests/property/stats/__init__.py</code>、<code>tests/property/drift/__init__.py</code>；Modify <code>pyproject.toml</code></p>
+<p><strong>Interfaces:</strong> Consumes 现有 <code>tests/property/__init__.py</code>（已存在）。Produces 新测试域包。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Create domain package markers</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/stats/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;属性测试：算术统计不变量（spec 支柱五）。&quot;&quot;&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/drift/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;属性测试：drift 排除/触发不变量（spec 支柱五）。&quot;&quot;&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Add ruff per-file-ignores</strong></p>
+</li>
+</ul>
+<p>在 <code>[tool.ruff.lint.per-file-ignores]</code>（先 <code>grep -n "tests/property/cjk" pyproject.toml</code> 确认现有块位置与缩进，在其后追加）：
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;tests/property/stats/*.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/drift/*.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/cjk/test_punct_properties.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/cjk/test_g612_embedded_properties.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/cjk/test_tokenize_frozen.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/gates/test_g34_independence_properties.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/gates/test_capability_fs_properties.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;tests/property/contracts/*.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E402&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;I001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;src/shenbi/capability_fs.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">]</span>
+<span class="s2">&quot;src/shenbi/gates/g3_independence.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">]</span>
+</code></pre></div>
+（注意：<code>tests/property/gates/__init__.py</code> 已存在；<code>test_gate_invariants.py</code> 是既有文件，本计划不动它。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Verify packages importable</strong>
+<code>uv run python -c "import tests.property.stats, tests.property.drift; print('OK')"</code> → <code>OK</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: ruff clean</strong>
+<code>uv run ruff check tests/property/</code> → All passed（暂无新 .py，仅包标记）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/stats/__init__.py<span class="w"> </span>tests/property/drift/__init__.py<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(property): add property-test domain packages + ruff ignores&quot;</span>
+</code></pre></div></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-2-token-cjkcount_punctuation">Task 2: 标点整-token 计数属性（cjk.count_punctuation，现状正确）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/cjk/test_punct_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.text.cjk.count_punctuation</code>、<code>shenbi.text.cjk.PUNCTUATION_TOKENS</code>。</p>
+<p><strong>核实：</strong> <code>cjk.py:58-70</code> <code>count_punctuation</code> = <code>{name: sum(text.count(token) for token in tokens)}</code>（整 token，正确）。对照 bug 在 <code>compute_stats.py:216-226</code> <code>compute_punctuation</code>（<code>sum(text.count(c) for c in chars)</code>，多字符标点 per-char 重复计数）——本任务测<strong>正确</strong>的 cjk 版本。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write property tests</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/cjk/test_punct_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.text.cjk</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUNCTUATION_TOKENS</span><span class="p">,</span> <span class="n">count_punctuation</span>
+
+<span class="c1"># 所有标点 token 字符 + 普通 CJK，覆盖边界（token 在首/尾/中间/重叠）</span>
+<span class="n">_PUNCT_CHARS</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">toks</span> <span class="ow">in</span> <span class="n">PUNCTUATION_TOKENS</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">)</span>
+<span class="n">punct_text</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+    <span class="n">alphabet</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_PUNCT_CHARS</span> <span class="o">+</span> <span class="s2">&quot;你好世界正文内容level123 空格&quot;</span><span class="p">)),</span>
+    <span class="n">min_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">punct_text</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_each_punct_count_matches_text_count</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;整 token 计数：counts[name] == sum(text.count(token) for token in tokens)。</span>
+
+<span class="sd">    对照 bug：compute_stats.compute_punctuation 对多字符标点（——/……）per-char</span>
+<span class="sd">    迭代导致重复计数；cjk.count_punctuation 用整 token 正确。&quot;&quot;&quot;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">count_punctuation</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tokens</span> <span class="ow">in</span> <span class="n">PUNCTUATION_TOKENS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="n">counts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">sum</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">),</span> <span class="n">name</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">punct_text</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dash_counted_once_not_per_char</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;破折号 ——（2 字符）整体计数，绝不 per-char 翻倍。</span>
+
+<span class="sd">    &#39;你好——世界&#39;：text.count(&#39;——&#39;)==1（不是 text.count(&#39;—&#39;)*迭代==4）。&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">count_punctuation</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="s2">&quot;破折号&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;——&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;──&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">punct_text</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_all_counts_non_negative</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">count_punctuation</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/cjk/test_punct_properties.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff</strong>
+<code>uv run mypy tests/property/cjk/test_punct_properties.py --ignore-missing-imports &amp;&amp; uv run ruff check tests/property/cjk/test_punct_properties.py</code> → clean</li>
+<li>[ ] <strong>Step 4: Commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/cjk/test_punct_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): punctuation whole-token counting invariant (cjk.count_punctuation)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-3-compute_entropy">Task 3: 熵归一属性（compute_entropy，现状正确）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/stats/test_entropy_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.skill_utils.chapter_pattern.compute_pattern.compute_entropy</code>、<code>PATTERNS</code>。</p>
+<p><strong>核实：</strong> <code>compute_pattern.py:79-104</code>。<code>n=len(patterns)</code>；<code>counter=Counter(patterns)</code>；对每个 PATTERNS 项 count=counter.get(p,0)。当 input ⊆ PATTERNS：Σ(present count)==n（精确整数归一）；熵=round(Σ -count/n·log2(count/n),4)。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write property tests</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/stats/test_entropy_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.chapter_pattern.compute_pattern</span><span class="w"> </span><span class="kn">import</span> <span class="n">PATTERNS</span><span class="p">,</span> <span class="n">compute_entropy</span>
+
+<span class="c1"># input 必须取自 PATTERNS（compute_entropy 的契约：未知模式不入归一分母）</span>
+<span class="n">pattern_lists</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="n">PATTERNS</span><span class="p">),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">40</span>
+<span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">pattern_lists</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_present_counts_sum_to_n</span><span class="p">(</span><span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;归一：出现模式的计数之和 == 总数（精确整数，非浮点近似）。</span>
+
+<span class="sd">    compute_entropy 对 input⊆PATTERNS 保证 Σ(count/n)==1。本测试断言其整数</span>
+<span class="sd">    等价 Σcount==n，避免浮点舍入噪音。&quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">terms</span> <span class="o">=</span> <span class="n">compute_entropy</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">pattern_lists</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_entropy_matches_recompute</span><span class="p">(</span><span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;熵重算一致：返回值 == round(-Σ(count/n)·log2(count/n), 4)。&quot;&quot;&quot;</span>
+    <span class="n">entropy</span><span class="p">,</span> <span class="n">terms</span> <span class="o">=</span> <span class="n">compute_entropy</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+    <span class="n">recompute</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">entropy</span> <span class="o">==</span> <span class="n">recompute</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">pattern_lists</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_entropy_bounded_non_negative</span><span class="p">(</span><span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;0 ≤ H ≤ log2(不同模式数)。单模式 H==0。&quot;&quot;&quot;</span>
+    <span class="n">entropy</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_entropy</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">entropy</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">patterns</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">entropy</span> <span class="o">&lt;=</span> <span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-9</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="n">PATTERNS</span><span class="p">),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_single_pattern_zero_entropy</span><span class="p">(</span><span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">patterns</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">entropy</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_entropy</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">entropy</span> <span class="o">==</span> <span class="mf">0.0</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/stats/test_entropy_properties.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/stats/test_entropy_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): entropy normalization + recompute invariants (compute_entropy)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-4-p50median-bug">Task 4: 修复 P50≠median + 属性测试（唯一真算术 bug）</h3>
+<p><strong>Files:</strong> Modify <code>src/shenbi/skill_utils/style_learning/compute_stats.py:99</code>；Create <code>tests/property/stats/test_percentile_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.skill_utils.style_learning.compute_stats.compute_percentiles</code>、<code>compute_sentence_stats</code>。Produces 修复后的 P50（== median）。</p>
+<p><strong>核实（亲手）：</strong> <code>compute_stats.py:99</code> P50 = <code>values[max(0, int(n * 0.50) - 1)]</code>；<code>:112</code> median = <code>lengths[n // 2]</code>。
+- n=2：P50 索引 max(0,0)=0；median 索引 1 → <strong>不等</strong>。
+- n=3：P50 索引 max(0,0)=0；median 索引 1 → <strong>不等</strong>。
+- n=4：P50 索引 1；median 索引 2 → <strong>不等</strong>。
+即 P50≠median（spec「P50≠median」缺陷属实）。<strong>修复</strong>：让 P50 与 median 同用 <code>n//2</code> 地板中点（compute_sentence_stats 已以此定义 median）。<strong>回归安全核实：</strong> <code>tests/unit/skill_utils/test_compute_stats.py</code> 无任何测试 pin 具体 P50/median 数值（仅查 key 存在、count、histogram、空→零、单值→自身）→ 修复不破坏既有测试。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write failing property test</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/stats/test_percentile_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.style_learning.compute_stats</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_percentiles</span><span class="p">,</span>
+    <span class="n">compute_sentence_stats</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sorted_pos_ints</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">999</span><span class="p">),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">60</span>
+<span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xs</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">xs</span><span class="p">))</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">sorted_pos_ints</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_p50_equals_median_index</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;P50 == 地板中点 vs[n//2]（与 compute_sentence_stats 的 median 同索引）。</span>
+
+<span class="sd">    旧 bug：P50 用 int(n*0.50)-1，median 用 n//2，n≥2 时不等。修复后二者一致。&quot;&quot;&quot;</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="n">compute_percentiles</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">pct</span><span class="p">[</span><span class="s2">&quot;P50&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">vs</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">sorted_pos_ints</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_p50_equals_sentence_stats_median</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;compute_percentiles P50 与 compute_sentence_stats median 必须相等（同一排序序列）。&quot;&quot;&quot;</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="n">compute_percentiles</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+    <span class="c1"># compute_sentence_stats 内部 sort，故传已排序即稳定</span>
+    <span class="n">sentences</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">]</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">compute_sentence_stats</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;P50&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">pct</span><span class="p">[</span><span class="s2">&quot;P50&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">sorted_pos_ints</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_percentiles_within_range</span><span class="p">(</span><span class="n">vs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;所有百分位必须在 [min, max] 区间（值域约束，非跨级单调）。</span>
+
+<span class="sd">    nearest-rank 百分位方案不保证跨级单调（P25&lt;=P50&lt;=P95）：</span>
+<span class="sd">    n=2 时 P50=values[1] 而 P25/P95=values[0]，故 P25&lt;=P50 但 P50&gt;P95 可能成立。</span>
+<span class="sd">    正确不变量是每个百分位值落在数据 [min,max] 区间内。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pct</span> <span class="o">=</span> <span class="n">compute_percentiles</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;P25&quot;</span><span class="p">,</span> <span class="s2">&quot;P50&quot;</span><span class="p">,</span> <span class="s2">&quot;P75&quot;</span><span class="p">,</span> <span class="s2">&quot;P95&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="n">pct</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">,</span> <span class="n">key</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_percentiles_empty_returns_zeros</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">compute_percentiles</span><span class="p">([])</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;P25&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;P50&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;P75&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;P95&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → FAIL</strong>
+<code>uv run pytest tests/property/stats/test_percentile_properties.py -q --no-cov</code> → FAIL（<code>test_p50_equals_median_index</code> 在 n≥2 断言 P50==vs[n//2] 失败，现状 P50=vs[int(n*0.5)-1]）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement fix (compute_stats.py:99)</strong></p>
+</li>
+</ul>
+<p>读现状确认行号：<code>sed -n '92,102p' src/shenbi/skill_utils/style_learning/compute_stats.py</code>。</p>
+<p>将 P50 行由：
+<div class="highlight"><pre><span></span><code>        <span class="s2">&quot;P50&quot;</span><span class="p">:</span> <span class="n">values</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="mf">0.50</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)],</span>
+</code></pre></div>
+改为：
+<div class="highlight"><pre><span></span><code>        <span class="c1"># P50 必须与 compute_sentence_stats 的 median（lengths[n//2]）同源；</span>
+        <span class="c1"># 旧式 int(n*0.50)-1 在 n≥2 时与 median 偏移 → P50≠median（spec 支柱五修复）。</span>
+        <span class="s2">&quot;P50&quot;</span><span class="p">:</span> <span class="n">values</span><span class="p">[</span><span class="n">n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span>
+</code></pre></div>
+P25/P75/P95 不变（它们是最近秩估计，无 median 对照项，不在本不变量范围）。</p>
+<ul>
+<li>[ ] <strong>Step 4: Run property tests → PASS</strong>
+<code>uv run pytest tests/property/stats/test_percentile_properties.py -q --no-cov</code> → 通过</li>
+<li>[ ] <strong>Step 5: Regression — 既有 compute_stats 测试不变</strong>
+<code>uv run pytest tests/unit/skill_utils/test_compute_stats.py -q --no-cov</code> → 既有测试无 regression（无 pin 具体 P50/median 值）</li>
+<li>[ ] <strong>Step 6: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/style_learning/compute_stats.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/property/stats/test_percentile_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(style_learning): P50==median (compute_percentiles uses n//2 floor-midpoint)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-5-drift-volume_decline">Task 5: drift 排除不泄漏 + volume_decline 必触发属性（现状正确）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/drift/test_drift_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.skill_utils.drift_detection.compute_drift.detect_chapter_drift</code>、<code>detect_volume_drift</code>。</p>
+<p><strong>核实（亲手）：</strong> <code>compute_drift.py</code>：
+- 排除（<code>:82</code> excl=<code>exclude_indices or set()</code>）：monotonic run 在 excl 处 reset（<code>:91-92</code> <code>run,start,prev=0,i+1,None</code>）；sigma kept 过滤 excl（<code>:110</code>）；below_run 在 excl reset（<code>:117-118</code>）。→ 触发层：任何 MONOTONIC_DECLINE finding 的章节跨度（detail <code>chapters {start+1}-{i+1}</code>，0-基 <code>[start, i]</code>）<strong>不含</strong>任何 excl 索引。<strong>触发层正确</strong>；平滑层会把 excl 原值渗入邻居（已知边界，记风险表，不在本不变量）。
+- volume_decline（<code>:136-146</code>）：finding 当且仅当 <code>len≥2 且 scores[-1] &lt; scores[-2]</code>。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write property tests</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/drift/test_drift_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.compute_drift</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">detect_chapter_drift</span><span class="p">,</span>
+    <span class="n">detect_volume_drift</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_CHAPTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapters (\d+)-(\d+)&quot;</span><span class="p">)</span>
+
+<span class="n">scores_st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_infinity</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">min_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">raw</span><span class="o">=</span><span class="n">scores_st</span><span class="p">,</span>
+    <span class="n">excl</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">sets</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">19</span><span class="p">),</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_monotonic_decline_span_excludes_overridden</span><span class="p">(</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">excl</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;drift 排除不泄漏（触发层）：任何 MONOTONIC_DECLINE 的章节跨度不含 excl 索引。</span>
+
+<span class="sd">    excl reset run/start/prev（compute_drift.py:91-92），故递减不可能跨越被排除章。</span>
+<span class="sd">    detail 形如 &#39;...chapters {start+1}-{i+1}&#39;，0-基区间 [start, i] 必与 excl 不交。&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">exclude_indices</span><span class="o">=</span><span class="n">excl</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;monotonic_decline&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_CHAPTER_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">detail</span>
+        <span class="n">start1</span><span class="p">,</span> <span class="n">end1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>  <span class="c1"># 1-based chapter numbers</span>
+        <span class="n">span0</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">end1</span><span class="p">))</span>  <span class="c1"># 0-based indices [start, i]</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">span0</span> <span class="o">&amp;</span> <span class="n">excl</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">detail</span><span class="si">}</span><span class="s2"> 跨越被排除索引 </span><span class="si">{</span><span class="n">span0</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">excl</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">series</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_infinity</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xs</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>  <span class="c1"># 严格递减序列</span>
+<span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_excluding_all_decline_indices_suppresses_finding</span><span class="p">(</span><span class="n">series</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;把递减序列全部排除 → 无 monotonic_decline（排除真起作用，不空转）。&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">excl_all</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">)))</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">,</span> <span class="n">exclude_indices</span><span class="o">=</span><span class="n">excl_all</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;monotonic_decline&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">series</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_infinity</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xs</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_monotonic_decline_triggers_without_exclusion</span><span class="p">(</span><span class="n">series</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;严格递减 + 平滑后累计跌幅&gt;=3 必触发 monotonic_decline。</span>
+
+<span class="sd">    detect_chapter_drift 对 s=smooth(raw) 检查：run&gt;=3 且 s[start]-v&gt;=3。</span>
+<span class="sd">    raw 递减不保证 smoothed 递减（小步 EMA 可能使 smoothed 反弹），也不保证</span>
+<span class="sd">    smoothed 累计跌幅&gt;=3（如 [4,2,0] smooth 后跌幅~2.5）。故必须在 SMOOTHED</span>
+<span class="sd">    域检验前置条件，而非 raw 域。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.compute_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">smooth</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+    <span class="c1"># 前 3 个 smoothed 值须严格递减（run 才能到 3）+ s[0]-s[2]&gt;=3（触发阈值）</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">return</span>  <span class="c1"># smoothed 未保持递减：本例不满足触发前置</span>
+    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">3.0</span><span class="p">:</span>
+        <span class="k">return</span>  <span class="c1"># smoothed 累计跌幅不足：本例不满足触发前置</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">detect_chapter_drift</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;情感落地&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;monotonic_decline&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">scores_st</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xs</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">))</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_decline_iff_last_below_second_to_last</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;volume_decline 当且仅当末卷 &lt; 倒数第二卷触发（compute_drift.py:138）。&quot;&quot;&quot;</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">detect_volume_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">scores</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">scores</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_infinity</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_decline_at_most_one_finding</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">detect_volume_drift</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">f</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;volume_decline&quot;</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="s2">&quot;overall&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/drift/test_drift_properties.py -q --no-cov</code> → 通过（若个别 hypothesis 例因平滑交互边缘抖动，缩小 max_examples 至 100 或对 <code>test_monotonic_decline_triggers_without_exclusion</code> 收紧递减幅度；核心两属性——跨度不含 excl、volume iff——必须稳过）</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/drift/test_drift_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): drift exclusion no-leak (trigger layer) + volume_decline trigger invariants&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-6-task-2">Task 6: 标点属性——已由 Task 2 覆盖（合并，无独立文件）</h3>
+<blockquote>
+<p>说明：spec 列出的「标点 count==text.count(token)」已在 <strong>Task 2</strong>（<code>tests/property/cjk/test_punct_properties.py</code>）完整交付——整-token 计数属性 + 破折号不 per-char 翻倍。无独立文件。此条目仅作结构索引，无额外代码；任务编号从 Task 7 继续。</p>
+</blockquote>
+<hr />
+<h3 id="task-7-g612-cjk-cjkfind_terms-g6py">Task 7: G6.12 CJK 内嵌必检出属性（cjk.find_terms 正确；g6.py 待支柱二）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/cjk/test_g612_embedded_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.text.cjk.find_terms</code>。</p>
+<p><strong>核实（亲手）：</strong> <code>gates/g6.py:399</code> 用 <code>re.search(rf"(?:^|[^\w]){re.escape(word)}(?:$|[^\w])", content)</code>。Python3 <code>\w</code> 默认匹配 Unicode 字母（含 CJK），故 <code>[^\w]</code> 在 CJK 文本中永不命中——敏感词「革命」嵌于「这个时代革命运动」时，前后「代」「运」均为 <code>\w</code>，<strong>不检出</strong>（G6.12 失效属实）。正确工具 <code>text/cjk.find_terms</code>（精确子串）。本任务<strong>不改 g6.py</strong>（接线=支柱二「G6.12 用 cjk.find_terms」），只把「内嵌必检出」立为 find_terms 的不变量 + 旧正则失效对照（防回归）。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write property tests</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/cjk/test_g612_embedded_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.text.cjk</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_terms</span>
+
+<span class="n">cjk_pad</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s2">&quot;在这个时代悄然兴起运动发展和平&quot;</span><span class="p">)),</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">term_st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">([</span><span class="s2">&quot;革命&quot;</span><span class="p">,</span> <span class="s2">&quot;暴动&quot;</span><span class="p">,</span> <span class="s2">&quot;起义&quot;</span><span class="p">,</span> <span class="s2">&quot;敏感词&quot;</span><span class="p">])</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">pre</span><span class="o">=</span><span class="n">cjk_pad</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="n">cjk_pad</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="n">term_st</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_find_terms_detects_embedded_cjk</span><span class="p">(</span><span class="n">pre</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G6.12 内嵌必检出：敏感词被 CJK 包夹时 find_terms 必命中（substring 语义）。</span>
+
+<span class="sd">    旧 g6.py 正则 [^\w] 边界对纯 CJK 文本失效（CJK 全是 \w），内嵌不检出；</span>
+<span class="sd">    find_terms 用精确子串，正确。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">pre</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="n">post</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="n">find_terms</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="n">term</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="n">term</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">term</span><span class="o">=</span><span class="n">term_st</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_old_word_boundary_regex_fails_on_embedded</span><span class="p">(</span><span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;回归对照：g6.py 旧 `[^\w]` 边界正则在纯 CJK 内嵌场景**不命中**——</span>
+<span class="sd">    记录 bug 行为，证明 find_terms 是正确替代（接线在支柱二）。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;这个时代&quot;</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="s2">&quot;运动开始&quot;</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;(?:^|[^\w])</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">term</span><span class="p">)</span><span class="si">}</span><span class="s2">(?:$|[^\w])&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">old</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># 旧正则失效（确认 bug 存在）</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">find_terms</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="n">term</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># find_terms 正确</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">pre</span><span class="o">=</span><span class="n">cjk_pad</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="n">cjk_pad</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="n">term_st</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_find_terms_hit_position_correct</span><span class="p">(</span><span class="n">pre</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">pre</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="n">post</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="n">find_terms</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="n">term</span><span class="p">])</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">h</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">h</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">text</span><span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">start</span> <span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">end</span><span class="p">]</span> <span class="o">==</span> <span class="n">term</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/cjk/test_g612_embedded_properties.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/cjk/test_g612_embedded_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): G6.12 embedded-CJK detection invariant (cjk.find_terms)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-8-g34-fail-closed-score-fail">Task 8: G3.4 fail-closed 纯函数 + 属性（无 SCORE 必 fail）</h3>
+<p><strong>Files:</strong> Create <code>src/shenbi/gates/g3_independence.py</code>、<code>tests/property/gates/test_g34_independence_properties.py</code></p>
+<p><strong>Interfaces:</strong> Consumes 无（纯逻辑）。Produces <code>scoring_independence_status(progress: dict, skill_name: str) -&gt; tuple[str, str]</code> 返回 <code>("PASS","")</code> 或 <code>("FAIL", reason)</code>。<strong>不改 <code>gates/g3.py</code></strong>（gate_G3 接线=支柱二「G3.4 fail-closed + 读 trace」）。</p>
+<p><strong>核实（亲手）：</strong> <code>gates/g3.py:155</code> <code>if gen_agent and scorer_agent and str(gen_agent)==str(scorer_agent): FAIL else: PASS</code>。当 <code>current_scorer_agent</code> 缺失 → 落 else → <strong>PASS（fail-open 空转）</strong>。spec/AGENTS.md：「Scoring MUST use an independent subagent (G3.4); dispatcher-scored results are invalid」。正确行为=fail-closed：无独立评分证据→FAIL。本任务把 fail-closed 逻辑立为可测纯函数；现有 <code>tests/unit/gates/test_g3.py</code> 的 G3.4 测试（scorer==gen→FAIL、无 progress.json→SKIP）不受影响（不动 gate_G3）。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing property test</strong></li>
+</ul>
+<p>注意 hypothesis <code>st.characters</code> 的 <code>whitelist_categories</code> 是关键字参数；下面 <code>agent_id</code> 用显式字母数字表（避免 API 误写）：
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/gates/test_g34_independence_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">assume</span><span class="p">,</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g3_independence</span><span class="w"> </span><span class="kn">import</span> <span class="n">scoring_independence_status</span>
+
+<span class="n">agent_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">skill</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">([</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">])</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_scorer_recorded_fails_closed</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G3.4 fail-closed：progress.json 存在但无 current_scorer_agent → FAIL（空转 bug 的正确化）。&quot;&quot;&quot;</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scoring_independence_status</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;agent_trace&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">skill</span><span class="p">:</span> <span class="s2">&quot;agent-1&quot;</span><span class="p">}},</span> <span class="n">skill</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_empty_progress_fails_closed</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scoring_independence_status</span><span class="p">({},</span> <span class="n">skill</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="n">agent_id</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_same_agent_fails</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scorer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">assume</span><span class="p">(</span><span class="n">scorer</span> <span class="o">==</span> <span class="n">gen</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scoring_independence_status</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;agent_trace&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">skill</span><span class="p">:</span> <span class="n">gen</span><span class="p">},</span> <span class="s2">&quot;current_scorer_agent&quot;</span><span class="p">:</span> <span class="n">scorer</span><span class="p">},</span> <span class="n">skill</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="n">agent_id</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_different_agents_pass_only_when_distinct</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scorer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">assume</span><span class="p">(</span><span class="n">scorer</span> <span class="o">!=</span> <span class="n">gen</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="n">scoring_independence_status</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;agent_trace&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">skill</span><span class="p">:</span> <span class="n">gen</span><span class="p">},</span> <span class="s2">&quot;current_scorer_agent&quot;</span><span class="p">:</span> <span class="n">scorer</span><span class="p">},</span> <span class="n">skill</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+    <span class="k">assert</span> <span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scorer_present_no_gen_trace_passes</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;有独立评分者、无该技能生成 trace（无法证同源）→ 不能判同源 → PASS。&quot;&quot;&quot;</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scoring_independence_status</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;current_scorer_agent&quot;</span><span class="p">:</span> <span class="s2">&quot;scorer-9&quot;</span><span class="p">},</span> <span class="n">skill</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+</code></pre></div></p>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run → FAIL</strong>
+<code>uv run pytest tests/property/gates/test_g34_independence_properties.py -q --no-cov</code> → FAIL ModuleNotFoundError</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement pure fail-closed function</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g3_independence.py</span>
+<span class="sd">&quot;&quot;&quot;G3.4 评分独立性纯函数（spec 支柱五；判据 6）。</span>
+
+<span class="sd">gate_G3（g3.py:144-162）现状 fail-open：progress.json 存在但缺</span>
+<span class="sd">current_scorer_agent 时返回 PASS（空转 bug）。本模块承载**正确**的 fail-closed</span>
+<span class="sd">逻辑，供属性测试钉死；接线进 gate_G3 是支柱二「G3.4 fail-closed + 读 trace」。</span>
+
+<span class="sd">规则（AGENTS.md：评分必须用独立 subagent；dispatcher 自评无效）：</span>
+<span class="sd">  - 无 current_scorer_agent 证据 → FAIL（fail-closed）</span>
+<span class="sd">  - 生成 agent == 评分 agent（同源）→ FAIL</span>
+<span class="sd">  - 否则 → PASS</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scoring_independence_status</span><span class="p">(</span>
+    <span class="n">progress</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;返回 (&quot;PASS&quot;,&quot;&quot;) 或 (&quot;FAIL&quot;, reason)。fail-closed：缺评分证据即 FAIL。&quot;&quot;&quot;</span>
+    <span class="n">scorer</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;current_scorer_agent&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">scorer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span> <span class="s2">&quot;no independent scorer recorded (fail-closed)&quot;</span>
+    <span class="n">agent_trace</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;agent_trace&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agent_trace</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">agent_trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">skill_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">scorer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span> <span class="s2">&quot;scorer agent same as generator&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Run → passes</strong>
+<code>uv run pytest tests/property/gates/test_g34_independence_properties.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 5: mypy + ruff</strong>
+<code>uv run mypy src/shenbi/gates/g3_independence.py &amp;&amp; uv run ruff check src/shenbi/gates/g3_independence.py</code> → clean</li>
+<li>[ ] <strong>Step 6: Commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g3_independence.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/property/gates/test_g34_independence_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(gates): add G3.4 fail-closed scoring-independence pure function + property tests&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-9-capabilityfs-in-process">Task 9: CapabilityFS — in-process 纯度运行时兜底 + 属性</h3>
+<p><strong>Files:</strong> Create <code>src/shenbi/capability_fs.py</code>、<code>tests/property/gates/test_capability_fs_properties.py</code></p>
+<p><strong>Interfaces:</strong> Produces <code>CapabilityFS(allow_root: Path)</code>（只读 FS 句柄：<code>read_text(path)</code>/<code>read_bytes(path)</code>/<code>exists(path)</code>/<code>list_dir(path)</code>；任意写/删/改抛 <code>PermissionError</code>）。用于测试时给门注入只读句柄（判据 4/14）。<strong>codex subprocess read-provenance 是 future work（已知盲点）</strong>，本模块只覆盖 in-process。</p>
+<p><strong>核实：</strong> 现状 gates 的「不写」是散文约束（spec 根因五）；AST lint（禁 FS 原语）在支柱六。CapabilityFS 是 in-process 运行时兜底：把可写 Path 换成只读句柄，门若误写即 PermissionError 暴露。spec v5 命名分离（I1）：本模块=CapabilityFS；subprocess read-provenance≠本模块。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write failing test</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/gates/test_capability_fs_properties.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.capability_fs</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapabilityFS</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">min_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_read_text_roundtrips</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;a.txt&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">content</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">binary</span><span class="p">(</span><span class="n">min_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">64</span><span class="p">))</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_read_bytes_roundtrips</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;b.bin&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_any_write_raises_permissionerror</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;w.txt&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;sub&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+            <span class="n">op</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_path_outside_allow_root_denied</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;in&quot;</span>
+    <span class="n">inside</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">outside</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;out.txt&quot;</span>
+    <span class="n">outside</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">inside</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">((</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">)):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">outside</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_exists_and_list_dir_read_only</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;c.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;c.txt&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;nope&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">list_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;c.txt&quot;</span> <span class="ow">in</span> <span class="n">names</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → FAIL</strong> ModuleNotFoundError</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/capability_fs.py</span>
+<span class="sd">&quot;&quot;&quot;CapabilityFS：in-process 只读 FS 句柄（spec 支柱五；判据 4/14）。</span>
+
+<span class="sd">把可写 Path 换成只读句柄注入门/测试：读允许，任意写/删/改抛 PermissionError。</span>
+<span class="sd">是「门纯度」的运行时兜底（AST lint 禁 FS 原语在支柱六）。</span>
+
+<span class="sd">v5 命名分离（I1）：本模块仅 in-process；codex subprocess 的 read-provenance</span>
+<span class="sd">（需 FUSE/ptrace）是 future work / 已知盲点，不由本模块承担。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CapabilityFS</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;只读文件系统句柄。读经 allow_root 沙箱；写一律拒绝。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">allow_root</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sandbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">resolved</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;path outside allow_root: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">return</span> <span class="n">resolved</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sandbox</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sandbox</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sandbox</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">list_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sandbox</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()]</span>
+
+    <span class="c1"># --- 写侧：全部拒绝（纯度兜底） ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;CapabilityFS is read-only&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;CapabilityFS is read-only&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;CapabilityFS is read-only&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">parents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">exist_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;CapabilityFS is read-only&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Run → passes</strong>
+<code>uv run pytest tests/property/gates/test_capability_fs_properties.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 5: mypy + ruff</strong>
+<code>uv run mypy src/shenbi/capability_fs.py &amp;&amp; uv run ruff check src/shenbi/capability_fs.py</code> → clean</li>
+<li>[ ] <strong>Step 6: Commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/capability_fs.py<span class="w"> </span>tests/property/gates/test_capability_fs_properties.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(capability_fs): add in-process read-only FS handle (gate purity backstop)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-10-registry">Task 10: 三表一致属性（REGISTRY 派生，现状已一致）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/contracts/__init__.py</code>、<code>tests/property/contracts/test_registry_consistency.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.contracts.registry.bootstrap_registry</code>、<code>shenbi.contract.load_registry</code>、<code>docs/framework/truth-files.yaml</code>、<code>shenbi.gates.shared.PROJECT</code>。</p>
+<p><strong>核实（亲手，实测）：</strong> <code>bootstrap_registry()</code>（contracts/registry.py，read truth-files.yaml <code>concepts</code>）返回 {name:kind}；<code>load_registry()</code>（contract.py:70，read 同文件）返回含 <code>concepts</code> 的 dict。实测二者文件名集合均 54 项且<strong>完全相等</strong>。三表=truth-files.yaml（单一源）+ 两个读者（contracts.bootstrap_registry / contract.load_registry）。</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Create package + property test</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/contracts/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;属性测试：三表（REGISTRY 派生）一致（spec 支柱五；判据 5）。&quot;&quot;&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/contracts/test_registry_consistency.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contract</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_registry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">bootstrap_registry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROJECT</span>
+
+<span class="n">_TRUTH_YAML</span> <span class="o">=</span> <span class="n">PROJECT</span> <span class="o">/</span> <span class="s2">&quot;docs&quot;</span> <span class="o">/</span> <span class="s2">&quot;framework&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth-files.yaml&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_yaml_concept_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">_TRUTH_YAML</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concepts&quot;</span><span class="p">,</span> <span class="p">[])}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_three_registry_sources_agree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;判据 5（本支柱范围）：三表从单一源 truth-files.yaml 派生，文件名集合 diff 为空。</span>
+
+<span class="sd">    三源：(1) truth-files.yaml concepts 直读 (2) contract.load_registry concepts</span>
+<span class="sd">    (3) contracts.bootstrap_registry vocab。三者必相等（实测 54==54==54）。</span>
+<span class="sd">    全 69 技能契约迁移锁定（判据 8）是支柱一续 + 支柱二的范围。&quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">_yaml_concept_names</span><span class="p">()</span>
+    <span class="n">lr</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">load_registry</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concepts&quot;</span><span class="p">,</span> <span class="p">[])}</span>
+    <span class="n">br</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">bootstrap_registry</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="n">src</span> <span class="o">==</span> <span class="n">lr</span> <span class="o">==</span> <span class="n">br</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_yaml_concept_names</span><span class="p">()))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_every_truth_file_has_kind</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;单一源约束：每个登记 concept 必有非空 kind（派生分层依赖）。&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">_TRUTH_YAML</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">kinds</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kind&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concepts&quot;</span><span class="p">,</span> <span class="p">[])}</span>
+    <span class="k">assert</span> <span class="n">kinds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> 缺 kind&quot;</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_bootstrap_subset_of_yaml</span><span class="p">(</span><span class="n">_data</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bootstrap_registry 词汇必 ⊆ truth-files.yaml concept 名集（派生一致性）。&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">bootstrap_registry</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="n">_yaml_concept_names</span><span class="p">()</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/contracts/test_registry_consistency.py -q --no-cov</code> → 通过</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/contracts/__init__.py<span class="w"> </span>tests/property/contracts/test_registry_consistency.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): three-registry single-source consistency (bootstrap==load==yaml)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-11-jieba-token">Task 11: jieba 冻结分词基线（真实 token 列表，非猜测）</h3>
+<p><strong>Files:</strong> Create <code>tests/property/cjk/test_tokenize_frozen.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.text.cjk.tokenize</code>。</p>
+<p><strong>核实（亲手运行 jieba==0.42.1，pyproject.toml:10 已 pin）：</strong> 对固定样本捕获真实分词（非同次 t1==t2 同义反复）。jieba 升级改变分词 → 基线断言失败 → 审查。下面 token 列表是<strong>实测输出</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>文本</th>
+<th>实测 words</th>
+<th>实测 pos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>他在黑暗中看到了一束光明</code></td>
+<td><code>['他','在','黑暗','中','看到','了','一束','光明']</code></td>
+<td><code>['r','p','z','f','v','ul','m','n']</code></td>
+</tr>
+<tr>
+<td><code>主角缓缓地走向了那扇古老的大门</code></td>
+<td><code>['主角','缓缓','地','走向','了','那','扇','古老','的','大门']</code></td>
+<td><code>['n','d','uv','v','ul','r','q','nr','uj','n']</code></td>
+</tr>
+<tr>
+<td><code>革命运动在这个时代悄然兴起</code></td>
+<td><code>['革命','运动','在','这个','时代','悄然兴起']</code></td>
+<td><code>['vn','vn','p','r','n','l']</code></td>
+</tr>
+<tr>
+<td><code>筑基期的修炼需要极大的耐心</code></td>
+<td><code>['筑','基期','的','修炼','需要','极大','的','耐心']</code></td>
+<td><code>['v','n','uj','v','v','a','uj','a']</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write frozen baseline + determinism property</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/property/cjk/test_tokenize_frozen.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.text.cjk</span><span class="w"> </span><span class="kn">import</span> <span class="n">tokenize</span>
+
+<span class="c1"># 实测于 jieba==0.42.1（pyproject.toml:10 已 pin）。升级改变分词 → 失败 → 审查。</span>
+<span class="n">_FROZEN</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;他在黑暗中看到了一束光明&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;他&quot;</span><span class="p">,</span> <span class="s2">&quot;在&quot;</span><span class="p">,</span> <span class="s2">&quot;黑暗&quot;</span><span class="p">,</span> <span class="s2">&quot;中&quot;</span><span class="p">,</span> <span class="s2">&quot;看到&quot;</span><span class="p">,</span> <span class="s2">&quot;了&quot;</span><span class="p">,</span> <span class="s2">&quot;一束&quot;</span><span class="p">,</span> <span class="s2">&quot;光明&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;ul&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;主角缓缓地走向了那扇古老的大门&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;主角&quot;</span><span class="p">,</span> <span class="s2">&quot;缓缓&quot;</span><span class="p">,</span> <span class="s2">&quot;地&quot;</span><span class="p">,</span> <span class="s2">&quot;走向&quot;</span><span class="p">,</span> <span class="s2">&quot;了&quot;</span><span class="p">,</span> <span class="s2">&quot;那&quot;</span><span class="p">,</span> <span class="s2">&quot;扇&quot;</span><span class="p">,</span> <span class="s2">&quot;古老&quot;</span><span class="p">,</span> <span class="s2">&quot;的&quot;</span><span class="p">,</span> <span class="s2">&quot;大门&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;uv&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;ul&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;uj&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;革命运动在这个时代悄然兴起&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;革命&quot;</span><span class="p">,</span> <span class="s2">&quot;运动&quot;</span><span class="p">,</span> <span class="s2">&quot;在&quot;</span><span class="p">,</span> <span class="s2">&quot;这个&quot;</span><span class="p">,</span> <span class="s2">&quot;时代&quot;</span><span class="p">,</span> <span class="s2">&quot;悄然兴起&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;vn&quot;</span><span class="p">,</span> <span class="s2">&quot;vn&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;筑基期的修炼需要极大的耐心&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;筑&quot;</span><span class="p">,</span> <span class="s2">&quot;基期&quot;</span><span class="p">,</span> <span class="s2">&quot;的&quot;</span><span class="p">,</span> <span class="s2">&quot;修炼&quot;</span><span class="p">,</span> <span class="s2">&quot;需要&quot;</span><span class="p">,</span> <span class="s2">&quot;极大&quot;</span><span class="p">,</span> <span class="s2">&quot;的&quot;</span><span class="p">,</span> <span class="s2">&quot;耐心&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;uj&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;uj&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_frozen_baseline_matches_jieba_0_42_1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;冻结分词基线（spec M2）。token 列表来自 jieba==0.42.1 实测，非 t1==t2 同义反复。&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">exp_words</span><span class="p">,</span> <span class="n">_exp_pos</span> <span class="ow">in</span> <span class="n">_FROZEN</span><span class="p">:</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp_words</span><span class="p">,</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_frozen_pos_tags_match</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;词性标注也冻结（pseg 输出稳定）。&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">_words</span><span class="p">,</span> <span class="n">exp_pos</span> <span class="ow">in</span> <span class="n">_FROZEN</span><span class="p">:</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">pos</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp_pos</span><span class="p">,</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tokenize_preserves_chars_concat</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;不变量：tok2word 拼接 == 原文（分词不丢/不增字符）。&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">_p</span> <span class="ow">in</span> <span class="n">_FROZEN</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">==</span> <span class="n">text</span>
+
+
+<span class="n">cjk_sample</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+    <span class="n">alphabet</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s2">&quot;主角缓缓走向古老大门光明黑暗耐心修炼需要&quot;</span><span class="p">)),</span>
+    <span class="n">min_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">cjk_sample</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tokenize_is_deterministic</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;确定性不变量：同一输入两次分词完全一致（冻结版本下稳定）。&quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">b</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">pos</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">pos</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">b</span><span class="p">]</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">cjk_sample</span><span class="p">)</span>
+<span class="nd">@settings</span><span class="p">(</span><span class="n">max_examples</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tokenize_concat_equals_input</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="k">assert</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">word</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">==</span> <span class="n">text</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Run → passes</strong>
+<code>uv run pytest tests/property/cjk/test_tokenize_frozen.py -q --no-cov</code> → 通过（基线来自实测；若环境 jieba 输出不同，执行者用 <code>uv run python -c "from shenbi.text.cjk import tokenize; print([(t.word,t.pos) for t in tokenize('他在黑暗中看到了一束光明')])"</code> 复核并更新 <code>_FROZEN</code> 后提交）</p>
+</li>
+<li>[ ] <strong>Step 3: mypy + ruff + commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/property/cjk/test_tokenize_frozen.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(property): jieba frozen tokenization baseline (0.42.1, real tokens)&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h3 id="task-12">Task 12: 全量回归 + 支柱五完成确认</h3>
+<p><strong>Files:</strong> 无。仅验证。</p>
+<ul>
+<li>[ ] <strong>Step 1: 全量测试（覆盖率门在此生效）</strong>
+<code>uv run pytest -q</code> → 现有测试集<strong>无 regression</strong> + 新增属性测试全通过。执行者以实际输出为准，只断言「无失败」（不引用具体数字，避免漂移）。</li>
+<li>[ ] <strong>Step 2: Type check + lint 全仓</strong>
+<code>uv run mypy src/shenbi &amp;&amp; uv run ruff check .</code> → Success / All passed</li>
+<li>[ ] <strong>Step 3: 覆盖率门达标</strong>
+<code>uv run pytest -q</code> 末尾 coverage 报告 <code>fail_under=90</code> 通过（属性测试只读不改主路径，覆盖率不降）。</li>
+<li>[ ] <strong>Step 4: 判据对齐（本支柱范围）</strong></li>
+<li>判据 6（属性测试 CI 必过，覆盖全部算术 bug 性质 + jieba 冻结）逐项：<ul>
+<li>P50==median：Task 4（含修复）✓</li>
+<li>标点 count==text.count(token)：Task 2 ✓</li>
+<li>drift 排除不泄漏：Task 5 ✓</li>
+<li>熵 sum==1：Task 3 ✓</li>
+<li>volume_decline 必触发：Task 5 ✓</li>
+<li>G6.12 CJK 内嵌必检出：Task 7 ✓</li>
+<li>G3.4 无 SCORE 必 fail：Task 8（纯函数 fail-closed）✓</li>
+<li>门纯度：Task 9（CapabilityFS in-process）✓</li>
+<li>三表一致：Task 10 ✓</li>
+<li>jieba 冻结：Task 11 ✓</li>
+</ul>
+</li>
+<li>判据 4（纯度强制：AST lint 在支柱六；in-process CapabilityFS 兜底）：Task 9 ✓</li>
+<li>判据 14（读 provenance 诚实分层：internal CapabilityFS 可行 / codex subprocess 已知盲点）：Task 9 ✓</li>
+<li><strong>范围外（明确）：</strong> gate_G3 fail-closed 接线、g6.py 改用 find_terms、AST lint 禁 FS 原语、subprocess read-provenance（FUSE/ptrace）——支柱二/六/future work。</li>
+<li>[ ] <strong>Step 5: Empty marker commit</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>--allow-empty<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(property): pillar 5 property-test network complete&quot;</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage（支柱五范围）：</strong> 判据 6 的十项算术 bug 性质 + jieba 冻结，逐项有任务覆盖（见 Task 12 Step 4 清单）。判据 4/14 的 in-process 纯度（CapabilityFS）在 Task 9。N8（hypothesis-jsonschema 可选）严格遵守——全程手写 strategy，未加依赖。</p>
+<p><strong>2. Placeholder scan：</strong> 无 TBD/TODO；每个 code step 含完整可运行代码。Task 11 基线 token 列表来自实测（非 TBD）；若环境差异给出复核命令与处理流程。</p>
+<p><strong>3. Type consistency：</strong> <code>compute_percentiles -&gt; dict[str,int]</code>；<code>compute_sentence_stats -&gt; dict</code>（含 median:int）；<code>detect_chapter_drift -&gt; list[DriftFinding]</code>；<code>detect_volume_drift -&gt; list[DriftFinding]</code>；<code>find_terms -&gt; list[TermHit]</code>；<code>count_punctuation -&gt; dict[str,int]</code>；<code>tokenize -&gt; list[Token]</code>；<code>scoring_independence_status -&gt; tuple[str,str]</code>；<code>CapabilityFS</code> 读方法返回 str/bytes/bool/list[str]、写方法返回 None。跨任务命名一致（<code>scoring_independence_status</code>、<code>CapabilityFS</code> 单一名）。<code>bootstrap_registry</code>/<code>load_registry</code> 复用支柱一/现有契约层。</p>
+<p><strong>4. 已知限制（诚实声明）：</strong>
+  - <strong>drift 平滑层渗漏</strong>：excl 的原始值会经 <code>smooth()</code> 渗入邻居平滑值（已知边界）；属性测试钉死的是<strong>触发层</strong>（finding 跨度不含 excl、排除生效不空转），这是 compute_drift 当前真正保证的不变量。把平滑改成「仅对非 excl 值平滑」需语义决策（插值/重索引），超出属性测试网范围，记入 spec 风险表。
+  - <strong>G3.4/G6.12 不接线</strong>：本计划立正确纯函数/不变量，不改 gate_G3/g6.py（与支柱四 <code>audit_trace</code> 不替换 gate_G7 同模式）；接线是支柱二。
+  - <strong>G3.4 fail-closed 与现有 gate_G3 行为不同</strong>：现有 gate 缺 scorer→PASS（fail-open）；<code>scoring_independence_status</code> 缺 scorer→FAIL（fail-closed）。这是有意的——纯函数承载 spec 要求的正确行为，接线时由支柱二同步既有 G3.4 测试。
+  - <strong>三表=文件注册维度</strong>：本支柱钉死 truth-files.yaml 三读者一致（判据 5 的文件注册部分）；全 69 技能契约迁移锁定（判据 8）是支柱一续+二。
+  - <strong>subprocess read-provenance</strong>：CapabilityFS 只 in-process；codex exec 子进程 syscall 不可拦截，仍是已知盲点（future work）。</p>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan complete and saved to <code>docs/superpowers/plans/2026-06-29-contract-single-source-pillar5-property.md</code>. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> - I dispatch a fresh subagent per task, review between tasks, fast iteration</p>
+<p><strong>2. Inline Execution</strong> - Execute tasks in this session using executing-plans, batch execution with checkpoints</p>
+<p>Which approach?</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

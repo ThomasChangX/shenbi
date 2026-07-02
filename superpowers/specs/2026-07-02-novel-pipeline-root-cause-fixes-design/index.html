@@ -1,0 +1,2635 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Novel Pipeline 根因修复 Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Novel Pipeline 根因修复 Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Novel Pipeline 根因修复 Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#novel-pipeline-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Novel Pipeline 根因修复 Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 问题清单
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 问题清单">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-category-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Category A: 正确性缺陷 (阻塞性)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 Category A: 正确性缺陷 (阻塞性)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-total_chapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A1. total_chapters 动态重算缺失
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-resonance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A2. resonance 评分解析器缺失
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-genre-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A3. genre-config 审计维度键名不匹配
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a4-escalation-review-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A4. escalation-review dispatch 未接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a5-error_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A5. error_handler 三个函数未接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a6-modify-approve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A6. modify 决策与 approve 行为完全相同
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a7-state-settling-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A7. state-settling G4 验证为空操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a8-blocking-genre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A8. 审计 BLOCKING 即时停止 + genre 圈接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-category-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Category B: 健壮性增强
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 Category B: 健壮性增强">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#b1-ramp-up-g1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B1. Ramp-up G1 可选读取过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b2-resume-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B2. Resume truth 完整性校验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b3-truth-sync-after-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B3. truth-sync 传播标记 after modify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b4-requires_independent-fail-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B4. requires_independent 改为 fail-closed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b5-reject-step_index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B5. reject 后 step_index 重置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-category-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Category C: 测试覆盖补全
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3 Category C: 测试覆盖补全">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c1-route-b-cli-main" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C1. Route B 三个 CLI main() 冒烟测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c2-dispatch-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C2. dispatch chain 端到端集成测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c3-route-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C3. Route B 向量维度修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c4-closure-post-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C4. Closure post-approval 完整路径测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c5-cmd_next-vs-cmd_resume-checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C5. cmd_next vs cmd_resume checkpoint 后行为测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c6-blocking-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C6. 审计 BLOCKING revision 闭环端到端测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-category-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Category D: 代码清理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4 Category D: 代码清理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#d1-_gate_passed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D1. _gate_passed 提取为共享工具
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d2-max_dispatch_retries-max_audit_retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D2. MAX_DISPATCH_RETRIES / MAX_AUDIT_RETRIES 常量连接
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d3-arc-payoff-spinoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D3. arc-payoff / spinoff 死条目注释
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d4-dispatch-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D4. dispatch prompt 上下文增强
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 修复方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 修复方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 架构原则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 修复优先级与依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 各修复的技术方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 各修复的技术方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a3-genre-config_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A3: genre-config 审计维度对齐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a8-blocking-genre_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A8: 审计 BLOCKING 即时停止 + genre 圈接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a5-error_handler_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A5: error_handler 三函数接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a4-escalation-review-dispatch_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A4: escalation-review dispatch 接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a1-total_chapters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A1: total_chapters 动态重算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-resonance_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A2: resonance 评分解析器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a6-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A6: modify 决策行为修正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a7-state-settling-g4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A7: state-settling G4 目录验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b1-b5-c1-c5-d1-d4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B1-B5, C1-C5, D1-D4
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 验收标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 批判性审核要求
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 非目标
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 补充：逐任务审查遗漏项
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 补充：逐任务审查遗漏项">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-category-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Category E: 补充正确性缺陷
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.1 Category E: 补充正确性缺陷">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#e1-_route_b-sqlite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E1. _route_b 错误路径 SQLite 连接泄漏
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2-clear_checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2. clear_checkpoint 不幂等
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e3-feedback-filenotfounderror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E3. --feedback 文件不存在时未捕获 FileNotFoundError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e4-cmd_rollback-stub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E4. cmd_rollback 是非功能 stub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e5-extract_entities_from_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E5. extract_entities_from_plan 返回顺序不确定
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e6-blocking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E6. 审计 BLOCKING 重试耗尽后缺少版本回退
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-category-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Category F: 补充测试缺口
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.2 Category F: 补充测试缺口">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f1-chapterstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F1. ChapterState 序列化往返未测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f2-checkpoint-optionscontext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F2. Checkpoint options/context 往返未断言
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f3-pipelineconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F3. PipelineConfig 完整往返未测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f4-test_save_is_atomic-docstring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F4. test_save_is_atomic docstring 承诺过度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f5-embed_and_store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F5. embed_and_store 成功路径零覆盖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f6-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F6. G4 调用参数未验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f7-genesis-phase-transition-save_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F7. genesis phase transition 后 save_state 缺失
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-category-g" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Category G: 补充代码质量
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.3 Category G: 补充代码质量">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#g1-gate-dict-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G1. gate 返回 dict status 类型不一致
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g2-_check_conditional_resolve-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G2. _check_conditional_resolve 跳过 G4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g3-_resolve_g4_path-staging_path-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G3. _resolve_g4_path 不使用 staging_path() API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g4-truth_embedmain-rebuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G4. truth_embed.main() rebuild 是空操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g5-truth_indexmain-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G5. truth_index.main() 丢弃 update 命令
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g6-book_closure-trigger-save_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G6. book_closure trigger 分支冗余 save_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g7-closurestatedata-produces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7. ClosureStateData 在 "Produces" 中列出但未定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-category-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Category H: 补充文档修复
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.4 Category H: 补充文档修复">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#h1-spec-coverage-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        H1. Spec coverage matrix 需要更新
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#h2-cmd_rollback-stub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        H2. cmd_rollback stub 消息过期
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 更新后的完整修复优先级
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 更新后的验收标准
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 更新后的验收标准">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#75-category-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Category I: 流程与文档根因修复
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.5 Category I: 流程与文档根因修复">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#i1-progress-ledger-todo-m1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I1. Progress ledger TODO 残留误导 (M1 根因)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i2-closurestatedata-m3g7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I2. ClosureStateData 设计决策未文档化 (M3/G7 根因深化)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i3-d2-m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I3. D2 常量循环依赖根因 (M2 根因深化)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="novel-pipeline-spec">Novel Pipeline 根因修复 Spec</h1>
+<blockquote>
+<p><strong>日期:</strong> 2026-07-02
+<strong>状态:</strong> 设计中
+<strong>前置:</strong> <code>docs/superpowers/specs/2026-07-01-novel-pipeline-design.md</code> (原始 spec), 2026-07-02-novel-pipeline-wave{1..5} (已完成实施), commit <code>beea410</code>
+<strong>目的:</strong> 对 Pipeline 首次完整实施中发现的所有正确性缺陷、健壮性缺口、测试覆盖盲点和代码债务进行根因修复</p>
+</blockquote>
+<h2 id="1">1. 背景</h2>
+<p>Pipeline 首次实施 (Wave 1-5) 已完成：32 个 SDD 任务 + 最终全分支审查 + 7 个审查修复提交。当前状态：</p>
+<ul>
+<li><strong>19 个 pipeline 模块</strong>, 510 个 pipeline 单元测试, 2013+ 完整测试套件通过</li>
+<li>所有 pre-commit 钩子绿色 (ruff, mypy, basedpyright strict, purity lint, contract checks)</li>
+<li>Spec §15 验收标准: 17/20 通过, 3 个 Partial</li>
+</ul>
+<p>本 spec 覆盖剩余的所有已发现问题，按根因分类组织，确保修复后的 Pipeline 能正确执行端到端流程。</p>
+<h2 id="2">2. 问题清单</h2>
+<h3 id="21-category-a">2.1 Category A: 正确性缺陷 (阻塞性)</h3>
+<p>Pipeline 在当前状态下无法可靠完成多卷长篇小说的端到端生成。以下 8 个缺陷是根因。</p>
+<h4 id="a1-total_chapters">A1. total_chapters 动态重算缺失</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §4.2 [I3], §6.5, §15 item 8</li>
+<li><strong>当前状态:</strong> <code>total_chapters</code> 由 genesis step 6 (volume-outlining) 一次性写入 <code>novel.json</code>。卷边界扩展 (§6.5) 运行了 character-design expand / faction-builder / location-builder / foreshadowing-plant / plot-thread-weaver，但<strong>没有任何步骤重新计算并更新 <code>total_chapters</code></strong>。</li>
+<li><strong>根因:</strong> <code>triggers.py</code> 的 <code>run_triggered_skills</code> 完成卷边界扩展后，没有后处理步骤读取更新后的 <code>volume_map.md</code> 并重算总章节数。</li>
+<li><strong>影响:</strong> 如果 volume-outlining 的初始估算与实际扩展后的章节数不同，chapter-loop 的终止条件 (<code>N == total_chapters</code>) 会出错——少则提前终止导致 closure 缺失内容，多则无限循环。</li>
+<li><strong>验收标准:</strong> 卷边界扩展完成后，<code>novel.json.total_chapters</code> 被重新计算为 <code>volume_map.md</code> 中所有卷的章节数之和。</li>
+</ul>
+<h4 id="a2-resonance">A2. resonance 评分解析器缺失</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §6.3, §6.4</li>
+<li><strong>当前状态:</strong> <code>check_resonance</code> 函数已接入 chapter_loop (<code>_route_revision_after_resonance</code>)，但 <code>cs.resonance_score</code> 始终为 <code>None</code>。没有任何代码从 review-resonance 的产出 (<code>audits/chapter-N-resonance.md</code>) 中提取分数。</li>
+<li><strong>根因:</strong> 缺少一个解析器函数从 resonance 审计报告中提取分数并写入 <code>ChapterState.resonance_score</code>。</li>
+<li><strong>影响:</strong> 共振阈值检查空转——无论实际评分如何，<code>check_resonance(None, floor)</code> 永远返回 <code>True</code>，低于全局地板的章节不会被标记。</li>
+<li><strong>验收标准:</strong> review-resonance dispatch 后，resonance 分数被提取并写入 <code>ChapterState.resonance_score</code>；<code>check_resonance</code> 使用真实分数进行判断。</li>
+</ul>
+<h4 id="a3-genre-config">A3. genre-config 审计维度键名不匹配</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §6.2</li>
+<li><strong>当前状态:</strong> <code>audit_layer.py</code> 的 <code>GENRE_ACTIVATION_MATRIX</code> 使用 snake_case 键 (<code>era</code>, <code>world_rules</code>, <code>sensitivity</code>, <code>dialogue_focus</code> 等)，读取 <code>genre_config["audit_dimensions"]</code>。但实际的 <code>genre-config.json</code> (由 shenbi-genre-config 产出) 使用 camelCase 键名 <code>auditDimensions</code>，且键名集不同。</li>
+<li><strong>不匹配详情:</strong></li>
+<li>仅有 2/9 个矩阵键能匹配 fixture: <code>sensitivity</code> 和 <code>worldRules</code> (需大小写归一)</li>
+<li>7/9 个矩阵键在 fixture 中无对应: <code>era</code>, <code>fanfic</code>, <code>dialogue_focus</code>, <code>motivation_focus</code>, <code>texture_focus</code>, <code>reader_pull_focus</code>, <code>highpoint_focus</code></li>
+<li>8 个 fixture 键在矩阵中无对应: <code>antiAi</code>, <code>character</code>, <code>motivation</code>, <code>pacing</code>, <code>continuity</code>, <code>foreshadowing</code>, <code>dialogue</code>, <code>texture</code></li>
+<li><strong>根因:</strong> spec §6.2 设计的审计矩阵与实际 genre-config skill 产出的字段结构完全不同。这不是命名风格差异，而是语义集合差异。</li>
+<li><strong>影响:</strong> 题材审计圈在任何真实运行中激活 0 个审计维度 (因为顶层键名 <code>auditDimensions</code> 不等于 <code>audit_dimensions</code> 也会导致 <code>.get()</code> 返回空 dict)。</li>
+<li><strong>验收标准:</strong> 审计矩阵能正确读取 genre-config.json 的 <code>auditDimensions</code> 字段，并基于真实 fixture 的键名激活正确的审计 skill。</li>
+</ul>
+<h4 id="a4-escalation-review-dispatch">A4. escalation-review dispatch 未接线</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §6.3, §11, §15 item 14</li>
+<li><strong>当前状态:</strong> <code>dispatch_escalation</code> 函数在 <code>revision_router.py</code> 中已实现且有单元测试，但 orchestrator 在重试耗尽时直接设 <code>ESCALATION</code> checkpoint，<strong>跳过了 dispatch escalation-review 这一步</strong>。</li>
+<li><strong>根因:</strong> <code>_handle_failure</code> (genesis) 和 <code>_handle_failure</code> (chapter_loop) 在 <code>handle_dispatch_failure</code> 返回 <code>False</code> 后，直接 <code>set_checkpoint(state, CheckpointType.ESCALATION, ...)</code>，没有先调用 <code>dispatch_escalation</code>。</li>
+<li><strong>影响:</strong> 升级决策没有 escalation-review 的分析报告支撑，人工审核者只能看到 "dispatch failed 3 times" 而无上下文。</li>
+<li><strong>验收标准:</strong> 重试耗尽后，先 dispatch <code>shenbi-escalation-review</code> 生成 <code>audits/escalation-N-report.md</code>，然后设 checkpoint 展示该报告。</li>
+</ul>
+<h4 id="a5-error_handler">A5. error_handler 三个函数未接线</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §11</li>
+<li><strong>当前状态:</strong> <code>handle_audit_blocking</code>、<code>handle_scoring_failure</code>、<code>handle_state_settle_failure</code> 已实现且有测试，但从未从 orchestrator 调用。</li>
+<li><strong>根因:</strong> chapter_loop 没有审计 BLOCKING 的重试循环 (§6.3 "审计BLOCKING: revision闭环最多3次")；scoring 失败没有按 exit code 分流 (§11 "exit code 2: 重新 dispatch, exit code 3: 先跑 G4")；state-settling 失败没有标记 <code>settling_failed</code> 并暂停。</li>
+<li><strong>影响:</strong> 审计 BLOCKING 不触发 revision 闭环 (直接跳过)；scoring exit code 不被检查；state-settling 失败被当作普通 dispatch 失败处理。</li>
+<li><strong>验收标准:</strong> 三个函数被正确接入 orchestrator 的失败处理路径，实现 §11 描述的完整重试/升级/暂停逻辑。</li>
+</ul>
+<h4 id="a6-modify-approve">A6. modify 决策与 approve 行为完全相同</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §2.7, §9.1</li>
+<li><strong>当前状态:</strong> <code>cmd_review</code> 对 <code>MODIFY</code> 和 <code>APPROVE</code> 执行完全相同的 staging commit。Feedback 被记录在 <code>checkpoint_history</code> 但从未被使用。</li>
+<li><strong>根因:</strong> Spec 说 modify 应该 "feedback 传给 skill, skill 重新写入 staging/, 重新审核"。但当前实现把 modify 当作 approve + 附带 feedback 记录。</li>
+<li><strong>影响:</strong> 人工修改反馈被静默丢弃，skill 不会被重新 dispatch 来整合修改。</li>
+<li><strong>验收标准:</strong> <code>modify</code> 将 feedback 传入，设置状态使下一步重新 dispatch 对应 skill (不 commit staging)；或至少标记 "modify_pending" 使 orchestrator 在 resume 时知道需要重新执行。</li>
+</ul>
+<h4 id="a7-state-settling-g4">A7. state-settling G4 验证为空操作</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §6.1 step 5, §18</li>
+<li><strong>当前状态:</strong> state-settling step 的 <code>output_path</code> 为空字符串，G4 收到空文件列表，直接返回 PASS/SKIP。</li>
+<li><strong>根因:</strong> state-settling 写入 <code>staging/truth/*.md</code> (动态多个文件)，orchestrator 无法预知文件列表。</li>
+<li><strong>影响:</strong> state-settling 产出没有结构验证，格式错误的 truth 文件变更不会被 G4 拦截。</li>
+<li><strong>验收标准:</strong> state-settling step 的 G4 验证 staging 目录下的 truth 文件 (glob <code>staging/truth/*.md</code>)，而非空列表。</li>
+</ul>
+<h4 id="a8-blocking-genre">A8. 审计 BLOCKING 即时停止 + genre 圈接线</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §6.2</li>
+<li><strong>当前状态:</strong> chapter_loop 的 audit step (<code>TODO(W3T4)</code>) 从未调用 <code>run_audit_layer</code>。BLOCKING 审计发现不触发即时停止。</li>
+<li><strong>根因:</strong> W3T4 实现了 <code>audit_layer.py</code> 模块但 W3T3 的 chapter_loop 中的 <code>TODO(W3T4)</code> 标记从未被替换为实际调用。</li>
+<li><strong>影响:</strong> 题材审计圈和边界审计圈完全不运行；BLOCKING 发现不停止 chapter。</li>
+<li><strong>验收标准:</strong> chapter_loop step 8 后调用 <code>run_audit_layer</code>；BLOCKING 发现时停止当前 chapter 并进入 revision 闭环。</li>
+</ul>
+<h3 id="22-category-b">2.2 Category B: 健壮性增强</h3>
+<h4 id="b1-ramp-up-g1">B1. Ramp-up G1 可选读取过滤</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §17</li>
+<li><strong>当前状态:</strong> <code>dispatch_helper.py</code> 没有 ramp-up skip 逻辑。Skills 在自己的 SKILL.md 中声明容忍缺失文件。</li>
+<li><strong>影响:</strong> 严格 G1 在 ramp-up 章节可能报假阳性失败。</li>
+<li><strong>验收标准:</strong> dispatch 前解析 contract reads，移除标记为 optional 或含 <code>N</code> 模板变量且在当前阶段尚不存在的路径。</li>
+</ul>
+<h4 id="b2-resume-truth">B2. Resume truth 完整性校验</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §3.4, 设计决策 #13, §15 item 18</li>
+<li><strong>当前状态:</strong> <code>cmd_resume</code> 直接重入 orchestration loop，无专门完整性扫描。</li>
+<li><strong>影响:</strong> 缺失的 truth 文件在下一次 step 的 G1 中才被发现。更严重的是，如果 dispatch 中途崩溃导致部分写入 (文件存在但内容损坏)，G1 不会发现内容损坏。</li>
+<li><strong>方案:</strong></li>
+<li><strong>存在性检查</strong>: resume 时对下一步的 contract reads 做 G1 扫描</li>
+<li><strong>Checksum 对比</strong> (设计决策 #13): 读取 <code>state.last_snapshot</code> 中的 <code>checksums</code> 字段 (一个 <code>dict[str, str]</code> 映射 truth file 相对路径到 SHA256)。对比当前 truth files 的实际 SHA256:<ul>
+<li>一致: 正常恢复</li>
+<li>不一致: 标记 <code>needs_truth_sync = True</code>，暂停等待人工 truth-sync</li>
+</ul>
+</li>
+<li><strong>首次 resume 跳过路径:</strong> 如果 <code>state.last_snapshot</code> 为空 dict 或不含 <code>checksums</code> 键 (首次 resume，genesis 后无快照)，跳过 checksum 检查，仅做存在性检查</li>
+<li><strong>checksum manifest 写入:</strong> <code>snapshot-manage</code> skill 在创建快照时写入 checksum manifest 到 <code>state.last_snapshot["checksums"]</code>。pipeline 的 snapshot 步骤 dispatch 后，读取 <code>snapshot-manifest.json</code> 并更新 state。如果 snapshot-manifest.json 不存在 (skill 未产出)，日志 warning 并跳过 checksum 更新。</li>
+<li><strong>验收标准:</strong> resume 时对比 truth files checksum；不一致时触发 truth-sync 而非静默继续。</li>
+</ul>
+<h4 id="b3-truth-sync-after-modify">B3. truth-sync 传播标记 after modify</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §9.2 ("truth-sync 的冲突必须经人工仲裁")</li>
+<li><strong>当前状态:</strong> Staging commit 工作，但 derived truth 文件不会级联更新。人工修改反馈被静默丢弃。</li>
+<li><strong>影响:</strong> 人工修改的 truth 变更可能不会传播到派生文件。</li>
+<li><strong>方案:</strong> 遵循 §9.2 的"人工仲裁"原则，<strong>不自动 re-dispatch</strong>:</li>
+<li>modify 时在 <code>PipelineState</code> 中标记 <code>needs_truth_sync: true</code> 和受影响的 truth 文件列表</li>
+<li>下次 <code>cmd_status</code> 输出中显示 "truth_sync_needed" 警告</li>
+<li>人工决定是否运行 truth-sync (spec 说"冲突必须经人工仲裁")</li>
+<li>truth-sync 完成后人工清除标记</li>
+<li><strong>验收标准:</strong> modify 后 state 标记 needs_truth_sync；status 命令显示警告；不自动 re-dispatch。</li>
+</ul>
+<h4 id="b4-requires_independent-fail-closed">B4. requires_independent 改为 fail-closed</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §2.6</li>
+<li><strong>当前状态:</strong> <code>requires_independent</code> 在任何异常时返回 <code>False</code> (fail-open)，跳过 G3。</li>
+<li><strong>影响:</strong> 对于 <code>requires_independent_agent: true</code> 的 skill，G3 独立性检查可能被意外跳过。</li>
+<li><strong>方案:</strong> 不使用硬编码的 skill 列表。<code>requires_independent()</code> 已读取 contract 的 <code>requires_independent_agent</code> 标志。修复方式：try 块中调用 requires_independent_agent(skill)；如果抛异常，except 块直接返回 True (fail-closed) — 不重新读取 contract。无法确定独立性时假设需要独立，符合 §14 设计决策 #6。</li>
+<li><strong>验收标准:</strong> 任何 contract 声明 <code>requires_independent_agent: true</code> 的 skill 在异常时返回 <code>True</code> (fail-closed)。</li>
+</ul>
+<h4 id="b5-reject-step_index">B5. reject 后 step_index 重置</h4>
+<ul>
+<li><strong>Spec 引用:</strong> §9.1</li>
+<li><strong>当前状态:</strong> Rejected checkpoint 清空 staging 但 advance 到下一步，而非重新执行被 reject 的 step。</li>
+<li><strong>影响:</strong> Reject 语义不对——应该重做该步骤，而非跳过。</li>
+<li><strong>方案:</strong> Reject 时根据当前 phase 重置对应的状态游标:</li>
+<li>Genesis phase: 重置 <code>genesis.current_step = 0</code> 并清空 <code>genesis.skills_done</code> (全阶段重启)</li>
+<li>Chapter-loop phase: 重置 <code>chapter_loop.step_index</code> 到 checkpoint 对应的 step index (精确回退)</li>
+<li>Closure phase: 重置 <code>closure_step = 0</code> 并清空 <code>closure_skills_done</code> (全阶段重启)</li>
+<li><strong>设计说明:</strong> Genesis/closure reject 是全阶段重启 (设计决定 — reject 语义是"从头重做")；chapter-loop reject 使用 <code>_checkpoint_to_step_index(cp)</code> 精确回退到 checkpoint 对应步骤。</li>
+<li><strong>验收标准:</strong> Reject 时根据 phase 正确重置状态游标，使 resume 时重新执行。</li>
+</ul>
+<h3 id="23-category-c">2.3 Category C: 测试覆盖补全</h3>
+<h4 id="c1-route-b-cli-main">C1. Route B 三个 CLI main() 冒烟测试</h4>
+<ul>
+<li><strong>当前状态:</strong> <code>pipeline-truth-index</code>、<code>pipeline-truth-embed</code>、<code>pipeline-context-assemble</code> 的 main() 函数零测试覆盖。</li>
+<li><strong>验收标准:</strong> 每个 CLI main() 至少一个冒烟测试：invoke <code>main([...])</code>, assert exit code 0 和 JSON 输出。</li>
+</ul>
+<h4 id="c2-dispatch-chain">C2. dispatch chain 端到端集成测试</h4>
+<ul>
+<li><strong>当前状态:</strong> 所有 dispatch 测试 mock 了 <code>subprocess.run</code>，没有验证 <code>dispatch_skill</code> 到 dispatcher CLI 到 <code>dispatch_with_write_audit</code> 的完整路径。</li>
+<li><strong>验收标准:</strong> 一个集成测试运行 <code>dispatch_skill</code> 对一个最小 fixture skill，验证 returncode == 0。</li>
+</ul>
+<h4 id="c3-route-b">C3. Route B 向量维度修复</h4>
+<ul>
+<li><strong>当前状态:</strong> <code>test_route_b_search_works_with_stored_embeddings</code> 存储了 3-float 向量，但 <code>bge-large-zh</code> 产出 1024 维。<code>search_cosine</code> 静默跳过维度不匹配的 chunk，测试不实际验证 cosine 排序。</li>
+<li><strong>验收标准:</strong> 测试使用与模型一致维度的向量，或重命名测试以准确描述其验证内容。</li>
+</ul>
+<h4 id="c4-closure-post-approval">C4. Closure post-approval 完整路径测试</h4>
+<ul>
+<li><strong>当前状态:</strong> Closure 测试覆盖了 pre-checkpoint 暂停，但 post-approval (step 10 snapshot 到 completed) 路径仅在单元测试中覆盖。</li>
+<li><strong>验收标准:</strong> 一个集成测试验证 book-closure approve 后 resume 到 snapshot-manage dispatch 再到 closure:completed 完整路径。</li>
+</ul>
+<h4 id="c5-cmd_next-vs-cmd_resume-checkpoint">C5. cmd_next vs cmd_resume checkpoint 后行为测试</h4>
+<ul>
+<li><strong>当前状态:</strong> 用户在 checkpoint approve 后调用 <code>cmd_next</code> 而非 <code>cmd_resume</code> 的行为未测试。</li>
+<li><strong>验收标准:</strong> 测试验证 <code>cmd_next</code> 在 checkpoint pending 时返回 <code>BLOCKED</code>，在 checkpoint cleared 后正确推进。</li>
+</ul>
+<h4 id="c6-blocking-revision">C6. 审计 BLOCKING revision 闭环端到端测试</h4>
+<ul>
+<li><strong>当前状态:</strong> 无测试覆盖 BLOCKING -&gt; revision -&gt; re-audit -&gt; pass/fail/escalation 的完整循环。</li>
+<li><strong>验收标准:</strong> 集成测试验证:</li>
+<li>审计发现 BLOCKING -&gt; step_index 回退到 revision -&gt; chapter-revision 重新 dispatch</li>
+<li>Re-audit 后 BLOCKING 消失 -&gt; 正常推进</li>
+<li>Re-audit 后仍 BLOCKING 且未超限 -&gt; 再次 revision</li>
+<li>超过 max_audit_retries -&gt; escalation checkpoint</li>
+<li>Escalation checkpoint 展示 escalation-report</li>
+</ul>
+<h3 id="24-category-d">2.4 Category D: 代码清理</h3>
+<h4 id="d1-_gate_passed">D1. _gate_passed 提取为共享工具</h4>
+<ul>
+<li><strong>当前状态:</strong> <code>_gate_passed</code> 在 <strong>5 个文件</strong>中各有一份副本: <code>chapter_loop.py</code>、<code>audit_layer.py</code>、<code>closure.py</code>、<code>genesis.py</code>、<code>triggers.py</code>。注意 <code>triggers.py</code> 的变体接受 <code>PASS</code> 和 <code>SKIP</code> (使用 <code>status in (GateStatus.PASS, GateStatus.SKIP)</code>)，其他四个仅接受 <code>PASS</code>。提取时必须处理这个语义差异。</li>
+<li><strong>方案:</strong> 提取为 <code>dispatch_helper.py</code> 中的 <code>gate_passed(result, allow_skip=False)</code>，默认 <code>allow_skip=False</code>。<code>triggers.py</code> 调用时传 <code>allow_skip=True</code>。</li>
+<li><strong>修改文件:</strong> <code>dispatch_helper.py</code> (新增), <code>chapter_loop.py</code>, <code>audit_layer.py</code>, <code>closure.py</code>, <code>genesis.py</code>, <code>triggers.py</code> (全部替换为 import)</li>
+<li><strong>验收标准:</strong> 5 个文件统一使用共享实现；triggers.py 的 SKIP 语义通过参数保留。</li>
+</ul>
+<h4 id="d2-max_dispatch_retries-max_audit_retries">D2. MAX_DISPATCH_RETRIES / MAX_AUDIT_RETRIES 常量连接</h4>
+<ul>
+<li><strong>当前状态:</strong> 这两个常量存在于 <code>error_handler.py</code> 但不被逻辑读取 (逻辑读 <code>state.config</code> 的值)。常量仅被测试断言。</li>
+<li><strong>方案:</strong> 将常量移到 <code>state.py</code> 的 <code>PipelineConfig</code> 模块级别作为 <code>DEFAULT_MAX_DISPATCH_RETRIES = 3</code> 和 <code>DEFAULT_MAX_AUDIT_RETRIES = 3</code>。<code>PipelineConfig</code> 的 <code>max_revision_retries</code> 和 <code>max_audit_retries</code> 字段使用这些常量作为默认值。<code>error_handler.py</code> 从 <code>state.py</code> 导入。消除循环依赖，保持 spec §11 的值文档化。</li>
+<li><strong>验收标准:</strong> 常量从 PipelineConfig 默认值派生；error_handler 导入而非重复定义。</li>
+</ul>
+<h4 id="d3-arc-payoff-spinoff">D3. arc-payoff / spinoff 死条目注释</h4>
+<ul>
+<li><strong>当前状态:</strong> <code>BOUNDARY_TRIGGERS</code> 中这两个条目的 lambda 永远返回 <code>False</code>，读者可能期望它们工作。</li>
+<li><strong>验收标准:</strong> 添加行内注释说明 "由 chapter_loop 在卷边界/衍生标记时激活"。</li>
+</ul>
+<h4 id="d4-dispatch-prompt">D4. dispatch prompt 上下文增强</h4>
+<ul>
+<li><strong>当前状态:</strong> Genesis/chapter_loop 的 dispatch prompt 仅包含 <code>f"Execute {step.skill}. Project dir: {project_dir}"</code>。</li>
+<li><strong>验收标准:</strong> 添加注释说明上下文注入是 dispatcher 的职责；或在 dispatch_helper 中增强 prompt 构建逻辑 (传递 mode、chapter number 等)。</li>
+</ul>
+<h2 id="3">3. 修复方案</h2>
+<h3 id="31">3.1 架构原则</h3>
+<p>所有修复遵循现有 Pipeline 的设计模式：
+- Python 3.11+, <code>from __future__ import annotations</code>
+- <code>pathlib.Path</code> for I/O, <code>json</code> for structured output
+- <code>safe_write</code> for all state writes
+- structlog for logging (no <code>print()</code>)
+- <code>StrEnum</code> for typed enums
+- Tests in <code>tests/unit/pipeline/</code>
+- Conventional Commits</p>
+<h3 id="32">3.2 修复优先级与依赖</h3>
+<div class="highlight"><pre><span></span><code>Phase 1 (正确性阻塞): A3 -&gt; A8 -&gt; A5 -&gt; A4 -&gt; A1 -&gt; A2 -&gt; A6 -&gt; A7
+Phase 2 (健壮性):     B1, B2, B3, B4, B5 (相互独立)
+Phase 3 (测试补全):   C1, C2, C3, C4, C5 (相互独立)
+Phase 4 (代码清理):   D1, D2, D3, D4 (相互独立)
+</code></pre></div>
+<p>Phase 1 内的依赖链:
+- A3 (genre-config 对齐) 必须先于 A8 (审计接线)，因为 A8 需要 genre 圈能正确激活
+- A8 (审计接线) 必须先于 A5 (error_handler 接线)，因为 A5 的 <code>handle_audit_blocking</code> 依赖审计结果
+- A5 必须先于 A4 (escalation 接线)，因为 escalation 是 audit blocking 重试耗尽后的路径
+- A1 (total_chapters) 和 A2 (resonance parser) 相互独立，可与 A8/A5/A4 并行
+- A6 (modify) 和 A7 (state-settle G4) 相互独立</p>
+<h3 id="33">3.3 各修复的技术方案</h3>
+<h4 id="a3-genre-config_1">A3: genre-config 审计维度对齐</h4>
+<p><strong>方案:</strong> 重写 <code>GENRE_ACTIVATION_MATRIX</code> 以匹配真实 genre-config.json 的字段结构。</p>
+<p>真实 genre-config.json 使用:
+- 顶层键: <code>auditDimensions</code> (camelCase)
+- 维度键: <code>antiAi</code>, <code>character</code>, <code>motivation</code>, <code>pacing</code>, <code>continuity</code>, <code>foreshadowing</code>, <code>sensitivity</code>, <code>worldRules</code>, <code>dialogue</code>, <code>texture</code></p>
+<p>映射关系 (fixture键 到 review skill):
+- <code>antiAi</code> -&gt; 已在 core circle (review-anti-ai)，<strong>不在 genre circle</strong>
+- <code>character</code> -&gt; 已在 core circle，<strong>不在 genre circle</strong>
+- <code>motivation</code> -&gt; <code>shenbi-review-motivation</code>
+- <code>pacing</code> -&gt; 已在 core circle，<strong>不在 genre circle</strong>
+- <code>continuity</code> -&gt; 已在 core circle，<strong>不在 genre circle</strong>
+- <code>foreshadowing</code> -&gt; 已在 core circle，<strong>不在 genre circle</strong>
+- <code>sensitivity</code> -&gt; <code>shenbi-review-sensitivity</code>
+- <code>worldRules</code> -&gt; <code>shenbi-review-world-rules</code>
+- <code>dialogue</code> -&gt; <code>shenbi-review-dialogue</code>
+- <code>texture</code> -&gt; <code>shenbi-review-texture</code></p>
+<p>额外需要新增的 genre-config 维度 (spec §6.2 提到但 fixture 尚未产出):
+- <code>era</code> -&gt; <code>shenbi-review-era</code> (条件: 题材含历史/年代标签)
+- <code>fanfic</code> -&gt; <code>shenbi-review-fanfic</code> (条件: novel.json is_fanfic = true)
+- <code>readerPull</code> -&gt; <code>shenbi-review-reader-pull</code>
+- <code>highpoint</code> -&gt; <code>shenbi-review-highpoint</code></p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/audit_layer.py</code>, <code>tests/unit/pipeline/test_audit_layer.py</code></p>
+<h4 id="a8-blocking-genre_1">A8: 审计 BLOCKING 即时停止 + genre 圈接线</h4>
+<p><strong>方案:</strong>
+1. 在 <code>chapter_loop.py</code> 中替换 <code>TODO(W3T4)</code> 为实际调用 <code>run_audit_layer</code>
+2. 审计完成后检查 <code>audit_result.blocking_found</code>
+3. 如果 BLOCKING: 进入 <strong>inline revision 闭环</strong> (不使用 step_index 回退):</p>
+<p><strong>Inline revision loop (在 <code>run_chapter_step</code> 内部):</strong>
+   <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span> <span class="o">&lt;</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="p">:</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;audit_blocking_revision&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                 <span class="n">retry</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">audit_retry_count</span><span class="p">)</span>
+        <span class="c1"># Dispatch chapter-revision</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="c1"># Re-run audit layer inline</span>
+        <span class="n">audit_result</span> <span class="o">=</span> <span class="n">run_audit_layer</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">gc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+            <span class="k">break</span>  <span class="c1"># Fixed!</span>
+    <span class="k">if</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">blocking_found</span><span class="p">:</span>
+        <span class="c1"># Max retries exhausted -&gt; escalation (A4)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_escalation</span>
+        <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="n">set_checkpoint</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">CheckpointType</span><span class="o">.</span><span class="n">ESCALATION</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                       <span class="n">artifact</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;audits/escalation-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-report.md&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># checkpoint raised</span>
+</code></pre></div>
+   This approach calls <code>run_audit_layer</code> directly after revision, avoiding the
+   linear step ordering paradox (audit steps 10-16 are behind revision step 18).</p>
+<ol>
+<li>如果无 BLOCKING: 正常推进到 review-resonance (step 9)</li>
+</ol>
+<p><strong>为什么不用 step_index 回退:</strong> CHAPTER_STEPS 中审计圈 (steps 10-16, indices 9-15)
+在 revision step (step 18, index 17) 之前。step_index 回退到 revision 后，
+无法重新到达审计步骤——审计在 revision 前面。inline loop 直接在 step 处理函数内
+调用 <code>run_audit_layer</code>，绕过线性游标问题。</p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/state.py</code> (audit_retry_count), <code>tests/unit/pipeline/test_chapter_loop.py</code></p>
+<h4 id="a5-error_handler_1">A5: error_handler 三函数接线</h4>
+<p><strong>方案:</strong>
+1. <code>handle_audit_blocking</code>: 在 chapter_loop 的审计 BLOCKING 路径调用 (依赖 A8)
+2. <code>handle_scoring_failure</code>: 在 review-resonance dispatch 后，从 <code>dispatch_result.returncode</code> 获取 exit code，调用 <code>handle_scoring_failure(state, dispatch_result.returncode)</code>:
+   - exit code 2 -&gt; re-dispatch (G3 重验)
+   - exit code 3 -&gt; 先跑 G4 再 re-dispatch
+   - 其他 -&gt; 标准失败处理 (<code>_handle_failure</code>)
+3. <code>handle_state_settle_failure</code>: 在 state-settling dispatch 失败时调用 -&gt; 标记 <code>settling_failed</code>, 设 checkpoint 暂停</p>
+<p><strong>注意 (审查修复):</strong> <code>handle_audit_blocking</code> 的实际签名是 <code>(state, chapter, revision_count)</code> (三个参数)。A8 的 inline loop 不直接调用它，而是内联了等价的重试逻辑。如果需要调用它，使用 <code>handle_audit_blocking(state, chapter, cs.audit_retry_count)</code>。</p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/error_handler.py</code>, <code>tests/unit/pipeline/test_chapter_loop.py</code>, <code>tests/unit/pipeline/test_error_handler.py</code></p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/error_handler.py</code></p>
+<h4 id="a4-escalation-review-dispatch_1">A4: escalation-review dispatch 接线</h4>
+<p><strong>方案:</strong> 在 <code>_handle_failure</code> (genesis + chapter_loop + closure) 中，当 <code>handle_dispatch_failure</code> 返回 <code>False</code> 时:
+1. 先调用 <code>dispatch_escalation(project_dir, chapter)</code> 生成 <code>audits/escalation-N-report.md</code>
+   - <strong>注意签名:</strong> <code>dispatch_escalation(project_dir: Path | str, chapter: int, context: str = "")</code> — 不接受 state 参数
+2. 然后 <code>set_checkpoint(state, CheckpointType.ESCALATION, ...)</code> 展示该报告</p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/genesis.py</code>, <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/closure.py</code>, <code>tests/unit/pipeline/test_genesis.py</code>, <code>tests/unit/pipeline/test_chapter_loop.py</code>, <code>tests/unit/pipeline/test_closure.py</code></p>
+<h4 id="a1-total_chapters_1">A1: total_chapters 动态重算</h4>
+<p><strong>方案:</strong> 在 <code>triggers.py</code> 的 <code>run_triggered_skills</code> 中，卷边界扩展步骤完成后:
+1. 读取 <code>outline/volume_map.md</code>
+2. 计算所有卷的章节数之和
+3. 如果与当前 <code>novel.json.total_chapters</code> 不同，更新 <code>novel.json</code>
+4. 日志记录更新</p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/triggers.py</code>, <code>tests/unit/pipeline/test_triggers.py</code></p>
+<h4 id="a2-resonance_1">A2: resonance 评分解析器</h4>
+<p><strong>方案:</strong> 在 <code>chapter_loop.py</code> 的 review-resonance step 完成后:
+1. 读取 <code>audits/chapter-N-resonance.md</code>
+2. 用正则提取分数 (匹配 <code>resonance_score: NN</code> 或 <code>共振分数: NN</code> 或 JSON frontmatter)
+3. 写入 <code>ChapterState.resonance_score</code>
+4. <code>check_resonance</code> 使用真实分数</p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code>, <code>src/shenbi/pipeline/revision_router.py</code></p>
+<h4 id="a6-modify">A6: modify 决策行为修正</h4>
+<p><strong>方案:</strong> <code>cmd_review</code> 的 <code>MODIFY</code> 分支遵循 spec §2.7 的完整 modify 语义:</p>
+<ol>
+<li><strong>不</strong> commit staging (与 approve 不同)</li>
+<li><strong>清除当前 staging 内容</strong> (skill 将重新生成)
+2b. 设置 <code>state.needs_truth_sync = True</code> 和 <code>state.needs_truth_sync_files</code> (B3 集成)</li>
+<li>在 <code>PipelineState</code> 中新增 <code>modify_feedback: str | None</code> 字段和 <code>modify_pending_step: int | None</code> 字段</li>
+<li>将 feedback 文件内容写入 <code>state.modify_feedback</code></li>
+<li>设置 <code>state.modify_pending_step</code> 为 checkpoint 对应的 step number</li>
+<li>重置 <code>step_index</code> 到该 step (使 resume 时从该 step 重新执行)</li>
+<li><code>cmd_resume</code> / <code>_orchestrate_to_checkpoint</code> 检测到 <code>modify_pending_step is not None</code> 时:</li>
+<li>将 <code>state.modify_feedback</code> 注入到该 step 的 dispatch prompt 中 (追加到 prompt 末尾)</li>
+<li>dispatch 完成后清除 <code>modify_feedback</code> 和 <code>modify_pending_step</code></li>
+<li>skill 重新执行，将新产出写入 staging，重新暂停为 checkpoint</li>
+</ol>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/cli.py</code>, <code>src/shenbi/pipeline/state.py</code>, <code>src/shenbi/pipeline/chapter_loop.py</code> (dispatch prompt 构建), <code>src/shenbi/pipeline/genesis.py</code> (同上)</p>
+<h4 id="a7-state-settling-g4_1">A7: state-settling G4 目录验证</h4>
+<p><strong>方案:</strong> 修改 <code>chapter_loop.py</code> 中 state-settling step 的 G4 调用:
+1. 不传 <code>output_path</code> (空)
+2. 改为在 dispatch 后 glob <code>staging/truth/*.md</code> 获取文件列表
+3. 将实际文件列表传给 <code>run_gate_g4</code></p>
+<p><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code></p>
+<h4 id="b1-b5-c1-c5-d1-d4">B1-B5, C1-C5, D1-D4</h4>
+<p>各方案已在 §2.2-§2.4 中描述，实现时遵循标准 TDD 流程。</p>
+<h2 id="4">4. 验收标准</h2>
+<p>修复完成后必须满足:</p>
+<ol>
+<li><strong>§15 全部 20 条验收标准 Pass</strong> (当前 3 个 Partial 全部消除)</li>
+<li><strong>端到端集成测试</strong>覆盖以下完整路径:</li>
+<li>init -&gt; genesis (17 steps) -&gt; checkpoint -&gt; approve -&gt; chapter-loop (ch1-ch3) -&gt; closure -&gt; book-closure checkpoint</li>
+<li>BLOCKING 审计 -&gt; revision 闭环 -&gt; re-audit -&gt; pass</li>
+<li>Volume boundary -&gt; expansion -&gt; total_chapters update -&gt; checkpoint -&gt; snapshot</li>
+<li>Resonance below floor -&gt; revision routing -&gt; escalation</li>
+<li><strong>批判性审核通过</strong>: 全分支审查关注流程正确性和一致性，无 Critical/Important 发现</li>
+<li><strong>所有 pre-commit 钩子绿色</strong></li>
+<li><strong>Pipeline 测试数 &gt;= 600</strong> (当前 510)</li>
+</ol>
+<h2 id="5">5. 批判性审核要求</h2>
+<p>修复完成后，执行一次高精度批判性全分支审核，重点关注:</p>
+<ol>
+<li><strong>状态一致性</strong>: 所有可能的状态转换路径是否都保持 pipeline-state.json 的完整性？是否存在中间状态丢失或状态不一致的场景？</li>
+<li><strong>流程正确性</strong>: genesis -&gt; chapter-loop -&gt; closure 的完整流程是否能正确执行？每个 phase 的 entry/exit 条件是否完备？</li>
+<li><strong>错误恢复完整性</strong>: 所有失败路径 (dispatch fail, gate fail, audit BLOCKING, scoring fail, state-settle fail) 是否都有明确的恢复策略 (retry/escalate/pause)？</li>
+<li><strong>并发安全</strong>: WriteLock/ReadLock 的使用是否覆盖了所有状态读写路径？</li>
+<li><strong>跨模块接口一致性</strong>: 模块间的函数签名、返回类型、数据格式是否一致？是否有隐式假设？</li>
+</ol>
+<p>审核由独立 subagent 执行，使用最 capable 的模型，生成 review package 覆盖全分支 diff。</p>
+<h2 id="6">6. 非目标</h2>
+<ul>
+<li>不实现 web UI</li>
+<li>不修改 69 个 skill 的核心逻辑 (仅修改 pipeline 编排层)</li>
+<li>不优化性能 (Route B O(n) cosine search 等)</li>
+<li>不实现 rollback 的完整 truth-sync (仅标记 UNVERIFIED)</li>
+<li>不实现 genesis modify 的依赖重算 (§3.1 "依赖重算 基于 contract writes→reads 图") — <code>pipeline.dependency_graph</code> 模块 (§13) 从未实现，独立子系统，不在本 spec 范围</li>
+</ul>
+<h2 id="7">7. 补充：逐任务审查遗漏项</h2>
+<p>以下 22 个发现来自 Wave 1-5 的 per-task 审查，在初版 spec 中遗漏，现补入。</p>
+<h3 id="71-category-e">7.1 Category E: 补充正确性缺陷</h3>
+<h4 id="e1-_route_b-sqlite">E1. _route_b 错误路径 SQLite 连接泄漏</h4>
+<ul>
+<li><strong>来源:</strong> W2T3 最终审查</li>
+<li><strong>当前状态:</strong> <code>context_assemble.py:153-155</code> 中 <code>store.close()</code> 在 try 块内，但 broad <code>except Exception</code> (line 169) 不关闭 store。如果 <code>search_cosine</code> 在 <code>EmbeddingStore(db_path)</code> 之后、<code>store.close()</code> 之前抛异常，SQLite 连接泄漏。</li>
+<li><strong>根因:</strong> 缺少 try/finally 或 with-context 包裹 store 生命周期。</li>
+<li><strong>影响:</strong> 每次查询时的异常路径泄漏一个 SQLite 连接，长期运行后耗尽连接池。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/context_assemble.py</code></li>
+<li><strong>验收标准:</strong> <code>store.close()</code> 在任何异常路径中都被调用 (try/finally 或 context manager)。</li>
+</ul>
+<h4 id="e2-clear_checkpoint">E2. clear_checkpoint 不幂等</h4>
+<ul>
+<li><strong>来源:</strong> W1T2 审查</li>
+<li><strong>当前状态:</strong> <code>machine.py:69</code> 的 <code>clear_checkpoint</code> 在 checkpoint 已为 NONE 时调用，仍追加 <code>{"type": "none"}</code> 记录到 history。</li>
+<li><strong>根因:</strong> 缺少 guard <code>if cp.type == CheckpointType.NONE: return</code>。</li>
+<li><strong>影响:</strong> checkpoint_history 被伪记录污染，下游消费者 (如 audit) 可能误判。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/machine.py</code></li>
+<li><strong>验收标准:</strong> checkpoint 已为 NONE 时 clear_checkpoint 是 no-op，不追加 history。</li>
+</ul>
+<h4 id="e3-feedback-filenotfounderror">E3. --feedback 文件不存在时未捕获 FileNotFoundError</h4>
+<ul>
+<li><strong>来源:</strong> W1T6 审查 (finding #5)</li>
+<li><strong>当前状态:</strong> <code>cli.py:348</code> 的 <code>Path(args.feedback).read_text(encoding="utf-8")</code> 不在 try/except 内。错误的 feedback 文件路径产生 traceback 而非 <code>{"status": "error"}</code> envelope。</li>
+<li><strong>根因:</strong> 缺少 try/except 包裹。</li>
+<li><strong>影响:</strong> 用户看到误导性的 "project not found" 错误消息 (被外层 <code>except FileNotFoundError</code> 捕获)，而非明确的 "feedback file not found" 消息。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/cli.py</code></li>
+<li><strong>验收标准:</strong> feedback 文件不存在时返回 <code>{"status": "error", "message": "feedback file not found: ..."}</code> 和 exit code 1。</li>
+</ul>
+<h4 id="e4-cmd_rollback-stub">E4. cmd_rollback 是非功能 stub</h4>
+<ul>
+<li><strong>来源:</strong> W1T6 (设计阶段即知)</li>
+<li><strong>当前状态:</strong> <code>cli.py:519</code> 返回 <code>"not_implemented"</code> + exit code 0。无项目验证、无快照恢复、无 truth-sync。</li>
+<li><strong>根因:</strong> 整个回滚功能未实现。snapshot 基础设施 (W4T3) 已就绪，但 rollback 命令未接线。</li>
+<li><strong>影响:</strong> spec §2.2 定义了 <code>pipeline rollback &lt;project-dir&gt; --chapter &lt;N&gt;</code> 作为破坏性操作命令，用户无法回滚。</li>
+<li><strong>决策:</strong> 标记为<strong>非目标</strong> (本 spec 不实现完整回滚)，但修复以下三点：</li>
+<li>exit code 改为非零 (1 而非 0)</li>
+<li>添加项目验证 (load_state，不存在则报错)</li>
+<li>更新 stub 消息 (移除过期的 "Wave 3/4" 引用)</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/cli.py</code></li>
+</ul>
+<h4 id="e5-extract_entities_from_plan">E5. extract_entities_from_plan 返回顺序不确定</h4>
+<ul>
+<li><strong>来源:</strong> W2T1 审查 (finding #3)</li>
+<li><strong>当前状态:</strong> <code>truth_index.py</code> 的 <code>extract_entities_from_plan</code> 中 characters/rules 从 set 转为 list，跨 Python 运行顺序不确定。</li>
+<li><strong>根因:</strong> 缺少 <code>sorted()</code> 排序。</li>
+<li><strong>影响:</strong> 下游消费者和测试断言可能不稳定。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/truth_index.py</code></li>
+<li><strong>验收标准:</strong> 返回的 characters/rules 列表是 <code>sorted()</code> 的。</li>
+</ul>
+<h4 id="e6-blocking">E6. 审计 BLOCKING 重试耗尽后缺少版本回退</h4>
+<ul>
+<li><strong>来源:</strong> §6.3 spec</li>
+<li><strong>当前状态:</strong> spec §6.3 说 "3 次失败 → 回退最佳版本 → escalation checkpoint"。回退未实现。</li>
+<li><strong>根因:</strong> 缺少 "最佳版本" 的选择逻辑和快照恢复调用。</li>
+<li><strong>影响:</strong> escalation 时没有回退到之前通过审计的版本，章节停留在最后一次失败的状态。</li>
+<li><strong>决策:</strong> 标记为<strong>非目标</strong> (完整 rollback 是 E4 的范畴)。在 A5 的 escalation 路径中添加日志标记 "version_rollback_not_implemented"。</li>
+</ul>
+<h3 id="72-category-f">7.2 Category F: 补充测试缺口</h3>
+<h4 id="f1-chapterstate">F1. ChapterState 序列化往返未测试</h4>
+<ul>
+<li><strong>来源:</strong> W1T1 审查</li>
+<li><strong>当前状态:</strong> <code>chapter_states</code> 是 <code>to_dict</code>/<code>from_dict</code> 中最复杂的嵌套 dict 分支，但测试从不填充它。</li>
+<li><strong>验收标准:</strong> 添加测试：构造包含多个 chapter_states 的 PipelineState，往返后验证完整性。</li>
+</ul>
+<h4 id="f2-checkpoint-optionscontext">F2. Checkpoint options/context 往返未断言</h4>
+<ul>
+<li><strong>来源:</strong> W1T1 审查</li>
+<li><strong>当前状态:</strong> 测试构造了 <code>CheckpointData(context="Review memo", options=["approve","modify","reject"])</code> 但仅断言 type/chapter/artifact。</li>
+<li><strong>验收标准:</strong> 往返后断言 <code>context</code> 和 <code>options</code> 字段。</li>
+</ul>
+<h4 id="f3-pipelineconfig">F3. PipelineConfig 完整往返未测试</h4>
+<ul>
+<li><strong>来源:</strong> W1T1 审查</li>
+<li><strong>当前状态:</strong> 12 个 config 字段中仅 2 个 (max_revision_retries, resonance_global_floor) 被往返测试。</li>
+<li><strong>验收标准:</strong> 往返后断言全部 12 个 config 字段。</li>
+</ul>
+<h4 id="f4-test_save_is_atomic-docstring">F4. test_save_is_atomic docstring 承诺过度</h4>
+<ul>
+<li><strong>来源:</strong> W1T2 审查</li>
+<li><strong>当前状态:</strong> docstring 说 "no partial writes on crash" 但仅检查 <code>json.loads(content)</code> 成功。</li>
+<li><strong>验收标准:</strong> 重命名为 <code>test_save_writes_valid_json</code> 或添加真正的原子性断言 (如检查无 .tmp 文件残留)。</li>
+</ul>
+<h4 id="f5-embed_and_store">F5. embed_and_store 成功路径零覆盖</h4>
+<ul>
+<li><strong>来源:</strong> W2T2 审查</li>
+<li><strong>当前状态:</strong> <code>embed_and_store</code> 中调用 <code>model.encode()</code> 的代码路径从未被测试 (因为 model 是可选依赖)。</li>
+<li><strong>验收标准:</strong> 使用 mock model 注入测试 encode → store → search 的完整路径。</li>
+</ul>
+<h4 id="f6-g4">F6. G4 调用参数未验证</h4>
+<ul>
+<li><strong>来源:</strong> W3T2 审查 (finding #5)</li>
+<li><strong>当前状态:</strong> <code>test_runs_step_g4_and_advances</code> 使用 <code>mock_g4.assert_called_once()</code> 但不检查参数。</li>
+<li><strong>验收标准:</strong> 使用 <code>assert_called_with(skill, [output_path], project_dir)</code> 验证 G4 接收正确的文件路径。</li>
+</ul>
+<h4 id="f7-genesis-phase-transition-save_state">F7. genesis phase transition 后 save_state 缺失</h4>
+<ul>
+<li><strong>来源:</strong> 最终审查 (finding M4)</li>
+<li><strong>当前状态:</strong> <code>cli.py</code> 中 <code>transition_genesis_to_chapter_loop(state)</code> 后不调用 <code>save_state</code> 就进入 <code>_orchestrate_to_checkpoint</code>。如果 orchestration 抛异常，phase transition 丢失。</li>
+<li><strong>验收标准:</strong> phase transition 后立即 <code>save_state</code>，与 book_closure 分支保持一致。</li>
+</ul>
+<h3 id="73-category-g">7.3 Category G: 补充代码质量</h3>
+<h4 id="g1-gate-dict-status">G1. gate 返回 dict status 类型不一致</h4>
+<ul>
+<li><strong>来源:</strong> W3T1 审查 (finding #3)</li>
+<li><strong>当前状态:</strong> 成功路径的 status 来自 <code>json.loads</code> (plain <code>str</code>)；失败路径使用 <code>GateStatus.FAIL</code> (StrEnum)。<code>== "FAIL"</code> 因 StrEnum 而工作，但类型不一致。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code></li>
+<li><strong>验收标准:</strong> 失败路径使用 <code>GateStatus.FAIL.value</code> 统一为 plain <code>str</code>。</li>
+</ul>
+<h4 id="g2-_check_conditional_resolve-g4">G2. _check_conditional_resolve 跳过 G4</h4>
+<ul>
+<li><strong>来源:</strong> W3T3 审查 (finding #1)</li>
+<li><strong>当前状态:</strong> <code>chapter_loop.py</code> 的 <code>_check_conditional_resolve</code> dispatch foreshadowing-resolve 但不运行 G4 验证且不检查 <code>result.success</code>。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code></li>
+<li><strong>验收标准:</strong> conditional resolve 后运行 G4，检查 result.success，失败时 log warning。</li>
+</ul>
+<h4 id="g3-_resolve_g4_path-staging_path-api">G3. _resolve_g4_path 不使用 staging_path() API</h4>
+<ul>
+<li><strong>来源:</strong> W3T3 审查 (finding #2)</li>
+<li><strong>当前状态:</strong> 手动拼接 <code>f"{STAGING_DIR}/{resolved}"</code> 而非调用 <code>checkpoint.staging_path()</code>。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code></li>
+<li><strong>验收标准:</strong> 使用 <code>staging_path()</code> 统一 staging 路径构造。</li>
+</ul>
+<h4 id="g4-truth_embedmain-rebuild">G4. truth_embed.main() rebuild 是空操作</h4>
+<ul>
+<li><strong>来源:</strong> W2T3 审查 (finding #3)</li>
+<li><strong>当前状态:</strong> <code>rebuild</code> 命令打开 DB、创建表、关闭。不做任何 embedding。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/truth_embed.py</code></li>
+<li><strong>验收标准:</strong> 要么实现 rebuild (遍历 truth files 重新 embed)，要么添加明确日志 "rebuild not yet implemented, use update with --text"。</li>
+</ul>
+<h4 id="g5-truth_indexmain-update">G5. truth_index.main() 丢弃 update 命令</h4>
+<ul>
+<li><strong>来源:</strong> W2T3 审查 (finding #4)</li>
+<li><strong>当前状态:</strong> brief 指定 <code>choices=["update", "rebuild", "query"]</code>，实现使用 <code>["rebuild", "query"]</code>。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/truth_index.py</code></li>
+<li><strong>验收标准:</strong> 添加 <code>update</code> 作为 <code>rebuild</code> 的别名 (两者行为相同)，或在 help 中说明 "use rebuild"。</li>
+</ul>
+<h4 id="g6-book_closure-trigger-save_state">G6. book_closure trigger 分支冗余 save_state</h4>
+<ul>
+<li><strong>来源:</strong> 最终审查 (finding M3)</li>
+<li><strong>当前状态:</strong> <code>cli.py:111</code> 在 trigger 分支中显式调用 <code>save_state</code>，但 caller 在循环返回后也会调用。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/cli.py</code></li>
+<li><strong>验收标准:</strong> 移除冗余 <code>save_state</code>，或添加注释说明为何需要提前保存。</li>
+</ul>
+<h4 id="g7-closurestatedata-produces">G7. ClosureStateData 在 "Produces" 中列出但未定义</h4>
+<ul>
+<li><strong>来源:</strong> W1T1 审查</li>
+<li><strong>当前状态:</strong> Wave 1 brief 的 "Produces" 接口列表包含 <code>ClosureStateData</code>，但实际代码使用 <code>closure: ClosureState</code> + <code>closure_step: int</code> 扁平化设计。</li>
+<li><strong>修改文件:</strong> 无代码修改 (文档对齐)，但需先 grep 确认无代码引用</li>
+<li><strong>验收标准:</strong> grep 确认 <code>ClosureStateData</code> 不被任何 <code>src/shenbi/</code> 或 <code>tests/</code> 代码引用；在 spec 或代码注释中说明 closure 状态扁平化到 <code>PipelineState</code>。</li>
+</ul>
+<h3 id="74-category-h">7.4 Category H: 补充文档修复</h3>
+<h4 id="h1-spec-coverage-matrix">H1. Spec coverage matrix 需要更新</h4>
+<ul>
+<li><strong>来源:</strong> W5T3 产出</li>
+<li><strong>当前状态:</strong> <code>docs/superpowers/plans/2026-07-02-pipeline-coverage-matrix.md</code> 记录 17/20 pass, 3 partial。修复后应为 20/20。</li>
+<li><strong>修改文件:</strong> <code>docs/superpowers/plans/2026-07-02-pipeline-coverage-matrix.md</code></li>
+<li><strong>验收标准:</strong> 所有修复完成后更新 matrix 为 20/20 pass，移除 G1-G4 gap 描述。</li>
+</ul>
+<h4 id="h2-cmd_rollback-stub">H2. cmd_rollback stub 消息过期</h4>
+<ul>
+<li><strong>来源:</strong> W1T6</li>
+<li><strong>当前状态:</strong> 消息说 "Rollback requires snapshot integration (Wave 3/4)"，但 Wave 3/4 已完成。</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/cli.py</code></li>
+<li><strong>验收标准:</strong> 更新为 "Rollback not yet implemented" (不引用已完成的 wave)。</li>
+</ul>
+<h2 id="8">8. 更新后的完整修复优先级</h2>
+<div class="highlight"><pre><span></span><code>Phase 1 (正确性阻塞): A3 → A8 → A5 → A4 → A1 → A2 → A6 → A7
+Phase 2 (补充正确性): E1, E2, E3, E5 (相互独立), E4 (stub 修复)
+Phase 3 (健壮性):     B1, B2, B3, B4, B5 (相互独立)
+Phase 4 (测试补全):   C1-C5, F1-F7 (相互独立)
+Phase 5 (代码清理):   D1-D4, G1-G7, H1-H2, I1-I3 (相互独立)
+</code></pre></div>
+<p>Phase 2 可与 Phase 1 的独立项 (A1, A2, A6, A7) 并行。</p>
+<h2 id="9">9. 更新后的验收标准</h2>
+<p>修复完成后必须满足:</p>
+<ol>
+<li><strong>§15 全部 20 条验收标准 Pass</strong></li>
+<li><strong>端到端集成测试</strong>覆盖完整路径 (init → genesis → chapter-loop → closure)</li>
+<li><strong>批判性审核通过</strong>: 无 Critical/Important 发现</li>
+<li><strong>所有 pre-commit 钩子绿色</strong></li>
+<li><strong>Pipeline 测试数 &gt;= 650</strong> (当前 510 + 预估 140+ 新测试，含 C6 审计闭环端到端)</li>
+<li><strong>Spec coverage matrix 更新为 20/20</strong></li>
+<li><strong>无 broad <code>except Exception</code></strong> 不带 try/finally 的资源泄漏 (E1)</li>
+<li><strong>所有 CLI 命令在错误输入时返回 error envelope</strong> 而非 traceback (E3)</li>
+</ol>
+<h3 id="75-category-i">7.5 Category I: 流程与文档根因修复</h3>
+<p>以下 3 个发现来自审查 M1-M3，根因不在代码缺陷本身，而在导致缺陷残留或被掩盖的流程/文档问题。</p>
+<h4 id="i1-progress-ledger-todo-m1">I1. Progress ledger TODO 残留误导 (M1 根因)</h4>
+<ul>
+<li><strong>来源:</strong> 审查 M1</li>
+<li><strong>表面问题:</strong> progress ledger (<code>.superpowers/sdd/novel-pipeline/progress.md</code>) 中仍有 <code>TODO W3T5: chapter-revision runs unconditionally</code>，但代码在 commit <code>e3c2ffb</code> 已修复 (<code>if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter)</code>)。</li>
+<li><strong>根因:</strong> SDD 流程缺少"修复后清理 ledger TODO 标记"的步骤。progress ledger 是手工维护的追踪文档，代码修复后没有同步更新。残留的 TODO 标记会误导后续工作——有人读 ledger 后认为问题未修复而重新工作，或在批判性审核中误报为未修复项。</li>
+<li><strong>影响:</strong> 文档与代码状态不一致；后续 SDD 执行或审核可能重复劳动或产生误报。</li>
+<li><strong>方案:</strong></li>
+<li>逐行审查 progress ledger 中的所有 <code>TODO</code>、<code>Follow-up</code>、<code>CONCERN</code> 标记</li>
+<li>对每个标记，grep 对应代码确认是否已修复</li>
+<li>已修复的标记：标注 "(resolved in commit XXXX)" 或删除</li>
+<li>未修复的标记：确认在本次 fixes spec 中有对应修复项</li>
+<li><strong>修改文件:</strong> <code>.superpowers/sdd/novel-pipeline/progress.md</code> (gitignored, 本地文件)</li>
+<li><strong>验收标准:</strong> progress ledger 中无残留的已修复 TODO 标记；每个未修复标记都能追溯到 fixes spec 中的对应项。</li>
+</ul>
+<h4 id="i2-closurestatedata-m3g7">I2. ClosureStateData 设计决策未文档化 (M3/G7 根因深化)</h4>
+<ul>
+<li><strong>来源:</strong> 审查 M3 + G7</li>
+<li><strong>表面问题:</strong> Wave 1 Task 1 的 brief 在 "Produces" 接口列表中列出了 <code>ClosureStateData</code>，但实际实现使用 <code>closure: ClosureState</code> + <code>closure_step: int</code> 扁平化到 <code>PipelineState</code>。grep 确认无代码引用 <code>ClosureStateData</code>。</li>
+<li><strong>根因:</strong> brief 是一次性文档，代码迭代后 brief 不更新。代码实现选择了更简单的扁平化设计（合理——closure 只有 state + step 两个字段，不值得单独 dataclass），但这个设计决策从未在代码注释、模块文档字符串或任何 spec 中记录。后续开发者如果按 brief 的 "Produces" 列表查找 <code>ClosureStateData</code>，会发现它不存在且无解释。</li>
+<li><strong>影响:</strong> 接口预期与实际实现不一致；新开发者困惑。</li>
+<li><strong>方案:</strong></li>
+<li>在 <code>src/shenbi/pipeline/state.py</code> 的 <code>PipelineState</code> 类文档字符串中添加说明：closure 状态为何扁平化到顶层字段而非独立 dataclass</li>
+<li>明确列出 closure 相关字段：<code>closure: ClosureState</code>、<code>closure_step: int</code>、<code>closure_retry_counts: dict</code></li>
+<li>不修改任何代码逻辑——纯文档对齐</li>
+<li><strong>修改文件:</strong> <code>src/shenbi/pipeline/state.py</code> (文档字符串)</li>
+<li><strong>验收标准:</strong> <code>PipelineState</code> 文档字符串明确说明 closure 字段结构和设计决策；无代码引用 <code>ClosureStateData</code>。</li>
+</ul>
+<h4 id="i3-d2-m2">I3. D2 常量循环依赖根因 (M2 根因深化)</h4>
+<ul>
+<li><strong>来源:</strong> 审查 M2 + D2</li>
+<li><strong>表面问题:</strong> <code>MAX_DISPATCH_RETRIES</code> 和 <code>MAX_AUDIT_RETRIES</code> 常量在 <code>error_handler.py</code> 中定义但不被逻辑读取（逻辑读 <code>state.config</code> 的值），仅被测试断言。</li>
+<li><strong>根因:</strong> 常量最初从 spec §11 的值直接定义在 <code>error_handler.py</code>。后来 <code>PipelineConfig</code> 添加了 <code>max_revision_retries</code> 和 <code>max_audit_retries</code> 字段（也默认为 3），但 <code>error_handler.py</code> 的常量没有同步删除或连接到 config。这导致同一值在两处定义（DRY 违规），且如果 config 默认值改变，常量会静默偏移。</li>
+<li><strong>注意:</strong> D2 方案已在本次 spec 更新中修订为"将常量移到 <code>state.py</code> 作为 <code>DEFAULT_MAX_DISPATCH_RETRIES</code>，<code>PipelineConfig</code> 引用它作为默认值"。此处补充根因记录：这是 SDD 分阶段实施导致的增量 DRY 违规——W3T1 创建常量，W3T8 添加 config 字段，两个阶段没有交叉清理。</li>
+<li><strong>影响:</strong> 如果 <code>PipelineConfig.max_revision_retries</code> 默认值从 3 改为 4，<code>error_handler.py</code> 的常量仍为 3，测试断言会失败或误导。</li>
+<li><strong>方案:</strong> 已在 D2 中定义（常量移到 <code>state.py</code>）。此处仅记录根因。</li>
+<li><strong>验收标准:</strong> 见 D2。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

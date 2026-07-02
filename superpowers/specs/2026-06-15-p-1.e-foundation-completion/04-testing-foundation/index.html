@@ -1,0 +1,1744 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 04: Testing Foundation - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 04: Testing Foundation - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 04: Testing Foundation - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-04-testing-foundation" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 04: Testing Foundation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evidence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f15-test-density-critically-low" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F15: Test density critically low
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f16-tests-use-subprocess-not-direct-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F16: Tests use subprocess, not direct imports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f17-hypothesis-failure-cases-not-committed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F17: .hypothesis/ failure cases not committed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f18-pytestini_optionstestpaths-implicitly-excludes-rounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F18: pytest.ini_options.testpaths implicitly excludes rounds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-1-tests-were-an-afterthought" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 1: Tests were an afterthought
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-2-subprocess-testing-was-easy-real-unit-testing-was-hard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 2: Subprocess testing was easy, real unit testing was hard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-3-no-property-based-testing-culture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 3: No property-based testing culture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-4-hidden-exclusions-instead-of-explicit-ones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 4: Hidden exclusions instead of explicit ones
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components (PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components (PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-28-unit-tests-for-scoringpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-28: unit tests for scoring.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-29-unit-tests-for-phase_runnerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-29: unit tests for phase_runner.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-30-unit-tests-for-update_progresspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-30: unit tests for update_progress.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-31-unit-tests-for-summarize_roundpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-31: unit tests for summarize_round.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-32-real-unit-tests-for-gates-replace-subprocess-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-32: real unit tests for gates (replace subprocess tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-33-hypothesis-failure-case-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-33: hypothesis failure case persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-34-explicit-pytest-collection-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-34: explicit pytest collection rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cluster-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cluster Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-04-testing-foundation">Cluster 04: Testing Foundation</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F15–F18</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>The Shenbi framework has <strong>43 test functions for 5,921 lines of framework
+code</strong> (<code>src/shenbi/</code> scope per <a href="../#metric-definitions-canonical">README Metric Definitions</a>)
+— a test density of <strong>0.0073 test functions per LOC</strong>. Industry baseline
+for Python frameworks is <strong>0.05–0.15</strong> (per <a href="../#threshold-justification">README Threshold Justification</a>).
+The current density is <strong>~7–20× below baseline</strong>.</p>
+<p>(An earlier draft cited 7,474 LOC; that figure included skill Python
+scripts not in <code>src/shenbi/</code>. The canonical <code>framework_loc</code> definition
+excludes skills. See <a href="../#metric-definitions-canonical">README Metric Definitions</a>.)</p>
+<h3 id="evidence">Evidence</h3>
+<h4 id="f15-test-density-critically-low">F15: Test density critically low</h4>
+<div class="highlight"><pre><span></span><code>validate-gate.py    : 4318 lines — 18 tests (all subprocess-based)
+scoring.py          : 384 lines  — 0 tests
+phase-runner.py     : 314 lines  — 0 tests
+update-progress.py  : 324 lines  — 0 tests
+summarize-round.py  : 182 lines  — 0 tests
+dispatch-subagent.sh: 203 lines  — 0 tests
+exceptions.py       : 153 lines  — 14 tests
+logging.py          : 43 lines   — 4 tests
+
+Total framework LOC: 5921 (excluding skills, fixtures, rounds)
+Total tests: 43
+Tests/LOC: 0.0073
+</code></pre></div>
+<p>5 of 8 framework modules have <strong>zero direct tests</strong>.</p>
+<h4 id="f16-tests-use-subprocess-not-direct-imports">F16: Tests use subprocess, not direct imports</h4>
+<p><code>tests/unit/test_gates_integrity.py</code> is the only file testing
+<code>validate-gate.py</code>. It uses:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_vg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYTHON&quot;</span><span class="p">,</span> <span class="s2">&quot;python3&quot;</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">VG</span><span class="p">)]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span>
+</code></pre></div>
+<p>Every test starts a Python subprocess, imports validate-gate.py from scratch,
+runs it, captures stdout, parses JSON. This is <strong>integration testing masquerading
+as unit testing</strong>:</p>
+<ul>
+<li>Each test takes 200-500ms instead of &lt;1ms</li>
+<li>Cannot test internal functions directly (e.g., <code>jload</code>, <code>yload</code>, <code>_normalize_file_paths</code>)</li>
+<li>Cannot mock filesystem operations</li>
+<li>Cannot test edge cases without setting up full filesystem fixtures</li>
+<li>No coverage of internal logic — only black-box behavior</li>
+</ul>
+<p>Industry standard: subprocess testing for CLI smoke tests (~5% of test suite);
+direct imports + pytest fixtures for everything else.</p>
+<h4 id="f17-hypothesis-failure-cases-not-committed">F17: <code>.hypothesis/</code> failure cases not committed</h4>
+<div class="highlight"><pre><span></span><code>.hypothesis/.gitignore    # exists
+.hypothesis/examples/     # not committed
+.hypothesis/cache/        # not committed
+</code></pre></div>
+<p>Hypothesis can persist discovered counterexamples via
+<code>.hypothesis/examples/</code>. Running <code>pytest</code> again replays them first, ensuring
+regressions are caught even if the random seed differs. <strong>Without committing
+these, transient CI failures can't reproduce locally.</strong></p>
+<p>Currently only <code>tests/conftest.py</code> and <code>tests/unit/test_pytest_framework.py</code>
+use Hypothesis. So the examples database is tiny. But this will grow as
+property-based testing expands.</p>
+<h4 id="f18-pytestini_optionstestpaths-implicitly-excludes-rounds">F18: <code>pytest.ini_options.testpaths</code> implicitly excludes rounds</h4>
+<div class="highlight"><pre><span></span><code><span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/unit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/property&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/benchmark&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p><code>tests/rounds/</code>, <code>tests/fixtures/</code>, <code>tests/baselines/</code> are not in the list,
+so pytest doesn't collect from them. This is <strong>implicit</strong> behavior — adding
+a new test directory like <code>tests/e2e/</code> would silently not collect unless
+added to <code>testpaths</code>.</p>
+<p>Industry standard: explicit <code>--ignore</code> rules in pytest config, OR
+<code>conftest.py</code> <code>collect_ignore</code> list.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="root-cause-1-tests-were-an-afterthought">Root cause 1: Tests were an afterthought</h3>
+<p>The framework evolved from shell scripts and Python helpers. Tests were
+added when P-1 introduced pytest (PR-5, PR-6). Before P-1, the only tests
+were <code>test_integrity.py</code> (now <code>test_gates_integrity.py</code>), which used
+subprocess because it was originally a unittest that invoked the script.</p>
+<p><strong>Fix</strong>: P-1.E adds direct-import unit tests for every framework module
+with <strong>≥ 90% line AND ≥ 80% branch coverage</strong> targets per
+<a href="../#threshold-justification">README Threshold Justification</a>.</p>
+<h3 id="root-cause-2-subprocess-testing-was-easy-real-unit-testing-was-hard">Root cause 2: Subprocess testing was easy, real unit testing was hard</h3>
+<p><code>subprocess.run([VG, ...])</code> works regardless of how validate-gate.py is
+structured. Writing real unit tests requires understanding the module's
+internal functions, designing fixtures, mocking filesystem operations.
+The path of least resistance produced the current subprocess-heavy suite.</p>
+<p><strong>Fix</strong>: PR-19 (Cluster 01) modularizes validate-gate.py, making its
+internals importable. PR-26 (Cluster 03) enforces test density. Combined,
+these force real unit tests.</p>
+<h3 id="root-cause-3-no-property-based-testing-culture">Root cause 3: No property-based testing culture</h3>
+<p>Only <code>tests/unit/test_pytest_framework.py</code> uses Hypothesis. The framework
+has many pure functions (<code>jload</code>, <code>yload</code>, <code>word_count_md</code>,
+<code>count_transition_words</code>, <code>_normalize_file_paths</code>) that are perfect targets
+for property-based testing, but no one wrote the tests.</p>
+<p><strong>Fix</strong>: Add a "Property Tests" subdirectory under each module's tests, with
+at least one property test per pure function.</p>
+<h3 id="root-cause-4-hidden-exclusions-instead-of-explicit-ones">Root cause 4: Hidden exclusions instead of explicit ones</h3>
+<p><code>testpaths</code> inclusion is implicit exclusion. Industry standard is the
+opposite: collect everything by default, explicitly ignore what shouldn't
+collect. This catches mistakes like accidentally putting a <code>test_foo.py</code>
+in <code>tests/fixtures/</code>.</p>
+<p><strong>Fix</strong>: Canonical PR-34 (this cluster) changes pytest config to use explicit
+<code>--ignore</code> rules.</p>
+<h2 id="target-state">Target State</h2>
+<p>After P-1.E Cluster 04 completes:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Pre-P-1.E</th>
+<th>Post-P-1.E</th>
+<th>Industry baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total tests</td>
+<td>43</td>
+<td><strong>≥ 600</strong></td>
+<td>per <a href="../#threshold-justification">README Threshold Justification</a>: ≥ 0.10 tests/LOC × 5921 LOC ≈ 593 tests</td>
+</tr>
+<tr>
+<td>Test density (test functions / framework LOC)</td>
+<td>0.007</td>
+<td><strong>≥ 0.10</strong></td>
+<td>0.05 floor; 0.10 typical; 0.15+ rigorous</td>
+</tr>
+<tr>
+<td>Direct-import unit tests</td>
+<td>5</td>
+<td><strong>≥ 500</strong></td>
+<td>majority</td>
+</tr>
+<tr>
+<td>Subprocess integration tests</td>
+<td>18</td>
+<td>≤ 20</td>
+<td>small minority</td>
+</tr>
+<tr>
+<td>Property-based tests</td>
+<td>1</td>
+<td><strong>≥ 60</strong></td>
+<td>grow with pure functions; 1+ per pure function</td>
+</tr>
+<tr>
+<td><code>.hypothesis/examples/</code> committed</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>pytest collection explicit</td>
+<td>Implicit via testpaths</td>
+<td>Explicit via <code>--ignore</code></td>
+<td>Explicit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="components-prs">Components (PRs)</h2>
+<h3 id="pr-28-unit-tests-for-scoringpy">PR-28: unit tests for scoring.py</h3>
+<p><code>scoring.py</code> has 0 tests and is one of the most critical framework modules
+(it computes final scores; bugs here invalidate entire rounds).</p>
+<p><strong>Test files</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/unit/
+├── test_scoring.py             # NEW: ~60 tests (target ≥ 0.10 density × 384 LOC ≈ 40 floor, expanded for branch coverage)
+└── test_scoring_property.py    # NEW: ~10 property-based tests
+</code></pre></div>
+<p><strong>Coverage target</strong>: 90% line, 80% branch.</p>
+<p><strong>Test categories</strong>:</p>
+<ol>
+<li><strong>Rubric parsing</strong>: parse various rubric.md formats; verify dimension
+   extraction</li>
+<li><strong>Score normalization</strong>: normalize scores per dimension; verify renormalization</li>
+<li><strong>Test-type filtering</strong>: <code>--test-type generative|bug-hunt|clean</code> selects
+   correct dimensions</li>
+<li><strong>Gate marker enforcement</strong>: scoring rejects if markers missing; accepts
+   when present</li>
+<li><strong>REJECT behavior</strong>: scores below threshold produce exit code 2 with
+   structured error</li>
+<li><strong>Subagent flag</strong>: <code>--subagent</code> mode behaves differently</li>
+<li><strong>Property tests</strong>: random score combinations always produce scores in
+   [0, 100]; renormalization is idempotent; round-trip parsing preserves
+   dimensions</li>
+</ol>
+<h3 id="pr-29-unit-tests-for-phase_runnerpy">PR-29: unit tests for phase_runner.py</h3>
+<p><code>phase_runner.py</code> has 0 tests. It implements the T2/T3 phase state machine.</p>
+<p><strong>Test files</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/unit/
+├── test_phase_runner.py             # NEW: ~50 tests (target ≥ 0.10 density × 314 LOC ≈ 32 floor, expanded for branch coverage)
+└── test_phase_runner_property.py    # NEW: ~8 property tests
+</code></pre></div>
+<p><strong>Test categories</strong>:</p>
+<ol>
+<li><strong>State machine transitions</strong>: valid transitions succeed; invalid ones
+   rejected with <code>GateError</code></li>
+<li><strong>Pre-skill / post-skill / finalize markers</strong>: correct sequence enforced</li>
+<li><strong>Phase close</strong>: G7.16 logic; incomplete phase detection</li>
+<li><strong>Property tests</strong>: state machine is acyclic; every reachable state has
+   a valid next transition (unless terminal)</li>
+</ol>
+<h3 id="pr-30-unit-tests-for-update_progresspy">PR-30: unit tests for update_progress.py</h3>
+<p><code>update_progress.py</code> has 0 tests.</p>
+<p><strong>Test files</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/unit/test_update_progress.py    # NEW: ~50 tests (target ≥ 0.10 density × 324 LOC ≈ 32 floor, expanded for branch coverage)
+</code></pre></div>
+<p><strong>Test categories</strong>:</p>
+<ol>
+<li><strong>mark-done</strong>: writes correct progress.json structure</li>
+<li><strong>mark-failed</strong>: error states recorded correctly</li>
+<li><strong>Concurrent writes</strong>: file locking behavior</li>
+<li><strong>Idempotency</strong>: marking the same skill/test_type twice doesn't duplicate</li>
+</ol>
+<h3 id="pr-31-unit-tests-for-summarize_roundpy">PR-31: unit tests for summarize_round.py</h3>
+<p><code>summarize_round.py</code> has 0 tests.</p>
+<p><strong>Test files</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/unit/test_summarize_round.py    # NEW: ~40 tests (target ≥ 0.10 density × 182 LOC ≈ 18 floor, expanded for branch coverage)
+</code></pre></div>
+<p><strong>Test categories</strong>:</p>
+<ol>
+<li><strong>Aggregation</strong>: correct mean/median/p90 computation across skill scores</li>
+<li><strong>G7 close validation</strong>: detects incomplete phases</li>
+<li><strong>Report generation</strong>: markdown output format</li>
+<li><strong>Error recovery</strong>: handles partial round data</li>
+</ol>
+<h3 id="pr-32-real-unit-tests-for-gates-replace-subprocess-tests">PR-32: real unit tests for gates (replace subprocess tests)</h3>
+<p>After PR-19 modularizes validate-gate.py, write direct-import unit tests:</p>
+<p><strong>Test files</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/unit/gates/
+├── test_shared.py             # NEW: jload, yload, passed, fail, write_gate_marker
+├── test_g0.py                 # NEW: G0 + G0.x sub-checks
+├── test_g1.py
+├── test_g2.py
+├── test_g3.py
+├── test_g4/
+│   ├── test_generic.py        # g4_generic_generative / bughunt / clean
+│   ├── test_worldbuilding.py
+│   ├── test_character_design.py
+│   └── ... (one per skill with a G4 checker)
+├── test_g5.py
+├── test_g6.py
+└── test_g7.py
+</code></pre></div>
+<p><strong>Approach</strong>: Each test imports the module directly:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">jload</span><span class="p">,</span> <span class="n">yload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.worldbuilding</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_worldbuilding</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_g4_worldbuilding_valid_output</span><span class="p">(</span><span class="n">tmp_project_dir</span><span class="p">):</span>
+    <span class="c1"># Set up minimal valid worldbuilding output</span>
+    <span class="o">...</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">g4_worldbuilding</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">world_bible_path</span><span class="p">)],</span> <span class="n">rd</span><span class="o">=</span><span class="n">tmp_project_dir</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+</code></pre></div>
+<p><strong>Migration plan for <code>test_gates_integrity.py</code></strong>: The existing 18 subprocess
+tests are valuable as integration tests. Move them to
+<code>tests/integration/test_gate_cli.py</code> and keep them. The new direct-import
+tests in <code>tests/unit/gates/</code> replace them as the primary test surface.</p>
+<p><strong>Coverage target</strong>: 90% line, 80% branch per gate module (matches canonical thresholds).</p>
+<h3 id="pr-33-hypothesis-failure-case-persistence">PR-33: hypothesis failure case persistence</h3>
+<p><strong>Files</strong>:</p>
+<div class="highlight"><pre><span></span><code>.hypothesis/
+├── .gitignore                 # MODIFY: ignore only caches, not examples
+└── examples/                  # COMMITTED: discovered counterexamples
+</code></pre></div>
+<p><strong><code>.hypothesis/.gitignore</code> (new content)</strong>:</p>
+<div class="highlight"><pre><span></span><code># Hypothesis caches are machine-specific
+cache/
+
+# Examples are committed — they capture discovered counterexamples
+# and replay them on every run, ensuring regression detection.
+!examples/
+</code></pre></div>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>.hypothesis/examples/</code> exists with at least 1 committed counterexample</li>
+<li>[ ] <code>.hypothesis/.gitignore</code> configured to track examples</li>
+<li>[ ] CI verifies that committed examples still reproduce (no stale entries)</li>
+</ul>
+<h3 id="pr-34-explicit-pytest-collection-rules">PR-34: explicit pytest collection rules</h3>
+<p><strong><code>pyproject.toml</code> changes</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># was: specific subdirs — collect everything under tests/</span>
+<span class="n">norecursedirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/fixtures&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/baselines&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/coverage&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="err">]</span>
+</code></pre></div>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>testpaths = ["tests"]</code> (single root)</li>
+<li>[ ] <code>norecursedirs</code> lists every excluded subdirectory explicitly</li>
+<li>[ ] <code>pytest --collect-only</code> shows expected count</li>
+<li>[ ] Adding a new <code>test_xxx.py</code> anywhere under <code>tests/</code> (not in norecursedirs)
+      automatically collects</li>
+</ul>
+<h2 id="cross-cluster-dependencies">Cross-cluster Dependencies</h2>
+<ul>
+<li><strong>PR-32 depends on PR-18</strong>: requires modularized gates.</li>
+<li><strong>PR-28, PR-29, PR-30, PR-31 depend on PR-18</strong>: requires <code>src/shenbi/</code>
+  layout for direct imports.</li>
+<li><strong>PR-33 is independent</strong>.</li>
+<li><strong>PR-34 is independent</strong>.</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Writing 200+ tests takes longer than expected</td>
+<td>Parallelize: assign one module per contributor/agent session</td>
+</tr>
+<tr>
+<td>Direct-import tests reveal hidden coupling (e.g., scoring.py imports from validate-gate.py via sys.path hacks)</td>
+<td>Refactor as discovered; PR-18 should have decoupled</td>
+</tr>
+<tr>
+<td>Property-based tests find counterexamples that reveal real bugs</td>
+<td>This is the goal — fix bugs as found, commit the counterexample</td>
+</tr>
+<tr>
+<td>Test suite runtime exceeds 30s</td>
+<td>Use <code>-n auto</code> (already configured); mark long tests with <code>@pytest.mark.slow</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Add <code>pytest-bdd</code> for BDD-style scoring tests?</td>
+<td><strong>No.</strong></td>
+<td>pytest-bdd adds Gherkin ceremony (.feature files, step definitions) without proportionate value for a Python-internal framework. The audience (Shenbi contributors) writes Python; BDD is for cross-stakeholder communication. Standard pytest functions with descriptive names achieve the same clarity.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run actual skill dispatches in <code>tests/integration/</code>?</td>
+<td><strong>No — separate <code>tests/e2e/</code> dir, <code>@pytest.mark.e2e</code>, skipped in CI.</strong></td>
+<td>E2E tests require API keys, network, and 5-30 min per skill. Mixing them with integration tests makes the suite non-deterministic. <code>tests/e2e/</code> with explicit marker lets devs opt-in via <code>pytest -m e2e</code>. CI runs <code>pytest -m "not e2e"</code> by default.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Use <code>pytest-randomly</code> for order-dependence detection?</td>
+<td><strong>Yes — add to dev deps, fixed seed in CI for reproducibility.</strong></td>
+<td>Catches hidden test-order dependencies (common when tests share module state). CI uses <code>--randomly-seed=42</code> for reproducibility; local dev gets random seeds. Standard practice in mature Python projects (pytest-dev, FastAPI).</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

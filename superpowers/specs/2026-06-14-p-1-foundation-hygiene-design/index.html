@@ -1,0 +1,3782 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1: Foundation Hygiene Design Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1: Foundation Hygiene Design Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1: Foundation Hygiene Design Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-14-p-1-foundation-hygiene-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1-foundation-hygiene-design-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1: Foundation Hygiene Design Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        必做项（14 项）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-15-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加成项（5 项，编号 15-19，与必做项连续）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录重命名
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-1-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 1: Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 1: Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三层架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计原则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P-1 不变量
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-2-components-17-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 2: Components (17 PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 2: Components (17 PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#group-a-pr-1-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group A: 项目元数据与代码质量工具（PR 1-4）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group A: 项目元数据与代码质量工具（PR 1-4）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-1-pyprojecttoml-uvlock-gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 1: pyproject.toml + uv.lock + .gitignore + 项目元数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-2-ruff-auto-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 2: ruff 配置 + 全仓库 auto-fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-3-mypy-strict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 3: mypy --strict 配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-4-basedpyright-python-pyright-fork-nodejs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 4: basedpyright 配置（纯 Python 的 pyright fork，无 Node.js 依赖）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-b-pr-5-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group B: 测试框架（PR 5-6）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group B: 测试框架（PR 5-6）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-5-pytest-conftestpy-sample-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 5: pytest 框架 + conftest.py + sample test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-6-test_integritypy-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 6: 改写 test_integrity.py 为 pytest 风格
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-c-cicdpr-7-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group C: CI/CD（PR 7-8）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group C: CI/CD（PR 7-8）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-7-github-actions-ci3-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 7: GitHub Actions CI（3 个 workflow 文件）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-8-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 8: pre-commit hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-d-pr-9-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group D: 代码质量基础设施（PR 9-10）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group D: 代码质量基础设施（PR 9-10）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-9-structlog-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 9: structlog 集成 + 替换所有 print
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-10-typed-exception-hierarchy-error_guidancepy-recoverypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 10: typed exception hierarchy + error_guidance.py + recovery.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-e-adrpr-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group E: ADR（PR 11）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group E: ADR（PR 11）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-11-adr-9-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 11: ADR 模板 + 前 9 条 ADR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-17-mkdocs-material" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 17: mkdocs-material 自动文档
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-f-pr-12-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group F: 重构（PR 12-13）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group F: 重构（PR 12-13）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-12-validate-gatepy-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 12: validate-gate.py 机械拆分 + 切法 D 改善
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-13-dispatch-subagentsh-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 13: dispatch-subagent.sh → Python 重写
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-g-pr-14-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group G: 清理（PR 14-15）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group G: 清理（PR 14-15）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-14-phantom-rounds-readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 14: phantom rounds 归档 + 每轮 README
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-15-novel-output-skill-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 15: 目录重命名 novel-output → skill-output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-h-pr-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group H: 安全与性能（PR 16）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Group H: 安全与性能（PR 16）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-16-pytest-benchmark-pip-audit-sbom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 16: pytest-benchmark + pip-audit + SBOM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键决策一览
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-3-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 3: Data Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 3: Data Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 开发生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-structlog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 日志流（structlog）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 异常传播
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-gate-refactor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Gate 执行流（refactor 后）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-dispatch-python-rewrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Dispatch 流（Python rewrite 后）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 测试执行流（pytest）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-4-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 4: Error Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 4: Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 异常层级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 异常类统一接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-boundary-translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 错误转换（boundary translation）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 用户友好的错误指引
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 自动恢复策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-p3-failure-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 P3 failure catalog 预留接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 异常 vs 字符串返回的兼容策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-5-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 5: Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 5: Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 测试金字塔
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-p-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 P-1 内必写的测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 测试覆盖率目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-property-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Property-based 测试配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-mutation-testingp-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Mutation testing（P-1 加成）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 测试执行命令
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.7 测试数据管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8 CI 测试矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.9 回归测试策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#510-p-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.10 P-1 测试工作量
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-6-rollout-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 6: Rollout Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 6: Rollout Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-17-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR 顺序（17 个原子 PR）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收标准
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 P0 的接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-7-out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 7: Out of Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#section-8-risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 8: Risks &amp; Mitigations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 8: Risks &amp; Mitigations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#risk-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 1: 行为等价性回归
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-2-uv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 2: uv 不可用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-3-coverage-90" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 3: Coverage 90% 门槛过高
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-4-mypybasedpyright" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 4: mypy/basedpyright 在现有代码上报大量错误
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-5-17-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 5: 17 个 PR 周期太长
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-6-basedpyright-pyright" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 6: basedpyright 与 pyright 行为差异
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-7-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 7: GitHub Actions 矩阵成本
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-8-pr-12-validate-gatepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 8: PR-12 validate-gate.py 拆分后行为微变
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-9-renovatedependabot-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk 9: Renovate/Dependabot 自动 PR 噪音
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A: 关键文件清单
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1-foundation-hygiene-design-spec">P-1: Foundation Hygiene Design Spec</h1>
+<ul>
+<li><strong>Status</strong>: proposed</li>
+<li><strong>Date</strong>: 2026-06-14</li>
+<li><strong>Decider</strong>: ThomasChangX</li>
+<li><strong>Phase</strong>: P-1 (precedes P0 Registry Metadata System)</li>
+<li><strong>Depends on</strong>: none</li>
+<li><strong>Blocks</strong>: P0, P1, P2, P3, P4, P5, P6</li>
+</ul>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>P-1 把 Shenbi 代码库从"散装脚本集合"升级到 2026 年现代 Python 项目工程基线。所有后续 P 阶段（P0-P6）与所有未来 round（008+）在此基线上构建。</p>
+<p>P-1 的核心动作：</p>
+<ul>
+<li>✅ 加配置文件（pyproject.toml / ruff / mypy / basedpyright / pre-commit / CI）</li>
+<li>✅ 重构代码组织（validate-gate.py 机械拆分，dispatch-subagent.sh → Python 重写，行为不变）</li>
+<li>✅ 改善代码质量（structlog / typed exceptions / type hints / docstrings）</li>
+<li>✅ 建立测试基线（pytest 框架 + 470 sample tests）</li>
+<li>✅ 归档历史 round（含每轮 README 索引）</li>
+</ul>
+<p>P-1 的核心非动作：</p>
+<ul>
+<li>❌ 不改业务逻辑</li>
+<li>❌ 不引入新概念（Pydantic schemas、registry 等留给 P0）</li>
+<li>❌ 不改协议（command-to-give.md 留给 P5）</li>
+</ul>
+<h2 id="scope">Scope</h2>
+<h3 id="14">必做项（14 项）</h3>
+<ol>
+<li><code>pyproject.toml</code> + <code>uv.lock</code> + <code>.gitignore</code> + <code>renovate.json</code>（含 dev 依赖与 hashes）</li>
+<li>ruff 配置（lint + format，规则集选 strict preset）</li>
+<li>mypy --strict + basedpyright（双重类型检查）</li>
+<li>pytest 框架（pytest + 7 插件：cov / xdist / asyncio / timeout / benchmark / hypothesis / ordering）</li>
+<li>改写 test_integrity.py 为 pytest 风格</li>
+<li>GitHub Actions CI（3 个 workflow：ci / security / docs，含 lint + type + test + coverage + branch coverage 阈值）</li>
+<li>pre-commit hooks（ruff/mypy/basedpyright + yamllint + registry 自动 rebuild）</li>
+<li>structlog 集成（取代所有 print，约 93 处）</li>
+<li>typed exception hierarchy + <code>error_guidance.py</code> + <code>recovery.py</code></li>
+<li>ADR 模板 + 前 9 条 ADR</li>
+<li>validate-gate.py 机械式拆分 + 非 P0 依赖的语义改善</li>
+<li>dispatch-subagent.sh → Python 重写（行为不变）</li>
+<li>phantom rounds 归档（含每轮 README + 索引）</li>
+<li>目录重命名 <code>novel-output</code> → <code>skill-output</code>（PR-12 之后，含 10 处引用更新）</li>
+</ol>
+<h3 id="5-15-19">加成项（5 项，编号 15-19，与必做项连续）</h3>
+<blockquote>
+<p><strong>术语注释</strong>：以下文中的 <code>Q1=D</code>、<code>Q2=D</code>、<code>切法 D</code> 等标注指 brainstorming 阶段的"问题 N，方案 D"决策。完整决策记录见 conversation history（brainstorming 阶段）与对应 ADR。具体而言：
+- <code>Q1=D</code> = validate-gate.py 拆分采用"机械拆分 + 所有非 P0 依赖的语义改善"（参考 ADR 0008）
+- <code>Q2=D</code> = phantom rounds 归档采用"归档 + 每轮 README + 索引"（参考 ADR 命名约定）
+- <code>切法 D</code> = 通用方案 D，泛指本轮迭代中"前向形式化验证"或"行业最佳实践"的方案选项</p>
+</blockquote>
+<ol>
+<li>pytest-benchmark（基准测试，回归检测）</li>
+<li>pip-audit（CI 跑漏洞扫描；safety 是同类替代品，本框架选 pip-audit 因其依赖较少且官方 PyPA 维护）</li>
+<li>SBOM 生成（CycloneDX，为未来产品发布准备）</li>
+<li>mkdocs-material 自动文档（API 文档从 Pydantic 与 docstring 生成）</li>
+<li>mutmut / cosmic-ray（mutation testing，验证测试质量。<strong>注</strong>：本项无独立 PR，作为 PR-16 (benchmark + audit + SBOM) 的延伸——配置 pyproject.toml 的 [tool.mutmut] 已在 PR-1 完成；运行基线 + 写入 <code>tests/baselines/mutation-score.txt</code> 是 PR-16 的一部分。Acceptance criteria 中"mutation score 基线建立"由 PR-16 满足。）</li>
+</ol>
+<h3 id="_1">目录重命名</h3>
+<ul>
+<li><code>tests/rounds/round-001-*</code> 至 <code>round-007-*</code> 移至 <code>tests/rounds/archived/</code></li>
+<li>每个归档 round 含 README.md 记录状态与归档原因</li>
+<li><code>tests/rounds/archived/README.md</code> 是索引</li>
+</ul>
+<h2 id="section-1-architecture">Section 1: Architecture</h2>
+<h3 id="_2">三层架构</h3>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│ 配置层（Configuration）                                          │
+│                                                                 │
+│ pyproject.toml          项目元数据 + 所有工具配置               │
+│ uv.lock                 依赖锁定（含哈希）                      │
+│ .pre-commit-config.yaml pre-commit hooks                       │
+│ .github/workflows/      GitHub Actions CI                      │
+│ mkdocs.yml              文档生成配置                            │
+└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│ 源代码层（Source Code）                                          │
+│                                                                 │
+│ tests/                                                          │
+│   ├── __init__.py                                               │
+│   ├── conftest.py          全局 pytest fixtures                │
+│   ├── exceptions.py        ShenbiError 层级                    │
+│   ├── logging.py           structlog 配置                      │
+│   ├── validate-gate.py     CLI shim（~30 行，转发到 gates/）   │
+│   ├── dispatch-subagent.sh CLI shim（~10 行，转发到 dispatcher/）│
+│   ├── gates/                                                    │
+│   │   ├── __init__.py                                           │
+│   │   ├── shared.py       共享 utility                         │
+│   │   ├── cli.py          argparse + 路由                      │
+│   │   ├── g0.py ~ g7.py   一个 gate 一个文件                   │
+│   │   └── g4/             G4 子目录                            │
+│   │       ├── __init__.py 路由                                 │
+│   │       ├── generic.py                                       │
+│   │       └── &lt;skill&gt;.py  一个 skill 一个文件                  │
+│   ├── dispatcher/                                               │
+│   │   ├── __init__.py                                           │
+│   │   ├── cli.py          argparse                             │
+│   │   └── executor.py     核心调度逻辑                         │
+│   ├── build_registry.py   P0 后激活，P-1 占位                  │
+│   ├── load_registry.py    P0 后激活，P-1 占位                  │
+│   ├── rounds/                                                   │
+│   │   ├── round-000-TEMPLATE/                                   │
+│   │   └── archived/                                             │
+│   │       ├── README.md   索引                                 │
+│   │       └── round-001-* ~ round-007-*/                        │
+│   └── 其他保留                                                  │
+│                                                                 │
+│ docs/                                                           │
+│   ├── adr/                Architecture Decision Records         │
+│   │   ├── 0000-template.md                                     │
+│   │   ├── 0001-pyproject-uv.md                                 │
+│   │   ├── 0002-ruff-strict.md                                  │
+│   │   ├── ...                                                  │
+│   │   └── 0009-dispatcher-python-rewrite.md                    │
+│   └── api/                mkdocs 自动生成（gitignored）        │
+└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│ 测试层（Tests）                                                  │
+│                                                                 │
+│ tests/unit/                单元测试（~780 最终）                │
+│ tests/integration/         跨模块（~150 最终）                  │
+│ tests/property/            Hypothesis（~50 最终）               │
+│ tests/benchmark/           pytest-benchmark（~20 最终）         │
+│ tests/fixtures/            测试 fixture 数据                    │
+│ tests/baselines/           等价性测试 baseline                  │
+│ tests/coverage/            覆盖率报告（gitignored）            │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="_3">设计原则</h3>
+<ol>
+<li><strong>pyproject.toml 单一配置源</strong>。所有工具配置集中在 pyproject.toml。</li>
+<li><strong>职责分离的模块化</strong>。每个文件单一职责。CLI 入口退化为 shim。</li>
+<li><strong>测试金字塔</strong>。unit : integration : property : benchmark = 78:15:5:2。</li>
+<li><strong>文档与代码同源</strong>。ADR 是手写决策；API 文档 mkdocs 自动生成。</li>
+<li><strong>构建产物 gitignored</strong>。<code>__pycache__/</code>、<code>.coverage</code>、<code>tests/coverage/</code>（HTML/JSON/XML 报告产出位置）、<code>docs/api/</code>（mkdocstrings 自动生成）不入 git。<code>htmlcov/</code> 是 pytest-cov 默认路径，本框架不用，但加入 <code>.gitignore</code> 防意外。</li>
+<li><strong>归档与主流程隔离</strong>。<code>tests/rounds/archived/</code> 不被主流程读取。</li>
+</ol>
+<h3 id="p-1">P-1 不变量</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>P-1 是否动</th>
+<th>哪个 P 做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skills/</code> 目录结构</td>
+<td>不动</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><code>tests/tiers/</code> 下任何 .json/.yaml 配置</td>
+<td>不动</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/</code> 内容</td>
+<td>不动</td>
+<td>永久（fixtures 是源数据）</td>
+</tr>
+<tr>
+<td><code>tests/rounds/round-000-TEMPLATE/</code> 结构</td>
+<td>不动</td>
+<td>P0/P1 配合</td>
+</tr>
+<tr>
+<td><code>outline-example.md</code> 等顶级文档</td>
+<td>不动</td>
+<td>永久</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code> / <code>goal-prompt.md</code> / <code>command-to-give.md</code></td>
+<td>不动</td>
+<td>P5 协议改造</td>
+</tr>
+<tr>
+<td><code>hooks/</code>（Claude Code plugin hook）</td>
+<td>不动</td>
+<td>与 P-1 无关</td>
+</tr>
+<tr>
+<td>G0-G7 各 gate 的<strong>业务逻辑</strong></td>
+<td>不动</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><code>dispatch-subagent.sh</code> 的<strong>调度策略</strong></td>
+<td>不动（行为保持）</td>
+<td>P4</td>
+</tr>
+<tr>
+<td><code>phase-runner.py</code> 内 phase 推进逻辑</td>
+<td>不动</td>
+<td>P5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-2-components-17-prs">Section 2: Components (17 PRs)</h2>
+<p>按依赖顺序排列。</p>
+<h3 id="group-a-pr-1-4">Group A: 项目元数据与代码质量工具（PR 1-4）</h3>
+<h4 id="pr-1-pyprojecttoml-uvlock-gitignore">PR 1: pyproject.toml + uv.lock + .gitignore + 项目元数据</h4>
+<p>依赖管理选 uv（2024+ 业界最快）。Python &gt;=3.11。依赖分 main 与 dev。</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.11&quot;</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pydantic&gt;=2.5.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># P-1 不用；为 P0 schemas 准备</span>
+<span class="w">    </span><span class="s2">&quot;pyyaml&gt;=6.0.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;structlog&gt;=24.1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># 注：去除 patch&gt;=1.16（unmaintained since 2016, codebase 用 unittest.mock）</span>
+<span class="w">    </span><span class="c1"># 注：去除 click&gt;=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）</span>
+<span class="p">]</span>
+
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=8.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pytest-cov&gt;=4.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pytest-xdist&gt;=3.5.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-asyncio&gt;=0.23.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pytest-timeout&gt;=2.2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pytest-benchmark&gt;=4.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;hypothesis&gt;=6.97.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mypy&gt;=1.8.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;basedpyright&gt;=1.13.0&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1"># 纯 Python 的 pyright fork，避免 Node.js 依赖</span>
+<span class="w">    </span><span class="s2">&quot;ruff&gt;=0.1.13&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pre-commit&gt;=3.6.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pip-audit&gt;=2.7.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;cyclonedx-bom&gt;=4.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mutmut&gt;=3.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;coverage&gt;=7.4.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># 用于 branch coverage 阈值强制</span>
+<span class="w">    </span><span class="s2">&quot;pytest-ordering&gt;=0.6&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># @pytest.mark.last 用于 coverage threshold test</span>
+<span class="p">]</span>
+<span class="n">docs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mkdocs&gt;=1.5.3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mkdocs-material&gt;=9.5.4&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mkdocstrings[python]&gt;=0.24.0&quot;</span><span class="p">]</span>
+
+<span class="k">[project.scripts]</span>
+<span class="n">shenbi-validate-gate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.gates.cli:main&quot;</span>
+<span class="n">shenbi-dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.dispatcher.cli:main&quot;</span>
+
+<span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;hatchling&quot;</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hatchling.build&quot;</span>
+
+<span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="c1"># skills/ 不是 Python 包（无 __init__.py），作为数据文件包含</span>
+<span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="s2">&quot;docs/adr/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docs/adr/&quot;</span>
+</code></pre></div>
+<p><strong><code>.gitignore</code> 内容</strong>（PR-1 创建）：
+<div class="highlight"><pre><span></span><code># Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.basedpyright_cache/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+tests/coverage/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Docs (auto-generated)
+docs/api/
+site/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Shenbi-specific
+sbom.cdx.json
+.mutmut-cache
+</code></pre></div></p>
+<p><strong><code>renovate.json</code></strong>（PR-1 创建，依赖自动更新）：
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://docs.renovatebot.com/renovate-schema.json&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;extends&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;config:recommended&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;:semanticCommits&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;schedule&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;before 6am on monday&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;packageRules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;groupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matchPackagePatterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ruff&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;groupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pytest&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matchPackagePatterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pytest&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;matchUpdateTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;automerge&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;automergeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pr&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;automergeStrategy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;squash&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;matchUpdateTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;major&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;automerge&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;major-bump&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><code>uv.lock</code> 由 <code>uv lock</code> 生成，提交到 git。</p>
+<p>PR-1 验证：<code>uv build --wheel</code> 成功，无 warning；<code>uv sync --frozen</code> 在干净 clone 上可用；<code>uv run pytest --version</code> 可执行。</p>
+<h4 id="pr-2-ruff-auto-fix">PR 2: ruff 配置 + 全仓库 auto-fix</h4>
+<p>ruff 取代 flake8 + isort + pylint + black。选 E,F,W,I,N,B,A,C4,PIE,RET,SIM,PL,UP,RUF,D 规则集。</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff]</span>
+<span class="n">line-length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="n">target-version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py311&quot;</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span><span class="s2">&quot;F&quot;</span><span class="p">,</span><span class="s2">&quot;W&quot;</span><span class="p">,</span><span class="s2">&quot;I&quot;</span><span class="p">,</span><span class="s2">&quot;N&quot;</span><span class="p">,</span><span class="s2">&quot;B&quot;</span><span class="p">,</span><span class="s2">&quot;A&quot;</span><span class="p">,</span><span class="s2">&quot;C4&quot;</span><span class="p">,</span><span class="s2">&quot;PIE&quot;</span><span class="p">,</span><span class="s2">&quot;RET&quot;</span><span class="p">,</span><span class="s2">&quot;SIM&quot;</span><span class="p">,</span><span class="s2">&quot;PL&quot;</span><span class="p">,</span><span class="s2">&quot;UP&quot;</span><span class="p">,</span><span class="s2">&quot;RUF&quot;</span><span class="p">,</span><span class="s2">&quot;D&quot;</span><span class="p">]</span>
+<span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D100&quot;</span><span class="p">,</span><span class="s2">&quot;D104&quot;</span><span class="p">,</span><span class="s2">&quot;PLR0913&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.ruff.lint.pydocstyle]</span>
+<span class="n">convention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;google&quot;</span>
+
+<span class="k">[tool.ruff.lint.per-file-ignores]</span>
+<span class="s2">&quot;tests/*&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D103&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h4 id="pr-3-mypy-strict">PR 3: mypy --strict 配置</h4>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.mypy]</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_return_any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_unused_configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_redundant_casts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_unreachable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_incomplete_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">check_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">disallow_untyped_decorators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">no_implicit_optional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">no_implicit_reexport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">namespace_packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pydantic.mypy&quot;</span><span class="p">]</span>
+
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.gates.g4.*&quot;</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">  </span><span class="c1"># P-1 拆分时允许，P2 改完移除</span>
+
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.rounds.archived.*&quot;</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div>
+<h4 id="pr-4-basedpyright-python-pyright-fork-nodejs">PR 4: basedpyright 配置（纯 Python 的 pyright fork，无 Node.js 依赖）</h4>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.basedpyright]</span>
+<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;**/__pycache__&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># P-1.A: legacy untyped code; P-1.D PR-12 removes these exclusions</span>
+<span class="w">    </span><span class="s2">&quot;tests/validate-gate.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/scoring.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/phase-runner.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/summarize-round.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/update-progress.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/test_integrity.py&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">typeCheckingMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;strict&quot;</span>
+<span class="n">pythonVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">reportMissingTypeStubs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span>
+<span class="n">reportUnknownMemberType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span>
+</code></pre></div>
+<p><strong>理由</strong>：<code>pyright</code>（Microsoft）需要 Node.js 运行时。<code>basedpyright</code> 是 pure-Python fork，避免 Node.js 隐式依赖，更适合"现代 Python 单语言基线"。CI 与本地都通过 <code>uv run basedpyright</code> 调用，无外部依赖。</p>
+<p><strong>注</strong>：basedpyright 的配置键是 <code>typeCheckingMode</code>（带 -ing）和 <code>exclude</code>（数组），不是 <code>typeCheckMode</code> 或 <code>ignoreFile</code>（这些是 pyright 旧版键名）。P-1.A 执行中发现并修复。</p>
+<h3 id="group-b-pr-5-6">Group B: 测试框架（PR 5-6）</h3>
+<h4 id="pr-5-pytest-conftestpy-sample-test">PR 5: pytest 框架 + conftest.py + sample test</h4>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest.ini_options]</span>
+<span class="n">minversion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;8.0&quot;</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/unit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/property&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/benchmark&quot;</span><span class="p">]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;--strict-markers&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov=tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=term-missing&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=html:tests/coverage&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-report=xml:tests/coverage/coverage.xml&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--cov-branch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># 注：-n=auto 不在 addopts，避免本地默认并行与 @pytest.mark.last 冲突。</span>
+<span class="w">    </span><span class="c1"># CI 在 ci.yml 中显式传 -n auto。</span>
+<span class="w">    </span><span class="s2">&quot;--timeout=60&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--timeout-method=thread&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--benchmark-min-rounds=5&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--benchmark-warmup=on&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">markers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;unit: fast unit tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;integration: cross-module tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;property: Hypothesis property-based tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;benchmark: pytest-benchmark performance tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;slow: &gt; 5s tests&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">asyncio_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;auto&quot;</span>
+</code></pre></div>
+<p><strong>pytest-xdist + timeout + benchmark 兼容性</strong>：pytest-xdist (<code>-n=auto</code>) 与 pytest-timeout (<code>--timeout=60</code>) 协同时，per-test timeout 在每个 worker 内独立计算。Hypothesis profile=ci（1000 examples）与 benchmark 在 60s 内可能紧张。CI 跑 property/benchmark 时建议：</p>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>-p<span class="w"> </span>no:cacheprovider<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;property or benchmark&quot;</span><span class="w"> </span>--timeout<span class="o">=</span><span class="m">300</span>
+</code></pre></div>
+<p>或拆分慢测试到独立 CI job。</p>
+<p><strong>pytest-xdist 与 <code>@pytest.mark.last</code> 冲突解决</strong>：xdist (<code>-n=auto</code>) 将测试分发到多个 worker，<strong>忽略 <code>@pytest.mark.last</code> 顺序保证</strong>。这意味着 <code>test_branch_coverage_meets_threshold</code> 可能在 <code>coverage.xml</code> 还未生成时就被某个 worker 执行，导致 CI 偶发失败。</p>
+<p>CI 必须拆分为两个 pytest 调用：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Step 1: 主测试（并行），排除 last marker</span>
+pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span>
+
+<span class="c1"># Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）</span>
+pytest<span class="w"> </span>-p<span class="w"> </span>no:xdist<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;last&quot;</span>
+</code></pre></div>
+<p><code>ci.yml</code> 中 <code>quality</code> job 的 pytest 步骤改为：</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last)</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run coverage threshold test (serial, last only)</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -p no:xdist -m &quot;last&quot;</span>
+</code></pre></div>
+<p>dev 本地单跑 <code>pytest</code> 时（addopts 默认不含 <code>-n=auto</code>，见下方"addopts 与 -n=auto 取舍"），<code>@pytest.mark.last</code> 自然生效，无需拆分。但本地若想模拟 CI 并行行为，可手动加 <code>-n auto</code> 并按上述两步拆分。</p>
+<p><strong>addopts 与 <code>-n=auto</code> 取舍</strong>：pyproject.toml 的 <code>[tool.pytest.ini_options] addopts</code> <strong>不含</strong> <code>-n=auto</code>（避免本地默认并行影响 <code>@pytest.mark.last</code>）。CI 在 <code>ci.yml</code> 中显式传 <code>-n auto</code>。本地 dev 默认串行，需要并行时手动加。</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.coverage.run]</span>
+<span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.coverage.report]</span>
+<span class="c1"># Line coverage threshold (fail_under applies to line coverage only)</span>
+<span class="n">fail_under</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">90</span>
+<span class="n">show_missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">exclude_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pragma: no cover&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;raise NotImplementedError&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if __name__ == .__main__.:&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if TYPE_CHECKING:&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<p><strong>测试子目录创建（PR-5 必做）</strong>：</p>
+<p>PR-5 创建空目录 + <code>.gitkeep</code>：
+<div class="highlight"><pre><span></span><code>tests/unit/__init__.py
+tests/unit/.gitkeep
+tests/integration/__init__.py
+tests/integration/.gitkeep
+tests/property/__init__.py
+tests/property/.gitkeep
+tests/benchmark/__init__.py
+tests/benchmark/.gitkeep
+tests/coverage/.gitkeep
+tests/baselines/.gitkeep
+tests/fixtures/.gitkeep
+</code></pre></div></p>
+<p>否则 <code>testpaths = ["tests/unit", ...]</code> 在 pytest 启动时报"path does not exist"。</p>
+<p><strong>Branch coverage 阈值强制（解决 <code>--cov-fail-under</code> 无法约束 branch 的问题）</strong>：</p>
+<p>pytest-cov 的 <code>--cov-fail-under=N</code> 仅作用于 line coverage。Branch coverage 阈值（80%）通过额外 pytest 测试强制：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_coverage_thresholds.py</span>
+<span class="sd">&quot;&quot;&quot;Enforce coverage thresholds post-test.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">COVERAGE_XML</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/coverage/coverage.xml&quot;</span><span class="p">)</span>
+<span class="n">LINE_THRESHOLD</span> <span class="o">=</span> <span class="mi">90</span>
+<span class="n">BRANCH_THRESHOLD</span> <span class="o">=</span> <span class="mi">80</span>
+
+<span class="c1"># 通过 pytest-ordering 保证此测试在所有其他测试之后跑（coverage.xml 必须先生成）</span>
+<span class="c1"># pytest-ordering 通过 @pytest.mark.last 或 [tool.pytest.ini_options] 中的 order 配置</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">last</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_branch_coverage_meets_threshold</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Branch coverage must be &gt;= 80%. Runs last to ensure coverage.xml exists.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">COVERAGE_XML</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
+            <span class="s2">&quot;coverage.xml not found; ensure pytest runs with &quot;</span>
+            <span class="s2">&quot;&#39;--cov-report=xml:tests/coverage/coverage.xml&#39; and &quot;</span>
+            <span class="s2">&quot;test_coverage_thresholds runs AFTER all other tests&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">COVERAGE_XML</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+    <span class="n">total_branches_valid</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_branches_covered</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//class&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">counter</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;counter&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;BRANCH&quot;</span><span class="p">:</span>
+                <span class="n">total_branches_valid</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">))</span>
+                <span class="n">total_branches_covered</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;covered&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">total_branches_valid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;No branches in coverage data&quot;</span><span class="p">)</span>
+
+    <span class="n">branch_pct</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_branches_covered</span> <span class="o">/</span> <span class="n">total_branches_valid</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">assert</span> <span class="n">branch_pct</span> <span class="o">&gt;=</span> <span class="n">BRANCH_THRESHOLD</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Branch coverage </span><span class="si">{</span><span class="n">branch_pct</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% below threshold </span><span class="si">{</span><span class="n">BRANCH_THRESHOLD</span><span class="si">}</span><span class="s2">%. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Covered </span><span class="si">{</span><span class="n">total_branches_covered</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_branches_valid</span><span class="si">}</span><span class="s2"> branches.&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><strong>pytest-ordering 依赖</strong>：在 dev 依赖组加 <code>pytest-ordering&gt;=0.6</code>（已隐含在前述 dev 列表，PR-1 时明确添加）。<code>@pytest.mark.last</code> 保证此测试最后跑，确保 <code>coverage.xml</code> 已由前面测试生成。</p>
+<p><strong>Exit code 兼容性</strong>：</p>
+<p>pytest 内置 exit codes：0 (success)、1 (test fail)、2 (interrupted)、5 (no tests collected)。Shenbi 的 exit codes（详见下方"Exit code 兼容性"段）：0/1/2/3/4/5。当 pytest 作为子进程被 Shenbi CLI 调用时，<strong>外层 Shenbi CLI 的 exit code 覆盖 pytest 的</strong>（外层捕获 pytest exit code 并翻译为 Shenbi code）。文档明确：</p>
+<div class="highlight"><pre><span></span><code>Shenbi CLI exit codes（权威）：
+  0  Success
+  1  User error (gate FAIL / coverage fail / branch coverage fail)
+  2  Framework error (registry stale / schema 错)
+  3  Unexpected exception
+  4  Timeout
+  5  Skipped (explicit)
+
+pytest exit codes（仅 pytest 自身，子进程内）：
+  0  All tests passed
+  1  Some tests failed
+  2  Test execution interrupted
+  5  No tests collected
+
+当 pytest 被 Shenbi 调用时：
+  pytest 0  → Shenbi 0
+  pytest 1  → Shenbi 1 (test failure reported to user)
+  pytest 2  → Shenbi 3 (interrupted = unexpected)
+  pytest 5  → Shenbi 5 (skipped)
+</code></pre></div>
+<p>PR-13 (dispatcher rewrite) 实现此翻译逻辑。</p>
+<h4 id="pr-6-test_integritypy-pytest">PR 6: 改写 test_integrity.py 为 pytest 风格</h4>
+<p>现有 unittest 风格改为 pytest 风格。拆分到 tests/unit/test_gates_g0.py、test_gates_g4_worldbuilding.py 等。<strong>不增不减测试覆盖</strong>。</p>
+<h3 id="group-c-cicdpr-7-8">Group C: CI/CD（PR 7-8）</h3>
+<h4 id="pr-7-github-actions-ci3-workflow">PR 7: GitHub Actions CI（3 个 workflow 文件）</h4>
+<p><code>ci.yml</code>（quality）、<code>security.yml</code>（audit + SBOM）、<code>docs.yml</code>（mkdocs build + 部署）三个独立文件，每个职责单一。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/ci.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">concurrency</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.workflow }}-${{ github.ref }}</span>
+<span class="w">  </span><span class="nt">cancel-in-progress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">quality</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.os }}</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-latest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macos-latest</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;3.11&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.12&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv python install ${{ matrix.python-version }}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run ruff check .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run ruff format --check .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mypy .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run basedpyright</span><span class="w">  </span><span class="c1"># 纯 Python，无 Node.js</span>
+<span class="w">      </span><span class="c1"># xdist (-n auto) 忽略 @pytest.mark.last 顺序，必须拆分两步：</span>
+<span class="w">      </span><span class="c1"># Step 1: 并行跑主测试（排除 last marker），生成 coverage.xml</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci --cov-report=xml:tests/coverage/coverage.xml</span>
+<span class="w">      </span><span class="c1"># Step 2: 串行跑 coverage threshold 校验（依赖 coverage.xml 已生成）</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run coverage threshold test (serial, last only)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -p no:xdist -m &quot;last&quot;</span>
+
+<span class="w">  </span><span class="nt">action-validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate GitHub Actions YAML</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run yamllint --strict .github/workflows/</span>
+<span class="w">      </span><span class="c1"># 注：action-validator 是 Node.js 工具（PyPI 无 Python 包），</span>
+<span class="w">      </span><span class="c1"># yamllint 已覆盖 YAML 校验需求。</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/security.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Security</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">audit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pip-audit</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py environment -o sbom.cdx.json</span>
+<span class="w">      </span><span class="c1"># 注：dev deps 中 cyclonedx-bom&gt;=4.0.0 包提供 cyclonedx-py CLI 入口</span>
+<span class="w">      </span><span class="c1"># （cyclonedx-bom 是包名，cyclonedx-py 是 console_script 名称）</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">sbom</span><span class="p p-Indicator">,</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">sbom.cdx.json</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/docs.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Docs</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra docs</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mkdocs build --strict</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docs-site</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">site/</span>
+<span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref == &#39;refs/heads/main&#39; &amp;&amp; github.event_name == &#39;push&#39;</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra docs</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mkdocs gh-deploy --force</span>
+</code></pre></div>
+<p><strong><code>registry-freshness.yml</code> 暂不创建</strong>：P-1 时点无 <code>.yaml</code> 文件可校验。P0 加 registry.lock.json 后由 P0 spec 负责新增 <code>registry-freshness.yml</code>。pre-commit 中的 <code>registry-lockfile-fresh</code> hook 同理（见 PR-8 注释）。</p>
+<h4 id="pr-8-pre-commit-hooks">PR 8: pre-commit hooks</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># .pre-commit-config.yaml</span>
+<span class="nt">repos</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/astral-sh/ruff-pre-commit</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.1.13</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--fix</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">--exit-non-zero-on-fix</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff-format</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/mirrors-mypy</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.8.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mypy</span>
+<span class="w">        </span><span class="nt">additional_dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pydantic&gt;=2.5</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--strict</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/pre-commit-hooks</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v4.5.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trailing-whitespace</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">end-of-file-fixer</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check-yaml</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check-added-large-files</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--maxkb=500</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detect-private-key</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/adrienverge/yamllint</span>
+<span class="w">    </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.33.0</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yamllint</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--strict</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\.(yaml|yml)$</span>
+<span class="w">        </span><span class="c1"># 同时排除已归档与未归档的 round 数据（避免 PR-8 与 PR-14 之间的窗口期失败）</span>
+<span class="w">        </span><span class="nt">exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^tests/rounds/(archived/|round-[0-9]{3}-)</span>
+
+<span class="w">  </span><span class="c1"># 所有 local hooks 合并到单一 - repo: local 块（业界惯例）</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">    </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># basedpyright 没有官方 pre-commit mirror（基于 Node.js 的 pyright mirror 不适用）</span>
+<span class="w">      </span><span class="c1"># 改用 local hook 调用 uv run basedpyright，版本由 uv.lock 锁定</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basedpyright</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basedpyright (strict type check)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run basedpyright</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">python</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="c1"># 校验整个仓库，不传文件名（basedpyright 自身管理 include/exclude）</span>
+
+<span class="w">      </span><span class="c1"># P0 scaffolding：P-1 时点 skills/ 无 .yaml，tests/tiers/ 也不存在，</span>
+<span class="w">      </span><span class="c1"># 此 hook 不会触发。P0 完成 skills/&lt;name&gt;/meta.yaml + scenarios/*.yaml 迁移后激活。</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry-lockfile-fresh</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry.lock.json freshness (P0 scaffolding, no-op in P-1)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tests/build_registry.py</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^(skills/.*\.yaml|tests/tiers/.*\.yaml)$</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="c1"># stub 实现在 PR-1 占位阶段，输出警告即退出 0；P0 替换为真实 build</span>
+
+<span class="w">      </span><span class="c1"># 注：原 spec 有 action-validator hook，但 PyPI 无此包（Node.js 工具）。</span>
+<span class="w">      </span><span class="c1"># yamllint 已覆盖 YAML 校验需求，故移除。</span>
+</code></pre></div>
+<h3 id="group-d-pr-9-10">Group D: 代码质量基础设施（PR 9-10）</h3>
+<h4 id="pr-9-structlog-print">PR 9: structlog 集成 + 替换所有 print</h4>
+<p>JSON 输出（生产）+ console 输出（dev），环境变量 <code>SHENBI_LOG_FORMAT=json|console</code>。每次工具调用 = 一个 event，含结构化字段。替换所有 print（约 93 处，跨 <code>tests/*.py</code> 全部文件）。</p>
+<p><strong>范围说明</strong>：仅替换 Python <code>print()</code>。Shell 脚本（<code>tests/dispatch-subagent.sh</code>、<code>tests/round-exec.sh</code> 等）的 <code>echo</code> / <code>printf</code> 用于 pipeline 控制与用户进度反馈，不是诊断日志，<strong>不在 structlog 替换范围</strong>。Shell 脚本如果需要结构化日志，PR-13 的 Python 重写后会自然使用 structlog。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/logging.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">configure_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure structured logging for the framework.&quot;&quot;&quot;</span>
+    <span class="n">log_format</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SHENBI_LOG_FORMAT&quot;</span><span class="p">,</span> <span class="s2">&quot;console&quot;</span><span class="p">)</span>
+    <span class="n">renderer</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">JSONRenderer</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">log_format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span>
+        <span class="k">else</span> <span class="n">structlog</span><span class="o">.</span><span class="n">dev</span><span class="o">.</span><span class="n">ConsoleRenderer</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">structlog</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+        <span class="n">processors</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">structlog</span><span class="o">.</span><span class="n">contextvars</span><span class="o">.</span><span class="n">merge_contextvars</span><span class="p">,</span>
+            <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">add_log_level</span><span class="p">,</span>
+            <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">TimeStamper</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">),</span>
+            <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">StackInfoRenderer</span><span class="p">(),</span>
+            <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">format_exc_info</span><span class="p">,</span>
+            <span class="n">renderer</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">cache_logger_on_first_use</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">structlog</span><span class="o">.</span><span class="n">BoundLogger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a structured logger.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="pr-10-typed-exception-hierarchy-error_guidancepy-recoverypy">PR 10: typed exception hierarchy + error_guidance.py + recovery.py</h4>
+<p>异常层级（见 Section 4）。</p>
+<p>PR-10 同时产出：
+- <code>tests/exceptions.py</code>：ShenbiError 层级
+- <code>tests/error_guidance.py</code>：用户友好的错误指引（ERROR_GUIDANCE dict + get_guidance）
+- <code>tests/recovery.py</code>：自动恢复策略枚举 + RECOVERY_STRATEGIES dict（P-1 只定义，不接入主流程；P3 实施）</p>
+<p>三个文件共同实现"错误生命周期"：raise → log → guide user → optional auto-recover。</p>
+<h3 id="group-e-adrpr-11">Group E: ADR（PR 11）</h3>
+<h4 id="pr-11-adr-9-adr">PR 11: ADR 模板 + 前 9 条 ADR</h4>
+<p>ADR 编号 4 位（0001, 0002, ...）。模板：Michael Nygard 经典格式。</p>
+<p>前 9 条覆盖 P-1 全部决策：
+- 0001-pyproject-uv.md
+- 0002-ruff-strict.md
+- 0003-mypy-basedpyright-dual.md
+- 0004-pytest-framework.md
+- 0005-structlog.md
+- 0006-typed-exceptions.md
+- 0007-adr-process.md（meta-ADR：记录"使用 ADR 流程"的决策。可改为 <code>docs/adr/README.md</code> 而不占编号；P-1 内选择保留编号以与其他 ADR 一致。）
+- 0008-validate-gate-modularization.md
+- 0009-dispatcher-python-rewrite.md</p>
+<h4 id="pr-17-mkdocs-material">PR 17: mkdocs-material 自动文档</h4>
+<blockquote>
+<p>PR 17 在 Section 2 的最后呈现，因其依赖 PR-1（pyproject.toml 的 docs 依赖组）且属于"外围"工作。Group E（ADR）只含 PR 11。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1"># mkdocs.yml</span>
+<span class="nt">site_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Shenbi</span>
+<span class="nt">theme</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">material</span>
+<span class="w">  </span><span class="nt">features</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.tabs</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.sections</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">navigation.expand</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">search.suggest</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">content.code.copy</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">search</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">mkdocstrings</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">handlers</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">python</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">show_source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">show_signature_annotations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">separate_signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">            </span><span class="nt">show_root_heading</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">nav</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Home</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">index.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Architecture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">architecture.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ADRs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adr/</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">API</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api/</span>
+</code></pre></div>
+<p><strong>最小文档内容（PR-17 必须创建）</strong>：<code>mkdocs build --strict</code> 在空 <code>docs/</code> 上会 fail。PR-17 必须同时创建：</p>
+<ul>
+<li><code>docs/index.md</code>：项目简介（P-1 + P0-P6 + T1-T3 + 20 万字小说目标，1 页）</li>
+<li><code>docs/architecture.md</code>：从 spec Section 1 提炼的架构概览（1 页）</li>
+<li><code>docs/adr/README.md</code>：ADR 索引（自动列出 0001-0009）</li>
+</ul>
+<p>其余 API 文档（<code>docs/api/</code>）由 mkdocstrings 自动生成，不需要手写。深度文档（开发指南、用户手册）留给后续 P 阶段或专门文档 PR。</p>
+<h3 id="group-f-pr-12-13">Group F: 重构（PR 12-13）</h3>
+<h4 id="pr-12-validate-gatepy-d">PR 12: validate-gate.py 机械拆分 + 切法 D 改善</h4>
+<p>Q1=D（机械拆分 + 所有"不依赖 P0"的语义改善）。</p>
+<p>物理拆分到 tests/gates/。同时改善（无需 P0；structlog 已由 PR9 完成）：
+- 用 typed exceptions 替代字符串返回
+- 加完整 type hints（PEP 484）
+- 移除死代码
+- 加 docstring（Google style）
+- 统一 G4 函数签名 <code>(project_dir, file_paths, round_dir)</code>
+- 提取共享 utility
+- 拆分长函数（&gt; 50 行的拆）</p>
+<p><code>tests/validate-gate.py</code> 退化为 ~30 行 shim。</p>
+<p>依赖 P0 的部分（Pydantic schemas、registry 路径解析）留在 P2。</p>
+<h4 id="pr-13-dispatch-subagentsh-python">PR 13: dispatch-subagent.sh → Python 重写</h4>
+<p>Q1=D 不改业务（行为完全一致）。Shell wrapper 保留 ~10 行（向后兼容）。</p>
+<div class="highlight"><pre><span></span><code>tests/dispatch-subagent.sh         # CLI shim (~10 行)
+tests/dispatcher/
+  __init__.py
+  cli.py                           # argparse
+  executor.py                      # 核心调度逻辑
+</code></pre></div>
+<h3 id="group-g-pr-14-15">Group G: 清理（PR 14-15）</h3>
+<h4 id="pr-14-phantom-rounds-readme">PR 14: phantom rounds 归档 + 每轮 README</h4>
+<p>Q2=D（归档 + 每轮 README + 索引）。</p>
+<div class="highlight"><pre><span></span><code>tests/rounds/archived/
+  README.md                        # 索引（所有归档轮次状态表）
+  round-001-2026-06-11/
+    README.md                      # 本轮状态、已知问题、归档原因
+  round-002-2026-06-11/
+    README.md
+  ...
+  round-007-2026-06-14/
+    README.md                      # 详细记录 3 个完成 skill 的得分
+</code></pre></div>
+<p><code>archived/README.md</code> 含表格：Round | Date | Status | Known Issues。</p>
+<p>每轮 README 含：Status、Disposal Reason、What's Useful Here、What's NOT Useful、Cross-references。</p>
+<h4 id="pr-15-novel-output-skill-output">PR 15: 目录重命名 novel-output → skill-output</h4>
+<p><code>novel-output</code> 误导（实际包含所有 skill 输出，不只 novel）。重命名 + 同步更新所有引用。</p>
+<p><strong>已知引用清单</strong>（基于 <code>grep "novel-output" tests/</code> 实际扫描，PR-15 必须全部更新）：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>行</th>
+<th>引用形式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/update-progress.py</code></td>
+<td>L104</td>
+<td><code>"novel-output"</code> 在 subdir list</td>
+</tr>
+<tr>
+<td><code>tests/dispatch-subagent.sh</code></td>
+<td>L51, L98</td>
+<td><code>${ROUND_DIR}/novel-output/${SKILL}</code></td>
+</tr>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>L288, L413-414, L424, L431, L441</td>
+<td><code>PROJECT / "novel-output"</code> 路径解析</td>
+</tr>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>L1683, L1685</td>
+<td><code>proj_dir.name != "novel-output"</code> 路径检测</td>
+</tr>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>L3405, L3421</td>
+<td><code>rd / "novel-output"</code> + <code>"novel-output/ not found"</code></td>
+</tr>
+<tr>
+<td><code>tests/round-exec.sh</code></td>
+<td>L33, L87</td>
+<td><code>novel-output</code> 在 mkdir 与 find</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意</strong>：PR-12 (validate-gate.py 拆分) 与 PR-15 (rename) 有依赖关系。PR-15 必须在 PR-12 之后，否则路径字符串分散在 <code>tests/gates/</code> 多个文件，rename 工作量爆炸。Section 6 PR 顺序表已正确反映此依赖（PR-15 依赖 PR-12 完成）。</p>
+<p><strong>重命名策略</strong>：使用 <code>git mv</code>（保留历史），同时全文替换字符串 <code>novel-output</code> → <code>skill-output</code>。</p>
+<p><strong>回滚预案</strong>：若 PR-15 引入未发现的引用断裂（如外部脚本依赖 <code>novel-output</code> 路径），可在 24 小时内 revert。所有引用更新都在单一 PR，revert 干净。</p>
+<h3 id="group-h-pr-16">Group H: 安全与性能（PR 16）</h3>
+<h4 id="pr-16-pytest-benchmark-pip-audit-sbom">PR 16: pytest-benchmark + pip-audit + SBOM</h4>
+<ul>
+<li>pytest-benchmark：每个核心函数一个 benchmark 测试。回归 &gt; 10% 报警。</li>
+<li>pip-audit：CI 跑漏洞扫描。</li>
+<li>cyclonedx-bom：生成 SBOM（CycloneDX 格式）。</li>
+</ul>
+<h3 id="_4">关键决策一览</h3>
+<table>
+<thead>
+<tr>
+<th>决策点</th>
+<th>选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包管理器</td>
+<td>uv</td>
+</tr>
+<tr>
+<td>Linter</td>
+<td>ruff (strict)</td>
+</tr>
+<tr>
+<td>Formatter</td>
+<td>ruff format</td>
+</tr>
+<tr>
+<td>类型检查</td>
+<td>mypy + basedpyright (双重，均纯 Python)</td>
+</tr>
+<tr>
+<td>测试框架</td>
+<td>pytest + 7 插件（cov / xdist / asyncio / timeout / benchmark / hypothesis / ordering）</td>
+</tr>
+<tr>
+<td>覆盖率门槛</td>
+<td>90% line（pytest-cov 内置）+ 80% branch（自写测试强制）</td>
+</tr>
+<tr>
+<td>日志</td>
+<td>structlog (JSON + console)</td>
+</tr>
+<tr>
+<td>CI 平台</td>
+<td>GitHub Actions（3 个 workflow 文件：ci / security / docs）</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>mkdocs-material</td>
+</tr>
+<tr>
+<td>ADR 格式</td>
+<td>Nygard</td>
+</tr>
+<tr>
+<td>Python 版本</td>
+<td>3.11 + 3.12 matrix</td>
+</tr>
+<tr>
+<td>单测试超时</td>
+<td>60s</td>
+</tr>
+<tr>
+<td>Coverage 报告</td>
+<td>term + html + xml</td>
+</tr>
+<tr>
+<td>CI YAML 校验</td>
+<td>yamllint（覆盖 .github/workflows/ + .yaml/.yml 文件）</td>
+</tr>
+<tr>
+<td>依赖更新</td>
+<td>Renovate（自动 PR）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-3-data-flow">Section 3: Data Flow</h2>
+<h3 id="31">3.1 开发生命周期</h3>
+<div class="highlight"><pre><span></span><code>Developer → Edit → git add
+                      ↓
+                  pre-commit hooks
+                  (ruff + ruff-format / mypy / basedpyright / check-yaml / detect-private-key / yamllint 等 11 hooks，详见 PR-8)
+                      ↓ (若失败，回到 edit)
+                  git commit
+                      ↓
+                  git push
+                      ↓
+                  GitHub Actions CI
+                  (quality / security / docs jobs)
+                      ↓ (若失败，回到 edit)
+                  Open PR → Reviewer review → Merge to main
+                      ↓
+                  Deploy docs to GH Pages
+</code></pre></div>
+<h3 id="32-structlog">3.2 日志流（structlog）</h3>
+<div class="highlight"><pre><span></span><code>Tool execution
+    ↓
+get_logger(name).bind(context)
+    ↓
+log.info(&quot;event_name&quot;, **fields)
+    ↓
+structlog processor chain
+(merge_contextvars → add_log_level → TimeStamper → StackInfoRenderer → format_exc_info → Renderer)
+    ↓
+Output to stderr (JSON or Console format)
+</code></pre></div>
+<p>JSON 格式（生产）：
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="s2">&quot;dispatch_start&quot;</span><span class="p">,</span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2026-06-14T10:00:00Z&quot;</span><span class="p">,</span><span class="nt">&quot;agent_id&quot;</span><span class="p">:</span><span class="s2">&quot;abc123&quot;</span><span class="p">}</span>
+</code></pre></div></p>
+<p>Console 格式（dev 默认）：
+<div class="highlight"><pre><span></span><code>2026-06-14 10:00:00 [info     ] dispatch_start
+  skill=shenbi-worldbuilding agent_id=abc123
+</code></pre></div></p>
+<h3 id="33">3.3 异常传播</h3>
+<div class="highlight"><pre><span></span><code>Tool execution (任何深度)
+    ↓ raise typed exception
+ShenbiError 子类 (携带 context)
+    ↓
+CLI boundary catch
+    ↓
+Log exception (structlog.exception)
+Translate to user message
+Exit (0/1/2/3/4/5)
+</code></pre></div>
+<p>Exit code 约定：</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>类别</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Success</td>
+<td>操作完成</td>
+</tr>
+<tr>
+<td>1</td>
+<td>User error</td>
+<td>gate FAIL / 测试失败 / 覆盖率不足</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Framework error</td>
+<td>registry stale / schema 错 / 迁移失败</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Unexpected</td>
+<td>未捕获异常</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Timeout</td>
+<td>操作超时</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Skipped</td>
+<td>显式 skip</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-gate-refactor">3.4 Gate 执行流（refactor 后）</h3>
+<div class="highlight"><pre><span></span><code>tests/validate-gate.py CLI 入口 (shim, ~30 行)
+    ↓
+tests/gates/cli.py:main()
+    ↓ parse_args, configure_logging
+    ↓ route by gate name
+gates.g0.run() / gates.g1.run() / ... / gates.g7.run()
+    ↓
+GateResult dataclass (gate / status / checks / must_fix / blocked_action)
+    ↓
+serialize to JSON (向后兼容)
+write gate marker (if PASS)
+print to stdout, exit 0 | 1
+</code></pre></div>
+<h3 id="35-dispatch-python-rewrite">3.5 Dispatch 流（Python rewrite 后）</h3>
+<div class="highlight"><pre><span></span><code>tests/dispatch-subagent.sh (shim, ~10 行)
+    ↓ exec python3 -m tests.dispatcher.cli &quot;$@&quot;
+tests/dispatcher/cli.py:main()
+    ↓ parse_args, configure_logging
+tests/dispatcher/executor.py:dispatch_scoring()
+    ↓
+    1. resolve input/output files
+    2. validate G1
+    3. validate G2
+    4. detect dispatch mode (codex / codex-api / internal)
+    5. spawn sub-agent
+    6. parse scores JSON
+    7. compute final score (scoring.py)
+    8. update progress (update-progress.py)
+    9. return DispatchResult
+</code></pre></div>
+<h3 id="36-pytest">3.6 测试执行流（pytest）</h3>
+<div class="highlight"><pre><span></span><code>pytest invocation
+    ↓
+load conftest.py (global fixtures)
+    ↓
+discover tests (testpaths = tests/{unit,integration,property,benchmark})
+    ↓
+run tests in parallel (pytest-xdist -n=auto)
+    ↓ each test: timeout (60s unit / 300s property), acquire fixtures, run, capture, collect coverage
+    Hypothesis tests: 1000 runs each (CI profile)
+    ↓
+aggregate coverage
+    ↓ check --cov-fail-under=90
+generate reports (term/html/xml)
+    ↓
+exit 0 | 1 | 2 | 5
+</code></pre></div>
+<h2 id="section-4-error-handling">Section 4: Error Handling</h2>
+<h3 id="41">4.1 异常层级</h3>
+<div class="highlight"><pre><span></span><code>ShenbiError (基类)
+├── FrameworkError (框架基础设施问题)
+│   ├── RegistryError
+│   │   ├── RegistryStaleError
+│   │   ├── RegistryMissingError
+│   │   └── RegistryCorruptError
+│   ├── SchemaValidationError
+│   ├── DefectApplicationError
+│   ├── MigrationError
+│   ├── DispatcherError
+│   │   ├── SubAgentTimeoutError
+│   │   ├── SubAgentProtocolError
+│   │   └── SubAgentUnavailable
+│   └── ConfigurationError
+├── IntegrityError
+│   └── ToolTamperError
+├── GateError
+│   └── GateMarkerMissingError
+└── ScoringError
+    └── ScoringRejectError
+</code></pre></div>
+<h3 id="42">4.2 异常类统一接口</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ShenbiError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base for all Shenbi errors.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">cause</span><span class="p">:</span> <span class="ne">Exception</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">context</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cause</span> <span class="o">=</span> <span class="n">cause</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialize for failure catalog and structured logging.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;error_class&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">,</span>
+            <span class="s2">&quot;cause_class&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cause</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cause</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;cause_message&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cause</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cause</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+</code></pre></div>
+<h3 id="43-boundary-translation">4.3 错误转换（boundary translation）</h3>
+<p>内部 raise typed exceptions。外部边界 translate to JSON / 用户消息。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/gates/cli.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">run_gate</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="n">GateError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;gate_failed&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">e</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">_gate_error_to_json</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="n">ShenbiError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;framework_error&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">e</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Framework error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;unexpected_error&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">3</span>
+</code></pre></div>
+<h3 id="44">4.4 用户友好的错误指引</h3>
+<p>每种错误类对应 ErrorGuidance（explanation / action / doc_url）：</p>
+<div class="highlight"><pre><span></span><code><span class="n">ERROR_GUIDANCE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ErrorGuidance</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;RegistryStaleError&quot;</span><span class="p">:</span> <span class="n">ErrorGuidance</span><span class="p">(</span>
+        <span class="n">explanation</span><span class="o">=</span><span class="s2">&quot;Source files have been modified since registry.lock.json was last built.&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;Run: python3 tests/build_registry.py</span><span class="se">\n</span><span class="s2">Then commit the updated lockfile.&quot;</span><span class="p">,</span>
+        <span class="n">doc_url</span><span class="o">=</span><span class="s2">&quot;docs/registry.md#stale-lockfile&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># ... 完整 catalog</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>CLI 边界展示 guidance：错误信息 + Explanation + Suggested action + Documentation link。</p>
+<h3 id="45">4.5 自动恢复策略</h3>
+<p>P-1 定义接口，不接入主流程（P3 实施）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RecoveryStrategy</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+    <span class="n">AUTO_RETRY</span> <span class="o">=</span> <span class="s2">&quot;auto_retry&quot;</span>
+    <span class="n">AUTO_REBUILD</span> <span class="o">=</span> <span class="s2">&quot;auto_rebuild&quot;</span>
+    <span class="n">HALT</span> <span class="o">=</span> <span class="s2">&quot;halt&quot;</span>
+
+<span class="n">RECOVERY_STRATEGIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RecoveryStrategy</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;RegistryStaleError&quot;</span><span class="p">:</span> <span class="n">RecoveryStrategy</span><span class="o">.</span><span class="n">AUTO_REBUILD</span><span class="p">,</span>
+    <span class="s2">&quot;RegistryMissingError&quot;</span><span class="p">:</span> <span class="n">RecoveryStrategy</span><span class="o">.</span><span class="n">AUTO_REBUILD</span><span class="p">,</span>
+    <span class="s2">&quot;GateMarkerMissingError&quot;</span><span class="p">:</span> <span class="n">RecoveryStrategy</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+    <span class="s2">&quot;SubAgentTimeoutError&quot;</span><span class="p">:</span> <span class="n">RecoveryStrategy</span><span class="o">.</span><span class="n">AUTO_RETRY</span><span class="p">,</span>
+    <span class="s2">&quot;ToolTamperError&quot;</span><span class="p">:</span> <span class="n">RecoveryStrategy</span><span class="o">.</span><span class="n">HALT</span><span class="p">,</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="46-p3-failure-catalog">4.6 P3 failure catalog 预留接口</h3>
+<p>所有 ShenbiError 实例都具备 <code>to_dict()</code> 与必要 context。P3 可直接消费，无需额外适配。</p>
+<h3 id="47-vs">4.7 异常 vs 字符串返回的兼容策略</h3>
+<ol>
+<li><strong>内部代码</strong>：raise typed exceptions</li>
+<li><strong>Gate 函数返回</strong>：<code>GateResult</code> dataclass</li>
+<li><strong>CLI 边界</strong>：translate GateResult / exception → JSON 字符串</li>
+<li><strong>向后兼容</strong>：JSON 字符串格式与现有完全一致</li>
+</ol>
+<p>外部消费者（dispatch-subagent.sh / scoring.py / phase-runner.py）看到的 JSON 字符串不变。</p>
+<h2 id="section-5-testing">Section 5: Testing</h2>
+<h3 id="51">5.1 测试金字塔</h3>
+<div class="highlight"><pre><span></span><code>            Property (Hypothesis)    ~5%  (~50 tests)
+           Benchmark                 ~2%  (~20 tests)
+          Integration                ~15% (~150 tests)
+         Unit                        ~78% (~780 tests)
+</code></pre></div>
+<p>P-1 内只写测试基础设施本身所需的测试（约 470 tests）。P0-P6 各阶段在自己范围内加测试。</p>
+<h3 id="52-p-1">5.2 P-1 内必写的测试</h3>
+<ul>
+<li>A. 测试框架自身（bootstrap tests）</li>
+<li>B. 类型检查与 lint 自身（subprocess 调用 ruff/mypy/basedpyright）</li>
+<li>C. 异常类与 logging</li>
+<li>D. Gate 拆分等价性测试（baseline 对比）</li>
+<li>E. Dispatcher 重写等价性测试</li>
+<li>F. Round 归档验证</li>
+<li>G. 工具哈希锁定（P-1 时 skipped，P0 后激活）</li>
+<li>H. property-based 测试基础设施</li>
+<li>I. benchmark 基础设施</li>
+<li>J. 文档测试（ADR + mkdocs）</li>
+<li>K. CI workflow 验证</li>
+</ul>
+<h3 id="53">5.3 测试覆盖率目标</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>行覆盖率</th>
+<th>分支覆盖率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/exceptions.py</code></td>
+<td>100%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><code>tests/logging.py</code></td>
+<td>95%</td>
+<td>90%</td>
+</tr>
+<tr>
+<td><code>tests/gates/shared.py</code></td>
+<td>95%</td>
+<td>90%</td>
+</tr>
+<tr>
+<td><code>tests/gates/g0.py</code> - <code>g7.py</code></td>
+<td>90%</td>
+<td>85%</td>
+</tr>
+<tr>
+<td><code>tests/gates/g4/&lt;skill&gt;.py</code></td>
+<td>85%</td>
+<td>80%</td>
+</tr>
+<tr>
+<td><code>tests/dispatcher/</code></td>
+<td>90%</td>
+<td>85%</td>
+</tr>
+<tr>
+<td>整体加权平均</td>
+<td><strong>≥ 90%</strong></td>
+<td><strong>≥ 80%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>未达标 → CI 失败。</p>
+<h3 id="54-property-based">5.4 Property-based 测试配置</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/conftest.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">register_profile</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">max_examples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">deadline</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">load_profile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HYPOTHESIS_PROFILE&quot;</span><span class="p">,</span> <span class="s2">&quot;dev&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>CI 跑 <code>--hypothesis-profile=ci</code>（1000 次），dev 默认 100 次。</p>
+<h3 id="55-mutation-testingp-1">5.5 Mutation testing（P-1 加成）</h3>
+<p>引入 mutmut。P-1 内运行 <code>mutmut run</code> 作为参考基线。P0-P6 阶段逐步提高 mutation score 门槛。</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.mutmut]</span>
+<span class="n">paths_to_mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/exceptions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/logging.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/gates/shared.py&quot;</span><span class="p">]</span>
+<span class="n">tests_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests/unit/&quot;</span>
+<span class="n">do_not_mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/rounds/archived/**&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="56">5.6 测试执行命令</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 全套（CI）</span>
+pytest
+
+<span class="c1"># 仅 unit</span>
+pytest<span class="w"> </span>tests/unit/
+
+<span class="c1"># 跳过 slow</span>
+pytest<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not slow&quot;</span>
+
+<span class="c1"># 跳过 benchmark</span>
+pytest<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not benchmark&quot;</span>
+
+<span class="c1"># 仅 property-based，CI 强度</span>
+pytest<span class="w"> </span>-m<span class="w"> </span>property<span class="w"> </span>--hypothesis-profile<span class="o">=</span>ci
+
+<span class="c1"># 并行</span>
+pytest<span class="w"> </span>-n<span class="w"> </span><span class="m">8</span>
+
+<span class="c1"># 覆盖率报告</span>
+pytest<span class="w"> </span>--cov-report<span class="o">=</span>html:tests/coverage
+</code></pre></div>
+<h3 id="57">5.7 测试数据管理</h3>
+<div class="highlight"><pre><span></span><code>tests/
+  fixtures/                  # 测试 fixture 数据
+    sample-novel.json
+    sample-worldbuilding-output/
+    sample-character-design-output/
+  baselines/                 # 等价性测试的 baseline 输出
+    gate-output-G0-worldbuilding.json
+    gate-output-G4-worldbuilding.json
+  conftest.py                # 全局 fixtures
+  unit/
+  integration/
+  property/
+  benchmark/
+</code></pre></div>
+<p><strong><code>baselines/</code> 生成</strong>：<code>tests/regenerate-baselines.sh</code> 由 <strong>PR-12（validate-gate.py 拆分）</strong> 创建并运行。脚本流程：</p>
+<ol>
+<li>在 PR-12 开始前，对当前 main 分支的 <code>validate-gate.py</code> 跑全部 G0-G7 + 所有 G4 checker（≥200 个调用组合），capture stdout 到 <code>tests/baselines/</code>。</li>
+<li>PR-12 完成后，跑同样的调用，对比新输出与 baseline（modulo timestamp），验证等价性。</li>
+<li>PR-12 提交时包含 baseline 文件（git tracked），未来 P0-P6 改 gate 行为时 baseline 更新作为单独 commit。</li>
+</ol>
+<p>脚本归属：PR-12。脚本路径：<code>tests/regenerate-baselines.sh</code>。</p>
+<h3 id="58-ci">5.8 CI 测试矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 版本</td>
+<td>3.11, 3.12</td>
+</tr>
+<tr>
+<td>操作系统</td>
+<td>ubuntu-latest, macos-latest</td>
+</tr>
+<tr>
+<td>Hypothesis profile</td>
+<td>ci (1000 examples)</td>
+</tr>
+<tr>
+<td>Coverage threshold</td>
+<td>90% line / 80% branch</td>
+</tr>
+</tbody>
+</table>
+<p>每 PR 跑 4 个组合。Main 分支跑全套。</p>
+<h3 id="59">5.9 回归测试策略</h3>
+<p>P-1 完成后，未来 P0-P6 的 PR 必须：</p>
+<ol>
+<li>不降低现有覆盖率（CI 强制）</li>
+<li>不破坏 baseline 等价性（gate/dispatcher 输出对比）</li>
+<li>不引入新 ruff/mypy/basedpyright 违规</li>
+<li>不减少 ADR 数量</li>
+<li>mutation score 不下降</li>
+</ol>
+<h3 id="510-p-1">5.10 P-1 测试工作量</h3>
+<ul>
+<li>写 conftest.py + sample tests：~50 tests，3 小时</li>
+<li>改写 test_integrity.py 为 pytest：~150 tests，8 小时</li>
+<li>异常类测试：~80 tests，5 小时</li>
+<li>logging 测试：~30 tests，3 小时</li>
+<li>gate 等价性测试：~60 tests（含 baseline 生成），8 小时</li>
+<li>dispatcher 等价性测试：~40 tests，5 小时</li>
+<li>round 归档验证：~10 tests，2 小时</li>
+<li>文档 + CI workflow 测试：~30 tests，3 小时</li>
+<li>property/benchmark 基础设施：~20 tests，3 小时</li>
+</ul>
+<p><strong>P-1 总测试数：~470 tests</strong>，工时合计 40 小时（精确求和：3+8+5+3+8+5+2+3+3=40）。</p>
+<blockquote>
+<p>上一版本估计 23 小时过于乐观（假设每测试 ~3 分钟，含 setup/review/debug）。修正后按每测试 ~5 分钟（含 baseline 对比、CI yaml 调试、property-based 反例 shrink）计算，~40 小时 ≈ 1 人周。</p>
+</blockquote>
+<h2 id="section-6-rollout-strategy">Section 6: Rollout Strategy</h2>
+<h3 id="pr-17-pr">PR 顺序（17 个原子 PR）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>PR</th>
+<th>依赖</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>pyproject.toml + uv.lock</td>
+<td>—</td>
+<td>项目元数据</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ruff config + auto-fix</td>
+<td>PR1</td>
+<td>Lint/format</td>
+</tr>
+<tr>
+<td>3</td>
+<td>mypy config</td>
+<td>PR1</td>
+<td>Type check</td>
+</tr>
+<tr>
+<td>4</td>
+<td>basedpyright config</td>
+<td>PR1</td>
+<td>Type check</td>
+</tr>
+<tr>
+<td>5</td>
+<td>pytest framework + sample</td>
+<td>PR1</td>
+<td>Test infra</td>
+</tr>
+<tr>
+<td>6</td>
+<td>migrate test_integrity.py</td>
+<td>PR5</td>
+<td>Test rewrite</td>
+</tr>
+<tr>
+<td>7</td>
+<td>GitHub Actions CI</td>
+<td>PR2-6</td>
+<td>CI</td>
+</tr>
+<tr>
+<td>8</td>
+<td>pre-commit hooks</td>
+<td>PR2-4</td>
+<td>Local hooks</td>
+</tr>
+<tr>
+<td>9</td>
+<td>structlog integration</td>
+<td>PR1</td>
+<td>Logging</td>
+</tr>
+<tr>
+<td>10</td>
+<td>typed exceptions</td>
+<td>PR1</td>
+<td>Error handling</td>
+</tr>
+<tr>
+<td>11</td>
+<td>ADR template + 9 ADRs</td>
+<td>—</td>
+<td>Docs</td>
+</tr>
+<tr>
+<td>12</td>
+<td>validate-gate.py split</td>
+<td>PR5,9,10</td>
+<td>Refactor</td>
+</tr>
+<tr>
+<td>13</td>
+<td>dispatch-subagent.sh → Python</td>
+<td>PR5,9,10</td>
+<td>Refactor</td>
+</tr>
+<tr>
+<td>14</td>
+<td>phantom rounds archive</td>
+<td>—</td>
+<td>Cleanup</td>
+</tr>
+<tr>
+<td>15</td>
+<td>rename novel-output → skill-output</td>
+<td>PR12</td>
+<td>Cleanup</td>
+</tr>
+<tr>
+<td>16</td>
+<td>pytest-benchmark + pip-audit + SBOM</td>
+<td>PR7</td>
+<td>Quality</td>
+</tr>
+<tr>
+<td>17</td>
+<td>mkdocs-material docs</td>
+<td>PR1</td>
+<td>Docs</td>
+</tr>
+</tbody>
+</table>
+<p>每个 PR &lt; 500 行 diff，独立可 revert，独立可 review。</p>
+<h3 id="_5">验收标准</h3>
+<p>P-1 完成的标志：</p>
+<ol>
+<li>✅ 所有 17 个 PR merged to main</li>
+<li>✅ CI 全套通过（lint + type + test + coverage + security + docs）</li>
+<li>✅ Coverage ≥ 90% line / 80% branch</li>
+<li>✅ tests/rounds/archived/ 建立完整索引</li>
+<li>✅ ADR 0001-0009 全部 accepted</li>
+<li>✅ mutation score 基线建立（mutmut run 成功）</li>
+<li>✅ mkdocs build --strict 通过</li>
+<li>✅ 所有 print() 替换为 structlog</li>
+<li>✅ 所有 ad-hoc error returns 替换为 typed exceptions</li>
+<li>✅ validate-gate.py 拆分后 baseline 等价性测试全过</li>
+<li>✅ dispatch-subagent.sh → Python 后行为等价性测试全过</li>
+</ol>
+<h3 id="p0">与 P0 的接口</h3>
+<p>P-1 完成后，P0 在此基线上构建：</p>
+<div class="highlight"><pre><span></span><code>P0 在 P-1 上加：
+  - skills/&lt;name&gt;/meta.yaml
+  - skills/&lt;name&gt;/schema/*.py（Pydantic，受 mypy/basedpyright 监督）
+  - tests/tiers/registry.lock.json（受 pre-commit 自动 rebuild）
+  - tests/build_registry.py / load_registry.py（已占位，P0 实现）
+  - G0 加新检查（G0.L1 lockfile freshness）
+</code></pre></div>
+<p>P0 完成后，P1-P6 在新基线上构建，每个阶段在 P-1 + P0 上<strong>只加不改</strong>。</p>
+<h2 id="section-7-out-of-scope">Section 7: Out of Scope</h2>
+<p>明确不在 P-1 范围内的工作：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>责任 P 阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pydantic schemas</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Registry / lockfile 机制</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>G4 业务逻辑重写（用 schemas 替代 regex）</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Failure catalog 实现</td>
+<td>P3</td>
+</tr>
+<tr>
+<td>Sub-agent dispatch（替代 codex）</td>
+<td>P4</td>
+</tr>
+<tr>
+<td>Vertical slice 协议改造</td>
+<td>P5</td>
+</tr>
+<tr>
+<td>Token/context 优化</td>
+<td>P6</td>
+</tr>
+<tr>
+<td>Protocol 文档（command-to-give.md）改造</td>
+<td>P5</td>
+</tr>
+<tr>
+<td>任何业务逻辑变更</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-8-risks-mitigations">Section 8: Risks &amp; Mitigations</h2>
+<h3 id="risk-1">Risk 1: 行为等价性回归</h3>
+<p><strong>风险</strong>：validate-gate.py 拆分 + 改善后，gate 输出可能微妙变化，破坏现有评分 pipeline。</p>
+<p><strong>缓解</strong>：
+- PR-12 前生成所有 gate baseline
+- PR-12 后跑等价性测试，任何 mismatch 必须修复
+- PR-13 同理</p>
+<h3 id="risk-2-uv">Risk 2: uv 不可用</h3>
+<p><strong>风险</strong>：开发者环境无 uv。</p>
+<p><strong>缓解</strong>：
+- uv 是单文件二进制，安装简单
+- 提供 fallback：<code>uvx --from shenbi &lt;command&gt;</code> 或 <code>pip install -e . --no-build-isolation</code>（注意 hatchling 在某些 Python 版本上 editable 模式对 namespace 包有边缘问题，需 <code>--no-build-isolation</code>）
+- CI 用 setup-uv action 保证可用</p>
+<h3 id="risk-3-coverage-90">Risk 3: Coverage 90% 门槛过高</h3>
+<p><strong>风险</strong>：现有代码覆盖率不达 90%，CI 一直红。</p>
+<p><strong>缓解</strong>：
+- PR-5 后跑 coverage，得到实际基线
+- 若 &lt; 90%，分阶段提高门槛：80% → 85% → 90%（每 PR +5%）
+- 最终达到 90% 后 lock 住</p>
+<h3 id="risk-4-mypybasedpyright">Risk 4: mypy/basedpyright 在现有代码上报大量错误</h3>
+<p><strong>风险</strong>：3900 行 validate-gate.py 加 strict 后可能数百错误。</p>
+<p><strong>缓解</strong>：
+- PR-3/4 用 per-module overrides 逐步收紧
+- <code>tests.gates.g4.*</code> 在 P-1 时 disallow_untyped_defs = false，P2 改完移除
+- 其他模块直接 strict，但 PR 内一次性 fix 所有错误</p>
+<h3 id="risk-5-17-pr">Risk 5: 17 个 PR 周期太长</h3>
+<p><strong>风险</strong>：每个 PR review + merge 平均 2 天。<strong>关键路径</strong>（不可并行的最长链）：</p>
+<div class="highlight"><pre><span></span><code>PR-1 → PR-2/3/4（并行）→ PR-5 → PR-6 → PR-7 → PR-12 → PR-13/15（并行）
+</code></pre></div>
+<p>= 7 个串行步骤 × 2 天 = <strong>14 天关键路径</strong>（不是 34 天，34 天假设全串行）。</p>
+<p>加上可并行的 PR-8/9/10/11/14/16/17/18/19（每个独立 ~2 天，可同时进行），实际总周期 ~14-18 天。</p>
+<p><strong>缓解</strong>：
+- 关键路径上的 PR 优先 review
+- 无依赖的 PR 并行 review（PR-11 ADR / PR-14 archive / PR-17 mkdocs / PR-16 security 完全独立）
+- 部分 PR 由 AI 自动 review（ruff/mypy/basedpyright 已是机器检查，review 重点是设计决策）
+- 实际人工 review 重点：PR-12 (gate split), PR-13 (dispatcher rewrite), PR-11 (ADRs), PR-9 (structlog), PR-10 (exceptions)</p>
+<h3 id="risk-6-basedpyright-pyright">Risk 6: basedpyright 与 pyright 行为差异</h3>
+<p><strong>风险</strong>：basedpyright 是 pyright 的 fork，默认行为略有不同（如更严格的类型推断）。CI 跑 basedpyright 可能报 pyright 不报的错误，反之亦然。</p>
+<p><strong>缓解</strong>：
+- 业界经验：basedpyright 通常比 pyright 更严格，向上兼容
+- 若发现误报，per-module 调整（pyproject.toml 的 <code>[tool.basedpyright.overrides]</code>）
+- 长期监控 basedpyright 上游同步频率（每月一次），与 pyright 保持版本对应</p>
+<h3 id="risk-7-github-actions">Risk 7: GitHub Actions 矩阵成本</h3>
+<p><strong>风险</strong>：matrix testing（2 OS × 2 Python × 1 job = 4 并发 run）每 PR 4 个 run。GitHub Actions 价格差异显著：</p>
+<ul>
+<li>ubuntu-latest: $0.008/min</li>
+<li>macos-latest: $0.08/min（约 10 倍）</li>
+</ul>
+<p>按 10 min/run 计算：</p>
+<ul>
+<li>2 Ubuntu runs: 2 × 10 × $0.008 = $0.16</li>
+<li>2 macOS runs: 2 × 10 × $0.08 = $1.60</li>
+<li><strong>合计 ~$1.76/PR</strong>（不是简单 4 × $0.08）</li>
+</ul>
+<p><strong>缓解</strong>：
+- 公共仓库免费配额充足（2,000 分钟/月，macOS 计 10× 配额）
+- 私有仓库成本：若 50 PR/月，~$88/月。预算敏感场景可：
+  - 仅在 main 分支 push 时跑 macOS（PR 仅 Ubuntu）
+  - 完全去掉 macOS（接受 Mac 用户本地跑测试）
+- 长期压缩成本：去掉 macos-latest（Linux only），保留双 Python 版本</p>
+<h3 id="risk-8-pr-12-validate-gatepy">Risk 8: PR-12 validate-gate.py 拆分后行为微变</h3>
+<p><strong>风险</strong>：Q1=D 包括"非 P0 依赖的语义改善"（type hints、exceptions、长函数拆分）。即使 baseline 等价测试通过，也可能漏掉未在 baseline 中的输入场景。</p>
+<p><strong>缓解</strong>：
+- baseline 覆盖所有 59 skill × 3 test type = 177 个 G4 调用组合
+- 对 G0-G7 每个 gate 至少 5 个不同输入的 baseline
+- 总 baseline 数 ≥ 200，覆盖绝大多数真实调用
+- 残余风险（&lt; 0.1%）：手动 review PR-12 的非等价改动列表</p>
+<h3 id="risk-9-renovatedependabot-pr">Risk 9: Renovate/Dependabot 自动 PR 噪音</h3>
+<p><strong>风险</strong>：依赖更新自动 PR 太多会淹没功能 PR（如 ruff 升级、pydantic 升级）。</p>
+<p><strong>缓解</strong>：
+- 配置 Renovate schedule：weekends only / monthly
+- minor 与 patch 升级自动 merge（CI 全过时）
+- major 升级走人工 review
+- 配置 <code>renovate.json</code> group 规则（如所有 ruff 系列一起升级）</p>
+<h2 id="appendix-a">Appendix A: 关键文件清单</h2>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── .github/workflows/
+│   ├── ci.yml
+│   ├── security.yml
+│   └── docs.yml
+├── .pre-commit-config.yaml
+├── .gitignore
+├── pyproject.toml
+├── uv.lock
+├── mkdocs.yml
+├── renovate.json
+├── docs/
+│   └── adr/
+│       ├── 0000-template.md
+│       ├── 0001-pyproject-uv.md
+│       ├── 0002-ruff-strict.md
+│       ├── 0003-mypy-basedpyright-dual.md
+│       ├── 0004-pytest-framework.md
+│       ├── 0005-structlog.md
+│       ├── 0006-typed-exceptions.md
+│       ├── 0007-adr-process.md
+│       ├── 0008-validate-gate-modularization.md
+│       └── 0009-dispatcher-python-rewrite.md
+└── tests/
+    ├── __init__.py
+    ├── conftest.py
+    ├── exceptions.py
+    ├── logging.py
+    ├── error_guidance.py
+    ├── recovery.py
+    ├── validate-gate.py                 (CLI shim)
+    ├── dispatch-subagent.sh              (CLI shim)
+    ├── gates/
+    │   ├── __init__.py
+    │   ├── shared.py
+    │   ├── cli.py
+    │   ├── g0.py
+    │   ├── g1.py
+    │   ├── g2.py
+    │   ├── g3.py
+    │   ├── g4/
+    │   │   ├── __init__.py
+    │   │   ├── generic.py
+    │   │   ├── worldbuilding.py
+    │   │   ├── character_design.py
+    │   │   ├── chapter_drafting.py
+    │   │   └── ... (一个 skill 一个文件)
+    │   ├── g5.py
+    │   ├── g6.py
+    │   └── g7.py
+    ├── dispatcher/
+    │   ├── __init__.py
+    │   ├── cli.py
+    │   └── executor.py
+    ├── build_registry.py                (占位)
+    ├── load_registry.py                 (占位)
+    ├── rounds/
+    │   ├── round-000-TEMPLATE/
+    │   └── archived/
+    │       ├── README.md
+    │       ├── round-001-2026-06-11/README.md
+    │       ├── round-002-2026-06-11/README.md
+    │       ├── round-003-2026-06-11/README.md
+    │       ├── round-004-2026-06-12/README.md
+    │       ├── round-005-2026-06-12/README.md
+    │       ├── round-006-2026-06-13/README.md
+    │       └── round-007-2026-06-14/README.md
+    ├── unit/                            (~780 tests 最终，PR-5 创建空目录)
+    │   └── test_coverage_thresholds.py  (PR-5 创建，@pytest.mark.last)
+    ├── integration/                     (~150 tests 最终，PR-5 创建空目录)
+    ├── property/                        (~50 tests 最终，PR-5 创建空目录)
+    ├── benchmark/                       (~20 tests 最终，PR-5 创建空目录)
+    ├── fixtures/
+    │   ├── sample-novel.json
+    │   ├── sample-worldbuilding-output/
+    │   └── sample-character-design-output/
+    ├── baselines/
+    │   ├── gate-output-G0.json
+    │   ├── gate-output-G4-worldbuilding.json
+    │   └── ...
+    └── coverage/                        (gitignored)
+</code></pre></div>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://peps.python.org/pep-0621/">PEP 621: pyproject.toml</a></li>
+<li><a href="https://docs.astral.sh/uv/">uv documentation</a></li>
+<li><a href="https://docs.astral.sh/ruff/">ruff documentation</a></li>
+<li><a href="https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-strict">mypy strict mode</a></li>
+<li><a href="https://docs.basedpyright.com/latest/">basedpyright documentation</a></li>
+<li><a href="https://github.com/microsoft/pyright/blob/main/docs/configuration.md">pyright strict mode</a> (basedpyright 上游，仅供配置参考)</li>
+<li><a href="https://docs.pytest.org/">pytest documentation</a></li>
+<li><a href="https://hypothesis.readthedocs.io/">Hypothesis documentation</a></li>
+<li><a href="https://www.structlog.org/">structlog documentation</a></li>
+<li><a href="https://squidfunk.github.io/mkdocs-material/">mkdocs-material</a></li>
+<li><a href="https://github.com/joelparkerhenderson/architecture-decision-record">Michael Nygard ADR template</a></li>
+<li><a href="https://martinfowler.com/bliki/StranglerFigApplication.html">Martin Fowler: Strangler Fig Application</a></li>
+<li><a href="https://google.github.io/eng-practices/review/developer/small-cls.html">Google: Small PRs guideline</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

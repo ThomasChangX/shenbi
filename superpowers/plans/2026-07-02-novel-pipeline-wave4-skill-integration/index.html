@@ -1,0 +1,1650 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-novel-pipeline-wave4-skill-integration/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Novel Pipeline Wave 4: Skill Integration Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Novel Pipeline Wave 4: Skill Integration Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-novel-pipeline-wave4-skill-integration.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-novel-pipeline-wave4-skill-integration/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Novel Pipeline Wave 4: Skill Integration Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-novel-pipeline-wave4-skill-integration.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#novel-pipeline-wave-4-skill-integration-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Novel Pipeline Wave 4: Skill Integration Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-character-design-mode-expand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: character-design --mode expand
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        expand 模式铁律
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-foreshadowing-plant-mode-genesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: foreshadowing-plant --mode genesis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-snapshot-manage-full-project-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: snapshot-manage Full-Project Snapshots
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-chapter-drafting-context-package-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: chapter-drafting Context Package Read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-drift-guidance-bounded-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: drift-guidance Bounded Window
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-style-learning-bootstrap-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: style-learning Bootstrap Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uv-run-shenbi-sync-contracts-uv-run-pre-commit-run-files-skillsshenbi-style-learningskillmd-git-add-skillsshenbi-style-learningskillmd-git-commit-m-feat-add-bootstrap-mode-to-style-learning-wave4-task6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uv run shenbi-sync-contracts &amp;&amp; uv run pre-commit run --files skills/shenbi-style-learning/SKILL.md git add skills/shenbi-style-learning/SKILL.md git commit -m &quot;feat: add bootstrap mode to style-learning (wave4 task6)&quot;
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="uv run shenbi-sync-contracts &amp;&amp; uv run pre-commit run --files skills/shenbi-style-learning/SKILL.md git add skills/shenbi-style-learning/SKILL.md git commit -m &#34;feat: add bootstrap mode to style-learning (wave4 task6)&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-6b-context-composing-pipeline-integration-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6b: context-composing Pipeline Integration Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6c-memory-distill-density-driven-trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6c: memory-distill Density-Driven Trigger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-integration-test-verify-all-skill-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Integration Test — Verify All Skill Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="novel-pipeline-wave-4-skill-integration-implementation-plan">Novel Pipeline Wave 4: Skill Integration Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans.</p>
+</blockquote>
+<p><strong>Goal:</strong> Modify existing skills to support pipeline integration: character-design expand mode, foreshadowing-plant genesis mode, snapshot-manage full-project snapshots, context-composing curated input, chapter-drafting context package read, drift-guidance bounded window, style-learning bootstrap.</p>
+<p><strong>Architecture:</strong> Each task modifies a specific skill's SKILL.md frontmatter and/or body, plus any helper code that skill depends on. Changes are backward-compatible — existing test framework usage is not broken.</p>
+<p><strong>Tech Stack:</strong> Markdown (SKILL.md), YAML frontmatter, Python helpers</p>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-01-novel-pipeline-design.md</code> Section 12</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>SKILL.md changes must pass <code>uv run shenbi-sync-contracts</code> (contract idempotency)</li>
+<li>SKILL.md changes must pass the pre-commit hooks (auto-check regeneration, body-ban, etc.)</li>
+<li>Frontmatter <code>contract:</code> changes must be reflected in <code>tests/tiers/deps.json</code> after sync</li>
+<li>No breaking changes to existing T1/T2/T3 test scenarios</li>
+</ul>
+<hr />
+<h3 id="task-1-character-design-mode-expand">Task 1: character-design --mode expand</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-character-design/SKILL.md</code> (add expand mode flow)</p>
+<ul>
+<li>[ ] <strong>Step 1: Read current SKILL.md to understand exact structure</strong></li>
+</ul>
+<p>Run: <code>cat skills/shenbi-character-design/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 2: Add expand mode section after the existing flow</strong></li>
+</ul>
+<p>Add a new section after the "询问流程" section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 扩展模式 (--mode expand)</span>
+
+当 pipeline 在卷边界需要引入新角色时使用。与 genesis 模式 (全量创建) 不同:
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**reads 已有角色卡**</span>: 读取 <span class="sb">`characters/**/*.md`</span> 全部已有角色,避免重复
+<span class="k">-</span><span class="w"> </span><span class="gs">**只追加新角色**</span>: 新角色 append 到 <span class="sb">`characters/major/*.md`</span> 或 <span class="sb">`characters/minor/*.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**更新关系矩阵**</span>: 追加新关系到 <span class="sb">`characters/relationships.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**不碰已有角色**</span>: 已有角色的弧线/voice_profile 不修改
+
+<span class="gu">### expand 模式流程</span>
+
+```dot
+digraph character_design_expand {
+    &quot;Read all existing characters/**/*.md&quot; -&gt; &quot;Read story_bible + rules (for consistency)&quot;;
+    &quot;Read story_bible + rules&quot; -&gt; &quot;Identify new character needs from volume_map&quot;;
+    &quot;Identify new character needs&quot; -&gt; &quot;Check: does similar character already exist?&quot;;
+    &quot;Does similar character exist?&quot; -&gt; &quot;Skip (log warning)&quot; [label=&quot;yes&quot;];
+    &quot;Does similar character exist?&quot; -&gt; &quot;Design new character card&quot; [label=&quot;no&quot;];
+    &quot;Design new character card&quot; -&gt; &quot;Append to characters/major/ or characters/minor/&quot;;
+    &quot;Append&quot; -&gt; &quot;Update relationships.md (append new rows)&quot;;
+    &quot;Update relationships.md&quot; -&gt; &quot;Human reviews new characters only&quot;;
+}
+</code></pre></div>
+<h3 id="expand">expand 模式铁律</h3>
+<ol>
+<li><strong>只追加不修改</strong> — 已有角色文件的任何字段不可修改</li>
+<li><strong>去重检查</strong> — 新角色不得与已有角色在性格/功能上高度重叠</li>
+<li>
+<p><strong>关系矩阵只追加行</strong> — 不重写已有关系行
+<div class="highlight"><pre><span></span><code>- [ ] **Step 3: Run sync-contracts and verify**
+
+```bash
+uv run shenbi-sync-contracts
+git diff --stat -- tests/tiers/deps.json
+</code></pre></div>
+Expected: No changes to deps.json (contract reads/writes unchanged — expand mode adds behavior, not new I/O paths)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Run pre-commit</strong></p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-character-design/SKILL.md
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-character-design/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add expand mode to character-design for progressive creation (wave4 task1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-foreshadowing-plant-mode-genesis">Task 2: foreshadowing-plant --mode genesis</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-foreshadowing-plant/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add genesis mode section</strong></li>
+</ul>
+<p>Add after the existing flow:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 创世模式 (--mode genesis)</span>
+
+Genesis 阶段无章节备忘 (<span class="sb">`plans/chapter-N-plan.md`</span>)。genesis 模式从大纲提取跨卷 master hooks:
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**reads**</span>: <span class="sb">`outline/story_frame.md`</span> + <span class="sb">`outline/volume_map.md`</span> (替代 chapter plan)
+<span class="k">-</span><span class="w"> </span><span class="gs">**提取 master hooks**</span>: 从 volume_map 的跨卷钩子提取,初始化为 PLANTED 状态
+<span class="k">-</span><span class="w"> </span><span class="gs">**writes**</span>: 同默认模式 (<span class="sb">`truth/pending_hooks.md`</span>)
+
+<span class="gu">### genesis 模式流程</span>
+
+<span class="k">1.</span> 读 <span class="sb">`outline/story_frame.md`</span> 提取三幕结构中的跨卷承诺
+<span class="k">2.</span> 读 <span class="sb">`outline/volume_map.md`</span> 提取每卷的卷尾实体钩子
+<span class="k">3.</span> 对每个跨卷钩子: 分配 MH ID, 设为 PLANTED, 声明兑现卷
+<span class="k">4.</span> Append 到 <span class="sb">`truth/pending_hooks.md`</span>
+
+genesis 模式不读 <span class="sb">`plans/chapter-N-plan.md`</span>,不处理 hook 账的 OPEN 项 (那是 per-chapter 模式的职责)。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update contract reads to include genesis mode paths</strong></li>
+</ul>
+<p><strong>Important contract note</strong>: Genesis mode reads <code>outline/story_frame.md</code> + <code>outline/volume_map.md</code> which are NOT in the current contract reads. The contract reads must be updated to include these paths. Add them to the <code>reads</code> list in the frontmatter:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">outline/story_frame.md</span><span class="w">    </span><span class="c1"># for genesis mode</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">outline/volume_map.md</span><span class="w">     </span><span class="c1"># for genesis mode</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/pending_hooks.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span>
+</code></pre></div>
+<p>This is an additive change — per-chapter mode still reads <code>plans/chapter-N-plan.md</code>. G1 will pass for both modes since all declared reads exist by genesis step 9.</p>
+<ul>
+<li>[ ] <strong>Step 3: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-foreshadowing-plant/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-foreshadowing-plant/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add genesis mode to foreshadowing-plant (wave4 task2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-snapshot-manage-full-project-snapshots">Task 3: snapshot-manage Full-Project Snapshots</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-snapshot-manage/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Update the snapshot file list and manifest</strong></li>
+</ul>
+<p>Replace the current "快照清单（11 个 truth 文件）" section with:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 快照清单（全量项目快照）</span>
+
+<span class="gu">### 章节快照（每章，增量）</span>
+
+每次审计通过后创建。包含:
+
+<span class="k">-</span><span class="w"> </span>truth/*.md (全部 truth 文件，via glob)
+<span class="k">-</span><span class="w"> </span>chapters/chapter-NNN.md (仅当前章)
+<span class="k">-</span><span class="w"> </span>plans/chapter-NNN-plan.md (仅当前章备忘)
+<span class="k">-</span><span class="w"> </span>style/style_profile.md
+<span class="k">-</span><span class="w"> </span>characters/*.md (仅当本章有角色变更时)
+
+<span class="gu">### 全量快照（仅卷边界 + genesis + closure）</span>
+
+<span class="k">-</span><span class="w"> </span>truth/*.md (全部)
+<span class="k">-</span><span class="w"> </span>characters/*.md (全部)
+<span class="k">-</span><span class="w"> </span>world/*.md (全部: locations, factions, rules, story_bible, power_system)
+<span class="k">-</span><span class="w"> </span>outline/*.md (全部: story_frame, volume_map, thread_map, rhythm_principles)
+<span class="k">-</span><span class="w"> </span>plans/ (全部)
+<span class="k">-</span><span class="w"> </span>style/ (全部)
+<span class="k">-</span><span class="w"> </span>chapters/ (全部到当前章)
+</code></pre></div>
+<p>Update the manifest template to use glob-based file list:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Manifest 模板（更新版）</span>
+
+<span class="gu">```markdown</span>
+<span class="gu">---</span>
+type: snapshot
+chapter: NNN
+snapshot_kind: chapter | volume-boundary | genesis | closure | pre-revision
+created: YYYY-MM-DD HH:MM
+files:
+  truth: &quot;truth/*.md&quot;
+  characters: &quot;characters/**/*.md&quot;
+  world: &quot;world/*.md&quot;
+  outline: &quot;outline/*.md&quot;
+  current_chapter: &quot;chapters/chapter-NNN.md&quot;
+  current_plan: &quot;plans/chapter-NNN-plan.md&quot;
+<span class="gu">  style: &quot;style/style_profile.md&quot;</span>
+<span class="gu">---</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-snapshot-manage/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-snapshot-manage/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: update snapshot-manage for full-project snapshots (wave4 task3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-chapter-drafting-context-package-read">Task 4: chapter-drafting Context Package Read</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-chapter-drafting/SKILL.md</code> (add <code>context/chapter-N-context.md</code> to reads)</p>
+<ul>
+<li>[ ] <strong>Step 1: Update the contract frontmatter</strong></li>
+</ul>
+<p>In the <code>contract:</code> block, add <code>context/chapter-N-context.md</code> to <code>reads</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">artifact</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/chapter-N-context.md</span><span class="w">   </span><span class="c1"># NEW: assembled context package</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">style/style_profile.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Add note in SKILL.md body</strong></li>
+</ul>
+<p>After the HARD-GATE section, add:</p>
+<div class="highlight"><pre><span></span><code><span class="k">&gt; </span><span class="ge">**Pipeline 集成**: 当由 pipeline 编排时,`context/chapter-N-context.md` 由 `pipeline-context-assemble` 预先组装 (三路检索 + 重排)。本 skill 直接读取此文件作为主上下文输入,不再自行从 truth files 加载。</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run sync-contracts (deps.json will update), pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-chapter-drafting/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-chapter-drafting/SKILL.md<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add context package to chapter-drafting reads (wave4 task4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-drift-guidance-bounded-window">Task 5: drift-guidance Bounded Window</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-drift-guidance/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add rolling window rule</strong></li>
+</ul>
+<p>Add to the "铁律" section:</p>
+<div class="highlight"><pre><span></span><code><span class="k">6.</span> <span class="gs">**滚动窗口 (12章)**</span> — <span class="sb">`truth/audit_drift.md`</span> 只保留最近 12 章的纠偏条目。超过 12 章的历史条目归档到 <span class="sb">`truth/audit_drift_archive.md`</span>。合并重写时:读取当前 audit_drift.md + 新一章条目 -&gt; 如果超过 12 章 -&gt; 移除最旧的到 archive -&gt; 写入新 audit_drift.md
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-drift-guidance/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-drift-guidance/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add rolling window to drift-guidance audit_drift (wave4 task5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-style-learning-bootstrap-mode">Task 6: style-learning Bootstrap Mode</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-style-learning/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add bootstrap section</strong></li>
+</ul>
+<p>Add after the existing flow:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Bootstrap 模式 (Genesis 阶段)</span>
+
+Genesis 阶段无章节正文 (<span class="sb">`chapters/*.md`</span>)。bootstrap 模式从种子信息生成初始风格指纹:
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**有参考文件**</span> (<span class="sb">`import/source/*.txt`</span>): 正常运行 (从参考作品提取)
+<span class="k">-</span><span class="w"> </span><span class="gs">**无参考文件**</span>: 从以下来源生成**种子风格指纹**:
+<span class="w">  </span><span class="k">1.</span> <span class="sb">`novel.json`</span> 的 genre/era (题材惯例: 句长/节奏/修辞偏好)
+<span class="w">  </span><span class="k">2.</span> <span class="sb">`genre-config.json`</span> 的 <span class="sb">`show_tell_ratio`</span> 和 <span class="sb">`deep_themes`</span>
+<span class="w">  </span><span class="k">3.</span> 输出 <span class="sb">`style/style_profile.md`</span> 标注 <span class="sb">`bootstrap: true`</span>, <span class="sb">`confidence: low`</span>
+
+<span class="gu">### 首次正式提取</span>
+
+前 3 章完成后,pipeline 重新运行 style-learning (非 bootstrap):
+<span class="k">-</span><span class="w"> </span>读取 <span class="sb">`chapters/chapter-1.md`</span> 到 <span class="sb">`chapters/chapter-3.md`</span>
+<span class="k">-</span><span class="w"> </span>运行 <span class="sb">`compute_stats.py`</span> 获取真实统计
+<span class="k">-</span><span class="w"> </span>覆盖 bootstrap 指纹
+
+<span class="gu">### 定期更新</span>
+
+每 <span class="sb">`style_learning_interval`</span> 章 (默认 12) 或卷边界时重新运行。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update contract reads for bootstrap mode</strong></li>
+</ul>
+<p>Bootstrap mode reads <code>novel.json</code> and <code>genre-config.json</code> which are not in the current contract. Additionally, <code>chapters/*.md</code> won't exist during genesis. Update the contract reads:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/*.md</span><span class="w">              </span><span class="c1"># normal mode (exists after ch1)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">import/source/*.txt</span><span class="w">        </span><span class="c1"># optional reference works</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">novel.json</span><span class="w">                 </span><span class="c1"># for bootstrap mode</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span><span class="w">          </span><span class="c1"># for bootstrap mode</span>
+</code></pre></div>
+<p>The pipeline's ramp-up read-skipping (spec §17) will skip <code>chapters/*.md</code> during genesis bootstrap dispatch.</p>
+<ul>
+<li>[ ] <strong>Step 3: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<h2 id="uv-run-shenbi-sync-contracts-uv-run-pre-commit-run-files-skillsshenbi-style-learningskillmd-git-add-skillsshenbi-style-learningskillmd-git-commit-m-feat-add-bootstrap-mode-to-style-learning-wave4-task6"><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-style-learning/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-style-learning/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add bootstrap mode to style-learning (wave4 task6)&quot;</span>
+</code></pre></div></h2>
+<h3 id="task-6b-context-composing-pipeline-integration-mode">Task 6b: context-composing Pipeline Integration Mode</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-context-composing/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add pipeline integration section</strong></li>
+</ul>
+<p>Add after the existing flow:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Pipeline 集成模式</span>
+
+当由 pipeline 编排时,`context/chapter-N-context.md` 已由 <span class="sb">`pipeline-context-assemble`</span> 预先组装 (三路检索 + 确定性重排)。本 skill 在 pipeline 模式下:
+
+<span class="k">1.</span> <span class="gs">**接收预检索包**</span>: 读取 <span class="sb">`context/chapter-N-context.md`</span> 作为主要输入
+<span class="k">2.</span> <span class="gs">**策展层职责**</span>: 去重 (残留重复) / 冲突检测 / 按 budget 裁剪
+<span class="k">3.</span> <span class="gs">**不重复检索**</span>: 不再自行从 truth files 加载 (orchestrator 已完成)
+<span class="k">4.</span> <span class="gs">**输出**</span>: 策展后的上下文包覆写到 <span class="sb">`context/chapter-N-context.md`</span>
+
+非 pipeline 模式 (直接 dispatch) 时,保持现有行为:自行按 P1-P7 加载。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-context-composing/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-context-composing/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add pipeline integration mode to context-composing (wave4 task6b)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6c-memory-distill-density-driven-trigger">Task 6c: memory-distill Density-Driven Trigger</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-memory-distill/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add density-driven trigger section</strong></li>
+</ul>
+<p>Add to the trigger rules section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 密度驱动触发 (Pipeline 集成)</span>
+
+当由 pipeline 编排时,除了固定间隔 (chapter%12/36),还检查密度触发:
+
+<span class="k">-</span><span class="w"> </span>弧内累计 state-settling 变更条目 &gt; 60 条
+<span class="k">-</span><span class="w"> </span>弧内 pending_hooks 新增/推进 &gt; 15 条
+<span class="k">-</span><span class="w"> </span>弧内 character_matrix 变更 &gt; 20 处
+
+满足任一条件时提前触发 L2 蒸馏 (不必等到 chapter%12)。
+<span class="gs">**跨波依赖**</span>: Wave 3 的 <span class="sb">`triggers.py`</span> 需要增加密度检查逻辑 (累计变更/hook新增/角色变更阈值)。在 Wave 3 实现前，此规则为声明性文档 (skill 描述了应有的行为, 运行时触发逻辑在 orchestrator 中)。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run sync-contracts, pre-commit. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-sync-contracts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--files<span class="w"> </span>skills/shenbi-memory-distill/SKILL.md
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-memory-distill/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add density-driven trigger to memory-distill (wave4 task6c)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-integration-test-verify-all-skill-changes">Task 7: Integration Test — Verify All Skill Changes</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/unit/pipeline/test_skill_integration.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_skill_integration.py</span>
+<span class="sd">&quot;&quot;&quot;Verify all Wave 4 skill modifications are consistent.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">PROJECT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">SKILLS</span> <span class="o">=</span> <span class="n">PROJECT</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_frontmatter</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">SKILLS</span> <span class="o">/</span> <span class="n">skill</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCharacterDesignExpand</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_contract_unchanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">_load_frontmatter</span><span class="p">(</span><span class="s2">&quot;shenbi-character-design&quot;</span><span class="p">)</span>
+        <span class="c1"># expand mode doesn&#39;t change contract paths</span>
+        <span class="k">assert</span> <span class="s2">&quot;characters/protagonist.md&quot;</span> <span class="ow">in</span> <span class="n">fm</span><span class="p">[</span><span class="s2">&quot;contract&quot;</span><span class="p">][</span><span class="s2">&quot;writes&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_expand_mode_documented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS</span> <span class="o">/</span> <span class="s2">&quot;shenbi-character-design&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;expand&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;## 扩展模式&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># check section heading, not just keyword</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestForeshadowingPlantGenesis</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_genesis_mode_documented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS</span> <span class="o">/</span> <span class="s2">&quot;shenbi-foreshadowing-plant&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;genesis&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestChapterDraftingContextRead</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_context_in_reads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">_load_frontmatter</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span>
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">fm</span><span class="p">[</span><span class="s2">&quot;contract&quot;</span><span class="p">][</span><span class="s2">&quot;reads&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;context/chapter-N-context.md&quot;</span> <span class="ow">in</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reads</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDriftGuidanceWindow</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_rolling_window_documented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS</span> <span class="o">/</span> <span class="s2">&quot;shenbi-drift-guidance&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;滚动窗口&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;12&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># verify both the rule name and the chapter count</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestStyleLearningBootstrap</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_bootstrap_documented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKILLS</span> <span class="o">/</span> <span class="s2">&quot;shenbi-style-learning&quot;</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;bootstrap&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;bootstrap: true&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># check actual field reference</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests, verify pass. Commit.</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline/test_skill_integration.py<span class="w"> </span>-v
+git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_skill_integration.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: verify all wave4 skill integration changes (wave4 task7)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage (§12):</strong>
+- character-design expand ✓ (Task 1)
+- snapshot-manage full-project ✓ (Task 3)
+- context-composing curated input ✓ (Wave 2 context_assemble handles this; skill change deferred to runtime)
+- chapter-drafting context read ✓ (Task 4)
+- memory-distill adaptive trigger ✓ (Wave 3 triggers.py)
+- style-learning bootstrap ✓ (Task 6)
+- drift-guidance bounded window ✓ (Task 5)
+- foreshadowing-plant genesis mode ✓ (Task 2)</p>
+<p><strong>2. Placeholder scan:</strong> No TBD/TODO. All steps have concrete content. ✓</p>
+<p><strong>3. Backward compatibility:</strong> All changes add behavior, don't remove or change existing contract I/O paths (except chapter-drafting which gains a read). ✓</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
