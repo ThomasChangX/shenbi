@@ -67,9 +67,25 @@ tests/unit/pipeline/
 
 Four helper functions are created within the tasks that use them. Signatures and logic:
 
-1. `_checkpoint_to_step_number(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to genesis step number for modify re-dispatch. Uses a dict mapping CheckpointType enum values to step numbers.
+1. `_checkpoint_to_step_number(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to genesis step number for modify re-dispatch:
+   ```python
+   _CHECKPOINT_STEP_MAP = {
+       CheckpointType.GENESIS_COMPLETE: 1,      # restart genesis
+       CheckpointType.CHAPTER_MEMO: 2,          # re-run chapter-planning
+       CheckpointType.STATE_SETTLE: 5,          # re-run state-settling
+       CheckpointType.PER_CHAPTER: 1,           # restart chapter
+       CheckpointType.VOLUME_BOUNDARY: 1,       # restart chapter
+   }
+   ```
 
-2. `_checkpoint_to_step_index(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to CHAPTER_STEPS 0-based index for reject step_index reset. Uses a dict mapping.
+2. `_checkpoint_to_step_index(cp: CheckpointData) -> int` — Task 7. Maps checkpoint type to CHAPTER_STEPS 0-based index:
+   ```python
+   _CHECKPOINT_INDEX_MAP = {
+       CheckpointType.CHAPTER_MEMO: 1,    # index of chapter-planning
+       CheckpointType.STATE_SETTLE: 6,    # index of state-settling
+       CheckpointType.PER_CHAPTER: 0,     # restart from first
+   }
+   ```
 
 3. `_count_total_chapters(volume_map_text: str) -> int` — Task 5. Parses volume_map.md, sums all volume chapter counts using regex.
 
