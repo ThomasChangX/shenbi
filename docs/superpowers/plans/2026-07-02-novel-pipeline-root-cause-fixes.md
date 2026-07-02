@@ -24,7 +24,7 @@
 
 ## File Structure
 
-Files modified (no new files):
+Files modified / created:
 
 ```
 src/shenbi/pipeline/
@@ -59,7 +59,7 @@ tests/unit/pipeline/
     test_dispatch_helper.py
     test_revision_router.py
     test_triggers.py
-    test_root_cause_fixes.py  # new test file for cross-cutting fixes
+    test_root_cause_fixes.py  # NEW: cross-cutting fix tests
 ```
 
 ---
@@ -298,8 +298,8 @@ if step.is_audit and step_idx == _LAST_AUDIT_IDX:
     cs.audit_results["issues"] = [i.model_dump() if hasattr(i, "model_dump") else i for i in audit_result.issues]
 
     if audit_result.blocking_found:
-        from shenbi.pipeline.error_handler import handle_audit_blocking
-        should_retry = handle_audit_blocking(state, chapter)
+        # Note: handle_audit_blocking(state, chapter, revision_count) — 3 args.
+        # We inline the retry logic here instead. See spec A8 for details.
         if should_retry:
             # Step_index rollback: go back to revision step (step 18)
             # revision_step_index = index of ChapterStep with skill "shenbi-chapter-revision"
@@ -428,7 +428,7 @@ In `_handle_failure` functions (genesis, chapter_loop, closure), when `handle_di
 if not handle_dispatch_failure(state, skill, attempt):
     # A4: Dispatch escalation-review before checkpoint
     from shenbi.pipeline.revision_router import dispatch_escalation
-    dispatch_escalation(state, project_dir, chapter)
+    dispatch_escalation(project_dir, chapter)  # signature: (project_dir, chapter, context="")
     set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
                    artifact=f"audits/escalation-{chapter}-report.md")
     return True
@@ -1013,11 +1013,10 @@ git commit -m "test: complete serialization round-trips + coverage gaps (F1-F7)"
 ### Task 18: D1+D2+G1 — _gate_passed 提取 + 常量连接 + 类型一致
 
 **Files:**
-- Modify: `src/shenbi/pipeline/dispatch_helper.py` (add `gate_passed()` shared helper)
+- Modify: `src/shenbi/pipeline/dispatch_helper.py` (add `gate_passed(result, allow_skip=False)` shared helper + G1 `GateStatus.FAIL.value`)
 - Modify: `src/shenbi/pipeline/state.py` (add `DEFAULT_MAX_DISPATCH_RETRIES`/`DEFAULT_MAX_AUDIT_RETRIES`)
 - Modify: `src/shenbi/pipeline/error_handler.py` (import from state.py)
-- Modify: `src/shenbi/pipeline/chapter_loop.py`, `audit_layer.py`, `closure.py` (use shared `gate_passed()`)
-- Modify: `src/shenbi/pipeline/dispatch_helper.py` (G1: `GateStatus.FAIL.value` for type consistency)
+- Modify: `src/shenbi/pipeline/chapter_loop.py`, `audit_layer.py`, `closure.py`, `genesis.py`, `triggers.py` (replace local `_gate_passed` with import; triggers.py passes `allow_skip=True`)
 
 - [ ] **Step 1: Write tests verifying shared gate_passed**
 
