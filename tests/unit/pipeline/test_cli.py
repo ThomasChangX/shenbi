@@ -402,7 +402,6 @@ class TestResumeCommand:
         _run(["review", str(project_dir), "approve"], monkeypatch)
 
         rc, out = _run(["resume", str(project_dir)], monkeypatch)
-        result = json.loads(out)
 
         assert rc == 0
         state = load_state(project_dir)
@@ -513,15 +512,14 @@ class TestUpdateTotalChapters:
 
     def test_update_from_volume_map_end_pattern(self, tmp_path, monkeypatch):
         """Volume map with Chapter End: N sets total_chapters correctly."""
+        import json
+
         from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
 
         novel = tmp_path / "novel"
         novel.mkdir()
         outline = novel / "outline"
         outline.mkdir()
-
-        # Write novel.json with old total
-        import json
 
         (novel / "novel.json").write_text(
             json.dumps({"title": "Test", "total_chapters": 15}), encoding="utf-8"
@@ -541,14 +539,14 @@ class TestUpdateTotalChapters:
 
     def test_update_from_chapter_range(self, tmp_path, monkeypatch):
         """Volume map using Chapters N-M notation sets total_chapters."""
+        import json
+
         from shenbi.pipeline.cli import _read_total_chapters, _update_total_chapters
 
         novel = tmp_path / "novel"
         novel.mkdir()
         outline = novel / "outline"
         outline.mkdir()
-
-        import json
 
         (novel / "novel.json").write_text(
             json.dumps({"title": "Test", "total_chapters": 8}), encoding="utf-8"
@@ -566,12 +564,12 @@ class TestUpdateTotalChapters:
 
     def test_no_volume_map_returns_zero(self, tmp_path, monkeypatch):
         """No volume_map.md returns 0 and leaves total_chapters unchanged."""
+        import json
+
         from shenbi.pipeline.cli import _update_total_chapters
 
         novel = tmp_path / "novel"
         novel.mkdir()
-
-        import json
 
         (novel / "novel.json").write_text(
             json.dumps({"title": "Test", "total_chapters": 10}), encoding="utf-8"
@@ -635,8 +633,6 @@ class TestVerifyTruthIntegrity:
 
     def test_chapter_loop_with_genesis_outputs_passes(self, tmp_path, monkeypatch):
         """Chapter loop with all genesis outputs passes."""
-        import json
-
         from shenbi.pipeline.cli import _verify_truth_integrity
         from shenbi.pipeline.state import (
             ChapterLoopStateData,

@@ -327,6 +327,7 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         try:
             commit_staging(project_dir, [target])
         except FileNotFoundError:
+            # Expected: file may have been cleared since the checkpoint was raised.
             pass
 
     # Clear staging dir regardless (remove any remaining staged files).
