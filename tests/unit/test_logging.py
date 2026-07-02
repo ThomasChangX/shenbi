@@ -22,6 +22,7 @@ import structlog
 
 from shenbi.logging import configure_logging, get_logger
 
+
 @pytest.fixture()
 def isolate_structlog_config() -> Any:
     """Save and restore structlog global config around each test."""
@@ -31,6 +32,7 @@ def isolate_structlog_config() -> Any:
     structlog.configure(**original_config)
     os.environ.clear()
     os.environ.update(original_env)
+
 
 def test_configure_logging_json_emits_parseable_json(
     isolate_structlog_config: None,
@@ -51,6 +53,7 @@ def test_configure_logging_json_emits_parseable_json(
     assert parsed["action"] == "login"
     assert parsed["level"] == "info"
     assert "timestamp" in parsed
+
 
 def test_configure_logging_console_does_not_emit_json(
     isolate_structlog_config: None,
@@ -75,6 +78,7 @@ def test_configure_logging_console_does_not_emit_json(
     assert "user_action" in captured.err
     assert "login" in captured.err
 
+
 def test_configure_logging_is_idempotent(isolate_structlog_config: None) -> None:
     """Calling configure_logging() twice should not raise."""
     os.environ.pop("SHENBI_LOG_FORMAT", None)
@@ -82,6 +86,7 @@ def test_configure_logging_is_idempotent(isolate_structlog_config: None) -> None
     configure_logging()
     log = get_logger("test_idempotent")
     assert log is not None
+
 
 def test_get_logger_returns_logger_with_standard_methods(
     isolate_structlog_config: None,
@@ -92,6 +97,7 @@ def test_get_logger_returns_logger_with_standard_methods(
     assert callable(log.info)
     assert callable(log.error)
     assert callable(log.debug)
+
 
 def _run_framework_cli(args: list[str], env_log_format: str = "json") -> tuple[int, str, str]:
     """Invoke a shenbi-* CLI via subprocess and capture (rc, stdout, stderr).
@@ -111,6 +117,7 @@ def _run_framework_cli(args: list[str], env_log_format: str = "json") -> tuple[i
     )
     return result.returncode, result.stdout, result.stderr
 
+
 def _parse_json_log_lines(stderr: str) -> list[dict[str, Any]]:
     """Parse newline-delimited JSON log lines from stderr, skipping non-JSON noise."""
     parsed: list[dict[str, Any]] = []
@@ -123,6 +130,7 @@ def _parse_json_log_lines(stderr: str) -> list[dict[str, Any]]:
         except json.JSONDecodeError:
             continue
     return parsed
+
 
 def test_gates_cli_logs_to_stderr_not_stdout() -> None:
     """shenbi-validate (gates CLI) must emit JSON logs to stderr; stdout reserved for emit_json data.
@@ -138,6 +146,7 @@ def test_gates_cli_logs_to_stderr_not_stdout() -> None:
     assert any(entry.get("level") == "info" for entry in logs), "logs must carry level= field"
     assert not stdout, "stdout must stay empty when no DATA emit happens"
 
+
 def test_gates_cli_emits_data_to_stdout() -> None:
     """When a gate runs, the JSON result must land on stdout (via emit_json), not stderr."""
     rc, stdout, stderr = _run_framework_cli(
@@ -148,15 +157,16 @@ def test_gates_cli_emits_data_to_stdout() -> None:
     assert isinstance(stdout_data, dict), "emit_json output must be a JSON object"
     assert stdout_data.get("gate") == "G0"
 
+
 def test_scoring_cli_logs_to_stderr_not_stdout() -> None:
     """shenbi-score must route logs to stderr; stdout carries only the JSON result."""
     rc, stdout, stderr = _run_framework_cli(["shenbi-score"])
     logs = _parse_json_log_lines(stderr)
     assert logs, "expected JSON log lines on stderr from scoring CLI usage banner"
 
+
 def test_phase_runner_cli_logs_to_stderr_not_stdout() -> None:
     """shenbi-phase must route logs to stderr; stdout carries only emit_json dicts."""
     rc, stdout, stderr = _run_framework_cli(["shenbi-phase"])
     logs = _parse_json_log_lines(stderr)
     assert logs, "expected JSON log lines on stderr from phase_runner usage banner"
-
