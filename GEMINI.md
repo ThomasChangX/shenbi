@@ -25,8 +25,6 @@ Framework runtime code lives under `src/shenbi/`. Invoke via entry points:
 | Old (pre-P-1.E) | New (post-P-1.E) |
 |---|---|
 | `python3 tests/scoring.py ...` | `shenbi-score ...` |
-| `python3 tests/summarize-round.py ...` | `shenbi-summarize ...` |
-| `python3 tests/update-progress.py ...` | `shenbi-progress ...` |
 | `python3 tests/phase-runner.py ...` | `shenbi-phase ...` |
 | `python3 tests/validate-gate.py ...` | `shenbi-validate ...` |
 | `bash tests/dispatch-subagent.sh ...` | `shenbi-dispatch ...` |

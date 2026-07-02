@@ -9,8 +9,6 @@ shenbi/
 │   ├── logging.py          # structlog configuration
 │   ├── scoring.py          # Rubric-based 0-100 scorer
 │   ├── phase_runner.py     # T2/T3 phase state machine
-│   ├── summarize_round.py  # Round aggregation + G7 close
-│   ├── update_progress.py  # progress.json single-writer
 │   ├── gates/              # G0-G7 gate enforcement
 │   ├── dispatcher/         # Sub-agent dispatch
 │   └── skill_utils/        # Skill Python helpers
@@ -38,8 +36,6 @@ Use entry points (not `python3 tests/X.py`):
 - `shenbi-validate G2 <files> <type>` — Gate 2: output validation
 - `shenbi-validate G4 <skill> <files>` — Gate 4: skill-specific structural check
 - `shenbi-score <rubric> <scores.json> --test-type generative` — Score output
-- `shenbi-summarize <round_dir>` — Aggregate round scores + G7 close
-- `shenbi-progress init <round_dir> <tier>` — Initialize progress.json
 - `shenbi-phase start <phase> --round-dir <dir>` — Phase state machine
 - `shenbi-dispatch <skill> <test_type> <round_dir> <prompt>` — Sub-agent dispatch
 

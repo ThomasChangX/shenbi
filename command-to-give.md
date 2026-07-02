@@ -25,7 +25,6 @@ bash tests/round-exec.sh claude T1
 
 ### 第二步：确认进度
 
-运行 `uv run shenbi-progress validate <round_dir>` 验证 progress.json 内部一致性。对于本轮计划测试的 skill，检查 scores 目录是否有已有分数。≥94 的 skill 不重跑。**跳过 skill 的唯一依据是已有分数 ≥94。不存在其他跳过理由。**
 
 ### 第三步：按 skill 列表执行
 
@@ -129,7 +128,6 @@ T3 不使用 phase-runner.py。G6 gate marker 是评分的前置条件。
 ### 每轮结束
 
 ```bash
-uv run shenbi-summarize <round_dir>
 uv run shenbi-validate G7 <round_dir>
 bash tests/round-exec.sh --validate <round_dir>
 ```
