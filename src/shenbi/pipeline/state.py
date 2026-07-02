@@ -117,6 +117,7 @@ class PipelineState:
     closure_step: int = 0  # tracks closure progress (persisted)
     closure_skills_done: list[str] = field(default_factory=list)  # closure skill history
     closure_retry_counts: dict[str, int] = field(default_factory=dict)  # closure per-skill retries
+    pending_re_dispatches: list[dict[str, Any]] = field(default_factory=list)
     config: PipelineConfig = field(default_factory=PipelineConfig)
 
     @classmethod
@@ -165,6 +166,7 @@ class PipelineState:
             "closure_step": self.closure_step,
             "closure_skills_done": self.closure_skills_done,
             "closure_retry_counts": self.closure_retry_counts,
+            "pending_re_dispatches": self.pending_re_dispatches,
             "config": {
                 "genesis_review_required": self.config.genesis_review_required,
                 "chapter_memo_review_required": self.config.chapter_memo_review_required,
@@ -228,6 +230,7 @@ class PipelineState:
                 options=cp_data.get("options", []),
                 created_at=cp_data.get("created_at"),
             ),
+            pending_re_dispatches=data.get("pending_re_dispatches", []),
             checkpoint_history=data.get("checkpoint_history", []),
             last_snapshot=data.get("last_snapshot", {}),
             closure_step=data.get("closure_step", 0),

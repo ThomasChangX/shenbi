@@ -692,3 +692,101 @@ class TestVerifyTruthIntegrity:
         state = PipelineState(phase=PipelinePhase.COMPLETED)
         missing = _verify_truth_integrity(state, tmp_path)
         assert isinstance(missing, list)
+
+
+class TestReDispatch:
+    from pathlib import Path
+
+    """Tests for G4 truth-sync re-dispatch after modify."""
+
+    def test_derived_truth_map_has_chapter_memo(self):
+        """CHAPTER_MEMO checkpoint triggers pacing-design re-sync."""
+        from shenbi.pipeline.cli import DERIVED_TRUTH_MAP
+
+        assert "chapter-memo" in DERIVED_TRUTH_MAP
+        entries = DERIVED_TRUTH_MAP["chapter-memo"]
+        skills = [e[0] for e in entries]
+        assert "shenbi-pacing-design" in skills
+
+    def test_derived_truth_map_has_state_settle(self):
+        """STATE_SETTLE checkpoint triggers relationship-map + foreshadowing-resolve."""
+        from shenbi.pipeline.cli import DERIVED_TRUTH_MAP
+
+        assert "state-settle" in DERIVED_TRUTH_MAP
+        entries = DERIVED_TRUTH_MAP["state-settle"]
+        skills = [e[0] for e in entries]
+        assert "shenbi-relationship-map" in skills
+        assert "shenbi-foreshadowing-resolve" in skills
+
+    def test_queue_re_dispatches_adds_to_state(self, tmp_path):
+        """_queue_re_dispatches adds entries to pending_re_dispatches."""
+        from shenbi.pipeline.cli import _queue_re_dispatches
+        from shenbi.pipeline.state import (
+            CheckpointData,
+            CheckpointType,
+            PipelineState,
+        )
+
+        state = PipelineState()
+        cp = CheckpointData(type=CheckpointType.CHAPTER_MEMO, chapter=3)
+
+        _queue_re_dispatches(state, cp)
+        assert len(state.pending_re_dispatches) == 1
+        assert state.pending_re_dispatches[0]["skill"] == "shenbi-pacing-design"
+        assert state.pending_re_dispatches[0]["chapter"] == 3
+
+    def test_queue_re_dispatches_avoids_duplicates(self, tmp_path):
+        """Same skill is not queued twice."""
+        from shenbi.pipeline.cli import _queue_re_dispatches
+        from shenbi.pipeline.state import (
+            CheckpointData,
+            CheckpointType,
+            PipelineState,
+        )
+
+        state = PipelineState()
+        cp = CheckpointData(type=CheckpointType.CHAPTER_MEMO, chapter=3)
+
+        _queue_re_dispatches(state, cp)
+        _queue_re_dispatches(state, cp)
+        assert len(state.pending_re_dispatches) == 1
+
+    def test_unknown_checkpoint_no_ops(self, tmp_path):
+        """Unknown checkpoint type does not queue anything."""
+        from shenbi.pipeline.cli import _queue_re_dispatches
+        from shenbi.pipeline.state import (
+            CheckpointData,
+            CheckpointType,
+            PipelineState,
+        )
+
+        state = PipelineState()
+        cp = CheckpointData(type=CheckpointType.BOOK_CLOSURE)
+
+        _queue_re_dispatches(state, cp)
+        assert state.pending_re_dispatches == []
+
+    @patch("shenbi.pipeline.dispatch_helper.subprocess.run")
+    def test_execute_empty_no_ops(self, mock_run):
+        """_execute_pending_re_dispatches with empty list does nothing."""
+        from shenbi.pipeline.cli import _execute_pending_re_dispatches
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState()
+        result = _execute_pending_re_dispatches(state, Path("/tmp"))
+        assert result is False
+        mock_run.assert_not_called()
+
+    def test_pending_re_dispatches_serde_roundtrip(self, tmp_path):
+        """pending_re_dispatches survives to_dict/from_dict roundtrip."""
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState()
+        state.pending_re_dispatches = [
+            {"skill": "shenbi-pacing-design", "checkpoint_type": "chapter-memo", "chapter": 3},
+        ]
+
+        d = state.to_dict()
+        restored = PipelineState.from_dict(d)
+        assert len(restored.pending_re_dispatches) == 1
+        assert restored.pending_re_dispatches[0]["skill"] == "shenbi-pacing-design"

@@ -25,6 +25,7 @@ import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
@@ -51,6 +52,76 @@ from shenbi.status import CommandStatus
 
 
 # Orchestration loop: phase dispatch, trigger checks, closure transition
+#: Truth files that are derived from other truth files and need re-sync
+#: when the source file is modified by a reviewer (spec \u00a79.2).
+#: Maps checkpoint type to list of (skill, prompt_suffix) tuples.
+DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
+    CheckpointType.CHAPTER_MEMO.value: [
+        ("shenbi-pacing-design", "Re-sync pacing design after chapter-plan modify"),
+    ],
+    CheckpointType.STATE_SETTLE.value: [
+        ("shenbi-relationship-map", "Re-sync relationship map after truth modify"),
+        ("shenbi-foreshadowing-resolve", "Re-solve foreshadowing after truth modify"),
+    ],
+}
+
+
+def _queue_re_dispatches(state: PipelineState, cp: CheckpointData) -> None:
+    """Queue re-dispatches for derived truth files after a modify decision.
+
+    After ``modify``, skills that produce derived truth from the modified files
+    must be re-dispatched so derived files reflect the human edit.
+    """
+    entries = DERIVED_TRUTH_MAP.get(cp.type.value, [])
+    for skill, _ in entries:
+        # Avoid duplicate entries for the same skill.
+        already = any(d.get("skill") == skill for d in state.pending_re_dispatches)
+        if not already:
+            state.pending_re_dispatches.append(
+                {
+                    "skill": skill,
+                    "checkpoint_type": cp.type.value,
+                    "chapter": cp.chapter,
+                }
+            )
+            log.info("re_dispatch_queued", skill=skill, checkpoint=cp.type.value)
+
+
+def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> bool:
+    """Execute all pending re-dispatches from state.
+
+    Returns True if any re-dispatch was executed (caller may want to re-persist).
+    """
+    if not state.pending_re_dispatches:
+        return False
+
+    from shenbi.pipeline.dispatch_helper import dispatch_skill
+
+    remaining: list[dict[str, Any]] = []
+    for entry in state.pending_re_dispatches:
+        skill = entry.get("skill", "")
+        ch = entry.get("chapter")
+        prompt_suffix_lookup = DERIVED_TRUTH_MAP.get(entry.get("checkpoint_type", ""), [])
+        prompt_suffix = ""
+        for s, p in prompt_suffix_lookup:
+            if s == skill:
+                prompt_suffix = p
+                break
+        prompt = prompt_suffix
+        if ch:
+            prompt = f"[Chapter {ch}] {prompt_suffix}"
+
+        result = dispatch_skill(skill, project_dir, prompt)
+        if result.success:
+            log.info("re_dispatch_ok", skill=skill)
+        else:
+            log.warning("re_dispatch_failed", skill=skill, stderr=result.stderr[:200])
+            remaining.append(entry)
+
+    state.pending_re_dispatches = remaining
+    return True
+
+
 def _read_total_chapters(project_dir: Path) -> int:
     """Read total_chapters from novel.json (0 when not yet determined)."""
     novel_path = project_dir / "novel.json"
@@ -109,6 +180,10 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
 
     while True:
+        # Execute any pending re-dispatches queued by modify decisions (G4).
+        if _execute_pending_re_dispatches(state, project_dir):
+            save_state(project_dir, state)
+
         phase = state.phase
 
         if phase in (PipelinePhase.COMPLETED, PipelinePhase.FAILED):
@@ -376,6 +451,11 @@ def cmd_review(args: argparse.Namespace) -> int:
                 feedback = Path(args.feedback).read_text(encoding="utf-8")
 
             clear_checkpoint(state, decision)
+
+            # G4: On modify, queue re-dispatches for derived truth files
+            # (spec section 9.2: truth-sync propagation after human edit).
+            if decision == ReviewDecision.MODIFY:
+                _queue_re_dispatches(state, cp)
 
             # I4: Rejecting a book-closure checkpoint transitions back to
             # chapter loop so the human can revise and re-close.
