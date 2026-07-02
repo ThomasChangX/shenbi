@@ -339,3 +339,201 @@ Phase 1 内的依赖链:
 - 不修改 69 个 skill 的核心逻辑 (仅修改 pipeline 编排层)
 - 不优化性能 (Route B O(n) cosine search 等)
 - 不实现 rollback 的完整 truth-sync (仅标记 UNVERIFIED)
+
+## 7. 补充：逐任务审查遗漏项
+
+以下 22 个发现来自 Wave 1-5 的 per-task 审查，在初版 spec 中遗漏，现补入。
+
+### 7.1 Category E: 补充正确性缺陷
+
+#### E1. _route_b 错误路径 SQLite 连接泄漏
+
+- **来源:** W2T3 最终审查
+- **当前状态:** `context_assemble.py:153-155` 中 `store.close()` 在 try 块内，但 broad `except Exception` (line 169) 不关闭 store。如果 `search_cosine` 在 `EmbeddingStore(db_path)` 之后、`store.close()` 之前抛异常，SQLite 连接泄漏。
+- **根因:** 缺少 try/finally 或 with-context 包裹 store 生命周期。
+- **影响:** 每次查询时的异常路径泄漏一个 SQLite 连接，长期运行后耗尽连接池。
+- **修改文件:** `src/shenbi/pipeline/context_assemble.py`
+- **验收标准:** `store.close()` 在任何异常路径中都被调用 (try/finally 或 context manager)。
+
+#### E2. clear_checkpoint 不幂等
+
+- **来源:** W1T2 审查
+- **当前状态:** `machine.py:69` 的 `clear_checkpoint` 在 checkpoint 已为 NONE 时调用，仍追加 `{"type": "none"}` 记录到 history。
+- **根因:** 缺少 guard `if cp.type == CheckpointType.NONE: return`。
+- **影响:** checkpoint_history 被伪记录污染，下游消费者 (如 audit) 可能误判。
+- **修改文件:** `src/shenbi/pipeline/machine.py`
+- **验收标准:** checkpoint 已为 NONE 时 clear_checkpoint 是 no-op，不追加 history。
+
+#### E3. --feedback 文件不存在时未捕获 FileNotFoundError
+
+- **来源:** W1T6 审查 (finding #5)
+- **当前状态:** `cli.py:348` 的 `Path(args.feedback).read_text(encoding="utf-8")` 不在 try/except 内。错误的 feedback 文件路径产生 traceback 而非 `{"status": "error"}` envelope。
+- **根因:** 缺少 try/except 包裹。
+- **影响:** 用户看到 traceback 而非可操作的错误消息。
+- **修改文件:** `src/shenbi/pipeline/cli.py`
+- **验收标准:** feedback 文件不存在时返回 `{"status": "error", "message": "feedback file not found: ..."}` 和 exit code 1。
+
+#### E4. cmd_rollback 是非功能 stub
+
+- **来源:** W1T6 (设计阶段即知)
+- **当前状态:** `cli.py:519` 返回 `"not_implemented"` + exit code 0。无项目验证、无快照恢复、无 truth-sync。
+- **根因:** 整个回滚功能未实现。snapshot 基础设施 (W4T3) 已就绪，但 rollback 命令未接线。
+- **影响:** spec §2.2 定义了 `pipeline rollback <project-dir> --chapter <N>` 作为破坏性操作命令，用户无法回滚。
+- **决策:** 标记为**非目标** (本 spec 不实现完整回滚)，但修复以下三点：
+  1. exit code 改为非零 (1 而非 0)
+  2. 添加项目验证 (load_state，不存在则报错)
+  3. 更新 stub 消息 (移除过期的 "Wave 3/4" 引用)
+- **修改文件:** `src/shenbi/pipeline/cli.py`
+
+#### E5. extract_entities_from_plan 返回顺序不确定
+
+- **来源:** W2T1 审查 (finding #3)
+- **当前状态:** `truth_index.py` 的 `extract_entities_from_plan` 中 characters/rules 从 set 转为 list，跨 Python 运行顺序不确定。
+- **根因:** 缺少 `sorted()` 排序。
+- **影响:** 下游消费者和测试断言可能不稳定。
+- **修改文件:** `src/shenbi/pipeline/truth_index.py`
+- **验收标准:** 返回的 characters/rules 列表是 `sorted()` 的。
+
+#### E6. 审计 BLOCKING 重试耗尽后缺少版本回退
+
+- **来源:** §6.3 spec
+- **当前状态:** spec §6.3 说 "3 次失败 → 回退最佳版本 → escalation checkpoint"。回退未实现。
+- **根因:** 缺少 "最佳版本" 的选择逻辑和快照恢复调用。
+- **影响:** escalation 时没有回退到之前通过审计的版本，章节停留在最后一次失败的状态。
+- **决策:** 标记为**非目标** (完整 rollback 是 E4 的范畴)。在 A5 的 escalation 路径中添加日志标记 "version_rollback_not_implemented"。
+
+### 7.2 Category F: 补充测试缺口
+
+#### F1. ChapterState 序列化往返未测试
+
+- **来源:** W1T1 审查
+- **当前状态:** `chapter_states` 是 `to_dict`/`from_dict` 中最复杂的嵌套 dict 分支，但测试从不填充它。
+- **验收标准:** 添加测试：构造包含多个 chapter_states 的 PipelineState，往返后验证完整性。
+
+#### F2. Checkpoint options/context 往返未断言
+
+- **来源:** W1T1 审查
+- **当前状态:** 测试构造了 `CheckpointData(context="Review memo", options=["approve","modify","reject"])` 但仅断言 type/chapter/artifact。
+- **验收标准:** 往返后断言 `context` 和 `options` 字段。
+
+#### F3. PipelineConfig 完整往返未测试
+
+- **来源:** W1T1 审查
+- **当前状态:** 12 个 config 字段中仅 2 个 (max_revision_retries, resonance_global_floor) 被往返测试。
+- **验收标准:** 往返后断言全部 12 个 config 字段。
+
+#### F4. test_save_is_atomic docstring 承诺过度
+
+- **来源:** W1T2 审查
+- **当前状态:** docstring 说 "no partial writes on crash" 但仅检查 `json.loads(content)` 成功。
+- **验收标准:** 重命名为 `test_save_writes_valid_json` 或添加真正的原子性断言 (如检查无 .tmp 文件残留)。
+
+#### F5. embed_and_store 成功路径零覆盖
+
+- **来源:** W2T2 审查
+- **当前状态:** `embed_and_store` 中调用 `model.encode()` 的代码路径从未被测试 (因为 model 是可选依赖)。
+- **验收标准:** 使用 mock model 注入测试 encode → store → search 的完整路径。
+
+#### F6. G4 调用参数未验证
+
+- **来源:** W3T2 审查 (finding #5)
+- **当前状态:** `test_runs_step_g4_and_advances` 使用 `mock_g4.assert_called_once()` 但不检查参数。
+- **验收标准:** 使用 `assert_called_with(skill, [output_path], project_dir)` 验证 G4 接收正确的文件路径。
+
+#### F7. genesis phase transition 后 save_state 缺失
+
+- **来源:** 最终审查 (finding M4)
+- **当前状态:** `cli.py` 中 `transition_genesis_to_chapter_loop(state)` 后不调用 `save_state` 就进入 `_orchestrate_to_checkpoint`。如果 orchestration 抛异常，phase transition 丢失。
+- **验收标准:** phase transition 后立即 `save_state`，与 book_closure 分支保持一致。
+
+### 7.3 Category G: 补充代码质量
+
+#### G1. gate 返回 dict status 类型不一致
+
+- **来源:** W3T1 审查 (finding #3)
+- **当前状态:** 成功路径的 status 来自 `json.loads` (plain `str`)；失败路径使用 `GateStatus.FAIL` (StrEnum)。`== "FAIL"` 因 StrEnum 而工作，但类型不一致。
+- **修改文件:** `src/shenbi/pipeline/dispatch_helper.py`
+- **验收标准:** 失败路径使用 `GateStatus.FAIL.value` 统一为 plain `str`。
+
+#### G2. _check_conditional_resolve 跳过 G4
+
+- **来源:** W3T3 审查 (finding #1)
+- **当前状态:** `chapter_loop.py` 的 `_check_conditional_resolve` dispatch foreshadowing-resolve 但不运行 G4 验证且不检查 `result.success`。
+- **修改文件:** `src/shenbi/pipeline/chapter_loop.py`
+- **验收标准:** conditional resolve 后运行 G4，检查 result.success，失败时 log warning。
+
+#### G3. _resolve_g4_path 不使用 staging_path() API
+
+- **来源:** W3T3 审查 (finding #2)
+- **当前状态:** 手动拼接 `f"{STAGING_DIR}/{resolved}"` 而非调用 `checkpoint.staging_path()`。
+- **修改文件:** `src/shenbi/pipeline/chapter_loop.py`
+- **验收标准:** 使用 `staging_path()` 统一 staging 路径构造。
+
+#### G4. truth_embed.main() rebuild 是空操作
+
+- **来源:** W2T3 审查 (finding #3)
+- **当前状态:** `rebuild` 命令打开 DB、创建表、关闭。不做任何 embedding。
+- **修改文件:** `src/shenbi/pipeline/truth_embed.py`
+- **验收标准:** 要么实现 rebuild (遍历 truth files 重新 embed)，要么添加明确日志 "rebuild not yet implemented, use update with --text"。
+
+#### G5. truth_index.main() 丢弃 update 命令
+
+- **来源:** W2T3 审查 (finding #4)
+- **当前状态:** brief 指定 `choices=["update", "rebuild", "query"]`，实现使用 `["rebuild", "query"]`。
+- **修改文件:** `src/shenbi/pipeline/truth_index.py`
+- **验收标准:** 添加 `update` 作为 `rebuild` 的别名 (两者行为相同)，或在 help 中说明 "use rebuild"。
+
+#### G6. book_closure trigger 分支冗余 save_state
+
+- **来源:** 最终审查 (finding M3)
+- **当前状态:** `cli.py:111` 在 trigger 分支中显式调用 `save_state`，但 caller 在循环返回后也会调用。
+- **修改文件:** `src/shenbi/pipeline/cli.py`
+- **验收标准:** 移除冗余 `save_state`，或添加注释说明为何需要提前保存。
+
+#### G7. ClosureStateData 在 "Produces" 中列出但未定义
+
+- **来源:** W1T1 审查
+- **当前状态:** Wave 1 brief 的 "Produces" 接口列表包含 `ClosureStateData`，但实际代码使用 `closure: ClosureState` + `closure_step: int` 扁平化设计。
+- **修改文件:** 无代码修改 (文档对齐)
+- **验收标准:** 在 spec 或代码注释中说明 `ClosureStateData` 不存在，closure 状态扁平化到 `PipelineState`。
+
+### 7.4 Category H: 补充文档修复
+
+#### H1. Spec coverage matrix 需要更新
+
+- **来源:** W5T3 产出
+- **当前状态:** `docs/superpowers/plans/2026-07-02-pipeline-coverage-matrix.md` 记录 17/20 pass, 3 partial。修复后应为 20/20。
+- **修改文件:** `docs/superpowers/plans/2026-07-02-pipeline-coverage-matrix.md`
+- **验收标准:** 所有修复完成后更新 matrix 为 20/20 pass，移除 G1-G4 gap 描述。
+
+#### H2. cmd_rollback stub 消息过期
+
+- **来源:** W1T6
+- **当前状态:** 消息说 "Rollback requires snapshot integration (Wave 3/4)"，但 Wave 3/4 已完成。
+- **修改文件:** `src/shenbi/pipeline/cli.py`
+- **验收标准:** 更新为 "Rollback not yet implemented" (不引用已完成的 wave)。
+
+## 8. 更新后的完整修复优先级
+
+```
+Phase 1 (正确性阻塞): A3 → A8 → A5 → A4 → A1 → A2 → A6 → A7
+Phase 2 (补充正确性): E1, E2, E3, E5 (相互独立), E4 (stub 修复)
+Phase 3 (健壮性):     B1, B2, B3, B4, B5 (相互独立)
+Phase 4 (测试补全):   C1-C5, F1-F7 (相互独立)
+Phase 5 (代码清理):   D1-D4, G1-G7, H1-H2 (相互独立)
+```
+
+Phase 2 可与 Phase 1 的独立项 (A1, A2, A6, A7) 并行。
+
+## 9. 更新后的验收标准
+
+修复完成后必须满足:
+
+1. **§15 全部 20 条验收标准 Pass**
+2. **端到端集成测试**覆盖完整路径 (init → genesis → chapter-loop → closure)
+3. **批判性审核通过**: 无 Critical/Important 发现
+4. **所有 pre-commit 钩子绿色**
+5. **Pipeline 测试数 >= 650** (当前 510 + 预估 140 新测试)
+6. **Spec coverage matrix 更新为 20/20**
+7. **无 broad `except Exception`** 不带 try/finally 的资源泄漏 (E1)
+8. **所有 CLI 命令在错误输入时返回 error envelope** 而非 traceback (E3)
