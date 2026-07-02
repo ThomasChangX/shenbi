@@ -49,7 +49,7 @@ class TestBuildIndex:
     def test_character_uses_frontmatter_name(self, project_with_truth):
         idx = build_index(project_with_truth)
         # File basename is "protagonist.md" but the indexed key is "Hero".
-        assert idx.characters["Hero"].file == "characters/protagonist.md"
+        assert Path(idx.characters["Hero"].file).as_posix() == "characters/protagonist.md"
 
     def test_character_falls_back_to_stem_when_no_frontmatter(self, tmp_path: Path):
         p = tmp_path / "project"
@@ -186,7 +186,7 @@ class TestCJKEntityExtraction:
     def test_cjk_character_indexed_by_chinese_name(self, cjk_project: Path):
         idx = build_index(cjk_project)
         assert "林晚晴" in idx.characters
-        assert idx.characters["林晚晴"].file == "characters/lin_wanqing.md"
+        assert Path(idx.characters["林晚晴"].file).as_posix() == "characters/lin_wanqing.md"
 
     def test_cjk_character_extracted_from_plan(self, cjk_project: Path):
         idx = build_index(cjk_project)
@@ -216,7 +216,7 @@ class TestTruthIndexSerialization:
         assert "Hero" in data["characters"]
         hero = data["characters"]["Hero"]
         assert hero["category"] == "character"
-        assert hero["file"] == "characters/protagonist.md"
+        assert Path(hero["file"]).as_posix() == "characters/protagonist.md"
         assert "H01" in data["hooks"]
         assert data["hooks"]["H01"]["extra"]["state"] == "PLANTED"
         assert set(data["rules"]) == {"R1", "R2"}
