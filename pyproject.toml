@@ -11,6 +11,7 @@ dependencies = [
     "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
+    "numpy>=1.26.0",          # Wave 2 Task 2: Route B float32 cosine similarity (truth_embed)
     # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
 ]
@@ -54,6 +55,10 @@ shenbi-progress = "shenbi.update_progress:main"
 shenbi-phase = "shenbi.phase_runner:main"
 shenbi-sync-contracts = "shenbi.sync_contracts:main"
 shenbi-generate-plugins = "shenbi.plugins.generate:main"
+pipeline = "shenbi.pipeline.cli:main"
+pipeline-truth-index = "shenbi.pipeline.truth_index:main"
+pipeline-truth-embed = "shenbi.pipeline.truth_embed:main"
+pipeline-context-assemble = "shenbi.pipeline.context_assemble:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -72,6 +77,11 @@ disable_error_code = ["prop-decorator"]
 [[tool.mypy.overrides]]
 module = "jieba.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "numpy.*"
+follow_imports = "skip"
+ignore_errors = true
 
 [tool.mutmut]
 # mutmut 3.x reads underscored keys; the prior hyphenated names
@@ -336,7 +346,7 @@ convention = "google"
 ]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

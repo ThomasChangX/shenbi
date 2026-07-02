@@ -136,6 +136,29 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     file_type = derive_file_type(skill)
     input_files = derive_input_files(skill)
 
+    # Optionally skip reads marked as optional (ramp-up / late-produced files).
+    skip_raw = os.environ.get("SHENBI_G1_SKIP_READS", "")
+    if skip_raw:
+        skip_patterns = [p.strip() for p in skip_raw.split(",") if p.strip()]
+        if skip_patterns:
+            from fnmatch import fnmatch
+
+            filtered = []
+            for f in input_files:
+                name = Path(f).name
+                if any(fnmatch(name, pat) for pat in skip_patterns):
+                    matching = [p for p in skip_patterns if fnmatch(name, p)]
+                    log.debug(
+                        "g1_skip_optional_read",
+                        file=f,
+                        pattern=matching[0] if matching else "unknown",
+                    )
+                else:
+                    filtered.append(f)
+            original_count = len(input_files)
+            input_files = filtered
+            log.info("g1_optional_reads_filtered", original=original_count, kept=len(input_files))
+
     g1 = run_g1(skill, input_files, round_dir)
     if g1.get("status") != "PASS":
         log.error("g1_failed", gate="G1", result=g1)

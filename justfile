@@ -87,3 +87,19 @@ mutate-check:
 # Generate changelog from conventional commits
 changelog:
     uv run git-cliff --unreleased -p CHANGELOG.md
+
+# Initialize a novel pipeline from a seed file
+pipeline-init seed project_dir="":
+    uv run pipeline init {{seed}} {{ if project_dir != "" { "--project-dir " + project_dir } else { "" } }}
+
+# Check pipeline status
+pipeline-status project_dir:
+    uv run pipeline status {{project_dir}}
+
+# Submit a checkpoint review
+pipeline-review project_dir decision feedback="":
+    uv run pipeline review {{project_dir}} {{decision}} {{ if feedback != "" { "--feedback " + feedback } else { "" } }}
+
+# Resume pipeline execution
+pipeline-resume project_dir:
+    uv run pipeline resume {{project_dir}}

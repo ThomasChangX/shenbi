@@ -4,8 +4,10 @@ description: "Use when extracting a style fingerprint from existing chapters for
 contract:
   kind: artifact
   reads:
-    - chapters/*.md
-    - import/source/*.txt
+    - chapters/*.md              # normal mode (exists after ch1)
+    - import/source/*.txt        # optional reference works
+    - novel.json                 # bootstrap mode
+    - genre-config.json          # bootstrap mode
   writes:
     - style/style_profile.md
   updates: []
@@ -20,7 +22,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/*.md, import/source/*.txt
+- **Reads:** chapters/*.md, import/source/*.txt, novel.json, genre-config.json
 - **Writes:** style/style_profile.md
 - **Updates:** none
 
@@ -44,6 +46,45 @@ digraph style_learning {
 ```
 
 **第一步必须运行** `python -m shenbi.skill_utils.style_learning <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
+
+## Bootstrap 模式 (Genesis 阶段)
+
+Genesis 阶段尚无章节正文 (`chapters/*.md`)。bootstrap 模式在不依赖正文的条件下生成初始风格指纹。
+
+```dot
+digraph style_bootstrap {
+    "import/source/*.txt 存在?" [shape=diamond];
+    "import/source/*.txt 存在?" -> "正常提取 (参考作品)" [label="是"];
+    "import/source/*.txt 存在?" -> "种子指纹 (novel.json + genre-config.json)" [label="否"];
+    "正常提取 (参考作品)" -> "style/style_profile.md";
+    "种子指纹 (novel.json + genre-config.json)" -> "style/style_profile.md\n(bootstrap: true, confidence: low)";
+}
+```
+
+- **有参考文件** (`import/source/*.txt`): 运行正常流程，从参考作品提取风格指纹
+- **无参考文件**: 从以下来源生成**种子风格指纹**:
+  1. `novel.json` 的 genre/era — 题材惯例（句长、节奏、修辞偏好）
+  2. `genre-config.json` 的 `show_tell_ratio`（展示/讲述比例）与 `deep_themes`（深层主题）
+  3. 输出 `style/style_profile.md`，标注 `bootstrap: true`、`confidence: low`
+
+> 种子指纹无法由 `compute_stats.py` 计算（无正文样本）。它仅作为后续写作的临时参照，必须在首次正式提取时被真实统计覆盖。
+
+### 首次正式提取
+
+前 3 章完成后，pipeline 重新运行 style-learning（非 bootstrap）覆盖 bootstrap 指纹:
+
+- 读取 `chapters/chapter-1.md` 到 `chapters/chapter-3.md`
+- 运行 `compute_stats.py` 获取真实统计
+- 用真实统计结果覆盖 bootstrap 指纹（移除 `bootstrap: true` 标记）
+- 样本 < 10 章时按铁律 #3 标注「样本不足」（3 章统计仍优于无数据的种子指纹）
+
+### 定期更新
+
+每 `style_learning_interval` 章（默认 12）或卷边界时重新运行:
+
+- 周期性更新（`N % style_learning_interval == 0`）
+- 卷级更新（`is_volume_boundary(N)`）
+- 每次更新重新运行 `compute_stats.py`，纳入最新章节统计
 
 ## 铁律
 

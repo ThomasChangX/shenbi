@@ -5,6 +5,8 @@ contract:
   kind: artifact
   reads:
     - plans/chapter-N-plan.md
+    - outline/story_frame.md    # for genesis mode
+    - outline/volume_map.md     # for genesis mode
     - truth/pending_hooks.md
     - genre-config.json
   writes: []
@@ -21,7 +23,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, truth/pending_hooks.md, genre-config.json
+- **Reads:** plans/chapter-N-plan.md, outline/story_frame.md, outline/volume_map.md, truth/pending_hooks.md, genre-config.json
 - **Writes:** none
 - **Updates:** truth/pending_hooks.md
 
@@ -131,3 +133,20 @@ digraph foreshadowing_plant {
 | "读者不会注意到这么细节的东西" | 网文读者的重读习惯和评论文化使细节容易被发掘 |
 | "先种上再说，以后决定怎么用" | 无规划伏笔 = 最后不得不放弃 = Chase Power 债务 |
 | "微妙度设高点没人会发现" | 伏笔的目的不是隐藏，是让读者在兑现时产生"啊原来如此" |
+
+## 创世模式 (--mode genesis)
+
+Genesis 阶段无章节备忘 (`plans/chapter-N-plan.md`)。genesis 模式从大纲提取跨卷 master hooks:
+
+- **reads**: `outline/story_frame.md` + `outline/volume_map.md` (替代 chapter plan)
+- **提取 master hooks**: 从 volume_map 的跨卷钩子提取,初始化为 PLANTED 状态
+- **writes**: 同默认模式 (`truth/pending_hooks.md`)
+
+### genesis 模式流程
+
+1. 读 `outline/story_frame.md` 提取三幕结构中的跨卷承诺
+2. 读 `outline/volume_map.md` 提取每卷的卷尾实体钩子
+3. 对每个跨卷钩子: 分配 MH ID, 设为 PLANTED, 声明兑现卷
+4. Append 到 `truth/pending_hooks.md`
+
+genesis 模式不读 `plans/chapter-N-plan.md`,不处理 hook 账的 OPEN 项 (那是 per-chapter 模式的职责)。

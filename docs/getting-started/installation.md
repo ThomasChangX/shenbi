@@ -79,6 +79,9 @@ This starts a local docs server at `http://127.0.0.1:8000`.
 | `just test` | 快速单元测试 / Fast unit tests only |
 | `just fix` | 自动修复 lint 和格式 / Auto-fix lint and format |
 | `just docs` | 启动文档服务器 / Start docs server |
+| `just pipeline-init <seed>` | 从种子文件初始化小说流水线 / Initialize novel pipeline from seed |
+| `just pipeline-status <dir>` | 查看流水线状态 / Check pipeline status |
+| `just pipeline-review <dir> <decision>` | 提交检查点审查 / Submit checkpoint review |
 | `just --list` | 列出所有命令 / List all commands |
 
 ## 测试数据说明 / Test Data Note

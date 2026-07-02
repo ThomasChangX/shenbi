@@ -46,6 +46,10 @@ Use entry points (not `python3 tests/X.py`):
 Or via `just`:
 - `just gate G0 outline-example.md`
 - `just dispatch shenbi-worldbuilding generative /tmp/round "prompt"`
+- `just pipeline-init <seed>` — Initialize novel pipeline from seed
+- `just pipeline-status <dir>` — Check pipeline status
+- `just pipeline-review <dir> <decision>` — Submit checkpoint review
+- `just pipeline-resume <dir>` — Resume pipeline execution
 
 Install: `uv sync --group dev` (PEP 735 dependency groups, not extras).
 
