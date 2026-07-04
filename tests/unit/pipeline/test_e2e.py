@@ -68,9 +68,9 @@ class TestWave1E2E:
         assert state.phase.value == "genesis"
         assert state.genesis.state.value == "in-progress"
 
-        # Step 3: init again should fail (idempotency)
+        # Step 3: init again should succeed with exists status (project is resumable)
         rc = main(["init", str(seed_file), "--project-dir", str(project_dir)])
-        assert rc != 0
+        assert rc == 0
 
     def test_review_without_checkpoint_fails(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch

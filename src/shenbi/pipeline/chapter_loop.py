@@ -382,24 +382,38 @@ def _advance(
 
     Returns True if a checkpoint was raised or the chapter completed;
     False if the step simply advanced with no human action needed.
+
+    Checkpoint suppression (--auto mode): when the corresponding config
+    flag is False the checkpoint is silently skipped and the cursor
+    advances as if it were a non-checkpoint step.
     """
     state.chapter_loop.step_index = step_idx + 1
     state.chapter_loop.current_step = ""
 
     if step.checkpoint is not None:
-        artifact = (
-            _substitute_chapter(step.output_path, chapter)
-            if step.output_path
-            else f"chapter-{chapter}/{step.name}"
-        )
-        set_checkpoint(
-            state,
-            step.checkpoint,
-            chapter=chapter,
-            artifact=artifact,
-            context=f"Review {step.name} for chapter {chapter}",
-        )
-        return True
+        # Honour --auto suppression flags so automated runs aren't
+        # blocked on every chapter-memo / state-settle.
+        cfg = state.config
+        if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
+            pass  # skip checkpoint, fall through to chapter-completion check
+        elif (
+            step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
+        ):
+            pass  # skip checkpoint
+        else:
+            artifact = (
+                _substitute_chapter(step.output_path, chapter)
+                if step.output_path
+                else f"chapter-{chapter}/{step.name}"
+            )
+            set_checkpoint(
+                state,
+                step.checkpoint,
+                chapter=chapter,
+                artifact=artifact,
+                context=f"Review {step.name} for chapter {chapter}",
+            )
+            return True
 
     if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
         return _complete_chapter(state, chapter)
@@ -431,7 +445,10 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
             output=str(out),
         )
     except Exception as e:
-        log.warning("context_assembly_failed", chapter=chapter, error=str(e))
+        log.error("context_assembly_failed", chapter=chapter, error=str(e))
+        import traceback
+
+        log.error("context_assembly_traceback", traceback=traceback.format_exc())
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -561,7 +578,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     the step simply advanced (or will be retried) and no human action is
     needed yet. Mutates ``state`` in place; the caller persists it.
     """
-    project_dir = Path(project_dir)
+    project_dir = Path(project_dir) if project_dir else Path.cwd()
     step_idx = state.chapter_loop.step_index
     if step_idx >= len(CHAPTER_STEPS):
         return True  # all steps consumed

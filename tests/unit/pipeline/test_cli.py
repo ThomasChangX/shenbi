@@ -68,17 +68,17 @@ class TestInitCommand:
         novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
         assert novel["genre"] == ["fantasy", "adventure"]
 
-    def test_init_idempotent_rejects_existing(
+    def test_init_idempotent_accepts_existing(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Re-running init on an existing project fails (non-zero)."""
+        """Re-running init on an existing incomplete project succeeds (returns exists status)."""
         project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
         seed_file = tmp_path / "seed.md"
 
         rc, out = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
 
-        assert rc != 0  # Should fail on duplicate init
-        assert json.loads(out)["status"] == "error"
+        assert rc == 0  # Should succeed, reporting existing project is resumable
+        assert json.loads(out)["status"] == "exists"
 
     def test_init_writes_genre_config(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
