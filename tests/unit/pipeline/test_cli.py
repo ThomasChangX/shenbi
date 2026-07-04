@@ -102,6 +102,28 @@ class TestInitCommand:
         assert rc == 0
         assert json.loads(out)["total_chapters"] == "unknown"
 
+    def test_init_auto_flag_disables_review_checkpoints(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """--auto persists disabled review flags on both config and chapter_loop."""
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(sample_seed_content, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(
+            ["init", str(seed_file), "--project-dir", str(project_dir), "--auto"],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        state = load_state(project_dir)
+        # config-level flags
+        assert state.config.per_chapter_review_enabled is False
+        assert state.config.chapter_memo_review_required is False
+        assert state.config.state_settle_review_required is False
+        # chapter_loop-level copy (the one _complete_chapter actually reads)
+        assert state.chapter_loop.per_chapter_review_enabled is False
+
 
 class TestStatusCommand:
     """``status <dir>`` emits current pipeline state as JSON."""

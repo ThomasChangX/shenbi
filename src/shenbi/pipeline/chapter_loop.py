@@ -425,8 +425,8 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
 
     Calls :func:`assemble_context` + :func:`write_context_file` from
     ``context_assemble``. Missing plan files are tolerated (early-stage
-    projects): the warning is logged and the step continues so
-    chapter-drafting can proceed without context.
+    projects): the error is logged (with stack trace) and the step continues
+    so chapter-drafting can proceed without context.
     """
     try:
         from shenbi.pipeline.context_assemble import (

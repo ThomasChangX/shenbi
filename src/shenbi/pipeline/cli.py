@@ -361,6 +361,14 @@ def cmd_init(args: argparse.Namespace) -> int:
         try:
             with ReadLock(project_dir):
                 existing = load_state(project_dir)
+        except TimeoutError:
+            emit_json(
+                {
+                    "status": CommandStatus.BLOCKED,
+                    "message": "pipeline is busy — another process holds the write lock, retry shortly",
+                }
+            )
+            return 1
         except Exception:
             emit_json(
                 {
