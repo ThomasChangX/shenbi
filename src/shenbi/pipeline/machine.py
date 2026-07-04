@@ -69,8 +69,8 @@ def set_checkpoint(
 def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
     """Clear the pending checkpoint and record it in history.
 
-    When an ESCALATION checkpoint is resolved (approved, rejected, or
-    modify), all per-phase retry counters are reset so the pipeline gets
+    When an ESCALATION checkpoint is resolved (APPROVE, REJECT, or
+    MODIFY), all per-phase retry counters are reset so the pipeline gets
     a fresh set of retry attempts rather than immediately re-escalating.
     """
     cp = state.pending_checkpoint
