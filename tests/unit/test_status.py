@@ -43,7 +43,7 @@ class TestPhaseStateWireValues:
 @pytest.mark.unit
 class TestCommandStatusWireValues:
     def test_values(self) -> None:
-        assert {c.value for c in CommandStatus} == {"ok", "blocked", "error"}
+        assert {c.value for c in CommandStatus} == {"ok", "blocked", "error", "exists"}
 
 
 @pytest.mark.unit

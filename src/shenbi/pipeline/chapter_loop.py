@@ -382,24 +382,38 @@ def _advance(
 
     Returns True if a checkpoint was raised or the chapter completed;
     False if the step simply advanced with no human action needed.
+
+    Checkpoint suppression (--auto mode): when the corresponding config
+    flag is False the checkpoint is silently skipped and the cursor
+    advances as if it were a non-checkpoint step.
     """
     state.chapter_loop.step_index = step_idx + 1
     state.chapter_loop.current_step = ""
 
     if step.checkpoint is not None:
-        artifact = (
-            _substitute_chapter(step.output_path, chapter)
-            if step.output_path
-            else f"chapter-{chapter}/{step.name}"
-        )
-        set_checkpoint(
-            state,
-            step.checkpoint,
-            chapter=chapter,
-            artifact=artifact,
-            context=f"Review {step.name} for chapter {chapter}",
-        )
-        return True
+        # Honour --auto suppression flags so automated runs aren't
+        # blocked on every chapter-memo / state-settle.
+        cfg = state.config
+        if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
+            pass  # skip checkpoint, fall through to chapter-completion check
+        elif (
+            step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
+        ):
+            pass  # skip checkpoint
+        else:
+            artifact = (
+                _substitute_chapter(step.output_path, chapter)
+                if step.output_path
+                else f"chapter-{chapter}/{step.name}"
+            )
+            set_checkpoint(
+                state,
+                step.checkpoint,
+                chapter=chapter,
+                artifact=artifact,
+                context=f"Review {step.name} for chapter {chapter}",
+            )
+            return True
 
     if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
         return _complete_chapter(state, chapter)
@@ -411,8 +425,8 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
 
     Calls :func:`assemble_context` + :func:`write_context_file` from
     ``context_assemble``. Missing plan files are tolerated (early-stage
-    projects): the warning is logged and the step continues so
-    chapter-drafting can proceed without context.
+    projects): a warning (with stack trace) is logged and the step continues
+    so chapter-drafting can proceed without context.
     """
     try:
         from shenbi.pipeline.context_assemble import (
@@ -431,7 +445,7 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
             output=str(out),
         )
     except Exception as e:
-        log.warning("context_assembly_failed", chapter=chapter, error=str(e))
+        log.warning("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:

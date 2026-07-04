@@ -24,6 +24,7 @@ import argparse
 import json
 import sys
 from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -344,14 +345,55 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     Parses the seed, writes ``novel.json`` / ``genre-config.json`` /
     ``genesis-context/*.md``, and bootstraps ``pipeline-state.json`` with the
-    genesis phase already in-progress. Refuses to clobber an existing project.
+    genesis phase already in-progress.  If the project directory already
+    contains an incomplete pipeline state the command succeeds with status
+    ``exists`` so the caller can simply ``resume`` rather than picking a new
+    directory name.
     """
-    project_dir = Path(args.project_dir) if args.project_dir else Path.cwd() / "novel"
+    project_dir = (
+        Path(args.project_dir)
+        if args.project_dir
+        else Path.cwd() / f"novel-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
+    )
     state_file = project_dir / "pipeline-state.json"
 
     if state_file.exists():
-        emit_json({"status": CommandStatus.ERROR, "message": "pipeline-state.json already exists"})
-        return 1
+        try:
+            with ReadLock(project_dir):
+                existing = load_state(project_dir)
+        except TimeoutError:
+            emit_json(
+                {
+                    "status": CommandStatus.BLOCKED,
+                    "message": "pipeline is busy — another process holds the write lock, retry shortly",
+                }
+            )
+            return 1
+        except Exception:
+            emit_json(
+                {
+                    "status": CommandStatus.ERROR,
+                    "message": "pipeline-state.json exists but is unreadable",
+                }
+            )
+            return 1
+        if existing.phase in (PipelinePhase.COMPLETED, PipelinePhase.FAILED):
+            emit_json(
+                {
+                    "status": CommandStatus.ERROR,
+                    "message": f"project already in terminal phase: {existing.phase.value}",
+                }
+            )
+            return 1
+        emit_json(
+            {
+                "status": CommandStatus.EXISTS,
+                "project_dir": str(project_dir),
+                "phase": existing.phase.value,
+                "message": "project already initialized — use 'pipeline resume' to continue",
+            }
+        )
+        return 0
 
     project_dir.mkdir(parents=True, exist_ok=True)
 
@@ -381,6 +423,17 @@ def cmd_init(args: argparse.Namespace) -> int:
     # Genesis starts in-progress per spec section 3.1.
     state = PipelineState.default(project_dir=str(project_dir))
     state.genesis.state = GenesisState.IN_PROGRESS
+
+    # --auto flag: reduce checkpoints for automated / Codex-driven runs so
+    # fewer human (or simulated-human) approvals are needed per chapter.
+    if args.auto:
+        state.config.per_chapter_review_enabled = False
+        state.config.chapter_memo_review_required = False
+        state.config.state_settle_review_required = False
+        # _complete_chapter() reads the chapter-loop copy; keep both in sync.
+        state.chapter_loop.per_chapter_review_enabled = False
+        log.info("auto_mode_enabled", project_dir=str(project_dir))
+
     with WriteLock(project_dir):
         save_state(project_dir, state)
 
@@ -727,6 +780,11 @@ def main(argv: list[str] | None = None) -> int:
     p_init = sub.add_parser("init", help="Initialize novel project from seed file")
     p_init.add_argument("seed_file", type=str, help="Path to seed file")
     p_init.add_argument("--project-dir", type=str, default=None)
+    p_init.add_argument(
+        "--auto",
+        action="store_true",
+        help="Reduce checkpoints for automated/Codex-driven runs (disables per-chapter review, chapter-memo review, and state-settle review)",
+    )
     p_init.set_defaults(func=cmd_init)
 
     p_next = sub.add_parser("next", help="Execute to next checkpoint")

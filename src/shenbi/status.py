@@ -43,6 +43,7 @@ class CommandStatus(StrEnum):
     OK = "ok"
     BLOCKED = "blocked"
     ERROR = "error"
+    EXISTS = "exists"
 
 
 class ScoringStatus(StrEnum):

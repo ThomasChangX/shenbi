@@ -68,17 +68,17 @@ class TestInitCommand:
         novel = json.loads((project_dir / "novel.json").read_text(encoding="utf-8"))
         assert novel["genre"] == ["fantasy", "adventure"]
 
-    def test_init_idempotent_rejects_existing(
+    def test_init_idempotent_accepts_existing(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Re-running init on an existing project fails (non-zero)."""
+        """Re-running init on an existing incomplete project succeeds (returns exists status)."""
         project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
         seed_file = tmp_path / "seed.md"
 
         rc, out = _run(["init", str(seed_file), "--project-dir", str(project_dir)], monkeypatch)
 
-        assert rc != 0  # Should fail on duplicate init
-        assert json.loads(out)["status"] == "error"
+        assert rc == 0  # Should succeed, reporting existing project is resumable
+        assert json.loads(out)["status"] == "exists"
 
     def test_init_writes_genre_config(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
@@ -101,6 +101,28 @@ class TestInitCommand:
 
         assert rc == 0
         assert json.loads(out)["total_chapters"] == "unknown"
+
+    def test_init_auto_flag_disables_review_checkpoints(
+        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """--auto persists disabled review flags on both config and chapter_loop."""
+        seed_file = tmp_path / "seed.md"
+        seed_file.write_text(sample_seed_content, encoding="utf-8")
+        project_dir = tmp_path / "novel"
+
+        rc, _ = _run(
+            ["init", str(seed_file), "--project-dir", str(project_dir), "--auto"],
+            monkeypatch,
+        )
+
+        assert rc == 0
+        state = load_state(project_dir)
+        # config-level flags
+        assert state.config.per_chapter_review_enabled is False
+        assert state.config.chapter_memo_review_required is False
+        assert state.config.state_settle_review_required is False
+        # chapter_loop-level copy (the one _complete_chapter actually reads)
+        assert state.chapter_loop.per_chapter_review_enabled is False
 
 
 class TestStatusCommand:
