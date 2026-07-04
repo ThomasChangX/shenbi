@@ -226,7 +226,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     checkpoint, or closure completed; False if the step failed (dispatch or
     gate). Mutates ``state`` in place; the caller persists it.
     """
-    project_dir = Path(project_dir)
+    project_dir = Path(project_dir) if project_dir else Path.cwd()
     idx = state.closure_step
     n = len(CLOSURE_STEPS)
 

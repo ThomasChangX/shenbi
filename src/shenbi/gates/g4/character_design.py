@@ -17,8 +17,9 @@ def g4_character_design(fps: list[str], rd: str | None = None) -> str:
     c: list[dict[str, Any]] = []
     mf = []
 
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = Path(fp)
+        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
 
         # protagonist.md checks
         if "protagonist" in str(fp) and pf.suffix == ".md":
@@ -88,16 +89,24 @@ def g4_character_design(fps: list[str], rd: str | None = None) -> str:
                 c.append({"id": "G4.rel.pairs", "s": "PASS", "count": rel_pairs})
 
         # Check for major character files (SKILL.md Writes: characters/major/*.md)
-        project_dir = str(Path(fps[0]).parent.parent) if fps else ""
-        major_dir = Path(project_dir) / "characters" / "major"
+        # Genesis mode only creates protagonist.md; expansion creates major chars.
+        major_dir = base / "characters" / "major"
         if major_dir.exists():
             major_files = list(major_dir.glob("*.md"))
             if len(major_files) >= 2:
                 c.append({"id": "G4.cd.major_chars", "s": "PASS", "count": len(major_files)})
-            else:
-                mf.append(f"G4.cd.major_chars:need_2_got_{len(major_files)}")
+            elif len(major_files) == 1:
+                c.append(
+                    {"id": "G4.cd.major_chars", "s": "WARN", "r": f"need_2_got_{len(major_files)}"}
+                )
         else:
-            mf.append("G4.cd.major_dir.not_found")
+            c.append(
+                {
+                    "id": "G4.cd.major_chars",
+                    "s": "SKIP",
+                    "r": "no major directory yet (genesis mode)",
+                }
+            )
 
     if mf:
         return fail("G4-character-design", c, "scoring", mf)

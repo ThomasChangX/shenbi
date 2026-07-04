@@ -72,6 +72,22 @@ def gate_G1(
     rd = Path(round_dir) if round_dir else None
     targets = compute_backup_targets(skill_name, fps, str(rd) if rd else None)
 
+    # Expand glob patterns before validation
+    expanded_fps: list[str] = []
+    import glob as _glob
+
+    for fp in fps:
+        if fp != _glob.escape(fp):  # glob.escape covers *, ?, [...], [!...]
+            matches = _glob.glob(fp, recursive=True)
+            if matches:
+                for m in matches:
+                    if m not in expanded_fps:
+                        expanded_fps.append(m)
+            # Unmatched glob = no files exist; silently drop (genesis-mode reads)
+        elif fp not in expanded_fps:
+            expanded_fps.append(fp)
+    fps = expanded_fps
+
     for fp in fps:
         p = Path(fp)
 

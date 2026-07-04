@@ -24,6 +24,47 @@ from shenbi.gates.shared import (
 from shenbi.contracts.thresholds import T1_PASS
 
 
+def _compute_rubric_weighted_score(data: dict[str, object], skill_name: str) -> float | None:
+    """Compute weighted score from rubric for dimensions present in subagent scores.
+
+    Tries to load the skill's T1 rubric and compute a weighted score using only
+    the dimensions that the subagent actually scored. Returns None when the rubric
+    is unavailable or no dimensions match (caller falls back to min() estimate).
+    """
+    from shenbi.gates.shared import TESTS
+
+    rubric_path = TESTS / "tiers" / "t1-skill" / skill_name / "rubric.md"
+    if not rubric_path.exists():
+        return None
+    try:
+        from shenbi.scoring import load_rubric
+
+        dimensions, _ = load_rubric(str(rubric_path))
+        dim_scores: dict[int, float] = {}
+        for k, v in data.items():
+            try:
+                num = int(k)
+                if isinstance(v, (int, float)) and 0 <= v <= 100:
+                    dim_scores[num] = float(v)
+            except (ValueError, TypeError):
+                pass
+        if not dimensions or not dim_scores:
+            return None
+        weight_sum = 0
+        weighted = 0.0
+        for d in dimensions:
+            d_num = d.get("num", getattr(d, "num", 0))
+            d_weight = d.get("weight", getattr(d, "weight", 0))
+            if d_num in dim_scores:
+                weighted += dim_scores[d_num] * d_weight
+                weight_sum += d_weight
+        if weight_sum == 0:
+            return None
+        return round(weighted / weight_sum, 2)
+    except Exception:
+        return None
+
+
 def gate_G3(
     skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None
 ) -> str:
@@ -75,8 +116,25 @@ def gate_G3(
                     try:
                         data = jload(str(rp))
                         score = data.get("total_score", data.get("score", 0))
-                        if not isinstance(score, (int, float)):
-                            score = 0
+                        if not isinstance(score, (int, float)) or score == 0:
+                            # Try rubric-based weighted score (highest precision)
+                            rubric_score = (
+                                _compute_rubric_weighted_score(data, skill_name)
+                                if skill_name
+                                else None
+                            )
+                            if rubric_score is not None:
+                                score = rubric_score
+                                threshold = 90  # pipeline mode
+                            else:
+                                # Fallback: min of dimension scores (conservative)
+                                dims = [
+                                    v
+                                    for v in data.values()
+                                    if isinstance(v, (int, float)) and v <= 100
+                                ]
+                                score = min(dims) if dims else 0
+                                threshold = 90
                         if score < threshold:
                             mf.append(
                                 {

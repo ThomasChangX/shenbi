@@ -11,12 +11,13 @@ from shenbi.gates.shared import fail, passed
 def g4_score_arc(fps: list[str], rd: str | None = None) -> str:
     """Validate shenbi-score-arc output has Route C + Route A sections."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        p = Path(fp)
-        if not p.exists():
+        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        if not pf.exists():
             mf.append(f"G4.not_found:{fp}")
             continue
-        content = p.read_text(encoding="utf-8")
+        content = pf.read_text(encoding="utf-8")
         normalized = re.sub(r"\s+", "", content)
         if "RouteC" not in normalized:
             mf.append("G4.no_route_c:must have Route C section")

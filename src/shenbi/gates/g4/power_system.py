@@ -3,11 +3,11 @@
 from __future__ import annotations
 from typing import Any
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_g4_base,
 )
 
 
@@ -17,8 +17,7 @@ def g4_power_system(fps: list[str], rd: str | None = None) -> str:
     """
     c: list[dict[str, Any]] = []
     mf = []
-    project_dir = str(Path(fps[0]).parent.parent) if fps else ""
-    pd = Path(project_dir)
+    pd = resolve_g4_base(rd)
 
     ps = pd / "world" / "power_system.md"
     if not ps.exists():
@@ -26,7 +25,7 @@ def g4_power_system(fps: list[str], rd: str | None = None) -> str:
     else:
         content = ps.read_text(encoding="utf-8")
         # 等级表: table with >= 5 rows
-        table_rows = len(re.findall(r"^\|.+\|$", content, re.MULTILINE))
+        table_rows = len(re.findall(r"^\s*\|.+\|\s*$", content, re.MULTILINE))
         if table_rows < 5:
             mf.append(f"G4.ps.level_table_rows:{table_rows}<5")
         else:

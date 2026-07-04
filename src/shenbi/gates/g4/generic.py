@@ -19,8 +19,9 @@ from shenbi.gates.shared import (
 def g4_generic_generative(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for skills without specific checkers. Validates output exists, non-empty, has frontmatter."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = Path(fp_path)
+        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
         if not p.exists():
             mf.append(f"G4.gen.not_found:{fp_path}")
             continue
@@ -55,8 +56,9 @@ def g4_generic_generative(fps: list[str], rd: str | None = None) -> str:
 def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for bug-hunt reports. Validates report format: detection summary table, file+line citations, rule names, false positive check."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = Path(fp_path)
+        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
         if not p.exists():
             mf.append(f"G4.bh.not_found:{fp_path}")
             continue
@@ -96,8 +98,9 @@ def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> str:
 def g4_generic_clean(fps: list[str], rd: str | None = None) -> str:
     """Generic G4 for clean reports. Validates: per-file confirmation, zero issues assertion, no fabricated suggestions."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = Path(fp_path)
+        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
         if not p.exists():
             mf.append(f"G4.cl.not_found:{fp_path}")
             continue

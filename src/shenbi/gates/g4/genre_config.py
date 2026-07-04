@@ -11,6 +11,8 @@ from typing import Any
 from pydantic import ValidationError
 
 from shenbi.contracts.skills.genre_config import GenreConfig
+from pathlib import Path
+
 from shenbi.gates.shared import fail, jload, passed
 
 
@@ -18,7 +20,7 @@ def g4_genre_config(fps: list[str], rd: str | None = None) -> str:
     """Genre config: structured validation via GenreConfig Pydantic model."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    gc_path = fps[0] if fps else ""
+    gc_path = str(Path(rd) / fps[0]) if rd and fps else (fps[0] if fps else "")
 
     if not gc_path:
         mf.append("G4.gc.no_input")

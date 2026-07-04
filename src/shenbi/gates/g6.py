@@ -173,8 +173,8 @@ def gate_G6(
                     "catchphrases": cps,
                     "file": cf.name,
                 }
-            except Exception:
-                pass
+            except Exception as e:
+                log.warning("g6_char_voice_parse_failed", file=cf.name, error=str(e))
         # Ghost detection: character appears in chapters but no voice_profile
         for ch in chapters[:15]:  # sample up to 15 chapters
             ct = ch.read_text(encoding="utf-8")[:5000]

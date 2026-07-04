@@ -10,8 +10,9 @@ from shenbi.gates.shared import fail, passed
 def g4_book_spine_init(fps: list[str], rd: str | None = None) -> str:
     """Validate book_spine.md has required frontmatter fields + sections."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        p = Path(fp)
+        p = base / fp if not Path(fp).is_absolute() else Path(fp)
         if not p.exists():
             mf.append(f"G4.bsi.not_found:{fp}")
             continue

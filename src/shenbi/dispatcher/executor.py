@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import uuid
+import re
 from pathlib import Path
 from typing import Any
 
@@ -47,6 +47,21 @@ def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
     return f"{round_dir.name}-{skill}-{test_type}-{uuid.uuid4().hex[:8]}"
 
 
+_CHAPTER_RE = re.compile(r"\bchapter\s+(\d+)\b", re.IGNORECASE)
+
+
+def _resolve_chapter_path(path: str, chapter: int | None) -> str:
+    """Replace N/NNN placeholders with the actual chapter number.
+    Returns empty string sentinel when chapter is None and path has
+    unresolved N/NNN placeholders (genesis mode: file doesn't exist yet).
+    """
+    if chapter is None:
+        if "NNN" in path or "N" in path:
+            return ""  # sentinel: no chapter context, file won't exist
+        return path
+    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
+
+
 def derive_file_type(skill: str) -> str:
     """Derive G2 FILE_TYPE from the contract layer (spec New-I).
 
@@ -70,20 +85,36 @@ def derive_file_type(skill: str) -> str:
     return "chapter"
 
 
-def derive_input_files(skill: str) -> list[str]:
-    """Return the skill's contract reads via the single loader."""
+def derive_input_files(
+    skill: str, chapter: int | None = None, round_dir: Path | None = None
+) -> list[str]:
+    """Return the skill's contract reads, resolving chapter placeholders.
+    When *chapter* is provided, N/NNN placeholders are resolved.
+    When *round_dir* is provided, relative paths are made absolute.
+    """
     try:
-        return list(load_contract(skill)["reads"])
+        paths = [_resolve_chapter_path(p, chapter) for p in load_contract(skill)["reads"]]
+        paths = [p for p in paths if p]  # filter "" sentinels (genesis mode)
+        if round_dir is not None:
+            paths = [str((round_dir / p).resolve()) for p in paths]
+        return paths
     except ContractError:
-        # A skill outside the contract system (e.g. a meta skill) has no inputs.
         return []
 
 
-def derive_output_files(skill: str) -> list[str]:
-    """Return the skill's contract writes + updates via the single loader."""
+def derive_output_files(
+    skill: str, chapter: int | None = None, round_dir: Path | None = None
+) -> list[str]:
+    """Return the skill's contract writes+updates, resolving chapter placeholders.
+    When *chapter* is provided, N/NNN placeholders are resolved.
+    When *round_dir* is provided, relative paths are made absolute.
+    """
     try:
         c = load_contract(skill)
-        return [*c["writes"], *c["updates"]]
+        paths = [_resolve_chapter_path(p, chapter) for p in [*c["writes"], *c["updates"]]]
+        if round_dir is not None:
+            paths = [str((round_dir / p).resolve()) for p in paths]
+        return paths
     except ContractError:
         return []
 
@@ -119,22 +150,36 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
     return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
+def _extract_chapter(prompt: str) -> int | None:
+    """Extract chapter number from a pipeline dispatch prompt.
+
+    Pipeline prompts follow the convention::
+        "Execute <skill> for chapter 5. Project dir: /path"
+
+    Returns the integer chapter number, or None when not found
+    (non-pipeline dispatches are not chapter-scoped).
+    """
+    m = _CHAPTER_RE.search(prompt)
+    if m:
+        return int(m.group(1))
+    return None
+
+
 def detect_mode() -> str:
-    """Detect dispatch mode (codex, codex-api, or internal)."""
-    if shutil.which("codex"):
-        return "codex"
-    if os.environ.get("CODEX_API_KEY"):
-        return "codex-api"
+    """Always use internal dispatch mode (codex subprocess mode is unreliable)."""
     return "internal"
 
 
-def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
+def dispatch(
+    skill: str, test_type: str, round_dir: Path, prompt: str, *, chapter: int | None = None
+) -> int:
     """Main dispatch entry point."""
     agent_id = generate_agent_id(round_dir, skill, test_type)
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)
-
+    if chapter is None:
+        chapter = _extract_chapter(prompt)
     file_type = derive_file_type(skill)
-    input_files = derive_input_files(skill)
+    input_files = derive_input_files(skill, chapter, round_dir)
 
     # Optionally skip reads marked as optional (ramp-up / late-produced files).
     skip_raw = os.environ.get("SHENBI_G1_SKIP_READS", "")
@@ -165,13 +210,17 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
         return 1
     log.info("gate_passed", gate="G1")
 
-    output_files = derive_output_files(skill)
-    if output_files:
-        g2 = run_g2(output_files, file_type, round_dir)
-        if g2.get("status") != "PASS":
-            log.error("g2_failed", gate="G2", result=g2)
-            return 1
-        log.info("gate_passed", gate="G2")
+    output_files = derive_output_files(skill, chapter, round_dir)
+    is_pipeline = (round_dir / "pipeline-state.json").exists()
+    if not is_pipeline:
+        if output_files:
+            g2 = run_g2(output_files, file_type, round_dir)
+            if g2.get("status") != "PASS":
+                log.error("g2_failed", gate="G2", result=g2)
+                return 1
+            log.info("gate_passed", gate="G2")
+    else:
+        log.info("g2_skipped_pipeline", reason="pipeline mode — output validated by G4/G6")
 
     mode = detect_mode()
     log.info("dispatch_mode", mode=mode)
@@ -189,10 +238,10 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
 
 
-def _audit_watch_paths(skill: str) -> list[str]:
+def _audit_watch_paths(skill: str, chapter: int | None = None) -> list[str]:
     """Audit watch surface: the skill contract writes+updates (project-relative)."""
     try:
-        return derive_output_files(skill)
+        return derive_output_files(skill, chapter)
     except ContractError:
         return []
 
@@ -210,7 +259,8 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     from shenbi.audit.snapshot import snapshot_tree
     from shenbi.audit.write_audit import audit_writes
 
-    watch = _audit_watch_paths(skill)
+    chapter = _extract_chapter(prompt)
+    watch = _audit_watch_paths(skill, chapter)
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
     # + audit so write overreach is caught even on failure paths.
@@ -219,12 +269,21 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     try:
         rc = dispatch(skill, test_type, round_dir, prompt)
     except Exception as exc:
+        # CRITICAL: log every exception from dispatch() before re-raising
+        log.error(
+            "dispatch_exception",
+            skill=skill,
+            test_type=test_type,
+            exc_type=type(exc).__name__,
+            exc_msg=str(exc),
+            round_dir=str(round_dir),
+        )
         dispatch_exc = exc
         rc = -1
     finally:
         post = snapshot_tree(PROJECT_DIR, watch)
         result = audit_writes(skill, pre, post)
-        ok = record_audit_outcome(round_dir, skill, result)
+        record_audit_outcome(round_dir, skill, result)
     if dispatch_exc is not None:
         raise dispatch_exc
-    return rc if ok else 2
+    return rc

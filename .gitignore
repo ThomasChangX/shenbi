@@ -68,3 +68,9 @@ mutants/
 
 # CodeGraph index (local, machine-specific — never commit)
 .codegraph/
+
+# Playwright MCP local cache (session logs and snapshots)
+.playwright-mcp/
+
+# Local staging/experimental outputs
+staging/

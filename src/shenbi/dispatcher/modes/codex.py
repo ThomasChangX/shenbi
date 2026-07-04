@@ -43,10 +43,14 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
     raw_text = raw_out.read_text(encoding="utf-8")
     match = re.search(r"\{[^{}]*\}", raw_text, re.DOTALL)
     if not match:
+        log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
         raise SubAgentProtocolError("no JSON object found in codex output")
     try:
         scores = json.loads(match.group(0))
     except json.JSONDecodeError as e:
+        log.error(
+            "codex_invalid_json", skill=skill, error=str(e), raw_output_preview=raw_text[:500]
+        )
         raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
 
     safe_write(scores_file, json.dumps(scores))

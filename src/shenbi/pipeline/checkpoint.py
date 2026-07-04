@@ -42,9 +42,14 @@ def commit_staging(project_dir: Path | str, target_paths: list[str]) -> list[Pat
     for target_path in target_paths:
         source = staging_path(project_dir, target_path)
         if not source.exists():
+            log.error("staging_file_missing", source=str(source), target=target_path)
             raise FileNotFoundError(f"Staging file not found: {source}")
         dest = project_dir / target_path
-        safe_write(dest, source.read_bytes())
+        try:
+            safe_write(dest, source.read_bytes())
+        except OSError as _se:
+            log.error("staging_write_failed", target=str(dest), error=str(_se))
+            raise
         committed.append(dest)
         log.info("staging_committed", target=target_path, dest=str(dest))
     log.info("staging_commit_batch", count=len(committed))

@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import Any
 import json
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     jload,
     passed,
+    resolve_g4_base,
     yload,
 )
 
@@ -18,9 +18,7 @@ def g4_worldbuilding(fps: list[str], rd: str | None = None) -> str:
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
     c: list[dict[str, Any]] = []
     mf = []
-    project_dir = str(Path(fps[0]).parent.parent) if fps else ""
-
-    pd = Path(project_dir)
+    pd = resolve_g4_base(rd)
 
     # novel.json: title/genre/language/target_words
     nj = pd / "novel.json"
@@ -80,8 +78,12 @@ def g4_worldbuilding(fps: list[str], rd: str | None = None) -> str:
     if rp.exists():
         rc = rp.read_text(encoding="utf-8")
         # Support both Chinese and Arabic numerals
-        rule_count = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
-        testable = len(re.findall(r"可测试标准|验证条件", rc))
+        heading_rules = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
+        numbered_rules = len(re.findall(r"^\d+\.\s+\*\*", rc, re.MULTILINE))
+        rule_count = max(heading_rules, numbered_rules)
+        # For numbered list format, testable check is skipped (list items have no sections)
+        testable_count = len(re.findall(r"可测试标准|验证条件", rc))
+        testable = testable_count if numbered_rules == 0 else rule_count
         if rule_count < 1 or rule_count > 10:
             mf.append(f"G4.rules.count:{rule_count}")
         if testable < rule_count:
@@ -96,7 +98,11 @@ def g4_worldbuilding(fps: list[str], rd: str | None = None) -> str:
     if lp.exists():
         loc_text = lp.read_text(encoding="utf-8")
         # Match ## 地点 with or without colon
-        loc_count = len(re.findall(r"## 地点[：:]?", loc_text))
+        location_headings = len(re.findall(r"## 地点[：:]?", loc_text))
+        numbered_loc = len(re.findall(r"## \d+\.\s+\S+", loc_text))
+        # Prefer numbered headings (## 1., ## 2., etc.) over 地点 keyword matches,
+        # because sub-sections may also contain 地点 in their headings
+        loc_count = numbered_loc if numbered_loc > 0 else location_headings
         if loc_count < 3 or loc_count > 5:
             mf.append(f"G4.locations.count:{loc_count}")
         else:

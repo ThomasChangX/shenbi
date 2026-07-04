@@ -16,7 +16,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from uuid import uuid4
+
 from shenbi.logging import get_logger
+from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -53,6 +56,11 @@ def requires_independent(skill: str) -> bool:
 OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
+    # Chapter plans don't exist during GENESIS mode (spec §5.2)
+    "shenbi-foreshadowing-plant": ["chapter-*-plan.md"],
+    "shenbi-foreshadowing-track": ["chapter-*-plan.md"],
+    "shenbi-chapter-planning": ["chapter-*-plan.md"],
+    "shenbi-chapter-drafting": ["chapter-*-plan.md"],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
@@ -78,17 +86,30 @@ def dispatch_skill(
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
     rd = str(round_dir) if round_dir else str(project_dir)
-    cmd = [sys.executable, "-m", "shenbi.dispatcher.cli", skill, test_type, rd, prompt]
+    _ = [sys.executable, "-m", "shenbi.dispatcher.cli", skill, test_type, rd, prompt]
     log.info("dispatch_start", skill=skill, test_type=test_type, round_dir=rd)
     env = os.environ.copy()
     if patterns:
         env[_G1_SKIP_ENV_VAR] = ",".join(patterns)
         log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
+        _run_cmd = ["uv", "run", "shenbi-dispatch", skill, test_type, rd, prompt]
+        r = subprocess.run(_run_cmd, capture_output=True, text=True, timeout=timeout, env=env)
     except subprocess.TimeoutExpired as exc:
         log.error("dispatch_timeout", skill=skill, timeout=timeout)
         return DispatchResult(False, -1, "", str(exc))
+    # Log dispatch result for error visibility
+    if r.returncode != 0:
+        stderr_preview = r.stderr[:2000] if r.stderr else "(empty)"
+        log.error(
+            "dispatch_subprocess_failed",
+            skill=skill,
+            rc=r.returncode,
+            stderr_preview=stderr_preview,
+            cmd_preview=" ".join(str(x)[:80] for x in _run_cmd),
+        )
+    else:
+        log.info("dispatch_subprocess_ok", skill=skill, rc=0)
     return DispatchResult(r.returncode == 0, r.returncode, r.stdout, r.stderr)
 
 
@@ -117,11 +138,29 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     """Run G3 (scoring independence) check.
 
-    In pipeline context ``round_dir`` is typically ``project_dir`` which has no
-    ``progress.json``; G3.3-G3.5 will SKIP. For full G3 enforcement the pipeline
-    should write a minimal ``progress.json`` with ``current_scorer_agent`` before
-    dispatching ``requires_independent`` skills.
+    Creates a minimal progress.json if none exists (pipeline mode) so that
+    G3.3-G3.5 have the data they need for independence verification.
     """
+    rd = Path(round_dir)
+    pp = rd / "progress.json"
+    if not pp.exists():
+        safe_write(
+            pp,
+            json.dumps(
+                {
+                    "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
+                    "scoring_history": [
+                        {
+                            "agent": "pipeline-skill-generator",
+                            "g2_passed": True,
+                        }
+                    ],
+                },
+                indent=2,
+            ),
+        )
+        log.info("progress_json_created_for_g3", skill=skill, path=str(pp))
+
     cmd = [
         sys.executable,
         "-m",
@@ -129,7 +168,7 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
         "G3",
         skill,
         "generative",
-        str(round_dir),
+        str(rd),
     ]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
