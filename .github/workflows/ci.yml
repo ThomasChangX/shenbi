@@ -17,9 +17,10 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13"]
     # 3.13 allow-failure during rollout (spec Risk table).
-    # Windows allow-failure until @pytest.mark.skip_on_windows marker is
-    # registered (spec OQ-1; deferred to a follow-up source-code PR).
-    continue-on-error: ${{ matrix.python-version == '3.13' || matrix.os == 'windows-latest' }}
+    # Windows coverage threshold is 88 (vs 89 POSIX) because fcntl-based
+    # locking (~50 lines in filelock_utils.py) is structurally unreachable
+    # on Windows — covered on POSIX, uncovered on Windows.
+    continue-on-error: ${{ matrix.python-version == '3.13' }}
     env:
       # Default all file I/O and stdout to UTF-8 on every OS. The framework
       # reads/writes CJK content; without this, Windows falls back to cp1252
@@ -51,7 +52,14 @@ jobs:
       - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Run tests (parallel, excluding last)
+        if: matrix.os != 'windows-latest'
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+      - name: Run tests (parallel, excluding last, Windows)
+        if: matrix.os == 'windows-latest'
+        # 88% threshold on Windows: fcntl-based locking (~50 lines in
+        # filelock_utils.py) is structurally unreachable on Windows but
+        # covered on POSIX — the 1% gap is permanent platform divergence.
+        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-fail-under=88
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
