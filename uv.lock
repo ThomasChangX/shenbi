@@ -3214,8 +3214,12 @@ dependencies = [
     { name = "numpy", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pydantic" },
     { name = "pyyaml" },
-    { name = "sentence-transformers" },
     { name = "structlog" },
+]
+
+[package.optional-dependencies]
+embeddings = [
+    { name = "sentence-transformers" },
 ]
 
 [package.dev-dependencies]
@@ -3255,9 +3259,10 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.26.0" },
     { name = "pydantic", specifier = ">=2.5.0" },
     { name = "pyyaml", specifier = ">=6.0.1" },
-    { name = "sentence-transformers", specifier = ">=3.0.0" },
+    { name = "sentence-transformers", marker = "extra == 'embeddings'", specifier = ">=3.0.0" },
     { name = "structlog", specifier = ">=24.1.0" },
 ]
+provides-extras = ["embeddings"]
 
 [package.metadata.requires-dev]
 dev = [

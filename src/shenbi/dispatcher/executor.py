@@ -112,6 +112,7 @@ def derive_output_files(
     try:
         c = load_contract(skill)
         paths = [_resolve_chapter_path(p, chapter) for p in [*c["writes"], *c["updates"]]]
+        paths = [p for p in paths if p]  # filter "" sentinels (genesis mode)
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
         return paths
@@ -264,7 +265,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
     # + audit so write overreach is caught even on failure paths.
-    rc: int
+    rc: int = -1
     dispatch_exc: BaseException | None = None
     try:
         rc = dispatch(skill, test_type, round_dir, prompt)
@@ -283,7 +284,9 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     finally:
         post = snapshot_tree(PROJECT_DIR, watch)
         result = audit_writes(skill, pre, post)
-        record_audit_outcome(round_dir, skill, result)
+        audit_ok = record_audit_outcome(round_dir, skill, result)
+        if not audit_ok and rc == 0:
+            rc = 2  # GATE_FAIL: write overreach or drift
     if dispatch_exc is not None:
         raise dispatch_exc
     return rc

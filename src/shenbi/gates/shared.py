@@ -73,7 +73,7 @@ def yload(p: str | Path) -> dict[str, Any]:
         except (yaml.YAMLError, TypeError, ValueError):
             data = {}
     if not isinstance(data, dict):
-        data = {}
+        raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
     return data
 
 

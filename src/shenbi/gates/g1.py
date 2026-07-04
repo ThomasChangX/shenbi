@@ -72,10 +72,18 @@ def gate_G1(
     rd = Path(round_dir) if round_dir else None
     targets = compute_backup_targets(skill_name, fps, str(rd) if rd else None)
 
-    # Expand glob patterns before validation
-    expanded_fps: list[str] = []
+    # Expand glob patterns before validation.
+    # Genesis-mode: unmatched globs that match SHENBI_G1_SKIP_READS are silently
+    # dropped (the files don't exist yet). All other unmatched globs are kept as
+    # literal paths so G1.1 fails clearly on missing required inputs.
     import glob as _glob
+    import os as _os
+    from fnmatch import fnmatch as _fnmatch
 
+    skip_raw = _os.environ.get("SHENBI_G1_SKIP_READS", "")
+    skip_patterns = [p.strip() for p in skip_raw.split(",") if p.strip()] if skip_raw else []
+
+    expanded_fps: list[str] = []
     for fp in fps:
         if fp != _glob.escape(fp):  # glob.escape covers *, ?, [...], [!...]
             matches = _glob.glob(fp, recursive=True)
@@ -83,7 +91,12 @@ def gate_G1(
                 for m in matches:
                     if m not in expanded_fps:
                         expanded_fps.append(m)
-            # Unmatched glob = no files exist; silently drop (genesis-mode reads)
+            elif skip_patterns and any(_fnmatch(fp, pat) for pat in skip_patterns):
+                # Unmatched optional glob in genesis mode; silently skip
+                pass
+            # Unmatched required glob; keep literal path so G1.1 fails
+            elif fp not in expanded_fps:
+                expanded_fps.append(fp)
         elif fp not in expanded_fps:
             expanded_fps.append(fp)
     fps = expanded_fps

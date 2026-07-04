@@ -53,8 +53,8 @@ def _compute_rubric_weighted_score(data: dict[str, object], skill_name: str) -> 
         weight_sum = 0
         weighted = 0.0
         for d in dimensions:
-            d_num = d.get("num", getattr(d, "num", 0))
-            d_weight = d.get("weight", getattr(d, "weight", 0))
+            d_num = d.get("num", 0)
+            d_weight = d.get("weight", 0)
             if d_num in dim_scores:
                 weighted += dim_scores[d_num] * d_weight
                 weight_sum += d_weight
