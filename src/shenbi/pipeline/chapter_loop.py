@@ -425,7 +425,7 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
 
     Calls :func:`assemble_context` + :func:`write_context_file` from
     ``context_assemble``. Missing plan files are tolerated (early-stage
-    projects): the error is logged (with stack trace) and the step continues
+    projects): a warning (with stack trace) is logged and the step continues
     so chapter-drafting can proceed without context.
     """
     try:
@@ -445,7 +445,7 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
             output=str(out),
         )
     except Exception as e:
-        log.error("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
+        log.warning("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
