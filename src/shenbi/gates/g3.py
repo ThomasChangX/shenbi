@@ -47,7 +47,7 @@ def _compute_rubric_weighted_score(data: dict[str, object], skill_name: str) -> 
                 if isinstance(v, (int, float)) and 0 <= v <= 100:
                     dim_scores[num] = float(v)
             except (ValueError, TypeError):
-                pass
+                pass  # non-numeric key → skip, not a dimension score
         if not dimensions or not dim_scores:
             return None
         weight_sum = 0

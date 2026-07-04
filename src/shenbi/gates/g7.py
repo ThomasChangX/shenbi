@@ -72,7 +72,7 @@ def gate_G7(round_dir: str) -> str:
                 if len(lines) > 0 and sum(1 for l in lines if "待填充" in l) / len(lines) > 0.1:
                     placeholders.append(str(f.relative_to(no_dir)))
             except (OSError, UnicodeError):
-                pass
+                pass  # unreadable file → skip, not a gate failure
         if placeholders:
             mf.append(f"G7.5:placeholders:{placeholders}")
         else:
