@@ -359,7 +359,8 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     if state_file.exists():
         try:
-            existing = load_state(project_dir)
+            with ReadLock(project_dir):
+                existing = load_state(project_dir)
         except Exception:
             emit_json(
                 {
@@ -421,6 +422,8 @@ def cmd_init(args: argparse.Namespace) -> int:
         state.config.per_chapter_review_enabled = False
         state.config.chapter_memo_review_required = False
         state.config.state_settle_review_required = False
+        # _complete_chapter() reads the chapter-loop copy; keep both in sync.
+        state.chapter_loop.per_chapter_review_enabled = False
         log.info("auto_mode_enabled", project_dir=str(project_dir))
 
     with WriteLock(project_dir):

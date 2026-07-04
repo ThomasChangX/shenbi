@@ -445,10 +445,7 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
             output=str(out),
         )
     except Exception as e:
-        log.error("context_assembly_failed", chapter=chapter, error=str(e))
-        import traceback
-
-        log.error("context_assembly_traceback", traceback=traceback.format_exc())
+        log.error("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -578,7 +575,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     the step simply advanced (or will be retried) and no human action is
     needed yet. Mutates ``state`` in place; the caller persists it.
     """
-    project_dir = Path(project_dir) if project_dir else Path.cwd()
+    project_dir = Path(project_dir)
     step_idx = state.chapter_loop.step_index
     if step_idx >= len(CHAPTER_STEPS):
         return True  # all steps consumed
