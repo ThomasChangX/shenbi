@@ -158,23 +158,17 @@ def test_generate_agent_id_contains_round_dir_name() -> None:
 
 
 @pytest.mark.unit
-def test_detect_mode_returns_codex_when_installed(monkeypatch: pytest.MonkeyPatch) -> None:
-    """detect_mode returns 'codex' when shutil.which('codex') finds it."""
-    monkeypatch.setattr(
-        shutil, "which", lambda cmd: "/usr/local/bin/codex" if cmd == "codex" else None
-    )
-    assert detect_mode() == "codex"
+def test_detect_mode_returns_internal_by_default() -> None:
+    """detect_mode always returns 'internal' (codex subprocess mode is no longer used)."""
+    assert detect_mode() == "internal"
 
 
 @pytest.mark.unit
-def test_detect_mode_returns_codex_api_with_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
-    """detect_mode returns 'codex-api' when CODEX_API_KEY env var is set."""
-    monkeypatch.setattr(shutil, "which", lambda cmd: None)
+def test_detect_mode_returns_internal_with_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
+    """detect_mode returns 'internal' even when CODEX_API_KEY is set."""
     monkeypatch.setenv("CODEX_API_KEY", "sk-test-key")
-    # Re-import to pick up monkeypatched env
-    from shenbi.dispatcher.executor import detect_mode as dm
-
-    assert dm() == "codex-api"
+    monkeypatch.setattr(shutil, "which", lambda cmd: None)
+    assert detect_mode() == "internal"
 
 
 @pytest.mark.unit

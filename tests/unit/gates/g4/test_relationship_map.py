@@ -28,7 +28,7 @@ def _result(s: str) -> dict[str, Any]:
 def test_fails_when_relationships_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "characters").mkdir(parents=True)
-    result = _result(g4_relationship_map([str(marker)]))
+    result = _result(g4_relationship_map([str(marker)], rd=str(project_dir)))
     assert any("G4.rel.not_found" in mf for mf in result["must_fix"])
 
 
@@ -39,7 +39,7 @@ def test_fails_when_less_than_3_pairs(tmp_path: Path) -> None:
     (project_dir / "characters" / "relationships.md").write_text(
         "## 关系对：A-B\n", encoding="utf-8"
     )
-    result = _result(g4_relationship_map([str(marker)]))
+    result = _result(g4_relationship_map([str(marker)], rd=str(project_dir)))
     assert any("G4.rm.pairs" in mf for mf in result["must_fix"])
 
 
@@ -51,7 +51,7 @@ def test_fails_when_character_matrix_missing(tmp_path: Path) -> None:
     for p in [(1, 2), (3, 4), (5, 6)]:
         pairs += f"## 关系对：{p[0]}-{p[1]}\n**利益根基**:有\nSYMMETRIC\n演化轨迹有起始状态\n"
     (project_dir / "characters" / "relationships.md").write_text(pairs, encoding="utf-8")
-    result = _result(g4_relationship_map([str(marker)]))
+    result = _result(g4_relationship_map([str(marker)], rd=str(project_dir)))
     # Should fail because character_matrix.md doesn't exist
     assert any("G4.rm.character_matrix" in mf for mf in result["must_fix"])
 
@@ -66,5 +66,5 @@ def test_passes_with_complete_data(tmp_path: Path) -> None:
     (project_dir / "characters" / "relationships.md").write_text(pairs, encoding="utf-8")
     (project_dir / "truth").mkdir(parents=True)
     (project_dir / "truth" / "character_matrix.md").write_text("# Characters\n", encoding="utf-8")
-    result = _result(g4_relationship_map([str(marker)]))
+    result = _result(g4_relationship_map([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"

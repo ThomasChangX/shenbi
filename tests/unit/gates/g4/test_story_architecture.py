@@ -41,7 +41,7 @@ def test_fails_when_story_frame_missing_conflict(tmp_path: Path) -> None:
         "---\npersonal_conflict: 复仇\ndeep_conflict: 正义\n---\n# Story\n",
         encoding="utf-8",
     )
-    result = _result(g4_story_architecture([str(marker)]))
+    result = _result(g4_story_architecture([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.sf.missing_surface_conflict" in mf for mf in result["must_fix"])
 
@@ -53,7 +53,7 @@ def test_fails_when_story_frame_yaml_error(tmp_path: Path) -> None:
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
     (outline / "story_frame.md").write_text("---\nbad: : yaml\n---\n# Story\n", encoding="utf-8")
-    result = _result(g4_story_architecture([str(marker)]))
+    result = _result(g4_story_architecture([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.sf.yaml_error" in mf for mf in result["must_fix"])
 
@@ -73,7 +73,7 @@ def test_passes_when_all_conflicts_present(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (outline / "rhythm_principles.md").write_text("# Rhythm\n\nnon-empty\n", encoding="utf-8")
-    result = _result(g4_story_architecture([str(marker)]))
+    result = _result(g4_story_architecture([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"
 
 
@@ -83,7 +83,7 @@ def test_fails_when_volume_map_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
-    result = _result(g4_story_architecture([str(marker)]))
+    result = _result(g4_story_architecture([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.volumes.not_found" in mf for mf in result["must_fix"])
 
@@ -97,6 +97,6 @@ def test_fails_when_volume_has_no_okrs(tmp_path: Path) -> None:
     (outline / "volume_map.md").write_text(
         "## 第一卷\nSome content without OKRs.\n", encoding="utf-8"
     )
-    result = _result(g4_story_architecture([str(marker)]))
+    result = _result(g4_story_architecture([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.volumes.obj_kr" in mf for mf in result["must_fix"])

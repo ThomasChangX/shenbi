@@ -53,7 +53,7 @@ def test_fails_when_novel_json_missing_required_field(tmp_path: Path) -> None:
         json.dumps({"chapter_word": {"default": 3000}}), encoding="utf-8"
     )
 
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.novel.missing_title" in mf for mf in result["must_fix"])
 
@@ -63,7 +63,7 @@ def test_fails_when_novel_json_not_found(tmp_path: Path) -> None:
     """No novel.json at all -> FAIL with G4.novel.not_found."""
     project_dir, marker = _setup(tmp_path)
 
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any(mf == "G4.novel.not_found" for mf in result["must_fix"])
 
@@ -74,7 +74,7 @@ def test_fails_when_genre_config_not_found(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     _novel(project_dir)
 
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any(mf == "G4.genre_config.not_found" for mf in result["must_fix"])
 
@@ -94,7 +94,7 @@ def test_fails_when_story_bible_has_too_few_sections(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.sb.sections:found_2_need_4" in mf for mf in result["must_fix"])
 
@@ -117,7 +117,7 @@ def test_fails_when_story_bible_bullet_density_above_threshold(tmp_path: Path) -
     )
     (world / "story_bible.md").write_text(body, encoding="utf-8")
 
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.sb.bullet_density:" in mf for mf in result["must_fix"])
 
@@ -175,8 +175,8 @@ def test_passes_when_all_worldbuilding_files_valid(tmp_path: Path) -> None:
     locations PASS (102-103), truth template PASS (116-124), and the trailing
     `return passed` (134).
     """
-    _project_dir, marker = _full_valid_project(tmp_path)
-    result = _result(g4_worldbuilding([str(marker)]))
+    project_dir, marker = _full_valid_project(tmp_path)
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"
     assert result.get("must_fix", []) == []
 
@@ -189,7 +189,7 @@ def test_fails_when_novel_missing_target_words(tmp_path: Path) -> None:
     """
     project_dir, marker = _setup(tmp_path)
     _novel(project_dir, target_words=None)
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any(mf == "G4.novel.missing_target_words" for mf in result["must_fix"])
 
 
@@ -198,7 +198,7 @@ def test_fails_when_novel_json_invalid(tmp_path: Path) -> None:
     """Malformed novel.json -> G4.novel.invalid_json (covers g4 lines 41-42)."""
     project_dir, marker = _setup(tmp_path)
     (project_dir / "novel.json").write_text("{not valid json", encoding="utf-8")
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any(mf == "G4.novel.invalid_json" for mf in result["must_fix"])
 
 
@@ -208,7 +208,7 @@ def test_fails_when_genre_config_invalid_json(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     _novel(project_dir)
     (project_dir / "genre-config.json").write_text("{broken", encoding="utf-8")
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any(mf == "G4.genre_config.invalid_json" for mf in result["must_fix"])
 
 
@@ -227,7 +227,7 @@ def test_fails_when_rules_count_out_of_range(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (world / "rules.md").write_text("# Rules\n\n没有规则头的内容。\n", encoding="utf-8")
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any("G4.rules.count:" in mf for mf in result["must_fix"])
 
 
@@ -239,5 +239,5 @@ def test_fails_when_truth_template_missing_field(tmp_path: Path) -> None:
         "---\ntype: data\ncategory: record\n---\n# Data\n",
         encoding="utf-8",  # no status
     )
-    result = _result(g4_worldbuilding([str(marker)]))
+    result = _result(g4_worldbuilding([str(marker)], rd=str(project_dir)))
     assert any("G4.truth.current_state.md.missing_status" in mf for mf in result["must_fix"])

@@ -30,7 +30,7 @@ def test_fails_when_thread_map_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
-    result = _result(g4_plot_thread_weaver([str(marker)]))
+    result = _result(g4_plot_thread_weaver([str(marker)], rd=str(project_dir)))
     assert any("G4.thread.not_found" in mf for mf in result["must_fix"])
 
 
@@ -41,7 +41,7 @@ def test_fails_when_no_lines(tmp_path: Path) -> None:
     outline = project_dir / "outline"
     outline.mkdir(parents=True)
     (outline / "thread_map.md").write_text("# Threads\nsomething\n", encoding="utf-8")
-    result = _result(g4_plot_thread_weaver([str(marker)]))
+    result = _result(g4_plot_thread_weaver([str(marker)], rd=str(project_dir)))
     assert any("G4.pt.lines" in mf for mf in result["must_fix"])
 
 
@@ -58,5 +58,5 @@ def test_passes_with_valid_thread_map(tmp_path: Path) -> None:
         "空白检测\n",
         encoding="utf-8",
     )
-    result = _result(g4_plot_thread_weaver([str(marker)]))
+    result = _result(g4_plot_thread_weaver([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"
