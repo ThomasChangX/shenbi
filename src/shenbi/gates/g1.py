@@ -91,7 +91,7 @@ def gate_G1(
                 for m in matches:
                     if m not in expanded_fps:
                         expanded_fps.append(m)
-            elif skip_patterns and any(_fnmatch(fp, pat) for pat in skip_patterns):
+            elif skip_patterns and any(_fnmatch(Path(fp).name, pat) for pat in skip_patterns):
                 # Unmatched optional glob in genesis mode; silently skip
                 pass
             # Unmatched required glob; keep literal path so G1.1 fails

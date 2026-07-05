@@ -88,11 +88,11 @@ def is_embed_available() -> bool:
     imported at module level. This is the section 7.3 gate: callers check
     it before attempting to embed, and set route_b_degraded when False.
 
-    Install with: uv sync --group ml (or --group dev for full dev env)
+    Install with: uv sync --extra embeddings (or --group dev for full dev env)
     """
     available = importlib.util.find_spec("sentence_transformers") is not None
     if not available:
-        log.info("route_b_disabled", hint="Install with: uv sync --group ml")
+        log.info("route_b_disabled", hint="Install with: uv sync --extra embeddings")
     return available
 
 

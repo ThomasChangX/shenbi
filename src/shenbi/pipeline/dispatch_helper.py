@@ -86,7 +86,6 @@ def dispatch_skill(
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
     rd = str(round_dir) if round_dir else str(project_dir)
-    _ = [sys.executable, "-m", "shenbi.dispatcher.cli", skill, test_type, rd, prompt]
     log.info("dispatch_start", skill=skill, test_type=test_type, round_dir=rd)
     env = os.environ.copy()
     if patterns:

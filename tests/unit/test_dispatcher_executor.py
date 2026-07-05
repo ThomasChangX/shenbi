@@ -119,9 +119,11 @@ def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.Monke
 @pytest.mark.unit
 def test_derive_files_read_real_migrated_skill_contract() -> None:
     """Post-migration, derive_* read the real frontmatter contract end-to-end."""
-    assert derive_input_files("shenbi-chapter-drafting") == [
-        "plans/chapter-N-plan.md",
-        "context/chapter-N-context.md",
+    # chapter=None filters N/NNN placeholders (genesis mode); pass chapter number
+    # to resolve them for this test.
+    assert derive_input_files("shenbi-chapter-drafting", chapter=1) == [
+        "plans/chapter-1-plan.md",
+        "context/chapter-1-context.md",
         "style/style_profile.md",
         "genre-config.json",
         "truth/audit_drift.md",

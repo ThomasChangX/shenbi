@@ -220,3 +220,44 @@ def test_compute_backup_targets_empty_without_round_dir() -> None:
 def test_compute_backup_targets_skips_non_backup_skill() -> None:
     """A skill not in BACKUP_SKILLS -> no targets."""
     assert compute_backup_targets("shenbi-chapter-drafting", ["/x.md"], "/r") == []
+
+
+# ── G1 glob expansion tests ───────────────────────────────────────────
+
+
+@pytest.mark.unit
+def test_glob_expands_to_multiple_files(tmp_path: Path) -> None:
+    """A glob pattern that matches multiple files should expand to all of them."""
+    (tmp_path / "a.md").write_text("a")
+    (tmp_path / "b.md").write_text("b")
+    (tmp_path / "c.txt").write_text("c")
+    result = _result_dict(
+        gate_G1(skill_name="shenbi-worldbuilding", input_files=[str(tmp_path / "*.md")])
+    )
+    # All .md files should pass G1.1
+    checks = result.get("checks", [])
+    g11_checks = [c for c in checks if c.get("id") == "G1.1"]
+    assert len(g11_checks) == 2  # a.md, b.md (not c.txt)
+
+
+@pytest.mark.unit
+def test_glob_unmatched_optional_dropped(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Unmatched optional glob (in SHENBI_G1_SKIP_READS) should be silently dropped."""
+    monkeypatch.setenv("SHENBI_G1_SKIP_READS", "chapter-*-plan.md")
+    result = _result_dict(
+        gate_G1(
+            skill_name="shenbi-worldbuilding", input_files=[str(tmp_path / "chapter-*-plan.md")]
+        )
+    )
+    # No files exist, but pattern is optional → should not produce G1.1 failure
+    assert result["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_glob_unmatched_required_surfaces_failure(tmp_path: Path) -> None:
+    """Unmatched required glob (not in SHENBI_G1_SKIP_READS) must surface as G1.1."""
+    result = _result_dict(
+        gate_G1(skill_name="shenbi-worldbuilding", input_files=[str(tmp_path / "nonexistent-*.md")])
+    )
+    assert result["status"] == "FAIL"
+    assert any("G1.1" in mf for mf in result.get("must_fix", []))

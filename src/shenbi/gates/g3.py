@@ -127,11 +127,14 @@ def gate_G3(
                                 score = rubric_score
                                 threshold = 90  # pipeline mode
                             else:
-                                # Fallback: min of dimension scores (conservative)
+                                # Fallback: min of dimension-score entries only
+                                # (numeric keys with 0..100 values, not unrelated fields)
                                 dims = [
-                                    v
-                                    for v in data.values()
-                                    if isinstance(v, (int, float)) and v <= 100
+                                    float(v)
+                                    for k, v in data.items()
+                                    if k.isdigit()
+                                    and isinstance(v, (int, float))
+                                    and 0 <= float(v) <= 100
                                 ]
                                 score = min(dims) if dims else 0
                                 threshold = 90
