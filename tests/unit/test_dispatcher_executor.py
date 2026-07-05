@@ -98,9 +98,12 @@ def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatc
             "updates": ["truth/current_state.md"],
         },
     )
-    assert derive_input_files("shenbi-x") == ["plans/chapter-N-plan.md"]
+    assert derive_input_files("shenbi-x", chapter=1) == ["plans/chapter-1-plan.md"]
     # writes + updates both fold into output files
-    assert derive_output_files("shenbi-x") == ["chapters/chapter-N.md", "truth/current_state.md"]
+    assert derive_output_files("shenbi-x", chapter=1) == [
+        "chapters/chapter-1.md",
+        "truth/current_state.md",
+    ]
 
 
 @pytest.mark.unit
