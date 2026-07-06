@@ -308,6 +308,7 @@ def _handle_failure(
     step: ChapterStep,
     chapter: int,
     failure: str,
+    project_dir: Path | str,
 ) -> bool:
     """Record a dispatch/gate failure for a chapter step.
 
@@ -330,6 +331,14 @@ def _handle_failure(
             limit=state.config.max_revision_retries,
         )
         return False
+    # Retries exhausted: dispatch escalation-review first, then set checkpoint.
+    from shenbi.pipeline.revision_router import dispatch_escalation
+
+    dispatch_escalation(
+        project_dir,
+        chapter,
+        context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {count} {failure} attempts",
+    )
     log.error(
         "chapter_step_escalation",
         chapter=chapter,
@@ -342,9 +351,11 @@ def _handle_failure(
         state,
         CheckpointType.ESCALATION,
         chapter=chapter,
+        artifact=f"audits/escalation-{chapter}-report.md",
         context=(
             f"Chapter {chapter} step {step.step_num} ({step.skill}) "
-            f"failed after {count} {failure} attempts"
+            f"failed after {count} {failure} attempts. "
+            f"See audits/escalation-{chapter}-report.md for analysis."
         ),
     )
     return True
@@ -660,7 +671,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 exit_code=result.returncode,
             )
             return False  # retry this step, don't advance step_index
-        return _handle_failure(state, step, chapter, "scoring")
+        return _handle_failure(state, step, chapter, "scoring", project_dir)
 
     if not result.success:
         log.error(
@@ -669,7 +680,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             step=step.step_num,
             skill=step.skill,
         )
-        return _handle_failure(state, step, chapter, "dispatch")
+        return _handle_failure(state, step, chapter, "dispatch", project_dir)
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
@@ -682,7 +693,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             skill=step.skill,
             g4=g4,
         )
-        return _handle_failure(state, step, chapter, "gate")
+        return _handle_failure(state, step, chapter, "gate", project_dir)
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
@@ -694,7 +705,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 step=step.step_num,
                 skill=step.skill,
             )
-            return _handle_failure(state, step, chapter, "gate")
+            return _handle_failure(state, step, chapter, "gate", project_dir)
 
     # Conditional: foreshadowing-resolve after foreshadowing-track (step 7b).
     if "foreshadowing-track" in step.skill:
@@ -747,7 +758,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 f"Revise chapter {chapter} to fix audit BLOCKING issues.",
             )
             if not rev.success:
-                return _handle_failure(state, step, chapter, "audit-revision")
+                return _handle_failure(state, step, chapter, "audit-revision", project_dir)
 
     # After review-resonance: revision routing would run here (W3T5).
     if "review-resonance" in step.skill:

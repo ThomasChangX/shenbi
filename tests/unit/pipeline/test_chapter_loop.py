@@ -904,3 +904,47 @@ class TestScoringFailureWiring:
         result = run_chapter_step(state, tmp_path)
         assert result is False
         assert state.chapter_loop.step_index == 16  # not advanced
+
+
+# ---------------------------------------------------------------------------
+# A4: Escalation-review dispatch wiring
+# ---------------------------------------------------------------------------
+class TestEscalationWiring:
+    """Tests that escalation-review is dispatched before ESCALATION checkpoint."""
+
+    def test_dispatch_escalation_called_before_checkpoint(self, tmp_path, monkeypatch):
+        """When retries exhausted, dispatch_escalation is called before set_checkpoint."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        # Step 5 (index 4): shenbi-context-composing (non-audit, non-scoring)
+        state.chapter_loop.step_index = 4
+        state.chapter_loop.retry_counts = {"ch1-shenbi-context-composing": 3}
+        state.config.max_revision_retries = 3
+
+        call_order = []
+
+        def fake_dispatch_skill(skill, project_dir, prompt):
+            call_order.append(("dispatch", skill))
+            return type("R", (), {"success": False})()
+
+        def fake_dispatch_escalation(project_dir, chapter, context=""):
+            call_order.append(("escalation", chapter))
+            return True
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch_skill)
+        monkeypatch.setattr(
+            "shenbi.pipeline.revision_router.dispatch_escalation",
+            fake_dispatch_escalation,
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert ("escalation", 1) in call_order
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION

@@ -275,6 +275,14 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                 # Closure step failed. The closure runner has no internal
                 # retry logic, so raise an escalation checkpoint for human
                 # intervention rather than spinning on the same failing step.
+                # Dispatch escalation-review first, then set checkpoint.
+                from shenbi.pipeline.revision_router import dispatch_escalation
+
+                dispatch_escalation(
+                    project_dir,
+                    0,  # closure has no chapter context
+                    context=f"Closure step {state.closure_step + 1} failed",
+                )
                 set_checkpoint(
                     state,
                     CheckpointType.ESCALATION,
