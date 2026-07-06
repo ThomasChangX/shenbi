@@ -93,7 +93,7 @@ def _find_ide_cli() -> list[str] | None:
     
     for cli_name in ("codex", "zcode"):
         if shutil.which(cli_name):
-            return [cli_name, "exec", "--skip-git-repo-check", "-C", "{dir}", "-"]
+            return [cli_name, "exec", "--skip-git-repo-check", "-c", "sandbox_permissions=workspace-write", "-C", "{dir}", "-"]
     return None
 
 
@@ -225,11 +225,11 @@ def _dispatch_via_ide(
 
     log.info("ide_dispatch_complete", skill=skill)
 
-    # Verify output files exist; write agent output if missing
-    for rel_path in output_paths:
-        full_path = project_dir / rel_path
-        if not full_path.exists():
-            _write_outputs(r.stdout, [rel_path], project_dir)
+    # Verify output files exist
+    missing = [p for p in output_paths if not (project_dir / p).exists()]
+    if missing:
+        log.error("ide_missing_outputs", skill=skill, missing=missing)
+        return DispatchResult(False, -1, "", f"Agent did not produce: {missing}")
 
     return DispatchResult(True, 0, r.stdout, r.stderr)
 
