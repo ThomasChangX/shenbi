@@ -379,17 +379,23 @@ def dispatch_skill(
     """Dispatch a skill for execution.
 
     Routing (tried in order):
-    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (DeepSeek, MiniMax, etc.)
-    2. IDE CLI available (codex / zcode) → spawn agent subprocess
-    3. Fallback → ``shenbi-dispatch`` CLI subprocess (T1 testing / legacy)
+    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API
+    2. ``ZCODE_BASE_URL`` detected → ZCode API (auto-configures)
+    3. IDE CLI available (codex / zcode) → spawn agent subprocess
+    4. Fallback → ``shenbi-dispatch`` CLI subprocess
     """
     pd = Path(project_dir)
+
+    # Auto-detect ZCode environment and configure API path
+    if not os.environ.get(_ENV_LLM_API_KEY) and os.environ.get("ZCODE_BASE_URL"):
+        os.environ[_ENV_LLM_API_KEY] = os.environ.get("ZCODE_API_KEY", "zcode-session")
+        os.environ[_ENV_LLM_BASE_URL] = os.environ["ZCODE_BASE_URL"]
 
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):
         return _dispatch_via_api(skill, pd, prompt)
 
-    # IDE path
+    # IDE CLI path (only used when no API available)
     if _find_ide_cli():
         return _dispatch_via_ide(skill, pd, prompt)
 
