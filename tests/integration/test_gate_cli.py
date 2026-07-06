@@ -101,13 +101,14 @@ class TestGateMarkers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             round_dir = Path(tmpdir) / "round-test"
             round_dir.mkdir()
-            file_path = self._make_worldbuilding_project(round_dir / "project")
+            project_dir = round_dir / "project"
+            file_path = self._make_worldbuilding_project(project_dir)
 
-            stdout, stderr, rc = self._run_vg("G4", "worldbuilding", file_path, str(round_dir))
+            stdout, stderr, rc = self._run_vg("G4", "worldbuilding", file_path, str(project_dir))
             result = json.loads(stdout)
             self.assertEqual(result.get("status"), "PASS", f"Expected PASS, got: {stdout}")
 
-            marker_dir = round_dir / "gate-markers"
+            marker_dir = project_dir / "gate-markers"
             self.assertTrue(marker_dir.exists(), "gate-markers directory should be created")
 
             # Find the marker file

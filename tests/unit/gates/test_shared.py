@@ -339,3 +339,20 @@ class TestSharedErrorPaths:
         assert parsed["gate"] == "G-TEST"
         assert "note" in parsed
         assert "checks" in parsed
+
+
+@pytest.mark.unit
+def test_resolve_g4_base_returns_rd_when_provided(tmp_path: Path) -> None:
+    """resolve_g4_base returns Path(rd) when rd is provided."""
+    from shenbi.gates.shared import resolve_g4_base
+
+    assert resolve_g4_base(str(tmp_path)) == tmp_path
+
+
+@pytest.mark.unit
+def test_resolve_g4_base_falls_back_to_cwd() -> None:
+    """resolve_g4_base falls back to cwd when rd is None."""
+    from shenbi.gates.shared import resolve_g4_base
+
+    assert resolve_g4_base(None) == Path.cwd()
+    assert resolve_g4_base() == Path.cwd()

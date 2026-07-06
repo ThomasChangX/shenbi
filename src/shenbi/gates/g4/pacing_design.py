@@ -22,7 +22,7 @@ def g4_pacing_design(fps: list[str], rd: str | None = None) -> str:
     if fps:
         from pathlib import Path
 
-        project_dir = str(Path(fps[0]).parent.parent)
+        project_dir = rd if rd else str(Path(fps[0]).parent.parent)
         rp = Path(project_dir) / "outline" / "rhythm_principles.md"
 
     if not rp or not rp.exists():

@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 import shenbi.dispatcher.executor as ex
 from shenbi.dispatcher.executor import dispatch_with_write_audit
 
@@ -11,9 +13,13 @@ def _cfg() -> dict[str, object]:
     return {"version": "1.0", "updated": "2026-06-12", "approval": {}}
 
 
-def test_audit_passes_on_allowed_genre_key_change(tmp_path: Path, monkeypatch: object) -> None:
+def test_audit_passes_on_allowed_genre_key_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
-    monkeypatch.setattr(ex, "derive_output_files", lambda s: ["genre-config.json"])  # type: ignore[attr-defined]
+    monkeypatch.setattr(
+        ex, "derive_output_files", lambda s, chapter=None, round_dir=None: ["genre-config.json"]
+    )  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
     cfg.write_text(json.dumps(_cfg()), encoding="utf-8")
 
@@ -29,9 +35,13 @@ def test_audit_passes_on_allowed_genre_key_change(tmp_path: Path, monkeypatch: o
     assert (tmp_path / "write-audit.jsonl").exists()
 
 
-def test_audit_blocks_on_undeclared_genre_key(tmp_path: Path, monkeypatch: object) -> None:
+def test_audit_blocks_on_undeclared_genre_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
-    monkeypatch.setattr(ex, "derive_output_files", lambda s: ["genre-config.json"])  # type: ignore[attr-defined]
+    monkeypatch.setattr(
+        ex, "derive_output_files", lambda s, chapter=None, round_dir=None: ["genre-config.json"]
+    )  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
     cfg.write_text(json.dumps(_cfg()), encoding="utf-8")
 

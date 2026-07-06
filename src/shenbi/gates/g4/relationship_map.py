@@ -3,11 +3,11 @@
 from __future__ import annotations
 from typing import Any
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_g4_base,
 )
 
 
@@ -17,8 +17,7 @@ def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
     """
     c: list[dict[str, Any]] = []
     mf = []
-    project_dir = str(Path(fps[0]).parent.parent) if fps else ""
-    pd = Path(project_dir)
+    pd = resolve_g4_base(rd)
 
     rel_path = pd / "characters" / "relationships.md"
     if not rel_path.exists():

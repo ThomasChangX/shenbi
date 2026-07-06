@@ -82,14 +82,18 @@ def _row_to_result(row: Any, similarity: float = 0.0) -> EmbeddingResult:
 
 
 def is_embed_available() -> bool:
-    """Return ``True`` iff the embedding model dependency is installed.
+    """Return True iff sentence_transformers is installed.
 
-    Uses ``importlib.util.find_spec`` so the optional dependency is never
-    imported at module level. This is the §7.3 gate: callers check it before
-    attempting to embed, and set ``route_b_degraded: true`` when it returns
-    ``False``.
+    Uses importlib.util.find_spec so the optional dependency is never
+    imported at module level. This is the section 7.3 gate: callers check
+    it before attempting to embed, and set route_b_degraded when False.
+
+    Install with: uv sync --extra embeddings (or --group dev for full dev env)
     """
-    return importlib.util.find_spec("sentence_transformers") is not None
+    available = importlib.util.find_spec("sentence_transformers") is not None
+    if not available:
+        log.info("route_b_disabled", hint="Install with: uv sync --extra embeddings")
+    return available
 
 
 def embed_and_store(

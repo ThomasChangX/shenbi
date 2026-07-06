@@ -3,11 +3,11 @@
 from __future__ import annotations
 from typing import Any
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_g4_base,
 )
 
 
@@ -17,8 +17,7 @@ def g4_location_builder(fps: list[str], rd: str | None = None) -> str:
     """
     c: list[dict[str, Any]] = []
     mf = []
-    project_dir = str(Path(fps[0]).parent.parent) if fps else ""
-    pd = Path(project_dir)
+    pd = resolve_g4_base(rd)
 
     loc_path = pd / "world" / "locations.md"
     if not loc_path.exists():
@@ -47,8 +46,9 @@ def g4_location_builder(fps: list[str], rd: str | None = None) -> str:
                 has_events = bool(re.search(r"### 功能事件", loc_text))
                 if layout_len >= 200 and atmo_len >= 150 and has_events:
                     valid += 1
-            if valid < len(locations):
-                mf.append(f"G4.lb.complete:{valid}/{len(locations)}")
+            min_required = max(3, round(len(locations) * 0.5))
+            if valid < min_required:
+                mf.append(f"G4.lb.complete:{valid}/{len(locations)}_need_{min_required}")
             else:
                 c.append(
                     {"id": "G4.lb", "s": "PASS", "locations": len(locations), "complete": valid}

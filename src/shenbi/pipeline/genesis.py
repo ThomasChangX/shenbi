@@ -276,6 +276,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     result = dispatch_skill(step.skill, project_dir, prompt)
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
+        if hasattr(result, "stderr") and result.stderr:
+            log.error(
+                "genesis_dispatch_stderr", skill=step.skill, stderr_preview=result.stderr[:2000]
+            )
+        if hasattr(result, "returncode"):
+            log.error("genesis_dispatch_rc", skill=step.skill, rc=result.returncode)
         return _handle_failure(state, step, "dispatch")
 
     # G4: skill-specific structural validation (every step).

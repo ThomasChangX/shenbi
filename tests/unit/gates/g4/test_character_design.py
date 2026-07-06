@@ -65,7 +65,7 @@ def test_fails_when_protagonist_missing_required_field(tmp_path: Path) -> None:
     body = _protagonist_md({"core_value": ""})
     protag.write_text(body, encoding="utf-8")
 
-    result = _result(g4_character_design([str(protag)]))
+    result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.protag.missing_core_value" in mf for mf in result["must_fix"])
 
@@ -79,7 +79,7 @@ def test_fails_when_protagonist_frontmatter_is_invalid_yaml(tmp_path: Path) -> N
         encoding="utf-8",
     )
 
-    result = _result(g4_character_design([str(protag)]))
+    result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.protag.yaml_error" in mf for mf in result["must_fix"])
 
@@ -99,7 +99,7 @@ def test_fails_when_voice_profile_array_below_minimum(tmp_path: Path) -> None:
     )
     protag.write_text(body, encoding="utf-8")
 
-    result = _result(g4_character_design([str(protag)]))
+    result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
     assert result["status"] == "FAIL"
     assert any("G4.voice.speech_patterns:need_2_got_1" in mf for mf in result["must_fix"])
 
@@ -115,7 +115,7 @@ def _protag_at_depth_two(tmp_path: Path) -> Path:
 
 @pytest.mark.unit
 def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
-    """characters/major/ with < 2 files -> FAIL with G4.cd.major_chars:need_2_got_1."""
+    """characters/major/ with < 2 files -> WARN with G4.cd.major_chars:need_2_got_1."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
     project_dir = protag.parent.parent
@@ -123,20 +123,25 @@ def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
     major.mkdir(parents=True)
     (major / "only.md").write_text("# x\n", encoding="utf-8")
 
-    result = _result(g4_character_design([str(protag)]))
-    assert result["status"] == "FAIL"
-    assert any("G4.cd.major_chars:need_2_got_1" in mf for mf in result["must_fix"])
+    result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    assert any(
+        c.get("id") == "G4.cd.major_chars" and c.get("s") == "WARN" for c in result["checks"]
+    )
 
 
 @pytest.mark.unit
 def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
-    """No characters/major/ dir -> FAIL with G4.cd.major_dir.not_found."""
+    """No characters/major/ dir -> SKIP with G4.cd.major_chars (genesis mode)."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
+    project_dir = protag.parent.parent
 
-    result = _result(g4_character_design([str(protag)]))
-    assert result["status"] == "FAIL"
-    assert any(mf == "G4.cd.major_dir.not_found" for mf in result["must_fix"])
+    result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
+    assert result["status"] == "PASS"
+    assert any(
+        c.get("id") == "G4.cd.major_chars" and c.get("s") == "SKIP" for c in result["checks"]
+    )
 
 
 @pytest.mark.unit
@@ -157,7 +162,7 @@ def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Pat
     major.mkdir(parents=True)
     (major / "hero.md").write_text("# Hero\n", encoding="utf-8")
     (major / "villain.md").write_text("# Villain\n", encoding="utf-8")
-    result = _result(g4_character_design([str(rel)]))
+    result = _result(g4_character_design([str(rel)], rd=str(project_dir)))
     assert any(c.get("id") == "G4.rel.pairs" and c.get("s") == "PASS" for c in result["checks"])
     assert any(
         c.get("id") == "G4.cd.major_chars" and c.get("s") == "PASS" for c in result["checks"]

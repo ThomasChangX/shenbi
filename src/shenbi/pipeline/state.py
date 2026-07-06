@@ -243,4 +243,12 @@ class PipelineState:
 
     @classmethod
     def from_json(cls, json_str: str) -> PipelineState:
-        return cls.from_dict(json.loads(json_str))
+        """Deserialize from JSON string, with error handling for corrupt state."""
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as _e:
+            from shenbi.logging import get_logger as _get_log
+
+            _get_log(__name__).error("state_json_decode_error", error=str(_e))
+            raise
+        return cls.from_dict(data)

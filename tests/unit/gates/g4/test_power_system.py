@@ -27,7 +27,7 @@ def _result(s: str) -> dict[str, Any]:
 @pytest.mark.unit
 def test_fails_when_power_system_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
-    result = _result(g4_power_system([str(marker)]))
+    result = _result(g4_power_system([str(marker)], rd=str(project_dir)))
     assert any("G4.ps.not_found" in mf for mf in result["must_fix"])
 
 
@@ -38,7 +38,7 @@ def test_fails_with_few_table_rows(tmp_path: Path) -> None:
     (project_dir / "world" / "power_system.md").write_text(
         "| a |\n| b |\n| c |\n", encoding="utf-8"
     )
-    result = _result(g4_power_system([str(marker)]))
+    result = _result(g4_power_system([str(marker)], rd=str(project_dir)))
     assert any("G4.ps.level_table_rows" in mf for mf in result["must_fix"])
 
 
@@ -49,7 +49,7 @@ def test_fails_when_advancement_missing(tmp_path: Path) -> None:
     (project_dir / "world" / "power_system.md").write_text(
         "| a | b | c | d | e |\nNo advancement\n", encoding="utf-8"
     )
-    result = _result(g4_power_system([str(marker)]))
+    result = _result(g4_power_system([str(marker)], rd=str(project_dir)))
     assert any("G4.ps.advancement_rules" in mf for mf in result["must_fix"])
 
 
@@ -63,5 +63,5 @@ def test_passes_with_complete_power_system(tmp_path: Path) -> None:
     content += "## 代价\n代价类型\n"
     content += "力量上限\n跨级战斗\n"
     (project_dir / "world" / "power_system.md").write_text(content, encoding="utf-8")
-    result = _result(g4_power_system([str(marker)]))
+    result = _result(g4_power_system([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"

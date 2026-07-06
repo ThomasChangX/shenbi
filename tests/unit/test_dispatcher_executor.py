@@ -98,9 +98,12 @@ def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatc
             "updates": ["truth/current_state.md"],
         },
     )
-    assert derive_input_files("shenbi-x") == ["plans/chapter-N-plan.md"]
+    assert derive_input_files("shenbi-x", chapter=1) == ["plans/chapter-1-plan.md"]
     # writes + updates both fold into output files
-    assert derive_output_files("shenbi-x") == ["chapters/chapter-N.md", "truth/current_state.md"]
+    assert derive_output_files("shenbi-x", chapter=1) == [
+        "chapters/chapter-1.md",
+        "truth/current_state.md",
+    ]
 
 
 @pytest.mark.unit
@@ -119,9 +122,11 @@ def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.Monke
 @pytest.mark.unit
 def test_derive_files_read_real_migrated_skill_contract() -> None:
     """Post-migration, derive_* read the real frontmatter contract end-to-end."""
-    assert derive_input_files("shenbi-chapter-drafting") == [
-        "plans/chapter-N-plan.md",
-        "context/chapter-N-context.md",
+    # chapter=None filters N/NNN placeholders (genesis mode); pass chapter number
+    # to resolve them for this test.
+    assert derive_input_files("shenbi-chapter-drafting", chapter=1) == [
+        "plans/chapter-1-plan.md",
+        "context/chapter-1-context.md",
         "style/style_profile.md",
         "genre-config.json",
         "truth/audit_drift.md",
@@ -156,23 +161,17 @@ def test_generate_agent_id_contains_round_dir_name() -> None:
 
 
 @pytest.mark.unit
-def test_detect_mode_returns_codex_when_installed(monkeypatch: pytest.MonkeyPatch) -> None:
-    """detect_mode returns 'codex' when shutil.which('codex') finds it."""
-    monkeypatch.setattr(
-        shutil, "which", lambda cmd: "/usr/local/bin/codex" if cmd == "codex" else None
-    )
-    assert detect_mode() == "codex"
+def test_detect_mode_returns_internal_by_default() -> None:
+    """detect_mode always returns 'internal' (codex subprocess mode is no longer used)."""
+    assert detect_mode() == "internal"
 
 
 @pytest.mark.unit
-def test_detect_mode_returns_codex_api_with_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
-    """detect_mode returns 'codex-api' when CODEX_API_KEY env var is set."""
-    monkeypatch.setattr(shutil, "which", lambda cmd: None)
+def test_detect_mode_returns_internal_with_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
+    """detect_mode returns 'internal' even when CODEX_API_KEY is set."""
     monkeypatch.setenv("CODEX_API_KEY", "sk-test-key")
-    # Re-import to pick up monkeypatched env
-    from shenbi.dispatcher.executor import detect_mode as dm
-
-    assert dm() == "codex-api"
+    monkeypatch.setattr(shutil, "which", lambda cmd: None)
+    assert detect_mode() == "internal"
 
 
 @pytest.mark.unit
@@ -259,3 +258,55 @@ def test_dispatch_routes_to_codex_api(monkeypatch: pytest.MonkeyPatch) -> None:
 
     result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
     assert result == 0
+
+
+@pytest.mark.unit
+def test_resolve_chapter_path_with_chapter() -> None:
+    """_resolve_chapter_path resolves N/NNN with chapter number."""
+    from shenbi.dispatcher.executor import _resolve_chapter_path
+
+    assert _resolve_chapter_path("chapters/chapter-N.md", 5) == "chapters/chapter-5.md"
+    assert _resolve_chapter_path("chapters/chapter-NNN.md", 5) == "chapters/chapter-005.md"
+    assert _resolve_chapter_path("no-placeholder.md", 5) == "no-placeholder.md"
+
+
+@pytest.mark.unit
+def test_resolve_chapter_path_none_sentinel() -> None:
+    """_resolve_chapter_path returns '' sentinel when chapter=None and N present."""
+    from shenbi.dispatcher.executor import _resolve_chapter_path
+
+    assert _resolve_chapter_path("chapters/chapter-N.md", None) == ""
+    assert _resolve_chapter_path("chapters/chapter-NNN.md", None) == ""
+    assert _resolve_chapter_path("no-placeholder.md", None) == "no-placeholder.md"
+
+
+@pytest.mark.unit
+def test_derive_input_files_with_chapter_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
+    """derive_input_files resolves NNN placeholders when chapter is provided."""
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-NNN-plan.md", "style/style_profile.md"],
+            "writes": [],
+            "updates": [],
+        },
+    )
+    result = derive_input_files("shenbi-x", chapter=3)
+    assert "plans/chapter-003-plan.md" in result
+    assert "style/style_profile.md" in result
+
+
+@pytest.mark.unit
+def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPatch) -> None:
+    """derive_input_files filters empty sentinels when chapter=None (genesis mode)."""
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-N-plan.md"],
+            "writes": [],
+            "updates": [],
+        },
+    )
+    assert derive_input_files("shenbi-x", chapter=None) == []

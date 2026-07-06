@@ -44,17 +44,34 @@ def jload(p: str | Path) -> dict[str, Any]:
     return data
 
 
+def resolve_g4_base(rd: str | None = None) -> Path:
+    """Return the base directory for G4 file resolution.
+
+    When ``rd`` (the pipeline/gate round_dir) is provided, use it as the
+    absolute base. Otherwise fall back to the current working directory.
+    All G4 checkers should use this as their single source of path resolution
+    to avoid the ``fps[0].parent.parent`` anti-pattern.
+    """
+    return Path(rd) if rd else Path.cwd()
+
+
 def yload(p: str | Path) -> dict[str, Any]:
     """Load YAML frontmatter or full YAML from a file as a dict."""
     if yaml is None:
         raise RuntimeError("PyYAML is not installed. Run: pip install pyyaml")
     with open(p, encoding="utf-8") as f:
         content = f.read()
-    if content.startswith("---"):
-        parts = content.split("---", 2)
+    # Strip leading blank lines that may appear before YAML frontmatter
+    # (worldbuilding skill outputs sometimes have \n before ---)
+    cleaned = content.lstrip("\n\r\t ")
+    if cleaned.startswith("---"):
+        parts = cleaned.split("---", 3)
         data = yaml.safe_load(parts[1]) or {} if len(parts) > 1 else {}
     else:
-        data = yaml.safe_load(content) or {}
+        try:
+            data = yaml.safe_load(cleaned) or {}
+        except (yaml.YAMLError, TypeError, ValueError):
+            data = {}
     if not isinstance(data, dict):
         raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
     return data

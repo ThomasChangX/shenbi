@@ -28,7 +28,7 @@ def _result(s: str) -> dict[str, Any]:
 def test_fails_when_volume_map_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "outline").mkdir()
-    result = _result(g4_volume_outlining([str(marker)]))
+    result = _result(g4_volume_outlining([str(marker)], rd=str(project_dir)))
     assert any("G4.vo.not_found" in mf for mf in result["must_fix"])
 
 
@@ -39,7 +39,7 @@ def test_fails_when_no_volumes(tmp_path: Path) -> None:
     (project_dir / "outline" / "volume_map.md").write_text(
         "# Volumes\nno sections\n", encoding="utf-8"
     )
-    result = _result(g4_volume_outlining([str(marker)]))
+    result = _result(g4_volume_outlining([str(marker)], rd=str(project_dir)))
     assert any("G4.vo.no_volumes" in mf for mf in result["must_fix"])
 
 
@@ -50,7 +50,7 @@ def test_fails_when_volume_incomplete(tmp_path: Path) -> None:
     (project_dir / "outline" / "volume_map.md").write_text(
         "## 第一卷：起源\nSome text\n", encoding="utf-8"
     )
-    result = _result(g4_volume_outlining([str(marker)]))
+    result = _result(g4_volume_outlining([str(marker)], rd=str(project_dir)))
     assert any("G4.vo.objective" in mf for mf in result["must_fix"])
 
 
@@ -62,5 +62,5 @@ def test_passes_with_complete_volume(tmp_path: Path) -> None:
         "## 第一卷：起源\n**Objective**:有\n#### KR1\n#### KR2\n#### KR3\n张力曲线\n跨卷桥接\n",
         encoding="utf-8",
     )
-    result = _result(g4_volume_outlining([str(marker)]))
+    result = _result(g4_volume_outlining([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"

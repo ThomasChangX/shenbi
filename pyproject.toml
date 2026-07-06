@@ -14,7 +14,11 @@ dependencies = [
     "numpy>=1.26.0",          # Wave 2 Task 2: Route B float32 cosine similarity (truth_embed)
     # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
+    # 注：sentence-transformers 移至 [project.optional-dependencies].embeddings
+    #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
 ]
+[project.optional-dependencies]
+embeddings = ["sentence-transformers>=3.0.0"]
 
 [dependency-groups]
 dev = [
@@ -38,6 +42,7 @@ dev = [
     "yamllint>=1.33.0",
     "git-cliff>=2.4.0",
     "types-PyYAML>=6.0.12",
+    "sentence-transformers>=3.0.0",
 ]
 docs = [
     "mkdocs>=1.5.3",

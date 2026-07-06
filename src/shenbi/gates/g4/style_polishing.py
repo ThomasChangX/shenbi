@@ -16,8 +16,9 @@ def g4_style_polishing(fps: list[str], rd: str | None = None) -> str:
     c: list[dict[str, Any]] = []
     mf = []
 
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = Path(fp)
+        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
         if not pf.exists():
             mf.append(f"G4.sp.not_found:{fp}")
             continue

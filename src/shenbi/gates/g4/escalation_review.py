@@ -11,12 +11,13 @@ from shenbi.gates.shared import fail, passed
 def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
     """Validate escalation review report has trigger + context + options."""
     c, mf = [], []
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        p = Path(fp)
-        if not p.exists():
+        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        if not pf.exists():
             mf.append(f"G4.er.not_found:{fp}")
             continue
-        content = p.read_text(encoding="utf-8")
+        content = pf.read_text(encoding="utf-8")
         normalized = re.sub(r"\s+", "", content)
         for section in ["触发信号", "升级上下文", "决策选项"]:
             if section not in normalized:

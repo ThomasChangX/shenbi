@@ -28,7 +28,7 @@ def _result(s: str) -> dict[str, Any]:
 def test_fails_when_factions_file_missing(tmp_path: Path) -> None:
     """Missing world/factions.md -> FAIL."""
     project_dir, marker = _setup(tmp_path)
-    result = _result(g4_faction_builder([str(marker)]))
+    result = _result(g4_faction_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.factions.not_found" in mf for mf in result["must_fix"])
 
 
@@ -39,7 +39,7 @@ def test_fails_when_less_than_2_factions(tmp_path: Path) -> None:
     world = project_dir / "world"
     world.mkdir(parents=True)
     (world / "factions.md").write_text("## 势力：光明会\n", encoding="utf-8")
-    result = _result(g4_faction_builder([str(marker)]))
+    result = _result(g4_faction_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.factions.count" in mf for mf in result["must_fix"])
 
 
@@ -53,5 +53,5 @@ def test_passes_with_2_complete_factions(tmp_path: Path) -> None:
     for name in ["光明会", "暗影会"]:
         content += f"## 势力：{name}\n### 层级\n### 内部矛盾\n跨势力动态\n利益驱动\n"
     (world / "factions.md").write_text(content, encoding="utf-8")
-    result = _result(g4_faction_builder([str(marker)]))
+    result = _result(g4_faction_builder([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"

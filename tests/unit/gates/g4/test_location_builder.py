@@ -27,7 +27,7 @@ def _result(s: str) -> dict[str, Any]:
 @pytest.mark.unit
 def test_fails_when_locations_missing(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
-    result = _result(g4_location_builder([str(marker)]))
+    result = _result(g4_location_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.locations.not_found" in mf for mf in result["must_fix"])
 
 
@@ -36,7 +36,7 @@ def test_fails_when_no_location_sections(tmp_path: Path) -> None:
     project_dir, marker = _setup(tmp_path)
     (project_dir / "world").mkdir(parents=True)
     (project_dir / "world" / "locations.md").write_text("# Locations\nnothing\n", encoding="utf-8")
-    result = _result(g4_location_builder([str(marker)]))
+    result = _result(g4_location_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.lb.no_locations" in mf for mf in result["must_fix"])
 
 
@@ -48,7 +48,7 @@ def test_fails_when_location_incomplete(tmp_path: Path) -> None:
         "## 地点：城堡\n### 1. 布局描述\n太小\n### 2. 氛围锚点\n太短\n### 功能事件\nx\n",
         encoding="utf-8",
     )
-    result = _result(g4_location_builder([str(marker)]))
+    result = _result(g4_location_builder([str(marker)], rd=str(project_dir)))
     assert any("G4.lb.complete" in mf for mf in result["must_fix"])
 
 
@@ -58,9 +58,10 @@ def test_passes_with_valid_location(tmp_path: Path) -> None:
     (project_dir / "world").mkdir(parents=True)
     layout = "字" * 200
     atmo = "字" * 150
-    (project_dir / "world" / "locations.md").write_text(
-        f"## 地点：城堡\n### 布局描述\n{layout}\n### 氛围锚点\n{atmo}\n### 功能事件\nx\n",
-        encoding="utf-8",
-    )
-    result = _result(g4_location_builder([str(marker)]))
+    # Gate requires max(3, round(n*0.5)) valid locations → need ≥6 total, ≥3 valid
+    locs = ""
+    for i in range(1, 7):
+        locs += f"## 地点：城堡{i}\n### 布局描述\n{layout}\n### 氛围锚点\n{atmo}\n### 功能事件\nx\n"
+    (project_dir / "world" / "locations.md").write_text(locs, encoding="utf-8")
+    result = _result(g4_location_builder([str(marker)], rd=str(project_dir)))
     assert result["status"] == "PASS"

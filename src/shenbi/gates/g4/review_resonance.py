@@ -31,8 +31,9 @@ def g4_review_resonance(fps: list[str], rd: str | None = None) -> str:
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
+    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = Path(fp)
+        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
         if not pf.exists():
             mf.append(f"G4.rr.not_found:{fp}")
             continue
