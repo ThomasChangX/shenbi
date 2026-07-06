@@ -29,11 +29,13 @@ The orchestrator is stateless itself: it mutates the passed-in
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from shenbi.logging import get_logger
+from shenbi.pipeline.audit_layer import run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
     dispatch_skill,
     requires_independent,
@@ -41,7 +43,7 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import set_checkpoint
-from shenbi.pipeline.error_handler import handle_dispatch_failure
+from shenbi.pipeline.error_handler import handle_dispatch_failure, handle_audit_blocking
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
@@ -650,15 +652,54 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if "foreshadowing-track" in step.skill:
         _check_conditional_resolve(state, project_dir, chapter)
 
-    # After last core-circle audit: genre circle would run here (W3T4).
+    # After last core-circle audit: genre circle + boundary circle via audit_layer.
     if step.is_audit and step_idx == _LAST_AUDIT_IDX:
-        # TODO(W3T4): from shenbi.pipeline.audit_layer import run_audit_layer
-        #   gc_path = project_dir / "genre-config.json"
-        #   gc = json.loads(gc_path.read_text()) if gc_path.exists() else {}
-        #   audit_result = run_audit_layer(project_dir, chapter, gc)
-        #   if audit_result.blocking_found:
-        #       return _handle_failure(state, step, chapter, "audit")
-        log.info("audit_core_circle_complete", chapter=chapter)
+        gc_path = project_dir / "genre-config.json"
+        gc: dict[str, object] = {}
+        if gc_path.exists():
+            gc = json.loads(gc_path.read_text(encoding="utf-8"))
+
+        cs = _get_chapter_state(state, chapter)
+        while True:
+            audit_result = run_audit_layer(project_dir, chapter, gc)
+            cs.audit_results["blocking_found"] = audit_result.blocking_found
+            cs.audit_results["issues"] = audit_result.issues
+            cs.audit_results["audit_reports"] = audit_result.audit_reports
+
+            if not audit_result.blocking_found:
+                log.info("audit_layer_passed", chapter=chapter)
+                break
+
+            cs.audit_retry_count += 1
+            if not handle_audit_blocking(state, chapter, cs.audit_retry_count):
+                log.error(
+                    "audit_blocking_escalation",
+                    chapter=chapter,
+                    retries=cs.audit_retry_count,
+                )
+                set_checkpoint(
+                    state,
+                    CheckpointType.ESCALATION,
+                    chapter=chapter,
+                    context=(
+                        f"Audit BLOCKING persists after {cs.audit_retry_count} "
+                        f"revision attempts for chapter {chapter}"
+                    ),
+                )
+                return True  # checkpoint raised, pause for human
+
+            log.info(
+                "audit_blocking_revision",
+                chapter=chapter,
+                retry=cs.audit_retry_count,
+            )
+            rev = dispatch_skill(
+                "shenbi-chapter-revision",
+                project_dir,
+                f"Revise chapter {chapter} to fix audit BLOCKING issues.",
+            )
+            if not rev.success:
+                return _handle_failure(state, step, chapter, "audit-revision")
 
     # After review-resonance: revision routing would run here (W3T5).
     if "review-resonance" in step.skill:

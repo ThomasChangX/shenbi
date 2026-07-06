@@ -15,6 +15,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 from shenbi.pipeline.chapter_loop import (
+    _LAST_AUDIT_IDX,
     CHAPTER_STEPS,
     run_chapter_step,
 )
@@ -633,3 +634,112 @@ class TestRevisionRoutingIntegration:
         assert "shenbi-chapter-revision" not in called_skills
         assert "shenbi-snapshot-manage" in called_skills
         assert "shenbi-drift-guidance" in called_skills
+
+
+# ---------------------------------------------------------------------------
+# Audit layer wiring (A8, Task 2.2)
+# ---------------------------------------------------------------------------
+class TestAuditLayerWiring:
+    """Tests that run_audit_layer is called after core circle and handles BLOCKING."""
+
+    def test_run_audit_layer_called_after_last_core_audit(self, tmp_path, monkeypatch):
+        """After step 16 (last is_audit step), run_audit_layer is called."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX  # position at step 16
+
+        # Mock audit_layer to avoid actual dispatch
+        called = []
+
+        def fake_run_audit(project_dir, chapter, gc):
+            called.append((chapter, gc))
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            return AuditResult(blocking_found=False)
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+        # Mock dispatch_skill for step 16
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": True})(),
+        )
+        # Mock G4
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert len(called) == 1, f"run_audit_layer should be called once, was {len(called)}"
+
+    def test_audit_blocking_triggers_revision_dispatch(self, tmp_path, monkeypatch):
+        """BLOCKING finding dispatches chapter-revision."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX
+
+        # Mock audit_layer returning BLOCKING
+        def fake_run_audit(project_dir, chapter, gc):
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            r = AuditResult(blocking_found=True)
+            r.issues = [{"skill": "test", "severity": "BLOCKING"}]
+            return r
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+
+        revisions = []
+
+        def fake_dispatch(skill, project_dir, prompt):
+            if "chapter-revision" in skill:
+                revisions.append(prompt)
+            return type("R", (), {"success": True})()
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch)
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert len(revisions) >= 1, f"Expected revision dispatch, got {len(revisions)}"
+
+    def test_audit_max_retries_triggers_escalation(self, tmp_path, monkeypatch):
+        """After max_audit_retries BLOCKING rounds, ESCALATION checkpoint is set."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX
+        state.config.max_audit_retries = 3
+
+        def fake_run_audit(project_dir, chapter, gc):
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            r = AuditResult(blocking_found=True)
+            r.issues = [{"skill": "test", "severity": "BLOCKING"}]
+            return r
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": True})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        cs = state.chapter_loop.chapter_states.get("1")
+        assert cs is not None
+        assert cs.audit_retry_count > 0, (
+            f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
+        )

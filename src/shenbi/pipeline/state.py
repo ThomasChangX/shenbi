@@ -91,6 +91,7 @@ class ChapterState:
     resonance_score: int | None = None
     audit_results: dict[str, Any] = field(default_factory=dict)
     revision_count: int = 0
+    audit_retry_count: int = 0  # tracks audit BLOCKING revision attempts
 
 
 @dataclass
@@ -146,6 +147,7 @@ class PipelineState:
                         "resonance_score": v.resonance_score,
                         "audit_results": v.audit_results,
                         "revision_count": v.revision_count,
+                        "audit_retry_count": v.audit_retry_count,
                     }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
@@ -201,6 +203,7 @@ class PipelineState:
                 resonance_score=v.get("resonance_score"),
                 audit_results=v.get("audit_results", {}),
                 revision_count=v.get("revision_count", 0),
+                audit_retry_count=v.get("audit_retry_count", 0),
             )
 
         return cls(
