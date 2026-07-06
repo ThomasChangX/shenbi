@@ -41,6 +41,7 @@ has been propagated >= :data:`DRIFT_THRESHOLD` times and
 
 from __future__ import annotations
 
+import json
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -51,6 +52,7 @@ from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
+from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -347,6 +349,47 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Total chapters recompute (A1)
+# ---------------------------------------------------------------------------
+
+
+def _count_total_chapters(project_dir: Path) -> int:
+    """Parse volume_map.md and sum all volume chapter counts."""
+    vmap = project_dir / "truth" / "volume_map.md"
+    if not vmap.exists():
+        return 0
+    text = vmap.read_text(encoding="utf-8")
+
+    total = 0
+    for m in re.finditer(r"(?:章节数|Chapters?)\s*:\s*(\d+)", text):
+        total += int(m.group(1))
+    return total if total > 0 else 0
+
+
+def _update_total_chapters(state: PipelineState) -> None:
+    """Recompute novel.json.total_chapters from volume_map.md.
+
+    Called after volume boundary expansion to ensure the chapter-loop
+    termination condition is accurate.
+    """
+    project_dir = Path(state.project_dir)
+    new_total = _count_total_chapters(project_dir)
+    if new_total < 1:
+        return
+
+    novel_json = project_dir / "novel.json"
+    if not novel_json.exists():
+        return
+
+    data = json.loads(novel_json.read_text(encoding="utf-8"))
+    old_total = data.get("total_chapters", 0)
+    if new_total != old_total:
+        data["total_chapters"] = new_total
+        safe_write(novel_json, json.dumps(data, ensure_ascii=False, indent=2))
+        log.info("total_chapters_updated", old=old_total, new=new_total)
+
+
+# ---------------------------------------------------------------------------
 # Public API: check_triggers
 # ---------------------------------------------------------------------------
 
@@ -541,6 +584,10 @@ def run_triggered_skills(
             skill=step.skill,
             mode=step.mode,
         )
+
+    # After volume boundary expansion: recompute total_chapters from volume_map
+    if result.volume_boundary:
+        _update_total_chapters(state)
 
     # Volume-boundary: raise checkpoint. The snapshot-manage dispatch is
     # deferred to the caller so it runs AFTER the checkpoint is cleared (spec
