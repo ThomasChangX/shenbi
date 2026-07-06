@@ -41,7 +41,8 @@ _DEFAULT_MODEL = "deepseek-v4-pro"     # fallback when SHENBI_LLM_MODEL not set
 _IDE_AGENT_TIMEOUT = 600               # seconds for IDE agent subprocess
 _API_MAX_TOKENS = 16384               # max tokens per API call
 _API_TEMPERATURE = 0.7                # default temperature for API calls
-_INPUT_TRUNCATE_CHARS = 8000          # max chars per input file in prompt
+_INPUT_MAX_CHARS_PER_FILE = 32000     # hard cap per input file (~8K tokens)
+_INPUT_MAX_CHARS_TOTAL = 128000       # total input budget (~32K tokens)
 _AUDIT_HARD_CAP = 100                 # safety cap for audit revision loop
 
 
@@ -140,25 +141,44 @@ def _build_skill_prompt(
         log.warning("skill_file_missing", skill=skill, path=str(skill_file))
         system_prompt = f"Execute the {skill} skill."
 
-    # Read contract inputs
+    # Read contract inputs with proportional budget
     input_texts: dict[str, str] = {}
+    raw_inputs: dict[str, str] = {}
     for read_path in contract.get("reads", []):
         resolved = _resolve_path(read_path, chapter)
         full_path = project_dir / resolved
         if full_path.exists():
             try:
-                content = full_path.read_text(encoding="utf-8")
-                if len(content) > _INPUT_TRUNCATE_CHARS:
-                    log.warning(
-                        "input_truncated", skill=skill, path=resolved,
-                        original=len(content), truncated=_INPUT_TRUNCATE_CHARS,
-                    )
-                    content = content[:_INPUT_TRUNCATE_CHARS]
-                input_texts[resolved] = content
+                raw_inputs[resolved] = full_path.read_text(encoding="utf-8")
             except Exception:
-                input_texts[resolved] = f"[binary or unreadable: {resolved}]"
+                raw_inputs[resolved] = f"[binary or unreadable: {resolved}]"
         else:
-            input_texts[resolved] = f"[file not found: {resolved}]"
+            raw_inputs[resolved] = f"[file not found: {resolved}]"
+
+    # Apply per-file cap and proportional total budget
+    total_raw = sum(len(v) for v in raw_inputs.values())
+    if total_raw > _INPUT_MAX_CHARS_TOTAL and len(raw_inputs) > 1:
+        budget_per_file = _INPUT_MAX_CHARS_TOTAL // len(raw_inputs)
+        for fname, text in raw_inputs.items():
+            limit = min(_INPUT_MAX_CHARS_PER_FILE, budget_per_file)
+            if len(text) > limit:
+                log.warning(
+                    "input_truncated", skill=skill, path=fname,
+                    original=len(text), truncated=limit,
+                )
+                input_texts[fname] = text[:limit]
+            else:
+                input_texts[fname] = text
+    else:
+        for fname, text in raw_inputs.items():
+            if len(text) > _INPUT_MAX_CHARS_PER_FILE:
+                log.warning(
+                    "input_truncated", skill=skill, path=fname,
+                    original=len(text), truncated=_INPUT_MAX_CHARS_PER_FILE,
+                )
+                input_texts[fname] = text[:_INPUT_MAX_CHARS_PER_FILE]
+            else:
+                input_texts[fname] = text
 
     # Collect output paths
     output_paths: list[str] = []
