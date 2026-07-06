@@ -189,18 +189,19 @@ def dispatch(
         if skip_patterns:
             from fnmatch import fnmatch
 
-            filtered = []
+            filtered: list[str] = []
             for f in input_files:
                 name = Path(f).name
                 if any(fnmatch(name, pat) for pat in skip_patterns):
-                    matching = [p for p in skip_patterns if fnmatch(name, p)]
-                    log.debug(
-                        "g1_skip_optional_read",
-                        file=f,
-                        pattern=matching[0] if matching else "unknown",
-                    )
-                else:
-                    filtered.append(f)
+                    if not Path(f).exists():
+                        matching = [p for p in skip_patterns if fnmatch(name, p)]
+                        log.debug(
+                            "g1_skip_optional_read",
+                            file=f,
+                            pattern=matching[0] if matching else "unknown",
+                        )
+                        continue  # skip: optional file not yet produced
+                filtered.append(f)
             original_count = len(input_files)
             input_files = filtered
             log.info("g1_optional_reads_filtered", original=original_count, kept=len(input_files))

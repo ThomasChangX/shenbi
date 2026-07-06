@@ -242,7 +242,7 @@ def _handle_failure(
 
     dispatch_escalation(
         project_dir,
-        0,  # genesis has no chapter number
+        None,  # genesis has no chapter context — N-paths filtered
         context=f"Genesis step {step_num} ({skill}) failed after {count} {failure} attempts",
     )
     log.error(

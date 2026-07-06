@@ -140,15 +140,19 @@ def decide_revision(
     return RevisionDecision.REVISION
 
 
-def dispatch_escalation(project_dir: Path | str, chapter: int, context: str = "") -> bool:
+def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: str = "") -> bool:
     """Dispatch ``shenbi-escalation-review`` for *chapter* (spec §6.3).
 
     The escalation-review skill compiles resonance trends and audit scores
     into ``audits/escalation-N-report.md``. Returns ``True`` on successful
     dispatch, ``False`` otherwise.
+
+    *chapter* may be ``None`` during genesis when there is no chapter context
+    (N-placeholder paths are filtered by the executor).
     """
+    chapter_label = f"chapter {chapter}" if chapter is not None else "genesis (no chapter)"
     prompt = (
-        f"Escalation review for chapter {chapter}. "
+        f"Escalation review for {chapter_label}. "
         f"Compile resonance trends and audit scores into a decision report."
     )
     if context:

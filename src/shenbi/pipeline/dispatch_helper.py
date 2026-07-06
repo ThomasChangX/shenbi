@@ -61,6 +61,13 @@ OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-foreshadowing-track": ["chapter-*-plan.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
     "shenbi-chapter-drafting": ["chapter-*-plan.md"],
+    "shenbi-escalation-review": [
+        "resonance_trend.md",
+        "volume-*-score.md",
+        "arc-*-score.md",
+        "stratum-*-score.md",
+        "chapter-*-sensitivity.md",
+    ],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
