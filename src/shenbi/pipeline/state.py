@@ -102,6 +102,7 @@ class ChapterLoopStateData:
     chapter_states: dict[str, ChapterState] = field(default_factory=dict)
     per_chapter_review_enabled: bool = True
     retry_counts: dict[str, int] = field(default_factory=dict)
+    modify_feedback: str | None = None
 
 
 @dataclass
@@ -153,6 +154,7 @@ class PipelineState:
                 },
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
+                "modify_feedback": self.chapter_loop.modify_feedback,
             },
             "closure": self.closure.value,
             "pending_checkpoint": {
@@ -223,6 +225,7 @@ class PipelineState:
                 chapter_states=chapter_states,
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
+                modify_feedback=cl_data.get("modify_feedback"),
             ),
             closure=ClosureState(data.get("closure", "pending")),
             pending_checkpoint=CheckpointData(
