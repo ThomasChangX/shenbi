@@ -743,3 +743,57 @@ class TestAuditLayerWiring:
         assert cs.audit_retry_count > 0, (
             f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
         )
+
+
+# ---------------------------------------------------------------------------
+# A7: State-settling G4 validation — _resolve_g4_files
+# ---------------------------------------------------------------------------
+class TestResolveG4Files:
+    """Tests _resolve_g4_files for multi-file steps like state-settling."""
+
+    def test_state_settling_returns_staging_truth_files(self, tmp_path):
+        """State-settling step globs staging/truth/*.md."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        # Find state-settling step (step 7, index 6)
+        ss_step = next(s for s in CHAPTER_STEPS if "state-settling" in s.skill)
+
+        # Create staging/truth/ with some .md files
+        staging_truth = tmp_path / "staging" / "truth"
+        staging_truth.mkdir(parents=True)
+        (staging_truth / "current_state.md").write_text("# state")
+        (staging_truth / "character_matrix.md").write_text("# chars")
+        (staging_truth / "not_markdown.txt").write_text("nope")
+
+        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        assert len(files) >= 2
+        assert any("current_state.md" in f for f in files)
+        assert any("character_matrix.md" in f for f in files)
+        # .txt file should NOT be in the list
+        assert not any("not_markdown.txt" in f for f in files)
+
+    def test_state_settling_empty_staging_returns_empty(self, tmp_path):
+        """No staging/truth/ dir → returns empty list, no crash."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        ss_step = next(s for s in CHAPTER_STEPS if "state-settling" in s.skill)
+        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        assert files == []
+
+    def test_non_state_settling_returns_single_file(self, tmp_path):
+        """Non-state-settling steps return single path unchanged."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        drafting_step = CHAPTER_STEPS[5]  # step 6: chapter-drafting
+        files = _resolve_g4_files(tmp_path, drafting_step, chapter=3)
+        assert len(files) == 1
+        assert "chapter-3.md" in files[0]

@@ -281,6 +281,28 @@ def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     return resolved
 
 
+def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> list[str]:
+    """Return list of file paths for G4 validation.
+
+    Single-file steps return one path. State-settling returns all
+    staging/truth/*.md files because it writes multiple truth outputs.
+    Steps with no output return [].
+    """
+    single = _resolve_g4_path(project_dir, step, chapter)
+    if single:
+        return [single]
+
+    # State-settling writes multiple truth files to staging/
+    if step.uses_staging and "state-settling" in step.skill:
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        staging_truth = project_dir / STAGING_DIR / "truth"
+        if staging_truth.exists():
+            return sorted(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
+
+    return []
+
+
 def _handle_failure(
     state: PipelineState,
     step: ChapterStep,
@@ -624,8 +646,8 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         return _handle_failure(state, step, chapter, "dispatch")
 
     # G4: skill-specific structural validation (every dispatched step).
-    g4_file = _resolve_g4_path(project_dir, step, chapter)
-    g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
+    g4_files = _resolve_g4_files(project_dir, step, chapter)
+    g4 = run_gate_g4(step.skill, g4_files, project_dir)
     if not _gate_passed(g4):
         log.error(
             "chapter_g4_failed",
