@@ -5,7 +5,7 @@ continuity, character, pacing, foreshadowing, memo-compliance, pov) runs as
 regular chapter_loop steps before this module is invoked. This module covers
 the two dynamic circles that follow:
 
-* **Genre circle** (gate-driven): ``genre-config.json``'s ``audit_dimensions``
+* **Genre circle** (gate-driven): ``genre-config.json``'s ``auditDimensions``
   dict selects which genre-specific review skills to run. Only activates after
   the core circle fully passes (enforced by the chapter_loop caller).
 * **Boundary circle** (deterministic): fires on chapter-number milestones
@@ -33,21 +33,38 @@ AUDIT_DIR = "audits"
 # ---------------------------------------------------------------------------
 # Genre-circle activation matrix (spec section 6.2)
 #
-# Maps ``genre-config.json`` ``audit_dimensions`` keys to the review skill that
+# Maps ``genre-config.json`` ``auditDimensions`` keys (camelCase, matching the
+# real fixture produced by shenbi-genre-config) to the review skill that
 # implements that dimension. Values are full ``shenbi-*`` skill names so they
 # can be dispatched directly.
+#
+# Core-circle dimensions (antiAi, character, pacing, continuity, foreshadowing,
+# memoCompliance, pov) are NOT here — they run as chapter_loop fixed steps.
 # ---------------------------------------------------------------------------
 GENRE_ACTIVATION_MATRIX: dict[str, str] = {
+    "sensitivity": "shenbi-review-sensitivity",
+    "worldRules": "shenbi-review-world-rules",
+    "motivation": "shenbi-review-motivation",
+    "dialogue": "shenbi-review-dialogue",
+    "texture": "shenbi-review-texture",
     "era": "shenbi-review-era",
     "fanfic": "shenbi-review-fanfic",
-    "world_rules": "shenbi-review-world-rules",
-    "sensitivity": "shenbi-review-sensitivity",
-    "dialogue_focus": "shenbi-review-dialogue",
-    "motivation_focus": "shenbi-review-motivation",
-    "texture_focus": "shenbi-review-texture",
-    "reader_pull_focus": "shenbi-review-reader-pull",
-    "highpoint_focus": "shenbi-review-highpoint",
+    "readerPull": "shenbi-review-reader-pull",
+    "highpoint": "shenbi-review-highpoint",
 }
+
+# Core-circle keys that must not be activated by the genre circle
+_CORE_CIRCLE_KEYS = frozenset(
+    {
+        "antiAi",
+        "character",
+        "pacing",
+        "continuity",
+        "foreshadowing",
+        "memoCompliance",
+        "pov",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -80,17 +97,21 @@ class AuditResult:
 def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
     """Determine which genre-circle audits to run based on genre-config.json.
 
-    Reads the ``audit_dimensions`` sub-dict; every key set to a truthy value
-    maps (via :data:`GENRE_ACTIVATION_MATRIX`) to a review skill.
+    Reads the ``auditDimensions`` sub-dict (camelCase, matching real fixture
+    produced by shenbi-genre-config). Falls back to ``audit_dimensions``
+    (snake_case) for backward compat. Filters out core-circle keys that are
+    handled by chapter_loop fixed steps.
     """
-    audit_dims = genre_config.get("audit_dimensions", {})
+    audit_dims = genre_config.get("auditDimensions")
+    if audit_dims is None:
+        audit_dims = genre_config.get("audit_dimensions", {})
     if not isinstance(audit_dims, dict):
         return []
-    return [
+    return sorted(
         skill
         for dim_key, skill in GENRE_ACTIVATION_MATRIX.items()
-        if audit_dims.get(dim_key, False)
-    ]
+        if dim_key not in _CORE_CIRCLE_KEYS and audit_dims.get(dim_key, False)
+    )
 
 
 def get_active_boundary_audits(chapter: int) -> list[str]:
