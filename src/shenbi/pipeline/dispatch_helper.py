@@ -36,13 +36,13 @@ _ENV_LLM_BASE_URL = "SHENBI_LLM_BASE_URL"
 _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 
 #: Dispatch configuration constants
-_DEFAULT_BASE_URL = "https://api.openai.com/v1"
-_DEFAULT_MODEL = "gpt-4o"            # fallback when SHENBI_LLM_MODEL not set
-_IDE_AGENT_TIMEOUT = 600             # seconds for IDE agent subprocess
-_API_MAX_TOKENS = 16384             # max tokens per API call
-_API_TEMPERATURE = 0.7              # default temperature for API calls
-_INPUT_TRUNCATE_CHARS = 8000        # max chars per input file in prompt
-_AUDIT_HARD_CAP = 100               # safety cap for audit revision loop
+_DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
+_DEFAULT_MODEL = "deepseek-v4-pro"     # fallback when SHENBI_LLM_MODEL not set
+_IDE_AGENT_TIMEOUT = 600               # seconds for IDE agent subprocess
+_API_MAX_TOKENS = 16384               # max tokens per API call
+_API_TEMPERATURE = 0.7                # default temperature for API calls
+_INPUT_TRUNCATE_CHARS = 8000          # max chars per input file in prompt
+_AUDIT_HARD_CAP = 100                 # safety cap for audit revision loop
 
 
 @dataclass
