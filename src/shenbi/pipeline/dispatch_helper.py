@@ -159,11 +159,20 @@ def _build_skill_prompt(
     for update_path in contract.get("updates", []):
         output_paths.append(_resolve_path(update_path, chapter))
 
-    # Build user prompt
+    # Build user prompt with file output instructions
     user_parts = [f"## Task\n{prompt}"]
-    user_parts.append(f"\n## Output Files You Must Create\n")
+    user_parts.append("\n## Output Files You MUST Create")
+    user_parts.append("Write your response in this format. For EACH file, include a marker and the content:")
+    user_parts.append("```")
+    user_parts.append("### FILE: path/to/file1.md")
+    user_parts.append("[content of file1]")
+    user_parts.append("### FILE: path/to/file2.json")
+    user_parts.append("[content of file2]")
+    user_parts.append("```")
+    user_parts.append("Files to create:")
     for p in output_paths:
-        user_parts.append(f"- {p}")
+        if "*" not in p:  # skip glob patterns like "truth/*.md"
+            user_parts.append(f"- {p}")
     if input_texts:
         user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():
@@ -180,6 +189,25 @@ def _write_outputs(output_text: str, output_paths: list[str], project_dir: Path)
         full_path.parent.mkdir(parents=True, exist_ok=True)
         safe_write(full_path, output_text)
         log.info("output_written", path=rel_path, size=len(output_text))
+
+
+def _parse_file_outputs(response: str) -> dict[str, str]:
+    """Parse a multi-file response into {filepath: content} dict.
+    
+    Expects markers like ``### FILE: path/to/file.md`` followed by content.
+    Falls back to returning the full response under ``__stdout__`` if no markers found.
+    """
+    import re
+    
+    # Match "### FILE: path/to/file" followed by content until next marker or EOF
+    pattern = r"###\s*FILE:\s*(\S+)\s*\n(.*?)(?=###\s*FILE:|\Z)"
+    matches = re.findall(pattern, response, re.DOTALL)
+    
+    if matches:
+        return {path.strip(): content.strip() for path, content in matches}
+    
+    # No markers found: return full response as stdout only
+    return {"__stdout__": response}
 
 
 def _dispatch_via_ide(
@@ -225,11 +253,22 @@ def _dispatch_via_ide(
 
     log.info("ide_dispatch_complete", skill=skill)
 
-    # Verify output files exist
-    missing = [p for p in output_paths if not (project_dir / p).exists()]
-    if missing:
-        log.error("ide_missing_outputs", skill=skill, missing=missing)
-        return DispatchResult(False, -1, "", f"Agent did not produce: {missing}")
+    # Parse multi-file response and write outputs
+    parsed = _parse_file_outputs(r.stdout)
+    written = []
+    for rel_path in output_paths:
+        if "*" in rel_path:
+            continue  # skip glob patterns
+        content = parsed.get(rel_path, parsed.get("__stdout__", ""))
+        full_path = project_dir / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(full_path, content)
+        written.append(rel_path)
+        log.info("output_written", path=rel_path, size=len(content))
+
+    if not written:
+        log.error("ide_no_outputs_written", skill=skill)
+        return DispatchResult(False, -1, "", "No output files written")
 
     return DispatchResult(True, 0, r.stdout, r.stderr)
 
