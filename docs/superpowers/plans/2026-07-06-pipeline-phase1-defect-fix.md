@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - Python 3.11+, `from __future__ import annotations` in all modified files
+- Code snippets in this plan omit the import for brevity; always add it when modifying files
 - `pathlib.Path` for all file I/O, `json` for structured output
 - No `print()` in framework code; use structlog (stderr)
 - `safe_write` for all state file writes (atomic, fsync, lock)
@@ -25,6 +26,14 @@
 - Run `uv run pytest tests/unit/pipeline/ -v` after each task's implementation
 
 ---
+
+## Dependency Chain
+
+The spec reorders the root cause analysis's original sequence (A3→A8→A5→A4→A1→A2→A6→A7) to A3→A8→A7→A5→A4→A2→A1→A6 for these reasons:
+- **A3 first**: Unblocks the entire audit layer (A8 depends on it)
+- **A7 third**: State-settling G4 validation benefits from A8's audit coverage being live
+- **A5 before A4**: Escalation handling needs error handler paths wired first
+- **A1/A2/A6 last**: Independent fixes, no downstream dependencies
 
 ## Step 1: A3 — Genre-Config Audit Matrix Alignment
 
@@ -395,7 +404,6 @@ Expected: FAIL — `test_run_audit_layer_called_after_last_core_audit` fails bec
 
     # After last core-circle audit: genre circle + boundary circle via audit_layer.
     if step.is_audit and step_idx == _LAST_AUDIT_IDX:
-        import json
         from shenbi.pipeline.audit_layer import run_audit_layer
 
         gc_path = project_dir / "genre-config.json"
@@ -415,7 +423,7 @@ Expected: FAIL — `test_run_audit_layer_called_after_last_core_audit` fails bec
                 break
 
             cs.audit_retry_count += 1
-            if cs.audit_retry_count > state.config.max_revision_retries:
+            if not handle_audit_blocking(state, chapter, cs.audit_retry_count):
                 log.error(
                     "audit_blocking_escalation",
                     chapter=chapter,
@@ -741,7 +749,7 @@ class TestScoringFailureWiring:
             called.append(exit_code)
             return True  # should retry
         monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.handle_scoring_failure", fake_scoring_failure
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
         )
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
@@ -772,7 +780,7 @@ class TestScoringFailureWiring:
         def fake_scoring_failure(s, exit_code):
             return True
         monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.handle_scoring_failure", fake_scoring_failure
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
         )
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
@@ -891,7 +899,6 @@ git commit -m "fix: wire handle_scoring_failure for review-resonance exit codes 
 ```python
 # src/shenbi/pipeline/genesis.py — in _handle_failure(),
 # BEFORE set_checkpoint when handle_dispatch_failure returns False.
-# Same pattern: call dispatch_escalation first, then set checkpoint.
 
     from shenbi.pipeline.revision_router import dispatch_escalation
 
@@ -905,7 +912,11 @@ git commit -m "fix: wire handle_scoring_failure for review-resonance exit codes 
         CheckpointType.ESCALATION,
         chapter=0,
         artifact="audits/escalation-genesis-report.md",
-        context=(...),
+        context=(
+            f"Genesis step {step.step_num} ({step.skill}) "
+            f"failed after {count} {failure} attempts. "
+            f"See audits/escalation-genesis-report.md for analysis."
+        ),
     )
     return True
 ```
@@ -934,16 +945,60 @@ git commit -m "fix: wire handle_scoring_failure for review-resonance exit codes 
                 return
 ```
 
-- [ ] **Step 4: Run tests**
+- [ ] **Step 4: Write tests for escalation-review wiring**
 
-Run: `uv run pytest tests/unit/pipeline/test_chapter_loop.py tests/unit/pipeline/test_genesis.py tests/unit/pipeline/test_closure.py -v`
+```python
+# tests/unit/pipeline/test_chapter_loop.py — append
 
-Expected: ALL PASS — ensure dispatch_escalation is mockable and tests pass
+class TestEscalationWiring:
+    """Tests that escalation-review is dispatched before ESCALATION checkpoint."""
 
-- [ ] **Step 5: Commit**
+    def test_dispatch_escalation_called_before_checkpoint(self, tmp_path, monkeypatch):
+        """When retries exhausted, dispatch_escalation is called before set_checkpoint."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelineState, PipelinePhase, CheckpointType
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 5  # context-composing (non-audit, non-scoring)
+        state.chapter_loop.retry_counts = {"ch1-shenbi-context-composing": 3}
+        state.config.max_revision_retries = 3
+
+        call_order = []
+        def fake_dispatch_skill(skill, project_dir, prompt):
+            call_order.append(("dispatch", skill))
+            return type("R", (), {"success": False})()
+        def fake_dispatch_escalation(project_dir, chapter, context=""):
+            call_order.append(("escalation", chapter))
+            return True
+
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch_skill
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.revision_router.dispatch_escalation", fake_dispatch_escalation
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert ("escalation", 1) in call_order
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+```
+
+- [ ] **Step 5: Run tests to verify they pass**
+
+Run: `uv run pytest tests/unit/pipeline/test_chapter_loop.py::TestEscalationWiring -v`
+
+Expected: ALL PASS
+
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/genesis.py src/shenbi/pipeline/closure.py
+git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/genesis.py src/shenbi/pipeline/cli.py tests/unit/pipeline/test_chapter_loop.py
 git commit -m "fix: wire escalation-review dispatch before raising ESCALATION checkpoint (A4)"
 ```
 
@@ -1312,6 +1367,8 @@ git add src/shenbi/pipeline/state.py
 git commit -m "fix: add modify_feedback field to ChapterLoopStateData for MODIFY decisions (A6a)"
 ```
 
+**Note on genesis MODIFY:** Genesis checkpoint MODIFY decisions roll back the step cursor (see `elif cp_before.type == CheckpointType.GENESIS_COMPLETE` in cli.py), but feedback injection into genesis dispatch prompts is deferred to a future iteration. Genesis runs once per project with fewer iterative modifications than chapter-loop, so the impact is lower. To add genesis feedback support later, add a `modify_feedback` field to `GenesisStateData` (mirroring `ChapterLoopStateData`) and inject it into `run_genesis_step()`'s dispatch prompt.
+
 ### Task 8.2: Implement MODIFY step rollback and feedback injection
 
 **Files:**
@@ -1389,16 +1446,22 @@ Expected: FAIL — MODIFY doesn't rollback step_index or use feedback
 - [ ] **Step 3: Modify cmd_review in cli.py**
 
 ```python
-# src/shenbi/pipeline/cli.py — in cmd_review(), after clear_checkpoint call at line 516,
-# add step rollback for MODIFY decisions. Insert after the feedback reading block:
+# src/shenbi/pipeline/cli.py — in cmd_review(), at the MODIFY decision block.
+# Capture cp BEFORE clear_checkpoint (which clears it to NONE).
+# Insert after the feedback reading block, before clear_checkpoint:
+
+            # Capture checkpoint data before it's cleared
+            cp_before = state.pending_checkpoint
+
+            clear_checkpoint(state, decision)
 
             if decision == ReviewDecision.MODIFY:
                 # Roll back step cursor so resume re-dispatches the skill
-                if cp.type == CheckpointType.CHAPTER_MEMO:
+                if cp_before.type == CheckpointType.CHAPTER_MEMO:
                     state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
-                elif cp.type == CheckpointType.STATE_SETTLE:
+                elif cp_before.type == CheckpointType.STATE_SETTLE:
                     state.chapter_loop.step_index = 6  # CHAPTER_STEPS[6] = state-settling
-                elif cp.type == CheckpointType.GENESIS_COMPLETE:
+                elif cp_before.type == CheckpointType.GENESIS_COMPLETE:
                     state.genesis.current_step = max(0, state.genesis.current_step - 1)
 
                 # Store feedback for the next dispatch
@@ -1454,7 +1517,57 @@ git commit -m "fix: implement MODIFY step rollback and feedback injection (A6)"
 
 - [ ] **Step 1: Create minimal 3-chapter seed**
 
-Write a compact seed file with 3 chapter outlines based on `outline-example.md`'s first 3 chapters. Target ~1000 words per chapter. Include all required YAML sections (基本信息, 主角设定, 世界观设定, 核心冲突, 章节大纲 with 3 chapters, 三幕结构 truncated).
+```markdown
+# 金丝雀测试：3章短篇
+
+## 基本信息
+- 类型：架空历史
+- 时代背景：架空中世纪（高魔世界）
+- 核心概念：一个现代青年穿越至高魔世界，利用知识金手指在乱世中求生并觉醒的故事。
+- 目标字数：3000
+- 故事结局方向：主角找到立足之地，开始组织反抗力量。
+
+## 主角设定
+- 姓名：林烽
+- 性别：男
+- 社会背景：现代中国普通大学毕业生
+- 性格标签：幽默自嘲、实用主义、富有同情心
+- 核心价值观：实事求是
+- 表层目标：在异世界活下去
+- 金手指/特殊能力：灵能天赋（知识驱动型物质分解与塑形）
+
+## 世界观设定
+- 核心规则：
+  - 1. 灵能守恒与知识驱动：知识水平决定灵能运用上限。
+  - 2. 阶级与种姓：高魔力量被少数精英垄断。
+- 物理环境：梅德兰帝国，资源丰富但开发落后的古老帝国。
+- 社会环境：封建制度崩溃后的复辟期，阶级矛盾激化。
+
+## 核心冲突
+- 表层冲突：底层平民在系统性剥削下的生存挣扎。
+- 深层冲突：个人利己主义与群体责任的内心冲突。
+
+## 章节大纲
+### 第1章：穿越即负债
+- 摘要：林烽穿越后附身在梅德兰帝国底层青年身上，被高利贷公司追讨前身的灵能修炼贷款，初次体会异世界对底层的系统性剥削。
+- 出场角色：林烽
+- 伏笔：催收员提到的特权豁免权暗示阶层固化。
+
+### 第2章：废墟中的发现
+- 摘要：林烽在垃圾场利用灵能天赋分解废料换钱时，发现了一块刻有特殊铭文的金属片，并目睹了权贵对底层劳工的残酷对待。
+- 出场角色：林烽
+- 伏笔：金属片是前穿越者遗留物，暗示历史真相。
+
+### 第3章：不再逃避
+- 摘要：外敌空袭降临，权贵逃离而平民被封锁在外。林烽目睹工友惨死，灵能在愤怒中觉醒，决定不再逃避，带领幸存者突围。
+- 出场角色：林烽
+- 伏笔：空袭炸弹上的隐形商标暗示幕后推手。
+
+## 三幕结构
+- 开场画面：主角在异世界贫民窟醒来，为生存挣扎。
+- 第一幕·催化剂：外敌空袭，目睹工友惨死。
+- 第一幕·进入第二幕：放弃逃跑，带领残存平民突围。
+```
 
 - [ ] **Step 2: Commit**
 
@@ -1470,7 +1583,13 @@ git commit -m "test: add 3-chapter canary seed for pipeline verification"
 
 - [ ] **Step 1: Create 10-chapter seed**
 
-Expand the 3-chapter seed to 10 chapters, following the same structure. Include volume boundaries if applicable.
+Expand the 3-chapter seed to 10 chapters by adding chapters 4-10 following `outline-example.md`'s structure. Key additions:
+- Chapters 4-6: Add 组织反抗 + 根据地建设 plot development
+- Chapters 7-8: Add 第一次胜利 + 内部叛变 conflict escalation
+- Chapters 9-10: Add 重整旗鼓 + 战略反攻 climax setup
+- Add 势力/组织 section with 梅德兰帝国 and 涅普敦帝国
+- Update 目标字数 to 10000
+- Add 情节线 section with main arc
 
 - [ ] **Step 2: Commit**
 
@@ -1490,7 +1609,7 @@ just pipeline-init tests/fixtures/canary-3-chapter-seed.md /tmp/canary-3 --auto
 
 - [ ] **Step 2: Execute to completion**
 
-Repeatedly run `just pipeline-next /tmp/canary-3` until the pipeline reaches `completed` or `blocked` state. If blocked, review and approve.
+Repeatedly run `just pipeline-resume /tmp/canary-3` until the pipeline reaches `completed` or `blocked` state. If blocked, review and approve with `just pipeline-review /tmp/canary-3 approve`.
 
 - [ ] **Step 3: Verify output**
 
@@ -1511,7 +1630,7 @@ rm -rf /tmp/canary-10
 just pipeline-init tests/fixtures/canary-10-chapter-seed.md /tmp/canary-10 --auto
 ```
 
-- [ ] **Step 2: Execute to completion with `just pipeline-next`**
+- [ ] **Step 2: Execute to completion with `just pipeline-resume`**
 
 - [ ] **Step 3: Verify output and fix any failures**
 
