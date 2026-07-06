@@ -271,3 +271,21 @@ def test_g34_fail_closed_when_generator_recorded_but_no_scorer(tmp_path: Path) -
     )
     result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
     assert any("G3.4" in m for m in result.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_compute_rubric_weighted_score_returns_none_when_rubric_missing() -> None:
+    """Returns None when the rubric file does not exist."""
+    from shenbi.gates.g3 import _compute_rubric_weighted_score
+
+    assert _compute_rubric_weighted_score({}, "shenbi-nonexistent-skill") is None
+
+
+@pytest.mark.unit
+def test_compute_rubric_weighted_score_returns_none_when_no_dimensions_match() -> None:
+    """Returns None when no scored dimensions match rubric dimensions."""
+    from shenbi.gates.g3 import _compute_rubric_weighted_score
+
+    # data with non-matching keys
+    result = _compute_rubric_weighted_score({"99": 80}, "shenbi-worldbuilding")
+    assert result is None

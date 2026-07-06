@@ -258,3 +258,55 @@ def test_dispatch_routes_to_codex_api(monkeypatch: pytest.MonkeyPatch) -> None:
 
     result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
     assert result == 0
+
+
+@pytest.mark.unit
+def test_resolve_chapter_path_with_chapter() -> None:
+    """_resolve_chapter_path resolves N/NNN with chapter number."""
+    from shenbi.dispatcher.executor import _resolve_chapter_path
+
+    assert _resolve_chapter_path("chapters/chapter-N.md", 5) == "chapters/chapter-5.md"
+    assert _resolve_chapter_path("chapters/chapter-NNN.md", 5) == "chapters/chapter-005.md"
+    assert _resolve_chapter_path("no-placeholder.md", 5) == "no-placeholder.md"
+
+
+@pytest.mark.unit
+def test_resolve_chapter_path_none_sentinel() -> None:
+    """_resolve_chapter_path returns '' sentinel when chapter=None and N present."""
+    from shenbi.dispatcher.executor import _resolve_chapter_path
+
+    assert _resolve_chapter_path("chapters/chapter-N.md", None) == ""
+    assert _resolve_chapter_path("chapters/chapter-NNN.md", None) == ""
+    assert _resolve_chapter_path("no-placeholder.md", None) == "no-placeholder.md"
+
+
+@pytest.mark.unit
+def test_derive_input_files_with_chapter_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
+    """derive_input_files resolves NNN placeholders when chapter is provided."""
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-NNN-plan.md", "style/style_profile.md"],
+            "writes": [],
+            "updates": [],
+        },
+    )
+    result = derive_input_files("shenbi-x", chapter=3)
+    assert "plans/chapter-003-plan.md" in result
+    assert "style/style_profile.md" in result
+
+
+@pytest.mark.unit
+def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPatch) -> None:
+    """derive_input_files filters empty sentinels when chapter=None (genesis mode)."""
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-N-plan.md"],
+            "writes": [],
+            "updates": [],
+        },
+    )
+    assert derive_input_files("shenbi-x", chapter=None) == []
