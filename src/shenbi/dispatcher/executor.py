@@ -167,7 +167,15 @@ def _extract_chapter(prompt: str) -> int | None:
 
 
 def detect_mode() -> str:
-    """Always use internal dispatch mode (codex subprocess mode is unreliable)."""
+    """Detect available dispatch mode.
+
+    Prefers codex CLI when available (for LLM-backed skill execution),
+    falls back to internal mode for development/debugging.
+    """
+    import shutil
+
+    if shutil.which("codex"):
+        return "codex"
     return "internal"
 
 
