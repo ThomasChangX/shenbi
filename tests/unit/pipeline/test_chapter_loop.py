@@ -797,3 +797,110 @@ class TestResolveG4Files:
         files = _resolve_g4_files(tmp_path, drafting_step, chapter=3)
         assert len(files) == 1
         assert "chapter-3.md" in files[0]
+
+
+# ---------------------------------------------------------------------------
+# A5a: State-settling failure wiring — handle_state_settle_failure
+# ---------------------------------------------------------------------------
+class TestStateSettleFailureWiring:
+    """Tests that state-settling failure calls handle_state_settle_failure."""
+
+    def test_state_settle_failure_triggers_escalation(self, tmp_path, monkeypatch):
+        """State-settling dispatch failure → ESCALATION checkpoint."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 3
+        state.chapter_loop.step_index = 6  # state-settling is index 6
+
+        # Mock dispatch to fail for state-settling
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        # Should return True (checkpoint raised)
+        assert result is True
+        # Check chapter status is settling_failed
+        cs = state.chapter_loop.chapter_states.get("3")
+        assert cs is not None
+        assert cs.status == "settling_failed"
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+
+
+# ---------------------------------------------------------------------------
+# A5b: Scoring failure wiring — handle_scoring_failure for review-resonance
+# ---------------------------------------------------------------------------
+class TestScoringFailureWiring:
+    """Tests review-resonance exit code handling."""
+
+    def test_exit_code_2_triggers_redispatch(self, tmp_path, monkeypatch):
+        """review-resonance returncode=2 → handle_scoring_failure returns True → retry."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16  # review-resonance is index 16
+
+        called = []
+
+        def fake_scoring_failure(s, exit_code):
+            called.append(exit_code)
+            return True  # should retry
+
+        monkeypatch.setattr(
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False, "returncode": 2})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        assert len(called) == 1
+        assert called[0] == 2
+        # Should return False (retry, step_index unchanged)
+        assert result is False
+        assert state.chapter_loop.step_index == 16  # not advanced
+
+    def test_exit_code_3_also_retries(self, tmp_path, monkeypatch):
+        """review-resonance returncode=3 → handle_scoring_failure returns True → retry."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16
+
+        def fake_scoring_failure(s, exit_code):
+            return True
+
+        monkeypatch.setattr(
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False, "returncode": 3})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        assert result is False
+        assert state.chapter_loop.step_index == 16  # not advanced

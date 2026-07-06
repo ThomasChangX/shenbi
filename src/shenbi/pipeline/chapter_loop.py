@@ -636,6 +636,32 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # Dispatch the skill.
     result = dispatch_skill(step.skill, project_dir, prompt)
+
+    # State-settling failure: mark settling_failed and pause (spec §11).
+    if not result.success and "state-settling" in step.skill:
+        from shenbi.pipeline.error_handler import handle_state_settle_failure
+
+        handle_state_settle_failure(state, chapter)
+        log.error(
+            "chapter_state_settle_failed",
+            chapter=chapter,
+            step=step.step_num,
+        )
+        return True  # checkpoint raised, pause for human
+
+    # Scoring failure (review-resonance): exit code 2/3 need special handling.
+    if not result.success and "review-resonance" in step.skill:
+        from shenbi.pipeline.error_handler import handle_scoring_failure
+
+        if handle_scoring_failure(state, result.returncode):
+            log.warning(
+                "scoring_failure_retry",
+                chapter=chapter,
+                exit_code=result.returncode,
+            )
+            return False  # retry this step, don't advance step_index
+        return _handle_failure(state, step, chapter, "scoring")
+
     if not result.success:
         log.error(
             "chapter_dispatch_failed",
