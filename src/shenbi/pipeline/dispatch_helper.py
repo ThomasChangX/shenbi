@@ -277,9 +277,11 @@ def _dispatch_via_ide(
     # Parse multi-file response and write outputs
     parsed = _parse_file_outputs(r.stdout)
     written = []
+    needs_truth_templates = False
     for rel_path in output_paths:
         if "*" in rel_path:
-            continue  # skip glob patterns
+            needs_truth_templates = True
+            continue
         content = parsed.get(rel_path, parsed.get("__stdout__", ""))
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
@@ -291,7 +293,28 @@ def _dispatch_via_ide(
         log.error("ide_no_outputs_written", skill=skill)
         return DispatchResult(False, -1, "", "No output files written")
 
+    # Create truth templates if the contract declares truth/* glob patterns
+    if needs_truth_templates:
+        _init_truth_templates(project_dir)
+
     return DispatchResult(True, 0, r.stdout, r.stderr)
+
+
+def _init_truth_templates(project_dir: Path) -> None:
+    """Create minimal truth template files with required YAML frontmatter."""
+    truth_dir = project_dir / "truth"
+    truth_dir.mkdir(parents=True, exist_ok=True)
+    templates = {
+        "current_state.md": "type: current_state\ncategory: truth\nstatus: initialized\n---\n# Current State\n",
+        "character_matrix.md": "type: character_matrix\ncategory: truth\nstatus: initialized\n---\n# Character Matrix\n",
+        "emotional_arcs.md": "type: emotional_arcs\ncategory: truth\nstatus: initialized\n---\n# Emotional Arcs\n",
+        "chapter_summaries.md": "type: chapter_summaries\ncategory: truth\nstatus: initialized\n---\n# Chapter Summaries\n",
+    }
+    for filename, content in templates.items():
+        tp = truth_dir / filename
+        if not tp.exists():
+            safe_write(tp, f"---\n{content}")
+            log.info("truth_template_created", path=str(tp))
 
 
 def _dispatch_via_api(
