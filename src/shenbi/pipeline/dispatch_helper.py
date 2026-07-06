@@ -160,7 +160,14 @@ def _build_skill_prompt(
         output_paths.append(_resolve_path(update_path, chapter))
 
     # Build user prompt with file output instructions
-    user_parts = [f"## Task\n{prompt}"]
+    user_parts = [
+        "## PIPELINE MODE — AUTONOMOUS EXECUTION",
+        "You are running inside an automated pipeline. Do NOT ask questions.",
+        "Generate all content directly using the input files provided below.",
+        "Do not wait for human confirmation. Produce complete output immediately.",
+        "",
+        f"## Task\n{prompt}",
+    ]
     user_parts.append("\n## Output Files You MUST Create")
     user_parts.append("Write your response in this format. For EACH file, include a marker and the content:")
     user_parts.append("```")
