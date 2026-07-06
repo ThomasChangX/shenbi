@@ -84,10 +84,17 @@ OPTIONAL_READS: dict[str, list[str]] = {
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 
 #: CLI commands to try for IDE-based dispatch (checked in order).
-_IDE_CLI_COMMANDS = [
-    "codex exec -C {dir} {prompt}",
-    "zcode exec --cwd {dir} {prompt}",
-]
+def _find_ide_cli() -> list[str] | None:
+    """Return the command parts for the first available IDE CLI, or None.
+    
+    Prompt is fed via stdin, so the command ends with ``-``.
+    """
+    import shutil
+    
+    for cli_name in ("codex", "zcode"):
+        if shutil.which(cli_name):
+            return [cli_name, "exec", "-C", "{dir}", "-"]
+    return None
 
 
 def _extract_chapter(prompt: str) -> int | None:
@@ -175,15 +182,6 @@ def _write_outputs(output_text: str, output_paths: list[str], project_dir: Path)
         log.info("output_written", path=rel_path, size=len(output_text))
 
 
-def _find_ide_cli() -> str | None:
-    """Return the first available IDE CLI command template, or None."""
-    for cmd_template in _IDE_CLI_COMMANDS:
-        cli_name = cmd_template.split()[0]
-        if shutil.which(cli_name):
-            return cmd_template
-    return None
-
-
 def _dispatch_via_ide(
     skill: str,
     project_dir: Path,
@@ -202,18 +200,18 @@ def _dispatch_via_ide(
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
 
-    cli_template = _find_ide_cli()
-    if not cli_template:
+    cli_parts = _find_ide_cli()
+    if not cli_parts:
         log.error("ide_no_cli_found")
         return DispatchResult(False, -1, "", "No IDE CLI (codex/zcode) found on PATH")
 
-    full_prompt = f"{system_prompt}\n\n---\n\n{user_prompt}"
-    cmd_str = cli_template.format(dir=str(project_dir), prompt=full_prompt)
-    cmd_parts = cmd_str.split()
+    full_prompt = f"{system_prompt}\n\n{user_prompt}"
+    # Replace {dir} placeholder in command parts
+    cmd = [p.replace("{dir}", str(project_dir)) for p in cli_parts]
 
-    log.info("ide_dispatch_start", skill=skill, cmd=cmd_parts[0], chapter=chapter)
+    log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
     try:
-        r = subprocess.run(cmd_parts, capture_output=True, text=True, timeout=600)
+        r = subprocess.run(cmd, input=full_prompt, capture_output=True, text=True, timeout=600)
     except subprocess.TimeoutExpired:
         log.error("ide_timeout", skill=skill)
         return DispatchResult(False, -1, "", "IDE agent timed out after 600s")
