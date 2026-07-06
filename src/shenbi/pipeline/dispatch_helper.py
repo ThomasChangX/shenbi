@@ -168,14 +168,21 @@ def _build_skill_prompt(
         "",
         f"## Task\n{prompt}",
     ]
-    user_parts.append("\n## Output Files You MUST Create")
-    user_parts.append("Write your response in this format. For EACH file, include a marker and the content:")
+    user_parts.append("\n## Output Format (CRITICAL — follow exactly)")
+    user_parts.append("You MUST output each file using this EXACT format with NO extra text before or after:")
     user_parts.append("```")
     user_parts.append("### FILE: path/to/file1.md")
-    user_parts.append("[content of file1]")
+    user_parts.append("[Put the complete file content here. No markdown wrappers.]")
     user_parts.append("### FILE: path/to/file2.json")
-    user_parts.append("[content of file2]")
+    user_parts.append("[Put the complete file content here. No markdown wrappers.]")
     user_parts.append("```")
+    user_parts.append("Rules:")
+    user_parts.append("- Use ### FILE: markers EXACTLY as shown")
+    user_parts.append("- File content starts on the line AFTER the marker")
+    user_parts.append("- Do NOT wrap content in ```markdown or ```json fences")
+    user_parts.append("- Do NOT add any text before the first ### FILE: marker")
+    user_parts.append("- Do NOT add any text after the last file's content")
+    user_parts.append("")
     user_parts.append("Files to create:")
     for p in output_paths:
         if "*" not in p:  # skip glob patterns like "truth/*.md"
@@ -211,7 +218,14 @@ def _parse_file_outputs(response: str) -> dict[str, str]:
     matches = re.findall(pattern, response, re.DOTALL)
     
     if matches:
-        return {path.strip(): content.strip() for path, content in matches}
+        result = {}
+        for path, content in matches:
+            content = content.strip()
+            # Strip leading/trailing code fences
+            content = re.sub(r"^```[\w]*\s*\n", "", content)
+            content = re.sub(r"\n```\s*$", "", content)
+            result[path.strip()] = content.strip()
+        return result
     
     # No markers found: return full response as stdout only
     return {"__stdout__": response}
