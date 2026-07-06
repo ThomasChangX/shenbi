@@ -93,7 +93,7 @@ def _find_ide_cli() -> list[str] | None:
     
     for cli_name in ("codex", "zcode"):
         if shutil.which(cli_name):
-            return [cli_name, "exec", "-C", "{dir}", "-"]
+            return [cli_name, "exec", "--skip-git-repo-check", "-C", "{dir}", "-"]
     return None
 
 
