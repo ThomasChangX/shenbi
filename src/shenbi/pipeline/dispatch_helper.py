@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -82,6 +83,12 @@ OPTIONAL_READS: dict[str, list[str]] = {
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 
+#: CLI commands to try for IDE-based dispatch (checked in order).
+_IDE_CLI_COMMANDS = [
+    "codex exec -C {dir} {prompt}",
+    "zcode exec --cwd {dir} {prompt}",
+]
+
 
 def _extract_chapter(prompt: str) -> int | None:
     """Extract chapter number from a pipeline prompt like '... for chapter 5.'."""
@@ -96,45 +103,36 @@ def _resolve_path(path: str, chapter: int | None) -> str:
     return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
 
 
-def _dispatch_via_api(
+def _build_skill_prompt(
     skill: str,
     project_dir: Path,
     prompt: str,
-) -> DispatchResult:
-    """Execute a skill via OpenAI-compatible API.
+    chapter: int | None,
+) -> tuple[str, str, list[str]]:
+    """Build a complete execution prompt for a skill.
 
-    Reads the skill's SKILL.md as system instructions, loads input files
-    declared in the contract, sends everything to the configured LLM, and
-    writes the response to the contract's declared output paths.
-
-    Configure via environment variables:
-    - ``SHENBI_LLM_API_KEY`` (required)
-    - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
-    - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
+    Returns (system_prompt, user_prompt, output_paths) where:
+    - system_prompt: SKILL.md content
+    - user_prompt: task description + input file contents
+    - output_paths: resolved contract writable paths the agent must produce
     """
-    from openai import OpenAI  # type: ignore[import-untyped]
-
     from shenbi.contracts.legacy import ContractError, load_contract
 
-    project_dir = Path(project_dir)
-    chapter = _extract_chapter(prompt)
-
-    # 1. Load skill contract
     try:
         contract = load_contract(skill)
     except ContractError as exc:
-        log.error("api_contract_load_failed", skill=skill, error=str(exc))
-        return DispatchResult(False, -1, "", f"Contract load failed: {exc}")
+        log.error("contract_load_failed", skill=skill, error=str(exc))
+        raise
 
-    # 2. Read SKILL.md as system prompt
+    # System prompt = SKILL.md
     skill_file = Path("skills") / skill / "SKILL.md"
     if skill_file.exists():
         system_prompt = skill_file.read_text(encoding="utf-8")
     else:
-        log.warning("api_skill_file_missing", skill=skill, path=str(skill_file))
+        log.warning("skill_file_missing", skill=skill, path=str(skill_file))
         system_prompt = f"Execute the {skill} skill."
 
-    # 3. Read contract input files
+    # Read contract inputs
     input_texts: dict[str, str] = {}
     for read_path in contract.get("reads", []):
         resolved = _resolve_path(read_path, chapter)
@@ -147,15 +145,119 @@ def _dispatch_via_api(
         else:
             input_texts[resolved] = f"[file not found: {resolved}]"
 
-    # 4. Build user prompt
+    # Collect output paths
+    output_paths: list[str] = []
+    for write_path in contract.get("writes", []):
+        output_paths.append(_resolve_path(write_path, chapter))
+    for update_path in contract.get("updates", []):
+        output_paths.append(_resolve_path(update_path, chapter))
+
+    # Build user prompt
     user_parts = [f"## Task\n{prompt}"]
+    user_parts.append(f"\n## Output Files You Must Create\n")
+    for p in output_paths:
+        user_parts.append(f"- {p}")
     if input_texts:
-        user_parts.append("## Input Files")
+        user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():
             user_parts.append(f"### {fname}\n```\n{content[:8000]}\n```")
     user_prompt = "\n\n".join(user_parts)
 
-    # 5. Call LLM
+    return system_prompt, user_prompt, output_paths
+
+
+def _write_outputs(output_text: str, output_paths: list[str], project_dir: Path) -> None:
+    """Write the LLM response to each declared output path."""
+    for rel_path in output_paths:
+        full_path = project_dir / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(full_path, output_text)
+        log.info("output_written", path=rel_path, size=len(output_text))
+
+
+def _find_ide_cli() -> str | None:
+    """Return the first available IDE CLI command template, or None."""
+    for cmd_template in _IDE_CLI_COMMANDS:
+        cli_name = cmd_template.split()[0]
+        if shutil.which(cli_name):
+            return cmd_template
+    return None
+
+
+def _dispatch_via_ide(
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+) -> DispatchResult:
+    """Execute a skill via an IDE agent CLI (codex / zcode).
+
+    Builds a complete prompt with SKILL.md instructions and input files,
+    then spawns the IDE agent to execute the skill and produce output files.
+    """
+    chapter = _extract_chapter(prompt)
+    try:
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            skill, project_dir, prompt, chapter
+        )
+    except Exception as exc:
+        return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
+
+    cli_template = _find_ide_cli()
+    if not cli_template:
+        log.error("ide_no_cli_found")
+        return DispatchResult(False, -1, "", "No IDE CLI (codex/zcode) found on PATH")
+
+    full_prompt = f"{system_prompt}\n\n---\n\n{user_prompt}"
+    cmd_str = cli_template.format(dir=str(project_dir), prompt=full_prompt)
+    cmd_parts = cmd_str.split()
+
+    log.info("ide_dispatch_start", skill=skill, cmd=cmd_parts[0], chapter=chapter)
+    try:
+        r = subprocess.run(cmd_parts, capture_output=True, text=True, timeout=600)
+    except subprocess.TimeoutExpired:
+        log.error("ide_timeout", skill=skill)
+        return DispatchResult(False, -1, "", "IDE agent timed out after 600s")
+    except FileNotFoundError:
+        log.error("ide_cli_not_found", cmd=cmd_parts[0])
+        return DispatchResult(False, -1, "", f"IDE CLI not found: {cmd_parts[0]}")
+
+    if r.returncode != 0:
+        log.error("ide_failed", skill=skill, rc=r.returncode, stderr=r.stderr[:500])
+        return DispatchResult(False, r.returncode, r.stdout, r.stderr)
+
+    log.info("ide_dispatch_complete", skill=skill)
+
+    # Verify output files exist; write agent output if missing
+    for rel_path in output_paths:
+        full_path = project_dir / rel_path
+        if not full_path.exists():
+            _write_outputs(r.stdout, [rel_path], project_dir)
+
+    return DispatchResult(True, 0, r.stdout, r.stderr)
+
+
+def _dispatch_via_api(
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+) -> DispatchResult:
+    """Execute a skill via OpenAI-compatible API.
+
+    Configure via environment variables:
+    - ``SHENBI_LLM_API_KEY`` (required)
+    - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
+    - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
+    """
+    from openai import OpenAI  # type: ignore[import-untyped]
+
+    chapter = _extract_chapter(prompt)
+    try:
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            skill, project_dir, prompt, chapter
+        )
+    except Exception as exc:
+        return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
+
     client = OpenAI(
         api_key=os.environ[_ENV_LLM_API_KEY],
         base_url=os.environ.get(_ENV_LLM_BASE_URL, _DEFAULT_BASE_URL),
@@ -178,26 +280,9 @@ def _dispatch_via_api(
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
     output_text = response.choices[0].message.content or ""
-    log.info(
-        "api_dispatch_complete",
-        skill=skill,
-        output_length=len(output_text),
-        model=model,
-    )
+    log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
 
-    # 6. Write contract output files
-    for write_path in contract.get("writes", []):
-        resolved = _resolve_path(write_path, chapter)
-        full_path = project_dir / resolved
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        safe_write(full_path, output_text)
-
-    for update_path in contract.get("updates", []):
-        resolved = _resolve_path(update_path, chapter)
-        full_path = project_dir / resolved
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        safe_write(full_path, output_text)
-
+    _write_outputs(output_text, output_paths, project_dir)
     return DispatchResult(True, 0, output_text, "")
 
 
@@ -212,15 +297,22 @@ def dispatch_skill(
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
-    When ``SHENBI_LLM_API_KEY`` is set, dispatches via OpenAI-compatible API
-    (reading skill contracts and calling the LLM directly). Otherwise falls
-    back to the ``shenbi-dispatch`` CLI subprocess (IDE agent mode).
+    Routing (tried in order):
+    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (DeepSeek, MiniMax, etc.)
+    2. IDE CLI available (codex / zcode) → spawn agent subprocess
+    3. Fallback → ``shenbi-dispatch`` CLI subprocess (T1 testing / legacy)
     """
-    # API path: use OpenAI-compatible SDK directly
-    if os.environ.get(_ENV_LLM_API_KEY):
-        return _dispatch_via_api(skill, Path(project_dir), prompt)
+    pd = Path(project_dir)
 
-    # CLI path: existing subprocess dispatch (unchanged)
+    # API path
+    if os.environ.get(_ENV_LLM_API_KEY):
+        return _dispatch_via_api(skill, pd, prompt)
+
+    # IDE path
+    if _find_ide_cli():
+        return _dispatch_via_ide(skill, pd, prompt)
+
+    # Legacy CLI subprocess path
     patterns = list(skip_reads or [])
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
