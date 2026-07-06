@@ -948,3 +948,43 @@ class TestEscalationWiring:
         run_chapter_step(state, tmp_path)
         assert ("escalation", 1) in call_order
         assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+
+
+# ---------------------------------------------------------------------------
+# Resonance Score Parser (A2)
+# ---------------------------------------------------------------------------
+class TestResonanceScoreParser:
+    """Tests _parse_resonance_score from audit reports."""
+
+    def test_parses_yaml_frontmatter(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("---\nresonance_score: 87\n---\n# Report\n...")
+        assert _parse_resonance_score(report) == 87
+
+    def test_parses_bold_label(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("# Review\n\n**Resonance Score**: 92\n\nDetails...")
+        assert _parse_resonance_score(report) == 92
+
+    def test_parses_plain_label(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("Score: 75")
+        assert _parse_resonance_score(report) == 75
+
+    def test_missing_file_returns_none(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        assert _parse_resonance_score(tmp_path / "nonexistent.md") is None
+
+    def test_no_score_found_returns_none(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("# No score here\n\nJust text.")
+        assert _parse_resonance_score(report) is None

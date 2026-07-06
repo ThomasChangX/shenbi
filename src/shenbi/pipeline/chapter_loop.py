@@ -30,6 +30,7 @@ The orchestrator is stateless itself: it mutates the passed-in
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -534,6 +535,45 @@ def _count_triggered_hooks(text: str) -> int:
     return text.count("state: TRIGGERED")
 
 
+def _parse_resonance_score(report_path: Path) -> int | None:
+    """Extract resonance score from a review-resonance audit report.
+
+    Attempts three patterns in order:
+    1. YAML frontmatter ``resonance_score: 87``
+    2. Markdown bold ``**Resonance Score**: 92``
+    3. Plain ``Score: 75`` or ``resonance_score: 75``
+    """
+    if not report_path.exists():
+        return None
+    text = report_path.read_text(encoding="utf-8")
+
+    # Pattern 1: YAML frontmatter
+    if text.startswith("---"):
+        import yaml
+
+        parts = text.split("---", 2)
+        if len(parts) >= 3:
+            try:
+                fm = yaml.safe_load(parts[1]) or {}
+                score = fm.get("resonance_score")
+                if isinstance(score, int):
+                    return score
+            except Exception:
+                pass
+
+    # Pattern 2: Markdown bold label (case-insensitive)
+    m = re.search(r"\*\*Resonance\s*Score\*\*:\s*(\d+)", text, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+
+    # Pattern 3: Plain "Score: N" or "resonance_score: N"
+    m = re.search(r"(?:Score|resonance_score)\s*:\s*(\d+)", text, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Revision routing helpers (spec §6.3, W3T5)
 # ---------------------------------------------------------------------------
@@ -760,8 +800,18 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             if not rev.success:
                 return _handle_failure(state, step, chapter, "audit-revision", project_dir)
 
-    # After review-resonance: revision routing would run here (W3T5).
+    # After review-resonance: parse score and run revision routing.
     if "review-resonance" in step.skill:
+        # Parse resonance score from the audit report
+        cs = _get_chapter_state(state, chapter)
+        report_path = project_dir / _substitute_chapter("audits/chapter-N-resonance.md", chapter)
+        cs.resonance_score = _parse_resonance_score(report_path)
+        log.info(
+            "resonance_score_parsed",
+            chapter=chapter,
+            score=cs.resonance_score,
+        )
+
         _route_revision_after_resonance(state, project_dir, chapter)
 
     # Success: record, reset retries, advance.
