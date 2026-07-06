@@ -4,6 +4,11 @@ Reuses the existing ``dispatch_with_write_audit`` (write-overreach detection)
 via the dispatcher CLI rather than bypassing it. The dispatcher runs G1 (input
 readiness) and G2 (output structure) internally; this module adds G3 (scoring
 independence) and G4 (skill-specific structure) on top.
+
+Dispatch routing (tried in order):
+1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (DeepSeek, MiniMax, etc.)
+2. IDE CLI available (codex / zcode) → spawn agent subprocess via stdin
+3. Fallback → ``shenbi-dispatch`` CLI subprocess (T1 testing / legacy)
 """
 
 from __future__ import annotations
@@ -17,7 +22,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
 from uuid import uuid4
 
 from shenbi.logging import get_logger
@@ -26,14 +30,19 @@ from shenbi.status import GateStatus
 
 log = get_logger(__name__)
 
-#: Environment variable name for the LLM API key.
-# When set, dispatch_skill() routes through the OpenAI-compatible API path
-# instead of the CLI subprocess path.
+#: Environment variable names
 _ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"
 _ENV_LLM_BASE_URL = "SHENBI_LLM_BASE_URL"
 _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
+
+#: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.openai.com/v1"
-_DEFAULT_MODEL = "gpt-4o"
+_DEFAULT_MODEL = "gpt-4o"            # fallback when SHENBI_LLM_MODEL not set
+_IDE_AGENT_TIMEOUT = 600             # seconds for IDE agent subprocess
+_API_MAX_TOKENS = 16384             # max tokens per API call
+_API_TEMPERATURE = 0.7              # default temperature for API calls
+_INPUT_TRUNCATE_CHARS = 8000        # max chars per input file in prompt
+_AUDIT_HARD_CAP = 100               # safety cap for audit revision loop
 
 
 @dataclass
@@ -47,11 +56,7 @@ class DispatchResult:
 
 
 def requires_independent(skill: str) -> bool:
-    """Whether a skill requires an independent agent (G3 enforcement).
-
-    Reads the top-level ``requires_independent_agent`` frontmatter flag via the
-    contract layer. Returns False on any error (missing skill, bad YAML, etc.).
-    """
+    """Whether a skill requires an independent agent (G3 enforcement)."""
     from shenbi.contracts import requires_independent_agent
 
     try:
@@ -62,12 +67,9 @@ def requires_independent(skill: str) -> bool:
 
 
 #: Skills and their reads that are optional (produced late, missing in ramp-up).
-# These paths are excluded from G1 input validation so early chapters don't
-# fail G1 on files that later chapters will produce.
 OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
-    # Chapter plans don't exist during GENESIS mode (spec §5.2)
     "shenbi-foreshadowing-plant": ["chapter-*-plan.md"],
     "shenbi-foreshadowing-track": ["chapter-*-plan.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
@@ -83,31 +85,30 @@ OPTIONAL_READS: dict[str, list[str]] = {
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 
-#: CLI commands to try for IDE-based dispatch (checked in order).
-def _find_ide_cli() -> list[str] | None:
-    """Return the command parts for the first available IDE CLI, or None.
-    
-    Prompt is fed via stdin, so the command ends with ``-``.
-    """
-    import shutil
-    
-    for cli_name in ("codex", "zcode"):
-        if shutil.which(cli_name):
-            return [cli_name, "exec", "--skip-git-repo-check", "-c", "sandbox_permissions=workspace-write", "-C", "{dir}", "-"]
-    return None
+
+# ---------------------------------------------------------------------------
+# Prompt building
+# ---------------------------------------------------------------------------
 
 
 def _extract_chapter(prompt: str) -> int | None:
-    """Extract chapter number from a pipeline prompt like '... for chapter 5.'."""
+    """Extract chapter number from a pipeline prompt like '... for chapter 5.'"""
     m = re.search(r"chapter\s+(\d+)", prompt, re.IGNORECASE)
     return int(m.group(1)) if m else None
 
 
 def _resolve_path(path: str, chapter: int | None) -> str:
-    """Replace N / NNN placeholders with chapter number; return as-is if chapter is None."""
+    """Replace N / NNN placeholders with chapter number.
+
+    Uses bounded replacement: ``NNN`` → zero-padded chapter, then ``-N``
+    (preceded by hyphen/slash) → chapter number. Paths without chapter
+    context are returned as-is.
+    """
     if chapter is None:
         return path
-    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
+    result = path.replace("NNN", f"{chapter:03d}")
+    result = re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
+    return result
 
 
 def _build_skill_prompt(
@@ -120,8 +121,8 @@ def _build_skill_prompt(
 
     Returns (system_prompt, user_prompt, output_paths) where:
     - system_prompt: SKILL.md content
-    - user_prompt: task description + input file contents
-    - output_paths: resolved contract writable paths the agent must produce
+    - user_prompt: task description + input file contents + output format
+    - output_paths: resolved contract writable paths
     """
     from shenbi.contracts.legacy import ContractError, load_contract
 
@@ -146,7 +147,14 @@ def _build_skill_prompt(
         full_path = project_dir / resolved
         if full_path.exists():
             try:
-                input_texts[resolved] = full_path.read_text(encoding="utf-8")
+                content = full_path.read_text(encoding="utf-8")
+                if len(content) > _INPUT_TRUNCATE_CHARS:
+                    log.warning(
+                        "input_truncated", skill=skill, path=resolved,
+                        original=len(content), truncated=_INPUT_TRUNCATE_CHARS,
+                    )
+                    content = content[:_INPUT_TRUNCATE_CHARS]
+                input_texts[resolved] = content
             except Exception:
                 input_texts[resolved] = f"[binary or unreadable: {resolved}]"
         else:
@@ -159,7 +167,7 @@ def _build_skill_prompt(
     for update_path in contract.get("updates", []):
         output_paths.append(_resolve_path(update_path, chapter))
 
-    # Build user prompt with file output instructions
+    # Build user prompt
     user_parts = [
         "## PIPELINE MODE — AUTONOMOUS EXECUTION",
         "You are running inside an automated pipeline. Do NOT ask questions.",
@@ -167,137 +175,93 @@ def _build_skill_prompt(
         "Do not wait for human confirmation. Produce complete output immediately.",
         "",
         f"## Task\n{prompt}",
+        "",
+        "## Output Format (CRITICAL — follow exactly)",
+        "Output each file using this EXACT format with NO extra text:",
+        "```",
+        "### FILE: path/to/file1.md",
+        "[complete file content — no markdown wrappers]",
+        "### FILE: path/to/file2.json",
+        "[complete file content — no markdown wrappers]",
+        "```",
+        "Rules:",
+        "- Use ### FILE: markers EXACTLY as shown above",
+        "- File content starts on the line AFTER the marker",
+        "- Do NOT wrap content in ``` fences",
+        "- Do NOT add text before the first ### FILE: marker",
+        "- Do NOT add text after the last file's content",
+        "",
+        "Files to create:",
     ]
-    user_parts.append("\n## Output Format (CRITICAL — follow exactly)")
-    user_parts.append("You MUST output each file using this EXACT format with NO extra text before or after:")
-    user_parts.append("```")
-    user_parts.append("### FILE: path/to/file1.md")
-    user_parts.append("[Put the complete file content here. No markdown wrappers.]")
-    user_parts.append("### FILE: path/to/file2.json")
-    user_parts.append("[Put the complete file content here. No markdown wrappers.]")
-    user_parts.append("```")
-    user_parts.append("Rules:")
-    user_parts.append("- Use ### FILE: markers EXACTLY as shown")
-    user_parts.append("- File content starts on the line AFTER the marker")
-    user_parts.append("- Do NOT wrap content in ```markdown or ```json fences")
-    user_parts.append("- Do NOT add any text before the first ### FILE: marker")
-    user_parts.append("- Do NOT add any text after the last file's content")
-    user_parts.append("")
-    user_parts.append("Files to create:")
     for p in output_paths:
-        if "*" not in p:  # skip glob patterns like "truth/*.md"
+        if "*" not in p:
             user_parts.append(f"- {p}")
     if input_texts:
         user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():
-            user_parts.append(f"### {fname}\n```\n{content[:8000]}\n```")
-    user_prompt = "\n\n".join(user_parts)
+            user_parts.append(f"### {fname}\n```\n{content}\n```")
+    user_prompt = "\n".join(user_parts)
 
     return system_prompt, user_prompt, output_paths
 
 
-def _write_outputs(output_text: str, output_paths: list[str], project_dir: Path) -> None:
-    """Write the LLM response to each declared output path."""
-    for rel_path in output_paths:
-        full_path = project_dir / rel_path
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        safe_write(full_path, output_text)
-        log.info("output_written", path=rel_path, size=len(output_text))
+# ---------------------------------------------------------------------------
+# Output parsing and writing
+# ---------------------------------------------------------------------------
 
 
 def _parse_file_outputs(response: str) -> dict[str, str]:
     """Parse a multi-file response into {filepath: content} dict.
-    
+
     Expects markers like ``### FILE: path/to/file.md`` followed by content.
-    Falls back to returning the full response under ``__stdout__`` if no markers found.
+    Strips leading/trailing ``` fences from content if present.
+    Falls back to returning the full response under ``__stdout__``.
     """
-    import re
-    
-    # Match "### FILE: path/to/file" followed by content until next marker or EOF
     pattern = r"###\s*FILE:\s*(\S+)\s*\n(.*?)(?=###\s*FILE:|\Z)"
     matches = re.findall(pattern, response, re.DOTALL)
-    
+
     if matches:
-        result = {}
+        result: dict[str, str] = {}
         for path, content in matches:
             content = content.strip()
-            # Strip leading/trailing code fences
             content = re.sub(r"^```[\w]*\s*\n", "", content)
             content = re.sub(r"\n```\s*$", "", content)
             result[path.strip()] = content.strip()
         return result
-    
-    # No markers found: return full response as stdout only
+
     return {"__stdout__": response}
 
 
-def _dispatch_via_ide(
-    skill: str,
+def _write_parsed_outputs(
+    response: str,
+    output_paths: list[str],
     project_dir: Path,
-    prompt: str,
-) -> DispatchResult:
-    """Execute a skill via an IDE agent CLI (codex / zcode).
+    create_truth_templates: bool = False,
+) -> list[str]:
+    """Parse agent response and write per-file content.
 
-    Builds a complete prompt with SKILL.md instructions and input files,
-    then spawns the IDE agent to execute the skill and produce output files.
+    Returns list of successfully written paths.
     """
-    chapter = _extract_chapter(prompt)
-    try:
-        system_prompt, user_prompt, output_paths = _build_skill_prompt(
-            skill, project_dir, prompt, chapter
-        )
-    except Exception as exc:
-        return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
+    parsed = _parse_file_outputs(response)
+    written: list[str] = []
 
-    cli_parts = _find_ide_cli()
-    if not cli_parts:
-        log.error("ide_no_cli_found")
-        return DispatchResult(False, -1, "", "No IDE CLI (codex/zcode) found on PATH")
-
-    full_prompt = f"{system_prompt}\n\n{user_prompt}"
-    # Replace {dir} placeholder in command parts
-    cmd = [p.replace("{dir}", str(project_dir)) for p in cli_parts]
-
-    log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
-    try:
-        r = subprocess.run(cmd, input=full_prompt, capture_output=True, text=True, timeout=600)
-    except subprocess.TimeoutExpired:
-        log.error("ide_timeout", skill=skill)
-        return DispatchResult(False, -1, "", "IDE agent timed out after 600s")
-    except FileNotFoundError:
-        log.error("ide_cli_not_found", cmd=cmd_parts[0])
-        return DispatchResult(False, -1, "", f"IDE CLI not found: {cmd_parts[0]}")
-
-    if r.returncode != 0:
-        log.error("ide_failed", skill=skill, rc=r.returncode, stderr=r.stderr[:500])
-        return DispatchResult(False, r.returncode, r.stdout, r.stderr)
-
-    log.info("ide_dispatch_complete", skill=skill)
-
-    # Parse multi-file response and write outputs
-    parsed = _parse_file_outputs(r.stdout)
-    written = []
-    needs_truth_templates = False
     for rel_path in output_paths:
         if "*" in rel_path:
-            needs_truth_templates = True
             continue
         content = parsed.get(rel_path, parsed.get("__stdout__", ""))
+        if not content.strip():
+            log.warning("output_empty", path=rel_path)
+            continue
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
         safe_write(full_path, content)
         written.append(rel_path)
         log.info("output_written", path=rel_path, size=len(content))
 
-    if not written:
-        log.error("ide_no_outputs_written", skill=skill)
-        return DispatchResult(False, -1, "", "No output files written")
-
-    # Create truth templates if the contract declares truth/* glob patterns
-    if needs_truth_templates:
+    if create_truth_templates and any("*" in p for p in output_paths):
         _init_truth_templates(project_dir)
 
-    return DispatchResult(True, 0, r.stdout, r.stderr)
+    return written
 
 
 def _init_truth_templates(project_dir: Path) -> None:
@@ -305,16 +269,33 @@ def _init_truth_templates(project_dir: Path) -> None:
     truth_dir = project_dir / "truth"
     truth_dir.mkdir(parents=True, exist_ok=True)
     templates = {
-        "current_state.md": "type: current_state\ncategory: truth\nstatus: initialized\n---\n# Current State\n",
-        "character_matrix.md": "type: character_matrix\ncategory: truth\nstatus: initialized\n---\n# Character Matrix\n",
-        "emotional_arcs.md": "type: emotional_arcs\ncategory: truth\nstatus: initialized\n---\n# Emotional Arcs\n",
-        "chapter_summaries.md": "type: chapter_summaries\ncategory: truth\nstatus: initialized\n---\n# Chapter Summaries\n",
+        "current_state.md": (
+            "type: current_state\ncategory: truth\nstatus: initialized\n"
+            "---\n# Current State\n"
+        ),
+        "character_matrix.md": (
+            "type: character_matrix\ncategory: truth\nstatus: initialized\n"
+            "---\n# Character Matrix\n"
+        ),
+        "emotional_arcs.md": (
+            "type: emotional_arcs\ncategory: truth\nstatus: initialized\n"
+            "---\n# Emotional Arcs\n"
+        ),
+        "chapter_summaries.md": (
+            "type: chapter_summaries\ncategory: truth\nstatus: initialized\n"
+            "---\n# Chapter Summaries\n"
+        ),
     }
     for filename, content in templates.items():
         tp = truth_dir / filename
         if not tp.exists():
             safe_write(tp, f"---\n{content}")
             log.info("truth_template_created", path=str(tp))
+
+
+# ---------------------------------------------------------------------------
+# Dispatch paths
+# ---------------------------------------------------------------------------
 
 
 def _dispatch_via_api(
@@ -353,18 +334,104 @@ def _dispatch_via_api(
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperature=0.7,
-            max_tokens=16384,
+            temperature=_API_TEMPERATURE,
+            max_tokens=_API_MAX_TOKENS,
         )
     except Exception as exc:
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
     output_text = response.choices[0].message.content or ""
-    log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
+    log.info("api_dispatch_complete", skill=skill,
+             output_length=len(output_text), model=model)
 
-    _write_outputs(output_text, output_paths, project_dir)
+    written = _write_parsed_outputs(output_text, output_paths, project_dir,
+                                    create_truth_templates=True)
+    if not written:
+        return DispatchResult(False, -1, "", "No output files written")
+
+    missing = [p for p in output_paths
+               if "*" not in p and not (project_dir / p).exists()]
+    if missing:
+        log.error("api_missing_outputs", skill=skill, missing=missing)
+
     return DispatchResult(True, 0, output_text, "")
+
+
+def _find_ide_cli() -> list[str] | None:
+    """Return command parts for available IDE CLI, or None.
+
+    Prompt is fed via stdin (``-`` as the prompt argument).
+    Note: flags are codex-specific. zcode support requires separate testing.
+    """
+    for cli_name in ("codex", "zcode"):
+        if shutil.which(cli_name):
+            return [cli_name, "exec", "--skip-git-repo-check",
+                    "-c", "sandbox_permissions=workspace-write",
+                    "-C", "{dir}", "-"]
+    return None
+
+
+def _dispatch_via_ide(
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+) -> DispatchResult:
+    """Execute a skill via an IDE agent CLI (codex / zcode).
+
+    Builds a complete prompt, spawns the IDE agent, parses the multi-file
+    response, and writes per-file output to the project directory.
+    """
+    chapter = _extract_chapter(prompt)
+    try:
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            skill, project_dir, prompt, chapter
+        )
+    except Exception as exc:
+        return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
+
+    cli_parts = _find_ide_cli()
+    if not cli_parts:
+        return DispatchResult(False, -1, "", "No IDE CLI found on PATH")
+
+    full_prompt = f"{system_prompt}\n\n{user_prompt}"
+    cmd = [p.replace("{dir}", str(project_dir)) for p in cli_parts]
+
+    log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
+    try:
+        r = subprocess.run(cmd, input=full_prompt, capture_output=True,
+                          text=True, timeout=_IDE_AGENT_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        log.error("ide_timeout", skill=skill)
+        return DispatchResult(False, -1, "",
+                             f"IDE agent timed out after {_IDE_AGENT_TIMEOUT}s")
+    except FileNotFoundError:
+        log.error("ide_cli_not_found", cmd=cmd[0])
+        return DispatchResult(False, -1, "", f"CLI not found: {cmd[0]}")
+
+    if r.returncode != 0:
+        log.error("ide_failed", skill=skill, rc=r.returncode,
+                  stderr=r.stderr[:500])
+        return DispatchResult(False, r.returncode, r.stdout, r.stderr)
+
+    log.info("ide_dispatch_complete", skill=skill)
+
+    written = _write_parsed_outputs(r.stdout, output_paths, project_dir,
+                                    create_truth_templates=True)
+    if not written:
+        return DispatchResult(False, -1, "", "No output files written")
+
+    missing = [p for p in output_paths
+               if "*" not in p and not (project_dir / p).exists()]
+    if missing:
+        log.error("ide_missing_outputs", skill=skill, missing=missing)
+
+    return DispatchResult(True, 0, r.stdout, r.stderr)
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 
 
 def dispatch_skill(
@@ -379,7 +446,7 @@ def dispatch_skill(
     """Dispatch a skill for execution.
 
     Routing (tried in order):
-    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (DeepSeek, MiniMax, etc.)
+    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API
     2. IDE CLI available (codex / zcode) → spawn agent subprocess
     3. Fallback → ``shenbi-dispatch`` CLI subprocess
     """
@@ -405,18 +472,16 @@ def dispatch_skill(
         log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
     try:
         _run_cmd = ["uv", "run", "shenbi-dispatch", skill, test_type, rd, prompt]
-        r = subprocess.run(_run_cmd, capture_output=True, text=True, timeout=timeout, env=env)
+        r = subprocess.run(_run_cmd, capture_output=True, text=True,
+                          timeout=timeout, env=env)
     except subprocess.TimeoutExpired as exc:
         log.error("dispatch_timeout", skill=skill, timeout=timeout)
         return DispatchResult(False, -1, "", str(exc))
-    # Log dispatch result for error visibility
     if r.returncode != 0:
-        stderr_preview = r.stderr[:2000] if r.stderr else "(empty)"
         log.error(
             "dispatch_subprocess_failed",
-            skill=skill,
-            rc=r.returncode,
-            stderr_preview=stderr_preview,
+            skill=skill, rc=r.returncode,
+            stderr_preview=r.stderr[:2000] if r.stderr else "(empty)",
             cmd_preview=" ".join(str(x)[:80] for x in _run_cmd),
         )
     else:
@@ -427,13 +492,8 @@ def dispatch_skill(
 def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[str, Any]:
     """Run G4 (skill-specific structural check) after dispatch."""
     cmd = [
-        sys.executable,
-        "-m",
-        "shenbi.gates.cli",
-        "G4",
-        skill,
-        ",".join(files),
-        str(project_dir),
+        sys.executable, "-m", "shenbi.gates.cli", "G4",
+        skill, ",".join(files), str(project_dir),
     ]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
@@ -443,44 +503,22 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
     try:
         return json.loads(r.stdout)  # type: ignore[no-any-return]
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
+        return {"status": GateStatus.FAIL, "error": "unparseable G4 output",
+                "stderr": r.stderr}
 
 
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
-    """Run G3 (scoring independence) check.
-
-    Creates a minimal progress.json if none exists (pipeline mode) so that
-    G3.3-G3.5 have the data they need for independence verification.
-    """
+    """Run G3 (scoring independence) check."""
     rd = Path(round_dir)
     pp = rd / "progress.json"
     if not pp.exists():
-        safe_write(
-            pp,
-            json.dumps(
-                {
-                    "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
-                    "scoring_history": [
-                        {
-                            "agent": "pipeline-skill-generator",
-                            "g2_passed": True,
-                        }
-                    ],
-                },
-                indent=2,
-            ),
-        )
+        safe_write(pp, json.dumps({
+            "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
+            "scoring_history": [{"agent": "pipeline-skill-generator", "g2_passed": True}],
+        }, indent=2))
         log.info("progress_json_created_for_g3", skill=skill, path=str(pp))
 
-    cmd = [
-        sys.executable,
-        "-m",
-        "shenbi.gates.cli",
-        "G3",
-        skill,
-        "generative",
-        str(rd),
-    ]
+    cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(rd)]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     except subprocess.TimeoutExpired:
@@ -489,4 +527,5 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     try:
         return json.loads(r.stdout)  # type: ignore[no-any-return]
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
+        return {"status": GateStatus.FAIL, "error": "unparseable G3 output",
+                "stderr": r.stderr}
