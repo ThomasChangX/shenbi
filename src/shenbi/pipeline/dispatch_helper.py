@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -23,6 +24,15 @@ from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
+
+#: Environment variable name for the LLM API key.
+# When set, dispatch_skill() routes through the OpenAI-compatible API path
+# instead of the CLI subprocess path.
+_ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"
+_ENV_LLM_BASE_URL = "SHENBI_LLM_BASE_URL"
+_ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
+_DEFAULT_BASE_URL = "https://api.openai.com/v1"
+_DEFAULT_MODEL = "gpt-4o"
 
 
 @dataclass
@@ -73,6 +83,124 @@ OPTIONAL_READS: dict[str, list[str]] = {
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 
 
+def _extract_chapter(prompt: str) -> int | None:
+    """Extract chapter number from a pipeline prompt like '... for chapter 5.'."""
+    m = re.search(r"chapter\s+(\d+)", prompt, re.IGNORECASE)
+    return int(m.group(1)) if m else None
+
+
+def _resolve_path(path: str, chapter: int | None) -> str:
+    """Replace N / NNN placeholders with chapter number; return as-is if chapter is None."""
+    if chapter is None:
+        return path
+    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
+
+
+def _dispatch_via_api(
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+) -> DispatchResult:
+    """Execute a skill via OpenAI-compatible API.
+
+    Reads the skill's SKILL.md as system instructions, loads input files
+    declared in the contract, sends everything to the configured LLM, and
+    writes the response to the contract's declared output paths.
+
+    Configure via environment variables:
+    - ``SHENBI_LLM_API_KEY`` (required)
+    - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
+    - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
+    """
+    from openai import OpenAI  # type: ignore[import-untyped]
+
+    from shenbi.contracts.legacy import ContractError, load_contract
+
+    project_dir = Path(project_dir)
+    chapter = _extract_chapter(prompt)
+
+    # 1. Load skill contract
+    try:
+        contract = load_contract(skill)
+    except ContractError as exc:
+        log.error("api_contract_load_failed", skill=skill, error=str(exc))
+        return DispatchResult(False, -1, "", f"Contract load failed: {exc}")
+
+    # 2. Read SKILL.md as system prompt
+    skill_file = Path("skills") / skill / "SKILL.md"
+    if skill_file.exists():
+        system_prompt = skill_file.read_text(encoding="utf-8")
+    else:
+        log.warning("api_skill_file_missing", skill=skill, path=str(skill_file))
+        system_prompt = f"Execute the {skill} skill."
+
+    # 3. Read contract input files
+    input_texts: dict[str, str] = {}
+    for read_path in contract.get("reads", []):
+        resolved = _resolve_path(read_path, chapter)
+        full_path = project_dir / resolved
+        if full_path.exists():
+            try:
+                input_texts[resolved] = full_path.read_text(encoding="utf-8")
+            except Exception:
+                input_texts[resolved] = f"[binary or unreadable: {resolved}]"
+        else:
+            input_texts[resolved] = f"[file not found: {resolved}]"
+
+    # 4. Build user prompt
+    user_parts = [f"## Task\n{prompt}"]
+    if input_texts:
+        user_parts.append("## Input Files")
+        for fname, content in input_texts.items():
+            user_parts.append(f"### {fname}\n```\n{content[:8000]}\n```")
+    user_prompt = "\n\n".join(user_parts)
+
+    # 5. Call LLM
+    client = OpenAI(
+        api_key=os.environ[_ENV_LLM_API_KEY],
+        base_url=os.environ.get(_ENV_LLM_BASE_URL, _DEFAULT_BASE_URL),
+    )
+    model = os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)
+
+    log.info("api_dispatch_start", skill=skill, model=model, chapter=chapter)
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=0.7,
+            max_tokens=16384,
+        )
+    except Exception as exc:
+        log.error("api_call_failed", skill=skill, error=str(exc))
+        return DispatchResult(False, -1, "", f"API call failed: {exc}")
+
+    output_text = response.choices[0].message.content or ""
+    log.info(
+        "api_dispatch_complete",
+        skill=skill,
+        output_length=len(output_text),
+        model=model,
+    )
+
+    # 6. Write contract output files
+    for write_path in contract.get("writes", []):
+        resolved = _resolve_path(write_path, chapter)
+        full_path = project_dir / resolved
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(full_path, output_text)
+
+    for update_path in contract.get("updates", []):
+        resolved = _resolve_path(update_path, chapter)
+        full_path = project_dir / resolved
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(full_path, output_text)
+
+    return DispatchResult(True, 0, output_text, "")
+
+
 def dispatch_skill(
     skill: str,
     project_dir: Path | str,
@@ -82,13 +210,17 @@ def dispatch_skill(
     timeout: int = 900,
     skip_reads: list[str] | None = None,
 ) -> DispatchResult:
-    """Dispatch a skill via ``shenbi.dispatcher.cli``.
+    """Dispatch a skill for execution.
 
-    The dispatcher CLI internally calls ``dispatch_with_write_audit``, which runs
-    G1 + G2 and the write-overreach audit. Returns a :class:`DispatchResult`
-    capturing the subprocess outcome.
+    When ``SHENBI_LLM_API_KEY`` is set, dispatches via OpenAI-compatible API
+    (reading skill contracts and calling the LLM directly). Otherwise falls
+    back to the ``shenbi-dispatch`` CLI subprocess (IDE agent mode).
     """
-    # Merge explicit skip_reads with known optional reads for this skill.
+    # API path: use OpenAI-compatible SDK directly
+    if os.environ.get(_ENV_LLM_API_KEY):
+        return _dispatch_via_api(skill, Path(project_dir), prompt)
+
+    # CLI path: existing subprocess dispatch (unchanged)
     patterns = list(skip_reads or [])
     patterns.extend(OPTIONAL_READS.get(skill, []))
 

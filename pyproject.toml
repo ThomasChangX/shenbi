@@ -16,6 +16,7 @@ dependencies = [
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
     # 注：sentence-transformers 移至 [project.optional-dependencies].embeddings
     #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
+    "openai>=2.44.0",
 ]
 [project.optional-dependencies]
 embeddings = ["sentence-transformers>=3.0.0"]
