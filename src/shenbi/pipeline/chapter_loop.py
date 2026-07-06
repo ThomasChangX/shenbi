@@ -685,6 +685,14 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if step.uses_staging:
         prompt += " Write output to staging/ directory."
 
+    # Inject MODIFY feedback if present (one-shot consumption)
+    if state.chapter_loop.modify_feedback:
+        prompt += (
+            f"\n\nHuman review feedback (incorporate these changes): "
+            f"{state.chapter_loop.modify_feedback}"
+        )
+        state.chapter_loop.modify_feedback = None
+
     # Dispatch the skill.
     result = dispatch_skill(step.skill, project_dir, prompt)
 

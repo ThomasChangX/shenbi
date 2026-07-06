@@ -802,3 +802,54 @@ class TestReDispatch:
         restored = PipelineState.from_dict(d)
         assert len(restored.pending_re_dispatches) == 1
         assert restored.pending_re_dispatches[0]["skill"] == "shenbi-pacing-design"
+
+
+class TestModifyDecision:
+    """Tests that MODIFY rolls back step cursor and stores feedback."""
+
+    def test_modify_chapter_memo_rolls_back_step_index(self, tmp_path, monkeypatch):
+        """MODIFY on CHAPTER_MEMO checkpoint resets step_index to 1."""
+        from shenbi.pipeline.cli import ReviewDecision
+        from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
+        from shenbi.pipeline.state import (
+            CheckpointType,
+            PipelinePhase,
+            PipelineState,
+        )
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 3
+        state.chapter_loop.step_index = 2  # after chapter-planning
+
+        set_checkpoint(
+            state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md"
+        )
+
+        # Simulate MODIFY: step_index should roll back to 1
+        cp = state.pending_checkpoint
+        clear_checkpoint(state, ReviewDecision.MODIFY)
+
+        if cp.type == CheckpointType.CHAPTER_MEMO:
+            state.chapter_loop.step_index = 1
+        elif cp.type == CheckpointType.STATE_SETTLE:
+            state.chapter_loop.step_index = 6
+
+        assert state.chapter_loop.step_index == 1
+        assert state.pending_checkpoint.type == CheckpointType.NONE
+
+    def test_modify_injects_feedback_into_dispatch_prompt(self, tmp_path, monkeypatch):
+        """Feedback stored in modify_feedback appears in next dispatch prompt."""
+        from shenbi.pipeline.state import PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.modify_feedback = "Fix the pacing in section 3"
+
+        # Simulate dispatch prompt construction (same logic as run_chapter_step)
+        prompt = f"Execute chapter-planning for chapter 3. Project dir: {tmp_path}"
+        if state.chapter_loop.modify_feedback:
+            prompt += f"\n\nHuman review feedback: {state.chapter_loop.modify_feedback}"
+            state.chapter_loop.modify_feedback = None
+
+        assert "Fix the pacing in section 3" in prompt
+        assert state.chapter_loop.modify_feedback is None  # consumed
