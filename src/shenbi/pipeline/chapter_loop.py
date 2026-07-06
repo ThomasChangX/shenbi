@@ -35,6 +35,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from shenbi.logging import get_logger
 from shenbi.pipeline.audit_layer import run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
@@ -518,8 +520,6 @@ def _count_triggered_hooks(text: str) -> int:
     """
     # Try YAML frontmatter first.
     if text.startswith("---"):
-        import yaml
-
         parts = text.split("---", 2)
         if len(parts) >= 3:
             try:
@@ -549,8 +549,6 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
     # Pattern 1: YAML frontmatter
     if text.startswith("---"):
-        import yaml
-
         parts = text.split("---", 2)
         if len(parts) >= 3:
             try:
@@ -767,7 +765,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             gc = json.loads(gc_path.read_text(encoding="utf-8"))
 
         cs = _get_chapter_state(state, chapter)
-        while True:
+        while cs.audit_retry_count < 100:
             audit_result = run_audit_layer(project_dir, chapter, gc)
             cs.audit_results["blocking_found"] = audit_result.blocking_found
             cs.audit_results["issues"] = audit_result.issues
@@ -807,6 +805,23 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             )
             if not rev.success:
                 return _handle_failure(state, step, chapter, "audit-revision", project_dir)
+
+        if cs.audit_retry_count >= 100:
+            log.error(
+                "audit_hard_cap_reached",
+                chapter=chapter,
+                retries=cs.audit_retry_count,
+            )
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                context=(
+                    f"Audit revision hard cap (100) reached for chapter {chapter}. "
+                    f"Manual review required."
+                ),
+            )
+            return True
 
     # After review-resonance: parse score and run revision routing.
     if "review-resonance" in step.skill:

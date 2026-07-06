@@ -743,6 +743,9 @@ class TestAuditLayerWiring:
         assert cs.audit_retry_count > 0, (
             f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
         )
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION, (
+            f"Expected ESCALATION checkpoint, got {state.pending_checkpoint.type}"
+        )
 
 
 # ---------------------------------------------------------------------------
