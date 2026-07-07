@@ -2399,8 +2399,8 @@ reads (Layer B):
 ```yaml
 contract:
   reads:
-    - file: truth/audit_drift.md
-      fields: [active_drifts, severity, compensation_directives]
+    - file: truth/current_state.md
+      fields: [主角状态, 当前世界局势, 活跃线索]
 ```
 
 The dispatcher filters file content to only declared fields before the LLM
