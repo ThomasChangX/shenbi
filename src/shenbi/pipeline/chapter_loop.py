@@ -31,7 +31,8 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -245,6 +246,105 @@ CHAPTER_STEPS: list[ChapterStep] = [
 
 # 0-based index of the last core-circle audit step (for genre-circle trigger).
 _LAST_AUDIT_IDX = max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
+
+
+# ---------------------------------------------------------------------------
+# G4 Severity Classification (spec §11)
+# ---------------------------------------------------------------------------
+
+
+class G4Severity(StrEnum):
+    """Classification of G4 validation failures."""
+
+    HARD = "hard"
+    SOFT = "soft"
+    WARN = "warn"
+
+
+G4_CHECK_MAP: dict[str, G4Severity] = {
+    "not_found": G4Severity.HARD,
+    "pre_check": G4Severity.HARD,
+    "post_check": G4Severity.HARD,
+    "meta": G4Severity.HARD,
+    "word_count": G4Severity.HARD,
+    "no_visual_scene": G4Severity.HARD,
+    "content_overlap": G4Severity.HARD,
+    "no_valid_verdict": G4Severity.HARD,
+    "no_file_line_ref": G4Severity.HARD,
+    "missing_cols": G4Severity.HARD,
+    "missing_sections": G4Severity.HARD,
+    "no_result": G4Severity.HARD,
+    "no_evidence": G4Severity.HARD,
+    "cp.sections": G4Severity.HARD,
+    "cp.chapter_role": G4Severity.HARD,
+    "cp.s7_hook_ops": G4Severity.HARD,
+    "transition": G4Severity.SOFT,
+    "fatigue": G4Severity.SOFT,
+    "cd.chapter_end_hook": G4Severity.SOFT,
+    "cp.golden": G4Severity.WARN,
+    "cp.s5_choice": G4Severity.WARN,
+}
+
+
+@dataclass
+class SoftFailTracker:
+    """Tracks SOFT G4 failures with a sliding window to prevent stale escalations."""
+
+    check_id: str
+    occurrences: list[int] = field(default_factory=list)
+    window_size: int = 5
+    escalation_threshold: int = 3
+
+    def record(self, chapter: int) -> bool:
+        """Record a soft failure occurrence and return True if escalation threshold met."""
+        self.occurrences.append(chapter)
+        self.occurrences = [ch for ch in self.occurrences if chapter - ch <= self.window_size]
+        return len(self.occurrences) >= self.escalation_threshold
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize tracker state for persistence."""
+        return {
+            "check_id": self.check_id,
+            "occurrences": self.occurrences,
+            "window_size": self.window_size,
+            "escalation_threshold": self.escalation_threshold,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> SoftFailTracker:
+        """Deserialize tracker state from persistence."""
+        return cls(
+            check_id=data["check_id"],
+            occurrences=data.get("occurrences", []),
+            window_size=data.get("window_size", 5),
+            escalation_threshold=data.get("escalation_threshold", 3),
+        )
+
+
+def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], list[str]]:
+    """Partition G4 must_fix into (hard, soft, warn) by substring matching against G4_CHECK_MAP."""
+    hard, soft, warn = [], [], []
+    for item in must_fix:
+        matched = False
+        for key, severity in G4_CHECK_MAP.items():
+            if key in item:
+                if severity == G4Severity.HARD:
+                    hard.append(item)
+                elif severity == G4Severity.SOFT:
+                    soft.append(item)
+                else:
+                    warn.append(item)
+                matched = True
+                break
+        if not matched:
+            hard.append(item)  # conservative default
+    return hard, soft, warn
+
+
+def _extract_check_id(must_fix_item: str) -> str:
+    """Extract the G4 check ID from a must_fix string like 'G4.transition:path:7>6'."""
+    m = re.match(r"G4\.([a-z_.]+)", must_fix_item)
+    return m.group(1) if m else must_fix_item.split(":", maxsplit=1)[0].replace("G4.", "")
 
 
 # ---------------------------------------------------------------------------
@@ -778,36 +878,59 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir)
     if not _gate_passed(g4):
-        log.warning(
-            "chapter_g4_failed",
-            chapter=chapter,
-            step=step.step_num,
-            skill=step.skill,
-            g4=str(g4.get("must_fix", [])),
-        )
-        # In automated mode, G4 failures are non-blocking.
-        # The retry feedback is still stored for the next attempt,
-        # but we only retry once instead of escalating.
-        must_fix = g4.get("must_fix", [])
-        state.chapter_loop.retry_feedback[retry_key] = (
-            f"G4 check failed: {must_fix}\nFull result: {json.dumps(g4, default=str)}"
-        )
-        if state.config.per_chapter_review_enabled:
-            return _handle_failure(state, step, chapter, "gate", project_dir)
-        # Auto mode: retry once with feedback, then continue regardless
-        count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
-        state.chapter_loop.retry_counts[retry_key] = count
-        if count <= 1:
-            log.info("chapter_g4_retry_auto", chapter=chapter, step=step.step_num, attempt=count)
-            return False  # retry once
-        log.info(
-            "chapter_g4_continue_auto",
-            chapter=chapter,
-            step=step.step_num,
-            msg="continuing despite G4 failure in auto mode",
-        )
-        state.chapter_loop.retry_counts.pop(retry_key, None)
-        # Fall through to advance
+        must_fix = g4.get("must_fix", []) if isinstance(g4, dict) else []
+        hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
+
+        # Edge case: G4 failed but must_fix was empty or all items unmatched.
+        # Treat as a single generic HARD failure (conservative default).
+        if not hard_fails and not soft_fails and not warn_fails:
+            hard_fails = ["G4.generic_failure: (no must_fix details)"]
+
+        for w in warn_fails:
+            log.info("chapter_g4_warn", chapter=chapter, step=step.step_num, item=w)
+
+        for s in soft_fails:
+            tracker_key = _extract_check_id(s)
+            tracker = state.chapter_loop.soft_fail_trackers.get(tracker_key)
+            if tracker is None:
+                tracker = SoftFailTracker(check_id=tracker_key)
+                state.chapter_loop.soft_fail_trackers[tracker_key] = tracker
+            should_escalate = tracker.record(chapter)
+            log.warning(
+                "chapter_g4_soft_fail",
+                chapter=chapter,
+                step=step.step_num,
+                item=s,
+                occurrences=len(tracker.occurrences),
+            )
+            if should_escalate:
+                log.error(
+                    "chapter_g4_soft_escalated",
+                    chapter=chapter,
+                    check_id=tracker_key,
+                    occurrences=tracker.occurrences,
+                )
+
+        if hard_fails:
+            state.chapter_loop.retry_feedback[retry_key] = (
+                f"G4 HARD check failed: {hard_fails}\nFull result: {json.dumps(g4, default=str)}"
+            )
+            if state.config.per_chapter_review_enabled:
+                return _handle_failure(state, step, chapter, "gate", project_dir)
+            count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
+            state.chapter_loop.retry_counts[retry_key] = count
+            if count <= 1:
+                log.info(
+                    "chapter_g4_retry_auto_hard",
+                    chapter=chapter,
+                    step=step.step_num,
+                    attempt=count,
+                    hard_fails=hard_fails,
+                )
+                return False
+            log.info("chapter_g4_continue_auto", chapter=chapter, step=step.step_num)
+            state.chapter_loop.retry_counts.pop(retry_key, None)
+        # No hard fails → fall through to advance
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):

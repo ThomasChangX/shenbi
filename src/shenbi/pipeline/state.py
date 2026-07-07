@@ -8,7 +8,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from shenbi.pipeline.chapter_loop import SoftFailTracker
 
 
 class PipelinePhase(StrEnum):
@@ -105,6 +108,7 @@ class ChapterLoopStateData:
     retry_counts: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
+    soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
 
 
 @dataclass
@@ -159,6 +163,9 @@ class PipelineState:
                 "retry_counts": self.chapter_loop.retry_counts,
                 "modify_feedback": self.chapter_loop.modify_feedback,
                 "retry_feedback": self.chapter_loop.retry_feedback,
+                "soft_fail_trackers": {
+                    k: v.to_dict() for k, v in self.chapter_loop.soft_fail_trackers.items()
+                },
             },
             "closure": self.closure.value,
             "pending_checkpoint": {
@@ -212,6 +219,12 @@ class PipelineState:
                 audit_retry_count=v.get("audit_retry_count", 0),
             )
 
+        soft_fail_trackers: dict[str, Any] = {}
+        for k, v in cl_data.get("soft_fail_trackers", {}).items():
+            from shenbi.pipeline.chapter_loop import SoftFailTracker
+
+            soft_fail_trackers[k] = SoftFailTracker.from_dict(v)
+
         return cls(
             version=data.get("version", 1),
             project_dir=data.get("project_dir", ""),
@@ -232,6 +245,7 @@ class PipelineState:
                 retry_counts=cl_data.get("retry_counts", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
                 retry_feedback=cl_data.get("retry_feedback", {}),
+                soft_fail_trackers=soft_fail_trackers,
             ),
             closure=ClosureState(data.get("closure", "pending")),
             pending_checkpoint=CheckpointData(
