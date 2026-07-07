@@ -79,11 +79,15 @@ class TestDispatchUsesStaging:
 
         import os
 
-        os.chdir(tmp_path)
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
 
-        _, _, output_paths = _build_skill_prompt(
-            "shenbi-chapter-planning", tmp_path, "test prompt", chapter=5, uses_staging=True
-        )
+            _, _, output_paths = _build_skill_prompt(
+                "shenbi-chapter-planning", tmp_path, "test prompt", chapter=5, uses_staging=True
+            )
+        finally:
+            os.chdir(old_cwd)
 
         assert len(output_paths) > 0
         for p in output_paths:
