@@ -448,16 +448,22 @@ if file_type == "decisions":
 
 **Problem**: `cmd_post_skill()` (line 150) uses `proj.rglob("*.md")` to discover outputs — a heuristic that doesn't know which files the skill actually wrote. The original spec proposed expanding rglob to include `.json` decisions files, but that's a patch on the wrong mechanism.
 
-**Root-cause fix**: use `derive_output_files(skill, chapter, proj)` which already returns the authoritative list from the contract.
+**Root-cause fix**: use `derive_output_files(skill, chapter, round_dir)` which already returns the authoritative list from the contract.
+
+**Signature note**: `cmd_post_skill(phase, skill, round_dir, project_dir)` currently has no `chapter` parameter. `derive_output_files(skill, chapter, round_dir)` takes `chapter: int | None`. Two options:
+- (a) Extract chapter from the pipeline state or the skill's last step record (if available)
+- (b) Pass `chapter=None` — `derive_output_files` handles this by returning paths with unresolved `N`/`NNN` placeholders, which are then filtered out (won't match actual files). This works but may miss chapter-scoped outputs.
+
+**Recommended**: option (a) — thread `chapter` through `cmd_post_skill` from the caller (the phase state machine already tracks the current chapter in pipeline mode). If chapter is unavailable (non-pipeline T2), fall back to `chapter=None` and accept that only non-parametric outputs are discovered.
 
 ```python
 # cmd_post_skill() — before:
 output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
 
-# after:
+# after (option a — chapter threaded through):
 from shenbi.dispatcher.executor import derive_output_files
-chapter = _extract_chapter_from_state(state)  # or pass chapter through cmd_post_skill
-output_files = [p for p in derive_output_files(skill, chapter, proj)
+# chapter passed in from caller, or extracted from pipeline state
+output_files = [p for p in derive_output_files(skill, chapter, Path(round_dir))
                  if Path(p).exists() and Path(p).stat().st_size > 0]
 ```
 
@@ -468,11 +474,7 @@ output_files = [p for p in derive_output_files(skill, chapter, proj)
 - Future-proofs against new file types (no rglob changes needed when adding new artifact kinds)
 - Removes 5 lines of heuristic code instead of adding 7 lines of more complex heuristics
 
-### M6: dispatch_helper Multi-File Output Format
-
-**File**: `src/shenbi/pipeline/dispatch_helper.py`
-
-When contract has multiple writes, emit multi-file output format template:
+**Note**: `derive_output_files` resolves paths relative to `round_dir` when provided. In phase_runner, `round_dir` and `project_dir` may differ (round_dir is the test round directory, project_dir is the novel project). The caller must pass the correct base — likely `project_dir` for output discovery, since that's where the skill writes. Verify during Phase 1 implementation which path `derive_output_files` should resolve against.
 
 ### M6: dispatch_helper Multi-File Output Format
 
@@ -584,7 +586,7 @@ Verification chain:
 | Regression Point | Verification |
 |-----------------|--------------|
 | 67 unchanged skills' G2 still uses chapter/truth/report branches | Run `derive_file_type` on all 67, compare to pre-change results |
-| phase_runner rglob change doesn't affect .md-only skills | Run existing T2 planning/drafting phases, output_files list unchanged |
+| phase_runner output discovery change (M5) doesn't affect existing skills | Run existing T2 planning/drafting phases, output_files list unchanged (derive_output_files returns same .md paths as rglob did for .md-only skills) |
 | truth-files.yaml additions don't break existing resolve | All existing contracts' reads still resolve successfully |
 | Clean-context invariant | New property test: consecutive dispatches of same skill don't share process state (locks in existing behavior against regression) |
 
