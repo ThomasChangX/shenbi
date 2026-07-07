@@ -30,6 +30,10 @@ from shenbi.status import GateStatus
 
 log = get_logger(__name__)
 
+#: Repository root, resolved from this file's location (match gates/shared.py pattern).
+#: Used to locate bundled skills/ directory independently of CWD.
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
 #: Environment variable names
 _ENV_LLM_API_KEY = "SHENBI_LLM_API_KEY"
 _ENV_LLM_BASE_URL = "SHENBI_LLM_BASE_URL"
@@ -134,8 +138,8 @@ def _build_skill_prompt(
         log.error("contract_load_failed", skill=skill, error=str(exc))
         raise
 
-    # System prompt = SKILL.md
-    skill_file = Path("skills") / skill / "SKILL.md"
+    # System prompt = SKILL.md (resolved from repo root, not CWD)
+    skill_file = _PROJECT_ROOT / "skills" / skill / "SKILL.md"
     if skill_file.exists():
         system_prompt = skill_file.read_text(encoding="utf-8")
     else:

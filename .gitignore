@@ -17,6 +17,19 @@ __pycache__/
 # IDE
 .idea/
 .vscode/
+.claude-plugin/
+.codex-plugin/
+.cursor-plugin/
+.opencode/
+
+# Tool local settings
+.claude/
+
+# Superpowers SDD workflow cache
+.superpowers/
+
+# Benchmark output (empty dir placeholder)
+.benchmarks/
 
 # Backup files
 *.bak

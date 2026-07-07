@@ -289,7 +289,9 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
 
     Returns an empty set if the file does not exist or cannot be parsed.
     """
-    project_dir = Path(project_dir) if project_dir else Path.cwd()
+    if not project_dir:
+        raise ValueError("read_volume_boundaries: project_dir is required")
+    project_dir = Path(project_dir)
     vm_file = project_dir / VOLUME_MAP_PATH
     if not vm_file.exists():
         return set()
@@ -331,7 +333,9 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
     repeated warning strings. Returns False if the file is missing or no
     warning reaches the threshold.
     """
-    project_dir = Path(project_dir) if project_dir else Path.cwd()
+    if not project_dir:
+        raise ValueError("check_genre_config_drift: project_dir is required")
+    project_dir = Path(project_dir)
     drift_file = project_dir / AUDIT_DRIFT_PATH
     if not drift_file.exists():
         return False
@@ -522,7 +526,9 @@ def run_triggered_skills(
 
     Mutates ``state`` in place; the caller persists it.
     """
-    project_dir = Path(project_dir) if project_dir else Path.cwd()
+    if not project_dir:
+        raise ValueError("run_triggered_skills: project_dir is required")
+    project_dir = Path(project_dir)
     steps = get_trigger_steps(result)
 
     if not steps:

@@ -363,8 +363,15 @@ def _gate_passed(result: dict[str, Any]) -> bool:
 
 
 def _substitute_chapter(path: str, chapter: int) -> str:
-    """Replace N / NNN placeholders with the actual chapter number."""
-    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
+    """Replace N / NNN placeholders with the actual chapter number.
+
+    Uses bounded regex for single-N replacement (after ``-`` or ``/``, before
+    ``-``, ``.``, ``/``, or end-of-string) to avoid corrupting paths with
+    multiple N characters not intended as placeholders. Matches the resolution
+    logic in ``dispatch_helper._resolve_path``.
+    """
+    result = path.replace("NNN", f"{chapter:03d}")
+    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
 
 
 def _retry_key(chapter: int, skill: str) -> str:
@@ -557,14 +564,13 @@ def _advance(
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
             from shenbi.pipeline.checkpoint import STAGING_DIR
-            import shutil as _shutil
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
                 for src in staging_truth.glob("*.md"):
                     dst = project_dir / "truth" / src.name
                     dst.parent.mkdir(parents=True, exist_ok=True)
-                    _shutil.copy2(src, dst)
+                    safe_write(dst, src.read_bytes())
                 log.info(
                     "staging_auto_committed_state_settle",
                     chapter=chapter,
@@ -960,7 +966,7 @@ def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
             parts.append(f"## Truth: {truth_file.name}\n\n{truth_file.read_text(encoding='utf-8')}")
 
     content = "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
-    snap_path.write_text(content, encoding="utf-8")
+    safe_write(snap_path, content.encode("utf-8"))
 
     # Update manifest
     manifest = _load_manifest(project_dir)
