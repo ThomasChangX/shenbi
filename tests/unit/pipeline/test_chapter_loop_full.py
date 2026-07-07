@@ -194,8 +194,8 @@ class TestFullChapterSequence:
         _drive_to_checkpoint(chapter_state, tmp_path)
         assert chapter_state.pending_checkpoint.type == CheckpointType.STATE_SETTLE
         assert chapter_state.chapter_loop.step_index == 7
-        # Steps 1,2 (seg 1) + 3,5,6,7 (seg 2; step 4 is pipeline-internal).
-        assert chapter_succeeds.dispatch.call_count == 6
+        # Steps 1,2 (seg 1) + 3,6,7 (seg 2; step 4 is internal, step 5 skipped).
+        assert chapter_succeeds.dispatch.call_count == 5
 
     def test_full_chapter_completes_with_per_chapter_checkpoint(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -206,9 +206,9 @@ class TestFullChapterSequence:
         assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
         assert chapter_state.chapter_loop.current_chapter == 2
         assert chapter_state.chapter_loop.step_index == 0
-        # 18 dispatched steps (step 4 is internal, step 18 is skipped).
-        assert chapter_succeeds.dispatch.call_count == 18
-        assert chapter_succeeds.g4.call_count == 18
+        # 17 dispatched steps (step 4 internal, step 5 skipped, step 18 skipped).
+        assert chapter_succeeds.dispatch.call_count == 17
+        assert chapter_succeeds.g4.call_count == 17
         # G3 runs only on step 17 (review-resonance, requires_independent).
         assert chapter_succeeds.g3.call_count == 1
 
@@ -359,8 +359,8 @@ class TestAuditCircleAndRevisionRouting:
         assert cs.audit_results["revision_route"] == RevisionRoute.NO_REVISION.value
         # chapter-revision is still recorded in steps_done (ran as a no-op).
         assert "shenbi-chapter-revision" in cs.steps_done
-        # 18 dispatches: step 18 did NOT dispatch.
-        assert chapter_succeeds.dispatch.call_count == 18
+        # 17 dispatches: step 18 did NOT dispatch (step 5 also skipped).
+        assert chapter_succeeds.dispatch.call_count == 17
 
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
@@ -400,8 +400,8 @@ class TestAuditCircleAndRevisionRouting:
         ):
             _drive_three_segments(chapter_state, tmp_path)
             assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
-            # 19 dispatches: step 18 (chapter-revision) now runs.
-            assert mock_disp.call_count == 19
+            # 18 dispatches: step 18 (chapter-revision) now runs (step 5 skipped).
+            assert mock_disp.call_count == 18
             cs = chapter_state.chapter_loop.chapter_states["1"]
             assert cs.audit_results["revision_route"] == RevisionRoute.SPOT_FIX.value
 

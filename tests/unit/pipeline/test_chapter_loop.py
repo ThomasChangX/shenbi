@@ -923,9 +923,9 @@ class TestEscalationWiring:
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 1
-        # Step 5 (index 4): shenbi-context-composing (non-audit, non-scoring)
-        state.chapter_loop.step_index = 4
-        state.chapter_loop.retry_counts = {"ch1-shenbi-context-composing": 3}
+        # Step 6 (index 5): shenbi-chapter-drafting (non-audit, non-scoring)
+        state.chapter_loop.step_index = 5
+        state.chapter_loop.retry_counts = {"ch1-shenbi-chapter-drafting": 3}
         state.config.max_revision_retries = 3
 
         call_order = []

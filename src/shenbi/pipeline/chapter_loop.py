@@ -616,6 +616,25 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
         log.warning("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
 
 
+def _run_context_curation(project_dir: Path, chapter: int) -> None:
+    """Run deterministic context curation after assembly.
+
+    Replaces the ``shenbi-context-composing`` LLM call (step 5) with
+    deterministic Python operations: 9-section structuring, ending
+    diversity check, and hook debt briefing generation.
+
+    Curation failures are non-fatal: a warning is logged and the pipeline
+    continues without curated context.
+    """
+    try:
+        from shenbi.pipeline.context_curation import curate_context
+
+        curated = curate_context(project_dir, chapter)
+        log.info("context_curated", chapter=chapter, length=len(curated))
+    except Exception as e:
+        log.warning("context_curation_failed", chapter=chapter, error=str(e), exc_info=True)
+
+
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Dispatch foreshadowing-resolve if TRIGGERED hooks are detected.
 
@@ -791,9 +810,18 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Context assembly (step 4): materialize package before chapter-drafting.
     if step.calls_context_assembly:
         _run_context_assembly(project_dir, chapter)
+        # Also run deterministic curation — replaces context-composing LLM call
+        _run_context_curation(project_dir, chapter)
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
+        _record_step_done(state, step, chapter)
+        _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+    # context-composing replaced by deterministic curation in step 4
+    if step.skill == "shenbi-context-composing":
+        log.info("context_composing_replaced_by_curation", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
