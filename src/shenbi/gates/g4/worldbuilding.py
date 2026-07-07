@@ -17,7 +17,7 @@ from shenbi.gates.shared import (
 def g4_worldbuilding(fps: list[str], rd: str | None = None) -> str:
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     # novel.json: title/genre/language/target_words

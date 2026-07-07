@@ -15,7 +15,7 @@ from shenbi.gates.shared import (
 def g4_story_architecture(fps: list[str], rd: str | None = None) -> str:
     """Story architecture: story_frame frontmatter conflicts, volume_map Objective+KR."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     # story_frame.md: frontmatter with surface/personal/deep conflicts

@@ -16,7 +16,7 @@ def g4_power_system(fps: list[str], rd: str | None = None) -> str:
     cost mechanism, power ceiling, cross-level combat reference.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     ps = pd / "world" / "power_system.md"

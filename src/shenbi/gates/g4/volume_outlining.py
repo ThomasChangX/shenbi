@@ -16,7 +16,7 @@ def g4_volume_outlining(fps: list[str], rd: str | None = None) -> str:
     >= 1 cross-volume bridge hook.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     vm = pd / "outline" / "volume_map.md"

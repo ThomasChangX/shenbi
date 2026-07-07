@@ -84,7 +84,7 @@ Examples:
         try:
             input_files = json.loads(files_raw)
         except (json.JSONDecodeError, ValueError):
-            input_files = []
+            input_files: list[str] = []
         result = gate_G1(skill_name=arg(0), input_files=input_files, round_dir=arg(2))
 
     elif gate == "G2":

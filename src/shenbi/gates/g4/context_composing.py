@@ -56,7 +56,7 @@ def _section_body(content: str, title_prefix: str) -> str:
 def g4_context_composing(fps: list[str], rd: str | None = None) -> str:
     """Context composing: layer-based P1-P7 section titles present (P1+P2 non-empty)."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

@@ -14,7 +14,7 @@ from shenbi.gates.shared import (
 def g4_state_settling(fps: list[str], rd: str | None = None) -> str:
     """State settling: current_state has position, char_matrix has characters, summaries appended, emotional arcs."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

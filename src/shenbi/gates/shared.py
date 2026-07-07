@@ -39,7 +39,7 @@ def jload(p: str | Path) -> dict[str, Any]:
     downstream.
     """
     data = json.loads(Path(p).read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
+    if not isinstance(data, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise ValueError(f"{p}: expected JSON object, got {type(data).__name__}")
     return data
 
@@ -71,8 +71,8 @@ def yload(p: str | Path) -> dict[str, Any]:
         try:
             data = yaml.safe_load(cleaned) or {}
         except (yaml.YAMLError, TypeError, ValueError):
-            data = {}
-    if not isinstance(data, dict):
+            data: dict[str, Any] = {}
+    if not isinstance(data, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
     return data
 

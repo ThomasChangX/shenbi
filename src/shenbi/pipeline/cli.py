@@ -335,7 +335,7 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         if staging_truth.is_dir():
             targets = [f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))]
         else:
-            targets = []
+            targets: list[str] = []
     else:
         return
 

@@ -16,7 +16,7 @@ from shenbi.gates.shared import (
 def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
     """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 24, SMOKESCREEN check."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

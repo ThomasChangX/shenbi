@@ -16,7 +16,7 @@ def g4_location_builder(fps: list[str], rd: str | None = None) -> str:
     functional events.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     loc_path = pd / "world" / "locations.md"

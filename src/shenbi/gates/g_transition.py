@@ -10,6 +10,7 @@ log = get_logger(__name__)
 
 import json
 from pathlib import Path
+from typing import Any
 
 from shenbi.gates.shared import (
     fail,
@@ -20,7 +21,7 @@ from shenbi.gates.shared import (
 
 def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     """G_TRANSITION: Phase switching gate."""
-    c = []
+    c: list[dict[str, Any]] = []
     rd = Path(round_dir)
     pp = rd / "progress.json"
 

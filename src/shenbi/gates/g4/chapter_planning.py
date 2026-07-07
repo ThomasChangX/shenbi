@@ -16,7 +16,7 @@ def g4_chapter_planning(fps: list[str], rd: str | None = None) -> str:
     section 4 has 关键抉择, section 5 has hook operation names.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

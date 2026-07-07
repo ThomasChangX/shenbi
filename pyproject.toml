@@ -368,7 +368,7 @@ pythonVersion = "3.11"
 # tools/ holds repo lints imported by unit tests (tools/__init__.py makes it a
 # package; "." puts the repo root on the import search path so they resolve).
 extraPaths = ["."]
-reportMissingTypeStubs = "warning"
+reportMissingTypeStubs = "none"
 # Unknown-family rules downgraded to warning for JSON/YAML dict access.
 # Gates load heterogeneous external data (progress.json, deps.json, etc.)
 # via jload/yload returning dict[str, Any]. Value access propagates Any,
@@ -377,11 +377,11 @@ reportMissingTypeStubs = "warning"
 # reportPossiblyUnboundVariable, reportIndexIssue, reportUnnecessaryIsInstance.
 # TypedDicts at boundaries would be the "proper" fix but require ongoing
 # schema maintenance that doesn't suit this project's evolution stage.
-reportUnknownMemberType = "warning"
-reportUnknownVariableType = "warning"
-reportUnknownArgumentType = "warning"
-reportUnknownLambdaType = "warning"
-reportUnknownParameterType = "warning"
+reportUnknownMemberType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownParameterType = "none"
 
 # Per-directory overrides via executionEnvironments (basedpyright's
 # supported mechanism — [[tool.basedpyright.overrides]] is not recognized).

@@ -18,7 +18,7 @@ def g4_length_normalizing(fps: list[str], rd: str | None = None) -> str:
     - >10000 compression: chapter body ≥ 3000 AND ≥ 25% original
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

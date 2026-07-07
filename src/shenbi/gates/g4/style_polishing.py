@@ -14,7 +14,7 @@ from shenbi.gates.shared import (
 def g4_style_polishing(fps: list[str], rd: str | None = None) -> str:
     """Style polishing: 润色说明 block present, word count change ratio check."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

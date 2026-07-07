@@ -293,7 +293,9 @@ G4_CHECK_MAP: dict[str, G4Severity] = {
 
 def _classify_g4_failures(must_fix: list[str]) -> tuple[list[str], list[str], list[str]]:
     """Partition G4 must_fix into (hard, soft, warn) by substring matching against G4_CHECK_MAP."""
-    hard, soft, warn = [], [], []
+    hard: list[str] = []
+    soft: list[str] = []
+    warn: list[str] = []
     for item in must_fix:
         matched = False
         for key, severity in G4_CHECK_MAP.items():

@@ -167,7 +167,7 @@ def gate_G3(
                 skill_data = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
                 output_files = skill_data.get("output_files", [])
             else:
-                output_files = []
+                output_files: list[str] = []
             if output_files and isinstance(output_files, list):
                 # Derive file_type from first output file path: truth/ → truth,
                 # chapters/ → chapter, otherwise use "report"

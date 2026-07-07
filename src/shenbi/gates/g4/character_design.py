@@ -15,7 +15,7 @@ from shenbi.gates.shared import (
 def g4_character_design(fps: list[str], rd: str | None = None) -> str:
     """Character-design: frontmatter fields, voice_profile arrays, relationship pairs."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:

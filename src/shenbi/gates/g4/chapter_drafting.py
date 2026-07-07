@@ -42,7 +42,7 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
     fatigue words, meta-narrative, word count.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
