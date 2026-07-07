@@ -5,9 +5,9 @@ from __future__ import annotations
 from shenbi.pipeline.chapter_loop import (
     G4_CHECK_MAP,
     G4Severity,
-    SoftFailTracker,
     _classify_g4_failures,
 )
+from shenbi.pipeline.state import SoftFailTracker
 
 
 class TestG4SeverityEnum:

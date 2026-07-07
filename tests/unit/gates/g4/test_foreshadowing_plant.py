@@ -77,7 +77,7 @@ def test_fails_when_hook_depends_on_is_null(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_fails_when_ops_count_exceeds_eight(tmp_path: Path) -> None:
-    """More than 8 plant/reinforce/trigger/resolve ops -> FAIL with G4.fp.ops:{n}>8."""
+    """More than 24 plant/reinforce/trigger/resolve ops -> FAIL with G4.fp.ops:{n}>24 (relaxed from 8)."""
     hooks = [
         {
             "id": f"h{i}",
@@ -90,13 +90,13 @@ def test_fails_when_ops_count_exceeds_eight(tmp_path: Path) -> None:
             "depends_on": [],
             "operation": "plant",
         }
-        for i in range(9)
+        for i in range(25)
     ]
     f = _hooks_file(tmp_path, hooks)
 
     result = _result(g4_foreshadowing_plant([str(f)]))
     assert result["status"] == "FAIL"
-    assert any(mf == "G4.fp.ops:9>8" for mf in result["must_fix"])
+    assert any(mf == "G4.fp.ops:25>24" for mf in result["must_fix"])
 
 
 @pytest.mark.unit

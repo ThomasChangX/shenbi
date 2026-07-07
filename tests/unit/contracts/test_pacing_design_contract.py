@@ -42,15 +42,15 @@ def test_missing_line_fails() -> None:
 
 def test_constellation_out_of_range_fails() -> None:
     bad = dict(_BASE)
-    bad["line_ratios"] = {"QUEST": 50, "FIRE": 35, "CONSTELLATION": 15}
+    bad["line_ratios"] = {"QUEST": 50, "FIRE": 35, "CONSTELLATION": 10}
     with pytest.raises(ValidationError, match="CONSTELLATION"):
         PacingDesign.model_validate(bad)
 
 
 def test_wrong_scene_type_count_fails() -> None:
     bad = dict(_BASE)
-    bad["scene_types"] = [f"s{i}" for i in range(6)]
-    with pytest.raises(ValidationError, match="8 scene types"):
+    bad["scene_types"] = [f"s{i}" for i in range(5)]
+    with pytest.raises(ValidationError, match="6-12 scene types"):
         PacingDesign.model_validate(bad)
 
 

@@ -8,10 +8,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from shenbi.pipeline.chapter_loop import SoftFailTracker
+from typing import Any
 
 
 class PipelinePhase(StrEnum):
@@ -96,6 +93,41 @@ class ChapterState:
     audit_results: dict[str, Any] = field(default_factory=dict)
     revision_count: int = 0
     audit_retry_count: int = 0  # tracks audit BLOCKING revision attempts
+
+
+@dataclass
+class SoftFailTracker:
+    """Tracks SOFT G4 failures with a sliding window to prevent stale escalations."""
+
+    check_id: str
+    occurrences: list[int] = field(default_factory=list)
+    window_size: int = 5
+    escalation_threshold: int = 3
+
+    def record(self, chapter: int) -> bool:
+        """Record a soft failure occurrence and return True if escalation threshold met."""
+        self.occurrences.append(chapter)
+        self.occurrences = [ch for ch in self.occurrences if chapter - ch <= self.window_size]
+        return len(self.occurrences) >= self.escalation_threshold
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize tracker state for persistence."""
+        return {
+            "check_id": self.check_id,
+            "occurrences": self.occurrences,
+            "window_size": self.window_size,
+            "escalation_threshold": self.escalation_threshold,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> SoftFailTracker:
+        """Deserialize tracker state from persistence."""
+        return cls(
+            check_id=data["check_id"],
+            occurrences=data.get("occurrences", []),
+            window_size=data.get("window_size", 5),
+            escalation_threshold=data.get("escalation_threshold", 3),
+        )
 
 
 @dataclass
@@ -221,8 +253,6 @@ class PipelineState:
 
         soft_fail_trackers: dict[str, Any] = {}
         for k, v in cl_data.get("soft_fail_trackers", {}).items():
-            from shenbi.pipeline.chapter_loop import SoftFailTracker
-
             soft_fail_trackers[k] = SoftFailTracker.from_dict(v)
 
         return cls(

@@ -128,13 +128,13 @@ def test_fails_when_transition_density_too_high(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_fails_when_fatigue_words_exceeded(tmp_path: Path) -> None:
-    """More than 3 fatigue-word hits (default FATIGUE_BASE) -> FAIL.
+    """More than 8 fatigue-word hits -> FAIL (threshold relaxed from 3).
 
     Uses fatigue words that are NOT transition words (猛地/瞬间/一股/恐怖) so
     the failure is attributable to the fatigue check, not transition density.
     """
     ch = tmp_path / "chapter-001.md"
-    ch.write_text("# 章节\n\n" + "猛地瞬间一股恐怖" * 2 + "\n", encoding="utf-8")
+    ch.write_text("# 章节\n\n" + "猛地瞬间一股恐怖" * 3 + "\n", encoding="utf-8")
 
     result = _run([str(ch)])
     mf = _must_fix(result)

@@ -14,7 +14,7 @@ from shenbi.gates.shared import (
 
 
 def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
-    """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 8, SMOKESCREEN check."""
+    """Foreshadowing plant: hook metadata completeness, depends_on not null, ops <= 24, SMOKESCREEN check."""
     c: list[dict[str, Any]] = []
     mf = []
 
@@ -41,6 +41,8 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
                 loaded: Any = yaml.safe_load(hooks_match.group(1))
                 hooks = loaded if isinstance(loaded, list) else []
             except Exception:
+                # YAML parse of body section failed — hooks stays [],
+                # fall through to frontmatter fallback below.
                 pass
         # Fallback: try YAML frontmatter hooks array
         if not hooks:
@@ -51,6 +53,8 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
                     if isinstance(fm, dict) and isinstance(fm.get("hooks"), list):
                         hooks = fm["hooks"]
             except Exception:
+                # Frontmatter YAML parse failed — hooks stays [],
+                # handled by `if not hooks` no_hooks check below.
                 pass
 
         if not hooks:

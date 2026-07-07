@@ -161,8 +161,13 @@ def test_generate_agent_id_contains_round_dir_name() -> None:
 
 
 @pytest.mark.unit
-def test_detect_mode_returns_internal_by_default() -> None:
-    """detect_mode always returns 'internal' (codex subprocess mode is no longer used)."""
+def test_detect_mode_returns_internal_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    """detect_mode returns 'internal' when no IDE CLI is available.
+
+    On developer machines with codex CLI installed, detect_mode() returns 'codex'.
+    Mock shutil.which to simulate an environment without any IDE CLI.
+    """
+    monkeypatch.setattr(shutil, "which", lambda _x: None)
     assert detect_mode() == "internal"
 
 
