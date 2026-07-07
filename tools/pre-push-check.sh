@@ -19,7 +19,7 @@ uv run ruff format --check .
 echo "--- mypy ---"
 uv run mypy src/shenbi/
 echo "--- basedpyright ---"
-uv run basedpyright 2>&1 | grep -q " error" && { echo "basedpyright errors found"; exit 1; } || echo "No errors (warnings only)"
+uv run basedpyright || { echo "basedpyright failed"; exit 1; }
 
 # 4. Custom linters (ci.yml steps 6-9)
 echo "--- lint_status_strings ---"
