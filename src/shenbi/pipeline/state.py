@@ -82,6 +82,7 @@ class GenesisStateData:
     current_step: int = 0
     skills_done: list[str] = field(default_factory=list)
     retry_counts: dict[str, int] = field(default_factory=dict)
+    retry_feedback: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -103,6 +104,7 @@ class ChapterLoopStateData:
     per_chapter_review_enabled: bool = True
     retry_counts: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
+    retry_feedback: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -136,6 +138,7 @@ class PipelineState:
                 "current_step": self.genesis.current_step,
                 "skills_done": self.genesis.skills_done,
                 "retry_counts": self.genesis.retry_counts,
+                "retry_feedback": self.genesis.retry_feedback,
             },
             "chapter_loop": {
                 "current_chapter": self.chapter_loop.current_chapter,
@@ -155,6 +158,7 @@ class PipelineState:
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
                 "modify_feedback": self.chapter_loop.modify_feedback,
+                "retry_feedback": self.chapter_loop.retry_feedback,
             },
             "closure": self.closure.value,
             "pending_checkpoint": {
@@ -217,6 +221,7 @@ class PipelineState:
                 current_step=gen_data.get("current_step", 0),
                 skills_done=gen_data.get("skills_done", []),
                 retry_counts=gen_data.get("retry_counts", {}),
+                retry_feedback=gen_data.get("retry_feedback", {}),
             ),
             chapter_loop=ChapterLoopStateData(
                 current_chapter=cl_data.get("current_chapter", 0),
@@ -226,6 +231,7 @@ class PipelineState:
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
+                retry_feedback=cl_data.get("retry_feedback", {}),
             ),
             closure=ClosureState(data.get("closure", "pending")),
             pending_checkpoint=CheckpointData(

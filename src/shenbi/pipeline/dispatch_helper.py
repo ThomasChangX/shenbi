@@ -37,13 +37,13 @@ _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 
 #: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
-_DEFAULT_MODEL = "deepseek-v4-pro"     # fallback when SHENBI_LLM_MODEL not set
-_IDE_AGENT_TIMEOUT = 600               # seconds for IDE agent subprocess
-_API_MAX_TOKENS = 16384               # max tokens per API call
-_API_TEMPERATURE = 0.7                # default temperature for API calls
-_INPUT_MAX_CHARS_PER_FILE = 32000     # hard cap per input file (~8K tokens)
-_INPUT_MAX_CHARS_TOTAL = 128000       # total input budget (~32K tokens)
-_AUDIT_HARD_CAP = 100                 # safety cap for audit revision loop
+_DEFAULT_MODEL = "deepseek-v4-pro"  # fallback when SHENBI_LLM_MODEL not set
+_IDE_AGENT_TIMEOUT = 900  # seconds for IDE agent subprocess (increased for large prompts)
+_API_MAX_TOKENS = 16384  # max tokens per API call
+_API_TEMPERATURE = 0.7  # default temperature for API calls
+_INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
+_INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
+_AUDIT_HARD_CAP = 100  # safety cap for audit revision loop
 
 
 @dataclass
@@ -108,8 +108,7 @@ def _resolve_path(path: str, chapter: int | None) -> str:
     if chapter is None:
         return path
     result = path.replace("NNN", f"{chapter:03d}")
-    result = re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
-    return result
+    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
 
 
 def _build_skill_prompt(
@@ -117,13 +116,15 @@ def _build_skill_prompt(
     project_dir: Path,
     prompt: str,
     chapter: int | None,
+    uses_staging: bool = False,
 ) -> tuple[str, str, list[str]]:
     """Build a complete execution prompt for a skill.
 
     Returns (system_prompt, user_prompt, output_paths) where:
     - system_prompt: SKILL.md content
     - user_prompt: task description + input file contents + output format
-    - output_paths: resolved contract writable paths
+    - output_paths: resolved contract writable paths (prefixed with staging/
+      when uses_staging=True)
     """
     from shenbi.contracts.legacy import ContractError, load_contract
 
@@ -163,8 +164,11 @@ def _build_skill_prompt(
             limit = min(_INPUT_MAX_CHARS_PER_FILE, budget_per_file)
             if len(text) > limit:
                 log.warning(
-                    "input_truncated", skill=skill, path=fname,
-                    original=len(text), truncated=limit,
+                    "input_truncated",
+                    skill=skill,
+                    path=fname,
+                    original=len(text),
+                    truncated=limit,
                 )
                 input_texts[fname] = text[:limit]
             else:
@@ -173,8 +177,11 @@ def _build_skill_prompt(
         for fname, text in raw_inputs.items():
             if len(text) > _INPUT_MAX_CHARS_PER_FILE:
                 log.warning(
-                    "input_truncated", skill=skill, path=fname,
-                    original=len(text), truncated=_INPUT_MAX_CHARS_PER_FILE,
+                    "input_truncated",
+                    skill=skill,
+                    path=fname,
+                    original=len(text),
+                    truncated=_INPUT_MAX_CHARS_PER_FILE,
                 )
                 input_texts[fname] = text[:_INPUT_MAX_CHARS_PER_FILE]
             else:
@@ -186,6 +193,10 @@ def _build_skill_prompt(
         output_paths.append(_resolve_path(write_path, chapter))
     for update_path in contract.get("updates", []):
         output_paths.append(_resolve_path(update_path, chapter))
+
+    # When uses_staging is True, prefix all output paths with staging/
+    if uses_staging:
+        output_paths = [f"staging/{p}" for p in output_paths]
 
     # Build user prompt
     user_parts = [
@@ -290,16 +301,14 @@ def _init_truth_templates(project_dir: Path) -> None:
     truth_dir.mkdir(parents=True, exist_ok=True)
     templates = {
         "current_state.md": (
-            "type: current_state\ncategory: truth\nstatus: initialized\n"
-            "---\n# Current State\n"
+            "type: current_state\ncategory: truth\nstatus: initialized\n---\n# Current State\n"
         ),
         "character_matrix.md": (
             "type: character_matrix\ncategory: truth\nstatus: initialized\n"
             "---\n# Character Matrix\n"
         ),
         "emotional_arcs.md": (
-            "type: emotional_arcs\ncategory: truth\nstatus: initialized\n"
-            "---\n# Emotional Arcs\n"
+            "type: emotional_arcs\ncategory: truth\nstatus: initialized\n---\n# Emotional Arcs\n"
         ),
         "chapter_summaries.md": (
             "type: chapter_summaries\ncategory: truth\nstatus: initialized\n"
@@ -322,6 +331,7 @@ def _dispatch_via_api(
     skill: str,
     project_dir: Path,
     prompt: str,
+    uses_staging: bool = False,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -330,12 +340,12 @@ def _dispatch_via_api(
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
     """
-    from openai import OpenAI  # type: ignore[import-untyped]
+    from openai import OpenAI
 
     chapter = _extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
-            skill, project_dir, prompt, chapter
+            skill, project_dir, prompt, chapter, uses_staging=uses_staging
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -362,16 +372,15 @@ def _dispatch_via_api(
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
     output_text = response.choices[0].message.content or ""
-    log.info("api_dispatch_complete", skill=skill,
-             output_length=len(output_text), model=model)
+    log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
 
-    written = _write_parsed_outputs(output_text, output_paths, project_dir,
-                                    create_truth_templates=True)
+    written = _write_parsed_outputs(
+        output_text, output_paths, project_dir, create_truth_templates=True
+    )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
-    missing = [p for p in output_paths
-               if "*" not in p and not (project_dir / p).exists()]
+    missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:
         log.error("api_missing_outputs", skill=skill, missing=missing)
 
@@ -386,9 +395,16 @@ def _find_ide_cli() -> list[str] | None:
     """
     for cli_name in ("codex", "zcode"):
         if shutil.which(cli_name):
-            return [cli_name, "exec", "--skip-git-repo-check",
-                    "-c", "sandbox_permissions=workspace-write",
-                    "-C", "{dir}", "-"]
+            return [
+                cli_name,
+                "exec",
+                "--skip-git-repo-check",
+                "-c",
+                "sandbox_permissions=workspace-write",
+                "-C",
+                "{dir}",
+                "-",
+            ]
     return None
 
 
@@ -396,6 +412,7 @@ def _dispatch_via_ide(
     skill: str,
     project_dir: Path,
     prompt: str,
+    uses_staging: bool = False,
 ) -> DispatchResult:
     """Execute a skill via an IDE agent CLI (codex / zcode).
 
@@ -405,7 +422,7 @@ def _dispatch_via_ide(
     chapter = _extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
-            skill, project_dir, prompt, chapter
+            skill, project_dir, prompt, chapter, uses_staging=uses_staging
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -419,30 +436,29 @@ def _dispatch_via_ide(
 
     log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
     try:
-        r = subprocess.run(cmd, input=full_prompt, capture_output=True,
-                          text=True, timeout=_IDE_AGENT_TIMEOUT)
+        r = subprocess.run(
+            cmd, input=full_prompt, capture_output=True, text=True, timeout=_IDE_AGENT_TIMEOUT
+        )
     except subprocess.TimeoutExpired:
         log.error("ide_timeout", skill=skill)
-        return DispatchResult(False, -1, "",
-                             f"IDE agent timed out after {_IDE_AGENT_TIMEOUT}s")
+        return DispatchResult(False, -1, "", f"IDE agent timed out after {_IDE_AGENT_TIMEOUT}s")
     except FileNotFoundError:
         log.error("ide_cli_not_found", cmd=cmd[0])
         return DispatchResult(False, -1, "", f"CLI not found: {cmd[0]}")
 
     if r.returncode != 0:
-        log.error("ide_failed", skill=skill, rc=r.returncode,
-                  stderr=r.stderr[:500])
+        log.error("ide_failed", skill=skill, rc=r.returncode, stderr=r.stderr[:500])
         return DispatchResult(False, r.returncode, r.stdout, r.stderr)
 
     log.info("ide_dispatch_complete", skill=skill)
 
-    written = _write_parsed_outputs(r.stdout, output_paths, project_dir,
-                                    create_truth_templates=True)
+    written = _write_parsed_outputs(
+        r.stdout, output_paths, project_dir, create_truth_templates=True
+    )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
-    missing = [p for p in output_paths
-               if "*" not in p and not (project_dir / p).exists()]
+    missing = [p for p in output_paths if "*" not in p and not (project_dir / p).exists()]
     if missing:
         log.error("ide_missing_outputs", skill=skill, missing=missing)
 
@@ -462,6 +478,7 @@ def dispatch_skill(
     round_dir: Path | str | None = None,
     timeout: int = 900,
     skip_reads: list[str] | None = None,
+    uses_staging: bool = False,
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
@@ -474,11 +491,11 @@ def dispatch_skill(
 
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):
-        return _dispatch_via_api(skill, pd, prompt)
+        return _dispatch_via_api(skill, pd, prompt, uses_staging=uses_staging)
 
     # IDE CLI path
     if _find_ide_cli():
-        return _dispatch_via_ide(skill, pd, prompt)
+        return _dispatch_via_ide(skill, pd, prompt, uses_staging=uses_staging)
 
     # Legacy CLI subprocess path
     patterns = list(skip_reads or [])
@@ -492,15 +509,15 @@ def dispatch_skill(
         log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
     try:
         _run_cmd = ["uv", "run", "shenbi-dispatch", skill, test_type, rd, prompt]
-        r = subprocess.run(_run_cmd, capture_output=True, text=True,
-                          timeout=timeout, env=env)
+        r = subprocess.run(_run_cmd, capture_output=True, text=True, timeout=timeout, env=env)
     except subprocess.TimeoutExpired as exc:
         log.error("dispatch_timeout", skill=skill, timeout=timeout)
         return DispatchResult(False, -1, "", str(exc))
     if r.returncode != 0:
         log.error(
             "dispatch_subprocess_failed",
-            skill=skill, rc=r.returncode,
+            skill=skill,
+            rc=r.returncode,
             stderr_preview=r.stderr[:2000] if r.stderr else "(empty)",
             cmd_preview=" ".join(str(x)[:80] for x in _run_cmd),
         )
@@ -512,8 +529,13 @@ def dispatch_skill(
 def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[str, Any]:
     """Run G4 (skill-specific structural check) after dispatch."""
     cmd = [
-        sys.executable, "-m", "shenbi.gates.cli", "G4",
-        skill, ",".join(files), str(project_dir),
+        sys.executable,
+        "-m",
+        "shenbi.gates.cli",
+        "G4",
+        skill,
+        ",".join(files),
+        str(project_dir),
     ]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
@@ -523,8 +545,7 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
     try:
         return json.loads(r.stdout)  # type: ignore[no-any-return]
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G4 output",
-                "stderr": r.stderr}
+        return {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
 
 
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
@@ -532,10 +553,16 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     rd = Path(round_dir)
     pp = rd / "progress.json"
     if not pp.exists():
-        safe_write(pp, json.dumps({
-            "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
-            "scoring_history": [{"agent": "pipeline-skill-generator", "g2_passed": True}],
-        }, indent=2))
+        safe_write(
+            pp,
+            json.dumps(
+                {
+                    "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
+                    "scoring_history": [{"agent": "pipeline-skill-generator", "g2_passed": True}],
+                },
+                indent=2,
+            ),
+        )
         log.info("progress_json_created_for_g3", skill=skill, path=str(pp))
 
     cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(rd)]
@@ -547,5 +574,4 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     try:
         return json.loads(r.stdout)  # type: ignore[no-any-return]
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G3 output",
-                "stderr": r.stderr}
+        return {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
