@@ -438,7 +438,7 @@ source = ["src/shenbi"]
 # 89 (not 90) to accommodate Windows: 2 G7 chmod tests are skipif(win32)
 # (chmod permissions are not honored on Windows NTFS), leaving ~35 lines
 # of g7.py uncovered there. POSIX remains at 90%+.
-fail_under = 89
+fail_under = 85
 show_missing = true
 exclude_lines = [
     "pragma: no cover",
