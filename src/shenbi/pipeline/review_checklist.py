@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.logging import get_logger
+from shenbi.pipeline.context_curation import ENDING_PATTERNS
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -174,7 +175,7 @@ def _build_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
 
     return ReviewChecklist(
         chapter=chapter,
-        transition_budget=_estimate_chapter_word_count(project_dir, chapter),
+        transition_budget=max(5, _estimate_chapter_char_count(project_dir, chapter) // 1000),
         ai_blacklist=_extract_ai_blacklist(genre_config),
         fatigue_warnings=_extract_fatigue_warnings(genre_config),
         voice_constraints=_extract_voice_constraints(project_dir, chapter),
@@ -378,17 +379,10 @@ def _get_recent_ending_types(project_dir: Path, chapter: int) -> list[str]:
     Returns list of ending type strings (e.g., ['cliffhanger', 'hook',
     'resolution']). Gracefully handles missing chapters.
     """
-    # Ending classification patterns (mirrors context_curation.py).
-    _ENDING_PATTERNS: dict[str, str] = {
-        "cliffhanger": r"(突然|猛然|就在此时|一声|眼前一|[？?]$)",
-        "hook": r"(但|然而|却|不过|还[有存]|等待|尚未|不知)",
-        "resolution": r"(终于|最后|就这样|[。！]$)",
-        "reflection": r"(回想|想起|原来|或许|也许|大概)",
-        "transition": r"(第二天|次日|翌日|接下来|之后|随后)",
-    }
+    # Ending classification patterns (imported from context_curation.py).
 
-    if chapter < 3:
-        return []  # Not enough chapters for diversity check.
+    if chapter < 4:
+        return []  # Not enough chapters for diversity check (need 3 prior chapters).
 
     ending_types: list[str] = []
     for offset in range(3, 0, -1):
@@ -413,7 +407,7 @@ def _get_recent_ending_types(project_dir: Path, chapter: int) -> list[str]:
         last_p = paragraphs[-1] if paragraphs else ""
 
         etype = "other"
-        for name, pattern in _ENDING_PATTERNS.items():
+        for name, pattern in ENDING_PATTERNS.items():
             if re.search(pattern, last_p):
                 etype = name
                 break
@@ -437,8 +431,8 @@ def _summarize_world_rules(project_dir: Path) -> str:
     return text[:2000] if len(text) > 2000 else text
 
 
-def _estimate_chapter_word_count(project_dir: Path, chapter: int) -> int:
-    """Estimate word count of the chapter file (Chinese-aware approximate).
+def _estimate_chapter_char_count(project_dir: Path, chapter: int) -> int:
+    """Estimate character count of the chapter file (Chinese-aware approximate).
 
     For Chinese text, each character is roughly one word. We count non-whitespace
     characters in the chapter file. Returns 0 when the file is missing.
@@ -467,7 +461,7 @@ def _estimate_chapter_word_count(project_dir: Path, chapter: int) -> int:
 __all__ = [
     "ReviewChecklist",
     "_build_checklist",
-    "_estimate_chapter_word_count",
+    "_estimate_chapter_char_count",
     "_extract_ai_blacklist",
     "_extract_fatigue_warnings",
     "_extract_hook_deliverables",

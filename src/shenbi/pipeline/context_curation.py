@@ -49,7 +49,7 @@ _P_TITLES: list[tuple[str, str]] = [
 ]
 
 # Ending diversity classification patterns (§2.1).
-_ENDING_PATTERNS: dict[str, str] = {
+ENDING_PATTERNS: dict[str, str] = {
     "cliffhanger": r"(突然|猛然|就在此时|一声|眼前一|[？?]$)",
     "hook": r"(但|然而|却|不过|还[有存]|等待|尚未|不知)",
     "resolution": r"(终于|最后|就这样|[。！]$)",
@@ -227,7 +227,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
     """Check last 3 chapters' endings for consecutive same-type patterns.
 
     Reads actual chapter files (not summaries — SKILL.md 铁律 4).
-    Classifies each ending's last paragraph against ``_ENDING_PATTERNS``
+    Classifies each ending's last paragraph against ``ENDING_PATTERNS``
     and warns when 3+ consecutive chapters share the same type.
 
     Returns a markdown table string.
@@ -262,7 +262,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
 
         # Classify ending type.
         etype = "other"
-        for name, pattern in _ENDING_PATTERNS.items():
+        for name, pattern in ENDING_PATTERNS.items():
             if re.search(pattern, last_p):
                 etype = name
                 break
@@ -485,6 +485,7 @@ def _render_context_document(
 
 
 __all__ = [
+    "ENDING_PATTERNS",
     "Section",
     "_build_hook_debt_briefing",
     "_check_ending_diversity",

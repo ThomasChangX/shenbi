@@ -516,6 +516,12 @@ def dispatch_skill(
         return _dispatch_via_ide(skill, pd, prompt, uses_staging=uses_staging)
 
     # Legacy CLI subprocess path
+    if uses_staging:
+        log.warning(
+            "legacy_dispatch_ignores_staging",
+            skill=skill,
+            hint="uses_staging=True cannot be honored in legacy subprocess path",
+        )
     patterns = list(skip_reads or [])
     patterns.extend(OPTIONAL_READS.get(skill, []))
 

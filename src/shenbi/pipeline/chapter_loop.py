@@ -39,6 +39,7 @@ from typing import Any, cast
 import yaml
 
 from shenbi.logging import get_logger
+from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_layer import run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
     dispatch_skill,
@@ -747,7 +748,7 @@ def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
     """Persist the snapshot manifest to ``snapshots/manifest.json``."""
     manifest_path = project_dir / "snapshots" / "manifest.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
 def _get_snapshot_retention(project_dir: Path) -> int:

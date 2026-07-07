@@ -6,10 +6,13 @@ import json
 from pathlib import Path
 
 from shenbi.pipeline.chapter_loop import (
+    ChapterStep,
     _should_run_drift,
     _should_run_recall,
+    _should_run_step,
     _snapshot_chapter_files,
 )
+from shenbi.pipeline.state import PipelineState
 
 
 class TestAdaptiveRecall:
@@ -53,3 +56,20 @@ class TestFileSnapshot:
         assert manifest.exists()
         data = json.loads(manifest.read_text(encoding="utf-8"))
         assert "5" in data["chapters"]
+
+
+class TestShouldRunStep:
+    """Integration tests for _should_run_step adaptive triggering."""
+
+    def test_snapshot_manage_always_returns_false(self, tmp_path: Path):
+        """Snapshot-manage step always returns False — it runs inline, no LLM dispatch."""
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 5
+
+        step = ChapterStep(
+            step_num=19,
+            skill="shenbi-snapshot-manage",
+            name="snapshot-manage",
+        )
+
+        assert _should_run_step(step, state, tmp_path) is False
