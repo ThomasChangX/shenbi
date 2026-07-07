@@ -313,8 +313,10 @@ def _filter_to_fields(text: str, fields: list[str], path: str) -> str:
 ### B.3 Field Naming Convention
 
 To prevent field-name drift:
-- **markdown files**: fields = `##` H2 headings (snake_cased)
-- **json files**: fields = top-level keys
+- **markdown files**: fields = `##` H2 heading text (exact match, as-is). Real truth files use **Chinese** headings (`## 主角`, `## 主角情感弧线`, `## 主角状态`, `## 当前世界局势`). Field declarations MUST use the actual heading text — do NOT translate to English or snake_case. The normalizer only strips the `## ` prefix and trims whitespace; it does NOT lowercase or translate.
+- **json files**: fields = top-level keys (exact match)
+
+**Critical discovery (round 2 review)**: the original convention "snake_cased English fields" is incompatible with reality — truth files use Chinese headings. An English field like `active_drifts` will never match `## 活跃漂移`, making filtering completely inert. Field declarations MUST use the real heading text.
 
 This enables automated lint: scan truth file's actual headings/keys, compare to contract.fields, report mismatches.
 
@@ -382,6 +384,8 @@ New `kind: decisions` at registry level (contract.kind stays `artifact`; the reg
 ### M3: derive_file_type Decisions Branch
 
 **File**: `src/shenbi/dispatcher/executor.py`
+
+**Priority note (I1)**: when a skill writes BOTH truth AND decisions files (e.g., `state-settling` updates `truth/current_state.md` AND writes `truth/state-settling-decisions.json`), the truth check fires first and returns `"truth"`. The decisions branch is never reached, so G2.dec schema validation is skipped for that skill's decisions.json. This is a known limitation — the fix is to validate decisions.json independently per-file (a future enhancement), not to change the priority (truth validation must not be skipped). For now, state-settling's decisions.json relies on G4 (not G2) for schema validation.
 
 ```python
 def _decisions_file_set() -> set[str]:

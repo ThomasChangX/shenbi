@@ -461,15 +461,36 @@ In `derive_file_type`, after the truth check (line 84) and before `return "chapt
         return "decisions"
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [ ] **Step 4: Add cache reset fixture (I3 fix)**
+
+The new `_decisions_files_cache` (and existing `_truth_files_cache`) are module globals that persist across tests. Add an autouse fixture to reset them:
+
+```python
+# tests/unit/conftest.py — add or extend the existing autouse fixture
+
+import pytest
+import shenbi.dispatcher.executor as executor
+
+
+@pytest.fixture(autouse=True)
+def reset_executor_caches():
+    """Reset module-global caches before each test to prevent order-dependence."""
+    executor._truth_files_cache = None
+    executor._decisions_files_cache = None
+    yield
+    executor._truth_files_cache = None
+    executor._decisions_files_cache = None
+```
+
+- [ ] **Step 5: Run tests to verify they pass**
 
 Run: `pytest tests/unit/test_dispatcher_executor.py -v`
 Expected: all PASS (new + existing regression)
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/dispatcher/executor.py tests/unit/test_dispatcher_executor.py
+git add src/shenbi/dispatcher/executor.py tests/unit/test_dispatcher_executor.py tests/unit/conftest.py
 git commit -m "feat: add derive_file_type decisions branch (M3)"
 ```
 
@@ -703,7 +724,9 @@ class TestPostSkillOutputDiscovery:
     def test_post_skill_uses_derive_output_files_not_rglob(
         self, tmp_path, monkeypatch
     ):
-        """M5: output_files comes from derive_output_files, not rglob."""
+        """M5: output_files comes from derive_output_files, not rglob.
+        When chapter is provided, derive_output_files is the sole source —
+        rglob fallback does NOT fire (it only fires when chapter is None)."""
         import shenbi.phase_runner as pr
         from shenbi.status import PhaseState
         import json
@@ -745,7 +768,12 @@ class TestPostSkillOutputDiscovery:
             raising=True,
         )
 
-        pr.cmd_post_skill("drafting", "shenbi-chapter-drafting", str(round_dir), str(project_dir))
+        # Pass chapter=5 so the rglob fallback does NOT fire.
+        # With chapter provided, derive_output_files is the sole source.
+        pr.cmd_post_skill(
+            "drafting", "shenbi-chapter-drafting", str(round_dir), str(project_dir),
+            chapter=5,
+        )
 
         # With empty derive_output_files, G2 should receive empty string (no stray.md)
         if captured_outputs:
@@ -761,26 +789,22 @@ Expected: FAIL — current code uses rglob and hardcodes "chapter"
 
 **Critical**: `derive_output_files(skill, chapter, proj)` returns `[]` when `chapter=None` for any chapter-parametric path (e.g., `chapters/chapter-N.md`) — `_resolve_chapter_path` returns `""` for unresolved `N`/`NNN`, and `derive_output_files` filters empty strings. Since virtually every chapter skill writes chapter-parametric files, passing `chapter=None` silently disables G2 — a regression from the current `rglob("*.md")` heuristic which at least finds real files on disk.
 
-**Fix**: thread `chapter` through `cmd_post_skill`. The chapter number is available in the phase state's step records (the pipeline tracks it). Add a `chapter` parameter to `cmd_post_skill` and extract it from the caller.
+**Root cause (verified)**: `phase_runner.py` is a CLI invoked as `post-skill <phase> <skill> --round-dir <dir> --project-dir <dir>`. There is **no `prompt` variable** in the caller (`main()` at line 306) — verified: `grep prompt src/shenbi/phase_runner.py` returns 0 matches. `PhaseState` (`status.py:30`) tracks only state strings, no chapter field. The previous fix's `'prompt' in dir()` is both wrong (dir() doesn't check local variables) and moot (prompt doesn't exist).
 
-First, check the `cmd_post_skill` signature and its caller:
+**Fix**: Add a `--chapter` CLI flag to the `post-skill` subcommand. The pipeline driver (which invokes phase_runner) already knows the chapter — it passes it explicitly.
+
+First, add the CLI flag. Find the `post-skill` argument parser in `main()`:
 
 ```bash
-grep -n "def cmd_post_skill\|cmd_post_skill(" src/shenbi/phase_runner.py
+grep -n "post-skill\|add_argument.*chapter\|subparsers" src/shenbi/phase_runner.py
 ```
 
-The current signature is `cmd_post_skill(phase, skill, round_dir, project_dir)`. The caller is at line 306 (`cmd_post_skill(phase, skill, round_dir, project_dir)`). The chapter is available in the pipeline context — extract it from the prompt or state.
-
-**Option A (recommended)**: Add `chapter: int | None = None` parameter to `cmd_post_skill`, and have the caller extract it from the pipeline prompt using the existing `_extract_chapter` pattern from `dispatch_helper.py`:
+Add `--chapter` as an optional int argument to the `post-skill` subparser:
 
 ```python
-# src/shenbi/phase_runner.py — add chapter extraction helper
-import re
-
-def _extract_chapter_from_prompt(prompt: str) -> int | None:
-    """Extract chapter number from pipeline prompt like '... for chapter 5.'"""
-    m = re.search(r"chapter\s+(\d+)", prompt, re.IGNORECASE)
-    return int(m.group(1)) if m else None
+# In the post-skill subparser setup (find the subparser definition):
+post_parser.add_argument("--chapter", type=int, default=None,
+                         help="Chapter number for parametric output discovery")
 ```
 
 Then modify `cmd_post_skill`:
@@ -811,35 +835,37 @@ def cmd_post_skill(
     # M5: use contract-declared outputs instead of rglob heuristic.
     # chapter must be provided for chapter-parametric skills; when None
     # (non-pipeline T2), derive_output_files returns [] for parametric paths.
-    # Fallback: if chapter is None and derive returns empty, use rglob as safety net.
     output_files = [
         p for p in derive_output_files(skill, chapter, proj)
         if Path(p).exists() and Path(p).stat().st_size > 0
     ]
-    if not output_files and chapter is None:
-        # Safety fallback: rglob for non-pipeline mode where chapter is unknown.
-        # This preserves backward compatibility with T2 tests that don't track chapter.
-        output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
     # M8: use derived file_type instead of hardcoded "chapter".
     file_type = derive_file_type(skill)
+    # Safety fallback: when chapter is unknown (non-pipeline T2), fall back to
+    # rglob. CRITICAL: the fallback file_type must match what rglob finds (.md).
+    # If derive_file_type returns "decisions" but rglob only finds .md files,
+    # G2's decisions branch would json.loads() markdown → crash. So the fallback
+    # must use file_type="chapter" (the type for .md files).
+    if not output_files and chapter is None:
+        output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
+        file_type = "chapter"  # override: rglob finds .md, not decisions.json
     g2_status = GateStatus.SKIP.value
     if output_files:
         g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
 ```
 
-**Update the caller** (line 306) to pass chapter:
+**Update the caller** (line 306) to pass chapter from the CLI arg:
 
 ```python
 # Before:
 cmd_post_skill(phase, skill, round_dir, project_dir)
 
 # After:
-chapter = _extract_chapter_from_prompt(prompt) if 'prompt' in dir() else None
-cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
+cmd_post_skill(phase, skill, round_dir, project_dir, chapter=args.chapter)
 ```
 
-Note: the caller's context determines how `chapter` is obtained. In pipeline mode, the prompt contains "for chapter N". In T2 test mode, chapter may be None — the rglob safety fallback handles this.
+**Why this works**: The pipeline driver already knows the chapter (it passes "for chapter N" in prompts to `dispatch_helper`). Now it passes `--chapter N` to `phase_runner post-skill` explicitly. In T2 test mode (no pipeline), `--chapter` is absent (None), and the rglob fallback with `file_type="chapter"` preserves backward compatibility — .md files are validated as chapters, which is correct.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -1141,45 +1167,90 @@ git commit -m "feat: migrate context-composing + market-radar to artifact kind w
 
 ## Phase 2 — Natural-Language Artifact Skills (Tasks 9-12)
 
-### Task 9: Resolve Open Question #4 — PRE_WRITE_CHECK Overlap Investigation
+### Task 9: PRE_WRITE_CHECK Overlap Audit (Verifiable Gate)
 
 **Files:**
+- Create: `tests/unit/gates/test_pre_write_check_overlap.py`
 - Investigate: `skills/shenbi-chapter-drafting/SKILL.md`, `skills/shenbi-chapter-planning/SKILL.md`, `skills/shenbi-chapter-revision/SKILL.md`, `skills/shenbi-state-settling/SKILL.md`, `skills/shenbi-short-drafting/SKILL.md`
 
 **Interfaces:**
-- Produces: a decision on whether decisions.json duplicates existing embedded-intent mechanisms, documented as a note in the spec's Open Questions section
+- Produces: a test that verifies which skills have PRE_WRITE_CHECK/POST_WRITE_SELF_CHECK embedded mechanisms, documented as a passing test. This is a verifiable gate — the test must pass before Task 10 proceeds.
 
-- [ ] **Step 1: Check each skill for embedded intent mechanisms**
+- [ ] **Step 1: Write a test that audits embedded intent mechanisms**
 
-For each of the 5 NL-artifact skills, grep for:
-- `PRE_WRITE_CHECK` — embedded pre-write decision block
-- `POST_WRITE_SELF_CHECK` — embedded post-write self-check
-- Any other structured intent-embedding sections
+```python
+# tests/unit/gates/test_pre_write_check_overlap.py
+"""Audit: which NL-artifact skills have embedded PRE_WRITE_CHECK/POST_WRITE_SELF_CHECK?
 
-```bash
-grep -l "PRE_WRITE_CHECK\|POST_WRITE_SELF_CHECK" skills/shenbi-chapter-drafting/SKILL.md skills/shenbi-chapter-planning/SKILL.md skills/shenbi-chapter-revision/SKILL.md skills/shenbi-state-settling/SKILL.md skills/shenbi-short-drafting/SKILL.md
+This test documents the overlap between existing embedded intent mechanisms
+and the proposed decisions.json sidecar (Layer A). It must pass before Task 10
+proceeds — the results inform whether decisions.json is redundant or complementary.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+SKILLS_DIR = Path(__file__).resolve().parents[3] / "skills"
+
+NL_ARTIFACT_SKILLS = [
+    "shenbi-chapter-drafting",
+    "shenbi-chapter-planning",
+    "shenbi-chapter-revision",
+    "shenbi-state-settling",
+    "shenbi-short-drafting",
+]
+
+
+@pytest.mark.unit
+class TestPreWriteCheckOverlap:
+    def test_audit_embedded_mechanisms(self) -> None:
+        """Document which skills have PRE_WRITE_CHECK / POST_WRITE_SELF_CHECK.
+        This test PASSES by documenting the current state — it's an audit, not
+        a pass/fail gate on the presence of mechanisms.
+        """
+        results: dict[str, dict[str, bool]] = {}
+        for skill in NL_ARTIFACT_SKILLS:
+            skill_md = SKILLS_DIR / skill / "SKILL.md"
+            if not skill_md.exists():
+                results[skill] = {"exists": False, "pre_write_check": False, "post_write_self_check": False}
+                continue
+            content = skill_md.read_text(encoding="utf-8")
+            results[skill] = {
+                "exists": True,
+                "pre_write_check": "PRE_WRITE_CHECK" in content,
+                "post_write_self_check": "POST_WRITE_SELF_CHECK" in content,
+            }
+
+        # Document findings — this test always passes, it's an audit record.
+        # The implementer must review the results and decide for each skill:
+        # - If PRE_WRITE_CHECK captures the SAME intent as decisions.json → redundant, consider conditional
+        # - If decisions.json captures DIFFERENT intent (pacing, foreshadowing) → complementary, proceed
+        print("\n=== PRE_WRITE_CHECK Overlap Audit ===")
+        for skill, findings in results.items():
+            print(f"  {skill}: {findings}")
+        assert len(results) == len(NL_ARTIFACT_SKILLS)
 ```
 
-- [ ] **Step 2: Analyze overlap**
+- [ ] **Step 2: Run test to see the audit results**
 
-For each skill that has an embedded mechanism, determine:
-- Does decisions.json capture the SAME intent (redundant)?
-- Or DIFFERENT intent (complementary — e.g., pacing deviations, foreshadowing placement rationale)?
+Run: `pytest tests/unit/gates/test_pre_write_check_overlap.py -v -s`
+Expected: PASS — review the printed audit table to determine overlap
 
-Document findings. If overlap is high for a skill, consider:
-- (a) Making decisions.json conditional (only written when deviating from plan)
-- (b) Excluding that skill from Layer A scope
-- (c) Proceeding with decisions.json as a structured complement to the embedded mechanism
+- [ ] **Step 3: Document the decision in spec Open Question #4**
 
-- [ ] **Step 3: Document the decision**
-
-Update `docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md` Open Question #4 with the resolution. No code changes in this task — it's an investigation that informs Tasks 10-12.
+Based on the audit results, update `docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md` Open Question #4 with:
+- Which skills have PRE_WRITE_CHECK
+- For each: is decisions.json redundant or complementary?
+- Decision: proceed with all 5, or narrow scope
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md
-git commit -m "docs: resolve Open Question #4 — PRE_WRITE_CHECK overlap analysis"
+git add tests/unit/gates/test_pre_write_check_overlap.py docs/superpowers/specs/2026-07-07-clean-context-handoff-design.md
+git commit -m "test: add PRE_WRITE_CHECK overlap audit gate (Task 9)"
 ```
 
 ---
@@ -1430,7 +1501,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from shenbi.gates.shared import fail, passed
 from shenbi.gates.g4._decisions_schema import (
@@ -1441,7 +1512,13 @@ from shenbi.gates.g4._decisions_schema import (
 
 
 def g4_decisions(fps: list[str], rd: str | None = None) -> str:
-    """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules."""
+    """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules.
+
+    Only processes *.json files — non-JSON files (e.g., the main .md artifact
+    passed by composite checkers) are silently skipped. This prevents crashes
+    when g4_decisions is used as the decisions_checker in a composite that
+    receives all skill outputs including markdown.
+    """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
     base = Path(rd) if rd else Path.cwd()
@@ -1451,6 +1528,11 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
         if not p.exists():
             mf.append(f"G4.dec.not_found:{fp}")
             continue
+
+        # CRITICAL: skip non-JSON files — the composite checker passes ALL skill
+        # outputs (including .md artifacts). json.loads() on markdown would crash.
+        if not fp.endswith(".json"):
+            continue  # skip .md and other non-decisions files
 
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -1507,37 +1589,45 @@ Directly replacing these with `g4_decisions` would lose the existing structural 
 In `src/shenbi/gates/g4/decisions_validator.py`, add a composite helper at the end of the file:
 
 ```python
-def make_composite_checker(existing_checker, decisions_checker):
+G4CheckerFn = Callable[[list[str], str | None], str]
+
+
+def make_composite_checker(
+    existing_checker: G4CheckerFn, decisions_checker: G4CheckerFn
+) -> G4CheckerFn:
     """Create a composite G4 checker that runs both existing + decisions validation.
 
-    Returns FAIL if either checker fails; aggregates all checks.
+    Returns FAIL if either checker fails; aggregates all checks and must_fix items.
+    Both checkers always run (even if the first fails) to collect all failures.
     """
     def composite(fps: list[str], rd: str | None = None) -> str:
         import json
-        from shenbi.gates.shared import fail, passed
 
         existing_result = existing_checker(fps, rd)
         decisions_result = decisions_checker(fps, rd)
 
-        # Parse both results and aggregate
+        # Parse both results and aggregate.
+        # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.
         try:
             existing_data = json.loads(existing_result)
         except (json.JSONDecodeError, TypeError):
-            existing_data = {"status": "FAIL", "checks": [], "failures": ["unparseable"]}
+            existing_data = {"status": "FAIL", "checks": [], "must_fix": ["unparseable"]}
         try:
             decisions_data = json.loads(decisions_result)
         except (json.JSONDecodeError, TypeError):
-            decisions_data = {"status": "FAIL", "checks": [], "failures": ["unparseable"]}
+            decisions_data = {"status": "FAIL", "checks": [], "must_fix": ["unparseable"]}
 
         combined_checks = existing_data.get("checks", []) + decisions_data.get("checks", [])
-        combined_failures = existing_data.get("failures", []) + decisions_data.get("failures", [])
+        combined_must_fix = (
+            existing_data.get("must_fix", []) + decisions_data.get("must_fix", [])
+        )
 
-        if combined_failures:
+        if combined_must_fix:
             return fail(
                 f"G4-composite-{existing_checker.__name__}",
                 combined_checks,
                 "scoring",
-                combined_failures,
+                combined_must_fix,
             )
         return passed(f"G4-composite-{existing_checker.__name__}", combined_checks)
     return composite
@@ -1714,10 +1804,12 @@ def _extract_h2_sections(text: str, fields: list[str]) -> str:
         if line.startswith("## "):
             if current_heading is not None:
                 sections[current_heading] = current_body
-            # Normalize heading: strip "## ", lowercase, snake_case
+            # Normalize heading: strip "## " prefix and trim whitespace ONLY.
+            # Do NOT lowercase or translate — real truth files use Chinese
+            # headings (## 主角, ## 主角情感弧线). Field declarations must use
+            # the actual heading text. See spec B.3.
             raw = line[3:].strip()
-            heading = raw.lower().replace(" ", "_").replace("（", "_").replace("）", "")
-            current_heading = heading
+            current_heading = raw
             current_body = [line]
         elif current_heading is not None:
             current_body.append(line)
@@ -1725,16 +1817,13 @@ def _extract_h2_sections(text: str, fields: list[str]) -> str:
     if current_heading is not None:
         sections[current_heading] = current_body
 
-    # Match declared fields against headings (exact match after normalization,
-    # consistent with G1's check_fields_exist which uses set difference).
-    # Substring matching was considered but rejected: it would make G1 warnings
-    # (exact) inconsistent with the filter (substring) — G1 could warn "field X
-    # missing" while the filter still includes X via partial match.
+    # Match declared fields against headings (exact match, no normalization).
+    # Fields must be declared using the real heading text (Chinese or English).
+    # This is consistent with G1's check_fields_exist which uses set difference.
     matched: list[str] = []
     for field in fields:
-        field_lower = field.lower()
-        if field_lower in sections:
-            matched.extend(sections[field_lower])
+        if field in sections:
+            matched.extend(sections[field])
 
     if not matched:
         # Escape hatch: no declared field found → return full text
@@ -2003,19 +2092,30 @@ Example for chapter-drafting:
     - genre-config.json
     - truth/audit_drift.md
 
-# After:
+# After (fields use ACTUAL heading text from the file — Chinese where applicable):
   reads:
     - file: plans/chapter-N-plan.md
-      fields: [chapter_goal, beats, foreshadowing_directives, pacing_zone]
+      fields: [本章核心任务, 要兑现的伏笔, 本章禁忌, 节奏区间]   # real H2 headings
     - context/chapter-N-context.md        # no fields = full read (context is curated)
     - context/chapter-N-context-decisions.json  # no fields = full read (decisions)
     - file: style/style_profile.md
-      fields: [voice_fingerprint, tone_parameters]
+      fields: [文风指纹, 语调参数]                               # real H2 headings
     - file: genre-config.json
-      fields: [genre, sub_genre, pov_mode]
+      fields: [genre, sub_genre, pov_mode]                     # JSON keys (English)
     - file: truth/audit_drift.md
-      fields: [active_drifts, severity, compensation_directives]
+      fields: [活跃漂移, 严重程度, 补偿指令]                     # real H2 headings
 ```
+
+**Critical (C3 fix)**: Field declarations MUST use the actual heading text from the file. For markdown truth files, this means Chinese headings (`## 活跃漂移` → field `活跃漂移`), NOT English translations. For JSON files, use the actual top-level keys. Before writing field declarations for each skill, run:
+
+```bash
+# Audit actual headings in each target truth file:
+grep "^## " tests/fixtures/snapshots/chapter-025/truth/audit_drift.md
+grep "^## " tests/fixtures/snapshots/chapter-025/truth/current_state.md
+# etc. for each file the skill reads
+```
+
+Use the exact heading text returned by grep as the field name. Do NOT translate, lowercase, or snake_case.
 
 - [ ] **Step 2: Batch 2 — 6 medium-coupling skills**
 
