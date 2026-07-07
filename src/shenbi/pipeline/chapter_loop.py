@@ -48,7 +48,6 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.machine import set_checkpoint
-from shenbi.pipeline.error_handler import handle_dispatch_failure, handle_audit_blocking
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
@@ -435,6 +434,8 @@ def _handle_failure(
     key = _retry_key(chapter, step.skill)
     count = state.chapter_loop.retry_counts.get(key, 0) + 1
     state.chapter_loop.retry_counts[key] = count
+    from shenbi.pipeline.error_handler import handle_dispatch_failure
+
     if handle_dispatch_failure(state, step.skill, count):
         log.warning(
             "chapter_step_failed_retrying",
@@ -1398,6 +1399,8 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 break
 
             cs.audit_retry_count += 1
+            from shenbi.pipeline.error_handler import handle_audit_blocking
+
             if not handle_audit_blocking(state, chapter, cs.audit_retry_count):
                 log.error(
                     "audit_blocking_escalation",

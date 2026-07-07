@@ -34,7 +34,7 @@ class TestStagingAutoCommit:
             output_path="plans/chapter-N-plan.md",
         )
 
-        result = _advance(state, 1, step, 1, project_dir=tmp_path)
+        _advance(state, 1, step, 1, project_dir=tmp_path)
 
         # After auto-commit, file should be at final path
         final = tmp_path / "plans" / "chapter-1-plan.md"
@@ -58,7 +58,7 @@ class TestStagingAutoCommit:
         )
 
         # No staging file exists — should not raise
-        result = _advance(state, 1, step, 1, project_dir=tmp_path)
+        _advance(state, 1, step, 1, project_dir=tmp_path)
         # Should advance without error (commit skipped gracefully)
         assert state.chapter_loop.step_index == 2
 

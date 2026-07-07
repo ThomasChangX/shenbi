@@ -428,6 +428,7 @@ def _read_spine_master_hooks(project_dir: Path) -> list[dict[str, Any]]:
                     try:
                         hook["last_reinforced"] = int(cells[3].strip())
                     except (ValueError, TypeError):
+                        # Non-integer cell in table; skip this column silently.
                         pass
                 mh_hooks.append(hook)
 

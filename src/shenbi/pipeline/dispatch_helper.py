@@ -47,7 +47,6 @@ _API_MAX_TOKENS = 16384  # max tokens per API call
 _API_TEMPERATURE = 0.7  # default temperature for API calls
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
-_AUDIT_HARD_CAP = 100  # safety cap for audit revision loop
 
 
 @dataclass

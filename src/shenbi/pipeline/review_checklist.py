@@ -217,6 +217,8 @@ def _get_max_source_mtime(project_dir: Path, chapter: int) -> float:
                 try:
                     mtimes.append(f.stat().st_mtime)
                 except OSError:
+                    # File may have been deleted between is_file() and stat();
+                    # skip it gracefully.
                     pass
 
     return max(mtimes) if mtimes else 0.0

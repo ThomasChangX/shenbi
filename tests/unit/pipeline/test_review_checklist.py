@@ -47,7 +47,7 @@ class TestReviewChecklistGeneration:
         (tmp_path / "chapters" / "chapter-3.md").write_text("text", encoding="utf-8")
 
         # First call generates and caches
-        c1 = generate_review_checklist(tmp_path, chapter=3)
+        _ = generate_review_checklist(tmp_path, chapter=3)
         cache_path = tmp_path / "context" / "review-checklist-3.json"
         assert cache_path.exists()
 
