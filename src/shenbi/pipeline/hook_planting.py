@@ -236,7 +236,9 @@ def _append_to_pending_hooks(
                     if isinstance(hooks, list):
                         existing_hooks = hooks
                         existing_ids = {
-                            h["id"] for h in existing_hooks if isinstance(h, dict) and "id" in h
+                            h["id"]
+                            for h in existing_hooks
+                            if isinstance(h, dict) and "id" in h  # pyright: ignore[reportUnnecessaryIsInstance]
                         }
                 except Exception:
                     log.warning("hook_plant_yaml_parse_error", path=str(hooks_file))

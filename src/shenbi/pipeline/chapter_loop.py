@@ -1310,7 +1310,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir)
     if not _gate_passed(g4):
-        must_fix = g4.get("must_fix", []) if isinstance(g4, dict) else []
+        must_fix = g4.get("must_fix", [])
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
 
         # Edge case: G4 failed but must_fix was empty or all items unmatched.

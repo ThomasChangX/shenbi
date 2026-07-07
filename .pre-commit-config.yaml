@@ -86,3 +86,10 @@ repos:
         language: system
         pass_filenames: false
         files: ^src/shenbi/.*\.py$
+
+      - id: pre-push-ci-check
+        name: pre-push CI simulation (just check)
+        entry: tools/pre-push-check.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
