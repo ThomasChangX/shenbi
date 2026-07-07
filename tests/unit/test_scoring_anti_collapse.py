@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from shenbi.scoring import check_scorer_agreement, flag_score_collapse
+from shenbi.scoring import check_gate_markers, check_scorer_agreement, flag_score_collapse
 
 
 @pytest.mark.unit
@@ -71,9 +73,6 @@ class TestGateMarkers:
     """Tests for check_gate_markers — T1/T2/T3 marker enforcement."""
 
     def test_t1_marker_missing(self, tmp_path: Path):
-        from pathlib import Path
-        from shenbi.scoring import check_gate_markers
-
         rubric = tmp_path / "t1-skill" / "shenbi-test" / "rubric.json"
         rubric.parent.mkdir(parents=True)
         rubric.write_text("{}", encoding="utf-8")
@@ -87,9 +86,6 @@ class TestGateMarkers:
         assert any("G4-shenbi-test-generative" in m for m in missing)
 
     def test_t2_marker_missing(self, tmp_path: Path):
-        from pathlib import Path
-        from shenbi.scoring import check_gate_markers
-
         rubric = tmp_path / "t2-phase" / "test-phase" / "rubric.json"
         rubric.parent.mkdir(parents=True)
         rubric.write_text("{}", encoding="utf-8")
@@ -103,9 +99,6 @@ class TestGateMarkers:
         assert isinstance(missing, list)
 
     def test_t3_marker_missing(self, tmp_path: Path):
-        from pathlib import Path
-        from shenbi.scoring import check_gate_markers
-
         rubric = tmp_path / "t3-pipeline" / "test-pipeline" / "rubric.json"
         rubric.parent.mkdir(parents=True)
         rubric.write_text("{}", encoding="utf-8")
@@ -119,9 +112,6 @@ class TestGateMarkers:
         assert any("G6-test-pipeline-generative" in m for m in missing)
 
     def test_non_tier_rubric_returns_empty(self, tmp_path: Path):
-        from pathlib import Path
-        from shenbi.scoring import check_gate_markers
-
         rubric = tmp_path / "other" / "rubric.json"
         rubric.parent.mkdir(parents=True)
         rubric.write_text("{}", encoding="utf-8")
