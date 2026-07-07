@@ -177,7 +177,7 @@ def _build_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
         transition_budget=_estimate_chapter_word_count(project_dir, chapter),
         ai_blacklist=_extract_ai_blacklist(genre_config),
         fatigue_warnings=_extract_fatigue_warnings(genre_config),
-        voice_constraints=_extract_voice_constraints(genre_config, project_dir),
+        voice_constraints=_extract_voice_constraints(project_dir, chapter),
         pov_mode=genre_config.get("povMode", ""),
         hook_deliverables=_extract_hook_deliverables(project_dir, chapter),
         ending_constraints=_get_recent_ending_types(project_dir, chapter),
@@ -271,29 +271,41 @@ def _extract_fatigue_warnings(genre_config: dict[str, Any]) -> dict[str, Any]:
     return fw if isinstance(fw, dict) else {}
 
 
-def _extract_voice_constraints(
-    genre_config: dict[str, Any],
-    project_dir: Path,
-) -> dict[str, Any]:
-    """Extract voice/style constraints from genre config and custom rules.
+def _extract_voice_constraints(project_dir: Path, chapter: int) -> dict[str, str]:
+    """Extract voice fingerprints for characters appearing in this chapter.
 
-    Includes POV mode, custom rules (blocking rules), and pacing config.
+    Deterministic name-matching — simpler and more reliable than embedding search.
     """
-    constraints: dict[str, Any] = {}
-    constraints["pov_mode"] = genre_config.get("povMode", "")
-    constraints["pacing"] = genre_config.get("pacing", {})
-    constraints["chapter_types"] = genre_config.get("chapterTypes", {})
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_path.exists():
+        return {}
 
-    # Collect blocking custom rules.
-    custom_rules = genre_config.get("customRules", [])
-    if isinstance(custom_rules, list):
-        blocking = [r for r in custom_rules if r.get("enforcement") == "blocking"]
-        if blocking:
-            constraints["blocking_rules"] = [
-                {"id": r.get("id", ""), "description": r.get("description", "")} for r in blocking
-            ]
+    chapter_text = chapter_path.read_text(encoding="utf-8")
+    characters_dir = project_dir / "characters"
+    if not characters_dir.exists():
+        return {}
 
-    return constraints
+    voice_map: dict[str, str] = {}
+    for profile_path in characters_dir.glob("**/*.md"):
+        try:
+            profile_text = profile_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+
+        # Extract display name from frontmatter
+        name_match = re.search(r"name\s*[:：]\s*(.+)", profile_text)
+        display_name = name_match.group(1).strip() if name_match else profile_path.stem
+
+        # Check if character appears in chapter
+        if display_name not in chapter_text:
+            continue
+
+        # Extract voice fingerprint
+        voice_match = re.search(r"voice_fingerprint\s*[:：]\s*(.+)", profile_text)
+        if voice_match:
+            voice_map[display_name] = voice_match.group(1).strip()
+
+    return voice_map
 
 
 def _extract_hook_deliverables(
@@ -411,29 +423,18 @@ def _get_recent_ending_types(project_dir: Path, chapter: int) -> list[str]:
 
 
 def _summarize_world_rules(project_dir: Path) -> str:
-    """Extract a brief summary of world rules from truth/world_rules.md
-    or genesis-context/world_rules.md.
+    """Return condensed world rules for review context."""
+    rules_path = project_dir / "world" / "rules.md"
+    if not rules_path.exists():
+        return ""
 
-    Returns a condensed string (first ~500 chars of the rules). Gracefully
-    returns empty string when no world rules file exists.
-    """
-    # Try truth/ first, then genesis-context/.
-    for candidate in (
-        project_dir / "truth" / "world_rules.md",
-        project_dir / "genesis-context" / "world_rules.md",
-    ):
-        if candidate.exists():
-            try:
-                text = candidate.read_text(encoding="utf-8")
-                # Strip YAML frontmatter if present.
-                if text.startswith("---"):
-                    parts = text.split("---", 2)
-                    text = parts[-1] if len(parts) >= 3 else text
-                return text.strip()[:500]
-            except OSError:
-                continue
+    try:
+        text = rules_path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
 
-    return ""
+    # Keep rules brief — reviews need constraints, not full lore
+    return text[:2000] if len(text) > 2000 else text
 
 
 def _estimate_chapter_word_count(project_dir: Path, chapter: int) -> int:
