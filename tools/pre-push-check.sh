@@ -34,8 +34,12 @@ echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
 # 5. Tests (ci.yml step 10)
-echo "--- pytest ---"
-uv run pytest -n auto -m "not last"
+echo "--- pytest (with coverage >= 89%) ---"
+uv run pytest -n auto -m "not last" --cov-fail-under=89
+
+# 6. Coverage threshold test (serial, last only)
+echo "--- pytest coverage threshold ---"
+uv run pytest -p no:xdist -m "last" --cov-fail-under=89
 
 # 6. Contract sync idempotency (ci.yml contract-sync job)
 echo "--- contract-sync idempotency ---"

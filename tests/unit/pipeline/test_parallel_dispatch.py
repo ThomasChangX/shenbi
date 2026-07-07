@@ -46,3 +46,37 @@ class TestConsolidation:
         result = consolidate_review_results(reviews, chapter=5)
         assert "BLOCKING" in result
         assert "OOC" in result
+
+    def test_consolidate_all_success(self):
+        """All reviews pass — no BLOCKING/CRITICAL sections."""
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        reviews = [
+            DispatchResult(True, 0, "All good.", ""),
+            DispatchResult(True, 0, "Looks fine.", ""),
+        ]
+        result = consolidate_review_results(reviews, chapter=3)
+        assert "No BLOCKING" in result
+
+    def test_consolidate_all_failed(self):
+        """All reviews failed — should report failed count."""
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        reviews = [
+            DispatchResult(False, -1, "", "Error 1"),
+            DispatchResult(False, -1, "", "Error 2"),
+        ]
+        result = consolidate_review_results(reviews, chapter=2)
+        assert "Failed" in result
+        assert "2" in result
+
+    def test_consolidate_critical_only(self):
+        """Only CRITICAL issues, no BLOCKING."""
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        reviews = [
+            DispatchResult(True, 0, "CRITICAL: pacing needs work", ""),
+        ]
+        result = consolidate_review_results(reviews, chapter=1)
+        assert "CRITICAL" in result
+        assert "BLOCKING Issues" not in result.split("##")[-1] if "##" in result else True

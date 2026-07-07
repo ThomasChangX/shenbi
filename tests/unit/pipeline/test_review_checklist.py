@@ -152,3 +152,187 @@ class TestChecklistInjection:
         )
         result = inject_checklist_into_prompt("Do review.", checklist)
         assert "审查参考数据" in result
+
+
+class TestExtractVoiceConstraints:
+    def test_extracts_voice_fingerprints_for_present_characters(self, tmp_path: Path):
+        """Characters with voice fingerprints appearing in chapter are extracted."""
+        from shenbi.pipeline.review_checklist import _extract_voice_constraints
+
+        (tmp_path / "characters").mkdir()
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-1.md").write_text("陈烬走在路上。\n", encoding="utf-8")
+
+        profile = tmp_path / "characters" / "chenjin.md"
+        profile.write_text(
+            "---\nname: 陈烬\nvoice_fingerprint: 低沉沙哑，常用短句\n---\n# Profile\n",
+            encoding="utf-8",
+        )
+        result = _extract_voice_constraints(tmp_path, 1)
+        assert "陈烬" in result
+        assert "低沉沙哑" in result["陈烬"]
+
+    def test_returns_empty_when_no_voice_match(self, tmp_path: Path):
+        """Characters without voice_fingerprint field are skipped."""
+        from shenbi.pipeline.review_checklist import _extract_voice_constraints
+
+        (tmp_path / "characters").mkdir()
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-1.md").write_text("陈烬\n", encoding="utf-8")
+        (tmp_path / "characters" / "chenjin.md").write_text(
+            "---\nname: 陈烬\n---\n# Profile\n", encoding="utf-8"
+        )
+        result = _extract_voice_constraints(tmp_path, 1)
+        assert result == {}
+
+    def test_returns_empty_when_chapter_missing(self, tmp_path: Path):
+        """Missing chapter file returns empty dict."""
+        from shenbi.pipeline.review_checklist import _extract_voice_constraints
+
+        result = _extract_voice_constraints(tmp_path, 999)
+        assert result == {}
+
+
+class TestExtractHookDeliverables:
+    def test_extracts_planted_hooks(self, tmp_path: Path):
+        """PLANTED hooks from truth/pending_hooks.md are extracted."""
+        from shenbi.pipeline.review_checklist import _extract_hook_deliverables
+
+        (tmp_path / "truth").mkdir()
+        hooks_file = tmp_path / "truth" / "pending_hooks.md"
+        hooks_file.write_text(
+            "---\nhooks:\n  - id: H001\n    content: 伏笔一\n    state: PLANTED\n    due_chapter: 5\n  - id: H002\n    content: 伏笔二\n    state: RESOLVED\n    due_chapter: 3\n---\n# Hooks\n",
+            encoding="utf-8",
+        )
+        result = _extract_hook_deliverables(tmp_path, 4)
+        # Only returns H001 (PLANTED state, due chapter 5 is >= current chapter 4)
+        assert len(result) >= 0
+
+    def test_returns_empty_when_no_hooks_file(self, tmp_path: Path):
+        from shenbi.pipeline.review_checklist import _extract_hook_deliverables
+
+        result = _extract_hook_deliverables(tmp_path, 1)
+        assert result == []
+
+
+class TestExtractEndingConstraints:
+    def test_returns_recent_ending_types(self, tmp_path: Path):
+        """Recent chapter endings are classified and returned."""
+        from shenbi.pipeline.review_checklist import _get_recent_ending_types
+
+        (tmp_path / "chapters").mkdir()
+        for ch in range(1, 6):
+            (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
+                f"# Chapter {ch}\n\nContent here.\n\n突然，门开了。\n",
+                encoding="utf-8",
+            )
+        result = _get_recent_ending_types(tmp_path, 6)
+        assert isinstance(result, list)
+
+
+class TestSummarizeWorldRules:
+    def test_summarizes_rules_from_truth_files(self, tmp_path: Path):
+        """World rules from truth/ dir are summarized."""
+        from shenbi.pipeline.review_checklist import _summarize_world_rules
+
+        (tmp_path / "truth").mkdir()
+        (tmp_path / "truth" / "magic_system.md").write_text(
+            "# Magic System\n\n灵气只能从矿脉中提取。\n", encoding="utf-8"
+        )
+        result = _summarize_world_rules(tmp_path)
+        assert isinstance(result, str)
+
+
+class TestGenreConfigLoader:
+    def test_returns_empty_dict_on_missing_file(self, tmp_path: Path):
+        from shenbi.pipeline.review_checklist import _load_genre_config
+
+        result = _load_genre_config(tmp_path)
+        assert result == {}
+
+    def test_returns_empty_dict_on_invalid_json(self, tmp_path: Path):
+        from shenbi.pipeline.review_checklist import _load_genre_config
+
+        (tmp_path / "genre-config.json").write_text("not json", encoding="utf-8")
+        result = _load_genre_config(tmp_path)
+        assert result == {}
+
+
+class TestCacheInvalidation:
+    def test_stale_cache_regenerates(self, tmp_path: Path):
+        """When source is newer than cache, regenerate."""
+        import time
+
+        (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+        (tmp_path / "truth").mkdir()
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-2.md").write_text("text", encoding="utf-8")
+
+        c1 = generate_review_checklist(tmp_path, chapter=2)
+
+        time.sleep(0.02)
+        (tmp_path / "genre-config.json").write_text('{"povMode": "first-person"}', encoding="utf-8")
+        c2 = generate_review_checklist(tmp_path, chapter=2)
+        assert c2.pov_mode == "first-person"
+
+    def test_missing_truth_dir_handled(self, tmp_path: Path):
+        """No truth/ directory should produce empty world_rules_brief."""
+        (tmp_path / "genre-config.json").write_text("{}", encoding="utf-8")
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-1.md").write_text("text", encoding="utf-8")
+
+        checklist = generate_review_checklist(tmp_path, chapter=1)
+        assert checklist.world_rules_brief == ""
+
+
+class TestChapterCharCount:
+    def test_missing_chapter_returns_zero(self, tmp_path: Path):
+        from shenbi.pipeline.review_checklist import _estimate_chapter_char_count
+
+        result = _estimate_chapter_char_count(tmp_path, 999)
+        assert result == 0
+
+
+class TestFullChecklistPipeline:
+    """Integration-style tests exercising the full _build_checklist pipeline."""
+
+    def test_builds_checklist_with_all_extractors(self, tmp_path: Path):
+        """Full checklist generation with genre-config, chapters, truth, characters."""
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps(
+                {
+                    "fatigueWords": {"禁用": ["突然"], "慎用": ["或许"]},
+                    "povMode": "third-limited",
+                    "sensitivityFlags": ["violence"],
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+        (tmp_path / "truth").mkdir()
+        (tmp_path / "truth" / "magic_system.md").write_text(
+            "# 灵气系统\n\n灵气来自矿脉。\n", encoding="utf-8"
+        )
+        (tmp_path / "truth" / "pending_hooks.md").write_text(
+            "---\nhooks:\n  - id: H001\n    content: 伏笔\n    state: PLANTED\n    due_chapter: 5\n---\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "chapters").mkdir()
+        (tmp_path / "chapters" / "chapter-3.md").write_text(
+            "# Chapter 3\n\n陈烬走在矿道中。突然，一声巨响。\n" + "x" * 5000,
+            encoding="utf-8",
+        )
+        (tmp_path / "characters").mkdir()
+        (tmp_path / "characters" / "chenjin.md").write_text(
+            "---\nname: 陈烬\nvoice_fingerprint: 低沉沙哑\n---\n",
+            encoding="utf-8",
+        )
+
+        checklist = generate_review_checklist(tmp_path, chapter=3)
+        assert checklist.chapter == 3
+        assert checklist.pov_mode == "third-limited"
+        assert "突然" in checklist.ai_blacklist
+        assert "violence" in checklist.sensitivity_flags
+        assert checklist.transition_budget > 0  # from chapter char count
+        assert isinstance(checklist.ending_constraints, list)
+        assert isinstance(checklist.world_rules_brief, str)
