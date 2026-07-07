@@ -415,6 +415,7 @@ def _advance(
     step_idx: int,
     step: ChapterStep,
     chapter: int,
+    project_dir: Path | None = None,
 ) -> bool:
     """Bump the step cursor and set checkpoint if the step has one.
 
@@ -422,9 +423,13 @@ def _advance(
     False if the step simply advanced with no human action needed.
 
     Checkpoint suppression (--auto mode): when the corresponding config
-    flag is False the checkpoint is silently skipped and the cursor
-    advances as if it were a non-checkpoint step.
+    flag is False the checkpoint is silently skipped, staging files are
+    auto-committed to their final paths, and the cursor advances as if
+    it were a non-checkpoint step.
     """
+    if project_dir is None:
+        project_dir = Path(state.project_dir)
+
     state.chapter_loop.step_index = step_idx + 1
     state.chapter_loop.current_step = ""
 
@@ -433,11 +438,36 @@ def _advance(
         # blocked on every chapter-memo / state-settle.
         cfg = state.config
         if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
-            pass  # skip checkpoint, fall through to chapter-completion check
+            # Auto mode: commit staging immediately since no human review
+            from shenbi.pipeline.checkpoint import commit_staging
+
+            target = _substitute_chapter(step.output_path, chapter)
+            try:
+                commit_staging(project_dir, [target])
+                log.info("staging_auto_committed", chapter=chapter, target=target)
+            except FileNotFoundError:
+                log.warning("staging_auto_commit_skipped_no_file", chapter=chapter, target=target)
+            # Fall through to chapter-completion check (no checkpoint raised)
         elif (
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
-            pass  # skip checkpoint
+            from shenbi.pipeline.checkpoint import STAGING_DIR
+            import shutil as _shutil
+
+            staging_truth = project_dir / STAGING_DIR / "truth"
+            if staging_truth.exists():
+                for src in staging_truth.glob("*.md"):
+                    dst = project_dir / "truth" / src.name
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    _shutil.copy2(src, dst)
+                log.info(
+                    "staging_auto_committed_state_settle",
+                    chapter=chapter,
+                    files=len(list(staging_truth.glob("*.md"))),
+                )
+            else:
+                log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
+            # Fall through to chapter-completion check (no checkpoint raised)
         else:
             artifact = (
                 _substitute_chapter(step.output_path, chapter)
@@ -666,7 +696,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if step.skill.startswith("pipeline-"):
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Step 18 (chapter-revision) is conditional -- skip when routing decided
     # no revision is needed (spec §6.3, set during step 17 review-resonance).
@@ -676,7 +706,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         log.info("revision_step_skipped", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
     prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
@@ -691,8 +721,24 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         )
         state.chapter_loop.modify_feedback = None
 
+    # Inject prior G4 failure details as corrective feedback on retry
+    retry_key = _retry_key(chapter, step.skill)
+    prev_g4_feedback = state.chapter_loop.retry_feedback.get(retry_key)
+    if prev_g4_feedback:
+        prompt += (
+            f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
+            f"Your previous output failed the structural check:\n"
+            f"```\n{prev_g4_feedback}\n```\n"
+            f"Fix these issues in your new output."
+        )
+
     # Dispatch the skill.
-    result = dispatch_skill(step.skill, project_dir, prompt)
+    result = dispatch_skill(
+        step.skill,
+        project_dir,
+        prompt,
+        uses_staging=step.uses_staging,
+    )
 
     # State-settling failure: mark settling_failed and pause (spec §11).
     if not result.success and "state-settling" in step.skill:
@@ -732,14 +778,36 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     g4_files = _resolve_g4_files(project_dir, step, chapter)
     g4 = run_gate_g4(step.skill, g4_files, project_dir)
     if not _gate_passed(g4):
-        log.error(
+        log.warning(
             "chapter_g4_failed",
             chapter=chapter,
             step=step.step_num,
             skill=step.skill,
-            g4=g4,
+            g4=str(g4.get("must_fix", [])),
         )
-        return _handle_failure(state, step, chapter, "gate", project_dir)
+        # In automated mode, G4 failures are non-blocking.
+        # The retry feedback is still stored for the next attempt,
+        # but we only retry once instead of escalating.
+        must_fix = g4.get("must_fix", [])
+        state.chapter_loop.retry_feedback[retry_key] = (
+            f"G4 check failed: {must_fix}\nFull result: {json.dumps(g4, default=str)}"
+        )
+        if state.config.per_chapter_review_enabled:
+            return _handle_failure(state, step, chapter, "gate", project_dir)
+        # Auto mode: retry once with feedback, then continue regardless
+        count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
+        state.chapter_loop.retry_counts[retry_key] = count
+        if count <= 1:
+            log.info("chapter_g4_retry_auto", chapter=chapter, step=step.step_num, attempt=count)
+            return False  # retry once
+        log.info(
+            "chapter_g4_continue_auto",
+            chapter=chapter,
+            step=step.step_num,
+            msg="continuing despite G4 failure in auto mode",
+        )
+        state.chapter_loop.retry_counts.pop(retry_key, None)
+        # Fall through to advance
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
@@ -840,4 +908,4 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
     _reset_retries(state, step, chapter)
-    return _advance(state, step_idx, step, chapter)
+    return _advance(state, step_idx, step, chapter, project_dir=project_dir)

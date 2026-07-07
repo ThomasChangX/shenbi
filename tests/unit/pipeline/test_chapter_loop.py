@@ -696,7 +696,7 @@ class TestAuditLayerWiring:
 
         revisions = []
 
-        def fake_dispatch(skill, project_dir, prompt):
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
             if "chapter-revision" in skill:
                 revisions.append(prompt)
             return type("R", (), {"success": True})()
@@ -930,7 +930,7 @@ class TestEscalationWiring:
 
         call_order = []
 
-        def fake_dispatch_skill(skill, project_dir, prompt):
+        def fake_dispatch_skill(skill, project_dir, prompt, **kwargs):
             call_order.append(("dispatch", skill))
             return type("R", (), {"success": False})()
 

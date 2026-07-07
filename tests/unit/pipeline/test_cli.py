@@ -809,12 +809,12 @@ class TestModifyDecision:
 
     def test_modify_chapter_memo_rolls_back_step_index(self, tmp_path, monkeypatch):
         """MODIFY on CHAPTER_MEMO checkpoint resets step_index to 1."""
-        from shenbi.pipeline.cli import ReviewDecision
         from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
         from shenbi.pipeline.state import (
             CheckpointType,
             PipelinePhase,
             PipelineState,
+            ReviewDecision,
         )
 
         state = PipelineState.default(str(tmp_path))
