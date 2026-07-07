@@ -585,7 +585,7 @@ Verification chain:
 
 | Regression Point | Verification |
 |-----------------|--------------|
-| 67 unchanged skills' G2 still uses chapter/truth/report branches | Run `derive_file_type` on all 67, compare to pre-change results |
+| 53 unchanged skills' G2 still uses chapter/truth/report branches | Run `derive_file_type` on all 53 (68 total - 15 touched), compare to pre-change results |
 | phase_runner output discovery change (M5) doesn't affect existing skills | Run existing T2 planning/drafting phases, output_files list unchanged (derive_output_files returns same .md paths as rglob did for .md-only skills) |
 | truth-files.yaml additions don't break existing resolve | All existing contracts' reads still resolve successfully |
 | Clean-context invariant | New property test: consecutive dispatches of same skill don't share process state (locks in existing behavior against regression) |
@@ -669,7 +669,7 @@ Four phases, each with explicit go/no-go gates:
 | Gate failure re-run rate | baseline | est. -20-40% | **saves** |
 | **Net runtime** | — | +1-3% token (down from +3-5% — Layer B filtering offsets decisions.json cost) | **near-neutral** |
 
-**Honest assessment**: P2.5 adds slightly more token than P2 (~+20 token/decision for high-stakes rationale), but Layer B real filtering **saves** ~2-4k token/chapter by not sending full file contents. Net runtime cost is now near-neutral (1-3%), a meaningful improvement over the pre-filtering estimate (3-5%). Gate failure reduction is pure savings on top.
+**Honest assessment**: P2.5 adds slightly more token than P2 (~+20 token/decision for high-stakes rationale), but Layer B real filtering **saves** ~2-4k token/chapter by not sending full file contents. Net runtime cost is now near-neutral (1-3%), and may even be **net-negative** (saving ~1.5k token) when filtering savings exceed decisions.json cost — a meaningful improvement over the pre-filtering estimate (3-5%). Gate failure reduction is pure savings on top.
 
 ---
 

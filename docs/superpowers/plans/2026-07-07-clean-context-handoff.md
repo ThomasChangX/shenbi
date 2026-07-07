@@ -60,7 +60,7 @@
 | `tests/unit/test_dispatcher_executor.py` | Extend: decisions branch tests |
 | `tests/unit/gates/test_g2.py` | Extend: decisions branch tests |
 | `tests/unit/test_phase_runner.py` | Extend: M5 + M8 tests |
-| `tests/unit/contract/test_contracts.py` | Extend: new registry paths resolve |
+| `tests/unit/test_contract.py` | Extend: new registry paths resolve |
 | `justfile` | Add `lint-contract-fields` target |
 
 ---
@@ -293,7 +293,7 @@ git commit -m "feat: add decisions schema v1 module with P2.5 rationale rules"
 **Files:**
 - Modify: `docs/framework/truth-files.yaml`
 - Modify: `site/framework/truth-files.yaml`
-- Test: `tests/unit/contract/test_contracts.py` (extend)
+- Test: `tests/unit/test_contract.py` (extend)
 
 **Interfaces:**
 - Produces: two new registry concepts with `kind: decisions`, two new parametrics, two new globs
@@ -301,7 +301,7 @@ git commit -m "feat: add decisions schema v1 module with P2.5 rationale rules"
 - [ ] **Step 1: Write failing test for new registry paths**
 
 ```python
-# Append to tests/unit/contract/test_contracts.py
+# Append to tests/unit/test_contract.py
 
 @pytest.mark.unit
 class TestDecisionsRegistryPaths:
@@ -324,7 +324,7 @@ class TestDecisionsRegistryPaths:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/contract/test_contracts.py::TestDecisionsRegistryPaths -v`
+Run: `pytest tests/unit/test_contract.py::TestDecisionsRegistryPaths -v`
 Expected: FAIL — paths don't resolve yet
 
 - [ ] **Step 3: Add concepts, patterns, globs to both truth-files.yaml copies**
@@ -354,7 +354,7 @@ Apply identical changes to `site/framework/truth-files.yaml`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/unit/contract/test_contracts.py::TestDecisionsRegistryPaths -v`
+Run: `pytest tests/unit/test_contract.py::TestDecisionsRegistryPaths -v`
 Expected: PASS
 
 - [ ] **Step 5: Verify no existing contracts break**
@@ -365,7 +365,7 @@ Expected: all PASS (existing resolves still work)
 - [ ] **Step 6: Commit**
 
 ```bash
-git add docs/framework/truth-files.yaml site/framework/truth-files.yaml tests/unit/contract/test_contracts.py
+git add docs/framework/truth-files.yaml site/framework/truth-files.yaml tests/unit/test_contract.py
 git commit -m "feat: register decisions.json paths in truth-files.yaml (M1+M2)"
 ```
 
@@ -573,10 +573,24 @@ Expected: FAIL — decisions branch doesn't exist, word count runs on JSON
 
 - [ ] **Step 3: Add decisions branch to `gate_G2`**
 
-In `src/shenbi/gates/g2.py`, after the `checks.append({"id": "G2.2", ...})` block (line 54) and before the `# G2.3 — UTF-8` comment (line 56), insert a new branch. The branch must go inside the `for fp in fps:` loop, after the existence/empty checks, but before the chapter-specific checks. Insert after line 54:
+**Placement (critical)**: The `content` variable is not defined until line 58 (`content = p.read_text(encoding="utf-8")`, inside the G2.3 try block). The decisions branch uses `json.loads(content)`, so it must be placed **after** the G2.3 try/except block (after line 62, the `continue` in the except clause) and **before** line 75 (the `if fp.endswith(".md"):` YAML frontmatter check).
+
+The G2.3 block (lines 56-62) currently looks like:
+```python
+        # G2.3 — UTF-8
+        try:
+            content = p.read_text(encoding="utf-8")
+            checks.append({"id": "G2.3", "file": fp, "s": "PASS"})
+        except Exception:
+            mf.append({"id": "G2.3", "file": fp, "s": "FAIL"})
+            continue
+```
+
+Insert the decisions branch **immediately after** line 62 (the `continue` in the G2.3 except block), before the G2.4 JSON syntax check at line 64:
 
 ```python
         # G2.dec — decisions.json validation (M4)
+        # Placed after G2.3 (content is now available) and before G2.4/G2.5.
         if file_type == "decisions":
             # G2.dec.1 — valid JSON
             try:
@@ -600,10 +614,10 @@ In `src/shenbi/gates/g2.py`, after the `checks.append({"id": "G2.2", ...})` bloc
                 })
             else:
                 checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
-            continue  # CRITICAL: skip G2.5-G2.10 (word count etc.) for JSON decisions
+            continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
 ```
 
-Note: the `content` variable is already set by the `p.read_text(encoding="utf-8")` call at line 58. The decisions branch must be placed **after** line 58 (after content is read) but **before** line 75 (the `if fp.endswith(".md"):` YAML frontmatter check). Move the `content = p.read_text(encoding="utf-8")` line (currently at line 58 inside the G2.3 block) to before the decisions check, or ensure the decisions branch reads content independently. The cleanest approach: place the decisions branch right after the `content` variable is assigned, replacing the G2.3 block structure.
+**Why this placement works**: `content` is assigned at line 58 inside the G2.3 try block. If G2.3 succeeds (the normal path), `content` is available when we reach the decisions branch. If G2.3 fails, the `continue` at line 62 skips the decisions branch entirely — which is correct (a file that can't be read as UTF-8 shouldn't be parsed as JSON either). The `continue` at the end of the decisions branch skips G2.4-G2.10 (JSON syntax recheck, frontmatter, word count, placeholders, truth diff) — all of which are irrelevant or harmful for decisions.json files.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -745,10 +759,38 @@ Expected: FAIL — current code uses rglob and hardcodes "chapter"
 
 - [ ] **Step 3: Modify `cmd_post_skill` to use `derive_output_files` and `derive_file_type`**
 
-In `src/shenbi/phase_runner.py`, replace lines 149-153:
+**Critical**: `derive_output_files(skill, chapter, proj)` returns `[]` when `chapter=None` for any chapter-parametric path (e.g., `chapters/chapter-N.md`) — `_resolve_chapter_path` returns `""` for unresolved `N`/`NNN`, and `derive_output_files` filters empty strings. Since virtually every chapter skill writes chapter-parametric files, passing `chapter=None` silently disables G2 — a regression from the current `rglob("*.md")` heuristic which at least finds real files on disk.
+
+**Fix**: thread `chapter` through `cmd_post_skill`. The chapter number is available in the phase state's step records (the pipeline tracks it). Add a `chapter` parameter to `cmd_post_skill` and extract it from the caller.
+
+First, check the `cmd_post_skill` signature and its caller:
+
+```bash
+grep -n "def cmd_post_skill\|cmd_post_skill(" src/shenbi/phase_runner.py
+```
+
+The current signature is `cmd_post_skill(phase, skill, round_dir, project_dir)`. The caller is at line 306 (`cmd_post_skill(phase, skill, round_dir, project_dir)`). The chapter is available in the pipeline context — extract it from the prompt or state.
+
+**Option A (recommended)**: Add `chapter: int | None = None` parameter to `cmd_post_skill`, and have the caller extract it from the pipeline prompt using the existing `_extract_chapter` pattern from `dispatch_helper.py`:
 
 ```python
-# Before (lines 149-153):
+# src/shenbi/phase_runner.py — add chapter extraction helper
+import re
+
+def _extract_chapter_from_prompt(prompt: str) -> int | None:
+    """Extract chapter number from pipeline prompt like '... for chapter 5.'"""
+    m = re.search(r"chapter\s+(\d+)", prompt, re.IGNORECASE)
+    return int(m.group(1)) if m else None
+```
+
+Then modify `cmd_post_skill`:
+
+```python
+# Before (lines 145-153):
+def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | None) -> None:
+    state = load_state(round_dir, phase)
+    require_state(state, ["started"], "post-skill")
+    assert project_dir is not None
     proj = Path(project_dir)
     output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
     g2_status = GateStatus.SKIP.value
@@ -757,14 +799,27 @@ In `src/shenbi/phase_runner.py`, replace lines 149-153:
         g2_status = g2.get("status", GateStatus.FAIL.value)
 
 # After:
+def cmd_post_skill(
+    phase: str, skill: str, round_dir: str, project_dir: str | None,
+    chapter: int | None = None,
+) -> None:
+    state = load_state(round_dir, phase)
+    require_state(state, ["started"], "post-skill")
+    assert project_dir is not None
     proj = Path(project_dir)
     from shenbi.dispatcher.executor import derive_file_type, derive_output_files
     # M5: use contract-declared outputs instead of rglob heuristic.
-    # chapter is None for non-pipeline T2; derive_output_files handles it.
+    # chapter must be provided for chapter-parametric skills; when None
+    # (non-pipeline T2), derive_output_files returns [] for parametric paths.
+    # Fallback: if chapter is None and derive returns empty, use rglob as safety net.
     output_files = [
-        p for p in derive_output_files(skill, None, proj)
+        p for p in derive_output_files(skill, chapter, proj)
         if Path(p).exists() and Path(p).stat().st_size > 0
     ]
+    if not output_files and chapter is None:
+        # Safety fallback: rglob for non-pipeline mode where chapter is unknown.
+        # This preserves backward compatibility with T2 tests that don't track chapter.
+        output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
     # M8: use derived file_type instead of hardcoded "chapter".
     file_type = derive_file_type(skill)
     g2_status = GateStatus.SKIP.value
@@ -772,6 +827,19 @@ In `src/shenbi/phase_runner.py`, replace lines 149-153:
         g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
 ```
+
+**Update the caller** (line 306) to pass chapter:
+
+```python
+# Before:
+cmd_post_skill(phase, skill, round_dir, project_dir)
+
+# After:
+chapter = _extract_chapter_from_prompt(prompt) if 'prompt' in dir() else None
+cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
+```
+
+Note: the caller's context determines how `chapter` is obtained. In pipeline mode, the prompt contains "for chapter N". In T2 test mode, chapter may be None — the rglob safety fallback handles this.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
@@ -1426,27 +1494,76 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-decisions", c)
 ```
 
-- [ ] **Step 4: Register `g4_decisions` in the G4 dispatcher**
+- [ ] **Step 4: Register `g4_decisions` in the G4 dispatcher (composite, not override)**
 
-In `src/shenbi/gates/g4/generic.py`, add the import and checker entry. After line 185 (`from shenbi.gates.g4.escalation_review import g4_escalation_review`), add:
+**Critical**: 4 of the 7 Layer A skills already have dedicated G4 checkers in `generic.py:187-216`:
+- `shenbi-context-composing` → `g4_context_composing`
+- `shenbi-chapter-drafting` → `g4_chapter_drafting`
+- `shenbi-chapter-planning` → `g4_chapter_planning`
+- `shenbi-state-settling` → `g4_state_settling`
+
+Directly replacing these with `g4_decisions` would lose the existing structural validation (section titles, P1+P2 non-empty, etc.) — a shipped regression on a quality gate. Instead, create **composite checkers** that run both the existing checker and the decisions validator.
+
+In `src/shenbi/gates/g4/decisions_validator.py`, add a composite helper at the end of the file:
 
 ```python
-    from shenbi.gates.g4.decisions_validator import g4_decisions
+def make_composite_checker(existing_checker, decisions_checker):
+    """Create a composite G4 checker that runs both existing + decisions validation.
+
+    Returns FAIL if either checker fails; aggregates all checks.
+    """
+    def composite(fps: list[str], rd: str | None = None) -> str:
+        import json
+        from shenbi.gates.shared import fail, passed
+
+        existing_result = existing_checker(fps, rd)
+        decisions_result = decisions_checker(fps, rd)
+
+        # Parse both results and aggregate
+        try:
+            existing_data = json.loads(existing_result)
+        except (json.JSONDecodeError, TypeError):
+            existing_data = {"status": "FAIL", "checks": [], "failures": ["unparseable"]}
+        try:
+            decisions_data = json.loads(decisions_result)
+        except (json.JSONDecodeError, TypeError):
+            decisions_data = {"status": "FAIL", "checks": [], "failures": ["unparseable"]}
+
+        combined_checks = existing_data.get("checks", []) + decisions_data.get("checks", [])
+        combined_failures = existing_data.get("failures", []) + decisions_data.get("failures", [])
+
+        if combined_failures:
+            return fail(
+                f"G4-composite-{existing_checker.__name__}",
+                combined_checks,
+                "scoring",
+                combined_failures,
+            )
+        return passed(f"G4-composite-{existing_checker.__name__}", combined_checks)
+    return composite
 ```
 
-In the `checkers` dict (after line 215), add entries for all 7 decisions-producing skills:
+In `src/shenbi/gates/g4/generic.py`, add the import after line 185:
 
 ```python
-        "shenbi-context-composing": g4_decisions,
+    from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
+```
+
+In the `checkers` dict, **replace** the 4 existing entries with composites, and **add** the 3 new ones:
+
+```python
+        # Composite: existing structural check + decisions validation
+        "shenbi-context-composing": make_composite_checker(g4_context_composing, g4_decisions),
+        "shenbi-chapter-drafting": make_composite_checker(g4_chapter_drafting, g4_decisions),
+        "shenbi-chapter-planning": make_composite_checker(g4_chapter_planning, g4_decisions),
+        "shenbi-state-settling": make_composite_checker(g4_state_settling, g4_decisions),
+        # New: decisions-only (no existing dedicated checker)
         "shenbi-market-radar": g4_decisions,
-        "shenbi-chapter-drafting": g4_decisions,
-        "shenbi-chapter-planning": g4_decisions,
         "shenbi-chapter-revision": g4_decisions,
-        "shenbi-state-settling": g4_decisions,
         "shenbi-short-drafting": g4_decisions,
 ```
 
-Note: this **overrides** the existing `g4_context_composing` checker for context-composing. If context-composing still needs its section-title checks, create a composite checker that runs both. For now, the decisions checker is the priority — the section-title checks can be added as a secondary pass in a follow-up.
+**Why composite, not override**: the existing checkers validate the main artifact's structure (e.g., context-composing's P1-P7 section titles, chapter-drafting's PRE_WRITE_CHECK). The decisions validator validates the sidecar JSON. Both must pass — losing either is a quality-gate regression. The composite runs both and fails if either fails.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
@@ -1608,14 +1725,16 @@ def _extract_h2_sections(text: str, fields: list[str]) -> str:
     if current_heading is not None:
         sections[current_heading] = current_body
 
-    # Match declared fields against headings (substring match for robustness)
+    # Match declared fields against headings (exact match after normalization,
+    # consistent with G1's check_fields_exist which uses set difference).
+    # Substring matching was considered but rejected: it would make G1 warnings
+    # (exact) inconsistent with the filter (substring) — G1 could warn "field X
+    # missing" while the filter still includes X via partial match.
     matched: list[str] = []
     for field in fields:
         field_lower = field.lower()
-        for heading, body in sections.items():
-            if field_lower in heading or heading in field_lower:
-                matched.extend(body)
-                break
+        if field_lower in sections:
+            matched.extend(sections[field_lower])
 
     if not matched:
         # Escape hatch: no declared field found → return full text
@@ -1674,10 +1793,13 @@ def _filter_to_fields(text: str, fields: list[str], path: str) -> str:
 
 - [ ] **Step 4: Wire `read_fields` into `_build_skill_prompt`**
 
-In `_build_skill_prompt`, replace the input-reading loop (lines 149-191). Change the loop to consume `read_fields`:
+**Critical**: Replace **only** lines 149-161 (the read loop). Lines 162-191 contain the input budget/truncation logic (`_INPUT_MAX_CHARS_TOTAL`, `_INPUT_MAX_CHARS_PER_FILE`, proportional budgeting) which must be preserved. Replacing lines 149-191 would delete this safeguard and allow runaway inputs to blow the token budget.
+
+In `_build_skill_prompt`, replace **only** lines 149-161 (the read loop, from `input_texts: dict[str, str] = {}` through the `else: raw_inputs[resolved] = ...` line). The truncation logic at lines 162-191 stays intact and consumes the `raw_inputs` dict:
 
 ```python
     # Read contract inputs with field-level filtering (Layer B)
+    # Replaces only the read loop (lines 149-161). Truncation logic (162-191) stays.
     input_texts: dict[str, str] = {}
     raw_inputs: dict[str, str] = {}
     fields_map = contract.get("read_fields", {})   # Layer B: consume stored field map
@@ -1696,7 +1818,11 @@ In `_build_skill_prompt`, replace the input-reading loop (lines 149-191). Change
             raw_inputs[resolved] = raw_text
         else:
             raw_inputs[resolved] = f"[file not found: {resolved}]"
+    # --- existing truncation logic at lines 162-191 continues from here, unchanged ---
+    # It reads raw_inputs and applies _INPUT_MAX_CHARS_TOTAL / _INPUT_MAX_CHARS_PER_FILE
 ```
+
+**What NOT to change**: The block starting with `# Apply per-file cap and proportional total budget` (line 162) through `input_texts[fname] = text` (line 191) must remain exactly as-is. It reads `raw_inputs` (which our modified loop populates) and produces `input_texts` (which the rest of `_build_skill_prompt` consumes). Our change only affects how `raw_inputs` is populated — filtering is applied before truncation, so truncated content is already field-filtered.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
@@ -2000,14 +2126,22 @@ def lint_skill(skill_dir: Path) -> list[str]:
             fields = item.get("fields", [])
             if not fields:
                 continue
-            # Resolve parametric path (just check if any matching file exists)
-            # For simplicity, skip parametric paths with N/NNN
-            if "N" in path:
-                continue  # parametric — can't check without chapter number
+            # Resolve parametric paths: convert chapter-N to a glob and find
+            # a sample file on disk. This covers the majority of Layer B
+            # declarations which are on chapter-parametric truth files.
             full_path = PROJECT_DIR / path
             if not full_path.exists():
-                issues.append(f"{skill_dir.name}: {path} not found")
-                continue
+                # Try resolving parametric path by finding a sample file
+                import glob as _glob
+                # Convert parametric patterns: N → *, NNN → *
+                glob_pattern = path.replace("NNN", "*").replace("N", "*")
+                glob_path = str(PROJECT_DIR / glob_pattern)
+                matches = _glob.glob(glob_path)
+                if matches:
+                    full_path = Path(matches[0])  # check first sample
+                else:
+                    issues.append(f"{skill_dir.name}: {path} not found (no glob match)")
+                    continue
             content = full_path.read_text(encoding="utf-8")
             if path.endswith(".md"):
                 actual = extract_headings_md(content)
@@ -2087,7 +2221,7 @@ Expected: all PASS (ruff + mypy + basedpyright + pytest, ≥85% coverage)
 Verify the T3 regression points from the spec:
 
 ```bash
-# 67 unchanged skills' G2 still uses chapter/truth/report branches
+# 53 unchanged skills' G2 still uses chapter/truth/report branches (68 total - 15 touched)
 pytest tests/unit/test_dispatcher_executor.py -v
 
 # phase_runner output discovery change (M5) doesn't affect existing skills
