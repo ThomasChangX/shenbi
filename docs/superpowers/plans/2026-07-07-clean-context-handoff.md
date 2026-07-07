@@ -466,7 +466,10 @@ In `derive_file_type`, after the truth check (line 84) and before `return "chapt
 The new `_decisions_files_cache` (and existing `_truth_files_cache`) are module globals that persist across tests. Add an autouse fixture to reset them:
 
 ```python
-# tests/unit/conftest.py — add or extend the existing autouse fixture
+# tests/unit/conftest.py — CREATE this file (it does not exist yet).
+# Note: the existing autouse fixture (_isolate_structlog_config) lives in
+# tests/conftest.py (repo root). pytest merges conftest scopes, so both
+# coexist correctly. This file is specifically for unit-test-scoped fixtures.
 
 import pytest
 import shenbi.dispatcher.executor as executor
@@ -791,20 +794,30 @@ Expected: FAIL — current code uses rglob and hardcodes "chapter"
 
 **Root cause (verified)**: `phase_runner.py` is a CLI invoked as `post-skill <phase> <skill> --round-dir <dir> --project-dir <dir>`. There is **no `prompt` variable** in the caller (`main()` at line 306) — verified: `grep prompt src/shenbi/phase_runner.py` returns 0 matches. `PhaseState` (`status.py:30`) tracks only state strings, no chapter field. The previous fix's `'prompt' in dir()` is both wrong (dir() doesn't check local variables) and moot (prompt doesn't exist).
 
-**Fix**: Add a `--chapter` CLI flag to the `post-skill` subcommand. The pipeline driver (which invokes phase_runner) already knows the chapter — it passes it explicitly.
+**Fix**: Add a `--chapter` CLI flag to the `post-skill` command. The pipeline driver (which invokes phase_runner) already knows the chapter — it passes it explicitly.
 
-First, add the CLI flag. Find the `post-skill` argument parser in `main()`:
+**Codebase reality (verified)**: `phase_runner.py` does NOT use argparse. It uses a hand-rolled `find_flag()` helper (line 284) that scans `sys.argv[2:]` for `--flag value` pairs. The `post-skill` handler is at line 304-306.
 
-```bash
-grep -n "post-skill\|add_argument.*chapter\|subparsers" src/shenbi/phase_runner.py
-```
-
-Add `--chapter` as an optional int argument to the `post-skill` subparser:
+First, add `--chapter` parsing in `main()`, after the existing `find_flag` calls (after line 296):
 
 ```python
-# In the post-skill subparser setup (find the subparser definition):
-post_parser.add_argument("--chapter", type=int, default=None,
-                         help="Chapter number for parametric output discovery")
+# After line 296 (project_dir = find_flag("--project-dir", required=False)):
+chapter_str = find_flag("--chapter", required=False)
+chapter = int(chapter_str) if chapter_str else None
+```
+
+Then modify the `post-skill` dispatch (line 304-306) to pass chapter:
+
+```python
+# Before (lines 304-306):
+    elif cmd == "post-skill":
+        phase, skill = args[0], args[1]
+        cmd_post_skill(phase, skill, round_dir, project_dir)
+
+# After:
+    elif cmd == "post-skill":
+        phase, skill = args[0], args[1]
+        cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
 ```
 
 Then modify `cmd_post_skill`:
@@ -855,15 +868,7 @@ def cmd_post_skill(
         g2_status = g2.get("status", GateStatus.FAIL.value)
 ```
 
-**Update the caller** (line 306) to pass chapter from the CLI arg:
-
-```python
-# Before:
-cmd_post_skill(phase, skill, round_dir, project_dir)
-
-# After:
-cmd_post_skill(phase, skill, round_dir, project_dir, chapter=args.chapter)
-```
+(The caller update is already done above — the `post-skill` dispatch at line 304-306 now passes `chapter=chapter`.)
 
 **Why this works**: The pipeline driver already knows the chapter (it passes "for chapter N" in prompts to `dispatch_helper`). Now it passes `--chapter N` to `phase_runner post-skill` explicitly. In T2 test mode (no pipeline), `--chapter` is absent (None), and the rglob fallback with `file_type="chapter"` preserves backward compatibility — .md files are validated as chapters, which is correct.
 
@@ -2102,20 +2107,31 @@ Example for chapter-drafting:
       fields: [文风指纹, 语调参数]                               # real H2 headings
     - file: genre-config.json
       fields: [genre, sub_genre, pov_mode]                     # JSON keys (English)
-    - file: truth/audit_drift.md
-      fields: [活跃漂移, 严重程度, 补偿指令]                     # real H2 headings
+    - file: truth/current_state.md
+      fields: [主角状态, 当前世界局势, 活跃线索]                # verified real H2 headings
 ```
 
-**Critical (C3 fix)**: Field declarations MUST use the actual heading text from the file. For markdown truth files, this means Chinese headings (`## 活跃漂移` → field `活跃漂移`), NOT English translations. For JSON files, use the actual top-level keys. Before writing field declarations for each skill, run:
+**Critical (C3 fix)**: Field declarations MUST use the actual heading text from the file. For markdown truth files, this means Chinese headings (`## 主角状态` → field `主角状态`), NOT English translations. For JSON files, use the actual top-level keys.
+
+**Verified example**: `tests/fixtures/snapshots/chapter-025/truth/current_state.md` has these real H2 headings:
+```
+## 主角状态
+## 当前世界局势
+## 活跃线索
+```
+(verified via `grep "^## " tests/fixtures/snapshots/chapter-025/truth/current_state.md`)
+
+Before writing field declarations for each skill, run this audit for every target truth file:
 
 ```bash
 # Audit actual headings in each target truth file:
-grep "^## " tests/fixtures/snapshots/chapter-025/truth/audit_drift.md
 grep "^## " tests/fixtures/snapshots/chapter-025/truth/current_state.md
+grep "^## " tests/fixtures/snapshots/chapter-025/truth/character_matrix.md
+grep "^## " tests/fixtures/snapshots/chapter-025/truth/emotional_arcs.md
 # etc. for each file the skill reads
 ```
 
-Use the exact heading text returned by grep as the field name. Do NOT translate, lowercase, or snake_case.
+Use the exact heading text returned by grep as the field name. Do NOT translate, lowercase, or snake_case. If a truth file doesn't exist in fixtures yet, skip it (no fields) rather than guessing heading names.
 
 - [ ] **Step 2: Batch 2 — 6 medium-coupling skills**
 
