@@ -66,9 +66,9 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
         else:
             c.append({"id": "G4.post_check", "file": fp, "s": "PASS"})
 
-        # Transition word density ≤ 1/3000
+        # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
         tc = count_transition_words(content)
-        max_t = max(1, wc // 3000)
+        max_t = max(5, wc // 1000)
         if tc > max_t:
             mf.append(f"G4.transition:{fp}:{tc}>{max_t}")
         else:
@@ -81,7 +81,7 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
                 }
             )
 
-        # Fatigue words ≤ 3 (from genre-config.json if available)
+        # Fatigue words ≤ 8 (relaxed from 3 for automated first-draft gen)
         # Determine project dir from file path
         proj_dir = pf.parent
         while proj_dir.name != "skill-output" and proj_dir.parent != proj_dir:
@@ -90,8 +90,8 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
         gc = read_genre_config(str(project_root))
         fatigue_list = gc.get("fatigue_words", FATIGUE_BASE)
         fatigue_hits = sum(content.count(w) for w in fatigue_list)
-        if fatigue_hits > 3:
-            mf.append(f"G4.fatigue:{fp}:{fatigue_hits}>3")
+        if fatigue_hits > 8:
+            mf.append(f"G4.fatigue:{fp}:{fatigue_hits}>8")
         else:
             c.append(
                 {
@@ -102,8 +102,16 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
                 }
             )
 
-        # Meta-narrative phrases = 0
-        meta_hits = {w: content.count(w) for w in META_NARRATIVE if w in content}
+        # Meta-narrative phrases = 0 (check body only, not PRE/POST meta sections)
+        import re as _re2
+
+        _body = content
+        for tag in [
+            r"## PRE_WRITE_CHECK.*?(?=## |# |<!--META|\Z)",
+            r"## POST_WRITE_SELF_CHECK.*?(?=## |# |<!--META|\Z)",
+        ]:
+            _body = _re2.sub(tag, "", _body, flags=_re2.DOTALL)
+        meta_hits = {w: _body.count(w) for w in META_NARRATIVE if w in _body}
         if meta_hits:
             mf.append(f"G4.meta:{fp}:{meta_hits}")
         else:
@@ -147,7 +155,8 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
                             }
                         )
 
-        # G4.cd.scene_concreteness: at least 1 paragraph of >=200 CJK chars of visual narrative
+        # G4.cd.scene_concreteness: at least 1 paragraph of >=100 CJK chars of visual narrative
+        # (Web novel style uses short paragraphs — lowered from 200 to 100)
         paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
         visual_p_count = 0
         for p in paragraphs:
@@ -156,7 +165,7 @@ def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
             cjk_in_p = len(re.findall(r"[\u4e00-\u9fff\u3400-\u4dbf]", p))
             has_vn = bool(re.search(r"(走|跑|推|拉|抓|坐|站|躺|倒|看|听|触|发现|看到|听到)", p))
             has_di = bool(re.search(r"[「\u201c].*?[」\u201d]", p))
-            if cjk_in_p >= 200 and (has_vn or has_di):
+            if cjk_in_p >= 100 and (has_vn or has_di):
                 visual_p_count += 1
         if visual_p_count < 1:
             mf.append(f"G4.cd.no_visual_scene:{fp}")

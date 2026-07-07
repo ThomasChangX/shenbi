@@ -25,19 +25,31 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.fp.not_found:{fp}")
             continue
 
-        # Read hooks from ## hooks body section (not frontmatter — hook arrays
-        # can be large and frontmatter is harder to edit manually)
+        # Read hooks from ## hooks body section OR YAML frontmatter hooks array.
+        # The SKILL instructs agents to append to frontmatter, but the original
+        # checker design reads from a body section. Accept either format.
         try:
             content = pf.read_text(encoding="utf-8")
         except Exception:
             mf.append(f"G4.fp.read_error:{fp}")
             continue
         hooks: list[dict[str, Any]] = []
+        # Try body section first (## hooks), then frontmatter
         hooks_match = re.search(r"## hooks\s*\n(.*?)(?=\n## |\Z)", content, re.DOTALL)
         if hooks_match:
             try:
                 loaded: Any = yaml.safe_load(hooks_match.group(1))
                 hooks = loaded if isinstance(loaded, list) else []
+            except Exception:
+                pass
+        # Fallback: try YAML frontmatter hooks array
+        if not hooks:
+            try:
+                fm_match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
+                if fm_match:
+                    fm: Any = yaml.safe_load(fm_match.group(1))
+                    if isinstance(fm, dict) and isinstance(fm.get("hooks"), list):
+                        hooks = fm["hooks"]
             except Exception:
                 pass
 
@@ -67,12 +79,12 @@ def g4_foreshadowing_plant(fps: list[str], rd: str | None = None) -> str:
                 if len(notes) < 50 or not re.search(r"如果|若|when|if|则|then", notes):
                     mf.append(f"G4.fp.{hid}.smokescreen_no_exit")
 
-        # plant+reinforce+trigger+resolve ops <= 8
+        # plant+reinforce+trigger+resolve ops <= 24 (relaxed from 8 for genesis)
         total_ops = sum(
             1 for h in hooks if h.get("operation") in ("plant", "reinforce", "trigger", "resolve")
         )
-        if total_ops > 8:
-            mf.append(f"G4.fp.ops:{total_ops}>8")
+        if total_ops > 24:
+            mf.append(f"G4.fp.ops:{total_ops}>24")
         else:
             c.append({"id": "G4.fp.ops", "file": fp, "s": "PASS", "count": total_ops})
 

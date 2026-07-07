@@ -826,6 +826,16 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
+    # foreshadowing-plant replaced by deterministic YAML generation
+    if step.skill == "shenbi-foreshadowing-plant":
+        from shenbi.pipeline.hook_planting import plant_hooks_from_plan
+
+        count = plant_hooks_from_plan(project_dir, chapter)
+        log.info("foreshadowing_plant_replaced_by_deterministic", chapter=chapter, count=count)
+        _record_step_done(state, step, chapter)
+        _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
     # Step 18 (chapter-revision) is conditional -- skip when routing decided
     # no revision is needed (spec §6.3, set during step 17 review-resonance).
     # Scoped to the revision skill ONLY: snapshot (step 19) and drift (step

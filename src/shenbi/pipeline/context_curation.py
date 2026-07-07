@@ -183,9 +183,7 @@ def _parse_assembled_sections(assembled: str) -> list[Section]:
         sections.append(
             Section(
                 source=f"{category}:{source_id}",
-                priority={"route-a": 1.0, "route-b": 0.8, "route-c": 0.6}.get(
-                    category, 0.5
-                ),
+                priority={"route-a": 1.0, "route-b": 0.8, "route-c": 0.6}.get(category, 0.5),
                 text=text,
                 category=category,
                 estimated_tokens=int(len(text) * 1.5),
@@ -206,9 +204,7 @@ def _generate_minimal_context(project_dir: Path, chapter: int) -> str:
     and placeholder text for all other sections.
     """
     plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
-    plan_text = (
-        plan_path.read_text(encoding="utf-8") if plan_path.exists() else "(no plan yet)"
-    )
+    plan_text = plan_path.read_text(encoding="utf-8") if plan_path.exists() else "(no plan yet)"
     return (
         f"## P1 章节备忘\n\n{plan_text}\n\n"
         f"## P2 书脊（L5）\n\n(未产出)\n\n"
@@ -259,9 +255,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
         paragraphs = [
             p.strip()
             for p in text.split("\n\n")
-            if p.strip()
-            and not p.strip().startswith("<!--")
-            and not p.strip().startswith("## ")
+            if p.strip() and not p.strip().startswith("<!--") and not p.strip().startswith("## ")
         ]
         last_p = paragraphs[-1] if paragraphs else ""
         first_20 = last_p[:20].replace("\n", " ")
@@ -279,9 +273,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
     # Check for 3+ consecutive same type.
     warning = ""
     if len(ending_types) >= 3 and len(set(ending_types[-3:])) == 1:
-        warning = (
-            f"\n⚠️ 连续 3 章相同结尾方式 ({ending_types[-1]})，本章必须避免！\n"
-        )
+        warning = f"\n⚠️ 连续 3 章相同结尾方式 ({ending_types[-1]})，本章必须避免！\n"
 
     # Monitor classifier health: if "other" rate exceeds 20%, patterns may have
     # drifted.
@@ -295,10 +287,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
                 other_rate=f"{other_rate:.0%}",
             )
 
-    header = (
-        "| 章节 | 结尾方式 | 末段首句（前 20 字） |\n"
-        "|------|---------|-------------------|\n"
-    )
+    header = "| 章节 | 结尾方式 | 末段首句（前 20 字） |\n|------|---------|-------------------|\n"
     return header + "\n".join(rows) + warning
 
 
@@ -357,18 +346,14 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
         "| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 | 操作建议 |\n"
         "|---------|------|------|----------|---------|---------|\n"
     )
-    briefing += (
-        "\n".join(mh_rows) if mh_rows else "| (无) | — | — | — | — | — |\n"
-    )
+    briefing += "\n".join(mh_rows) if mh_rows else "| (无) | — | — | — | — | — |\n"
 
     briefing += "\n### 弧内钩子（H*）\n\n"
     briefing += (
         "| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 |\n"
         "|---------|------|------|----------|---------|\n"
     )
-    briefing += (
-        "\n".join(h_rows) if h_rows else "| (无) | — | — | — | — |\n"
-    )
+    briefing += "\n".join(h_rows) if h_rows else "| (无) | — | — | — | — |\n"
 
     return briefing
 
@@ -501,13 +486,13 @@ def _render_context_document(
 
 __all__ = [
     "Section",
-    "curate_context",
-    "_check_ending_diversity",
     "_build_hook_debt_briefing",
-    "_reorder_to_layered_format",
-    "_parse_assembled_sections",
+    "_check_ending_diversity",
     "_generate_minimal_context",
+    "_parse_assembled_sections",
     "_read_pending_hooks",
     "_read_spine_master_hooks",
     "_render_context_document",
+    "_reorder_to_layered_format",
+    "curate_context",
 ]

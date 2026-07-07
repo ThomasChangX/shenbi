@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 
 from shenbi.pipeline.context_curation import (
-    curate_context,
-    _check_ending_diversity,
     _build_hook_debt_briefing,
+    _check_ending_diversity,
+    curate_context,
 )
 
 
@@ -18,16 +17,13 @@ class TestEndingDiversity:
     def test_no_repetition_passes(self, tmp_path: Path):
         (tmp_path / "chapters").mkdir()
         (tmp_path / "chapters" / "chapter-1.md").write_text(
-            "# Chapter 1\n\nSome text.\n\n他突然停下了脚步。",
-            encoding="utf-8"
+            "# Chapter 1\n\nSome text.\n\n他突然停下了脚步。", encoding="utf-8"
         )
         (tmp_path / "chapters" / "chapter-2.md").write_text(
-            "# Chapter 2\n\nMore text.\n\n第二天，他出发了。",
-            encoding="utf-8"
+            "# Chapter 2\n\nMore text.\n\n第二天，他出发了。", encoding="utf-8"
         )
         (tmp_path / "chapters" / "chapter-3.md").write_text(
-            "# Chapter 3\n\nFinal text.\n\n但他知道一切尚未结束。",
-            encoding="utf-8"
+            "# Chapter 3\n\nFinal text.\n\n但他知道一切尚未结束。", encoding="utf-8"
         )
         result = _check_ending_diversity(tmp_path, chapter=4)
         # Should have rows for chapters 1,2,3 with different types
@@ -38,8 +34,7 @@ class TestEndingDiversity:
         (tmp_path / "chapters").mkdir()
         for ch in range(1, 4):
             (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
-                f"# Chapter {ch}\n\nText.\n\n突然，一声巨响打破了寂静。",
-                encoding="utf-8"
+                f"# Chapter {ch}\n\nText.\n\n突然，一声巨响打破了寂静。", encoding="utf-8"
             )
         result = _check_ending_diversity(tmp_path, chapter=4)
         assert "⚠️" in result  # 3 consecutive cliffhangers
@@ -72,7 +67,7 @@ class TestCurateContext:
         # Write assembled context
         (tmp_path / "context" / "chapter-5-context.md").write_text(
             "## route-a:Hero\n\nHero context text.\n\n## route-c:book_spine\n\nSpine text.",
-            encoding="utf-8"
+            encoding="utf-8",
         )
         # Write plan
         (tmp_path / "plans" / "chapter-5-plan.md").write_text(
@@ -81,8 +76,7 @@ class TestCurateContext:
         # Write chapters for ending check
         for ch in range(2, 5):
             (tmp_path / "chapters" / f"chapter-{ch}.md").write_text(
-                f"# Chapter {ch}\n\nText.\n\n最终，他做出了选择。",
-                encoding="utf-8"
+                f"# Chapter {ch}\n\nText.\n\n最终，他做出了选择。", encoding="utf-8"
             )
         # Write pending hooks
         (tmp_path / "truth" / "pending_hooks.md").write_text(
