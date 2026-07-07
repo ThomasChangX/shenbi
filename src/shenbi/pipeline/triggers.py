@@ -359,7 +359,7 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
 
 def _count_total_chapters(project_dir: Path) -> int:
     """Parse volume_map.md and sum all volume chapter counts."""
-    vmap = project_dir / "truth" / "volume_map.md"
+    vmap = project_dir / VOLUME_MAP_PATH  # outline/volume_map.md
     if not vmap.exists():
         return 0
     text = vmap.read_text(encoding="utf-8")

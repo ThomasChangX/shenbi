@@ -718,6 +718,8 @@ def _parse_resonance_score(report_path: Path) -> int | None:
                 if isinstance(score, int):
                     return score
             except Exception:
+                # YAML frontmatter parse error — score not retrievable from
+                # this format, fall through to markdown-bold and plain-text patterns.
                 pass
 
     # Pattern 2: Markdown bold label (case-insensitive)
@@ -1180,7 +1182,10 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
         # Check for blocking issues
         cs = _get_chapter_state(state, chapter)
-        cs.audit_results["blocking_found"] = "BLOCKING" in consolidated
+        # The consolidated summary always contains "- **BLOCKING Issues**: N".
+        # Only the "## BLOCKING Issues" H2 section is present when actual
+        # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
+        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
 
         _reset_retries(state, step, chapter)

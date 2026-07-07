@@ -504,7 +504,7 @@ class TestTotalChaptersRecompute:
         """Parse volume_map.md and sum per-volume chapter counts."""
         from shenbi.pipeline.triggers import _count_total_chapters
 
-        vmap = tmp_path / "truth"
+        vmap = tmp_path / "outline"
         vmap.mkdir(parents=True)
         (vmap / "volume_map.md").write_text(
             "# Volume Map\n\n"
@@ -518,7 +518,7 @@ class TestTotalChaptersRecompute:
         """Also parses 'Chapters: N' labels."""
         from shenbi.pipeline.triggers import _count_total_chapters
 
-        vmap = tmp_path / "truth"
+        vmap = tmp_path / "outline"
         vmap.mkdir(parents=True)
         (vmap / "volume_map.md").write_text("## Volume 1\nChapters: 8\n## Volume 2\nChapters: 12\n")
         assert _count_total_chapters(tmp_path) == 20
@@ -537,7 +537,7 @@ class TestTotalChaptersRecompute:
         from shenbi.pipeline.triggers import _update_total_chapters
 
         # Setup: volume_map with chapters
-        vmap = tmp_path / "truth"
+        vmap = tmp_path / "outline"
         vmap.mkdir(parents=True)
         (vmap / "volume_map.md").write_text("## V1\n章节数: 10\n## V2\n章节数: 8\n")
 
