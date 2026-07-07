@@ -60,6 +60,13 @@ class TestG4FailureClassification:
         assert len(soft) == 2
         assert len(warn) == 0
 
+    def test_unmatched_falls_back_to_hard(self):
+        """Items not matching any G4_CHECK_MAP key default to HARD."""
+        hard, soft, warn = _classify_g4_failures(["unknown_check:some_file.md"])
+        assert len(hard) == 1
+        assert len(soft) == 0
+        assert len(warn) == 0
+
 
 class TestSoftFailTracker:
     """SoftFailTracker should use sliding window to prevent stale escalations."""

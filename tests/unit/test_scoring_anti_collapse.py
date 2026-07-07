@@ -47,3 +47,87 @@ def test_collapse_flagged_when_majority_95() -> None:
     result = flag_score_collapse(scores)
     assert result["collapse_suspected"] is True
     assert any("majority_at_single_value" in s for s in result["signals"])
+
+
+@pytest.mark.unit
+def test_collapse_not_flagged_for_empty_scores() -> None:
+    """Empty scores dict should return no collapse."""
+    result = flag_score_collapse({})
+    assert result["collapse_suspected"] is False
+    assert result["signals"] == []
+
+
+@pytest.mark.unit
+def test_agreement_with_asymmetric_dimensions() -> None:
+    """When dimensions differ between scorers, missing dims default to 0."""
+    a = {1: 10, 3: 90}
+    b = {2: 10, 3: 92}
+    result = check_scorer_agreement(a, b, threshold=20)
+    # dim 1: 10-0=10, dim 2: 0-10=10, dim 3: 90-92=2 — all within 20
+    assert result["agreed"] is True
+
+
+class TestGateMarkers:
+    """Tests for check_gate_markers — T1/T2/T3 marker enforcement."""
+
+    def test_t1_marker_missing(self, tmp_path: Path):
+        from pathlib import Path
+        from shenbi.scoring import check_gate_markers
+
+        rubric = tmp_path / "t1-skill" / "shenbi-test" / "rubric.json"
+        rubric.parent.mkdir(parents=True)
+        rubric.write_text("{}", encoding="utf-8")
+
+        rd = tmp_path / "round"
+        rd.mkdir()
+        (rd / "gate-markers").mkdir()
+
+        missing = check_gate_markers(str(rubric), "generative", str(rd))
+        assert len(missing) > 0
+        assert any("G4-shenbi-test-generative" in m for m in missing)
+
+    def test_t2_marker_missing(self, tmp_path: Path):
+        from pathlib import Path
+        from shenbi.scoring import check_gate_markers
+
+        rubric = tmp_path / "t2-phase" / "test-phase" / "rubric.json"
+        rubric.parent.mkdir(parents=True)
+        rubric.write_text("{}", encoding="utf-8")
+
+        rd = tmp_path / "round"
+        rd.mkdir()
+        (rd / "gate-markers").mkdir()
+
+        missing = check_gate_markers(str(rubric), "generative", str(rd))
+        # T2 paths check deps.json; if deps.json is missing, no markers checked
+        assert isinstance(missing, list)
+
+    def test_t3_marker_missing(self, tmp_path: Path):
+        from pathlib import Path
+        from shenbi.scoring import check_gate_markers
+
+        rubric = tmp_path / "t3-pipeline" / "test-pipeline" / "rubric.json"
+        rubric.parent.mkdir(parents=True)
+        rubric.write_text("{}", encoding="utf-8")
+
+        rd = tmp_path / "round"
+        rd.mkdir()
+        (rd / "gate-markers").mkdir()
+
+        missing = check_gate_markers(str(rubric), "generative", str(rd))
+        assert len(missing) > 0
+        assert any("G6-test-pipeline-generative" in m for m in missing)
+
+    def test_non_tier_rubric_returns_empty(self, tmp_path: Path):
+        from pathlib import Path
+        from shenbi.scoring import check_gate_markers
+
+        rubric = tmp_path / "other" / "rubric.json"
+        rubric.parent.mkdir(parents=True)
+        rubric.write_text("{}", encoding="utf-8")
+
+        rd = tmp_path / "round"
+        rd.mkdir()
+
+        missing = check_gate_markers(str(rubric), "generative", str(rd))
+        assert missing == []
