@@ -71,7 +71,7 @@ def yload(p: str | Path) -> dict[str, Any]:
         try:
             data = yaml.safe_load(cleaned) or {}
         except (yaml.YAMLError, TypeError, ValueError):
-            data: dict[str, Any] = {}
+            data = {}
     if not isinstance(data, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
     return data
