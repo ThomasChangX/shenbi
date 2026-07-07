@@ -233,7 +233,25 @@ def _build_skill_prompt(
             user_parts.append(f"### {fname}\n```\n{content}\n```")
     user_prompt = "\n".join(user_parts)
 
+    # Inject shared review checklist for review skills (Phase 2.3).
+    if _is_review_skill(skill) and chapter is not None:
+        try:
+            from shenbi.pipeline.review_checklist import (
+                generate_review_checklist,
+                inject_checklist_into_prompt,
+            )
+
+            checklist = generate_review_checklist(project_dir, chapter)
+            user_prompt = inject_checklist_into_prompt(user_prompt, checklist)
+        except Exception as e:
+            log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
+
     return system_prompt, user_prompt, output_paths
+
+
+def _is_review_skill(skill: str) -> bool:
+    """Check whether a skill name indicates a review skill."""
+    return "review" in skill.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -340,7 +358,7 @@ def _dispatch_via_api(
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
     """
-    from openai import OpenAI
+    from openai import OpenAI  # type: ignore[import-not-found]
 
     chapter = _extract_chapter(prompt)
     try:
