@@ -361,7 +361,7 @@ def _dispatch_via_api(
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
     """
-    from openai import OpenAI  # type: ignore[import-not-found]
+    from openai import OpenAI
 
     chapter = _extract_chapter(prompt)
     try:
