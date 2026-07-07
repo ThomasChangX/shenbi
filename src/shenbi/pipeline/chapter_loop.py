@@ -244,6 +244,9 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
 ]
 
+# 0-based index of the first core-circle audit step (for parallel dispatch trigger).
+_FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
+
 # 0-based index of the last core-circle audit step (for genre-circle trigger).
 _LAST_AUDIT_IDX = max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
 
@@ -806,6 +809,83 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     chapter = state.chapter_loop.current_chapter
     state.chapter_loop.current_step = step.skill
     log.info("chapter_step", chapter=chapter, step=step.step_num, skill=step.skill)
+
+    # ── Parallel review dispatch (Task 7) ──────────────────────────────
+    # When the first audit step is reached, dispatch all core-circle and
+    # genre-circle reviews in two parallel waves instead of serial steps.
+    if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
+        from shenbi.pipeline.parallel_dispatch import (
+            ReviewTask,
+            consolidate_review_results,
+            dispatch_reviews_parallel,
+        )
+        from shenbi.pipeline.audit_layer import (
+            audit_relative_path,
+            audit_suffix,
+            get_active_genre_audits,
+        )
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.safe_write import safe_write
+
+        # Wave 1: Core-circle reviews (7 skills in parallel)
+        core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
+        core_tasks = [
+            ReviewTask(
+                skill=skill,
+                project_dir=project_dir,
+                prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
+                output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
+            )
+            for skill in core_skills
+        ]
+        log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
+        core_results = dispatch_reviews_parallel(core_tasks)
+
+        # Wave 2: Genre-circle reviews (conditionally active, in parallel)
+        gc_path = project_dir / "genre-config.json"
+        genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+        genre_skills = get_active_genre_audits(genre_gc)
+        genre_tasks = [
+            ReviewTask(
+                skill=skill,
+                project_dir=project_dir,
+                prompt=f"Execute {skill} audit for chapter {chapter}.",
+                output_path=audit_relative_path(chapter, skill),
+            )
+            for skill in genre_skills
+        ]
+        genre_results: list[DispatchResult] = []
+        if genre_tasks:
+            log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
+            genre_results = dispatch_reviews_parallel(genre_tasks)
+
+        # Consolidate all results
+        all_results = core_results + genre_results
+        consolidated = consolidate_review_results(all_results, chapter)
+        summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
+        safe_write(summary_path, consolidated)
+
+        # Record all review steps as done and advance past them
+        for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
+            if i < len(CHAPTER_STEPS):
+                _record_step_done(state, CHAPTER_STEPS[i], chapter)
+
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
+        state.chapter_loop.current_step = ""
+
+        # Check for blocking issues
+        cs = _get_chapter_state(state, chapter)
+        cs.audit_results["blocking_found"] = "BLOCKING" in consolidated
+        cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
+
+        _reset_retries(state, step, chapter)
+        return _advance(
+            state,
+            _LAST_AUDIT_IDX,
+            CHAPTER_STEPS[_LAST_AUDIT_IDX],
+            chapter,
+            project_dir=project_dir,
+        )
 
     # Context assembly (step 4): materialize package before chapter-drafting.
     if step.calls_context_assembly:

@@ -122,7 +122,7 @@ def get_active_boundary_audits(chapter: int) -> list[str]:
 # ---------------------------------------------------------------------------
 # Path helper
 # ---------------------------------------------------------------------------
-def _audit_suffix(skill: str) -> str:
+def audit_suffix(skill: str) -> str:
     """Strip the ``shenbi-`` / ``shenbi-review-`` prefix for file naming."""
     if skill.startswith("shenbi-review-"):
         return skill[len("shenbi-review-") :]
@@ -136,7 +136,7 @@ def audit_relative_path(chapter: int, skill: str) -> str:
 
     Mirrors the chapter_loop convention ``audits/chapter-N-{suffix}.md``.
     """
-    return f"{AUDIT_DIR}/chapter-{chapter}-{_audit_suffix(skill)}.md"
+    return f"{AUDIT_DIR}/chapter-{chapter}-{audit_suffix(skill)}.md"
 
 
 def _gate_passed(result: dict[str, object]) -> bool:
