@@ -223,11 +223,12 @@ class TestFullChapterSequence:
         assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
         assert chapter_state.chapter_loop.current_chapter == 2
         assert chapter_state.chapter_loop.step_index == 0
-        # 9 dispatched steps: 1,2,6,7,8,9 + 17 + 19 + 20.
-        # (step 3 replaced, step 4 internal, step 5 skipped, steps 10-16 parallel,
-        #  step 18 skipped).
-        assert chapter_succeeds.dispatch.call_count == 9
-        assert chapter_succeeds.g4.call_count == 9
+        # 6 dispatched steps: 1,2,6,7,8 + 17.
+        # (step 3 replaced, step 4 internal, step 5 skipped, steps 9/19/20
+        #  adaptive — recall/drift skipped without data, snapshot file-based,
+        #  steps 10-16 parallel, step 18 skipped).
+        assert chapter_succeeds.dispatch.call_count == 6
+        assert chapter_succeeds.g4.call_count == 6
         # G3 runs only on step 17 (review-resonance, requires_independent).
         assert chapter_succeeds.g3.call_count == 1
         # Parallel dispatch called once (wave 1).
@@ -384,8 +385,9 @@ class TestAuditCircleAndRevisionRouting:
         assert cs.audit_results["revision_route"] == RevisionRoute.NO_REVISION.value
         # chapter-revision is still recorded in steps_done (ran as a no-op).
         assert "shenbi-chapter-revision" in cs.steps_done
-        # 9 dispatches: steps 10-16 are parallel, step 18 skipped.
-        assert chapter_succeeds.dispatch.call_count == 9
+        # 6 dispatches: 1,2,6,7,8,17. (steps 10-16 parallel, 9/19/20 adaptive,
+        # 18 skipped).
+        assert chapter_succeeds.dispatch.call_count == 6
 
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
@@ -434,8 +436,9 @@ class TestAuditCircleAndRevisionRouting:
         ):
             _drive_three_segments(chapter_state, tmp_path)
             assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
-            # 10 dispatches: steps 10-16 parallel, step 18 runs (SPOT_FIX).
-            assert mock_disp.call_count == 10
+            # 7 dispatches: 1,2,6,7,8,17 + 18 (SPOT_FIX).
+            # (steps 9/19/20 adaptive — skipped without data; 10-16 parallel).
+            assert mock_disp.call_count == 7
             cs = chapter_state.chapter_loop.chapter_states["1"]
             assert cs.audit_results["revision_route"] == RevisionRoute.SPOT_FIX.value
 

@@ -603,6 +603,10 @@ class TestRevisionRoutingIntegration:
 
         Regression: _is_revision_skipped must only affect step 18
         (chapter-revision), not the snapshot/drift steps that follow.
+
+        With adaptive triggering (Task 8), snapshot is file-based (no dispatch)
+        and drift only dispatches when resonance data indicates need. The steps
+        still advance, they just don't always dispatch.
         """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
@@ -621,19 +625,25 @@ class TestRevisionRoutingIntegration:
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.step_index == 18
 
-        # Step 19 (snapshot-manage) MUST dispatch.
+        # Step 19 (snapshot-manage): file-based snapshot runs inline.
+        # Advancing through it should not dispatch.
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.step_index == 19
+        # Verify file-based snapshot was created.
+        snap_dir = tmp_path / "snapshots"
+        assert snap_dir.exists()
+        snapshots = list(snap_dir.glob("chapter-001-*.md"))
+        assert len(snapshots) == 1
 
-        # Step 20 (drift-guidance) MUST dispatch; completes chapter.
+        # Step 20 (drift-guidance): skipped when no resonance data.
+        # Still advances and completes chapter.
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.current_chapter == 2
         assert state.chapter_loop.step_index == 0
 
         called_skills = [c[0][0] for c in mock_disp.call_args_list]
         assert "shenbi-chapter-revision" not in called_skills
-        assert "shenbi-snapshot-manage" in called_skills
-        assert "shenbi-drift-guidance" in called_skills
+        # Snapshot is now file-based (no dispatch); drift skipped without data.
 
 
 # ---------------------------------------------------------------------------

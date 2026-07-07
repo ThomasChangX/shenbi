@@ -34,7 +34,7 @@ import re
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -60,6 +60,7 @@ from shenbi.pipeline.state import (
     PipelineState,
 )
 from shenbi.status import GateStatus
+from datetime import UTC
 
 log = get_logger(__name__)
 
@@ -725,6 +726,302 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
 
 # ---------------------------------------------------------------------------
+# Adaptive triggering (spec §6.1 steps 9, 19-20 / Phase 4.2)
+# ---------------------------------------------------------------------------
+
+
+def _load_manifest(project_dir: Path) -> dict[str, Any]:
+    """Load the snapshot manifest from ``snapshots/manifest.json``.
+
+    Returns a dict with ``chapters`` (dict of chapter→filenames),
+    ``last_recall_chapter``, and ``last_drift_chapter``. Returns an empty
+    skeleton when the manifest file does not exist.
+    """
+    manifest_path = project_dir / "snapshots" / "manifest.json"
+    if manifest_path.exists():
+        return cast(dict[str, Any], json.loads(manifest_path.read_text(encoding="utf-8")))
+    return {"chapters": {}}
+
+
+def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
+    """Persist the snapshot manifest to ``snapshots/manifest.json``."""
+    manifest_path = project_dir / "snapshots" / "manifest.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _get_snapshot_retention(project_dir: Path) -> int:
+    """Return the number of chapters of snapshots to retain.
+
+    Defaults to 50 (matching ``PipelineConfig.snapshot_retention_chapters``).
+    """
+    return 50
+
+
+def _get_last_recall_chapter(project_dir: Path) -> int | None:
+    """Return the chapter number where recall last ran, or None."""
+    manifest = _load_manifest(project_dir)
+    return manifest.get("last_recall_chapter")
+
+
+def _get_last_drift_chapter(project_dir: Path) -> int | None:
+    """Return the chapter number where drift guidance last ran, or None."""
+    manifest = _load_manifest(project_dir)
+    return manifest.get("last_drift_chapter")
+
+
+def _should_run_recall(project_dir: Path, chapter: int) -> bool:
+    """Determine whether foreshadowing recall should run for *chapter*.
+
+    Triggers when any of these conditions are met:
+
+    1. Any hook's silence (``chapter - last_reinforced``) is within 3 chapters
+       of its ``max_distance``.
+    2. More than 5 hooks are in ``TRIGGERED`` state.
+    3. More than 8 chapters have elapsed since the last recall run.
+    """
+    hooks_file = project_dir / "truth" / "pending_hooks.md"
+    if not hooks_file.exists():
+        return False
+
+    # Lazy import to avoid circular dependency at module level.
+    from shenbi.pipeline.context_curation import _read_pending_hooks
+
+    hooks = _read_pending_hooks(project_dir)
+
+    # Condition 2: >5 TRIGGERED hooks
+    triggered_count = sum(1 for h in hooks if h.get("state") == "TRIGGERED")
+    if triggered_count > 5:
+        log.info(
+            "recall_triggered_by_triggered_count",
+            chapter=chapter,
+            triggered_count=triggered_count,
+        )
+        return True
+
+    # Condition 1: any hook near max_distance
+    for h in hooks:
+        last_reinforced = h.get("last_reinforced", 0)
+        max_dist = h.get("max_distance", 0)
+        if max_dist <= 0:
+            continue
+        silence = chapter - last_reinforced
+        if silence >= max_dist - 3:
+            log.info(
+                "recall_triggered_by_max_distance",
+                chapter=chapter,
+                hook_id=h.get("id", "?"),
+                silence=silence,
+                max_distance=max_dist,
+            )
+            return True
+
+    # Condition 3: >8 chapters since last recall
+    last = _get_last_recall_chapter(project_dir)
+    if last is not None and chapter - last > 8:
+        log.info(
+            "recall_triggered_by_chapter_gap",
+            chapter=chapter,
+            last_recall=last,
+            gap=chapter - last,
+        )
+        return True
+
+    return False
+
+
+def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 3) -> list[int]:
+    """Collect resonance scores from the most recent *window* audit reports.
+
+    Reads ``audits/chapter-N-resonance.md`` for chapters
+    ``[chapter - window + 1, chapter]``. Missing or unparseable reports are
+    skipped (returns whatever could be collected).
+    """
+    scores: list[int] = []
+    for ch in range(max(1, chapter - window + 1), chapter + 1):
+        report_path = project_dir / "audits" / f"chapter-{ch}-resonance.md"
+        score = _parse_resonance_score(report_path)
+        if score is not None:
+            scores.append(score)
+    return scores
+
+
+def _should_run_drift(project_dir: Path, chapter: int) -> bool:
+    """Determine whether drift guidance should run for *chapter*.
+
+    Triggers when either:
+
+    1. The 3-chapter resonance moving average drops more than 10 points
+       compared to the previous window (0-100 scale).
+    2. More than 12 chapters have elapsed since the last drift run.
+    """
+    # Condition 1: 3-chapter MA drop >10 points
+    current_scores = _get_recent_resonance_scores(project_dir, chapter, window=3)
+    prev_scores = _get_recent_resonance_scores(project_dir, chapter - 1, window=3)
+
+    if len(current_scores) >= 3 and len(prev_scores) >= 3:
+        current_ma = sum(current_scores) / len(current_scores)
+        prev_ma = sum(prev_scores) / len(prev_scores)
+        drop = prev_ma - current_ma
+        if drop > 10:
+            log.info(
+                "drift_triggered_by_resonance_drop",
+                chapter=chapter,
+                current_ma=round(current_ma, 1),
+                prev_ma=round(prev_ma, 1),
+                drop=round(drop, 1),
+            )
+            return True
+
+    # Condition 2: >12 chapters since last drift
+    last = _get_last_drift_chapter(project_dir)
+    if last is not None and chapter - last > 12:
+        log.info(
+            "drift_triggered_by_chapter_gap",
+            chapter=chapter,
+            last_drift=last,
+            gap=chapter - last,
+        )
+        return True
+
+    return False
+
+
+def _prune_old_snapshots(project_dir: Path) -> None:
+    """Remove snapshot files older than the retention window.
+
+    Keeps only the most recent ``snapshot_retention_chapters`` worth of
+    snapshots. Removes files from disk and updates the manifest.
+    """
+    retention = _get_snapshot_retention(project_dir)
+    manifest = _load_manifest(project_dir)
+    chapters_dict = manifest.get("chapters", {})
+
+    all_chapters = sorted(int(k) for k in chapters_dict)
+    if not all_chapters:
+        return
+
+    keep_from = max(all_chapters) - retention
+    to_prune = [ch for ch in all_chapters if ch < keep_from]
+
+    if not to_prune:
+        return
+
+    snap_dir = project_dir / "snapshots"
+    for ch in to_prune:
+        ch_key = str(ch)
+        for filename in chapters_dict.get(ch_key, []):
+            file_path = snap_dir / filename
+            if file_path.exists():
+                file_path.unlink()
+        chapters_dict.pop(ch_key, None)
+
+    _save_manifest(project_dir, manifest)
+    log.info("snapshots_pruned", pruned=len(to_prune), retention=retention)
+
+
+def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
+    """Create a timestamped file-based snapshot of chapter outputs.
+
+    Copies chapter files, audit reports, and truth files into a single
+    timestamped markdown file under ``snapshots/``. Updates the manifest
+    and prunes old snapshots.
+
+    This replaces the ``shenbi-snapshot-manage`` LLM dispatch with pure
+    file operations — no git dependency.
+    """
+    from datetime import datetime
+
+    snap_dir = project_dir / "snapshots"
+    snap_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+    snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
+    snap_path = snap_dir / snap_filename
+
+    parts: list[str] = []
+
+    # Chapter file
+    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if chapter_file.exists():
+        parts.append(f"## Chapter {chapter}\n\n{chapter_file.read_text(encoding='utf-8')}")
+
+    # Audit files
+    audit_dir = project_dir / "audits"
+    if audit_dir.exists():
+        for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
+            parts.append(f"## Audit: {audit_file.stem}\n\n{audit_file.read_text(encoding='utf-8')}")
+
+    # Truth files
+    truth_dir = project_dir / "truth"
+    if truth_dir.exists():
+        for truth_file in sorted(truth_dir.glob("*.md")):
+            parts.append(f"## Truth: {truth_file.name}\n\n{truth_file.read_text(encoding='utf-8')}")
+
+    content = "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
+    snap_path.write_text(content, encoding="utf-8")
+
+    # Update manifest
+    manifest = _load_manifest(project_dir)
+    chapter_key = str(chapter)
+    manifest.setdefault("chapters", {})
+    manifest["chapters"].setdefault(chapter_key, [])
+    manifest["chapters"][chapter_key].append(snap_filename)
+    _save_manifest(project_dir, manifest)
+
+    log.info(
+        "snapshot_created",
+        chapter=chapter,
+        file=snap_filename,
+        size=len(content),
+    )
+
+    # Prune old snapshots
+    _prune_old_snapshots(project_dir)
+
+
+def _update_last_recall_manifest(project_dir: Path, chapter: int) -> None:
+    """Record that recall ran at *chapter* in the manifest."""
+    manifest = _load_manifest(project_dir)
+    manifest["last_recall_chapter"] = chapter
+    _save_manifest(project_dir, manifest)
+
+
+def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
+    """Record that drift guidance ran at *chapter* in the manifest."""
+    manifest = _load_manifest(project_dir)
+    manifest["last_drift_chapter"] = chapter
+    _save_manifest(project_dir, manifest)
+
+
+def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path) -> bool:
+    """Determine whether *step* should execute based on adaptive triggering rules.
+
+    Returns True if the step should execute normally (dispatch + gates).
+    Returns False if the step should be skipped for this chapter.
+
+    For ``shenbi-snapshot-manage``, the file-based snapshot is taken inline
+    and the LLM dispatch is always skipped (returns False).
+    """
+    skill = step.skill
+    chapter = state.chapter_loop.current_chapter
+
+    if skill == "shenbi-foreshadowing-recall":
+        return _should_run_recall(project_dir, chapter)
+
+    if skill == "shenbi-drift-guidance":
+        return _should_run_drift(project_dir, chapter)
+
+    if skill == "shenbi-snapshot-manage":
+        # Replace LLM dispatch with deterministic file-based snapshot.
+        _snapshot_chapter_files(project_dir, chapter)
+        return False
+
+    # All other steps run unconditionally.
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Revision routing helpers (spec §6.3, W3T5)
 # ---------------------------------------------------------------------------
 
@@ -924,6 +1221,15 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         log.info("revision_step_skipped", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
+        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+
+    # Adaptive triggering: recall, drift, snapshot run only when data indicates need.
+    if not _should_run_step(step, state, project_dir):
+        _record_step_done(state, step, chapter)
+        _reset_retries(state, step, chapter)
+        # Update manifest tracking for steps that were handled inline.
+        if step.skill == "shenbi-snapshot-manage":
+            pass  # snapshot already taken + manifest updated in _snapshot_chapter_files
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
@@ -1149,4 +1455,11 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
     _reset_retries(state, step, chapter)
+
+    # Update manifest tracking for adaptive steps that just ran.
+    if step.skill == "shenbi-foreshadowing-recall":
+        _update_last_recall_manifest(project_dir, chapter)
+    elif step.skill == "shenbi-drift-guidance":
+        _update_last_drift_manifest(project_dir, chapter)
+
     return _advance(state, step_idx, step, chapter, project_dir=project_dir)
