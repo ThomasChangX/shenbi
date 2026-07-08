@@ -3,12 +3,14 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_plot_thread_weaver(
@@ -20,9 +22,13 @@ def g4_plot_thread_weaver(
     """Plot thread weaver: A/B/C lines, thread advancement table, blank detection."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    tm = pd / "outline" / "thread_map.md"
+    tm = rp.read("outline/thread_map.md")
     if not tm.exists():
         mf.append("G4.thread.not_found")
     else:
