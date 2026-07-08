@@ -170,7 +170,7 @@ def check_style_consistency(
                 {
                     "id": "G6.10",
                     "s": "SKIP",
-                    "r": "need config/style_profile.md and chapters/ for style check",
+                    "r": "need style/style_profile.md and chapters/ for style check",
                 }
             ],
             [],

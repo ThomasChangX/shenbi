@@ -1,9 +1,10 @@
 """NovelConfig: matches the shape of the novel/config doc (g6 consumer).
 
-D26 resolution: the producer writes ``target_word_count`` while the legacy g6.py
-consumer reads ``target_words``. The model uses the producer-authoritative name
-``target_word_count``; g6.py is adapted to read it in a later task (Task 21).
-``extra: forbid`` so any undeclared key surfaces as structural drift.
+D26 resolution: the producer (seed_parser) writes ``target_word_count`` while
+the legacy g6.py consumer used to read ``target_words``. The model uses the
+producer-authoritative name ``target_word_count``; g6.py now reads it (with a
+``target_words`` fallback for legacy projects). ``extra: forbid`` so any
+undeclared key surfaces as structural drift.
 """
 
 from __future__ import annotations

@@ -41,8 +41,16 @@ def gate_G6(
     pd = Path(project_dir) if project_dir else PROJECT
 
     # G6.1: chapter count >= ceil(expected * min_ratio)
+    # D26: producer (seed_parser) writes target_word_count; unify on it as
+    # authoritative, falling back to the legacy target_words key so existing
+    # projects/fixtures still compute expected chapter counts. Mirrors the
+    # tolerance already in g4/worldbuilding.py.
     nj = pd / "novel.json"
-    target_words = jload(str(nj)).get("target_words", 100000) if nj.exists() else 100000
+    if nj.exists():
+        _nj = jload(str(nj))
+        target_words = _nj.get("target_word_count") or _nj.get("target_words", 100000)
+    else:
+        target_words = 100000
     gc = pd / "genre-config.json"
     default_w = (
         jload(str(gc)).get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
@@ -281,7 +289,10 @@ def gate_G6(
         )
 
     # G6.10: style consistency (extracted to g6_checks.py)
-    style_path = pd / "config" / "style_profile.md"
+    # D16: the producer (shenbi-style-learning) writes style/style_profile.md,
+    # not config/style_profile.md. The old path never existed → G6.10 always
+    # SKIPped (dead code). Use the canonical path (truth-files.yaml concept).
+    style_path = pd / "style" / "style_profile.md"
     g610_checks, g610_mf = check_style_consistency(style_path, chapters)
     c.extend(g610_checks)
     mf.extend(g610_mf)

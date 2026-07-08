@@ -29,6 +29,69 @@ def test_novel_target_word_count_field():
     assert n.target_word_count == 50000
 
 
+def test_d26_novel_config_loads_producer_shape():
+    """D26 canary: NovelConfig loads the producer-authoritative fixture shape.
+
+    The producer (seed_parser) writes ``target_word_count``; the model uses that
+    name (extra: forbid). The canonical fixture tests/fixtures/novel-example.json
+    must carry the producer field name (not the legacy ``target_words``), and the
+    legacy key must be rejected by the model (forbid) since it is no longer the
+    authoritative producer name.
+
+    (A full fixture round-trip is out of scope here — the fixture's ``genre``
+    is a list while the model declares ``str``; that is an unrelated shape gap.
+    This canary pins only the D26 field-name contract.)
+    """
+    import json
+    from pathlib import Path
+
+    fixture = Path(__file__).resolve().parents[4] / "tests" / "fixtures" / "novel-example.json"
+    raw = json.loads(fixture.read_text(encoding="utf-8"))
+    # Producer-authoritative field present in the fixture.
+    assert "target_word_count" in raw, "fixture must use producer shape (D26)"
+    assert "target_words" not in raw, "fixture must not carry the legacy key (D26)"
+    # The model accepts the producer field directly.
+    n = NovelConfig.model_validate({"target_word_count": raw["target_word_count"]})
+    assert n.target_word_count == raw["target_word_count"]
+    # The legacy key is forbidden (extra: forbid).
+    with pytest.raises(ValidationError):
+        NovelConfig.model_validate({"target_words": 100000})
+
+
+def test_d26_g6_reads_target_word_count():
+    """D26 canary: g6.py derives expected chapters from target_word_count.
+
+    The producer writes ``target_word_count``; g6.py used to read only
+    ``target_words`` (so producer projects always fell back to the 100000
+    default). After the fix a project with target_word_count=5000 and a single
+    5000-word chapter passes G6.1 (expected=1, min_chapters=1).
+    """
+    import json
+    import tempfile
+    from pathlib import Path
+
+    from shenbi.gates.g6 import gate_G6
+
+    with tempfile.TemporaryDirectory() as td:
+        project = Path(td)
+        (project / "novel.json").write_text(
+            json.dumps({"target_word_count": 5000}), encoding="utf-8"
+        )
+        (project / "genre-config.json").write_text(
+            json.dumps({"chapter_word": {"default": 5000}}), encoding="utf-8"
+        )
+        (project / "chapters").mkdir()
+        (project / "chapters" / "chapter-001.md").write_text(
+            "# 第1章\n\n正文内容。\n", encoding="utf-8"
+        )
+        result = json.loads(gate_G6("long-form", str(project), str(project)))
+        g61 = next((c for c in result["checks"] if c.get("id") == "G6.1"), None)
+        assert g61 is not None
+        assert g61["s"] == "PASS", (
+            f"g6.py must read target_word_count (D26); got {result.get('must_fix', [])}"
+        )
+
+
 # --- ProgressDoc / SummaryDoc (extra: IGNORE — producer-uncontrolled) ---
 
 

@@ -234,11 +234,15 @@ CHAPTER_STEPS: list[ChapterStep] = [
         output_path="chapters/chapter-N.md",
     ),
     # Snapshot + drift (spec section 6.1 steps 12-13).
+    # D20: snapshot-manage is handled inline by _snapshot_chapter_files, which
+    # writes a timestamped flatfile snapshots/chapter-NNN-{ts}.md (never a
+    # fixed path). The old output_path="snapshots/chapter-NNN/" was a fictional
+    # directory that never existed on disk. Empty output_path = no single file.
     ChapterStep(
         19,
         "shenbi-snapshot-manage",
         "snapshot-manage",
-        output_path="snapshots/chapter-NNN/",
+        output_path="",
     ),
     ChapterStep(
         20,

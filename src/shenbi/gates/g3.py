@@ -16,7 +16,6 @@ from shenbi.gates.g3_independence import scoring_independence_status
 
 from shenbi.gates.shared import (
     TESTS,
-    find_report,
     fail,
     jload,
     passed,
@@ -76,34 +75,20 @@ def gate_G3(
     if not rd or not rd.exists():
         return fail("G3", [], "scoring", ["G3.0:no_round_dir"])
 
-    # G3.1 — Read deps.json, check prerequisite skills have t1-reports
-    deps_path = TESTS / "tiers" / "deps.json"
+    # G3.1 — Per-skill prerequisite report check.
+    # D19: deps.json never stored per-skill prerequisite data (its top-level
+    # keys are phase/pipeline rosters: t2-phases, t3-pipelines, ...), so the
+    # old deps.get(skill_name) query was a dead function that always SKIPped
+    # via "no prerequisites". The readiness check is fully covered by G3.2
+    # (score thresholds). Explicit SKIP documents the modelling decision.
     reports_dir = rd / "t1-reports"
-    if deps_path.exists():
-        try:
-            deps = jload(str(deps_path))
-            skill_deps: dict[str, Any] = deps.get(skill_name, {}) if skill_name else {}
-            prereqs_raw = skill_deps.get("prerequisites", [])
-            prereqs: list[str] = prereqs_raw if isinstance(prereqs_raw, list) else []
-            for prereq in prereqs:
-                rp = find_report(reports_dir, prereq, test_type)
-                if not rp or not rp.exists():
-                    mf.append(
-                        {
-                            "id": "G3.1",
-                            "file": str(rp),
-                            "s": "FAIL",
-                            "r": f"missing t1-report for {prereq}",
-                        }
-                    )
-                else:
-                    c.append({"id": "G3.1", "file": str(rp), "s": "PASS"})
-            if not prereqs:
-                c.append({"id": "G3.1", "s": "SKIP", "r": "no prerequisites"})
-        except (json.JSONDecodeError, OSError):
-            mf.append({"id": "G3.1", "s": "FAIL", "r": "deps.json invalid"})
-    else:
-        c.append({"id": "G3.1", "s": "SKIP", "r": "no deps.json"})
+    c.append(
+        {
+            "id": "G3.1",
+            "s": "SKIP",
+            "r": "per-skill prerequisites not modeled (G3.2 covers readiness)",
+        }
+    )
 
     # G3.2 — Prerequisite scores >= threshold from acceptance.json
     accept_path = TESTS / "tiers" / "acceptance.json"

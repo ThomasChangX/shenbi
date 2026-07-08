@@ -58,9 +58,9 @@ def make_project(tmp_path: Path):
             truth.mkdir(exist_ok=True)
             (truth / "pending_hooks.md").write_text(pending_hooks, encoding="utf-8")
         if style_profile is not None:
-            config = project_dir / "config"
-            config.mkdir(exist_ok=True)
-            (config / "style_profile.md").write_text(style_profile, encoding="utf-8")
+            style = project_dir / "style"
+            style.mkdir(exist_ok=True)
+            (style / "style_profile.md").write_text(style_profile, encoding="utf-8")
         if volume_map is not None:
             outline = project_dir / "outline"
             outline.mkdir(exist_ok=True)

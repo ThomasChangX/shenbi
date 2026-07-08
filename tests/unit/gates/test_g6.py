@@ -570,3 +570,47 @@ def test_g6_returns_fail_not_crash_when_deps_json_malformed(
     round_dir.mkdir()
     result = _result_dict(gate_G6("long-form", str(round_dir), str(tmp_path)))
     assert result["status"] == "FAIL"
+
+
+# ---------------------------------------------------------------------------
+# D16: G6.10 dead-path canary (spec §5.3)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g610_not_skipped_when_style_profile_exists(tmp_path: Path) -> None:
+    r"""D16 canary: when style/style_profile.md exists, G6.10 runs (not SKIP).
+
+    Regression for the dead path: g6.py used to read ``config/style_profile.md``
+    (which the producer never writes) so G6.10 *always* SKIPped. The producer
+    (shenbi-style-learning) writes ``style/style_profile.md``. After the fix
+    G6.10 must actually execute (PASS/WARN/must_fix) when the file is present
+    alongside chapters, instead of dead-SKIPping.
+    """
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / "novel.json").write_text('{"target_word_count": 5000}', encoding="utf-8")
+    (project_dir / "genre-config.json").write_text(
+        '{"chapter_word": {"default": 5000}}', encoding="utf-8"
+    )
+    # A chapter long enough to clear the G4 floor (≥3000 CJK chars).
+    _make_chapter(project_dir, 1, "正文内容。" * 400)
+    # The canonical style profile with recognizable statistical ranges.
+    style_dir = project_dir / "style"
+    style_dir.mkdir()
+    (style_dir / "style_profile.md").write_text(
+        "# 风格画像\n\n## 统计区间\n\n句长: 15-25\n段长: 80-120\n对白占比: 20-40%\n",
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
+    g610 = next((c for c in result["checks"] if c.get("id") == "G6.10"), None)
+    # If G6.10 SKIPped, it failed its job (dead path returned). It must run.
+    if g610 is not None:
+        assert g610["s"] != "SKIP", (
+            "G6.10 must not SKIP when style/style_profile.md exists "
+            "(D16: old config/ path was a dead code path)"
+        )
+    # When G6.10 runs and finds no outliers it PASSes; outliers go to must_fix.
+    # Either way the canary's invariant is: not SKIP, which the assert above guards.
