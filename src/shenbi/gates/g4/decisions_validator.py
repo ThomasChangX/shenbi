@@ -1,4 +1,11 @@
-"""G4 checker for decisions.json schema validation (Layer A)."""
+"""G4 checker for decisions.json schema validation (Layer A).
+
+Schema version, required keys, and P2.5 rationale rules now live in
+:class:`DecisionsDoc` (Task 5). This checker handles file I/O (skip non-JSON,
+invalid-JSON, not-object) and delegates structural validation to the model,
+mapping its ``ValidationError`` to ``G4.dec.{type}`` micro-failures via the
+generic adapter.
+"""
 
 from __future__ import annotations
 
@@ -7,13 +14,12 @@ from pathlib import Path
 from typing import Any
 from collections.abc import Callable
 
+from pydantic import ValidationError
+
+from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
+from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import fail, passed
 from shenbi.status import GateStatus
-from shenbi.gates.g4._decisions_schema import (
-    DECISIONS_SCHEMA_VERSION,
-    validate_selection_rationale,
-    validate_adjustment_rationale,
-)
 
 
 def g4_decisions(fps: list[str], rd: str | None = None) -> str:
@@ -49,39 +55,15 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.dec.not_object:{fp}:got {type(data).__name__}")
             continue
 
-        # Schema version
-        if data.get("$schema") != DECISIONS_SCHEMA_VERSION:
-            mf.append(f"G4.dec.schema_version:{fp}:{data.get('$schema')}")
-
-        # Required keys
-        required = {"skill", "chapter", "selections", "produced_at"}
-        missing = required - data.keys()
-        if missing:
-            mf.append(f"G4.dec.missing_keys:{fp}:{missing}")
-
-        # Validate selections (P2.5)
-        for i, sel in enumerate(data.get("selections", [])):
-            if not isinstance(sel, dict):
-                mf.append(f"G4.dec.selection[{i}]:{fp}:not a dict ({type(sel).__name__})")
-                continue
-            errors = validate_selection_rationale(
-                basis=sel.get("basis", ""),
-                severity=sel.get("severity", "low"),
-                rationale=sel.get("rationale"),
+        # Schema version, required keys, and P2.5 rationale (DecisionsDoc).
+        try:
+            DecisionsDoc.model_validate(data)
+            c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
+        except ValidationError as e:
+            mf.extend(
+                f"G4.dec.{f['id'].split('.', 1)[1]}:{fp}:{f['r']}"
+                for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
             )
-            for err in errors:
-                mf.append(f"G4.dec.selection[{i}]:{fp}:{err}")
-
-        # Validate adjustments (always require rationale)
-        for i, adj in enumerate(data.get("adjustments", [])):
-            if not isinstance(adj, dict):
-                mf.append(f"G4.dec.adjustment[{i}]:{fp}:not a dict ({type(adj).__name__})")
-                continue
-            errors = validate_adjustment_rationale(adj.get("rationale"))
-            for err in errors:
-                mf.append(f"G4.dec.adjustment[{i}]:{fp}:{err}")
-
-        c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
 
     if not fps:
         c.append({"id": "G4.dec", "s": "SKIP", "r": "no files"})
