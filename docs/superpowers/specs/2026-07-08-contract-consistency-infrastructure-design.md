@@ -43,7 +43,7 @@
 1. **单一占位符解析**:消灭 4 套分叉的占位符替换(3 套 chapter + 1 套 volume)与章节提取;含大写 N 路径不被腐蚀。
 2. **RoundPaths 三根封装**:`round_dir` + `project_dir` + `repo_root`;所有路径解析的唯一出口;消除 CWD fallback 和裸字符串 join。
 3. **契约图闭环 + Producer Registry**:每个 read 必须有 producer(skill / pipeline / external);pipeline 产物登记;ORPHAN_READ 静态 FAIL。
-4. **Schema 单一源**:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import;`extra: forbid`。
+4. **Schema 单一源**:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import。**producer 受控类** `extra: forbid`(拼写错误当场暴露);**producer 不受控类**(progress/summary,shell heredoc 写)先 `extra: ignore`,writer 统一后升级 forbid(见 §5.1)。
 5. **字段匹配单一化**:`match_field` 单函数;filter / G1 / lint 统一调用;逃生舱语义集中。
 6. **现存活 bug 切除**:审计确认的 D16/D19/D20/D21/D22/D24 —— 它们是上述五类机制主题的现存实例(路径错配/契约不一致/schema 缺失/字段问题),本 spec 一并根治,不遗留。
 
@@ -63,7 +63,7 @@
 - 任何含**大写 N** 的路径(如 `import/canon/01_SECTION.md`、`NPC-list.md`)解析不被腐蚀(小写 n 如 `resonance` 本就不受 `str.replace("N")` 影响——核实)。
 - `round_dir ≠ project_dir ≠ repo_root` 三根分离 fixture 下,G4 / gate / dispatcher 行为正确。
 - pipeline 写的文件(如 `context/chapter-N-context.md`)被闭包校验正确识别为有 producer,不误报孤儿。
-- 所有 pydantic 模型 `extra: forbid`;任一结构化文件带拼写错误字段 → 加载失败。
+- 所有 **producer 受控类** pydantic 模型 `extra: forbid`;任一此类结构化文件带拼写错误字段 → 加载失败。(progress/summary 是 producer 不受控类,`extra: ignore`,writer 统一后升级 forbid——见 §5.1,不阻塞本 spec 成功标准。)
 - 字段标题漂移 → CI FAIL,且 filter / G1 / lint 对同一输入产生一致结果。
 
 ---
@@ -243,7 +243,7 @@ class RoundPaths:
 
 ### 4.5 BACKUP_SKILLS 派生(I4 — 从 spec 2 拉回)
 
-**现状**:`g1.py:26` `BACKUP_SKILLS` 硬编码 9 个 skill。审计核实有 **14 个 skill 的 `updates:` 命中 truth 文件**(drift-guidance、foreshadowing-plant/resolve/track、intent-management、memory-distill、review-arc-payoff、review-resonance、score-arc/stratum、sequel-writing、state-settling、truth-sync、volume-consolidation 等),其中约半数漏列 → G1.4 不为它们创建 `.bak` → G2.11 truth-diff 静默跳过 → truth 文件删除检测失效。
+**现状**:`g1.py:26` `BACKUP_SKILLS` 硬编码 9 个 skill。审计核实有 **15 个 skill 的 `updates:` 命中 truth 文件**(drift-guidance、foreshadowing-plant/resolve/track、intent-management、memory-distill、**relationship-map**、review-arc-payoff、review-resonance、score-arc、score-stratum、sequel-writing、state-settling、truth-sync、volume-consolidation),其中 6 个漏列(BACKUP_SKILLS 只列了 9 个)→ G1.4 不为它们创建 `.bak` → G2.11 truth-diff 静默跳过 → truth 文件删除检测失效。
 
 **为什么拉回本 spec(修正 §10 的过激拆分)**:`.bak` 的**路径构造**(rp.backup)与**覆盖范围**(BACKUP_SKILLS)纠缠——路径统一不解决"漏列 skill 无 .bak"的覆盖缺口,金丝雀 #3(三根分离 .bak diff)在 BACKUP_SKILLS 不全时无法通过。拆分制造半修。覆盖派生约 10 行代码,合并成本低于半修风险。
 
@@ -307,6 +307,12 @@ class Selection(BaseModel):
     basis: str
     severity: str = "low"
     rationale: str | None = None
+    # ... 其他字段(阶段 0 从真实 decisions.json fixture 枚举全字段)
+
+class Adjustment(BaseModel):
+    model_config = {"extra": "forbid"}
+    # adjustments 总是要求 rationale(阶段 0 从 fixture 枚举全字段)
+    rationale: str
     # ... 其他字段
 
     @model_validator(mode="after")
@@ -373,37 +379,69 @@ class TruthFilesRegistry(BaseModel):
 
 ```python
 # src/shenbi/contracts/schemas/deps.py
-# C4+I1 修复:DepsDoc 必须枚举所有 consumer 触及的键(forbid 要求),
-# 且 D19 的"OR"在此定案:per-phase prerequisites(非 per-skill)。
+# C4+I1 修复(第二轮 review 重写):模型必须匹配真实 deps.json shape,
+# 否则 forbid 会拒绝合法文件。已逐项核实 tests/tiers/deps.json。
+#
+# 真实 shape(核实):
+#   t2-phases: dict[phase_name -> {prerequisites, expected_outputs, g4_checker}]
+#     (prerequisites = 该 phase 的 skill 成员花名册,sync_contracts.py:127 称为 members)
+#   t3-pipelines: dict[pipeline_name -> {min_chapter_ratio, expected_outputs, ...}]
+#   _calibration_hashes: dict  (g0.14 读)
+#   _out_of_pipeline: {t1_only_auxiliary, t1_only_meta, t1_only_drafting_phase, _note}
+#   _tool_hashes: dict  (g0.14 读)
+#
+# pydantic v2 要点(第二轮 review 核实):
+#   - 键名是连字符(t2-phases),字段名用下划线 + Field(alias=...)
+#   - 带前导下划线的键(_calibration_hashes)必须用 alias,否则变 private attr
+#   - populate_by_name=True 允许两种键名加载
 class PhaseDeps(BaseModel):
     model_config = {"extra": "forbid"}
-    phase: str
-    prerequisites: list[str] = []          # 该 phase 含的 skill 列表(phase_runner/g5 读)
+    prerequisites: list[str] = []          # phase 的 skill 成员花名册(非 per-skill 前置!)
     expected_outputs: list[str] = []       # sync_contracts 重新生成
+    g4_checker: str | None = None          # 该 phase 的 G4 checker 名(g4/dispatch 读)
 
 class PipelineDeps(BaseModel):
     model_config = {"extra": "forbid"}
-    pipeline: str
     min_chapter_ratio: float = 0.0         # g6 读
     expected_outputs: list[str] = []
 
-class DepsDoc(BaseModel):
+class OutOfPipeline(BaseModel):
     model_config = {"extra": "forbid"}
-    t2_phases: list[PhaseDeps] = []
-    t3_pipelines: list[PipelineDeps] = []
-    _calibration_hashes: dict[str, str] = {}   # g0.14 读(_前缀键,Pydantic 需 alias 处理)
-    _out_of_pipeline: list[str] = []           # g_dispatch 读
+    t1_only_auxiliary: list[str] = []
+    t1_only_meta: list[str] = []
+    t1_only_drafting_phase: list[str] = []
+    note: str = Field(default="", alias="_note")
 
-    def prerequisites_for_skill(self, skill: str) -> list[str]:
-        """D19 修复:从含该 skill 的 phase 派生 prerequisites(非顶层 skill 键)。
+class DepsDoc(BaseModel):
+    model_config = {"extra": "forbid", "populate_by_name": True}
+    t2_phases: dict[str, PhaseDeps] = Field(default_factory=dict, alias="t2-phases")
+    t3_pipelines: dict[str, PipelineDeps] = Field(default_factory=dict, alias="t3-pipelines")
+    tool_hashes: dict[str, str] = Field(default_factory=dict, alias="_tool_hashes")
+    out_of_pipeline: OutOfPipeline = Field(default_factory=OutOfPipeline, alias="_out_of_pipeline")
+    calibration_hashes: dict[str, str] = Field(default_factory=dict, alias="_calibration_hashes")
 
-        替代 g3.py:85 错误的 deps.get(skill_name) —— deps.json 无顶层 skill 键,
-        该查询永远返回 {} → G3.1 死代码。改为查 t2_phases 里含该 skill 的 phase。
-        """
-        for phase in self.t2_phases:
-            if skill in phase.prerequisites:
-                return phase.prerequisites
-        return []
+    def phase_of(self, skill: str) -> str | None:
+        """skill 所属的 phase(用于 G3.1/G5 定位)。"""
+        for pname, pdeps in self.t2_phases.items():
+            if skill in pdeps.prerequisites:
+                return pname
+        return None
+
+# D19 修复(第二轮 review 重写 — 原方案语义错误):
+# G3.1 的原始意图(g3.py:85-98)是"T1 per-skill 前置依赖要有 t1-report"。
+# 但 deps.json 的 prerequisites 是 **phase 成员花名册**(sync_contracts:127 称 members),
+# 从未有 per-skill 前置依赖数据。G3.1 的 deps.get(skill_name) 从一开始就是设计错误,
+# 不是"查询写错" —— deps.json 根本不存这种数据。
+#
+# 两种正确修法(spec 必须定案,不留 OR):
+#   (A) 删除 G3.1 的 per-skill 前置检查(G3.2 已做 score 阈值检查,覆盖了 readiness)。
+#   (B) 重新定义 G3.1 为"该 skill 所属 phase 的所有成员已有 t1-report"(phase-level,非 skill-level)。
+#
+# 定案:采用 (A) 删除。理由:(1) deps.json 无 per-skill 前置数据,(B) 的"phase 成员"检查
+# 与 G3.2 的 score 检查重叠且语义模糊(同 phase 成员不互为前置);(2) G3.2 已是真正的
+# readiness gate(score >= 阈值)。G3.1 的 per-skill 前置是死功能,删除而非伪造数据。
+# 阶段 4 修复:删 G3.1 的 deps 读取逻辑,保留 G3.1 id 但改为 SKIP("per-skill prereqs not modeled")
+# 或合并入 G3.2。
 ```
 
 ### 5.4 错误信息映射
@@ -496,9 +534,10 @@ def find_closure_violations(contracts, registry):
 
 **现状**:`_extract_h2_sections`(精确)、`check_fields_exist`(精确但非阻塞 WARN)、`lint_contract_fields.py`(normalize:lower + 合并空白,宽松)——三套语义。
 
-**设计(I3 修正 — CJK 空白归一化策略)**:
-- 新建 `src/shenbi/contracts/fields.py:match_field(declared, heading)`,单一匹配函数。**归一化规则(明确决定)**:`.strip()` + 把所有 Unicode 空白(含 U+3000 全角空格、U+200B 零宽空格)折叠为单个 ASCII 空格,**不做 lower**(保留中文标题大小写语义——truth 文件用中文标题,lower 无意义且可能误伤)。
-- 这比当前 lint 的 normalize **更严**(不 lower),比纯 exact **更宽**(折叠全角/多重空白)——正确处理 CJK 标题里全角 vs 半角空格的视觉等价。
+**设计(I3 修正 — CJK 空白归一化策略,第二轮 review 精化)**:
+- 新建 `src/shenbi/contracts/fields.py:match_field(declared, heading)`,单一匹配函数。**归一化规则(明确决定)**:`.strip()` + 把 ASCII 空白 + U+3000(全角空格)折叠为单个 ASCII 空格(正则 `[\s\u3000]+`),**不做 lower**(保留中文标题大小写语义——truth 文件用中文标题,lower 无意义且可能误伤)。
+- **显式不折叠零宽字符(U+200B/200C/200D)**:第二轮 review 核实 U+200B `isspace()=False`、`\s` 不匹配;且零宽字符在 CJK 中承载语义(词边界标记),折叠会产生假匹配。只折叠可见空白(ASCII + 全角)。
+- 这比当前 lint 的 normalize **更严**(不 lower),比纯 exact **更宽**(折叠全角/多重可见空白)——正确处理 CJK 标题里全角 vs 半角空格的视觉等价,不破坏零边界的语义。
 - 阶段 4 历史债清理必须修正:凡 canonical form 不同的标题(consumer fields 写法 vs truth 文件写法),统一为单一 canonical form。
 - `_filter_to_fields` 从 `dispatch_helper.py` 抽到 `contracts/fields.py`,filter / G1 / lint 全部调用 `match_field` + `filter_to_fields`。
 - lint 升级为 fixture-driven FAIL:拿 producer 的真实最新 fixture 输出跑 `filter_to_fields`,断言每个声明字段命中(非逃生舱 fallback)。
@@ -559,9 +598,9 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 **改动(schema-first 立即切换,分类见 §5.1)**:
 - `legacy.load_registry()` 返回 `TruthFilesRegistry` 模型实例;`resolves()` 访问模型属性。
 - g2/g4 的 decisions 校验:删除手写,改 `DecisionsDoc.model_validate`。
-- **producer 受控类(forbid)立即切换**:deps.json 4 处(`DepsDoc`,含 D19 修复的 `prerequisites_for_skill`)、novel.json 2 处、scores.json 各处。
+- **producer 受控类(forbid)立即切换**:deps.json 4 处(`DepsDoc`,shape 经第二轮 review 核实重写)、novel.json 2 处、scores.json 各处。
 - **producer 不受控类(ignore)立即建模但不阻断**:progress.json(`ProgressDoc` extra=ignore)、summary.json(`SummaryDoc` extra=ignore)。消费方改 import 模型,模型宽容加载;writer 统一 + 升级 forbid 留 spec 2。
-- D19 修复落地:G3.1 改用 `DepsDoc.prerequisites_for_skill(skill)`(I1 定案)。
+- D19 修复落地:删除 G3.1 的 per-skill 前置检查(死功能,见 §5.3 DepsDoc 决策说明);G3.1 改显式 SKIP。
 - 清理 `contracts/registry.py` 的 dead `REGISTRY`/`load_skill_contract`、`contracts/skills/*.py` 的 dead stub(仅保留 genre_config/pacing_design)、tracked `.bak` 源文件(M1)。
 
 **验证**:模型单测;`load_registry()` 返回类型变但行为等价;现有 gate 测试全绿。
@@ -618,10 +657,10 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 - **过宽 glob**:收窄为具体 pattern 或登记 known_files。
 - **已确认活 bug**(审计确认的 6 个,逐项切除 + 金丝雀测试):
   - **D16**(G6.10 死路径):`g6.py:275` 读 `pd/"config"/"style_profile.md"`,producer 写 `style/style_profile.md` → 修正为 `rp.read("style/style_profile.md")`(走 RoundPaths,§4.2 改造后自动正确路径)。**金丝雀**:断言 G6.10 在有 style_profile 时不再 SKIP。
-  - **D19**(G3.1 死键 — I1 定案):`g3.py:85` `deps.get(skill_name)` 但 deps.json 无顶层 skill 键 → **改用 `DepsDoc.prerequisites_for_skill(skill)`**(§5.3 已定义):从含该 skill 的 phase 派生 prerequisites。删除错误的顶层 skill 键查询。**金丝雀**:断言 G3.1 对 drafting phase 内的 skill 返回非空 prereqs。
-  - **D20**(pipeline 产物路径分叉):`snapshots/chapter-NNN/` 契约概念 vs pipeline 写 `snapshots/chapter-{N:03d}-{ts}.md` 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(`producer: pipeline`),让契约图反映现实而非虚构。**决策(必须定)**:`snapshots/chapter-NNN/` 目录概念是虚构的,登记真实平文件 glob `snapshots/chapter-NNN-*.md` + `snapshots/manifest.json` 为 `producer: pipeline`,删除/废弃旧的目录概念。**金丝雀**:断言 pipeline 产物的 consumer 不被报孤儿。
+  - **D19**(G3.1 死键 — 第二轮 review 重写):`g3.py:85` `deps.get(skill_name)` 永远返 `{}`。核实发现 deps.json 的 `prerequisites` 是 **phase 成员花名册**(非 per-skill 前置),从未存过 per-skill 前置数据 —— G3.1 的 per-skill 前置检查是**死功能**,不是"查询写错"。**定案:删除 G3.1 的 deps 读取逻辑**(G3.2 score 阈值检查已覆盖 readiness;phase 成员检查与 G3.2 重叠且语义模糊)。保留 G3.1 id 但改 SKIP,或合并入 G3.2。详见 §5.3 DepsDoc 决策说明。**金丝雀**:断言 G3.1 不再因 `deps.get(skill_name)` 返空而静默 SKIP(改为显式 SKIP with reason "per-skill prereqs not modeled",不假装在做检查)。
+  - **D20**(pipeline 产物路径分叉):`snapshots/chapter-NNN/` 契约概念 vs pipeline 写 `snapshots/chapter-{N:03d}-{ts}.md` 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(`producer: pipeline`),让契约图反映现实而非虚构。**决策(必须定)**:`snapshots/chapter-NNN/` 目录概念是虚构的,登记真实平文件 glob `snapshots/chapter-NNN-*.md` + `snapshots/manifest.json` 为 `producer: pipeline`,删除/废弃旧的目录概念。**补充(第二轮 review)**:`chapter_loop.py:239` 的 `ChapterStep` 仍声明 `output_path="snapshots/chapter-NNN/"`(为已绕过的 `shenbi-snapshot-manage`),修复时一并改正/移除该 step 的 output_path,否则契约图仍引用虚构目录。**金丝雀**:断言 pipeline 产物的 consumer 不被报孤儿。
   - **D21**(truth 模板缺 H2):`_init_truth_templates` 只种 H1,skill 期望 H2 字段 → 从 consumer 声明的 fields 派生 H2 骨架写入模板。**金丝雀**:断言 genesis 首跑时 G1 `check_fields_exist` 对模板文件不 WARN。
-  - **D22**(hook state 大小写 — I2 修正):`_count_triggered_hooks` 在 **`pipeline/chapter_loop.py:643/659/771`**(不在 g6.py;初版 spec 位置错误),用 `h.get("state") == "TRIGGERED"`(仅大写) → **定义 `HookState` 枚举**(PLANTED/RELEVANT/TRIGGERED/RESOLVED),所有读写引用枚举值;读入时大小写归一化。锚点:`foreshadowing_track.py:30` 已有覆盖这些 state 的正则。**禁止用 `match_field`**(范畴错误:match_field 是 H2 标题匹配,非 YAML 枚举值)。**金丝雀**:断言小写 `triggered` 也被正确识别。
+  - **D22**(hook state 大小写 — I2 修正,第二轮 review 补全):`_count_triggered_hooks` 在 **`pipeline/chapter_loop.py:643/659/771`**(不在 g6.py;初版 spec 位置错误),用 `h.get("state") == "TRIGGERED"`(仅大写) → **定义 `HookState` 枚举**。第二轮 review 核实 `foreshadowing-track/SKILL.md` 引用 **6 个生命周期值**:PLANTED/RELEVANT/TRIGGERED/RESOLVED/**ARCHIVED**/**EXPIRED**(初版只列 4 个,会拒绝合法的 ARCHIVED/EXPIRED hook)。枚举须覆盖全部 6 个;读入时大小写归一化 + 映射非规范拼写(如 `TRIGGER`→`TRIGGERED`,见 SKILL.md:87)。锚点:`foreshadowing_track.py:30` 已有覆盖这些 state 的正则。**禁止用 `match_field`**(范畴错误:match_field 是 H2 标题匹配,非 YAML 枚举值)。**金丝雀**:(a) 小写 `triggered` 被正确识别;(b) `state: EXPIRED` 的 hook 加载成功且**不**被计入 TRIGGERED。
   - **D24**(registry 无非空断言):`bootstrap_registry` 结构漂移会清空 → `TruthFilesRegistry` 模型(§5.3)加载后 `assert_non_empty` 校验,加 lint 检查非空。**金丝雀**:断言空 registry 加载失败。
 
 **验证**:阶段 3 所有 lint 跑出零 FAIL;D16/D19/D20/D21/D22/D24 六个活 bug 的复现测试在修复后转 PASS(从 FAIL/错误行为翻转为正确行为)。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。
@@ -648,7 +687,7 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 3. **三根分离 + .bak 全链**:round_dir≠project_dir≠repo_root 的 fixture,断言 (a) G4/gate/dispatcher 行为正确;(b) G1.4 创建的 `.bak` 与 G2.11 读取的 `.bak` 同根(I4 修复后 BACKUP_SKILLS 已派生覆盖全部 truth-updating skill,故 .bak 确实被创建,diff 不再因"无 .bak"静默 no-op)。
 4. **字段匹配一致性 + 全角空格等价**:对每个有 dict-form reads 的 consumer,拿 producer 真实 fixture 跑 `filter_to_fields`,断言 filter/G1/lint 三处结果一致(用同一 match_field);额外断言全角空格(`## 1.　当前任务` vs declared `1. 当前任务`)匹配成功(I3)。
 5. **D16 G6.10 不再死路径**:有 style_profile 时 G6.10 执行实际检查而非 SKIP。防止有人改回 `config/` 路径。
-6. **D19 G3.1 不再死键**:对有前置依赖的 skill,G3.1 返回非空 prereqs 并实际校验。防止 deps 键结构再次错配。
+6. **D19 G3.1 不再静默死跳**:G3.1 不再因 `deps.get(skill_name)` 返空而静默 SKIP(假装在查无数据的前置)。删除后改为显式 SKIP with reason "per-skill prereqs not modeled",不冒充检查。防止有人重新引入对 deps.json 不存在的顶层 skill 键的查询。
 7. **跨层 seam(reviewer 建议)**:改 `DecisionsDoc` 的一个字段(如新增必填),断言 g2 AND g4 AND lint_contract_fields 一致地 FAIL——验证 §3 三层栈真 compose,而非各层各测各的。
 
 ### 8.3 测试数据原则
@@ -661,7 +700,7 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 
 | 机制 | 行业对照 | 本设计 |
 |---|---|---|
-| 单一占位符解析 | Pact matching provider / Helm tpl / Jinja 单一环境 | ✅ 单一 `resolve_chapter_path` + `extract_chapter` |
+| 单一占位符解析 | Pact matching provider / Helm tpl / Jinja 单一环境 | ✅ 单一 `resolve_chapter_path` / `resolve_volume_path` / `extract_chapter`(共享有界替换原语) |
 | RoundPaths 值对象 | Rust PathBuf+工作目录封装 / Go fs.FS / Next.js 项目根探测 | ✅ 三根封装,禁裸 join,消除 CWD fallback |
 | 契约图闭包 + Producer Registry | Consumer-Driven Contract Testing (Pact broker) / Conflux Schema Registry ownership / Terraform dependency graph | ✅ 闭包 FAIL + pipeline 产物统一登记 |
 | Schema-First | protobuf/gRPC / OpenAPI / Avro | ✅ 全结构化文件 pydantic 化,一处定义 |
