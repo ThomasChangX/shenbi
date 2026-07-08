@@ -740,3 +740,123 @@ class TestRunGateSubprocessContract:
         result = phase_runner.run_gate("G5", ["arg"])
         assert result["status"] == "FAIL"
         assert result["raw_stdout"] == "not json"
+
+
+# --- TestPostSkillOutputDiscovery (M5+M8) --------------------------------
+
+
+class TestPostSkillOutputDiscovery:
+    """M5: phase_runner uses derive_output_files instead of rglob.
+    M8: G2 file_type comes from derive_file_type instead of hardcoded 'chapter'.
+    """
+
+    def test_post_skill_passes_derived_file_type_not_hardcoded_chapter(self, tmp_path, monkeypatch):
+        """M8: G2 must receive derive_file_type(skill), not hardcoded 'chapter'."""
+        from shenbi.status import PhaseState
+
+        # Setup: a started phase
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        state_dir = round_dir / "phase-state"
+        state_dir.mkdir()
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+
+        # Create state file
+        state = {"phase": "drafting", "state": PhaseState.STARTED, "steps": []}
+        (state_dir / "drafting.json").write_text(json.dumps(state))
+
+        # A real output file so derive_output_files' return survives the
+        # exists+size filter and G2 actually runs (otherwise G2 is skipped and
+        # there is no file_type to assert on).
+        out_file = project_dir / "context.md"
+        out_file.write_text("context content", encoding="utf-8")
+
+        # Mock derive_file_type to return 'decisions'
+        captured_file_type = []
+
+        def mock_run_gate(gate_name, args):
+            if gate_name == "G2":
+                captured_file_type.append(args[1])  # file_type is args[1]
+                return {"status": "PASS"}
+            if gate_name == "G4":
+                return {"status": "PASS"}
+            return {"status": "PASS"}
+
+        monkeypatch.setattr(phase_runner, "run_gate", mock_run_gate)
+        monkeypatch.setattr(
+            "shenbi.dispatcher.executor.derive_file_type",
+            lambda skill: "decisions",
+            raising=True,
+        )
+        monkeypatch.setattr(
+            "shenbi.dispatcher.executor.derive_output_files",
+            lambda skill, chapter, rd: [str(out_file)],
+            raising=True,
+        )
+
+        phase_runner.cmd_post_skill(
+            "drafting", "shenbi-context-composing", str(round_dir), str(project_dir)
+        )
+
+        # Verify G2 received 'decisions', not 'chapter'
+        assert len(captured_file_type) > 0
+        assert captured_file_type[0] == "decisions"
+
+    def test_post_skill_uses_derive_output_files_not_rglob(self, tmp_path, monkeypatch):
+        """M5: output_files comes from derive_output_files, not rglob.
+        When chapter is provided, derive_output_files is the sole source —
+        rglob fallback does NOT fire (it only fires when chapter is None).
+        """
+        from shenbi.status import PhaseState
+
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        state_dir = round_dir / "phase-state"
+        state_dir.mkdir()
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+
+        state = {"phase": "drafting", "state": PhaseState.STARTED, "steps": []}
+        (state_dir / "drafting.json").write_text(json.dumps(state))
+
+        # Create a .md file that rglob would find but derive_output_files would NOT
+        stray_file = project_dir / "stray.md"
+        stray_file.write_text("should not be discovered", encoding="utf-8")
+
+        captured_outputs = []
+
+        def mock_run_gate(gate_name, args):
+            if gate_name == "G2":
+                captured_outputs.append(args[0])  # file_paths is args[0]
+                return {"status": "PASS"}
+            if gate_name == "G4":
+                return {"status": "PASS"}
+            return {"status": "PASS"}
+
+        # derive_output_files returns only contract-declared paths (empty here)
+        monkeypatch.setattr(phase_runner, "run_gate", mock_run_gate)
+        monkeypatch.setattr(
+            "shenbi.dispatcher.executor.derive_output_files",
+            lambda skill, chapter, rd: [],
+            raising=True,
+        )
+        monkeypatch.setattr(
+            "shenbi.dispatcher.executor.derive_file_type",
+            lambda skill: "chapter",
+            raising=True,
+        )
+
+        # Pass chapter=5 so the rglob fallback does NOT fire.
+        # With chapter provided, derive_output_files is the sole source.
+        phase_runner.cmd_post_skill(
+            "drafting",
+            "shenbi-chapter-drafting",
+            str(round_dir),
+            str(project_dir),
+            chapter=5,
+        )
+
+        # With empty derive_output_files, G2 should receive empty string (no stray.md)
+        if captured_outputs:
+            assert "stray.md" not in captured_outputs[0]
