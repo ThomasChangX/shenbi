@@ -81,8 +81,7 @@ def check_fields_exist(
             actual: set[str] = set()
             for line in content.splitlines():
                 if line.startswith("## "):
-                    raw = line[3:].strip().lower().replace(" ", "_")
-                    actual.add(raw)
+                    actual.add(line[3:].strip())
             missing = set(fields) - actual
             if missing:
                 warnings.append(f"{fp}: declared fields {missing} not found in file")

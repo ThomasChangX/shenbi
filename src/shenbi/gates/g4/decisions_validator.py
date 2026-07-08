@@ -45,6 +45,10 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.dec.invalid_json:{fp}")
             continue
 
+        if not isinstance(data, dict):
+            mf.append(f"G4.dec.not_object:{fp}:got {type(data).__name__}")
+            continue
+
         # Schema version
         if data.get("$schema") != DECISIONS_SCHEMA_VERSION:
             mf.append(f"G4.dec.schema_version:{fp}:{data.get('$schema')}")
@@ -57,6 +61,9 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
 
         # Validate selections (P2.5)
         for i, sel in enumerate(data.get("selections", [])):
+            if not isinstance(sel, dict):
+                mf.append(f"G4.dec.selection[{i}]:{fp}:not a dict ({type(sel).__name__})")
+                continue
             errors = validate_selection_rationale(
                 basis=sel.get("basis", ""),
                 severity=sel.get("severity", "low"),
@@ -67,6 +74,9 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
 
         # Validate adjustments (always require rationale)
         for i, adj in enumerate(data.get("adjustments", [])):
+            if not isinstance(adj, dict):
+                mf.append(f"G4.dec.adjustment[{i}]:{fp}:not a dict ({type(adj).__name__})")
+                continue
             errors = validate_adjustment_rationale(adj.get("rationale"))
             for err in errors:
                 mf.append(f"G4.dec.adjustment[{i}]:{fp}:{err}")

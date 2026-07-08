@@ -327,12 +327,10 @@ def test_derive_file_type_returns_decisions_for_context_composing_after_migratio
     """After context-composing migrates to kind=artifact with decisions.json writes,
     derive_file_type returns 'decisions'.
     """
-    import shenbi.dispatcher.executor as exec_mod
     from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
-        exec_mod,
-        "load_contract",
+        "shenbi.dispatcher.executor.load_contract",
         lambda s: {
             "kind": OutputKind.ARTIFACT,
             "reads": [],
@@ -351,12 +349,10 @@ def test_derive_file_type_returns_decisions_for_chapter_drafting_after_migration
     """chapter-drafting writes both chapter-N.md AND chapter-N-decisions.json.
     When it writes a decisions file, derive_file_type returns 'decisions'.
     """
-    import shenbi.dispatcher.executor as exec_mod
     from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
-        exec_mod,
-        "load_contract",
+        "shenbi.dispatcher.executor.load_contract",
         lambda s: {
             "kind": OutputKind.ARTIFACT,
             "reads": [],

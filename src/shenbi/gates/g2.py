@@ -78,6 +78,16 @@ def gate_G2(
             except json.JSONDecodeError:
                 mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
                 continue
+            if not isinstance(data, dict):
+                mf.append(
+                    {
+                        "id": "G2.dec.1",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"expected JSON object, got {type(data).__name__}",
+                    }
+                )
+                continue
             # G2.dec.2 — schema version
             if data.get("$schema") != "shenbi-decisions-v1":
                 mf.append(
