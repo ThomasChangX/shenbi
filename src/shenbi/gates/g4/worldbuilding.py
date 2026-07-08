@@ -26,7 +26,7 @@ def g4_worldbuilding(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
     rp = RoundPaths(
-        round_dir=Path(rd or "."),
+        round_dir=Path(rd or project_dir or "."),
         project_dir=Path(project_dir or rd or "."),
         repo_root=Path(repo_root or PROJECT),
     )

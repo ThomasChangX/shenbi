@@ -278,6 +278,7 @@ def gate_G5(
                                     pr,
                                     "generative",
                                     [str(fp)],
+                                    str(project_dir),
                                     project_dir=str(project_dir),
                                     repo_root=str(PROJECT),
                                 )

@@ -31,7 +31,7 @@ def g4_pacing_design(
         project_dir = rd or (str(Path(fps[0]).parent.parent) if fps else ".")
 
     rp = RoundPaths(
-        round_dir=Path(rd or "."),
+        round_dir=Path(rd or project_dir or "."),
         project_dir=Path(project_dir or "."),
         repo_root=Path(repo_root or PROJECT),
     )
