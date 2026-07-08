@@ -230,6 +230,12 @@ def _build_skill_prompt(
     for p in output_paths:
         if "*" not in p:
             user_parts.append(f"- {p}")
+    if len(output_paths) > 1:
+        user_parts.append(
+            "\nNote: This skill produces multiple files. "
+            "Decisions JSON must conform to shenbi-decisions-v1 schema "
+            "(see docs/framework/decisions-schema.md)."
+        )
     if input_texts:
         user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():

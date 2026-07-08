@@ -215,3 +215,58 @@ class TestOptionalReads:
         env = mock_run.call_args[1].get("env", {})
         assert env is not None
         assert env.get("SHENBI_G1_SKIP_READS", "") != ""
+
+
+class TestMultiFileOutputFormat:
+    """M6: when contract has multiple writes, prompt reminds about schema."""
+
+    def test_multi_file_prompt_includes_schema_reminder(self, tmp_path, monkeypatch):
+        from shenbi.contracts import OutputKind
+        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+        # Mock contract with 2 writes (chapter.md + decisions.json)
+        mock_contract = {
+            "kind": OutputKind.ARTIFACT,
+            "reads": [],
+            "writes": ["chapters/chapter-1.md", "chapters/chapter-1-decisions.json"],
+            "updates": [],
+            "read_fields": {},
+        }
+        # load_contract is imported locally inside _build_skill_prompt from
+        # shenbi.contracts.legacy, so patch it there.
+        monkeypatch.setattr(
+            "shenbi.contracts.legacy.load_contract",
+            lambda s: mock_contract,
+        )
+
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
+        )
+
+        assert len(output_paths) == 2
+        assert "shenbi-decisions-v1" in user_prompt
+        assert "decisions-schema.md" in user_prompt
+
+    def test_single_file_prompt_omits_schema_reminder(self, tmp_path, monkeypatch):
+        """Single-write contracts should NOT include the schema reminder."""
+        from shenbi.contracts import OutputKind
+        from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+
+        mock_contract = {
+            "kind": OutputKind.ARTIFACT,
+            "reads": [],
+            "writes": ["chapters/chapter-1.md"],
+            "updates": [],
+            "read_fields": {},
+        }
+        monkeypatch.setattr(
+            "shenbi.contracts.legacy.load_contract",
+            lambda s: mock_contract,
+        )
+
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            "shenbi-chapter-drafting", tmp_path, "draft chapter 1", 1
+        )
+
+        assert len(output_paths) == 1
+        assert "shenbi-decisions-v1" not in user_prompt
