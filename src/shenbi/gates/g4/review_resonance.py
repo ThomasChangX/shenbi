@@ -14,6 +14,7 @@ from typing import Any
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
 )
 
 # Required 评分明细 columns. The header row is matched as a whole so the
@@ -36,9 +37,8 @@ def g4_review_resonance(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.rr.not_found:{fp}")
             continue

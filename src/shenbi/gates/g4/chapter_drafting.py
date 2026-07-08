@@ -13,6 +13,7 @@ from shenbi.gates.shared import (
     fail,
     passed,
     read_genre_config,
+    resolve_input_path,
     word_count_md,
 )
 from shenbi.logging import get_logger
@@ -49,9 +50,8 @@ def g4_chapter_drafting(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.file_not_found:{fp}")
             continue

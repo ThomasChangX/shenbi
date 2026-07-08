@@ -4,9 +4,8 @@ from __future__ import annotations
 from typing import Any
 
 import re
-from pathlib import Path
 
-from shenbi.gates.shared import fail, passed
+from shenbi.gates.shared import fail, passed, resolve_input_path
 
 
 def g4_memory_distill(
@@ -18,9 +17,8 @@ def g4_memory_distill(
     """Validate arc/strata output has traceability (chapter refs) + required sections."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        p = base / fp if not Path(fp).is_absolute() else Path(fp)
+        p = resolve_input_path(fp, rd)
         if not p.exists():
             mf.append(f"G4.md.not_found:{fp}")
             continue

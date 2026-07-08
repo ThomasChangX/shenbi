@@ -8,6 +8,7 @@ from shenbi.gates.shared import (
     bak_path,
     fail,
     passed,
+    resolve_input_path,
     word_count_md,
 )
 
@@ -22,9 +23,8 @@ def g4_style_polishing(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.sp.not_found:{fp}")
             continue
