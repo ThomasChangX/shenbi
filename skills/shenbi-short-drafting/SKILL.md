@@ -6,10 +6,11 @@ contract:
   reads:
     - outline/short_story_map.md
     - truth/author_intent.md
-    - genre-config.json
-    - style/style_profile.md
+    - {file: genre-config.json, fields: [fatigueWords, pacing, chapterTypes]}
+    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式", "9. 对白占比"]}
   writes:
     - chapters/chapter-N.md
+    - short/short-N-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -23,7 +24,7 @@ contract:
 ## 数据契约
 
 - **Reads:** outline/short_story_map.md, truth/author_intent.md, genre-config.json, style/style_profile.md
-- **Writes:** chapters/chapter-N.md
+- **Writes:** chapters/chapter-N.md, short/short-N-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

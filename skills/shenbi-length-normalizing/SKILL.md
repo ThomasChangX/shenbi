@@ -5,7 +5,7 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
-    - novel.json
+    - {file: novel.json, fields: [target_words, genre, language]}
   writes: []
   updates:
     - chapters/chapter-N.md

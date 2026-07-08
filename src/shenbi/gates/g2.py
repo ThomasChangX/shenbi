@@ -61,6 +61,59 @@ def gate_G2(
             mf.append({"id": "G2.3", "file": fp, "s": "FAIL"})
             continue
 
+        # G2.dec — decisions.json validation (M4)
+        # Placed after G2.3 (content is now available) and before G2.4/G2.5.
+        if file_type == "decisions":
+            # Skip non-JSON files — the decisions branch only validates JSON.
+            # Skills like chapter-drafting/context-composing produce BOTH a .md
+            # artifact and a sidecar decisions.json; when file_type="decisions"
+            # is applied uniformly to all outputs, the .md must not be parsed as
+            # JSON (it would FAIL G2.dec.1). .md files are validated by their own
+            # file_type gate instead.
+            if not fp.endswith(".json"):
+                continue  # skip .md files — decisions branch only validates JSON
+            # G2.dec.1 — valid JSON
+            try:
+                data = json.loads(content)
+            except json.JSONDecodeError:
+                mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
+                continue
+            if not isinstance(data, dict):
+                mf.append(
+                    {
+                        "id": "G2.dec.1",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"expected JSON object, got {type(data).__name__}",
+                    }
+                )
+                continue
+            # G2.dec.2 — schema version
+            if data.get("$schema") != "shenbi-decisions-v1":
+                mf.append(
+                    {
+                        "id": "G2.dec.2",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"schema version mismatch: {data.get('$schema')}",
+                    }
+                )
+            # G2.dec.3 — required keys
+            required = {"skill", "chapter", "selections", "produced_at"}
+            missing = required - data.keys()
+            if missing:
+                mf.append(
+                    {
+                        "id": "G2.dec.3",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"missing keys: {missing}",
+                    }
+                )
+            else:
+                checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
+            continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
+
         # G2.4 — JSON syntax (if JSON file)
         if fp.endswith(".json"):
             try:

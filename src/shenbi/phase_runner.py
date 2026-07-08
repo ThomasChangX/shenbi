@@ -4,7 +4,7 @@
 Usage:
     phase-runner.py start <phase> --round-dir <dir> --project-dir <dir>
     phase-runner.py pre-skill <phase> <skill> --round-dir <dir>
-    phase-runner.py post-skill <phase> <skill> --round-dir <dir> --project-dir <dir>
+    phase-runner.py post-skill <phase> <skill> --round-dir <dir> --project-dir <dir> [--chapter <n>]
     phase-runner.py pre-score <phase> --round-dir <dir>
     phase-runner.py post-score <phase> <scores-file> --round-dir <dir>
     phase-runner.py finalize <phase> --round-dir <dir> --project-dir <dir>
@@ -142,15 +142,40 @@ def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     )
 
 
-def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | None) -> None:
+def cmd_post_skill(
+    phase: str,
+    skill: str,
+    round_dir: str,
+    project_dir: str | None,
+    chapter: int | None = None,
+) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "post-skill")
     assert project_dir is not None
     proj = Path(project_dir)
-    output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
+    from shenbi.dispatcher.executor import derive_file_type, derive_output_files
+
+    # M5: use contract-declared outputs instead of rglob heuristic.
+    # chapter must be provided for chapter-parametric skills; when None
+    # (non-pipeline T2), derive_output_files returns [] for parametric paths.
+    output_files = [
+        p
+        for p in derive_output_files(skill, chapter, proj)
+        if Path(p).exists() and Path(p).stat().st_size > 0
+    ]
+    # M8: use derived file_type instead of hardcoded "chapter".
+    file_type = derive_file_type(skill)
+    # Safety fallback: when chapter is unknown (non-pipeline T2), fall back to
+    # rglob. CRITICAL: the fallback file_type must match what rglob finds (.md).
+    # If derive_file_type returns "decisions" but rglob only finds .md files,
+    # G2's decisions branch would json.loads() markdown → crash. So the fallback
+    # must use file_type="chapter" (the type for .md files).
+    if not output_files and chapter is None:
+        output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
+        file_type = "chapter"  # override: rglob finds .md, not decisions.json
     g2_status = GateStatus.SKIP.value
     if output_files:
-        g2 = run_gate("G2", [",".join(output_files), "chapter", str(round_dir)])
+        g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
     g4 = run_gate("G4", [skill, ",".join(output_files) if output_files else "", str(round_dir)])
     g4_status = g4.get("status", GateStatus.FAIL.value)
@@ -294,6 +319,8 @@ def main() -> None:
     round_dir = find_flag("--round-dir")
     assert round_dir is not None
     project_dir = find_flag("--project-dir", required=False)
+    chapter_str = find_flag("--chapter", required=False)
+    chapter = int(chapter_str) if chapter_str else None
 
     if cmd == "start":
         phase = args[0]
@@ -303,7 +330,7 @@ def main() -> None:
         cmd_pre_skill(phase, skill, round_dir)
     elif cmd == "post-skill":
         phase, skill = args[0], args[1]
-        cmd_post_skill(phase, skill, round_dir, project_dir)
+        cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
     elif cmd == "pre-score":
         phase = args[0]
         cmd_pre_score(phase, round_dir)

@@ -111,6 +111,11 @@
       "file": "plans/chapter-N-plan.md"
     },
     {
+      "producer": "shenbi-context-composing",
+      "consumer": "shenbi-chapter-drafting",
+      "file": "context/chapter-N-context-decisions.json"
+    },
+    {
       "producer": "shenbi-style-learning",
       "consumer": "shenbi-chapter-drafting",
       "file": "style/style_profile.md"
@@ -959,6 +964,11 @@
       "producer": "shenbi-style-polishing",
       "consumer": "shenbi-chapter-revision",
       "file": "chapters/chapter-N.md"
+    },
+    {
+      "producer": "shenbi-chapter-drafting",
+      "consumer": "shenbi-chapter-revision",
+      "file": "chapters/chapter-N-decisions.json"
     },
     {
       "producer": "shenbi-review-anti-ai",

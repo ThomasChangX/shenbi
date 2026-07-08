@@ -202,6 +202,15 @@
     "writes": [],
     "updates": []
   },
+  "context/chapter-N-context-decisions.json": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [
+      "shenbi-context-composing"
+    ],
+    "updates": []
+  },
   "style/style_profile.md": {
     "reads": [
       "shenbi-chapter-drafting",
@@ -229,6 +238,15 @@
       "shenbi-review-resonance",
       "shenbi-score-arc"
     ]
+  },
+  "chapters/chapter-N-decisions.json": {
+    "reads": [
+      "shenbi-chapter-revision"
+    ],
+    "writes": [
+      "shenbi-chapter-drafting"
+    ],
+    "updates": []
   },
   "chapters/*.md": {
     "reads": [
@@ -331,6 +349,13 @@
       "shenbi-intent-management"
     ]
   },
+  "plans/chapter-N-plan-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-planning"
+    ],
+    "updates": []
+  },
   "audits/chapter-N-*.md": {
     "reads": [
       "shenbi-chapter-revision",
@@ -349,6 +374,13 @@
     "updates": []
   },
   "truth/state_snapshot-pre-rev.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-revision"
+    ],
+    "updates": []
+  },
+  "chapters/chapter-N-revision-decisions.json": {
     "reads": [],
     "writes": [
       "shenbi-chapter-revision"
@@ -649,6 +681,13 @@
       "shenbi-location-builder"
     ]
   },
+  "context/market-radar-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-market-radar"
+    ],
+    "updates": []
+  },
   "outline/rhythm_principles.md": {
     "reads": [
       "shenbi-plot-thread-weaver"
@@ -881,10 +920,24 @@
     ],
     "updates": []
   },
+  "short/short-N-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-short-drafting"
+    ],
+    "updates": []
+  },
   "import/packaging/*": {
     "reads": [],
     "writes": [
       "shenbi-short-packaging"
+    ],
+    "updates": []
+  },
+  "truth/state-settling-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-state-settling"
     ],
     "updates": []
   },

@@ -6,8 +6,8 @@ contract:
   kind: report
   reads:
     - chapters/chapter-N.md
-    - genre-config.json
-    - truth/chapter_summaries.md
+    - {file: genre-config.json, fields: [pacing, chapterTypes]}
+    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
   writes:
     - audits/chapter-N-pacing.md
   updates: []

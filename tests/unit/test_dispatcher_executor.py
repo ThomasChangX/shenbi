@@ -17,8 +17,9 @@ from shenbi.dispatcher.executor import (
 
 
 @pytest.mark.unit
-def test_derive_file_type_returns_chapter_for_drafting() -> None:
-    assert derive_file_type("shenbi-chapter-drafting") == "chapter"
+def test_derive_file_type_returns_decisions_for_drafting() -> None:
+    """Task 10: chapter-drafting now writes chapter-N-decisions.json -> 'decisions'."""
+    assert derive_file_type("shenbi-chapter-drafting") == "decisions"
 
 
 @pytest.mark.unit
@@ -127,12 +128,14 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
     assert derive_input_files("shenbi-chapter-drafting", chapter=1) == [
         "plans/chapter-1-plan.md",
         "context/chapter-1-context.md",
+        "context/chapter-1-context-decisions.json",
         "style/style_profile.md",
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes=[] + updates=7 truth files (all fold into outputs)
+    # shenbi-state-settling: writes a decisions sidecar + updates=7 truth files (all fold into outputs)
     assert derive_output_files("shenbi-state-settling") == [
+        "truth/state-settling-decisions.json",
         "truth/current_state.md",
         "truth/particle_ledger.md",
         "truth/character_matrix.md",
@@ -315,3 +318,47 @@ def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPat
         },
     )
     assert derive_input_files("shenbi-x", chapter=None) == []
+
+
+@pytest.mark.unit
+def test_derive_file_type_returns_decisions_for_context_composing_after_migration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """After context-composing migrates to kind=artifact with decisions.json writes,
+    derive_file_type returns 'decisions'.
+    """
+    from shenbi.contracts import OutputKind
+
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": OutputKind.ARTIFACT,
+            "reads": [],
+            "writes": ["context/chapter-N-context-decisions.json"],
+            "updates": [],
+            "read_fields": {},
+        },
+    )
+    assert derive_file_type("shenbi-context-composing") == "decisions"
+
+
+@pytest.mark.unit
+def test_derive_file_type_returns_decisions_for_chapter_drafting_after_migration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """chapter-drafting writes both chapter-N.md AND chapter-N-decisions.json.
+    When it writes a decisions file, derive_file_type returns 'decisions'.
+    """
+    from shenbi.contracts import OutputKind
+
+    monkeypatch.setattr(
+        "shenbi.dispatcher.executor.load_contract",
+        lambda s: {
+            "kind": OutputKind.ARTIFACT,
+            "reads": [],
+            "writes": ["chapters/chapter-N.md", "chapters/chapter-N-decisions.json"],
+            "updates": [],
+            "read_fields": {},
+        },
+    )
+    assert derive_file_type("shenbi-chapter-drafting") == "decisions"

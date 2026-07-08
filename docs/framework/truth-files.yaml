@@ -50,6 +50,12 @@ concepts:
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
   - {name: context/chapter-N-context.md, kind: context}
+  - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
+  - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
+  - {name: chapters/chapter-N-revision-decisions.json, kind: decisions}  # revision decisions
+  - {name: plans/chapter-N-plan-decisions.json, kind: decisions}    # plan decisions sidecar
+  - {name: context/market-radar-decisions.json, kind: decisions}        # market-radar decisions
+  - {name: truth/state-settling-decisions.json, kind: decisions}          # state-settling decisions
   # style
   - {name: style/style_profile.md, kind: style}
   # audits (one concept covers all 18 dims via the glob below)
@@ -67,6 +73,7 @@ concepts:
   - {name: import/packaging/package.md, kind: import}
   - {name: short/outline.md, kind: short}
   - {name: short/package.md, kind: short}
+  - {name: short/short-N-decisions.json, kind: decisions}  # short-drafting decisions
   # benchmarks (Wave 3: scoring anchor library, spec §4.3)
   - {name: benchmarks/anchors/, kind: benchmark}            # anchor library dir (read)
   - {name: benchmarks/anchors/AC-NNN.md, kind: benchmark}   # parametric: NNN
@@ -75,6 +82,12 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: plans/chapter-N-plan.md, glob: plans/chapter-*-plan.md}
   - {parametric: chapters/chapter-N.md, glob: chapters/chapter-*.md}
   - {parametric: context/chapter-N-context.md, glob: context/chapter-*-context.md}
+  - parametric: context/chapter-N-context-decisions.json
+    glob: context/chapter-*-context-decisions.json
+  - {parametric: chapters/chapter-N-decisions.json, glob: chapters/chapter-*-decisions.json}
+  - parametric: chapters/chapter-N-revision-decisions.json
+    glob: chapters/chapter-*-revision-decisions.json
+  - {parametric: plans/chapter-N-plan-decisions.json, glob: plans/chapter-*-plan-decisions.json}
   - {parametric: snapshots/chapter-NNN/manifest.json, glob: snapshots/chapter-*/manifest.json}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
@@ -84,6 +97,7 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: audits/escalation-N-report.md, glob: audits/escalation-*-report.md}
   - {parametric: benchmarks/anchors/AC-NNN.md, glob: benchmarks/anchors/AC-*.md}
   - {parametric: truth/arcs/arc-N.md, glob: truth/arcs/arc-*.md}
+  - {parametric: short/short-N-decisions.json, glob: short/short-*-decisions.json}
 
 globs:  # declared wildcards contracts may use verbatim
   - {pattern: truth/*.md}
@@ -95,6 +109,10 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: chapters/*.md}
   - {pattern: plans/chapter-*-plan.md}
   - {pattern: context/chapter-*-context.md}
+  - {pattern: context/chapter-*-context-decisions.json}
+  - {pattern: chapters/chapter-*-decisions.json}
+  - {pattern: chapters/chapter-*-revision-decisions.json}
+  - {pattern: plans/chapter-*-plan-decisions.json}
   - {pattern: audits/chapter-*.md}
   - {pattern: audits/volume-*.md}
   - {pattern: snapshots/chapter-*/*}
@@ -105,6 +123,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: import/source/*.txt}
   - {pattern: source_canon/*}
   - {pattern: short/chapter-*.md}
+  - {pattern: short/short-*-decisions.json}
   - {pattern: chapters/chapter-*-revised.md}
   # Wave 3: scoring layer (spec §4.3-4.4)
   - {pattern: benchmarks/anchors/AC-*.md}

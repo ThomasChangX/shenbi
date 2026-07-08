@@ -2,11 +2,12 @@
 name: shenbi-market-radar
 description: "Use when researching current platform trends, analyzing leaderboard data, evaluating genre opportunities, or seeking competitive positioning advice for a new novel"
 contract:
-  kind: ephemeral
+  kind: artifact
   reads:
     - novel.json
     - genre-config.json
-  writes: []
+  writes:
+    - context/market-radar-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -20,7 +21,7 @@ contract:
 ## 数据契约
 
 - **Reads:** novel.json, genre-config.json
-- **Writes:** none
+- **Writes:** context/market-radar-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
