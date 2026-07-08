@@ -50,6 +50,8 @@ concepts:
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
   - {name: context/chapter-N-context.md, kind: context}
+  - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
+  - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
   # style
   - {name: style/style_profile.md, kind: style}
   # audits (one concept covers all 18 dims via the glob below)
@@ -75,6 +77,9 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: plans/chapter-N-plan.md, glob: plans/chapter-*-plan.md}
   - {parametric: chapters/chapter-N.md, glob: chapters/chapter-*.md}
   - {parametric: context/chapter-N-context.md, glob: context/chapter-*-context.md}
+  - parametric: context/chapter-N-context-decisions.json
+    glob: context/chapter-*-context-decisions.json
+  - {parametric: chapters/chapter-N-decisions.json, glob: chapters/chapter-*-decisions.json}
   - {parametric: snapshots/chapter-NNN/manifest.json, glob: snapshots/chapter-*/manifest.json}
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
@@ -95,6 +100,8 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: chapters/*.md}
   - {pattern: plans/chapter-*-plan.md}
   - {pattern: context/chapter-*-context.md}
+  - {pattern: context/chapter-*-context-decisions.json}
+  - {pattern: chapters/chapter-*-decisions.json}
   - {pattern: audits/chapter-*.md}
   - {pattern: audits/volume-*.md}
   - {pattern: snapshots/chapter-*/*}

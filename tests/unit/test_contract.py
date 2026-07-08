@@ -140,3 +140,32 @@ def test_contracts_registry_coexists_with_contract_py() -> None:
 
     c = load_contract("shenbi-worldbuilding")  # unmigrated, uses TypedDict
     assert c is not None
+
+
+@pytest.mark.unit
+class TestDecisionsRegistryPaths:
+    """Integration-style: resolve decisions.json paths against the REAL registry.
+
+    Unlike the _setup()-based tests above, these hit the authored
+    docs/framework/truth-files.yaml so that a missing registration fails here
+    (the authoring decision point that prevents silent synonym creation).
+    """
+
+    def test_context_decisions_json_resolves(self) -> None:
+        from shenbi.contracts.legacy import load_registry, resolves
+
+        registry = load_registry()
+        assert resolves("context/chapter-N-context-decisions.json", registry)
+
+    def test_chapter_decisions_json_resolves(self) -> None:
+        from shenbi.contracts.legacy import load_registry, resolves
+
+        registry = load_registry()
+        assert resolves("chapters/chapter-N-decisions.json", registry)
+
+    def test_decisions_kind_in_registry(self) -> None:
+        from shenbi.contracts.registry import bootstrap_registry
+
+        reg = bootstrap_registry()
+        assert reg.get("context/chapter-N-context-decisions.json") == "decisions"
+        assert reg.get("chapters/chapter-N-decisions.json") == "decisions"
