@@ -170,11 +170,13 @@ class TestContextComposingPipelineMode:
         assert "context/chapter-N-context.md" in text
         assert "pipeline-context-assemble" in text
 
-    def test_contract_remains_ephemeral(self) -> None:
-        # per spec §7.1 [I1]: pipeline curation overwrites the package in place,
-        # the skill declares no durable write target
+    def test_contract_is_artifact_with_decisions_write(self) -> None:
+        # Task 8: context-composing migrated from ephemeral to artifact kind.
+        # It now writes a durable decisions sidecar (context/chapter-N-context-decisions.json)
+        # so downstream skills can read the composed decisions.
         contract = _contract("shenbi-context-composing")
-        assert contract["writes"] == []
+        assert contract["kind"] == "artifact"
+        assert "context/chapter-N-context-decisions.json" in contract["writes"]
 
 
 class TestMemoryDistillDensityTrigger:

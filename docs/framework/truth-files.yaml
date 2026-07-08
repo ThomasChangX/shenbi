@@ -52,6 +52,7 @@ concepts:
   - {name: context/chapter-N-context.md, kind: context}
   - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
   - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
+  - {name: context/market-radar-decisions.json, kind: decisions}        # market-radar decisions
   # style
   - {name: style/style_profile.md, kind: style}
   # audits (one concept covers all 18 dims via the glob below)

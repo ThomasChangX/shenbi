@@ -2,7 +2,7 @@
 name: shenbi-context-composing
 description: "Use when assembling context before drafting a chapter, collecting truth files, or preparing the writing context package"
 contract:
-  kind: ephemeral
+  kind: artifact
   reads:
     - plans/chapter-N-plan.md
     - truth/book_spine.md
@@ -16,7 +16,8 @@ contract:
     - truth/character_matrix.md
     - style/style_profile.md
     - chapters/chapter-N.md
-  writes: []
+  writes:
+    - context/chapter-N-context-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -36,7 +37,7 @@ contract:
 ## 数据契约
 
 - **Reads:** plans/chapter-N-plan.md, truth/book_spine.md, truth/book_strata.md, truth/volume_summaries.md, truth/arcs/arc-N.md, truth/chapter_summaries.md, truth/pending_hooks.md, truth/audit_drift.md, world/rules.md, truth/character_matrix.md, style/style_profile.md, chapters/chapter-N.md
-- **Writes:** none
+- **Writes:** context/chapter-N-context-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

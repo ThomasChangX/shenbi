@@ -496,6 +496,13 @@
       "shenbi-state-settling"
     ]
   },
+  "context/chapter-N-context-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-context-composing"
+    ],
+    "updates": []
+  },
   "truth/resonance_trend.md": {
     "reads": [
       "shenbi-drift-guidance",
@@ -648,6 +655,13 @@
     "updates": [
       "shenbi-location-builder"
     ]
+  },
+  "context/market-radar-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-market-radar"
+    ],
+    "updates": []
   },
   "outline/rhythm_principles.md": {
     "reads": [

@@ -48,6 +48,7 @@
         "shenbi-context-composing"
       ],
       "expected_outputs": [
+        "context/chapter-*-context-decisions.json",
         "plans/chapter-*-plan.md",
         "truth/*.md"
       ],
