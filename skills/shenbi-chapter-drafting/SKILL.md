@@ -6,11 +6,13 @@ contract:
   reads:
     - plans/chapter-N-plan.md
     - context/chapter-N-context.md
+    - context/chapter-N-context-decisions.json
     - style/style_profile.md
     - genre-config.json
     - truth/audit_drift.md
   writes:
     - chapters/chapter-N.md
+    - chapters/chapter-N-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -23,8 +25,8 @@ contract:
 
 ## 数据契约
 
-- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, style/style_profile.md, genre-config.json, truth/audit_drift.md
-- **Writes:** chapters/chapter-N.md
+- **Reads:** plans/chapter-N-plan.md, context/chapter-N-context.md, context/chapter-N-context-decisions.json, style/style_profile.md, genre-config.json, truth/audit_drift.md
+- **Writes:** chapters/chapter-N.md, chapters/chapter-N-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

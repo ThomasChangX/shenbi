@@ -17,8 +17,9 @@ from shenbi.dispatcher.executor import (
 
 
 @pytest.mark.unit
-def test_derive_file_type_returns_chapter_for_drafting() -> None:
-    assert derive_file_type("shenbi-chapter-drafting") == "chapter"
+def test_derive_file_type_returns_decisions_for_drafting() -> None:
+    """Task 10: chapter-drafting now writes chapter-N-decisions.json -> 'decisions'."""
+    assert derive_file_type("shenbi-chapter-drafting") == "decisions"
 
 
 @pytest.mark.unit
@@ -127,6 +128,7 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
     assert derive_input_files("shenbi-chapter-drafting", chapter=1) == [
         "plans/chapter-1-plan.md",
         "context/chapter-1-context.md",
+        "context/chapter-1-context-decisions.json",
         "style/style_profile.md",
         "genre-config.json",
         "truth/audit_drift.md",

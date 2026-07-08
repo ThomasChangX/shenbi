@@ -49,6 +49,7 @@
       ],
       "expected_outputs": [
         "context/chapter-*-context-decisions.json",
+        "plans/chapter-*-plan-decisions.json",
         "plans/chapter-*-plan.md",
         "truth/*.md"
       ],
@@ -69,6 +70,7 @@
       "expected_outputs": [
         "audits/arc-*-score.md",
         "audits/chapter-*.md",
+        "chapters/chapter-*-decisions.json",
         "chapters/chapter-*.md",
         "truth/*.md"
       ],

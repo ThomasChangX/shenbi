@@ -13,6 +13,7 @@ contract:
     - truth/author_intent.md
   writes:
     - plans/chapter-N-plan.md
+    - plans/chapter-N-plan-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -32,7 +33,7 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
-- **Writes:** plans/chapter-N-plan.md
+- **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

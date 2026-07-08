@@ -202,6 +202,15 @@
     "writes": [],
     "updates": []
   },
+  "context/chapter-N-context-decisions.json": {
+    "reads": [
+      "shenbi-chapter-drafting"
+    ],
+    "writes": [
+      "shenbi-context-composing"
+    ],
+    "updates": []
+  },
   "style/style_profile.md": {
     "reads": [
       "shenbi-chapter-drafting",
@@ -229,6 +238,13 @@
       "shenbi-review-resonance",
       "shenbi-score-arc"
     ]
+  },
+  "chapters/chapter-N-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-drafting"
+    ],
+    "updates": []
   },
   "chapters/*.md": {
     "reads": [
@@ -330,6 +346,13 @@
     "updates": [
       "shenbi-intent-management"
     ]
+  },
+  "plans/chapter-N-plan-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-planning"
+    ],
+    "updates": []
   },
   "audits/chapter-N-*.md": {
     "reads": [
@@ -495,13 +518,6 @@
       "shenbi-relationship-map",
       "shenbi-state-settling"
     ]
-  },
-  "context/chapter-N-context-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-context-composing"
-    ],
-    "updates": []
   },
   "truth/resonance_trend.md": {
     "reads": [
