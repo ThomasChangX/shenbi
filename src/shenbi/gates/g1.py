@@ -55,7 +55,10 @@ def derive_backup_skills() -> frozenset[str]:
             # be truth-updaters; skip them rather than aborting import.
             continue
         for f in c.get("updates", []):
-            if any(f == t or fnmatch.fnmatch(f, t) for t in truth_names):
+            # Match both directions: a declared glob like ``truth/*.md`` (f is
+            # the pattern, t is the literal concept) and a literal update
+            # against a registry glob concept. ``f == t`` covers exact hits.
+            if any(f == t or fnmatch.fnmatch(f, t) or fnmatch.fnmatch(t, f) for t in truth_names):
                 result.add(skill)
                 break
     return frozenset(result)

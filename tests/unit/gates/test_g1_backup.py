@@ -12,12 +12,16 @@ from shenbi.gates.g1 import BACKUP_SKILLS, derive_backup_skills
 
 
 def test_derive_includes_truth_updaters() -> None:
-    # phase-0: 13 skills update truth files
+    # phase-0: 15 skills update truth files
     skills = derive_backup_skills()  # loads contracts + registry internally
+    assert len(skills) == 15
     # spot-check a few that were missing from the old hardcoded list
     assert "shenbi-state-settling" in skills
     assert "shenbi-review-resonance" in skills  # was missing → G2.11 no-op
     assert "shenbi-memory-distill" in skills  # was missing
+    # glob-declared updaters (updates: [truth/*.md]) must match literal concepts
+    assert "shenbi-truth-sync" in skills
+    assert "shenbi-sequel-writing" in skills
 
 
 def test_module_constant_equals_derived() -> None:
