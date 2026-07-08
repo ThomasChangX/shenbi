@@ -183,13 +183,14 @@ def gate_G4(
     from shenbi.gates.g4.score_volume import g4_score_volume
     from shenbi.gates.g4.score_stratum import g4_score_stratum
     from shenbi.gates.g4.escalation_review import g4_escalation_review
+    from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
 
     checkers = {
         "shenbi-anti-detect": g4_anti_detect,
-        "shenbi-chapter-drafting": g4_chapter_drafting,
-        "shenbi-chapter-planning": g4_chapter_planning,
+        "shenbi-chapter-drafting": make_composite_checker(g4_chapter_drafting, g4_decisions),
+        "shenbi-chapter-planning": make_composite_checker(g4_chapter_planning, g4_decisions),
         "shenbi-character-design": g4_character_design,
-        "shenbi-context-composing": g4_context_composing,
+        "shenbi-context-composing": make_composite_checker(g4_context_composing, g4_decisions),
         "shenbi-faction-builder": g4_faction_builder,
         "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
         "shenbi-foreshadowing-track": g4_foreshadowing_track,
@@ -202,7 +203,7 @@ def gate_G4(
         "shenbi-relationship-map": g4_relationship_map,
         "shenbi-review-arc-payoff": g4_review_arc_payoff,
         "shenbi-review-resonance": g4_review_resonance,
-        "shenbi-state-settling": g4_state_settling,
+        "shenbi-state-settling": make_composite_checker(g4_state_settling, g4_decisions),
         "shenbi-story-architecture": g4_story_architecture,
         "shenbi-style-polishing": g4_style_polishing,
         "shenbi-volume-outlining": g4_volume_outlining,
@@ -213,6 +214,10 @@ def gate_G4(
         "shenbi-score-volume": g4_score_volume,
         "shenbi-score-stratum": g4_score_stratum,
         "shenbi-escalation-review": g4_escalation_review,
+        # New: decisions-only (no existing dedicated checker)
+        "shenbi-market-radar": g4_decisions,
+        "shenbi-chapter-revision": g4_decisions,
+        "shenbi-short-drafting": g4_decisions,
     }
     fn = checkers.get(skill_name)
     if fn:
