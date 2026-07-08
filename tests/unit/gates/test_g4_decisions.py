@@ -120,6 +120,50 @@ class TestG4DecisionsValidation:
 
 
 @pytest.mark.unit
+class TestG4DecisionsFailureIdFormat:
+    """Pin the micro-failure ID format as ``G4.dec.<type>``.
+
+    Regression for a double-prefix bug: the validator previously re-split and
+    re-prefixed the adapter's ``id``, producing ``G4.dec.dec.<type>``. The
+    adapter (called with prefix "G4.dec") already emits ``G4.dec.<type>``, so
+    the validator must use its output verbatim. No existing test checked the ID
+    string, which masked the bug.
+    """
+
+    def test_must_fix_ids_are_single_prefixed(self, tmp_path: Path) -> None:
+        """Every must_fix entry must start with exactly ``G4.dec.`` (no ``dec.dec.``)."""
+        decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [
+                {
+                    "target": "truth/arcs/arc-N.md",
+                    "selected": ["climax"],
+                    "basis": "arc_relevance",
+                    "severity": "high",
+                    "omitted": [],
+                }
+            ],
+        }
+        fp = tmp_path / "chapter-5-context-decisions.json"
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = g4_decisions([str(fp)])
+        data = json.loads(result)
+        assert data["status"] == "FAIL"
+        must_fix: list[str] = data["must_fix"]
+        assert must_fix, "expected at least one micro-failure"
+        for entry in must_fix:
+            # Each entry is "<id>:<file>:<reason>"; the id is the part before the first ':'.
+            id_part = entry.split(":", 1)[0]
+            assert id_part.startswith("G4.dec."), f"id {id_part!r} missing G4.dec. prefix"
+            assert not id_part.startswith("G4.dec.dec."), f"double-prefix bug recurred: {id_part!r}"
+            # Must be G4.dec.<single-token-type>, i.e. exactly two dots.
+            assert id_part.count(".") == 2, f"expected shape G4.dec.<type>, got {id_part!r}"
+
+
+@pytest.mark.unit
 class TestG4DecisionsNonJsonSkip:
     """Critical: g4_decisions MUST skip non-JSON files.
 

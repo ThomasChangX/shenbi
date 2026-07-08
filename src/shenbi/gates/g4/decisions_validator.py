@@ -60,9 +60,11 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
             DecisionsDoc.model_validate(data)
             c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
         except ValidationError as e:
+            # pydantic_err_to_gate_failures already produces "G4.dec.<type>" IDs
+            # (prefix is passed as "G4.dec"). Use its output directly — do NOT
+            # re-split/re-prefix the id, which double-prefixes to "G4.dec.dec.<type>".
             mf.extend(
-                f"G4.dec.{f['id'].split('.', 1)[1]}:{fp}:{f['r']}"
-                for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
+                f"{f['id']}:{fp}:{f['r']}" for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
             )
 
     if not fps:
