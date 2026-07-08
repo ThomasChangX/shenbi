@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from shenbi.contracts.paths import resolve_chapter_path
+from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
 
 import yaml
 
@@ -638,8 +639,10 @@ def _count_triggered_hooks(text: str) -> int:
     r"""Count hooks with state TRIGGERED in the pending_hooks.md content.
 
     Parses YAML frontmatter (``---\\n...\\n---``) for a ``hooks`` list where
-    entries have a ``state`` field. Falls back to a text scan for
-    ``state: TRIGGERED`` when frontmatter is absent or malformed.
+    entries have a ``state`` field. State comparison goes through
+    :func:`parse_hook_state` (fix D22): case-insensitive, and the
+    non-canonical ``TRIGGER`` spelling folds to ``TRIGGERED``. Falls back to a
+    text scan for ``state: TRIGGERED`` when frontmatter is absent or malformed.
     """
     # Try YAML frontmatter first.
     if text.startswith("---"):
@@ -650,7 +653,10 @@ def _count_triggered_hooks(text: str) -> int:
                 hooks = fm.get("hooks", [])
                 if isinstance(hooks, list):
                     return sum(
-                        1 for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"
+                        1
+                        for h in hooks
+                        if isinstance(h, dict)
+                        and parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
                     )
             except Exception:
                 pass  # fall through to text scan
@@ -762,7 +768,9 @@ def _should_run_recall(project_dir: Path, chapter: int) -> bool:
     hooks = _read_pending_hooks(project_dir)
 
     # Condition 2: >5 TRIGGERED hooks
-    triggered_count = sum(1 for h in hooks if h.get("state") == "TRIGGERED")
+    triggered_count = sum(
+        1 for h in hooks if parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
+    )
     if triggered_count > 5:
         log.info(
             "recall_triggered_by_triggered_count",

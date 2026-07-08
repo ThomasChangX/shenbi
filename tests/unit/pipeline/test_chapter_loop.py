@@ -482,6 +482,42 @@ class TestCountTriggeredHooks:
         text = "---\nhooks: []\n---\nnothing"
         assert _count_triggered_hooks(text) == 0
 
+    # --- D22 canary: HookState enum (case-insensitive + non-canonical) ---
+
+    def test_lowercase_triggered_counted(self):
+        # D22 canary: lowercase 'triggered' must be recognized as TRIGGERED.
+        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
+
+        text = "---\nhooks:\n  - id: H01\n    state: triggered\n---\nbody"
+        assert _count_triggered_hooks(text) == 1
+
+    def test_noncanonical_trigger_spelling_counted(self):
+        # SKILL.md:87 uses bare 'TRIGGER' — must fold to TRIGGERED.
+        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
+
+        text = "---\nhooks:\n  - id: H01\n    state: TRIGGER\n---\nbody"
+        assert _count_triggered_hooks(text) == 1
+
+    def test_expired_not_counted_as_triggered(self):
+        # D22 canary: state: EXPIRED loads and is NOT counted as TRIGGERED.
+        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
+
+        text = (
+            "---\nhooks:\n"
+            "  - id: H01\n    state: EXPIRED\n"
+            "  - id: H02\n    state: triggered\n"
+            "---\nbody"
+        )
+        assert _count_triggered_hooks(text) == 1
+
+    def test_all_six_states_only_triggered_counted(self):
+        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
+
+        states = ["PLANTED", "RELEVANT", "TRIGGERED", "RESOLVED", "ARCHIVED", "EXPIRED"]
+        lines = "\n".join(f"  - id: H{i}\n    state: {s}" for i, s in enumerate(states))
+        text = f"---\nhooks:\n{lines}\n---\nbody"
+        assert _count_triggered_hooks(text) == 1
+
 
 # ---------------------------------------------------------------------------
 # Revision routing integration (W3T5, spec §6.3)

@@ -323,31 +323,75 @@ def _write_parsed_outputs(
     return written
 
 
+#: Truth files seeded by the worldbuilding genesis + their H1 titles. Each
+#: template's body is derived from the union of consumer-declared ``fields:``
+#: (fix D21) rather than a bare H1, so skills that read e.g.
+#: ``truth/current_state.md [主角状态, 当前世界局势, 活跃线索]`` find their H2
+#: headings present on first run instead of tripping G1 ``check_fields_exist``.
+_TRUTH_FILE_TITLES: dict[str, str] = {
+    "current_state.md": "Current State",
+    "character_matrix.md": "Character Matrix",
+    "emotional_arcs.md": "Emotional Arcs",
+    "chapter_summaries.md": "Chapter Summaries",
+}
+
+
+def _collect_declared_truth_fields() -> dict[str, list[str]]:
+    """Union of consumer-declared ``fields:`` per truth file, across all skills.
+
+    Scans every ``SKILL.md`` frontmatter ``contract.reads`` entry of the form
+    ``{file: truth/<name>.md, fields: [...]}`` and unions the declared field
+    names for each of the four seeded truth files. Order is stable
+    (first-seen) so template bodies are deterministic across runs. Skills with
+    no contract or an unparseable one are skipped — template seeding must
+    never block genesis on a single malformed skill.
+    """
+    from shenbi.contracts.legacy import ContractError, load_contract
+    from shenbi.gates.shared import ALL_SKILLS
+
+    declared: dict[str, dict[str, None]] = {name: {} for name in _TRUTH_FILE_TITLES}
+    for skill in ALL_SKILLS:
+        try:
+            contract = load_contract(skill)
+        except (ContractError, Exception):
+            continue  # malformed/missing contract — skip this skill
+        for read_path, fields in contract.get("read_fields", {}).items():
+            # read_fields is keyed by the contract path, e.g. "truth/current_state.md".
+            rel = read_path.removeprefix("truth/")
+            if rel in declared:
+                for field in fields:
+                    declared[rel][field] = None  # de-dupe, preserve first-seen order
+    return {name: list(fields) for name, fields in declared.items()}
+
+
 def _init_truth_templates(project_dir: Path) -> None:
-    """Create minimal truth template files with required YAML frontmatter."""
+    """Create minimal truth template files with required YAML frontmatter.
+
+    Each template's body carries the H1 title plus ``## <field>`` stubs for the
+    union of fields consumers declare (fix D21), so a freshly-seeded file
+    already satisfies G1 ``check_fields_exist`` instead of WARN-ing on every
+    consumer until state-settling fills it in.
+    """
     truth_dir = project_dir / "truth"
     truth_dir.mkdir(parents=True, exist_ok=True)
-    templates = {
-        "current_state.md": (
-            "type: current_state\ncategory: truth\nstatus: initialized\n---\n# Current State\n"
-        ),
-        "character_matrix.md": (
-            "type: character_matrix\ncategory: truth\nstatus: initialized\n"
-            "---\n# Character Matrix\n"
-        ),
-        "emotional_arcs.md": (
-            "type: emotional_arcs\ncategory: truth\nstatus: initialized\n---\n# Emotional Arcs\n"
-        ),
-        "chapter_summaries.md": (
-            "type: chapter_summaries\ncategory: truth\nstatus: initialized\n"
-            "---\n# Chapter Summaries\n"
-        ),
-    }
-    for filename, content in templates.items():
+    declared_fields = _collect_declared_truth_fields()
+    for filename, title in _TRUTH_FILE_TITLES.items():
         tp = truth_dir / filename
-        if not tp.exists():
-            safe_write(tp, f"---\n{content}")
-            log.info("truth_template_created", path=str(tp))
+        if tp.exists():
+            continue
+        stub_key = filename.removesuffix(".md")
+        body_lines = [f"# {title}"]
+        for field in declared_fields.get(filename, []):
+            body_lines.append("")
+            body_lines.append(f"## {field}")
+            body_lines.append("")
+            body_lines.append("> 待填充")
+        content = (
+            f"type: {stub_key}\ncategory: truth\nstatus: initialized\n"
+            f"---\n" + "\n".join(body_lines) + "\n"
+        )
+        safe_write(tp, f"---\n{content}")
+        log.info("truth_template_created", path=str(tp), fields=declared_fields.get(filename, []))
 
 
 # ---------------------------------------------------------------------------
