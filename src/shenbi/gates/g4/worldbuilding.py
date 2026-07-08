@@ -4,14 +4,16 @@ from __future__ import annotations
 from typing import Any
 import json
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     jload,
     passed,
-    resolve_g4_base,
     yload,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_worldbuilding(
@@ -23,10 +25,14 @@ def g4_worldbuilding(
     """Worldbuilding: novel.json, genre-config.json, 4 world files, truth templates."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
     # novel.json: title/genre/language/target_words
-    nj = pd / "novel.json"
+    nj = rp.read("novel.json")
     if nj.exists():
         try:
             d = jload(str(nj))
@@ -47,7 +53,7 @@ def g4_worldbuilding(
         mf.append("G4.novel.not_found")
 
     # genre-config.json: exists, valid JSON
-    gc_path = pd / "genre-config.json"
+    gc_path = rp.read("genre-config.json")
     if gc_path.exists():
         try:
             jload(str(gc_path))
@@ -58,7 +64,7 @@ def g4_worldbuilding(
         mf.append("G4.genre_config.not_found")
 
     # story_bible.md: 4 ## sections, prose density < 5%
-    sb = pd / "world" / "story_bible.md"
+    sb = rp.read("world/story_bible.md")
     if sb.exists():
         content = sb.read_text(encoding="utf-8")
         sections = re.findall(r"^##\s", content, re.MULTILINE)
@@ -79,9 +85,9 @@ def g4_worldbuilding(
         mf.append("G4.sb.not_found")
 
     # rules.md: 1-10 rules, each has 可测试标准 or 验证条件
-    rp = pd / "world" / "rules.md"
-    if rp.exists():
-        rc = rp.read_text(encoding="utf-8")
+    rules_path = rp.read("world/rules.md")
+    if rules_path.exists():
+        rc = rules_path.read_text(encoding="utf-8")
         # Support both Chinese and Arabic numerals
         heading_rules = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))
         numbered_rules = len(re.findall(r"^\d+\.\s+\*\*", rc, re.MULTILINE))
@@ -114,7 +120,7 @@ def g4_worldbuilding(
         mf.append("G4.rules.not_found")
 
     # locations.md: 3-5 locations (heading pattern is flexible — colon optional)
-    lp = pd / "world" / "locations.md"
+    lp = rp.read("world/locations.md")
     if lp.exists():
         loc_text = lp.read_text(encoding="utf-8")
         # Match ## 地点 with or without colon
@@ -131,7 +137,7 @@ def g4_worldbuilding(
         mf.append("G4.locations.not_found")
 
     # truth/ templates: 4 files with type/category/status frontmatter
-    truth_dir = pd / "truth"
+    truth_dir = rp.read("truth")
     truth_templates = [
         "current_state.md",
         "character_matrix.md",

@@ -3,13 +3,15 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
     yload,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_story_architecture(
@@ -21,10 +23,14 @@ def g4_story_architecture(
     """Story architecture: story_frame frontmatter conflicts, volume_map Objective+KR."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
     # story_frame.md: frontmatter with surface/personal/deep conflicts
-    sf = pd / "outline" / "story_frame.md"
+    sf = rp.read("outline/story_frame.md")
     if sf.exists():
         try:
             fm = yload(str(sf))
@@ -40,7 +46,7 @@ def g4_story_architecture(
         mf.append("G4.sf.not_found")
 
     # volume_map.md: >= 1 volume with Objective + Key Results
-    vm = pd / "outline" / "volume_map.md"
+    vm = rp.read("outline/volume_map.md")
     if vm.exists():
         content = vm.read_text(encoding="utf-8")
         volumes = re.findall(r"## 第[一二三四五六七八九十\d]+卷", content)
@@ -72,7 +78,7 @@ def g4_story_architecture(
         mf.append("G4.volumes.not_found")
 
     # rhythm_principles.md: must exist (created by story-architecture, updated by pacing-design)
-    rp_path = pd / "outline" / "rhythm_principles.md"
+    rp_path = rp.read("outline/rhythm_principles.md")
     if rp_path.exists():
         rp_content = rp_path.read_text(encoding="utf-8")
         if len(rp_content.strip()) > 0:
