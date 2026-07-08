@@ -15,6 +15,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 from shenbi.pipeline.chapter_loop import (
+    _LAST_AUDIT_IDX,
     CHAPTER_STEPS,
     run_chapter_step,
 )
@@ -602,6 +603,10 @@ class TestRevisionRoutingIntegration:
 
         Regression: _is_revision_skipped must only affect step 18
         (chapter-revision), not the snapshot/drift steps that follow.
+
+        With adaptive triggering (Task 8), snapshot is file-based (no dispatch)
+        and drift only dispatches when resonance data indicates need. The steps
+        still advance, they just don't always dispatch.
         """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
@@ -620,16 +625,379 @@ class TestRevisionRoutingIntegration:
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.step_index == 18
 
-        # Step 19 (snapshot-manage) MUST dispatch.
+        # Step 19 (snapshot-manage): file-based snapshot runs inline.
+        # Advancing through it should not dispatch.
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.step_index == 19
+        # Verify file-based snapshot was created.
+        snap_dir = tmp_path / "snapshots"
+        assert snap_dir.exists()
+        snapshots = list(snap_dir.glob("chapter-001-*.md"))
+        assert len(snapshots) == 1
 
-        # Step 20 (drift-guidance) MUST dispatch; completes chapter.
+        # Step 20 (drift-guidance): skipped when no resonance data.
+        # Still advances and completes chapter.
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.current_chapter == 2
         assert state.chapter_loop.step_index == 0
 
         called_skills = [c[0][0] for c in mock_disp.call_args_list]
         assert "shenbi-chapter-revision" not in called_skills
-        assert "shenbi-snapshot-manage" in called_skills
-        assert "shenbi-drift-guidance" in called_skills
+        # Snapshot is now file-based (no dispatch); drift skipped without data.
+
+
+# ---------------------------------------------------------------------------
+# Audit layer wiring (A8, Task 2.2)
+# ---------------------------------------------------------------------------
+class TestAuditLayerWiring:
+    """Tests that run_audit_layer is called after core circle and handles BLOCKING."""
+
+    def test_run_audit_layer_called_after_last_core_audit(self, tmp_path, monkeypatch):
+        """After step 16 (last is_audit step), run_audit_layer is called."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX  # position at step 16
+
+        # Mock audit_layer to avoid actual dispatch
+        called = []
+
+        def fake_run_audit(project_dir, chapter, gc):
+            called.append((chapter, gc))
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            return AuditResult(blocking_found=False)
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+        # Mock dispatch_skill for step 16
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": True})(),
+        )
+        # Mock G4
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert len(called) == 1, f"run_audit_layer should be called once, was {len(called)}"
+
+    def test_audit_blocking_triggers_revision_dispatch(self, tmp_path, monkeypatch):
+        """BLOCKING finding dispatches chapter-revision."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX
+
+        # Mock audit_layer returning BLOCKING
+        def fake_run_audit(project_dir, chapter, gc):
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            r = AuditResult(blocking_found=True)
+            r.issues = [{"skill": "test", "severity": "BLOCKING"}]
+            return r
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+
+        revisions = []
+
+        def fake_dispatch(skill, project_dir, prompt, **kwargs):
+            if "chapter-revision" in skill:
+                revisions.append(prompt)
+            return type("R", (), {"success": True})()
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch)
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert len(revisions) >= 1, f"Expected revision dispatch, got {len(revisions)}"
+
+    def test_audit_max_retries_triggers_escalation(self, tmp_path, monkeypatch):
+        """After max_audit_retries BLOCKING rounds, ESCALATION checkpoint is set."""
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX
+        state.config.max_audit_retries = 3
+
+        def fake_run_audit(project_dir, chapter, gc):
+            from shenbi.pipeline.audit_layer import AuditResult
+
+            r = AuditResult(blocking_found=True)
+            r.issues = [{"skill": "test", "severity": "BLOCKING"}]
+            return r
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": True})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        cs = state.chapter_loop.chapter_states.get("1")
+        assert cs is not None
+        assert cs.audit_retry_count > 0, (
+            f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
+        )
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION, (
+            f"Expected ESCALATION checkpoint, got {state.pending_checkpoint.type}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# A7: State-settling G4 validation — _resolve_g4_files
+# ---------------------------------------------------------------------------
+class TestResolveG4Files:
+    """Tests _resolve_g4_files for multi-file steps like state-settling."""
+
+    def test_state_settling_returns_staging_truth_files(self, tmp_path):
+        """State-settling step globs staging/truth/*.md."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        # Find state-settling step (step 7, index 6)
+        ss_step = next(s for s in CHAPTER_STEPS if "state-settling" in s.skill)
+
+        # Create staging/truth/ with some .md files
+        staging_truth = tmp_path / "staging" / "truth"
+        staging_truth.mkdir(parents=True)
+        (staging_truth / "current_state.md").write_text("# state")
+        (staging_truth / "character_matrix.md").write_text("# chars")
+        (staging_truth / "not_markdown.txt").write_text("nope")
+
+        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        assert len(files) >= 2
+        assert any("current_state.md" in f for f in files)
+        assert any("character_matrix.md" in f for f in files)
+        # .txt file should NOT be in the list
+        assert not any("not_markdown.txt" in f for f in files)
+
+    def test_state_settling_empty_staging_returns_empty(self, tmp_path):
+        """No staging/truth/ dir → returns empty list, no crash."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        ss_step = next(s for s in CHAPTER_STEPS if "state-settling" in s.skill)
+        files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
+        assert files == []
+
+    def test_non_state_settling_returns_single_file(self, tmp_path):
+        """Non-state-settling steps return single path unchanged."""
+        from shenbi.pipeline.chapter_loop import (
+            CHAPTER_STEPS,
+            _resolve_g4_files,
+        )
+
+        drafting_step = CHAPTER_STEPS[5]  # step 6: chapter-drafting
+        files = _resolve_g4_files(tmp_path, drafting_step, chapter=3)
+        assert len(files) == 1
+        assert "chapter-3.md" in files[0]
+
+
+# ---------------------------------------------------------------------------
+# A5a: State-settling failure wiring — handle_state_settle_failure
+# ---------------------------------------------------------------------------
+class TestStateSettleFailureWiring:
+    """Tests that state-settling failure calls handle_state_settle_failure."""
+
+    def test_state_settle_failure_triggers_escalation(self, tmp_path, monkeypatch):
+        """State-settling dispatch failure → ESCALATION checkpoint."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 3
+        state.chapter_loop.step_index = 6  # state-settling is index 6
+
+        # Mock dispatch to fail for state-settling
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        # Should return True (checkpoint raised)
+        assert result is True
+        # Check chapter status is settling_failed
+        cs = state.chapter_loop.chapter_states.get("3")
+        assert cs is not None
+        assert cs.status == "settling_failed"
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+
+
+# ---------------------------------------------------------------------------
+# A5b: Scoring failure wiring — handle_scoring_failure for review-resonance
+# ---------------------------------------------------------------------------
+class TestScoringFailureWiring:
+    """Tests review-resonance exit code handling."""
+
+    def test_exit_code_2_triggers_redispatch(self, tmp_path, monkeypatch):
+        """review-resonance returncode=2 → handle_scoring_failure returns True → retry."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16  # review-resonance is index 16
+
+        called = []
+
+        def fake_scoring_failure(s, exit_code):
+            called.append(exit_code)
+            return True  # should retry
+
+        monkeypatch.setattr(
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False, "returncode": 2})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        assert len(called) == 1
+        assert called[0] == 2
+        # Should return False (retry, step_index unchanged)
+        assert result is False
+        assert state.chapter_loop.step_index == 16  # not advanced
+
+    def test_exit_code_3_also_retries(self, tmp_path, monkeypatch):
+        """review-resonance returncode=3 → handle_scoring_failure returns True → retry."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 16
+
+        def fake_scoring_failure(s, exit_code):
+            return True
+
+        monkeypatch.setattr(
+            "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            lambda *a, **kw: type("R", (), {"success": False, "returncode": 3})(),
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        result = run_chapter_step(state, tmp_path)
+        assert result is False
+        assert state.chapter_loop.step_index == 16  # not advanced
+
+
+# ---------------------------------------------------------------------------
+# A4: Escalation-review dispatch wiring
+# ---------------------------------------------------------------------------
+class TestEscalationWiring:
+    """Tests that escalation-review is dispatched before ESCALATION checkpoint."""
+
+    def test_dispatch_escalation_called_before_checkpoint(self, tmp_path, monkeypatch):
+        """When retries exhausted, dispatch_escalation is called before set_checkpoint."""
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.state import CheckpointType, PipelinePhase, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.phase = PipelinePhase.CHAPTER_LOOP
+        state.chapter_loop.current_chapter = 1
+        # Step 6 (index 5): shenbi-chapter-drafting (non-audit, non-scoring)
+        state.chapter_loop.step_index = 5
+        state.chapter_loop.retry_counts = {"ch1-shenbi-chapter-drafting": 3}
+        state.config.max_revision_retries = 3
+
+        call_order = []
+
+        def fake_dispatch_skill(skill, project_dir, prompt, **kwargs):
+            call_order.append(("dispatch", skill))
+            return type("R", (), {"success": False})()
+
+        def fake_dispatch_escalation(project_dir, chapter, context=""):
+            call_order.append(("escalation", chapter))
+            return True
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch_skill)
+        monkeypatch.setattr(
+            "shenbi.pipeline.revision_router.dispatch_escalation",
+            fake_dispatch_escalation,
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g4",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
+        run_chapter_step(state, tmp_path)
+        assert ("escalation", 1) in call_order
+        assert state.pending_checkpoint.type == CheckpointType.ESCALATION
+
+
+# ---------------------------------------------------------------------------
+# Resonance Score Parser (A2)
+# ---------------------------------------------------------------------------
+class TestResonanceScoreParser:
+    """Tests _parse_resonance_score from audit reports."""
+
+    def test_parses_yaml_frontmatter(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("---\nresonance_score: 87\n---\n# Report\n...")
+        assert _parse_resonance_score(report) == 87
+
+    def test_parses_bold_label(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("# Review\n\n**Resonance Score**: 92\n\nDetails...")
+        assert _parse_resonance_score(report) == 92
+
+    def test_parses_plain_label(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("Score: 75")
+        assert _parse_resonance_score(report) == 75
+
+    def test_missing_file_returns_none(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        assert _parse_resonance_score(tmp_path / "nonexistent.md") is None
+
+    def test_no_score_found_returns_none(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _parse_resonance_score
+
+        report = tmp_path / "resonance.md"
+        report.write_text("# No score here\n\nJust text.")
+        assert _parse_resonance_score(report) is None

@@ -22,12 +22,14 @@ def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
 
 @pytest.mark.unit
 def test_fails_when_current_state_missing_position(tmp_path: Path) -> None:
-    """File named current_state without position markers -> FAIL G4.ss.no_position."""
+    """File named current_state without position markers -> WARN G4.ss.position (relaxed from FAIL)."""
     f = tmp_path / "current_state.md"
     f.write_text("# State\n\nNo position info.\n", encoding="utf-8")
     result = _run([str(f)])
-    assert result["status"] == "FAIL"
-    assert any("G4.ss.no_position" in mf for mf in result["must_fix"])
+    # Position check is now a WARN quality target, check ID renamed
+    assert any(
+        c["id"] == "G4.ss.position" and c["s"] == "WARN" for c in result.get("checks", [])
+    ), f"Expected G4.ss.position WARN in checks, got {result.get('checks', [])}"
 
 
 @pytest.mark.unit
@@ -41,12 +43,14 @@ def test_passes_when_current_state_has_position(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_fails_when_character_matrix_missing_chars(tmp_path: Path) -> None:
-    """File named character_matrix without character sections -> FAIL."""
+    """File named character_matrix without character sections -> WARN G4.ss.characters (relaxed from FAIL)."""
     f = tmp_path / "character_matrix.md"
     f.write_text("# Matrix\nNo characters here.\n", encoding="utf-8")
     result = _run([str(f)])
-    assert result["status"] == "FAIL"
-    assert any("G4.ss.no_characters" in mf for mf in result["must_fix"])
+    # Character check is now a WARN quality target, check ID renamed
+    assert any(
+        c["id"] == "G4.ss.characters" and c["s"] == "WARN" for c in result.get("checks", [])
+    ), f"Expected G4.ss.characters WARN in checks, got {result.get('checks', [])}"
 
 
 @pytest.mark.unit

@@ -82,6 +82,7 @@ class GenesisStateData:
     current_step: int = 0
     skills_done: list[str] = field(default_factory=list)
     retry_counts: dict[str, int] = field(default_factory=dict)
+    retry_feedback: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -91,6 +92,42 @@ class ChapterState:
     resonance_score: int | None = None
     audit_results: dict[str, Any] = field(default_factory=dict)
     revision_count: int = 0
+    audit_retry_count: int = 0  # tracks audit BLOCKING revision attempts
+
+
+@dataclass
+class SoftFailTracker:
+    """Tracks SOFT G4 failures with a sliding window to prevent stale escalations."""
+
+    check_id: str
+    occurrences: list[int] = field(default_factory=list)
+    window_size: int = 5
+    escalation_threshold: int = 3
+
+    def record(self, chapter: int) -> bool:
+        """Record a soft failure occurrence and return True if escalation threshold met."""
+        self.occurrences.append(chapter)
+        self.occurrences = [ch for ch in self.occurrences if chapter - ch <= self.window_size]
+        return len(self.occurrences) >= self.escalation_threshold
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize tracker state for persistence."""
+        return {
+            "check_id": self.check_id,
+            "occurrences": self.occurrences,
+            "window_size": self.window_size,
+            "escalation_threshold": self.escalation_threshold,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> SoftFailTracker:
+        """Deserialize tracker state from persistence."""
+        return cls(
+            check_id=data["check_id"],
+            occurrences=data.get("occurrences", []),
+            window_size=data.get("window_size", 5),
+            escalation_threshold=data.get("escalation_threshold", 3),
+        )
 
 
 @dataclass
@@ -101,6 +138,9 @@ class ChapterLoopStateData:
     chapter_states: dict[str, ChapterState] = field(default_factory=dict)
     per_chapter_review_enabled: bool = True
     retry_counts: dict[str, int] = field(default_factory=dict)
+    modify_feedback: str | None = None
+    retry_feedback: dict[str, str] = field(default_factory=dict)
+    soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
 
 
 @dataclass
@@ -134,6 +174,7 @@ class PipelineState:
                 "current_step": self.genesis.current_step,
                 "skills_done": self.genesis.skills_done,
                 "retry_counts": self.genesis.retry_counts,
+                "retry_feedback": self.genesis.retry_feedback,
             },
             "chapter_loop": {
                 "current_chapter": self.chapter_loop.current_chapter,
@@ -146,11 +187,17 @@ class PipelineState:
                         "resonance_score": v.resonance_score,
                         "audit_results": v.audit_results,
                         "revision_count": v.revision_count,
+                        "audit_retry_count": v.audit_retry_count,
                     }
                     for k, v in self.chapter_loop.chapter_states.items()
                 },
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
+                "modify_feedback": self.chapter_loop.modify_feedback,
+                "retry_feedback": self.chapter_loop.retry_feedback,
+                "soft_fail_trackers": {
+                    k: v.to_dict() for k, v in self.chapter_loop.soft_fail_trackers.items()
+                },
             },
             "closure": self.closure.value,
             "pending_checkpoint": {
@@ -201,7 +248,12 @@ class PipelineState:
                 resonance_score=v.get("resonance_score"),
                 audit_results=v.get("audit_results", {}),
                 revision_count=v.get("revision_count", 0),
+                audit_retry_count=v.get("audit_retry_count", 0),
             )
+
+        soft_fail_trackers: dict[str, Any] = {}
+        for k, v in cl_data.get("soft_fail_trackers", {}).items():
+            soft_fail_trackers[k] = SoftFailTracker.from_dict(v)
 
         return cls(
             version=data.get("version", 1),
@@ -212,6 +264,7 @@ class PipelineState:
                 current_step=gen_data.get("current_step", 0),
                 skills_done=gen_data.get("skills_done", []),
                 retry_counts=gen_data.get("retry_counts", {}),
+                retry_feedback=gen_data.get("retry_feedback", {}),
             ),
             chapter_loop=ChapterLoopStateData(
                 current_chapter=cl_data.get("current_chapter", 0),
@@ -220,6 +273,9 @@ class PipelineState:
                 chapter_states=chapter_states,
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
+                modify_feedback=cl_data.get("modify_feedback"),
+                retry_feedback=cl_data.get("retry_feedback", {}),
+                soft_fail_trackers=soft_fail_trackers,
             ),
             closure=ClosureState(data.get("closure", "pending")),
             pending_checkpoint=CheckpointData(

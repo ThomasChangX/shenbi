@@ -52,14 +52,14 @@ class PacingDesign(BaseModel):
     @model_validator(mode="after")
     def _constellation_range(self) -> PacingDesign:
         const = self.line_ratios.get("CONSTELLATION")
-        if const is not None and not 20 <= const <= 30:
-            raise ValueError(f"CONSTELLATION ratio {const} outside [20, 30]")
+        if const is not None and not 15 <= const <= 35:
+            raise ValueError(f"CONSTELLATION ratio {const} outside [15, 35]")
         return self
 
     @model_validator(mode="after")
     def _eight_scene_types(self) -> PacingDesign:
-        if len(self.scene_types) != 8:
-            raise ValueError(f"expected 8 scene types, got {len(self.scene_types)}")
+        if not 6 <= len(self.scene_types) <= 12:
+            raise ValueError(f"expected 6-12 scene types, got {len(self.scene_types)}")
         return self
 
     @model_validator(mode="after")

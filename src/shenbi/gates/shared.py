@@ -39,7 +39,7 @@ def jload(p: str | Path) -> dict[str, Any]:
     downstream.
     """
     data = json.loads(Path(p).read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
+    if not isinstance(data, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise ValueError(f"{p}: expected JSON object, got {type(data).__name__}")
     return data
 
@@ -72,7 +72,7 @@ def yload(p: str | Path) -> dict[str, Any]:
             data = yaml.safe_load(cleaned) or {}
         except (yaml.YAMLError, TypeError, ValueError):
             data = {}
-    if not isinstance(data, dict):
+    if not isinstance(data, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
         raise ValueError(f"{p}: expected YAML mapping, got {type(data).__name__}")
     return data
 
@@ -87,14 +87,18 @@ def word_count_md(fp: str | Path) -> int:
     # Strip code blocks
     c = re.sub(r"```.*?```", "", c, flags=re.DOTALL)
     # Strip meta sections that are not narrative
+    # Boundary: next H2, H1, HTML comment, or end of file
+    _META_BOUNDARY = r"(?=## |# |<!--META|\Z)"
     for tag in [
-        r"## PRE_WRITE_CHECK.*?(?=## |\Z)",
-        r"## POST_WRITE_SELF_CHECK.*?(?=## |\Z)",
-        r"## 润色说明.*?(?=## |\Z)",
-        r"## 改写报告.*?(?=## |\Z)",
-        r"## 归一化报告.*?(?=## |\Z)",
+        r"## PRE_WRITE_CHECK.*?" + _META_BOUNDARY,
+        r"## POST_WRITE_SELF_CHECK.*?" + _META_BOUNDARY,
+        r"## 润色说明.*?" + _META_BOUNDARY,
+        r"## 改写报告.*?" + _META_BOUNDARY,
+        r"## 归一化报告.*?" + _META_BOUNDARY,
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
+    # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
+    c = re.sub(r"<!--META-BEGIN-->.*?<!--META-END-->", "", c, flags=re.DOTALL)
     return len(re.findall(r"[一-鿿]", c))
 
 

@@ -23,8 +23,8 @@ from shenbi.gates.shared import (
 
 def gate_G7(round_dir: str) -> str:
     """G7: Round close validation."""
-    c = []
-    mf = []
+    c: list[dict[str, Any]] = []
+    mf: list[Any] = []
     rd = Path(round_dir)
 
     # G7.1 — hallucinated skill names in summary.json
@@ -64,7 +64,7 @@ def gate_G7(round_dir: str) -> str:
     # G7.5 — template placeholder detection
     no_dir = rd / "skill-output"
     if no_dir.exists():
-        placeholders = []
+        placeholders: list[str] = []
         for f in no_dir.rglob("*.md"):
             try:
                 content = f.read_text(encoding="utf-8")
@@ -89,7 +89,7 @@ def gate_G7(round_dir: str) -> str:
                 truth_dir = proj / "truth"
                 break
     if truth_dir and truth_dir.exists():
-        pending = []
+        pending: list[str] = []
         for f in truth_dir.glob("*.md"):
             try:
                 fm = yload(str(f))
@@ -159,7 +159,7 @@ def gate_G7(round_dir: str) -> str:
         c.append({"id": "G7.13", "s": "SKIP", "r": "no gate-markers directory"})
 
     # G7.14 — Score timeline consistency
-    timeline_warnings = []
+    timeline_warnings: list[str] = []
     for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
         reports_dir = rd / reports_dir_name
         if not reports_dir.exists():
@@ -183,7 +183,7 @@ def gate_G7(round_dir: str) -> str:
         c.append({"id": "G7.14", "s": "PASS", "note": "timeline consistent"})
 
     # G7.15 — Score pattern suspiciousness
-    pattern_warnings = []
+    pattern_warnings: list[dict[str, Any]] = []
     for reports_dir_name in ["t1-reports", "t2-reports", "t3-reports"]:
         reports_dir = rd / reports_dir_name
         if not reports_dir.exists():
@@ -248,7 +248,7 @@ def gate_G7(round_dir: str) -> str:
 
     # G7 is pure: collect audit_warnings into the returned JSON, never write to
     # summary.json (spec: gates must not have write side-effects).
-    audit_warnings = []
+    audit_warnings: list[dict[str, Any]] = []
     for check in c:
         if check.get("s") == "WARN" and check.get("id") in ("G7.14", "G7.15"):
             audit_warnings.append(

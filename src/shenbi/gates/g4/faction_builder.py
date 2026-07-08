@@ -16,7 +16,7 @@ def g4_faction_builder(fps: list[str], rd: str | None = None) -> str:
     cross-faction relations, interest-driven behavior.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     factions_path = pd / "world" / "factions.md"

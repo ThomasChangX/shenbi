@@ -170,17 +170,17 @@ class TestWave1E2E:
             mock_disp.return_value = DispatchResult(True, 0, "{}", "")
             mock_g4.return_value = {"status": "PASS"}
 
-        for argv in (
-            ["status", str(project_dir)],
-            ["chapters", str(project_dir)],
-            ["next", str(project_dir)],
-            ["resume", str(project_dir)],
-            ["rollback", str(project_dir), "--chapter", "1"],
-        ):
-            rc, out = _run(argv, monkeypatch)
-            # next/resume may return blocked (rc=1) at a checkpoint;
-            # every command must still emit valid JSON regardless of rc.
-            json.loads(out)
+            for argv in (
+                ["status", str(project_dir)],
+                ["chapters", str(project_dir)],
+                ["next", str(project_dir)],
+                ["resume", str(project_dir)],
+                ["rollback", str(project_dir), "--chapter", "1"],
+            ):
+                rc, out = _run(argv, monkeypatch)
+                # next/resume may return blocked (rc=1) at a checkpoint;
+                # every command must still emit valid JSON regardless of rc.
+                json.loads(out)
 
     def test_pipeline_state_persists_across_commands(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch

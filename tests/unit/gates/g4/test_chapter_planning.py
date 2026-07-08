@@ -41,25 +41,30 @@ def test_passes_with_all_8_sections(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_golden_3_checks_chapter_1_three_walls(tmp_path: Path) -> None:
-    """Chapter 1 plan missing '三面墙' -> FAIL G4.cp.golden_1."""
+    """Chapter 1 plan missing '三面墙' -> WARN G4.cp.golden_1 (relaxed from FAIL)."""
     f = tmp_path / "chapter-1-plan.md"
     f.write_text(
         "# Plan\n\n## 1. Start\n## 2. Middle\n## 3. End\n## 4. Choice\n## 5. Key\n## 6. Turn\n## 7. Hook\n## 8. Close\n",
         encoding="utf-8",
     )
     result = _run([str(f)])
-    assert result["status"] == "FAIL"
-    assert any("G4.cp.golden_1" in mf for mf in result["must_fix"])
+    # Golden rules are now aspirational quality targets → WARN only
+    assert any(
+        c["id"] == "G4.cp.golden_1" and c["s"] == "WARN" for c in result.get("checks", [])
+    ), f"Expected G4.cp.golden_1 WARN in checks, got {result.get('checks', [])}"
 
 
 @pytest.mark.unit
 def test_fails_when_s5_choice_missing(tmp_path: Path) -> None:
-    """Section 5 without 关键抉择 -> FAIL G4.cp.s5_choice."""
+    """Section 5 without 关键抉择 -> WARN G4.cp.s5_choice (relaxed from FAIL)."""
     sections = "\n".join(f"## {i}. Section {i}\ncontent\n" for i in range(1, 9))
     f = tmp_path / "chapter-001-plan.md"
     f.write_text("# Plan\n\n" + sections, encoding="utf-8")
     result = _run([str(f)])
-    assert any("G4.cp.s5_choice" in mf for mf in result["must_fix"])
+    # Section 5 关键抉择 is now a quality bonus → WARN only
+    assert any(
+        c["id"] == "G4.cp.s5_choice" and c["s"] == "WARN" for c in result.get("checks", [])
+    ), f"Expected G4.cp.s5_choice WARN in checks, got {result.get('checks', [])}"
 
 
 @pytest.mark.unit

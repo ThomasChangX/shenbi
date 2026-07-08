@@ -1,6 +1,7 @@
 """G4 checker for shenbi-context-composing."""
 
 from __future__ import annotations
+import re
 from typing import Any
 from pathlib import Path
 
@@ -55,7 +56,7 @@ def _section_body(content: str, title_prefix: str) -> str:
 def g4_context_composing(fps: list[str], rd: str | None = None) -> str:
     """Context composing: layer-based P1-P7 section titles present (P1+P2 non-empty)."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
@@ -66,33 +67,50 @@ def g4_context_composing(fps: list[str], rd: str | None = None) -> str:
 
         content = pf.read_text(encoding="utf-8")
 
-        # Required layer-based section titles
-        missing = [s for s in REQUIRED_SECTIONS if s not in content]
-        if missing:
+        # Required layer-based section titles (P1-P7) OR pipeline route-based
+        # format (route-a:, route-b:, route-c:) from pipeline-context-assemble.
+        # In pipeline mode, context-composing curates the pre-assembled output
+        # rather than generating P1-P7 from scratch.
+        has_p_format = all(s in content for s in REQUIRED_SECTIONS)
+        has_route_format = bool(re.search(r"## route-[abc]:", content))
+
+        if not has_p_format and not has_route_format:
+            missing = [s for s in REQUIRED_SECTIONS if s not in content]
             mf.append(f"G4.cc.sections:missing_{missing}")
         else:
-            c.append({"id": "G4.cc.sections", "file": fp, "s": "PASS"})
+            fmt = "P1-P7" if has_p_format else "route-based"
+            c.append({"id": "G4.cc.sections", "file": fp, "s": "PASS", "format": fmt})
 
         # Reject obsolete flat-model titles
         obsolete = [s for s in OBSOLETE_SECTIONS if s in content]
         if obsolete:
             mf.append(f"G4.cc.obsolete_titles:{obsolete}")
 
-        # P1+P2 non-empty (content between this H2 and the next H2)
-        p1_content = _section_body(content, "## P1 章节备忘")
-        p2_content = _section_body(content, "## P2 书脊")
-        if not p1_content or not p2_content:
-            mf.append(f"G4.cc.p1p2_empty:{fp}")
-        else:
-            c.append(
-                {
-                    "id": "G4.cc.p1p2",
-                    "file": fp,
-                    "s": "PASS",
-                    "p1_len": len(p1_content),
-                    "p2_len": len(p2_content),
-                }
-            )
+        # P1+P2 non-empty (only for P1-P7 format; route-based skips this)
+        if has_p_format:
+            p1_content = _section_body(content, "## P1 章节备忘")
+            p2_content = _section_body(content, "## P2 书脊")
+            if not p1_content or not p2_content:
+                mf.append(f"G4.cc.p1p2_empty:{fp}")
+            else:
+                c.append(
+                    {
+                        "id": "G4.cc.p1p2",
+                        "file": fp,
+                        "s": "PASS",
+                        "p1_len": len(p1_content),
+                        "p2_len": len(p2_content),
+                    }
+                )
+        elif has_route_format:
+            # Route-based format: check that content is substantive (non-empty routes)
+            route_count = len(re.findall(r"## route-[abc]:", content))
+            if route_count >= 2:
+                c.append(
+                    {"id": "G4.cc.routes", "file": fp, "s": "PASS", "route_count": route_count}
+                )
+            else:
+                mf.append(f"G4.cc.routes:only_{route_count}_routes")
 
     if not fps:
         c.append({"id": "G4.cc", "s": "SKIP", "r": "no files"})

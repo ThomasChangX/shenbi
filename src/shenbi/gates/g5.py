@@ -48,7 +48,7 @@ def gate_G5(
     rd = Path(round_dir) if round_dir else None
 
     # G5.1: prereq T1 scores >= threshold (prefer summary.json, fallback to report file)
-    summary_data = {}
+    summary_data: dict[str, Any] = {}
     if rd:
         sp = rd / "summary.json"
         if sp.exists():
@@ -91,7 +91,7 @@ def gate_G5(
     # G5.3: cross-skill conflict detection (char roles, numerics, terminology)
     if project_dir:
         pd5 = Path(project_dir)
-        conflicts = []
+        conflicts: list[Any] = []
 
         # A. Character name/role conflicts — same name, different role across files
         char_dir = pd5 / "characters"

@@ -202,6 +202,9 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
         if phase == PipelinePhase.GENESIS:
             if run_genesis_step(state, project_dir):
                 return
+            # Save state after each genesis step so progress survives
+            # process interruption (timeout, crash, etc.).
+            save_state(project_dir, state)
 
         elif phase == PipelinePhase.CHAPTER_LOOP:
             cl = state.chapter_loop
@@ -258,6 +261,9 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
 
             if run_chapter_step(state, project_dir):
                 return
+            # Save state after each chapter step so progress survives
+            # process interruption (timeout, crash, etc.).
+            save_state(project_dir, state)
 
         elif phase == PipelinePhase.CLOSURE:
             # Closure runner returns True on any successful step (not just
@@ -270,11 +276,20 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                 if state.closure == ClosureState.COMPLETED:
                     transition_closure_to_completed(state)
                     return  # step 10 done, pipeline complete
-                # Step advanced without checkpoint: continue the loop.
+                # Step advanced without checkpoint: save state and continue.
+                save_state(project_dir, state)
             else:
                 # Closure step failed. The closure runner has no internal
                 # retry logic, so raise an escalation checkpoint for human
                 # intervention rather than spinning on the same failing step.
+                # Dispatch escalation-review first, then set checkpoint.
+                from shenbi.pipeline.revision_router import dispatch_escalation
+
+                dispatch_escalation(
+                    project_dir,
+                    0,  # closure has no chapter context
+                    context=f"Closure step {state.closure_step + 1} failed",
+                )
                 set_checkpoint(
                     state,
                     CheckpointType.ESCALATION,
@@ -518,6 +533,18 @@ def cmd_review(args: argparse.Namespace) -> int:
             # G4: On modify, queue re-dispatches for derived truth files
             # (spec section 9.2: truth-sync propagation after human edit).
             if decision == ReviewDecision.MODIFY:
+                # Roll back step cursor so resume re-dispatches the skill
+                if cp.type == CheckpointType.CHAPTER_MEMO:
+                    state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
+                elif cp.type == CheckpointType.STATE_SETTLE:
+                    state.chapter_loop.step_index = 6  # CHAPTER_STEPS[6] = state-settling
+                elif cp.type == CheckpointType.GENESIS_COMPLETE:
+                    state.genesis.current_step = max(0, state.genesis.current_step - 1)
+
+                # Store feedback for the next dispatch
+                if feedback:
+                    state.chapter_loop.modify_feedback = feedback
+
                 _queue_re_dispatches(state, cp)
 
             # I4: Rejecting a book-closure checkpoint transitions back to

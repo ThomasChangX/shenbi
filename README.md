@@ -36,6 +36,45 @@ just check
 
 See the [Installation Guide](docs/getting-started/installation.md) for details.
 
+## Pipeline 运行 / Running the Pipeline
+
+从种子文件生成完整小说：
+
+```bash
+# 初始化项目
+just pipeline-init outline-example.md ./my-novel --auto
+
+# 执行到下一个检查点（重复运行直到完成）
+just pipeline-resume ./my-novel
+
+# 查看状态
+just pipeline-status ./my-novel
+
+# 审批检查点
+just pipeline-review ./my-novel approve
+```
+
+### LLM 配置 / LLM Configuration
+
+Pipeline 自动检测执行环境。以下环境变量控制 LLM 后端：
+
+| 变量 | 用途 | 示例 |
+|------|------|------|
+| `SHENBI_LLM_API_KEY` | API 密钥（设置后走 API 路径） | `sk-xxx` |
+| `SHENBI_LLM_BASE_URL` | API 地址 | `https://api.deepseek.com/v1` |
+| `SHENBI_LLM_MODEL` | 模型名 | `deepseek-v4-pro` |
+
+**运行模式：**
+
+| 环境 | 配置 | 说明 |
+|------|------|------|
+| ZCode / Codex IDE | 无需配置，自动检测 `codex` CLI | 通过 `codex exec` 子进程执行 |
+| DeepSeek API | `SHENBI_LLM_API_KEY` + `SHENBI_LLM_BASE_URL=https://api.deepseek.com/v1` + `SHENBI_LLM_MODEL=deepseek-v4-pro` | OpenAI 兼容接口 |
+| MiniMax API | `SHENBI_LLM_API_KEY` + `SHENBI_LLM_BASE_URL=https://api.minimax.chat/v1` + `SHENBI_LLM_MODEL=M3` | OpenAI 兼容接口 |
+| 其他兼容接口 | 同上，修改 `BASE_URL` 和 `MODEL` | 任何 OpenAI-compatible API |
+
+路由优先级：`SHENBI_LLM_API_KEY` 已设置 → API 路径 → IDE CLI 路径 → 传统 CLI 后备路径。
+
 ## 文档 / Documentation
 
 完整文档发布在 https://thomaschangx.github.io/shenbi/

@@ -73,3 +73,36 @@ class TestPipelineStateSerialization:
         assert restored.pending_checkpoint.type == CheckpointType.CHAPTER_MEMO
         assert restored.pending_checkpoint.chapter == 5
         assert restored.pending_checkpoint.artifact == "plans/chapter-5-plan.md"
+
+    def test_audit_retry_count_round_trip(self):
+        """audit_retry_count is persisted and restored correctly (A8)."""
+        from shenbi.pipeline.state import ChapterState
+
+        state = PipelineState.default(project_dir="/tmp/novel")
+        cs = ChapterState(audit_retry_count=3)
+        state.chapter_loop.chapter_states["1"] = cs
+
+        restored = PipelineState.from_json(state.to_json())
+        restored_cs = restored.chapter_loop.chapter_states["1"]
+        assert restored_cs.audit_retry_count == 3
+
+    def test_audit_retry_count_default_is_zero(self):
+        """New ChapterState instances default audit_retry_count to 0."""
+        from shenbi.pipeline.state import ChapterState
+
+        cs = ChapterState()
+        assert cs.audit_retry_count == 0
+
+        state = PipelineState.default(project_dir="/tmp/novel")
+        cs2 = state.chapter_loop.chapter_states.get("1")
+        assert cs2 is None  # no chapter states by default
+
+        # When deserializing from old data without audit_retry_count,
+        # it should default to 0.
+        old_json = state.to_json()
+        restored = PipelineState.from_json(old_json)
+        # Force-create a chapter state entry to verify default
+        from shenbi.pipeline.state import ChapterLoopStateData
+
+        restored.chapter_loop = ChapterLoopStateData(chapter_states={"1": ChapterState()})
+        assert restored.chapter_loop.chapter_states["1"].audit_retry_count == 0

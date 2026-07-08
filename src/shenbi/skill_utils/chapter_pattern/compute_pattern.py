@@ -69,7 +69,7 @@ def compute_consecutive(patterns: list[str]) -> dict[str, int]:
             current_len = 1
     if current_pattern:
         runs[current_pattern].append(current_len)
-    result = {}
+    result: dict[str, int] = {}
     for pattern in PATTERNS:
         pattern_runs = runs.get(pattern, [])
         result[pattern] = max(pattern_runs) if pattern_runs else 0
@@ -128,7 +128,7 @@ def check_distribution(patterns: list[str], recent_n: int) -> dict[str, Any] | N
 
 def check_consecutive_warnings(consecutive: dict[str, int]) -> list[dict[str, Any]]:
     """Check consecutive runs against thresholds."""
-    warnings = []
+    warnings: list[dict[str, Any]] = []
     for pattern, max_run in consecutive.items():
         threshold = MAX_CONSECUTIVE.get(pattern, DEFAULT_MAX_CONSECUTIVE)
         if max_run > threshold:
@@ -171,7 +171,7 @@ def main() -> None:
     n = len(patterns)
     # Compute all analytics
     consecutive = compute_consecutive(patterns)
-    entropy_vals = {}
+    entropy_vals: dict[int | str, Any] = {}
     entropy_terms = {}
     for w in [5, 10, 20, 30]:
         if n >= w:
@@ -186,7 +186,7 @@ def main() -> None:
                 "description": desc,
             }
             entropy_terms[f"window_{w}"] = terms
-    distribution = {}
+    distribution: dict[int | str, Any] = {}
     for w in [5, 10, 20, 30]:
         if n >= w:
             distribution[f"window_{w}"] = check_distribution(patterns, w)

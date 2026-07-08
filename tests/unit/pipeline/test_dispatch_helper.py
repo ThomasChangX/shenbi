@@ -19,6 +19,7 @@ from shenbi.pipeline.dispatch_helper import (
 )
 
 PATCH = "shenbi.pipeline.dispatch_helper.subprocess.run"
+IDE_CLI_PATCH = "shenbi.pipeline.dispatch_helper._find_ide_cli"
 
 
 class TestDispatchSkill:
@@ -49,8 +50,9 @@ class TestDispatchSkill:
         assert result.success is False
         assert result.returncode == -1
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_round_dir_override(self, mock_run, tmp_path):
+    def test_round_dir_override(self, mock_run, _mock_ide, tmp_path):
         mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
         round_dir = tmp_path / "round-001"
         round_dir.mkdir()
@@ -58,8 +60,9 @@ class TestDispatchSkill:
         cmd = mock_run.call_args[0][0]
         assert str(round_dir) in cmd
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_passes_prompt_to_cli(self, mock_run, tmp_path):
+    def test_passes_prompt_to_cli(self, mock_run, _mock_ide, tmp_path):
         mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
         dispatch_skill("shenbi-worldbuilding", tmp_path, "do the thing")
         cmd = mock_run.call_args[0][0]
@@ -157,8 +160,9 @@ class TestOptionalReads:
         assert "arc-*.md" in patterns  # glob pattern, not literal filename
         assert "volume_summaries.md" in patterns
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_dispatch_with_known_skill_sets_env(self, mock_run, tmp_path):
+    def test_dispatch_with_known_skill_sets_env(self, mock_run, _mock_ide, tmp_path):
         """Known skill with optional reads sets SHENBI_G1_SKIP_READS."""
         mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         dispatch_skill("shenbi-context-composing", tmp_path, "prompt")
@@ -167,16 +171,18 @@ class TestOptionalReads:
         assert "arc-*.md" in skip
         assert "volume_summaries.md" in skip
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_dispatch_with_unknown_skill_no_env(self, mock_run, tmp_path):
+    def test_dispatch_with_unknown_skill_no_env(self, mock_run, _mock_ide, tmp_path):
         """Unknown skill without optional reads does not set the env var."""
         mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt")
         env = mock_run.call_args[1].get("env", {})
         assert "SHENBI_G1_SKIP_READS" not in env
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_skip_reads_merges_with_optional(self, mock_run, tmp_path):
+    def test_skip_reads_merges_with_optional(self, mock_run, _mock_ide, tmp_path):
         """Explicit skip_reads merges with OPTIONAL_READS."""
         mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         dispatch_skill(
@@ -190,8 +196,9 @@ class TestOptionalReads:
         assert "extra.md" in skip
         assert "arc-*.md" in skip  # from OPTIONAL_READS
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_skip_reads_with_unknown_skill(self, mock_run, tmp_path):
+    def test_skip_reads_with_unknown_skill(self, mock_run, _mock_ide, tmp_path):
         """Explicit skip_reads work even without OPTIONAL_READS entry."""
         mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt", skip_reads=["temp.md"])
@@ -199,8 +206,9 @@ class TestOptionalReads:
         skip = env.get("SHENBI_G1_SKIP_READS", "")
         assert "temp.md" in skip
 
+    @patch(IDE_CLI_PATCH, return_value=None)  # force legacy CLI path
     @patch(PATCH)
-    def test_subprocess_uses_copied_env(self, mock_run, tmp_path):
+    def test_subprocess_uses_copied_env(self, mock_run, _mock_ide, tmp_path):
         """Subprocess gets a modified env copy, not os.environ directly."""
         mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         dispatch_skill("shenbi-context-composing", tmp_path, "prompt")

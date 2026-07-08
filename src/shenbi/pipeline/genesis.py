@@ -18,6 +18,7 @@ The orchestrator is stateless itself: it mutates the passed-in
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -205,12 +206,13 @@ def _handle_failure(
     state: PipelineState,
     step: GenesisStep,
     failure: str,
+    project_dir: Path | str,
 ) -> bool:
     """Record a dispatch/gate failure for a genesis step.
 
     Optional steps skip forward on the first failure: the cursor advances
     past them with no retry or escalation (the ``optional`` flag marks the
-    step as non-blocking). Non-optional steps retry per spec \u00a711 up to
+    step as non-blocking). Non-optional steps retry per spec §11 up to
     ``max_revision_retries`` (default 3), then raise an escalation.
 
     Returns ``False`` when the step should be retried on the next ``cmd_next``
@@ -236,6 +238,14 @@ def _handle_failure(
             limit=state.config.max_revision_retries,
         )
         return False
+    # Retries exhausted: dispatch escalation-review first, then set checkpoint.
+    from shenbi.pipeline.revision_router import dispatch_escalation
+
+    dispatch_escalation(
+        project_dir,
+        None,  # genesis has no chapter context — N-paths filtered
+        context=f"Genesis step {step_num} ({skill}) failed after {count} {failure} attempts",
+    )
     log.error(
         "genesis_step_escalation",
         step=step_num,
@@ -246,7 +256,13 @@ def _handle_failure(
     set_checkpoint(
         state,
         CheckpointType.ESCALATION,
-        context=(f"Genesis step {step_num} ({skill}) failed after {count} {failure} attempts"),
+        chapter=0,
+        artifact="audits/escalation-genesis-report.md",
+        context=(
+            f"Genesis step {step_num} ({skill}) "
+            f"failed after {count} {failure} attempts. "
+            f"See audits/escalation-genesis-report.md for analysis."
+        ),
     )
     return True
 
@@ -267,11 +283,21 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     step = GENESIS_STEPS[step_idx]
     log.info("genesis_step", step=step.step_num, skill=step.skill)
 
-    # Dispatch the skill (dispatcher CLI runs G1+G2 + write-overreach audit).
+    # Build prompt, injecting G4 failure feedback from prior attempts
     prompt = f"Execute {step.skill}"
     if step.mode:
         prompt += f" in {step.mode} mode"
     prompt += f". Project dir: {project_dir}"
+
+    # Inject prior G4 failure details as corrective feedback on retry
+    prev_g4_failure = state.genesis.retry_feedback.get(step.skill)
+    if prev_g4_failure:
+        prompt += (
+            f"\n\n## CORRECTIVE FEEDBACK (prior attempt failed G4 validation)\n"
+            f"Your previous output failed the structural check:\n"
+            f"```\n{prev_g4_failure}\n```\n"
+            f"Fix these issues in your new output."
+        )
 
     result = dispatch_skill(step.skill, project_dir, prompt)
     if not result.success:
@@ -282,20 +308,44 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
             )
         if hasattr(result, "returncode"):
             log.error("genesis_dispatch_rc", skill=step.skill, rc=result.returncode)
-        return _handle_failure(state, step, "dispatch")
+        return _handle_failure(state, step, "dispatch", project_dir)
 
     # G4: skill-specific structural validation (every step).
     g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
     if not _gate_passed(g4):
-        log.error("genesis_g4_failed", step=step.step_num, skill=step.skill, g4=g4)
-        return _handle_failure(state, step, "gate")
+        log.warning(
+            "genesis_g4_failed",
+            step=step.step_num,
+            skill=step.skill,
+            g4=str(g4.get("must_fix", [])),
+        )
+        # Store G4 failure for retry feedback
+        must_fix = g4.get("must_fix", [])
+        state.genesis.retry_feedback[step.skill] = (
+            f"G4 check failed: {must_fix}\nFull result: {json.dumps(g4, default=str)}"
+        )
+        # Auto mode: retry once, then continue regardless
+        if state.config.per_chapter_review_enabled:
+            return _handle_failure(state, step, "gate", project_dir)
+        count = state.genesis.retry_counts.get(step.skill, 0) + 1
+        state.genesis.retry_counts[step.skill] = count
+        if count <= 1:
+            log.info("genesis_g4_retry_auto", step=step.step_num, attempt=count)
+            return False
+        log.info(
+            "genesis_g4_continue_auto",
+            step=step.step_num,
+            msg="continuing despite G4 failure in auto mode",
+        )
+        state.genesis.retry_counts.pop(step.skill, None)
+        # Fall through to success path
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
         g3 = run_gate_g3(step.skill, project_dir)
         if not _gate_passed(g3):
             log.error("genesis_g3_failed", step=step.step_num, skill=step.skill, g3=g3)
-            return _handle_failure(state, step, "gate")
+            return _handle_failure(state, step, "gate", project_dir)
 
     # Success: refresh retrieval indexes, reset retries, advance cursor.
     if step.skill in _INDEX_UPDATE_SKILLS:

@@ -15,7 +15,7 @@ from shenbi.gates.shared import (
 def g4_character_design(fps: list[str], rd: str | None = None) -> str:
     """Character-design: frontmatter fields, voice_profile arrays, relationship pairs."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
 
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
@@ -83,8 +83,20 @@ def g4_character_design(fps: list[str], rd: str | None = None) -> str:
             content = pf.read_text(encoding="utf-8")
             # Count ## 关系对 headings (not table rows — bug fix #5)
             rel_pairs = len(re.findall(r"## 关系对", content))
+            # Also accept table-based format (| col1 | col2 | ...) as valid pairs
+            # The character-design SKILL instructs agents to use table format,
+            # while the relationship-map skill uses heading format. Accept either.
             if rel_pairs < 3:
-                mf.append(f"G4.rel.pairs:need_3_got_{rel_pairs}")
+                # Count relationship table data rows (skip header/separator rows)
+                table_rows = len(re.findall(r"^\|.*\|.*\|", content, re.MULTILINE))
+                # Each data row represents a relationship pair; skip header + separator
+                data_rows = max(0, table_rows - 2)
+                if data_rows >= 3:
+                    c.append(
+                        {"id": "G4.rel.pairs", "s": "PASS", "count": data_rows, "format": "table"}
+                    )
+                else:
+                    mf.append(f"G4.rel.pairs:need_3_got_{rel_pairs}_heading_{data_rows}_table")
             else:
                 c.append({"id": "G4.rel.pairs", "s": "PASS", "count": rel_pairs})
 

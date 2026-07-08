@@ -87,9 +87,10 @@ def chapter_state(tmp_path: Path) -> PipelineState:
 def chapter_succeeds():
     """Stub all external boundaries for a clean full-chapter run.
 
-    Mocks dispatch/G4/G3, context retrieval (assemble + write), and revision
-    routing (no audit issues -> NO_REVISION -> step 18 skipped). Returns the
-    started mocks so tests can assert call counts and arguments.
+    Mocks dispatch/G4/G3, parallel review dispatch, safe_write, context
+    retrieval (assemble + write), and revision routing (no audit issues ->
+    NO_REVISION -> step 18 skipped). Returns the started mocks so tests can
+    assert call counts and arguments.
     """
     pkg = ContextPackage(
         chapter_role="推进/转折",
@@ -123,6 +124,20 @@ def chapter_succeeds():
                 side_effect=lambda skill: skill == "shenbi-review-resonance",
             )
         )
+        # Parallel dispatch: return success results for all tasks.
+        par_disp = stack.enter_context(
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            )
+        )
+        # Consolidation: return clean summary (no BLOCKING).
+        par_cons = stack.enter_context(
+            patch(
+                "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
+                return_value="# Chapter 1 — Consolidated Review Results\n\nNo BLOCKING or CRITICAL issues found across all reviews.\n",
+            )
+        )
         assemble = stack.enter_context(
             patch(
                 "shenbi.pipeline.context_assemble.assemble_context",
@@ -152,6 +167,8 @@ def chapter_succeeds():
             g4=g4,
             g3=g3,
             req=req,
+            par_disp=par_disp,
+            par_cons=par_cons,
             assemble=assemble,
             write_ctx=write_ctx,
             collect=collect,
@@ -194,8 +211,8 @@ class TestFullChapterSequence:
         _drive_to_checkpoint(chapter_state, tmp_path)
         assert chapter_state.pending_checkpoint.type == CheckpointType.STATE_SETTLE
         assert chapter_state.chapter_loop.step_index == 7
-        # Steps 1,2 (seg 1) + 3,5,6,7 (seg 2; step 4 is pipeline-internal).
-        assert chapter_succeeds.dispatch.call_count == 6
+        # Steps 1,2 (seg 1) + 6,7 (seg 2; step 3 replaced, step 4 internal, step 5 skipped).
+        assert chapter_succeeds.dispatch.call_count == 4
 
     def test_full_chapter_completes_with_per_chapter_checkpoint(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -206,11 +223,16 @@ class TestFullChapterSequence:
         assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
         assert chapter_state.chapter_loop.current_chapter == 2
         assert chapter_state.chapter_loop.step_index == 0
-        # 18 dispatched steps (step 4 is internal, step 18 is skipped).
-        assert chapter_succeeds.dispatch.call_count == 18
-        assert chapter_succeeds.g4.call_count == 18
+        # 6 dispatched steps: 1,2,6,7,8 + 17.
+        # (step 3 replaced, step 4 internal, step 5 skipped, steps 9/19/20
+        #  adaptive — recall/drift skipped without data, snapshot file-based,
+        #  steps 10-16 parallel, step 18 skipped).
+        assert chapter_succeeds.dispatch.call_count == 6
+        assert chapter_succeeds.g4.call_count == 6
         # G3 runs only on step 17 (review-resonance, requires_independent).
         assert chapter_succeeds.g3.call_count == 1
+        # Parallel dispatch called once (wave 1).
+        assert chapter_succeeds.par_disp.call_count >= 1
 
     def test_all_steps_recorded_in_steps_done(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -333,14 +355,18 @@ class TestAuditCircleAndRevisionRouting:
     def test_audit_g4_paths_use_audits_dir(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """G4 validates audit reports at audits/chapter-1-{skill}.md."""
+        """G4 validates audit reports at audits/chapter-1-{skill}.md.
+
+        With parallel dispatch (Task 7), only review-resonance (step 17) goes
+        through the serial G4 path. Core-circle audits are parallel-dispatched.
+        """
         _drive_three_segments(chapter_state, tmp_path)
         audit_files: list[str] = []
         for call in chapter_succeeds.g4.call_args_list:
             files = call[0][1]
             audit_files.extend(f for f in files if "audits/" in f)
-        # 7 core-circle audits + review-resonance = 8 audit files.
-        assert len(audit_files) == 8
+        # review-resonance = 1 audit file via serial G4.
+        assert len(audit_files) == 1
 
     def test_revision_routing_runs_after_resonance(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -359,8 +385,9 @@ class TestAuditCircleAndRevisionRouting:
         assert cs.audit_results["revision_route"] == RevisionRoute.NO_REVISION.value
         # chapter-revision is still recorded in steps_done (ran as a no-op).
         assert "shenbi-chapter-revision" in cs.steps_done
-        # 18 dispatches: step 18 did NOT dispatch.
-        assert chapter_succeeds.dispatch.call_count == 18
+        # 6 dispatches: 1,2,6,7,8,17. (steps 10-16 parallel, 9/19/20 adaptive,
+        # 18 skipped).
+        assert chapter_succeeds.dispatch.call_count == 6
 
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
@@ -384,6 +411,15 @@ class TestAuditCircleAndRevisionRouting:
                 "shenbi.pipeline.chapter_loop.requires_independent",
                 side_effect=lambda skill: skill == "shenbi-review-resonance",
             ),
+            # Parallel dispatch mocks (Task 7).
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            ),
+            patch(
+                "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
+                return_value="# Chapter 1 — Consolidated Review Results\n\nNo BLOCKING or CRITICAL issues found across all reviews.\n",
+            ),
             patch(
                 "shenbi.pipeline.context_assemble.assemble_context",
                 return_value=ContextPackage(),
@@ -400,8 +436,9 @@ class TestAuditCircleAndRevisionRouting:
         ):
             _drive_three_segments(chapter_state, tmp_path)
             assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
-            # 19 dispatches: step 18 (chapter-revision) now runs.
-            assert mock_disp.call_count == 19
+            # 7 dispatches: 1,2,6,7,8,17 + 18 (SPOT_FIX).
+            # (steps 9/19/20 adaptive — skipped without data; 10-16 parallel).
+            assert mock_disp.call_count == 7
             cs = chapter_state.chapter_loop.chapter_states["1"]
             assert cs.audit_results["revision_route"] == RevisionRoute.SPOT_FIX.value
 

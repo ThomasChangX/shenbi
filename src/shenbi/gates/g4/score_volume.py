@@ -1,6 +1,7 @@
 """G4 checker for shenbi-score-volume."""
 
 from __future__ import annotations
+from typing import Any
 
 import re
 from pathlib import Path
@@ -10,7 +11,8 @@ from shenbi.gates.shared import fail, passed
 
 def g4_score_volume(fps: list[str], rd: str | None = None) -> str:
     """Validate shenbi-score-volume output has Route C + Route A sections."""
-    c, mf = [], []
+    c: list[dict[str, Any]] = []
+    mf: list[str] = []
     base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
         pf = base / fp if not Path(fp).is_absolute() else Path(fp)

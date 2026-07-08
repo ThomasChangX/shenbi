@@ -16,7 +16,7 @@ def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
     evolution trajectory.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     rel_path = pd / "characters" / "relationships.md"

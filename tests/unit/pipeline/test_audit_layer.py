@@ -8,8 +8,11 @@ runs as regular chapter_loop steps 10-16 before run_audit_layer is called.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from shenbi.pipeline.audit_layer import (
     AUDIT_DIR,
@@ -45,10 +48,10 @@ class TestActivationMatrix:
             assert v.startswith("shenbi-review-")
 
     def test_world_rules_key(self):
-        assert GENRE_ACTIVATION_MATRIX["world_rules"] == "shenbi-review-world-rules"
+        assert GENRE_ACTIVATION_MATRIX["worldRules"] == "shenbi-review-world-rules"
 
-    def test_highpoint_focus_key(self):
-        assert GENRE_ACTIVATION_MATRIX["highpoint_focus"] == "shenbi-review-highpoint"
+    def test_highpoint_key(self):
+        assert GENRE_ACTIVATION_MATRIX["highpoint"] == "shenbi-review-highpoint"
 
 
 # ---------------------------------------------------------------------------
@@ -101,12 +104,12 @@ class TestGetActiveGenreAudits:
         assert "shenbi-review-sensitivity" in result
 
     def test_subset_active(self):
-        gc = {"audit_dimensions": {"era": True, "sensitivity": True, "dialogue_focus": False}}
+        gc = {"audit_dimensions": {"era": True, "sensitivity": True, "dialogue": False}}
         result = get_active_genre_audits(gc)
         assert result == ["shenbi-review-era", "shenbi-review-sensitivity"]
 
     def test_false_values_excluded(self):
-        gc = {"audit_dimensions": {"texture_focus": False}}
+        gc = {"audit_dimensions": {"texture": False}}
         assert get_active_genre_audits(gc) == []
 
     def test_non_dict_audit_dimensions(self):
@@ -290,3 +293,64 @@ class TestAuditResultDefaults:
         assert r.critical_found is False
         assert r.audit_reports == []
         assert r.issues == []
+
+
+# ---------------------------------------------------------------------------
+# CamelCase fixture compatibility (A3 fix)
+# ---------------------------------------------------------------------------
+class TestGenreActivationCamelCase:
+    """Tests that GENRE_ACTIVATION_MATRIX matches real genre-config.json format."""
+
+    def test_real_fixture_activates_audits(self):
+        """Real fixture uses auditDimensions (camelCase) top-level key."""
+        fixture_path = Path("tests/fixtures/genre-config-example.json")
+        if not fixture_path.exists():
+            pytest.skip("fixture not available")
+        gc = json.loads(fixture_path.read_text(encoding="utf-8"))
+        result = get_active_genre_audits(gc)
+        # Real fixture should activate at least 1 audit dimension
+        assert len(result) > 0, f"Expected >0 audits, got {result}"
+        for skill in result:
+            assert skill.startswith("shenbi-review-"), f"Unexpected skill: {skill}"
+
+    def test_camelcase_audit_dimensions_read(self):
+        """AuditDimensions (camelCase) is the real fixture format."""
+        gc: dict[str, object] = {"auditDimensions": {"sensitivity": True, "worldRules": True}}
+        result = get_active_genre_audits(gc)
+        assert "shenbi-review-sensitivity" in result
+        assert "shenbi-review-world-rules" in result
+
+    def test_motivation_and_dialogue_camelcase(self):
+        """Motivation and dialogue are camelCase in real fixture."""
+        gc: dict[str, object] = {"auditDimensions": {"motivation": True, "dialogue": True}}
+        result = get_active_genre_audits(gc)
+        assert "shenbi-review-motivation" in result
+        assert "shenbi-review-dialogue" in result
+
+    def test_core_circle_keys_not_in_genre_circle(self):
+        """antiAi, character, pacing, continuity, foreshadowing are core circle — not genre."""
+        gc: dict[str, object] = {
+            "auditDimensions": {
+                "antiAi": True,
+                "character": True,
+                "pacing": True,
+                "continuity": True,
+                "foreshadowing": True,
+            }
+        }
+        result = get_active_genre_audits(gc)
+        assert len(result) == 0, f"Core circle keys should not activate genre audits: {result}"
+
+    def test_snake_case_fallback_works(self):
+        """Backward compat: audit_dimensions (snake_case) still readable."""
+        gc: dict[str, object] = {"audit_dimensions": {"sensitivity": True}}
+        result = get_active_genre_audits(gc)
+        assert "shenbi-review-sensitivity" in result
+
+    def test_missing_key_returns_empty(self):
+        """No auditDimensions key → empty list."""
+        assert get_active_genre_audits({}) == []
+
+    def test_non_dict_audit_dims_returns_empty(self):
+        """AuditDimensions is not a dict → empty list."""
+        assert get_active_genre_audits({"auditDimensions": "invalid"}) == []

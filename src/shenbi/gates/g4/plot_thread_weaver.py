@@ -14,7 +14,7 @@ from shenbi.gates.shared import (
 def g4_plot_thread_weaver(fps: list[str], rd: str | None = None) -> str:
     """Plot thread weaver: A/B/C lines, thread advancement table, blank detection."""
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     tm = pd / "outline" / "thread_map.md"

@@ -28,7 +28,7 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
 
     try:
         result = subprocess.run(
-            ["codex", "exec", "-C", str(Path.cwd()), "-o", str(raw_out), prompt],
+            ["codex", "exec", "-C", str(round_dir), "-o", str(raw_out), prompt],
             timeout=600,
             capture_output=True,
             text=True,

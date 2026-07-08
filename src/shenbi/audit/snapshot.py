@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from shenbi.contracts.ownership import FileChange
 from shenbi.records.parser import parse_records
@@ -67,6 +67,8 @@ def _changed_top_keys(pre: str, post: str) -> tuple[str, ...]:
         return ()
     if not (isinstance(a, dict) and isinstance(b, dict)):
         return ()
+    a = cast(dict[str, Any], a)
+    b = cast(dict[str, Any], b)
     keys: set[str] = set()
     for k in set(a) | set(b):
         if a.get(k) != b.get(k):

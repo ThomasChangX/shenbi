@@ -242,7 +242,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # corresponding SKILL.md. Prevents the "rubric demands what skill
     # never defines" failure mode (e.g. evidence grounding in review skills).
     rubrics_dir = TESTS / "tiers" / "t1-skill"
-    rubric_mismatches = []
+    rubric_mismatches: list[Any] = []
     if rubrics_dir.exists():
         for skill_dir in sorted(rubrics_dir.iterdir()):
             if not skill_dir.is_dir() or skill_dir.name.startswith("_"):
@@ -263,7 +263,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 standard = m.group(2).strip()
                 # Check if the standard mentions specific requirements
                 # that should appear in SKILL.md
-                checks_to_verify = []
+                checks_to_verify: list[Any] = []
                 # Evidence citation: rubric requires file+line evidence
                 if re.search(
                     r"evidence|file.*(?:path|line)|line\s*(?:number|ref)|"
@@ -473,7 +473,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     mirror_map = {
         "tests/fixtures/outline-example.md": "outline-example.md",
     }
-    stale_mirrors = []
+    stale_mirrors: list[str] = []
     for fixture_rel, source_rel in mirror_map.items():
         fixture_path = PROJECT / fixture_rel
         source_path = PROJECT / source_rel

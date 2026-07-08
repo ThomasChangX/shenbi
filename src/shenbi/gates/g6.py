@@ -30,7 +30,8 @@ def gate_G6(
     pipeline_name: str | None = None, round_dir: str | None = None, project_dir: str | None = None
 ) -> str:
     """G6: T3 Pipeline check."""
-    c, mf = [], []
+    c: list[dict[str, Any]] = []
+    mf: list[Any] = []
     try:
         deps = jload(TESTS / "tiers" / "deps.json")
     except (json.JSONDecodeError, OSError, ValueError):
@@ -50,7 +51,7 @@ def gate_G6(
     )
     expected = -(-target_words // default_w)
     min_chapters = int(-(-(expected * min_ratio) // 1))
-    chapters = []
+    chapters: list[Path] = []
     nums: list[int] = []
     ch_dir = pd / "chapters"
     if ch_dir.exists():
@@ -103,8 +104,8 @@ def gate_G6(
         hook_blocks = ["id:" + b for b in hook_blocks if b.strip()]
         total_hooks = len(hook_blocks)
         unresolved = 0
-        exceeded = []
-        planted_chapters = []
+        exceeded: list[str] = []
+        planted_chapters: list[int] = []
         for block in hook_blocks:
             hid_m = re.search(r"id:\s*(\S+)", block)
             state_m = re.search(r"state:\s*(\S+)", block)
@@ -163,7 +164,7 @@ def gate_G6(
                     continue
                 cname = nm_m.group(1)
                 has_vp = "voice_profile:" in ct
-                cps = []
+                cps: list[str] = []
                 if has_vp:
                     # Extract catchphrases
                     cp_section = ct[ct.index("voice_profile:") :] if "voice_profile:" in ct else ""
@@ -235,7 +236,7 @@ def gate_G6(
             )
         # Scan chapters for violations of simple numerical constraints
         # Pre-read chapter contents for performance (avoid re-reading per constraint)
-        ch_contents = []
+        ch_contents: list[Any] = []
         for ch in chapters:
             try:
                 ch_contents.append((ch.name, ch.read_text(encoding="utf-8")[:3000]))
@@ -367,7 +368,7 @@ def gate_G6(
             m = re.match(r"\|\s*(\S+?)\s*\|.*死亡", line)
             if m:
                 dead_chars.add(m.group(1))
-        ghosts_found = []
+        ghosts_found: list[str] = []
         for ch in chapters:
             content = ch.read_text(encoding="utf-8")
             for dc in dead_chars:

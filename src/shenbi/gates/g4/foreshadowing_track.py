@@ -16,7 +16,7 @@ def g4_foreshadowing_track(fps: list[str], rd: str | None = None) -> str:
     chapter refs, core_hook silence <= max_gap.
     """
     c: list[dict[str, Any]] = []
-    mf = []
+    mf: list[str] = []
     pd = resolve_g4_base(rd)
 
     ph = pd / "truth" / "pending_hooks.md"
