@@ -96,8 +96,17 @@ def make_composite_checker(
     """
 
     def composite(fps: list[str], rd: str | None = None) -> str:
-        existing_result = existing_checker(fps, rd)
-        decisions_result = decisions_checker(fps, rd)
+        # Partition by extension: structural checkers parse markdown and have NO
+        # .json guard, so feeding them a .json file fails (no expected sections
+        # in JSON). The decisions checker already skips non-.json. Route each
+        # checker only the file types it can handle. "other" (non-.md/.json)
+        # files go to both so neither silently drops them.
+        md_files = [fp for fp in fps if fp.endswith(".md")]
+        json_files = [fp for fp in fps if fp.endswith(".json")]
+        other_files = [fp for fp in fps if not fp.endswith((".md", ".json"))]
+
+        existing_result = existing_checker(md_files + other_files, rd)
+        decisions_result = decisions_checker(json_files + other_files, rd)
 
         # Parse both results and aggregate.
         # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.

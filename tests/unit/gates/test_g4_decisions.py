@@ -223,3 +223,88 @@ class TestG4CompositeChecker:
         assert result["status"] == "FAIL"
         assert "err_a" in result["must_fix"]
         assert "err_b" in result["must_fix"]
+
+
+@pytest.mark.unit
+class TestG4CompositeFilePartitioning:
+    """C2: composite checker must partition fps by extension.
+
+    Structural checkers (e.g. g4_context_composing) parse ALL files as markdown
+    and have NO .json guard — feeding them a decisions.json fails (no expected
+    P1-P7 sections in JSON). The composite must route .md to the structural
+    checker and .json to the decisions checker.
+    """
+
+    @staticmethod
+    def _valid_context_md() -> str:
+        """A context-composing .md with all required P1-P7 sections populated."""
+        return (
+            "# Chapter 5 Context\n\n"
+            "## P1 章节备忘\nchapter memo content\n\n"
+            "## P2 书脊\nbook spine content\n\n"
+            "## P3 当前大弧\narc content\n\n"
+            "## P4 当前卷摘要\nvolume summary\n\n"
+            "## P5 当前弧段\narc segment\n\n"
+            "## P6 近章拍点\nbeat points\n\n"
+            "## P7 世界铁律与文风\nrules and style\n\n"
+            "## 近章结尾多样性\nending variety\n\n"
+            "## Hook 债务简报\nhook debt\n"
+        )
+
+    @staticmethod
+    def _valid_decisions() -> dict[str, object]:
+        return {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [],
+        }
+
+    def test_composite_passes_with_mixed_md_and_json(self, tmp_path: Path) -> None:
+        """Valid .md + valid .json to a composite checker -> PASS.
+
+        Regression for C2: before partitioning, the .json was fed to
+        g4_context_composing which failed (no P1-P7 sections in JSON).
+        """
+        from shenbi.gates.g4.context_composing import g4_context_composing
+        from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
+
+        md_fp = tmp_path / "chapter-5-context.md"
+        md_fp.write_text(self._valid_context_md(), encoding="utf-8")
+        json_fp = tmp_path / "chapter-5-context-decisions.json"
+        json_fp.write_text(json.dumps(self._valid_decisions()), encoding="utf-8")
+
+        composite = make_composite_checker(g4_context_composing, g4_decisions)
+        result = json.loads(composite([str(md_fp), str(json_fp)], str(tmp_path)))
+        assert result["status"] == "PASS", f"composite failed: {result.get('must_fix', [])}"
+
+    def test_composite_partitions_json_away_from_structural_checker(self, tmp_path: Path) -> None:
+        """The structural checker must NEVER see the .json file.
+
+        Uses a spy structural checker that records the fps it received, then
+        asserts no .json path was passed to it.
+        """
+        from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
+        from shenbi.gates.shared import passed
+
+        seen: list[list[str]] = []
+
+        def spy_structural(fps: list[str], rd: str | None = None) -> str:
+            seen.append(list(fps))
+            return passed("G4-spy", [{"id": "G4.spy", "s": "PASS"}])
+
+        md_fp = tmp_path / "chapter-5-context.md"
+        md_fp.write_text(self._valid_context_md(), encoding="utf-8")
+        json_fp = tmp_path / "chapter-5-context-decisions.json"
+        json_fp.write_text(json.dumps(self._valid_decisions()), encoding="utf-8")
+
+        composite = make_composite_checker(spy_structural, g4_decisions)
+        composite([str(md_fp), str(json_fp)], str(tmp_path))
+
+        assert len(seen) == 1
+        received = seen[0]
+        assert str(md_fp) in received, ".md must go to the structural checker"
+        assert not any(fp.endswith(".json") for fp in received), (
+            f".json leaked to structural checker: {received}"
+        )

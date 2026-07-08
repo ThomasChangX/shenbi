@@ -64,6 +64,14 @@ def gate_G2(
         # G2.dec — decisions.json validation (M4)
         # Placed after G2.3 (content is now available) and before G2.4/G2.5.
         if file_type == "decisions":
+            # Skip non-JSON files — the decisions branch only validates JSON.
+            # Skills like chapter-drafting/context-composing produce BOTH a .md
+            # artifact and a sidecar decisions.json; when file_type="decisions"
+            # is applied uniformly to all outputs, the .md must not be parsed as
+            # JSON (it would FAIL G2.dec.1). .md files are validated by their own
+            # file_type gate instead.
+            if not fp.endswith(".json"):
+                continue  # skip .md files — decisions branch only validates JSON
             # G2.dec.1 — valid JSON
             try:
                 data = json.loads(content)
