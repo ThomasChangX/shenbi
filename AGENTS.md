@@ -110,3 +110,15 @@ chore: add round output patterns to .gitignore
 ### Python Conventions
 
 Framework code under `src/shenbi/` uses Python 3.11+, `pathlib.Path` for file I/O, `json` for structured output. Gate functions return `passed()`/`fail()` helpers. Keep gate checkers idempotent—every function is a pure validation with no side effects on output files. No `print()` in framework code; use structlog.
+
+### PR Review Protocol
+
+When processing PR review comments and CI failures, follow these rules in order:
+
+1. **Validate locally before pushing.** Run `just check` (or equivalent: `ruff check . && ruff format --check . && mypy src/shenbi/ && basedpyright && pytest -n auto -m "not last" --cov-fail-under=85`). Do not push until all checks pass locally.
+
+2. **Collect all failures before fixing.** Pull ALL CodeQL comments, ALL Copilot comments, and ALL CI failure annotations at once. Produce a complete inventory before writing any code. Never fix one error, push, and repeat.
+
+3. **Reply AND resolve every review thread after fixing.** Fixing code ≠ closing a review comment. After every fix is pushed: (a) reply individually to each thread via `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body="..."`, (b) **resolve the conversation** via GraphQL (there is no REST endpoint): `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } } }'` — get thread IDs via `gh api graphql -f query='{ repository(owner:"...",name:"...") { pullRequest(number:N) { reviewThreads(first:20) { nodes { id isResolved path } } } } }'`. (c) Confirm zero unresolved threads before reporting completion. Replying without resolving leaves the PR visually blocked.
+
+4. **Fix blocking infrastructure before feature work.** If the pre-push hook itself is broken (blocking ALL pushes, not just yours), fix it first — don't `--no-verify` around it. Example: `tools/pre-push-check.sh` had `--cov-fail-under=85` on the second pytest invocation (should be `--no-cov`), which overwrote `coverage.xml` with 17% and blocked every push.
