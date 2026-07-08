@@ -4,11 +4,12 @@ description: "Use when writing chapter content, generating chapter text, or draf
 contract:
   kind: artifact
   reads:
-    - plans/chapter-N-plan.md
+    - file: plans/chapter-N-plan.md
+      fields: ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"]
     - context/chapter-N-context.md
     - context/chapter-N-context-decisions.json
-    - style/style_profile.md
-    - genre-config.json
+    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式", "9. 对白占比"]}
+    - {file: genre-config.json, fields: [fatigueWords, pacing, chapterTypes]}
     - truth/audit_drift.md
   writes:
     - chapters/chapter-N.md

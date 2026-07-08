@@ -48,6 +48,23 @@ def _contract(skill: str) -> dict[str, Any]:
     return _load_frontmatter(skill)["contract"]
 
 
+def _read_paths(skill: str) -> list[str]:
+    """Reads paths normalized: plain strings and ``{file, fields?}`` dict-form
+    both collapse to their ``file`` path.
+
+    Contract reads may declare field-level filtering (Layer B dict-form); tests
+    that pin which files a skill reads must look through the dict wrapper.
+    """
+    reads = _contract(skill)["reads"]
+    out: list[str] = []
+    for item in reads:
+        if isinstance(item, dict):
+            out.append(str(item["file"]))
+        else:
+            out.append(str(item))
+    return out
+
+
 class TestCharacterDesignExpand:
     """W4T1: ``--mode expand`` for volume-boundary character introduction."""
 
@@ -73,12 +90,12 @@ class TestForeshadowingPlantGenesis:
     """W4T2: ``--mode genesis`` reads outline files for cross-volume hooks."""
 
     def test_genesis_reads_in_contract(self) -> None:
-        reads = _contract("shenbi-foreshadowing-plant")["reads"]
+        reads = _read_paths("shenbi-foreshadowing-plant")
         assert "outline/story_frame.md" in reads
         assert "outline/volume_map.md" in reads
 
     def test_per_chapter_reads_unchanged(self) -> None:
-        reads = _contract("shenbi-foreshadowing-plant")["reads"]
+        reads = _read_paths("shenbi-foreshadowing-plant")
         updates = _contract("shenbi-foreshadowing-plant")["updates"]
         # default per-chapter mode contract must survive the additive edit
         assert "plans/chapter-N-plan.md" in reads
@@ -113,8 +130,8 @@ class TestChapterDraftingContextRead:
     """W4T4: chapter-drafting reads the pipeline-assembled context package."""
 
     def test_context_in_reads(self) -> None:
-        reads = _contract("shenbi-chapter-drafting")["reads"]
-        assert any("context/chapter-N-context.md" in r for r in reads)
+        reads = _read_paths("shenbi-chapter-drafting")
+        assert "context/chapter-N-context.md" in reads
 
     def test_pipeline_integration_note_present(self) -> None:
         text = _skill_text("shenbi-chapter-drafting")
@@ -209,9 +226,9 @@ class TestCrossSkillConsistency:
     def test_context_package_consumers_agree(self) -> None:
         # the pipeline materializes context/chapter-N-context.md (chapter_loop
         # output_path); chapter-drafting reads it, context-composing curates it.
-        drafting = _contract("shenbi-chapter-drafting")["reads"]
+        drafting = _read_paths("shenbi-chapter-drafting")
         composing_text = _skill_text("shenbi-context-composing")
-        assert any(self.CONTEXT_PACKAGE in r for r in drafting)
+        assert self.CONTEXT_PACKAGE in drafting
         assert self.CONTEXT_PACKAGE in composing_text
 
     def test_foreshadowing_genesis_reads_are_outline_outputs(self) -> None:

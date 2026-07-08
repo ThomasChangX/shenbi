@@ -8,7 +8,8 @@ contract:
     - chapters/chapter-N-decisions.json
     - audits/chapter-N-*.md
     - audits/chapter-N-resonance.md
-    - plans/chapter-N-plan.md
+    - file: plans/chapter-N-plan.md
+      fields: ["1. 当前任务", "6. 章尾必须发生的改变", "8. 不要做"]
   writes:
     - truth/state_snapshot-pre-rev.md
     - chapters/chapter-N-revision-decisions.json

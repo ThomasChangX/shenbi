@@ -4,11 +4,12 @@ description: "Use when a chapter memo's hook ledger contains OPEN items that nee
 contract:
   kind: artifact
   reads:
-    - plans/chapter-N-plan.md
+    - file: plans/chapter-N-plan.md
+      fields: ["3. 该兑现的 / 暂不掀的", "7. 本章 hook 账"]
     - outline/story_frame.md    # for genesis mode
     - outline/volume_map.md     # for genesis mode
-    - truth/pending_hooks.md
-    - genre-config.json
+    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计, 伏笔时间线]}
+    - {file: genre-config.json, fields: [chapterTypes, customRules]}
   writes: []
   updates:
     - truth/pending_hooks.md

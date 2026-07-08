@@ -5,8 +5,8 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔时间线]}
+    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
   writes: []
   updates:
     - truth/pending_hooks.md

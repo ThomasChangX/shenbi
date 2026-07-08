@@ -6,8 +6,8 @@ contract:
   kind: report
   reads:
     - chapters/chapter-N.md
-    - truth/current_state.md
-    - truth/chapter_summaries.md
+    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
+    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
     - world/rules.md
   writes:
     - audits/chapter-N-continuity.md

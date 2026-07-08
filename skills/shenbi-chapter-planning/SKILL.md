@@ -4,9 +4,9 @@ description: "Use when planning the next chapter, generating chapter memo, or de
 contract:
   kind: artifact
   reads:
-    - truth/current_state.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
+    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计]}
+    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
     - outline/volume_map.md
     - outline/story_frame.md
     - truth/current_focus.md

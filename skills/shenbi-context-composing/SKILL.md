@@ -4,16 +4,17 @@ description: "Use when assembling context before drafting a chapter, collecting 
 contract:
   kind: artifact
   reads:
-    - plans/chapter-N-plan.md
-    - truth/book_spine.md
-    - truth/book_strata.md
-    - truth/volume_summaries.md
-    - truth/arcs/arc-N.md
-    - truth/chapter_summaries.md
-    - truth/pending_hooks.md
+    - file: plans/chapter-N-plan.md
+      fields: ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "7. 本章 hook 账", "8. 不要做"]
+    - {file: truth/book_spine.md, fields: [核心冲突三层, 主线钩子, 世界铁律快照]}
+    - {file: truth/book_strata.md, fields: [本弧主题推进, 跨弧伏笔账, 未解决悬置]}
+    - {file: truth/volume_summaries.md, fields: [卷目标达成, 核心事件, 跨卷钩子]}
+    - {file: truth/arcs/arc-N.md, fields: [弧内事件链, 弧内伏笔兑现/推进, 未解决悬置]}
+    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
+    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计]}
     - truth/audit_drift.md
     - world/rules.md
-    - truth/character_matrix.md
+    - {file: truth/character_matrix.md, fields: [主角, 主要配角, 反派, 角色关系图谱]}
     - style/style_profile.md
     - chapters/chapter-N.md
   writes:
