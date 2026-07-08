@@ -5,35 +5,42 @@ Uses PacingDesign.from_markdown + model_validate instead of keyword checks.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from pydantic import ValidationError
 
 from shenbi.contracts.skills.pacing_design import PacingDesign
-from shenbi.gates.shared import fail, passed
+from shenbi.gates.shared import PROJECT, fail, passed
+from shenbi.paths import RoundPaths
 
 
 def g4_pacing_design(
     fps: list[str],
     rd: str | None = None,
-    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    project_dir: str | None = None,  # threaded by 15a; consumed below (no shadow)
     repo_root: str | None = None,  # threaded by 15a, consumed by 15b
 ) -> str:
     """Pacing design: structured validation via PacingDesign Pydantic model."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    rp = None
-    if fps:
-        from pathlib import Path
+    # Resolve the project root without shadowing the threaded project_dir param.
+    # Preference order: explicit project_dir > rd > legacy fps[0] heuristic.
+    if not project_dir:
+        project_dir = rd or (str(Path(fps[0]).parent.parent) if fps else ".")
 
-        project_dir = rd if rd else str(Path(fps[0]).parent.parent)
-        rp = Path(project_dir) / "outline" / "rhythm_principles.md"
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    if not rp or not rp.exists():
+    rhythm_path = rp.read("outline/rhythm_principles.md")
+    if not rhythm_path.exists():
         mf.append("G4.rhythm.not_found")
     else:
-        content = rp.read_text(encoding="utf-8")
+        content = rhythm_path.read_text(encoding="utf-8")
         try:
             model = PacingDesign.from_markdown(content)
             if not model.beats:
