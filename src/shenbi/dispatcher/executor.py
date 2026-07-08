@@ -42,6 +42,19 @@ def _truth_file_set() -> set[str]:
     return _truth_files_cache
 
 
+_decisions_files_cache: set[str] | None = None
+
+
+def _decisions_file_set() -> set[str]:
+    """Files listed as kind='decisions' in truth-files.yaml concepts."""
+    global _decisions_files_cache
+    if _decisions_files_cache is None:
+        _decisions_files_cache = {
+            name for name, kind in bootstrap_registry().items() if kind == "decisions"
+        }
+    return _decisions_files_cache
+
+
 def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
     """Generate unique agent ID for this dispatch."""
     return f"{round_dir.name}-{skill}-{test_type}-{uuid.uuid4().hex[:8]}"
@@ -82,6 +95,8 @@ def derive_file_type(skill: str) -> str:
     outputs = {*c["writes"], *c["updates"]}
     if outputs & _truth_file_set():
         return "truth"
+    if outputs & _decisions_file_set():
+        return "decisions"
     return "chapter"
 
 
