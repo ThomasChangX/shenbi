@@ -36,6 +36,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any, cast
 
+from shenbi.contracts.paths import resolve_chapter_path
+
 import yaml
 
 from shenbi.logging import get_logger
@@ -329,18 +331,6 @@ def _gate_passed(result: dict[str, Any]) -> bool:
     return str(result.get("status", "")) == GateStatus.PASS
 
 
-def _substitute_chapter(path: str, chapter: int) -> str:
-    """Replace N / NNN placeholders with the actual chapter number.
-
-    Uses bounded regex for single-N replacement (after ``-`` or ``/``, before
-    ``-``, ``.``, ``/``, or end-of-string) to avoid corrupting paths with
-    multiple N characters not intended as placeholders. Matches the resolution
-    logic in ``dispatch_helper._resolve_path``.
-    """
-    result = path.replace("NNN", f"{chapter:03d}")
-    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
-
-
 def _retry_key(chapter: int, skill: str) -> str:
     """Chapter-scoped retry key so retries from different chapters don't collide."""
     return f"ch{chapter}-{skill}"
@@ -355,7 +345,7 @@ def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     """
     if not step.output_path:
         return ""
-    resolved = _substitute_chapter(step.output_path, chapter)
+    resolved = resolve_chapter_path(step.output_path, chapter)
     if step.uses_staging:
         from shenbi.pipeline.checkpoint import STAGING_DIR
 
@@ -522,7 +512,7 @@ def _advance(
             # Auto mode: commit staging immediately since no human review
             from shenbi.pipeline.checkpoint import commit_staging
 
-            target = _substitute_chapter(step.output_path, chapter)
+            target = resolve_chapter_path(step.output_path, chapter)
             try:
                 commit_staging(project_dir, [target])
                 log.info("staging_auto_committed", chapter=chapter, target=target)
@@ -550,7 +540,7 @@ def _advance(
             # Fall through to chapter-completion check (no checkpoint raised)
         else:
             artifact = (
-                _substitute_chapter(step.output_path, chapter)
+                resolve_chapter_path(step.output_path, chapter)
                 if step.output_path
                 else f"chapter-{chapter}/{step.name}"
             )
@@ -1425,7 +1415,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if "review-resonance" in step.skill:
         # Parse resonance score from the audit report
         cs = _get_chapter_state(state, chapter)
-        report_path = project_dir / _substitute_chapter("audits/chapter-N-resonance.md", chapter)
+        report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
         cs.resonance_score = _parse_resonance_score(report_path)
         log.info(
             "resonance_score_parsed",
