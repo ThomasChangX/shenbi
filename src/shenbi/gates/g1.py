@@ -53,6 +53,51 @@ def compute_backup_targets(
     return [(fp, str(fp) + ".bak") for fp in file_paths]
 
 
+def check_fields_exist(
+    skill: str, inputs: list[str], fields_map: dict[str, list[str]]
+) -> list[str]:
+    """WARN (not FAIL) if declared fields are not found in input files.
+
+    Runs before _build_skill_prompt's filtering, so skill authors see
+    field-name drift warnings before the LLM sees filtered content.
+    Non-blocking — returns warning strings only.
+
+    Markdown files: declared field names are matched against H2 headings
+    (``## Foo Bar`` -> ``foo_bar``). JSON files: matched against top-level
+    keys of an object. Files not present on disk, or of other extensions,
+    are skipped silently (existence is G1.1's concern).
+    """
+    warnings: list[str] = []
+    for fp in inputs:
+        fields = fields_map.get(fp) or fields_map.get(Path(fp).name)
+        if not fields:
+            continue
+        p = Path(fp)
+        if not p.exists():
+            continue
+        content = p.read_text(encoding="utf-8")
+        if fp.endswith(".md"):
+            # Extract H2 headings -> snake_case keys.
+            actual: set[str] = set()
+            for line in content.splitlines():
+                if line.startswith("## "):
+                    raw = line[3:].strip().lower().replace(" ", "_")
+                    actual.add(raw)
+            missing = set(fields) - actual
+            if missing:
+                warnings.append(f"{fp}: declared fields {missing} not found in file")
+        elif fp.endswith(".json"):
+            try:
+                data = json.loads(content)
+            except json.JSONDecodeError:
+                continue  # G1.2 already handles JSON parse errors
+            if isinstance(data, dict):
+                missing = set(fields) - set(data.keys())
+                if missing:
+                    warnings.append(f"{fp}: declared keys {missing} not found in file")
+    return warnings
+
+
 def gate_G1(
     skill_name: str | None = None,
     input_files: str | list[str] | None = None,
