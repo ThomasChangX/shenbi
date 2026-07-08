@@ -10,7 +10,6 @@ generic adapter.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 from collections.abc import Callable
 
@@ -18,7 +17,7 @@ from pydantic import ValidationError
 
 from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
-from shenbi.gates.shared import fail, passed
+from shenbi.gates.shared import fail, passed, resolve_input_path
 from shenbi.status import GateStatus
 
 
@@ -37,10 +36,9 @@ def g4_decisions(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
 
     for fp in fps or []:
-        p = base / fp if not Path(fp).is_absolute() else Path(fp)
+        p = resolve_input_path(fp, rd)
         if not p.exists():
             mf.append(f"G4.dec.not_found:{fp}")
             continue

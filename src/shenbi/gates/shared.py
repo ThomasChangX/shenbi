@@ -66,6 +66,27 @@ def resolve_g4_base(rd: str | None = None) -> Path:
     return Path(rd) if rd else Path.cwd()
 
 
+def resolve_input_path(fp: str | Path, rd: str | None = None) -> Path:
+    """Resolve a caller-supplied file path (an entry of ``fps``) for G4 checkers.
+
+    Absolute paths are returned unchanged. Relative paths are joined to the
+    round_dir ``rd``; if ``rd`` is None a ``ValueError`` is raised rather than
+    silently falling back to the current working directory. This replaces the
+    ``base = Path(rd) if rd else Path.cwd()`` inline anti-pattern in the generic
+    + inline checkers (Task 15b). ``resolve_g4_base`` (above) remains for the
+    few callers not yet migrated and is removed in Task 15c.
+    """
+    p = Path(fp)
+    if p.is_absolute():
+        return p
+    if not rd:
+        raise ValueError(
+            f"round_dir required to resolve relative path {fp!r}; "
+            "silent CWD fallback removed (Task 15b)"
+        )
+    return Path(rd) / fp
+
+
 def yload(p: str | Path) -> dict[str, Any]:
     """Load YAML frontmatter or full YAML from a file as a dict."""
     if yaml is None:
