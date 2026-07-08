@@ -14,7 +14,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from shenbi.contracts import ContractError, load_contract
+from shenbi.contracts import ContractError, load_contract, load_registry
+from shenbi.contracts.graph import dag_key
 from shenbi.gates.shared import (
     PROJECT,
     TESTS,
@@ -71,7 +72,16 @@ def gate_G5(
         if score < threshold:
             mf.append(f"G5.1:{pr}:score={score}<{threshold}")
 
-    # G5.2: handoff integrity — contract Reads vs upstream Writes+Updates
+    # G5.2: handoff integrity — contract Reads vs upstream Writes+Updates.
+    # Glob-aware: compare dag_key() of each path so a parametric read
+    # (chapters/chapter-N.md) joins a resolved write (chapters/chapter-5.md) or
+    # a declared glob (truth/*.md). Non-blocking WARN — the full closure check
+    # lives in Layer C (Task 18); this only compares each skill to its
+    # immediately preceding prerequisite in the phase list (adjacent-pairs).
+    try:
+        g52_registry = load_registry()
+    except ContractError:
+        g52_registry = None  # fall back to literal matching below
     for i in range(1, len(prereqs)):
         up, down = prereqs[i - 1], prereqs[i]
         try:
@@ -84,9 +94,22 @@ def gate_G5(
             ds_ins = set(down_c["reads"])
         except ContractError:
             ds_ins = set()
-        missing = ds_ins - us_outs
+        if g52_registry is not None:
+            up_keys = {dag_key(p, g52_registry) for p in us_outs}
+            down_keys = {dag_key(p, g52_registry) for p in ds_ins}
+        else:  # registry unavailable — literal string compare (old behavior)
+            up_keys = us_outs
+            down_keys = ds_ins
+        missing = down_keys - up_keys
         if missing:
-            mf.append(f"G5.2:handoff:{up}->{down}:missing={list(missing)}")
+            c.append(
+                {
+                    "id": "G5.2",
+                    "pair": f"{up}->{down}",
+                    "s": "WARN",
+                    "missing": sorted(missing),
+                }
+            )
 
     # G5.3: cross-skill conflict detection (char roles, numerics, terminology)
     if project_dir:
