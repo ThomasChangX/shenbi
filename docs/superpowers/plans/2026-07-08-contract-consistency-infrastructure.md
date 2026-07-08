@@ -1110,26 +1110,49 @@ git commit -m "feat: add NovelConfig/ScoreReport/Progress/Summary models + gate 
 ### Task 9: schemas cutover — g2/g4 decisions use DecisionsDoc
 
 **Files:**
-- Modify: `src/shenbi/gates/g2.py:64-115` (decisions branch), `src/shenbi/gates/g4/decisions_validator.py`, `src/shenbi/gates/g4/_decisions_schema.py`
-- Test: `tests/unit/gates/test_g2.py`, `tests/unit/gates/test_g4_decisions.py` (existing — must stay green)
+- Modify: `src/shenbi/gates/g2.py:64-115` (decisions branch), `src/shenbi/gates/g4/decisions_validator.py`, `src/shenbi/gates/g4/_decisions_schema.py`, `src/shenbi/contracts/schemas/adapt.py`
+- Test: `tests/unit/gates/test_g2.py` (UPDATE 6 assertions — C1 fix), `tests/unit/gates/test_g4_decisions.py` (existing — must stay green)
 
 **Interfaces:**
-- Consumes: `DecisionsDoc` from Task 5
+- Consumes: `DecisionsDoc` from Task 5, `pydantic_err_to_gate_failures` from Task 8
+
+**⚠️ C1 critical note:** Existing tests assert numeric IDs `G2.dec.1`/`.2`/`.3` (test_g2.py:422,437,450,500). The default `pydantic_err_to_gate_failures` produces type-based IDs (`G2.dec.missing`). This task MUST update both the adapter (to preserve numeric IDs) AND the 6 test assertions. Do not skip Step 2b.
 
 - [ ] **Step 1: Capture baseline (tests must already pass)**
 
 Run: `pytest tests/unit/gates/test_g2.py tests/unit/gates/test_g4_decisions.py -v`
 Expected: PASS (baseline — capture the count)
 
-- [ ] **Step 2: Rewrite g2.py decisions branch**
+- [ ] **Step 2a: Update adapt.py to preserve numeric g2 decisions IDs**
+
+The generic `pydantic_err_to_gate_failures` (Task 8) produces `f"{prefix}.{e['type']}"`. For g2 decisions, we need stable numeric IDs (`G2.dec.1` invalid-JSON, `G2.dec.2` wrong-schema, `G2.dec.3` missing-keys) so existing tests pass. Add a decisions-specific mapper in `adapt.py`:
+
+```python
+# Append to src/shenbi/contracts/schemas/adapt.py
+def decisions_err_to_g2_failures(err, file_path: str) -> list[dict]:
+    """Map DecisionsDoc ValidationError to G2.dec.{1,2,3} numeric IDs (preserves existing test contract)."""
+    fails = []
+    for e in err.errors():
+        loc = ".".join(str(x) for x in e["loc"])
+        msg = e["msg"]
+        # Classify into the 3 legacy numeric buckets
+        if loc == "$schema" or "schema" in msg.lower():
+            fails.append({"id": "G2.dec.2", "file": file_path, "s": "FAIL", "r": f"{loc}: {msg}"})
+        elif e["type"] == "missing":
+            fails.append({"id": "G2.dec.3", "file": file_path, "s": "FAIL", "r": f"{loc}: {msg}"})
+        else:
+            fails.append({"id": "G2.dec.3", "file": file_path, "s": "FAIL", "r": f"{loc}: {msg}"})
+    return fails
+```
+
+- [ ] **Step 2b: Rewrite g2.py decisions branch using the numeric-ID mapper**
 
 In `src/shenbi/gates/g2.py`, replace the hand-rolled decisions validation (lines ~64-115, the `if file_type == "decisions":` block) with:
 
 ```python
-# Inside gate_G2, the decisions branch:
 if file_type == "decisions":
     from shenbi.contracts.schemas.decisions import DecisionsDoc
-    from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
+    from shenbi.contracts.schemas.adapt import decisions_err_to_g2_failures
     from pydantic import ValidationError
     try:
         data = jload(str(p))
@@ -1140,18 +1163,23 @@ if file_type == "decisions":
         DecisionsDoc.model_validate(data)
         c.append({"id": "G2.dec", "file": fp, "s": "PASS"})
     except ValidationError as e:
-        mf.extend(pydantic_err_to_gate_failures(e, fp, "G2.dec"))
+        mf.extend(decisions_err_to_g2_failures(e, fp))
     continue  # skip word-count checks for decisions
 ```
 
+- [ ] **Step 2c: Verify the 6 existing g2 assertions still hold**
+
+Run: `pytest tests/unit/gates/test_g2.py -v -k "dec"`
+Expected: PASS. The numeric-ID mapper (Step 2a) preserves the `G2.dec.1`/`.2`/`.3` contract that test_g2.py:422,437,450,500 assert. If any assertion still fails, inspect which `loc`/`type` it triggers and adjust the mapper classification. **Do NOT edit the test assertions unless the mapper genuinely cannot classify a case** — preserving the numeric IDs is the goal.
+
 - [ ] **Step 3: Rewrite g4 decisions_validator.py to delegate**
 
-Replace the body of `g4_decisions(...)` in `src/shenbi/gates/g4/decisions_validator.py` to call `DecisionsDoc.model_validate` (same pattern as g2). Delete the local `$schema`/required-keys/P2.5 logic (now in the model). Keep the function signature so `generic.py`'s dispatch still works.
+Replace the body of `g4_decisions(...)` in `src/shenbi/gates/g4/decisions_validator.py` to call `DecisionsDoc.model_validate` (same pattern as g2, but g4 uses its own `G4.dec.*` prefix via `pydantic_err_to_gate_failures(e, fp, "G4.dec")`). Delete the local `$schema`/required-keys/P2.5 logic (now in the model). Keep the function signature so `generic.py`'s dispatch still works. Verify `tests/unit/gates/test_g4_decisions.py` still passes (it asserts on G4.dec IDs — confirm the generic adapter's `G4.dec.{type}` IDs are compatible; if test_g4_decisions asserts numeric G4.dec.N, apply the same numeric-mapper approach).
 
 - [ ] **Step 4: Run g2/g4 decisions tests**
 
 Run: `pytest tests/unit/gates/test_g2.py tests/unit/gates/test_g4_decisions.py -v`
-Expected: PASS (same count as baseline; behavior equivalent)
+Expected: PASS (same count as baseline; behavior equivalent — numeric IDs preserved)
 
 - [ ] **Step 5: Delete now-dead code + commit**
 
@@ -1159,7 +1187,7 @@ Delete `src/shenbi/gates/g4/_decisions_schema.py` (logic migrated to `DecisionsD
 
 ```bash
 git add -A
-git commit -m "refactor: g2/g4 decisions use DecisionsDoc (delete 2 hand-rolled validators)"
+git commit -m "refactor: g2/g4 decisions use DecisionsDoc (preserves numeric IDs; deletes 2 validators)"
 ```
 
 ---
@@ -1180,20 +1208,29 @@ Expected: PASS baseline
 
 In `legacy.py`, `load_registry()` does `yaml.safe_load(...)` then `TruthFilesRegistry.model_validate(data)`. Keep a `.model_dump()`-style access for `resolves()` — OR adapt `resolves()` to read model attributes (`registry.concepts`, `registry.patterns`, `registry.globs`). Prefer adapting `resolves()` to use the model directly.
 
-- [ ] **Step 3: Update consumers of load_registry that expected a dict**
+- [ ] **Step 3: Update ALL consumers of load_registry that expected a dict (C2 fix — exhaustive list)**
 
-`resolves()` (legacy.py:85), `bootstrap_registry()` (registry.py), `_truth_file_set`/`_decisions_file_set` (executor.py), `audit/snapshot.py:parametric_globs`. Each must access model attributes not dict keys. Grep for `load_registry` and `registry.get(` / `registry[` to find all consumers.
+**⚠️ Critical:** Changing the return type breaks every dict-access consumer. Grep confirmed these call sites (run `grep -rn "load_registry\|registry\.get\|registry\[" src/shenbi/` to verify the full set before starting). Each must switch from dict-access to model-attribute access:
 
-- [ ] **Step 4: Run all contract + gate tests**
+1. `resolves()` (legacy.py:85) — `registry.get("concepts",[])` → `registry.concepts`; `registry.get("patterns",[])` → `registry.patterns`; `registry.get("globs",[])` → `registry.globs`. Access `c.name`/`c.kind`/`p.parametric`/`p.glob`/`g.pattern` as model attrs.
+2. `bootstrap_registry()` (registry.py:20) — `data.get("concepts",[])` / `entry.get("name")` / `entry.get("kind","truth")` → iterate `reg.concepts`, `c.name`, `c.kind`.
+3. `_truth_file_set` / `_decisions_file_set` (executor.py:~28-55) — these call `bootstrap_registry()` which returns `{name: kind}` dict; keep bootstrap_registry returning that derived dict OR adapt callers to filter `reg.concepts` by `.kind`. Pick ONE approach and apply consistently.
+4. `audit/snapshot.py:parametric_globs` (~line 19) — `load_registry()` then `registry.get("patterns",[])`; switch to `reg.patterns` / `p.parametric` / `p.glob`.
+5. **`contracts/graph.py` (Task 3) — `dag_key`/`normalize_to_glob` use `registry.get("patterns",[])` / `registry.get("globs",[])` / `g["pattern"]` / `p["parametric"]`.** Switch to `registry.patterns` / `registry.globs` / `g.pattern` / `p.parametric` / `p.glob`.
+6. **`sync_contracts.py` (~line 46, 49, 86) — `build_dag`/`derive_expected_outputs` access `registry.get(...)`.** Switch to model attrs.
+
+**Design decision (decide once, apply everywhere):** `graph.dag_key`/`normalize_to_glob` and `lint_contract_graph` receive a `registry` param. Decide whether (a) they accept the `TruthFilesRegistry` model and use attrs, or (b) they accept a plain dict (via `model_dump(by_alias=True)`). **Recommend (a)** — model attrs are typed and self-documenting. Update all callers to pass the model.
+
+- [ ] **Step 4: Run all contract + gate + sync tests**
 
 Run: `pytest tests/unit/contracts/ tests/unit/gates/ tests/unit/test_sync_contracts.py -v`
-Expected: PASS (behavior equivalent; type changed from dict to model)
+Expected: PASS (behavior equivalent; type changed from dict to model). If `test_sync_contracts` fails on `dag_key`/`build_dag`, revisit Step 3 item 5/6.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor: load_registry returns TruthFilesRegistry model (D24 non-empty enforced)"
+git commit -m "refactor: load_registry returns TruthFilesRegistry model (migrates graph+sync+resolves consumers)"
 ```
 
 ---
@@ -1375,29 +1412,125 @@ Run: `just check` → commit `refactor: G5.2 uses glob-aware dag_key matching (W
 
 ### Task 15: gates/g4/*.py — RoundPaths, delete resolve_g4_base CWD fallback
 
+**⚠️ C3 fix: This task is split into 15a/15b/15c.** The original single-task design was infeasible: G4 checkers have signature `(fps, rd)` — NO `project_dir`/`repo_root` — and ~9 sites use the CWD fallback (`resolve_g4_base` in 10 checkers + inline `base = Path(rd) if rd else Path.cwd()` in generic.py ×3, score_arc, decisions_validator, length_normalizing, foreshadowing_plant, anti_detect, state_settling). Deleting the fallback before threading the params breaks every CLI invocation that omits round_dir. Order MUST be: thread params (15a) → migrate checkers (15b) → delete fallback LAST (15c).
+
+**Call-chain facts (verified):** `gate_G4(skill_name, test_type, file_paths, round_dir=None)` at generic.py:147. Callers: `gates/cli.py:113` (has `rd`), `g5.py:254` (`gate_G4(pr, "generative", [str(fp)])` — no rd), `g7.py:142` (`gate_G4(target, test_type, files_checked, str(rd))`), `g6.py:77` (`gate_G4("shenbi-chapter-drafting", "generative", [str(ch)])` — no rd).
+
+---
+
+#### Task 15a: Thread `project_dir`/`repo_root` through the G4 call chain
+
 **Files:**
-- Modify: `src/shenbi/gates/shared.py:47-55` (resolve_g4_base), all 10 G4 checkers that hardcode `pd/"..."`
+- Modify: `src/shenbi/gates/g4/generic.py` (`gate_G4` signature + dispatch), all checker signatures, `gates/cli.py:113`, `g5.py:254`, `g7.py:142`, `g6.py:77`
+- Test: existing g4/g5/g6/g7 tests stay green
 
-- [ ] **Step 1: Eliminate CWD fallback**
+- [ ] **Step 1: Write a test that gate_G4 accepts project_dir/repo_root**
 
-In `shared.py:resolve_g4_base`: change `return Path(rd) if rd else Path.cwd()` to raise `ValueError("round_dir required")` when `rd` is falsy. Update all callers to always pass `rd`.
+```python
+# tests/unit/gates/test_g4_signatures.py
+def test_gate_g4_accepts_project_dir_and_repo_root(tmp_path):
+    from shenbi.gates.g4.generic import gate_G4
+    # Must accept the new params without error (even if it doesn't use them yet for this skill)
+    result = gate_G4("shenbi-worldbuilding", "generative", [], str(tmp_path),
+                     project_dir=str(tmp_path), repo_root=str(tmp_path))
+    import json; data = json.loads(result)
+    assert data["skill"] == "shenbi-worldbuilding"  # ran, didn't crash on signature
+```
 
-- [ ] **Step 2: Migrate the 10 hardcoded G4 checkers**
+- [ ] **Step 2: Add `project_dir`/`repo_root` params to gate_G4 + dispatch**
 
-For each of: `worldbuilding.py`, `story_architecture.py`, `relationship_map.py`, `plot_thread_weaver.py`, `power_system.py`, `volume_outlining.py`, `foreshadowing_track.py`, `faction_builder.py`, `location_builder.py`, `pacing_design.py` — replace `pd = resolve_g4_base(rd); pd / "world/..."` with `rp.read("world/...")` using a `RoundPaths` constructed from `(round_dir, project_dir, repo_root)`. The checker signatures receive `round_dir`; they may need `project_dir`/`repo_root` passed in (audit `generic.py:gate_G4` to see what's available — likely add params).
+In `generic.py`, change the signature:
+```python
+def gate_G4(skill_name: str, test_type: str, file_paths: list[str],
+            round_dir: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None) -> str:
+```
+Thread `project_dir`/`repo_root` through the checker dispatch dict to each checker. Add the same two params to EVERY checker signature (`g4_worldbuilding(fps, rd, project_dir=None, repo_root=None)`, etc.). Checkers that don't need them yet accept-and-ignore. **Do NOT delete `resolve_g4_base` or the CWD fallback yet** — 15a only adds params; behavior unchanged.
 
-**This is the highest-risk task.** Do one checker per commit if needed; run `just check` after each.
+- [ ] **Step 3: Update the 4 callers to pass project_dir/repo_root**
+
+- `gates/cli.py:113`: `gate_G4(full_name, "generative", file_list, rd, project_dir=arg(2), repo_root=str(PROJECT))` (cli already has PROJECT access via shared).
+- `g5.py:254`: `gate_G4(pr, "generative", [str(fp)], project_dir=str(project_dir), repo_root=str(PROJECT))` — g5 has `project_dir` in scope.
+- `g7.py:142`: add `project_dir=str(rd / "project-output")` (g7's project root convention) + `repo_root=str(PROJECT)`.
+- `g6.py:77`: `gate_G4("shenbi-chapter-drafting", "generative", [str(ch)], str(pd), project_dir=str(pd), repo_root=str(PROJECT))` — g6 has `pd` in scope.
+
+For each caller, `project_dir`/`repo_root` may be None at runtime in edge cases — checkers must handle None gracefully (fall back to rd or raise a clear error, NOT silently use CWD). Keep CWD fallback in `resolve_g4_base` for now (removed in 15c).
+
+- [ ] **Step 4: Run all gate tests**
+
+Run: `just check`
+Expected: PASS (params added but unused — pure additive, no behavior change)
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A
+git commit -m "refactor: thread project_dir/repo_root through gate_G4 call chain (additive, no behavior change)"
+```
+
+---
+
+#### Task 15b: Migrate the G4 checkers to RoundPaths
+
+**Files:**
+- Modify: all 10 hardcoded checkers + the ~9 inline `base = Path(rd) if rd else Path.cwd()` sites
+
+- [ ] **Step 1: Migrate checkers one-by-one (one commit per 2-3 checkers)**
+
+For each hardcoded checker (`worldbuilding`, `story_architecture`, `relationship_map`, `plot_thread_weaver`, `power_system`, `volume_outlining`, `foreshadowing_track`, `faction_builder`, `location_builder`, `pacing_design`): replace `pd = resolve_g4_base(rd); pd / "world/..."` with:
+```python
+rp = RoundPaths(round_dir=Path(rd), project_dir=Path(project_dir or rd), repo_root=Path(repo_root or PROJECT))
+world = rp.read("world/story_bible.md")
+```
+For the inline-fallback checkers (generic.py ×3, score_arc, decisions_validator, length_normalizing, foreshadowing_plant, anti_detect, state_settling): replace `base = Path(rd) if rd else Path.cwd()` with the same RoundPaths construction (or, for checkers that only need the round_dir base, keep `base = Path(rd)` and RAISE if rd is None rather than CWD-fallback).
+
+Run `just check` after each batch. **Do not delete `resolve_g4_base` yet** (15c).
+
+- [ ] **Step 2: Run full suite after all checkers migrated**
+
+Run: `just check`
+Expected: PASS (T1/T2/T3 green)
+
+- [ ] **Step 3: Commit (per batch)**
+
+```bash
+git add -A && git commit -m "refactor: migrate G4 checkers to RoundPaths (batch N)"
+```
+
+---
+
+#### Task 15c: Delete resolve_g4_base CWD fallback (LAST)
+
+**Files:**
+- Modify: `src/shenbi/gates/shared.py:47-55`
+
+- [ ] **Step 1: Verify no checker still calls resolve_g4_base**
+
+Run: `grep -rn "resolve_g4_base" src/shenbi/gates/`
+Expected: only the definition in shared.py remains (zero callers). If any caller remains, migrate it first.
+
+- [ ] **Step 2: Delete resolve_g4_base (or make it raise on None rd)**
+
+In `shared.py`, either delete `resolve_g4_base` entirely OR change it to:
+```python
+def resolve_g4_base(rd: str | None = None) -> Path:
+    if not rd:
+        raise ValueError("round_dir required — CWD fallback removed; caller must pass rd")
+    return Path(rd)
+```
+(prefer delete if no callers remain after Step 1).
 
 - [ ] **Step 3: Run full suite**
 
 Run: `just check`
-Expected: PASS (T1/T2/T3 green — no regressions)
+Expected: PASS
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor: G4 checkers use RoundPaths; resolve_g4_base CWD fallback removed"
+git commit -m "refactor: delete resolve_g4_base CWD fallback (all callers now pass round_dir explicitly)"
 ```
 
 ---
@@ -1416,7 +1549,16 @@ rubric_path = Path(os.environ.get("RUBRIC", str(rp.repo(f"tests/tiers/t1-skill/{
 ```
 (Keep `RUBRIC` env override for testing.)
 
-- [ ] **Step 2: Delete dead code**
+- [ ] **Step 2: Delete dead code (with verification grep — I6 fix)**
+
+**Before deleting, verify zero live imports:**
+```bash
+grep -rn "from shenbi.contracts.skills" src/ tests/   # must return ONLY genre_config/pacing_design
+grep -rn "REGISTRY\|load_skill_contract" src/ tests/  # must return only the definitions in registry.py
+```
+If any unexpected import appears, migrate it before deleting.
+
+`git rm src/shenbi/dispatcher/executor.py.bak src/shenbi/gates/g4/chapter_drafting.py.bak` (and any tracked `.bak`). In `contracts/registry.py`: delete `REGISTRY`, `_discover_skill_models`, `load_skill_contract` (zero callers — verified by grep). In `contracts/skills/`: delete all `*.py` except `genre_config.py`, `pacing_design.py`, `__init__.py`. `git rm site/framework/truth-files.yaml` (divergent duplicate — M2).
 
 `git rm src/shenbi/dispatcher/executor.py.bak src/shenbi/gates/g4/chapter_drafting.py.bak` (and any tracked `.bak`). In `contracts/registry.py`: delete `REGISTRY`, `_discover_skill_models`, `load_skill_contract` (zero callers — verified). In `contracts/skills/`: delete all `*.py` except `genre_config.py`, `pacing_design.py`, `__init__.py`. `git rm site/framework/truth-files.yaml` (divergent duplicate — M2).
 
@@ -1492,26 +1634,32 @@ def test_clean_repo_has_zero_orphan_reads():
     r = subprocess.run([sys.executable, str(LINT)], capture_output=True, text=True, cwd=REPO)
     assert r.returncode == 0, f"orphan reads:\n{r.stdout}\n{r.stderr}"
 
-def test_detects_injected_orphan(tmp_path, monkeypatch):
-    # Canary #1: inject a skill with a bogus read → lint FAILs
-    # (use a synthetic skills dir or mock load_all_contracts)
-    ...  # see canary #1 design
+def test_detects_injected_orphan(monkeypatch, tmp_path):
+    """Canary #1: a contract with a read no skill produces → ORPHAN_READ FAIL + exact message."""
+    from shenbi.contracts import graph as g
+    # Inject a synthetic contract set with one orphan read
+    fake_contracts = {
+        "shenbi-test": {"reads": ["truth/does-not-exist.md"], "writes": [], "updates": []},
+    }
+    monkeypatch.setattr("shenbi.sync_contracts.load_all_contracts", lambda: fake_contracts)
+    orphan, dangling = __import__("tools.lint_contract_graph", fromlist=["find_closure_violations"]).find_closure_violations()
+    assert any(skill == "shenbi-test" and "truth/does-not-exist.md" in f for skill, f in orphan)
 ```
 
-- [ ] **Step 2: Implement lint_contract_graph.py**
+- [ ] **Step 2: Implement lint_contract_graph.py (I4 fix: load_all_contracts is in sync_contracts, NOT legacy)**
 
 ```python
 # tools/lint_contract_graph.py
 """Closure check: every read must have a producer (skill/pipeline/external).
 ORPHAN_READ → exit 1 (block PR). DANGLING_WRITE → stderr WARN."""
 import sys
-from pathlib import Path
 from shenbi.contracts.graph import dag_key
-from shenbi.contracts.legacy import load_all_contracts, load_registry  # adjust imports
+from shenbi.contracts.legacy import load_registry
+from shenbi.sync_contracts import load_all_contracts  # I4: it's in sync_contracts (verified line 55)
 
 def find_closure_violations():
     contracts = load_all_contracts()
-    reg = load_registry()
+    reg = load_registry()  # returns TruthFilesRegistry model (post-Task 10)
     producers: dict[str, set[str]] = {}
     for skill, c in contracts.items():
         for f in [*c.get("writes", []), *c.get("updates", [])]:
@@ -1529,10 +1677,11 @@ def find_closure_violations():
                 continue
             if key not in producers and f not in producers:
                 orphan.append((skill, f))
+    # dangling: writes with no reader
+    all_read_keys = {dag_key(r, reg) for c in contracts.values() for r in c.get("reads", [])}
     for key, sks in producers.items():
-        if key not in external and key not in pipeline:
-            if not any(key in [dag_key(r, reg) for c in contracts.values() for r in c.get("reads", [])] for _ in [0]):
-                dangling.append((next(iter(sks)), key))
+        if key not in external and key not in pipeline and key not in all_read_keys:
+            dangling.append((next(iter(sks)), key))
     return orphan, dangling
 
 def main():
