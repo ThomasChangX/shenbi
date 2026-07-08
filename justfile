@@ -14,6 +14,7 @@ install group="dev":
 check:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_contracts.py
+    uv run python scripts/lint_contract_fields.py
     uv run python tools/lint_repo_consistency.py
     uv run ruff check .
     uv run ruff format --check .
@@ -43,6 +44,10 @@ fix:
 # Lint bare status strings (spec D3)
 lint-status:
 	uv run python tools/lint_status_strings.py
+
+# Lint contract.reads fields vs truth file headings/keys (spec B.5)
+lint-contract-fields:
+	uv run python scripts/lint_contract_fields.py
 
 # Regenerate contract-derived artifacts (deps.json expected_outputs, DAG, index, body views)
 generate:

@@ -7,7 +7,7 @@ contract:
   reads:
     - chapters/*.md                       # narrowed to arc range in prose
     - {file: outline/volume_map.md, fields: [volume_promise, arc_beats]}
-    - {file: truth/pending_hooks.md, fields: [resolved_this_arc, carried_forward]}
+    - {file: truth/pending_hooks.md, fields: ["活跃伏笔", "伏笔统计", "伏笔时间线"]}
     - truth/resonance_trend.md            # §6.3 弧情感交付佐证
   writes:
     - audits/volume-N-payoff.md

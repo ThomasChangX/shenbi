@@ -5,9 +5,9 @@ requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - {file: chapters/chapter-N.md, fields: [prose, POST_WRITE_SELF_CHECK]}
-    - {file: plans/chapter-N-plan.md, fields: [chapter_role, core_task]}
-    - {file: style/style_profile.md, fields: [voice_fingerprint]}
+    - {file: chapters/chapter-N.md, fields: [POST_WRITE_SELF_CHECK]}
+    - {file: plans/chapter-N-plan.md, fields: ["1. 当前任务"]}
+    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式"]}
     - benchmarks/anchors/
   writes:
     - audits/chapter-N-resonance.md
