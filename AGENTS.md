@@ -57,6 +57,37 @@ Every skill is `skills/<name>/SKILL.md` with YAML frontmatter:
 
 Critical skills include DOT flowcharts for authoritative process definition and anti-rationalization tables. Use "your human partner" for the author, "truth files" for project state, "chapter memo" for the 8-section planning doc.
 
+### Decisions-Sidecar Artifacts
+
+Skills that produce natural-language or ephemeral outputs also produce a
+`*-decisions.json` sidecar artifact (Layer A). This carries structured
+decision summaries (selections, adjustments, budget) that downstream skills
+read as lightweight references.
+
+Key rules:
+- `kind: ephemeral` skills migrate to `kind: artifact` with decisions.json in writes
+- Schema: `shenbi-decisions-v1` (see `docs/framework/decisions-schema.md`)
+- P2.5 rationale rule: rationale FORBIDDEN on routine+low-severity, REQUIRED on manual_override + high-severity + adjustments
+- G2 validates decisions.json as `file_type="decisions"` (skips word count)
+- G4 validates schema + P2.5 rules
+- Downstream skills declare decisions.json in their `reads:`
+
+### Field-Level Reads
+
+Skills can declare which fields of a truth file they consume via dict-form
+reads (Layer B):
+
+```yaml
+contract:
+  reads:
+    - file: truth/current_state.md
+      fields: [主角状态, 当前世界局势, 活跃线索]
+```
+
+The dispatcher filters file content to only declared fields before the LLM
+sees it (LangChain "filtered portions" strategy). If a declared field is
+missing from the file, the escape hatch returns the full file + logs WARN.
+
 ### Testing
 
 Three-tier framework: **T1** per-skill (generative/bug-hunt/clean), **T2** phase chains, **T3** end-to-end pipelines. All scored 0–100 via `shenbi-score` with `--test-type` dimension filtering.
