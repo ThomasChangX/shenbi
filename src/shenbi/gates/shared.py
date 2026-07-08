@@ -55,17 +55,6 @@ def jload(p: str | Path) -> dict[str, Any]:
     return data
 
 
-def resolve_g4_base(rd: str | None = None) -> Path:
-    """Return the base directory for G4 file resolution.
-
-    When ``rd`` (the pipeline/gate round_dir) is provided, use it as the
-    absolute base. Otherwise fall back to the current working directory.
-    All G4 checkers should use this as their single source of path resolution
-    to avoid the ``fps[0].parent.parent`` anti-pattern.
-    """
-    return Path(rd) if rd else Path.cwd()
-
-
 def resolve_input_path(fp: str | Path, rd: str | None = None) -> Path:
     """Resolve a caller-supplied file path (an entry of ``fps``) for G4 checkers.
 
@@ -73,8 +62,7 @@ def resolve_input_path(fp: str | Path, rd: str | None = None) -> Path:
     round_dir ``rd``; if ``rd`` is None a ``ValueError`` is raised rather than
     silently falling back to the current working directory. This replaces the
     ``base = Path(rd) if rd else Path.cwd()`` inline anti-pattern in the generic
-    + inline checkers (Task 15b). ``resolve_g4_base`` (above) remains for the
-    few callers not yet migrated and is removed in Task 15c.
+    + inline checkers.
     """
     p = Path(fp)
     if p.is_absolute():
