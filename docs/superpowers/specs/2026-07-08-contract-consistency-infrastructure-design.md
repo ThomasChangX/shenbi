@@ -47,13 +47,13 @@
 3. **契约图闭环 + Producer Registry**:每个 read 必须有 producer(skill / pipeline / external);pipeline 产物登记;ORPHAN_READ 静态 FAIL。
 4. **Schema 单一源**:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import;`extra: forbid`。
 5. **字段匹配单一化**:`match_field` 单函数;filter / G1 / lint 统一调用;逃生舱语义集中。
+6. **现存活 bug 切除**:审计确认的 D16/D19/D20/D21/D22/D24 —— 它们是上述五类机制主题的现存实例(路径错配/契约不一致/schema 缺失/字段问题),本 spec 一并根治,不遗留。
 
 ### 2.2 非目标(明确排除)
 
 - gate↔gate 隐式契约治理(`.bak` BACKUP_SKILLS 派生、PhaseState 单向引用、marker coverage)→ spec 2
   - **例外**:`.bak` 的**路径构造**走 RoundPaths(属本 spec 路径统一范围);BACKUP_SKILLS **列表派生**留 spec 2
-- gate 入口三套分叉统一 → spec 3
-- 已确认活 bug(D16/D19/D20/D21/D22/D24)修复 → spec 4
+- gate 入口三套分叉统一 → spec 2
 - `chapter_loop.py` 硬编码步骤顺序(执行序是独立关注点)
 - `legacy.py:_validate` contract 块校验重写(它工作良好,非任何缺口根源)
 - DAG 生成器本身(`sync_contracts.build_dag` 已正确)
@@ -413,7 +413,7 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 - 扫 truth-files.yaml,找 external seed、过宽 glob、需登记的 pipeline 产物。
 - 扫所有结构化文件(decisions/deps/novel 等),找 extra:forbid 会暴露的多余字段。
 - 比对 3 套解析器在所有真实路径上的输出差异,确认含 N 路径腐蚀的真实 case。
-- 记录 D16/D19/D20/D21/D22/D24 活 bug(留 spec 4,本阶段仅记录)。
+- **逐项复现并固化** D16/D19/D20/D21/D22/D24 六个活 bug(见 §7.5 处理协议),每个写一个能稳定复现"修复前错误行为"的测试,作为修复验证基准。
 
 ### 7.2 阶段 1 — 底座建立
 
@@ -482,9 +482,25 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 - **结构化文件多余字段**(extra:forbid):合法未登记 → 加模型字段;非法/历史遗留 → 删除。
 - **过宽 glob**:收窄为具体 pattern 或登记 known_files。
 
-**范围限定**:本阶段只修本 spec 范围内的违规(路径错配、契约孤儿、schema 多余字段、字段漂移)。D16/D19 等活 bug 留 spec 4,但本阶段会记录。
+**处理协议(每类违规)**:
+- **ORPHAN_READ**:
+  - 拼写错误 → 修正 read 对齐 producer write。
+  - producer 漏写 → 给 producer 补 write 声明。
+  - 合理 seed → truth-files.yaml 标 `producer: external`。
+  - pipeline 产物 → truth-files.yaml 标 `producer: pipeline`。
+  - **禁止**:为消警告删 read 或加假 producer。每项修复说明类别。
+- **字段漂移**:truth 标题改了 → 更新 consumer fields;consumer fields 拼错 → 修正。
+- **结构化文件多余字段**(extra:forbid):合法未登记 → 加模型字段;非法/历史遗留 → 删除。
+- **过宽 glob**:收窄为具体 pattern 或登记 known_files。
+- **已确认活 bug**(审计确认的 6 个,逐项切除 + 金丝雀测试):
+  - **D16**(G6.10 死路径):`g6.py:275` 读 `pd/"config"/"style_profile.md"`,producer 写 `style/style_profile.md` → 修正为 `rp.read("style/style_profile.md")`(走 RoundPaths,§4.2 改造后自动正确路径)。**金丝雀**:断言 G6.10 在有 style_profile 时不再 SKIP。
+  - **D19**(G3.1 死键):`g3.py:85` `deps.get(skill_name)` 但 deps.json 无顶层 skill 键 → 修正为先查 `deps["t2-phases"]` 找含该 skill 的 phase,取该 phase 的 prerequisites;或若 T1 prerequisite 确实需要 per-skill,在 `DepsDoc` 模型(§5.2)里定义正确结构后让 G3.1 查对位置。**金丝雀**:断言 G3.1 对有前置依赖的 skill 不再返回空 prereqs。
+  - **D20**(pipeline 产物路径分叉):`snapshots/chapter-NNN/` 契约概念 vs pipeline 写 `snapshots/chapter-{N:03d}-{ts}.md` 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(`producer: pipeline`),让契约图反映现实而非虚构。**金丝雀**:断言 pipeline 产物的 consumer 不被报孤儿。
+  - **D21**(truth 模板缺 H2):`_init_truth_templates` 只种 H1,skill 期望 H2 字段 → 从 consumer 声明的 fields 派生 H2 骨架写入模板。**金丝雀**:断言 genesis 首跑时 G1 `check_fields_exist` 对模板文件不 WARN。
+  - **D22**(hook state 大小写):G6.7 不敏感,`_count_triggered_hooks` 仅大写 → 用 `match_field` 同款的集中匹配,或定义 `HookState` 枚举(enum 值 `TRIGGERED`),所有读写引用枚举值。**金丝雀**:断言小写 `triggered` 也被正确识别。
+  - **D24**(registry 无非空断言):`bootstrap_registry` 结构漂移会清空 → `TruthFilesRegistry` 模型(§5.2)加载后断言 `len(concepts) > 0`,加 lint 检查非空。**金丝雀**:断言空 registry 加载失败。
 
-**验证**:阶段 3 所有 lint 跑出零 FAIL。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。
+**验证**:阶段 3 所有 lint 跑出零 FAIL;D16/D19/D20/D21/D22/D24 六个活 bug 的复现测试在修复后转 PASS(从 FAIL/错误行为翻转为正确行为)。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。
 
 ---
 
@@ -507,6 +523,8 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 2. **含 N 路径不腐蚀**:`NPC-list.md`、`rules-N-bound.md`、`anti-N` 等路径,断言 `resolve_chapter_path` 不腐蚀。防有人重新引入无界 replace。
 3. **三根分离**:round_dir≠project_dir≠repo_root 的 fixture,断言 G4/gate/dispatcher 行为正确,G2.11 `.bak` diff 不跨根 no-op。
 4. **字段匹配一致性**:对每个有 dict-form reads 的 consumer,拿 producer 真实 fixture 跑 `filter_to_fields`,断言 filter/G1/lint 三处结果一致(用同一 match_field)。
+5. **D16 G6.10 不再死路径**:有 style_profile 时 G6.10 执行实际检查而非 SKIP。防止有人改回 `config/` 路径。
+6. **D19 G3.1 不再死键**:对有前置依赖的 skill,G3.1 返回非空 prereqs 并实际校验。防止 deps 键结构再次错配。
 
 ### 8.3 测试数据原则
 
@@ -528,8 +546,7 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 
 ## 10. 后续 spec(明确边界)
 
-本 spec 建立的 RoundPaths / schemas / match_field / dag_key 共享模块是后续 spec 的基础:
+本 spec 建立的 RoundPaths / schemas / match_field / dag_key 共享模块是后续 spec 的基础。按"严格逐个 spec"节奏(本 spec 走完 plan→实施→验证后,基于真实反馈再设计下一个):
 
-- **spec 2(gate↔gate 契约治理)**:基于 RoundPaths 统一 `.bak`;BACKUP_SKILLS 从契约派生;PhaseState 单向引用;progress/summary schema(本 spec 已建模,spec 2 消费);marker coverage。
-- **spec 3(gate 入口统一)**:单一入口,validate-gate.py 改薄 wrapper,hash 锁定。
-- **spec 4(活 bug 修复)**:D16(G6.10 `config/`→`style/`)、D19(G3.1 deps 键)、D20(pipeline 产物路径)、D21(truth 模板缺 H2)、D22(hook state 大小写)、D24(registry 非空断言),每个加金丝雀测试。
+- **spec 2(gate↔gate 契约治理 + 入口统一)**:基于 RoundPaths 统一 `.bak`;BACKUP_SKILLS 从契约派生(消灭硬编码漏列);PhaseState 单向引用;marker coverage;gate 三套入口(`validate-gate.py`/`python -m`/`uv run`)收敛为单一入口 + hash 锁定。合并为一个 spec 是因为入口统一与 gate↔gate 治理都属"gate 内部一致性"主题。
+  - 本 spec 已切除的 D16/D19/D20/D21/D22/D24 不在此 spec 范围。
