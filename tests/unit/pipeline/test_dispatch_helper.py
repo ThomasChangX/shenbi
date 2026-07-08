@@ -344,6 +344,15 @@ class TestTruthTemplates:
 
         _init_truth_templates(tmp_path)
         inputs = [str(tmp_path / "truth" / "current_state.md")]
-        fields_map = {"truth/current_state.md": ["主角状态", "当前世界局势", "活跃线索"]}
+        # Key must be str(fp) (absolute path), matching check_fields_exist's
+        # lookup convention (g1.py:104); a relative key matches neither fp nor
+        # Path(fp).name, making the canary vacuously pass.
+        fields_map = {
+            str(tmp_path / "truth" / "current_state.md"): [
+                "主角状态",
+                "当前世界局势",
+                "活跃线索",
+            ]
+        }
         warnings = check_fields_exist("shenbi-chapter-planning", inputs, fields_map)
         assert warnings == []
