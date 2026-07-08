@@ -16,7 +16,7 @@
 
 | 类 | 根因 | 严重度 |
 |---|---|---|
-| 1. 章节占位符解析 | 3 套分叉实现,其中 `executor.py:75` 用无界 `str.replace("N")`,腐蚀任何含字母 N 的路径(`resonance`→`reso5a5ce`) | 高 |
+| 1. 占位符解析 | **4 套**分叉实现:executor(chapter 无界 replace)、dispatch_helper(chapter 有界正则)、chapter_loop(chapter 有界正则)、**closure(volume 无界 replace,漏列于初版审计)**。无界 replace 腐蚀任何含**大写 N** 的路径(`import/canon/01_SECTION.md`→`01_SECTIO5.md`、`NPC-list.md`→`5PC-list.md`);小写 n 不受影响(故 `resonance` 不腐蚀) | 高 |
 | 2. 根目录解析 | `round_dir`/`project_dir`/`PROJECT`/CWD 四套根;G4 的 `resolve_g4_base` 静默 fallback 到 CWD;`.bak` 用裸字符串 fp | 高 |
 | 3. 契约图闭包 | 无"每个 read 必须有 producer"的闭包检查;pipeline 直接写的文件不在 skill 契约图内 | 高 |
 | 4. Schema 校验 | decisions.json 三处手写副本;truth-files.yaml 两处读不同子集;deps.json 四处裸 `.get()` | 高 |
@@ -29,10 +29,8 @@
 
 本 spec 聚焦**根因机制层**(类 1-5 的基础设施)。gate 内部契约治理、入口统一、活 bug 修复作为**后续独立 spec**,各自有明确边界:
 
-- **本 spec(契约一致性基础设施)**:单一解析器 + RoundPaths(三根)+ 契约图闭环(含 Producer Registry)+ Schema 单一源(全结构化文件 pydantic)+ 字段匹配单一化
-- **spec 2(gate↔gate 契约治理)**:`.bak` 统一、BACKUP_SKILLS 派生、PhaseState 单向引用、marker coverage
-- **spec 3(gate 入口统一)**:单一入口 + hash 锁定
-- **spec 4(活 bug 修复)**:D16/D19/D20/D21/D22/D24 修复 + 回归测试
+- **本 spec(契约一致性基础设施)**:单一解析器(4 套收敛)+ RoundPaths(三根)+ 契约图闭环(含 Producer Registry)+ Schema 单一源(全结构化文件 pydantic)+ 字段匹配单一化 + `.bak` 路径/覆盖统一 + 六个活 bug 切除(D16/D19/D20/D21/D22/D24)
+- **spec 2(gate↔gate 深度治理 + 入口统一)**:PhaseState 单向引用、marker coverage、gate 三入口收敛、progress/summary writer 统一(升级 forbid)。详见 §10。
 
 **分解理由**:类 6-8 是 gate 内部治理,与类 1-5 的路径/契约/schema 机制正交。混入一份 spec 会模糊焦点、增大回滚粒度。
 
@@ -42,7 +40,7 @@
 
 ### 2.1 目标 —— 五大根因机制
 
-1. **单一占位符解析**:消灭 3 套分叉的章节占位符替换与章节提取;含 N 路径不被腐蚀。
+1. **单一占位符解析**:消灭 4 套分叉的占位符替换(3 套 chapter + 1 套 volume)与章节提取;含大写 N 路径不被腐蚀。
 2. **RoundPaths 三根封装**:`round_dir` + `project_dir` + `repo_root`;所有路径解析的唯一出口;消除 CWD fallback 和裸字符串 join。
 3. **契约图闭环 + Producer Registry**:每个 read 必须有 producer(skill / pipeline / external);pipeline 产物登记;ORPHAN_READ 静态 FAIL。
 4. **Schema 单一源**:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import;`extra: forbid`。
@@ -51,9 +49,10 @@
 
 ### 2.2 非目标(明确排除)
 
-- gate↔gate 隐式契约治理(`.bak` BACKUP_SKILLS 派生、PhaseState 单向引用、marker coverage)→ spec 2
-  - **例外**:`.bak` 的**路径构造**走 RoundPaths(属本 spec 路径统一范围);BACKUP_SKILLS **列表派生**留 spec 2
+- gate↔gate 隐式契约治理(PhaseState 单向引用、marker coverage)→ spec 2
+  - **已拉回本 spec**:`.bak` 路径构造(RoundPaths)+ BACKUP_SKILLS 派生(I4 — 路径与覆盖范围纠缠,拆分制造半修)
 - gate 入口三套分叉统一 → spec 2
+- progress.json/summary.json 的 writer 统一 + 升级 forbid → spec 2(本 spec 先 `ignore` 建模,见 §5.1)
 - `chapter_loop.py` 硬编码步骤顺序(执行序是独立关注点)
 - `legacy.py:_validate` contract 块校验重写(它工作良好,非任何缺口根源)
 - DAG 生成器本身(`sync_contracts.build_dag` 已正确)
@@ -61,7 +60,7 @@
 ### 2.3 成功标准
 
 - 故意写错 read 路径 → CI 在 PR 阶段 FAIL 并精确报 `ORPHAN_READ: skill=X reads=foo-bar.md no producer`。
-- 任何含 N 的路径(如 `NPC-list.md`、`rules-N-bound.md`)解析不被腐蚀。
+- 任何含**大写 N** 的路径(如 `import/canon/01_SECTION.md`、`NPC-list.md`)解析不被腐蚀(小写 n 如 `resonance` 本就不受 `str.replace("N")` 影响——核实)。
 - `round_dir ≠ project_dir ≠ repo_root` 三根分离 fixture 下,G4 / gate / dispatcher 行为正确。
 - pipeline 写的文件(如 `context/chapter-N-context.md`)被闭包校验正确识别为有 producer,不误报孤儿。
 - 所有 pydantic 模型 `extra: forbid`;任一结构化文件带拼写错误字段 → 加载失败。
@@ -98,42 +97,74 @@
 
 ### 4.1 单一占位符解析 + 章节提取
 
-**现状(3 套分叉)**:
+**现状(4 套分叉 — 审计 review 发现第 4 套)**:
 - `dispatcher/executor.py:66` `_resolve_chapter_path`:无界 `path.replace("NNN",...).replace("N", str(chapter))`,缺章返哨兵 `""`。
 - `pipeline/dispatch_helper.py:104` `_resolve_path`:有界正则 `(?<=[-/])N(?=[-./]|$)`,缺章直传。
 - `pipeline/chapter_loop.py:332` `_substitute_chapter`:有界正则,chapter 必填。
+- **`pipeline/closure.py:137` `_substitute_volume`**:无界 `path.replace("N", str(volume))` —— **volume 替换,同样的无界 bug,初版审计漏列**。注:N 在此表示 volume(非 chapter,无 zero-pad)。
 - 另:`executor.py:63` `_extract_chapter` 用 `\bchapter\s+(\d+)\b`(词边界);`dispatch_helper.py:100` 用 `chapter\s+(\d+)`(无词边界)——`subchapter 5` 一个返 None 一个返 5。
 
-**设计**:新建 `src/shenbi/contracts/paths.py`,提供两个唯一函数:
+**事实校正(经核实)**:`str.replace("N", ...)` **区分大小写**。小写 `n` 不受影响(故 `resonance` 实际不腐蚀——初版 spec 此例错误)。真正受腐蚀的是含**大写 N** 的路径:`import/canon/01_SECTION.md`→`01_SECTIO5.md`、`NPC-list.md`→`5PC-list.md`(均已核实)。
+
+**设计**:新建 `src/shenbi/contracts/paths.py`,提供**三个**解析函数(共享有界替换原语)+ 一个提取函数:
 
 ```python
 # src/shenbi/contracts/paths.py
 
 class UnresolvedPathError(ValueError):
-    """路径含章节占位符但无章节上下文。"""
+    """路径含章节/卷占位符但无上下文。"""
+
+# 共享有界替换原语(内部)
+_BOUND_N = re.compile(r"(?<=[-/])N(?=[-./]|$)")
+_BOUND_NNN = "NNN"  # 直接 replace,无歧义
+
+def _bounded_replace_n(path: str, value: int | str) -> str:
+    """有界替换裸 N:仅在分隔符边界,防腐蚀 SECTIO_N_/NPC 等。"""
+    return _BOUND_N.sub(str(value), path)
 
 def resolve_chapter_path(path: str, chapter: int | None) -> str:
-    """单一次占位符替换。合并两份旧实现的最严语义。
+    """单一次章节占位符替换。NNN→3位补零, N→裸数字(有界)。
 
-    规则:
     - chapter is None 且路径含 NNN/N → 抛 UnresolvedPathError
-    - 替换顺序:先 NNN(3位补零),再 N(有界正则,防误伤)
-    - 有界正则:(?<=[-/])N(?=[-./]|$) —— 防止腐蚀 VolumeN、resonance 等
     """
     if chapter is None:
-        if "NNN" in path or re.search(r"(?<=[-/])N(?=[-./]|$)", path):
+        if _BOUND_NNN in path or _BOUND_N.search(path):
             raise UnresolvedPathError(path)
         return path
-    result = path.replace("NNN", f"{chapter:03d}")
-    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
+    result = path.replace(_BOUND_NNN, f"{chapter:03d}")
+    return _bounded_replace_n(result, chapter)
+
+def resolve_volume_path(path: str, volume: int | None) -> str:
+    """单一次卷占位符替换。N→裸数字(有界,无补零)。
+
+    volume 与 chapter 语义不同:无 NNN、无 zero-pad。独立函数避免
+    'chapter resolver 套到 volume 场景'的误用。
+    - volume is None 且路径含 N → 抛 UnresolvedPathError
+    """
+    if volume is None:
+        if _BOUND_N.search(path):
+            raise UnresolvedPathError(path)
+        return path
+    return _bounded_replace_n(path, volume)
 
 def extract_chapter(text: str) -> int | None:
-    """单一次章节提取。统一用词边界正则。"""
+    """单一次章节提取。统一用词边界正则(消除 subchapter 误匹配)。"""
     m = re.search(r"\bchapter\s+(\d+)\b", text, re.IGNORECASE)
     return int(m.group(1)) if m else None
 ```
 
-`executor.py`、`dispatch_helper.py`、`chapter_loop.py` 删除各自的 `_resolve_*` / `_substitute_chapter` / `_extract_chapter`,改为 `from shenbi.contracts.paths import resolve_chapter_path, extract_chapter`。
+**迁移范围(4 套全改)**:
+- `executor.py`:删 `_resolve_chapter_path`/`_extract_chapter`;改 import `resolve_chapter_path`/`extract_chapter`。
+- `dispatch_helper.py`:删 `_resolve_path`/`_extract_chapter`;改 import。
+- `chapter_loop.py`:删 `_substitute_chapter`;改 import `resolve_chapter_path`。
+- **`closure.py`:删 `_substitute_volume`;改 import `resolve_volume_path`**(C1 修复)。
+
+**调用方协议(I6 修复 — `resolve_chapter_path` 抛异常的语义)**:
+当前 executor 返回哨兵 `""` 让调用方跳过;新设计抛 `UnresolvedPathError`,调用方必须显式处理。协议:
+- 新增 `paths.py:resolve_or_skip(path, chapter) -> str | None`:捕获 `UnresolvedPathError` 返回 `None`(语义="跳过该路径")。
+- **genesis 模式**(`chapter is None`):`derive_input_files`/`derive_output_files` 调用 `resolve_or_skip`,跳过含占位符的路径(当前哨兵行为的等价)。
+- **chapter 模式**(`chapter is not None`):直接调用 `resolve_chapter_path`,异常向上传播 = 真正的 bug(契约声明了占位符但 dispatcher 无章节上下文)。
+- 该协议在 `paths.py` 文档化,所有调用方遵循。
 
 **为什么"抛异常"而非旧 executor 的哨兵**:空哨兵把错误吞成"文件不存在",下游 G1.1 报"input not found"而非"路径未解析"——这正是当前路径错配难以诊断的原因。抛异常让根因直接暴露。调用方(dispatcher)捕获后决定:genesis 阶段无章节属正常,跳过该路径;chapter 阶段抛异常 = 真正的 bug。
 
@@ -205,32 +236,63 @@ class RoundPaths:
 
 | 文件 | 内容 |
 |---|---|
-| `src/shenbi/contracts/paths.py` | `resolve_chapter_path` + `extract_chapter` + `UnresolvedPathError` |
+| `src/shenbi/contracts/paths.py` | `resolve_chapter_path` + `resolve_volume_path` + `extract_chapter` + `resolve_or_skip` + `UnresolvedPathError` |
 | `src/shenbi/paths.py` | `RoundPaths`(三根) |
 | `src/shenbi/contracts/fields.py` | `match_field` + `filter_to_fields`(从 dispatch_helper 抽出) |
 | `src/shenbi/contracts/graph.py` | `dag_key`(从 sync_contracts 抽出,供 G5.2/lint 共用) |
+
+### 4.5 BACKUP_SKILLS 派生(I4 — 从 spec 2 拉回)
+
+**现状**:`g1.py:26` `BACKUP_SKILLS` 硬编码 9 个 skill。审计核实有 **14 个 skill 的 `updates:` 命中 truth 文件**(drift-guidance、foreshadowing-plant/resolve/track、intent-management、memory-distill、review-arc-payoff、review-resonance、score-arc/stratum、sequel-writing、state-settling、truth-sync、volume-consolidation 等),其中约半数漏列 → G1.4 不为它们创建 `.bak` → G2.11 truth-diff 静默跳过 → truth 文件删除检测失效。
+
+**为什么拉回本 spec(修正 §10 的过激拆分)**:`.bak` 的**路径构造**(rp.backup)与**覆盖范围**(BACKUP_SKILLS)纠缠——路径统一不解决"漏列 skill 无 .bak"的覆盖缺口,金丝雀 #3(三根分离 .bak diff)在 BACKUP_SKILLS 不全时无法通过。拆分制造半修。覆盖派生约 10 行代码,合并成本低于半修风险。
+
+**设计**:删 `BACKUP_SKILLS` 硬编码 frozenset,改为派生:
+```python
+# gates/g1.py 或 contracts/derive.py
+def derive_backup_skills(contracts, registry) -> frozenset[str]:
+    """自动派生需要 .bak 的 skill:updates 命中 truth-kind 文件。"""
+    truth_files = {c.name for c in registry.concepts if c.kind == "truth"}
+    result = set()
+    for skill, c in contracts.items():
+        for f in c.get("updates", []):
+            if any(f == t or fnmatch.fnmatch(f, t) for t in truth_files):
+                result.add(skill)
+                break
+    return frozenset(result)
+```
+G1.4 改为调用 `derive_backup_skills(load_all_contracts(), load_registry())`。这样新增 truth-updating skill 自动获得 .bak 保护,无需手动维护列表。
+
+**注**:sequel-writing/truth-sync 的 `updates: truth/*.md` 是"从快照恢复/正文重提取"的离线操作(见各 SKILL.md 说明),正常逐章循环不运行。派生函数会把它们纳入(它们的 updates 确实命中 truth),但这对 .bak 保护是安全的(多保护不有害)。
 
 ---
 
 ## 5. Layer B:Schema 单一源
 
-### 5.1 设计原则:Schema-First 立即切换
+### 5.1 设计原则:Schema-First 立即切换(分类策略)
 
 为**所有多处消费的结构化文件**建 pydantic v2 模型,集中在 `src/shenbi/contracts/schemas/`。每个模型定义后,所有消费方立即 `import` 并 `model_validate`,删除手写 `.get()` 校验。不留两套逻辑并存的过渡态(项目无历史包袱,验证期容错)。
 
-所有模型 `model_config = {"extra": "forbid"}`——拒绝未知键,让拼写错误当场暴露。
+**`extra` 策略分两类(C3 修正 — 不能对 producer 不受控的文件一律 forbid)**:
+- **producer 受控类** → `extra: "forbid"`:decisions.json(skill 写,字段明确)、deps.json(静态)、novel.json(cli 写,字段明确)、scores.json(scoring 写)、truth-files.yaml(手写权威)。拼写错误当场暴露。
+- **producer 不受控类** → `extra: "ignore"` + 文档化已知字段:
+  - **progress.json**:writer 散落且 `update_progress.py`/`summarize_round.py` **已不存在**(审计 D3 确认);至少 3 种写 shape(dispatch_helper 存根、shenbi-progress CLI 引用、trace/materialize)共存。无法 forbid 一个 producer 失控的文件。用 `ignore` + 在模型 docstring 列出已知 consumer 期望的键;writer 统一(把 shell heredoc + 缺失的 writer 迁到单一 Python writer)作为 spec 2 的前置项。
+  - **summary.json**(顶层,含 t1_scores/t2_scores/t3_scores):由 `tests/round-exec.sh:116` 的 bash heredoc 写;同样 `ignore` + writer 统一留 spec 2。
+  - **注意区分**:`chapter_loop.py:1141` 写的是 `audits/chapter-N-review-summary.md`(review 总结,**不同文件**),不是顶层 `summary.json`。
+
+**为什么 progress/summary 不能在阶段 1 forbid**:blast radius = 整个 G3/G_DISPATCH/G_TRANSITION 运行时。若模型与 heredoc 不完全一致,每轮 round 的前置校验全失败。先 `ignore` 让校验落地不阻塞,writer 统一后再升级 forbid。
 
 ### 5.2 模型清单
 
-| 模型 | 文件 | 当前校验位点(重复) | 消除 |
-|---|---|---|---|
-| `DecisionsDoc` | decisions.json | g2.py:92(硬编码字面量)、g4/decisions_validator.py:53、g4/_decisions_schema.py | 3→1 |
-| `TruthFilesRegistry` | truth-files.yaml | legacy.py:77(读 concepts+globs+patterns)、registry.py:30(只读 concepts) | 2→1,加结构校验 |
-| `DepsDoc` | deps.json | sync_contracts.py:236、scoring.py:206、phase_runner.py:33、g0.py:91 | 4→1 |
-| `NovelConfig` | novel.json | pipeline/cli.py:141,165 | 2→1 |
-| `ProgressDoc` | progress.json | G3/G_DISPATCH/G_TRANSITION 多处 `.get()` | 0→1(从无到有) |
-| `SummaryDoc` | summary.json | G5.1/G7.1/G7.16 | 0→1 |
-| `ScoreReport` | scores.json | scoring.py:405、G7.14/G7.15 | 2→1 |
+| 模型 | 文件 | 当前校验位点(重复) | `extra` | 消除 |
+|---|---|---|---|---|
+| `DecisionsDoc` | decisions.json | g2.py:92(硬编码字面量)、g4/decisions_validator.py:53、g4/_decisions_schema.py | **forbid** | 3→1 |
+| `TruthFilesRegistry` | truth-files.yaml | legacy.py:77、registry.py:30 | **forbid** | 2→1,加结构校验 |
+| `DepsDoc` | deps.json | sync_contracts.py:236、scoring.py:206、phase_runner.py:33、g0.py:91 | **forbid** | 4→1 |
+| `NovelConfig` | novel.json | pipeline/cli.py:141,165 | **forbid** | 2→1 |
+| `ScoreReport` | scores.json | scoring.py:405、G7.14/G7.15 | **forbid** | 2→1 |
+| `ProgressDoc` | progress.json | G3/G_DISPATCH/G_TRANSITION 多处 `.get()` | **ignore**(writer 不受控,见 §5.1) | 0→1 |
+| `SummaryDoc` | summary.json(顶层) | G5.1/G7.1/G7.16 | **ignore**(shell heredoc 写,见 §5.1) | 0→1 |
 
 ### 5.3 关键模型示例
 
@@ -274,10 +336,20 @@ class DecisionsDoc(BaseModel):
 
 ```python
 # src/shenbi/contracts/schemas/registry.py
+# 注意(M5):truth-files.yaml 实际 kind 值有 15 种(已核实):
+# benchmark/chapter/character/config/context/decisions/import/outline/
+# plan/reference/report/short/snapshot/style/truth/world
+# Literal 必须覆盖全部,否则加载时 reject 一半 registry。
+RegistryKind = Literal[
+    "benchmark", "chapter", "character", "config", "context", "decisions",
+    "import", "outline", "plan", "reference", "report", "short",
+    "snapshot", "style", "truth", "world",
+]
+
 class RegistryConcept(BaseModel):
     model_config = {"extra": "forbid"}
     name: str
-    kind: Literal["truth", "decisions", "artifact", "report", "config", "short"]
+    kind: RegistryKind
     producer: Literal["skill", "pipeline", "external"] = "skill"  # ← Producer Registry
     glob: str | None = None
 
@@ -290,6 +362,48 @@ class TruthFilesRegistry(BaseModel):
     def check_supported(cls, v):
         if v != 1: raise ValueError(f"unsupported registry version {v}, expected 1")
         return v
+
+    @model_validator(mode="after")
+    def assert_non_empty(self):
+        # D24 修复:结构漂移曾让 registry 清空。加载后必须非空。
+        if not self.concepts:
+            raise ValueError("registry concepts empty — truth-files.yaml structural drift")
+        return self
+```
+
+```python
+# src/shenbi/contracts/schemas/deps.py
+# C4+I1 修复:DepsDoc 必须枚举所有 consumer 触及的键(forbid 要求),
+# 且 D19 的"OR"在此定案:per-phase prerequisites(非 per-skill)。
+class PhaseDeps(BaseModel):
+    model_config = {"extra": "forbid"}
+    phase: str
+    prerequisites: list[str] = []          # 该 phase 含的 skill 列表(phase_runner/g5 读)
+    expected_outputs: list[str] = []       # sync_contracts 重新生成
+
+class PipelineDeps(BaseModel):
+    model_config = {"extra": "forbid"}
+    pipeline: str
+    min_chapter_ratio: float = 0.0         # g6 读
+    expected_outputs: list[str] = []
+
+class DepsDoc(BaseModel):
+    model_config = {"extra": "forbid"}
+    t2_phases: list[PhaseDeps] = []
+    t3_pipelines: list[PipelineDeps] = []
+    _calibration_hashes: dict[str, str] = {}   # g0.14 读(_前缀键,Pydantic 需 alias 处理)
+    _out_of_pipeline: list[str] = []           # g_dispatch 读
+
+    def prerequisites_for_skill(self, skill: str) -> list[str]:
+        """D19 修复:从含该 skill 的 phase 派生 prerequisites(非顶层 skill 键)。
+
+        替代 g3.py:85 错误的 deps.get(skill_name) —— deps.json 无顶层 skill 键,
+        该查询永远返回 {} → G3.1 死代码。改为查 t2_phases 里含该 skill 的 phase。
+        """
+        for phase in self.t2_phases:
+            if skill in phase.prerequisites:
+                return phase.prerequisites
+        return []
 ```
 
 ### 5.4 错误信息映射
@@ -305,6 +419,10 @@ pydantic 的 `ValidationError` 需映射到 gate 的 micro-failure 格式(`{id, 
 
 审计发现 `contracts/registry.py` 的 `REGISTRY` 和 `load_skill_contract()` 零生产调用,`contracts/skills/*.py` 约 50 个最小 stub(dead code,仅 genre_config/pacing_design 实际使用)。本次 schema 化时清理这些死代码,避免新增模型时混淆"哪个是活的"。
 
+**tracked `.bak` 源文件(M1)**:`src/shenbi/dispatcher/executor.py.bak`、`src/shenbi/gates/g4/chapter_drafting.py.bak` 等被 git 跟踪的 `.bak` 源文件(非运行时产物)一并删除。
+
+**`site/framework/truth-files.yaml` 分歧副本(M2)**:`docs/framework/truth-files.yaml`(权威源)与 `site/framework/truth-files.yaml`(分歧副本,仅注释差异)并存。`bootstrap_registry` 读 `docs/` 版本。阶段 1 处理:删除 `site/` 副本或改为生成产物(gitignore),禁止两份手工编辑版本并存——这正是本 spec 要根治的"两处定义会漂移"问题。
+
 ---
 
 ## 6. Layer C:CI 静态校验
@@ -317,10 +435,21 @@ pydantic 的 `ValidationError` 需映射到 gate 的 micro-failure 格式(`{id, 
 
 (a) **Producer Registry**:`truth-files.yaml` 每个概念加 `producer` 字段:
 - `producer: skill` —— 由 skill 的 writes/updates 生产(默认)
-- `producer: pipeline` —— 由 pipeline 代码生产(如 `context_assemble.write_context_file` 写 `context/chapter-N-context.md`、`_snapshot_chapter_files` 写 snapshots、`_save_manifest` 写 `snapshots/manifest.json`)
+- `producer: pipeline` —— 由 pipeline 代码生产
 - `producer: external` —— seed 文件(novel.json、era-reference.md、import/source/*、source_canon/*、benchmarks/anchors/)
 
-pipeline 产物必须在 registry 显式登记 `producer: pipeline`,否则闭包校验会把它们的消费者误报为孤儿 read。
+pipeline 产物必须在 registry 显式登记 `producer: pipeline`,否则闭包校验会把它们的消费者误报为孤儿 read。**已知 pipeline 产物清单(I5 — 阶段 0 需核实补全)**:
+
+| pipeline 写入位点 | 产物路径 | 登记值 |
+|---|---|---|
+| `context_assemble.write_context_file` | `context/chapter-N-context.md` | `producer: pipeline` |
+| `chapter_loop._snapshot_chapter_files` | `snapshots/chapter-NNN-*.md`(平文件,带 timestamp) | `producer: pipeline`(D20 决策:登记真实平文件 glob,废弃虚构的 `snapshots/chapter-NNN/` 目录概念) |
+| `chapter_loop._save_manifest` | `snapshots/manifest.json` | `producer: pipeline` |
+| `truth_index` build/rebuild | `truth-index.json` | `producer: pipeline` |
+| `review_checklist` cache | (缓存文件,待阶段 0 确认路径) | 待定 |
+| `triggers` 写 novel.json | novel.json | `producer: pipeline`(与 skill worldbuilding 共产,需明确优先级) |
+
+阶段 0 的 deliverable 之一:跑 `grep -rn "safe_write\|\.write_text" src/shenbi/pipeline/` 产出完整 pipeline writer 清单,交叉验证上表,补全后登记入 truth-files.yaml。**禁止漏登**——任何未登记的 pipeline 产物会让其 consumer 被误报孤儿。
 
 (b) **闭包检查**:新建 `tools/lint_contract_graph.py`:
 
@@ -365,13 +494,16 @@ def find_closure_violations(contracts, registry):
 
 ### 6.2 字段过滤单一化
 
-**现状**:`_extract_h2_sections`(精确)、`check_fields_exist`(精确但非阻塞 WARN)、`lint_contract_fields.py`(normalize,宽松)——三套语义。
+**现状**:`_extract_h2_sections`(精确)、`check_fields_exist`(精确但非阻塞 WARN)、`lint_contract_fields.py`(normalize:lower + 合并空白,宽松)——三套语义。
 
-**设计**:
-- 新建 `src/shenbi/contracts/fields.py:match_field(declared, heading)`,单一匹配函数(精确 `.strip()`,不做 normalize——与运行期 filter 一致)。
+**设计(I3 修正 — CJK 空白归一化策略)**:
+- 新建 `src/shenbi/contracts/fields.py:match_field(declared, heading)`,单一匹配函数。**归一化规则(明确决定)**:`.strip()` + 把所有 Unicode 空白(含 U+3000 全角空格、U+200B 零宽空格)折叠为单个 ASCII 空格,**不做 lower**(保留中文标题大小写语义——truth 文件用中文标题,lower 无意义且可能误伤)。
+- 这比当前 lint 的 normalize **更严**(不 lower),比纯 exact **更宽**(折叠全角/多重空白)——正确处理 CJK 标题里全角 vs 半角空格的视觉等价。
+- 阶段 4 历史债清理必须修正:凡 canonical form 不同的标题(consumer fields 写法 vs truth 文件写法),统一为单一 canonical form。
 - `_filter_to_fields` 从 `dispatch_helper.py` 抽到 `contracts/fields.py`,filter / G1 / lint 全部调用 `match_field` + `filter_to_fields`。
 - lint 升级为 fixture-driven FAIL:拿 producer 的真实最新 fixture 输出跑 `filter_to_fields`,断言每个声明字段命中(非逃生舱 fallback)。
 - 逃生舱(命中 0)语义集中定义:运行期(`filter_to_fields` 在 dispatch 时调用)WARN + 返回全文,不中断 dispatch;CI(`lint_contract_fields.py` 对 fixture 调用)FAIL。两者调用同一个 `filter_to_fields`/`match_field`,只是调用方对"命中 0"的反应不同——filter 函数本身返回 `(filtered_text, matched: bool)`,由调用方决定 WARN 还是 FAIL。
+- **新增金丝雀**:全角空格等价测试(`## 1.　当前任务` vs declared `1. 当前任务` 应匹配)。
 
 ### 6.3 版本兼容性校验
 
@@ -412,23 +544,25 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 - 扫所有 SKILL.md 的 reads/writes,统计孤儿 read。
 - 扫 truth-files.yaml,找 external seed、过宽 glob、需登记的 pipeline 产物。
 - 扫所有结构化文件(decisions/deps/novel 等),找 extra:forbid 会暴露的多余字段。
-- 比对 3 套解析器在所有真实路径上的输出差异,确认含 N 路径腐蚀的真实 case。
+- 比对 4 套解析器在所有真实路径上的输出差异,确认含大写 N 路径腐蚀的真实 case。
 - **逐项复现并固化** D16/D19/D20/D21/D22/D24 六个活 bug(见 §7.5 处理协议),每个写一个能稳定复现"修复前错误行为"的测试,作为修复验证基准。
 
 ### 7.2 阶段 1 — 底座建立
 
 **产出**:
 - `src/shenbi/contracts/schemas/{decisions,registry,deps,novel,progress,summary,scores}.py`
-- `src/shenbi/contracts/paths.py`(`resolve_chapter_path` + `extract_chapter`)
+- `src/shenbi/contracts/paths.py`(`resolve_chapter_path` + `resolve_volume_path` + `extract_chapter` + `resolve_or_skip`)
 - `src/shenbi/paths.py`(`RoundPaths`)
 - `src/shenbi/contracts/fields.py`(`match_field` + `filter_to_fields`)
 - `src/shenbi/contracts/graph.py`(`dag_key`)
 
-**改动(schema-first 立即切换)**:
+**改动(schema-first 立即切换,分类见 §5.1)**:
 - `legacy.load_registry()` 返回 `TruthFilesRegistry` 模型实例;`resolves()` 访问模型属性。
 - g2/g4 的 decisions 校验:删除手写,改 `DecisionsDoc.model_validate`。
-- deps.json 4 处、novel.json 2 处、progress/summary/scores 各处:改 import 对应模型。
-- 清理 `contracts/registry.py` 的 dead `REGISTRY`/`load_skill_contract`、`contracts/skills/*.py` 的 dead stub(仅保留 genre_config/pacing_design)。
+- **producer 受控类(forbid)立即切换**:deps.json 4 处(`DepsDoc`,含 D19 修复的 `prerequisites_for_skill`)、novel.json 2 处、scores.json 各处。
+- **producer 不受控类(ignore)立即建模但不阻断**:progress.json(`ProgressDoc` extra=ignore)、summary.json(`SummaryDoc` extra=ignore)。消费方改 import 模型,模型宽容加载;writer 统一 + 升级 forbid 留 spec 2。
+- D19 修复落地:G3.1 改用 `DepsDoc.prerequisites_for_skill(skill)`(I1 定案)。
+- 清理 `contracts/registry.py` 的 dead `REGISTRY`/`load_skill_contract`、`contracts/skills/*.py` 的 dead stub(仅保留 genre_config/pacing_design)、tracked `.bak` 源文件(M1)。
 
 **验证**:模型单测;`load_registry()` 返回类型变但行为等价;现有 gate 测试全绿。
 
@@ -437,9 +571,10 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 **产出**:dispatcher / pipeline / 所有 gate 改用 RoundPaths + 单一解析器。
 
 **改动(本 spec 最大改动面)**:
-- `dispatcher/executor.py`:删 `_resolve_chapter_path`/`_extract_chapter`;`derive_*` 用 RoundPaths。
+- `dispatcher/executor.py`:删 `_resolve_chapter_path`/`_extract_chapter`;`derive_*` 用 RoundPaths + `resolve_or_skip`(genesis 跳过、chapter 传播,见 §4.1 协议)。
 - `pipeline/dispatch_helper.py`:删 `_resolve_path`/`_filter_to_fields`;读循环用 RoundPaths;`_PROJECT_ROOT` 换 `rp.repo()`。
-- `pipeline/chapter_loop.py`:删 `_substitute_chapter`;改用共享函数。
+- `pipeline/chapter_loop.py`:删 `_substitute_chapter`;改用 `resolve_chapter_path`。
+- **`pipeline/closure.py`:删 `_substitute_volume`;改用 `resolve_volume_path`**(C1 修复)。
 - `gates/g1.py`/`g2.py`/`g5.py`:路径构造用 RoundPaths;`.bak` 用 `rp.backup()`;修 g1.py:65 docstring 漂移。
 - `gates/g4/` 全部 checker(含 10 个硬编码):改用 RoundPaths;删 `resolve_g4_base` 的 CWD fallback。
 - `gates/g4/style_polishing.py`:`.bak` 用 `rp.backup()`,消除内部不一致。
@@ -481,24 +616,13 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 - **字段漂移**:truth 标题改了 → 更新 consumer fields;consumer fields 拼错 → 修正。
 - **结构化文件多余字段**(extra:forbid):合法未登记 → 加模型字段;非法/历史遗留 → 删除。
 - **过宽 glob**:收窄为具体 pattern 或登记 known_files。
-
-**处理协议(每类违规)**:
-- **ORPHAN_READ**:
-  - 拼写错误 → 修正 read 对齐 producer write。
-  - producer 漏写 → 给 producer 补 write 声明。
-  - 合理 seed → truth-files.yaml 标 `producer: external`。
-  - pipeline 产物 → truth-files.yaml 标 `producer: pipeline`。
-  - **禁止**:为消警告删 read 或加假 producer。每项修复说明类别。
-- **字段漂移**:truth 标题改了 → 更新 consumer fields;consumer fields 拼错 → 修正。
-- **结构化文件多余字段**(extra:forbid):合法未登记 → 加模型字段;非法/历史遗留 → 删除。
-- **过宽 glob**:收窄为具体 pattern 或登记 known_files。
 - **已确认活 bug**(审计确认的 6 个,逐项切除 + 金丝雀测试):
   - **D16**(G6.10 死路径):`g6.py:275` 读 `pd/"config"/"style_profile.md"`,producer 写 `style/style_profile.md` → 修正为 `rp.read("style/style_profile.md")`(走 RoundPaths,§4.2 改造后自动正确路径)。**金丝雀**:断言 G6.10 在有 style_profile 时不再 SKIP。
-  - **D19**(G3.1 死键):`g3.py:85` `deps.get(skill_name)` 但 deps.json 无顶层 skill 键 → 修正为先查 `deps["t2-phases"]` 找含该 skill 的 phase,取该 phase 的 prerequisites;或若 T1 prerequisite 确实需要 per-skill,在 `DepsDoc` 模型(§5.2)里定义正确结构后让 G3.1 查对位置。**金丝雀**:断言 G3.1 对有前置依赖的 skill 不再返回空 prereqs。
-  - **D20**(pipeline 产物路径分叉):`snapshots/chapter-NNN/` 契约概念 vs pipeline 写 `snapshots/chapter-{N:03d}-{ts}.md` 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(`producer: pipeline`),让契约图反映现实而非虚构。**金丝雀**:断言 pipeline 产物的 consumer 不被报孤儿。
+  - **D19**(G3.1 死键 — I1 定案):`g3.py:85` `deps.get(skill_name)` 但 deps.json 无顶层 skill 键 → **改用 `DepsDoc.prerequisites_for_skill(skill)`**(§5.3 已定义):从含该 skill 的 phase 派生 prerequisites。删除错误的顶层 skill 键查询。**金丝雀**:断言 G3.1 对 drafting phase 内的 skill 返回非空 prereqs。
+  - **D20**(pipeline 产物路径分叉):`snapshots/chapter-NNN/` 契约概念 vs pipeline 写 `snapshots/chapter-{N:03d}-{ts}.md` 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(`producer: pipeline`),让契约图反映现实而非虚构。**决策(必须定)**:`snapshots/chapter-NNN/` 目录概念是虚构的,登记真实平文件 glob `snapshots/chapter-NNN-*.md` + `snapshots/manifest.json` 为 `producer: pipeline`,删除/废弃旧的目录概念。**金丝雀**:断言 pipeline 产物的 consumer 不被报孤儿。
   - **D21**(truth 模板缺 H2):`_init_truth_templates` 只种 H1,skill 期望 H2 字段 → 从 consumer 声明的 fields 派生 H2 骨架写入模板。**金丝雀**:断言 genesis 首跑时 G1 `check_fields_exist` 对模板文件不 WARN。
-  - **D22**(hook state 大小写):G6.7 不敏感,`_count_triggered_hooks` 仅大写 → 用 `match_field` 同款的集中匹配,或定义 `HookState` 枚举(enum 值 `TRIGGERED`),所有读写引用枚举值。**金丝雀**:断言小写 `triggered` 也被正确识别。
-  - **D24**(registry 无非空断言):`bootstrap_registry` 结构漂移会清空 → `TruthFilesRegistry` 模型(§5.2)加载后断言 `len(concepts) > 0`,加 lint 检查非空。**金丝雀**:断言空 registry 加载失败。
+  - **D22**(hook state 大小写 — I2 修正):`_count_triggered_hooks` 在 **`pipeline/chapter_loop.py:643/659/771`**(不在 g6.py;初版 spec 位置错误),用 `h.get("state") == "TRIGGERED"`(仅大写) → **定义 `HookState` 枚举**(PLANTED/RELEVANT/TRIGGERED/RESOLVED),所有读写引用枚举值;读入时大小写归一化。锚点:`foreshadowing_track.py:30` 已有覆盖这些 state 的正则。**禁止用 `match_field`**(范畴错误:match_field 是 H2 标题匹配,非 YAML 枚举值)。**金丝雀**:断言小写 `triggered` 也被正确识别。
+  - **D24**(registry 无非空断言):`bootstrap_registry` 结构漂移会清空 → `TruthFilesRegistry` 模型(§5.3)加载后 `assert_non_empty` 校验,加 lint 检查非空。**金丝雀**:断言空 registry 加载失败。
 
 **验证**:阶段 3 所有 lint 跑出零 FAIL;D16/D19/D20/D21/D22/D24 六个活 bug 的复现测试在修复后转 PASS(从 FAIL/错误行为翻转为正确行为)。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。
 
@@ -519,12 +643,13 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 
 ### 8.2 金丝雀回归测试(防错配回潮)
 
-1. **错配注入**:测试 fixtures 放一个故意写错 read 路径的 skill,断言 `lint-contracts` FAIL 并报 `ORPHAN_READ: skill=X reads=foo-bar.md no producer`。整个 spec 的防回归哨兵。
-2. **含 N 路径不腐蚀**:`NPC-list.md`、`rules-N-bound.md`、`anti-N` 等路径,断言 `resolve_chapter_path` 不腐蚀。防有人重新引入无界 replace。
-3. **三根分离**:round_dir≠project_dir≠repo_root 的 fixture,断言 G4/gate/dispatcher 行为正确,G2.11 `.bak` diff 不跨根 no-op。
-4. **字段匹配一致性**:对每个有 dict-form reads 的 consumer,拿 producer 真实 fixture 跑 `filter_to_fields`,断言 filter/G1/lint 三处结果一致(用同一 match_field)。
+1. **错配注入**(M3 锁定格式):测试 fixtures 放一个故意写错 read 路径的 skill,断言 `lint-contracts` FAIL 并报**精确格式** `ORPHAN_READ: skill=X reads=foo-bar.md no producer`(pin 全格式,防未来重构悄悄弱化消息)。整个 spec 的防回归哨兵。
+2. **含大写 N 路径不腐蚀**(C2 修正):`import/canon/01_SECTION.md`(含 N mid-token)、`NPC-list.md`、`rules-N-bound.md` 等真实概念路径,断言 `resolve_chapter_path`/`resolve_volume_path` 不腐蚀成 `SECTIO5`/`5PC`。**注意**:小写 n 路径如 `resonance` 是无效测试项(`str.replace("N")` 区分大小写,小写 n 本就不变)。
+3. **三根分离 + .bak 全链**:round_dir≠project_dir≠repo_root 的 fixture,断言 (a) G4/gate/dispatcher 行为正确;(b) G1.4 创建的 `.bak` 与 G2.11 读取的 `.bak` 同根(I4 修复后 BACKUP_SKILLS 已派生覆盖全部 truth-updating skill,故 .bak 确实被创建,diff 不再因"无 .bak"静默 no-op)。
+4. **字段匹配一致性 + 全角空格等价**:对每个有 dict-form reads 的 consumer,拿 producer 真实 fixture 跑 `filter_to_fields`,断言 filter/G1/lint 三处结果一致(用同一 match_field);额外断言全角空格(`## 1.　当前任务` vs declared `1. 当前任务`)匹配成功(I3)。
 5. **D16 G6.10 不再死路径**:有 style_profile 时 G6.10 执行实际检查而非 SKIP。防止有人改回 `config/` 路径。
 6. **D19 G3.1 不再死键**:对有前置依赖的 skill,G3.1 返回非空 prereqs 并实际校验。防止 deps 键结构再次错配。
+7. **跨层 seam(reviewer 建议)**:改 `DecisionsDoc` 的一个字段(如新增必填),断言 g2 AND g4 AND lint_contract_fields 一致地 FAIL——验证 §3 三层栈真 compose,而非各层各测各的。
 
 ### 8.3 测试数据原则
 
@@ -548,5 +673,10 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
 
 本 spec 建立的 RoundPaths / schemas / match_field / dag_key 共享模块是后续 spec 的基础。按"严格逐个 spec"节奏(本 spec 走完 plan→实施→验证后,基于真实反馈再设计下一个):
 
-- **spec 2(gate↔gate 契约治理 + 入口统一)**:基于 RoundPaths 统一 `.bak`;BACKUP_SKILLS 从契约派生(消灭硬编码漏列);PhaseState 单向引用;marker coverage;gate 三套入口(`validate-gate.py`/`python -m`/`uv run`)收敛为单一入口 + hash 锁定。合并为一个 spec 是因为入口统一与 gate↔gate 治理都属"gate 内部一致性"主题。
-  - 本 spec 已切除的 D16/D19/D20/D21/D22/D24 不在此 spec 范围。
+- **spec 2(gate↔gate 深度治理 + 入口统一)**:
+  - PhaseState 单向引用(G7.16 裸字面量 `"finalized"` 改引用 `PhaseState.FINALIZED.value`)。
+  - marker coverage(G7.16 不查"每个 dispatched skill 有 G4 marker"——补全)。
+  - gate 三套入口(`validate-gate.py`/`python -m`/`uv run`)收敛为单一入口 + hash 锁定。
+  - **progress.json/summary.json writer 统一**:本 spec 已建模(`extra: ignore`);spec 2 把 shell heredoc(summary.json)+ 缺失的 `update_progress.py`/`summarize_round.py` 迁到单一 Python writer,文档化 canonical shape,然后升级为 `extra: forbid`。
+  - 合并为一个 spec 是因为入口统一、gate↔gate 治理、writer 统一都属"gate/state 内部一致性"主题。
+  - **本 spec 已处理(不在 spec 2 范围)**:`.bak` 路径构造(RoundPaths)+ BACKUP_SKILLS 派生(§4.5)+ D16/D19/D20/D21/D22/D24 活 bug 切除。
