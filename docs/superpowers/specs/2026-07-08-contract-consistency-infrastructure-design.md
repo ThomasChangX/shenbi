@@ -23,7 +23,7 @@
 | 5. 字段过滤 | 三套匹配语义(filter/G1 精确、lint normalize);逃生舱静默退化;fields_map 查键逻辑不同 | 中 |
 | 6. gate↔gate 隐式契约 | `.bak` 三处裸 fp;BACKUP_SKILLS 硬编码漏列 5 个 truth-updating skill;PhaseState 枚举 vs 裸字面量 | 高 |
 | 7. gate 入口分叉 | 三套入口(`validate-gate.py`/`python -m`/`uv run`),validate-gate.py 未 hash 锁定 | 中 |
-| 8. 已确认活 bug | D16(G6.10 死路径)、D19(G3.1 死键)、D20(pipeline 产物路径分叉)、D21-D22-D24 | 高 |
+| 8. 已确认活 bug | D16(G6.10 死路径)、D19(G3.1 死键)、D20(pipeline 产物路径分叉)、D21-D22-D24、**D26(novel.json target_words vs target_word_count 字段分裂,阶段0新发现)** | 高 |
 
 ### 1.2 本 spec 的边界(分解策略)
 
@@ -45,7 +45,7 @@
 3. **契约图闭环 + Producer Registry**:每个 read 必须有 producer(skill / pipeline / external);pipeline 产物登记;ORPHAN_READ 静态 FAIL。
 4. **Schema 单一源**:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import。**producer 受控类** `extra: forbid`(拼写错误当场暴露);**producer 不受控类**(progress/summary,shell heredoc 写)先 `extra: ignore`,writer 统一后升级 forbid(见 §5.1)。
 5. **字段匹配单一化**:`match_field` 单函数;filter / G1 / lint 统一调用;逃生舱语义集中。
-6. **现存活 bug 切除**:审计确认的 D16/D19/D20/D21/D22/D24 —— 它们是上述五类机制主题的现存实例(路径错配/契约不一致/schema 缺失/字段问题),本 spec 一并根治,不遗留。
+6. **现存活 bug 切除**:审计确认的 D16/D19/D20/D21/D22/D24 + 阶段0新发现的 D26(novel.json 字段分裂)—— 它们是上述五类机制主题的现存实例,本 spec 一并根治,不遗留。
 
 ### 2.2 非目标(明确排除)
 
@@ -302,18 +302,39 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 
+# 阶段 0 调查核实:完整字段清单(来自 tests/unit/gates/test_g4_decisions.py 的真实实例)
+# 注意:Adjustment.severity 不套用 VALID_SEVERITY —— doc 示例用 "medium",
+# 现有 validator 从不校验 adjustment.severity;套用会拒绝 doc 自己的示例。
 class Selection(BaseModel):
     model_config = {"extra": "forbid"}
-    basis: str
-    severity: str = "low"
+    target: str                          # 选择的 truth 文件路径
+    selected: list[str]                  # 被选中的条目 ID
+    basis: Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"]
+    severity: Literal["low", "high"] = "low"
+    omitted: list[str] = []              # 被排除的条目 ID
     rationale: str | None = None
-    # ... 其他字段(阶段 0 从真实 decisions.json fixture 枚举全字段)
+
+    @model_validator(mode="after")
+    def validate_p25_rationale(self):
+        # P2.5(从 _decisions_schema.py 迁入):
+        # - basis in {arc_relevance, volume_scope, adjacent_to_target_chapter} 且 severity=low → rationale FORBIDDEN
+        # - severity=high 或 basis=manual_override → rationale REQUIRED
+        # - rationale ≤ 100 chars
+        ...
+        return self
 
 class Adjustment(BaseModel):
     model_config = {"extra": "forbid"}
-    # adjustments 总是要求 rationale(阶段 0 从 fixture 枚举全字段)
-    rationale: str
-    # ... 其他字段
+    issue_id: str
+    severity: str                        # 不枚举(doc 用 medium;validator 从不校验)
+    handling: Literal["compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"]
+    rationale: str                       # adjustments 总是要求 rationale(≤100 chars)
+
+class Budget(BaseModel):
+    model_config = {"extra": "forbid"}
+    context_tokens_estimate: int
+    limit: int
+    trim_applied: Literal["none", "oldest_first", "lowest_relevance", "manual"]
 
     @model_validator(mode="after")
     def validate_p25_rationale(self):
@@ -327,10 +348,10 @@ class DecisionsDoc(BaseModel):
     model_config = {"extra": "forbid"}
     schema_: str = Field(alias="$schema")
     skill: str
-    chapter: int | str
+    chapter: int                          # 真实实例均为 int
     selections: list[Selection] = []
     adjustments: list[Adjustment] = []
-    budget: dict | None = None
+    budget: Budget | None = None          # 文档定义,真实实例从未出现(保留建模)
     produced_at: str
 
     @field_validator("schema_")
@@ -342,7 +363,7 @@ class DecisionsDoc(BaseModel):
 
 ```python
 # src/shenbi/contracts/schemas/registry.py
-# 注意(M5):truth-files.yaml 实际 kind 值有 15 种(已核实):
+# 注意(M5):truth-files.yaml 实际 kind 值有 16 种(阶段0核实,非15):
 # benchmark/chapter/character/config/context/decisions/import/outline/
 # plan/reference/report/short/snapshot/style/truth/world
 # Literal 必须覆盖全部,否则加载时 reject 一半 registry。
@@ -356,13 +377,25 @@ class RegistryConcept(BaseModel):
     model_config = {"extra": "forbid"}
     name: str
     kind: RegistryKind
-    producer: Literal["skill", "pipeline", "external"] = "skill"  # ← Producer Registry
+    producer: Literal["skill", "pipeline", "external", "shared"] = "skill"  # ← Producer Registry
     glob: str | None = None
 
-class TruthFilesRegistry(BaseModel):
+class RegistryPattern(BaseModel):
     model_config = {"extra": "forbid"}
-    version: int = 1  # ← 版本字段,默认 1,新版拒绝
+    parametric: str
+    glob: str
+
+class RegistryGlob(BaseModel):
+    model_config = {"extra": "forbid"}
+    pattern: str
+
+class TruthFilesRegistry(BaseModel):
+    model_config = {"extra": "forbid", "populate_by_name": True}
+    # 阶段0核实:真实文件无 version 字段。Optional,默认 1;新版必须显式声明。
+    version: int = 1
     concepts: list[RegistryConcept]
+    patterns: list[RegistryPattern] = []    # 阶段0核实:legacy.resolves() 读此键,必须建模
+    globs: list[RegistryGlob] = []          # 阶段0核实:legacy.resolves() 读此键,必须建模
 
     @field_validator("version")
     def check_supported(cls, v):
@@ -395,10 +428,11 @@ class TruthFilesRegistry(BaseModel):
 #   - 带前导下划线的键(_calibration_hashes)必须用 alias,否则变 private attr
 #   - populate_by_name=True 允许两种键名加载
 class PhaseDeps(BaseModel):
-    model_config = {"extra": "forbid"}
+    model_config = {"extra": "forbid", "populate_by_name": True}
     prerequisites: list[str] = []          # phase 的 skill 成员花名册(非 per-skill 前置!)
     expected_outputs: list[str] = []       # sync_contracts 重新生成
     g4_checker: str | None = None          # 该 phase 的 G4 checker 名(g4/dispatch 读)
+    g4_note: str | None = Field(default=None, alias="_g4_note")  # 阶段0核实:5个phase有此字段
 
 class PipelineDeps(BaseModel):
     model_config = {"extra": "forbid"}
@@ -662,6 +696,7 @@ CI(`.github/workflows/ci.yml`)里 `just check` 自动包含新目标。PR 触碰
   - **D21**(truth 模板缺 H2):`_init_truth_templates` 只种 H1,skill 期望 H2 字段 → 从 consumer 声明的 fields 派生 H2 骨架写入模板。**金丝雀**:断言 genesis 首跑时 G1 `check_fields_exist` 对模板文件不 WARN。
   - **D22**(hook state 大小写 — I2 修正,第二轮 review 补全):`_count_triggered_hooks` 在 **`pipeline/chapter_loop.py:643/659/771`**(不在 g6.py;初版 spec 位置错误),用 `h.get("state") == "TRIGGERED"`(仅大写) → **定义 `HookState` 枚举**。第二轮 review 核实 `foreshadowing-track/SKILL.md` 引用 **6 个生命周期值**:PLANTED/RELEVANT/TRIGGERED/RESOLVED/**ARCHIVED**/**EXPIRED**(初版只列 4 个,会拒绝合法的 ARCHIVED/EXPIRED hook)。枚举须覆盖全部 6 个;读入时大小写归一化 + 映射非规范拼写(如 `TRIGGER`→`TRIGGERED`,见 SKILL.md:87)。锚点:`foreshadowing_track.py:30` 已有覆盖这些 state 的正则。**禁止用 `match_field`**(范畴错误:match_field 是 H2 标题匹配,非 YAML 枚举值)。**金丝雀**:(a) 小写 `triggered` 被正确识别;(b) `state: EXPIRED` 的 hook 加载成功且**不**被计入 TRIGGERED。
   - **D24**(registry 无非空断言):`bootstrap_registry` 结构漂移会清空 → `TruthFilesRegistry` 模型(§5.3)加载后 `assert_non_empty` 校验,加 lint 检查非空。**金丝雀**:断言空 registry 加载失败。
+  - **D26**(novel.json 字段名分裂 — 阶段0新发现):producer(`seed_parser.py`/`cli.py`/`triggers.py`)写 `target_word_count`,但 `g6.py:45` 读 `target_words`;fixture 又有第三套字段。**决策**:统一为 `target_word_count`(producer 是权威),修 `g6.py` 读取 + fixture 同步。**金丝雀**:`NovelConfig` 加载 producer 输出与 fixture 均成功;g6 读到正确值。
 
 **验证**:阶段 3 所有 lint 跑出零 FAIL;D16/D19/D20/D21/D22/D24 六个活 bug 的复现测试在修复后转 PASS(从 FAIL/错误行为翻转为正确行为)。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。
 
