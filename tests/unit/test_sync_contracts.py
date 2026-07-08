@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
+from shenbi.contracts.graph import normalize_to_glob
 from shenbi.sync_contracts import (
     build_dag,
     derive_expected_outputs,
-    normalize_to_glob,
     verify_bijection,
 )
 

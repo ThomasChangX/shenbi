@@ -13,9 +13,10 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from shenbi.contracts.graph import dag_key
 from shenbi.contracts.legacy import ContractError, load_contract, load_registry
 from shenbi.gates.shared import ALL_SKILLS
-from shenbi.sync_contracts import build_dag, dag_key, load_all_contracts
+from shenbi.sync_contracts import build_dag, load_all_contracts
 
 META_SKILLS = {"using-shenbi", "shenbi-writing-skills"}
 
