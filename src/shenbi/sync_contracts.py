@@ -17,6 +17,7 @@ from typing import Any
 
 from shenbi.contracts import ContractError, load_contract, load_registry
 from shenbi.contracts.graph import dag_key, normalize_to_glob
+from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from shenbi.safe_write import safe_write
 from shenbi.gates.shared import ALL_SKILLS, PROJECT, SKILLS
 from shenbi.logging import get_logger
@@ -47,7 +48,7 @@ def load_all_contracts() -> dict[str, dict[str, Any]]:
     return out
 
 
-def build_dag(contracts: dict[str, dict[str, Any]], registry: dict[str, Any]) -> dict[str, Any]:
+def build_dag(contracts: dict[str, dict[str, Any]], registry: TruthFilesRegistry) -> dict[str, Any]:
     """Skill B reads file X that skill A writes/updates => A -> B.
 
     Matching is glob-aware (via dag_key) so a concrete producer write and a glob
@@ -73,7 +74,7 @@ def build_dag(contracts: dict[str, dict[str, Any]], registry: dict[str, Any]) ->
 
 
 def derive_expected_outputs(
-    phase: dict[str, Any], contracts: dict[str, dict[str, Any]], registry: dict[str, Any]
+    phase: dict[str, Any], contracts: dict[str, dict[str, Any]], registry: TruthFilesRegistry
 ) -> list[str]:
     """Derive a phase's expected_outputs from member writes/updates.
 
@@ -95,7 +96,7 @@ def verify_bijection(
     generated: list[str],
     phase: dict[str, Any],
     contracts: dict[str, dict[str, Any]],
-    registry: dict[str, Any],
+    registry: TruthFilesRegistry,
 ) -> None:
     """Consistency guard (spec §5.4): ``generated`` must equal the normalized
     writes+updates of the phase's members.

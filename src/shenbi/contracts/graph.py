@@ -3,15 +3,21 @@
 Extracted from sync_contracts.py so that G5.2 (runtime WARN), lint_contract_graph
 (CI FAIL), and sync_contracts (DAG generation) all use IDENTICAL matching
 semantics by importing from one place.
+
+These functions take the typed ``TruthFilesRegistry`` model (Task 10) and read
+its attributes (``registry.patterns`` / ``registry.globs``) rather than dict
+access — typed, self-documenting, and consistent with ``load_registry``'s model
+return type.
 """
 
 from __future__ import annotations
 
 import fnmatch
-from typing import Any
+
+from shenbi.contracts.schemas.registry import TruthFilesRegistry
 
 
-def normalize_to_glob(path: str, registry: dict[str, Any]) -> str:
+def normalize_to_glob(path: str, registry: TruthFilesRegistry) -> str:
     """Parametric -> its declared glob; a path matching a declared glob resolves
     to that glob; other globs/concrete pass through.
 
@@ -24,16 +30,16 @@ def normalize_to_glob(path: str, registry: dict[str, Any]) -> str:
     Patterns are tried first so a specific parametric glob wins over a broad
     declared glob.
     """
-    for p in registry.get("patterns", []):
-        if p["parametric"] == path:
-            return str(p["glob"])
-    for g in registry.get("globs", []):
-        if fnmatch.fnmatch(path, g["pattern"]):
-            return str(g["pattern"])
+    for p in registry.patterns:
+        if p.parametric == path:
+            return str(p.glob)
+    for g in registry.globs:
+        if fnmatch.fnmatch(path, g.pattern):
+            return str(g.pattern)
     return path
 
 
-def dag_key(path: str, registry: dict[str, Any]) -> str:
+def dag_key(path: str, registry: TruthFilesRegistry) -> str:
     """Canonical matching key for a path in the DAG.
 
     A concrete write (audits/chapter-N-anti-ai.md) and a glob read
@@ -47,7 +53,7 @@ def dag_key(path: str, registry: dict[str, Any]) -> str:
     scrutinizes REPORT producers, which carry specific audit writes — but it
     adds noise for future impact analysis.
     """
-    for g in registry.get("globs", []):
-        if fnmatch.fnmatch(path, g["pattern"]):
-            return str(g["pattern"])
+    for g in registry.globs:
+        if fnmatch.fnmatch(path, g.pattern):
+            return str(g.pattern)
     return normalize_to_glob(path, registry)

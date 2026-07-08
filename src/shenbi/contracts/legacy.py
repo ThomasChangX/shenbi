@@ -23,6 +23,7 @@ from typing import Any, TypedDict
 
 import yaml
 
+from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from shenbi.exceptions import FrameworkError
 from shenbi.gates.shared import PROJECT, SKILLS
 
@@ -69,8 +70,15 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
     raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
 
 
-def load_registry() -> dict[str, Any]:
-    """Load and return the canonical file registry as a dict."""
+def load_registry() -> TruthFilesRegistry:
+    """Load and return the canonical file registry as a typed model.
+
+    The single source of truth for the project file vocabulary: the YAML is
+    parsed once and validated into a ``TruthFilesRegistry`` pydantic model, so a
+    malformed concept/glob/pattern surfaces as a ``ValidationError`` at load
+    rather than a silent synonym later. Consumers read model attributes
+    (``registry.concepts``, ``registry.patterns``, ``registry.globs``).
+    """
     if not REGISTRY_PATH.exists():
         raise ContractError("registry missing", registry=str(REGISTRY_PATH))
     try:
@@ -79,20 +87,23 @@ def load_registry() -> dict[str, Any]:
         raise ContractError("registry malformed YAML", registry=str(REGISTRY_PATH)) from e
     if not isinstance(data, dict):
         raise ContractError("registry malformed", registry=str(REGISTRY_PATH))
-    return data
+    try:
+        return TruthFilesRegistry.model_validate(data)
+    except ValueError as e:
+        raise ContractError("registry schema invalid", registry=str(REGISTRY_PATH)) from e
 
 
-def resolves(path: str, registry: dict[str, Any]) -> bool:
+def resolves(path: str, registry: TruthFilesRegistry) -> bool:
     """True if path is a concept, a declared glob, or a registered parametric."""
-    concepts = {c["name"] for c in registry.get("concepts", [])}
+    concepts = {c.name for c in registry.concepts}
     if path in concepts:
         return True
-    globs = [g["pattern"] for g in registry.get("globs", [])]
+    globs = [g.pattern for g in registry.globs]
     if any(fnmatch.fnmatch(path, g) for g in globs):
         return True
     # parametric: a contract may declare a parametric pattern (e.g. chapters/chapter-N.md);
     # it resolves if the registry has that parametric (lookup, not inference).
-    parametrics = {p["parametric"] for p in registry.get("patterns", [])}
+    parametrics = {p.parametric for p in registry.patterns}
     return path in parametrics
 
 
@@ -115,7 +126,7 @@ def _read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
     return contract
 
 
-def _validate(raw: dict[str, Any], skill: str, registry: dict[str, Any]) -> Contract:
+def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> Contract:
     if "kind" not in raw:
         raise ContractError("contract.kind missing", skill=skill)
     try:

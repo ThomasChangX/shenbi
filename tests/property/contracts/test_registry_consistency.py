@@ -25,7 +25,7 @@ def test_three_registry_sources_agree() -> None:
     全 69 技能契约迁移锁定（判据 8）是支柱一续 + 支柱二的范围。
     """
     src = _yaml_concept_names()
-    lr = {c["name"] for c in load_registry().get("concepts", [])}
+    lr = {c.name for c in load_registry().concepts}
     br = set(bootstrap_registry().keys())
     assert src == lr == br
     assert len(src) > 0

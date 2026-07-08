@@ -10,12 +10,15 @@ from __future__ import annotations
 import pytest
 
 from shenbi.contracts.graph import dag_key, normalize_to_glob
+from shenbi.contracts.schemas.registry import TruthFilesRegistry
 
-REGISTRY = {
-    "concepts": [{"name": "truth/current_state.md", "kind": "truth"}],
-    "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
-    "globs": [{"pattern": "truth/*.md"}, {"pattern": "chapters/chapter-*.md"}],
-}
+REGISTRY = TruthFilesRegistry.model_validate(
+    {
+        "concepts": [{"name": "truth/current_state.md", "kind": "truth"}],
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [{"pattern": "truth/*.md"}, {"pattern": "chapters/chapter-*.md"}],
+    }
+)
 
 
 @pytest.mark.unit

@@ -122,13 +122,16 @@ def test_load_registry_still_returns_truth_files_vocab() -> None:
     """Transition period: load_registry still contains truth-files.yaml concepts.
 
     v2 C2: iterate reg['concepts'] names, not top-level keys.
+    Task 10: load_registry now returns a TruthFilesRegistry model; concepts are
+    accessed as model attributes (``reg.concepts`` / ``c.name``).
     """
     from shenbi.contracts import load_registry
+    from shenbi.contracts.schemas.registry import TruthFilesRegistry
 
     reg = load_registry()
-    assert isinstance(reg, dict)
-    concepts = reg.get("concepts", [])
-    assert any("pending_hooks" in c.get("name", "") for c in concepts)
+    assert isinstance(reg, TruthFilesRegistry)
+    concepts = reg.concepts
+    assert any("pending_hooks" in c.name for c in concepts)
 
 
 def test_contracts_registry_coexists_with_contract_py() -> None:
