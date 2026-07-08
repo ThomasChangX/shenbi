@@ -387,3 +387,82 @@ def test_g211_truth_file_unchanged_passes(tmp_path: Path) -> None:
     g211 = next((c for c in result["checks"] if c.get("id") == "G2.11"), None)
     assert g211 is not None
     assert g211["s"] == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# G2.dec.* — decisions.json validation branch (M4)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+class TestG2DecisionsBranch:
+    """G2.dec.* — decisions.json validation (M4)."""
+
+    def test_valid_decisions_json_passes(self, tmp_path: Path) -> None:
+        decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [],
+        }
+        fp = tmp_path / "context" / "chapter-5-context-decisions.json"
+        fp.parent.mkdir(parents=True)
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = gate_G2(str(fp), file_type="decisions", round_dir=str(tmp_path))
+        data = _result_dict(result)
+        assert data["status"] == "PASS"
+
+    def test_invalid_json_fails_g2_dec_1(self, tmp_path: Path) -> None:
+        fp = tmp_path / "chapter-5-decisions.json"
+        fp.write_text("{not valid json", encoding="utf-8")
+        result = gate_G2(str(fp), file_type="decisions", round_dir=str(tmp_path))
+        data = _result_dict(result)
+        assert data["status"] == "FAIL"
+        assert any("G2.dec.1" in mf for mf in data.get("must_fix", []))
+
+    def test_wrong_schema_version_fails_g2_dec_2(self, tmp_path: Path) -> None:
+        decisions = {
+            "$schema": "wrong-version",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [],
+        }
+        fp = tmp_path / "chapter-5-decisions.json"
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = gate_G2(str(fp), file_type="decisions", round_dir=str(tmp_path))
+        data = _result_dict(result)
+        assert data["status"] == "FAIL"
+        assert any("G2.dec.2" in mf for mf in data.get("must_fix", []))
+
+    def test_missing_required_keys_fails_g2_dec_3(self, tmp_path: Path) -> None:
+        decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            # missing: chapter, produced_at, selections
+        }
+        fp = tmp_path / "chapter-5-decisions.json"
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = gate_G2(str(fp), file_type="decisions", round_dir=str(tmp_path))
+        data = _result_dict(result)
+        assert data["status"] == "FAIL"
+        assert any("G2.dec.3" in mf for mf in data.get("must_fix", []))
+
+    def test_decisions_does_not_trigger_word_count(self, tmp_path: Path) -> None:
+        """Critical: G2.6/G2.7 word count must NOT run on decisions files."""
+        decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [],
+        }
+        fp = tmp_path / "chapter-5-decisions.json"
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = gate_G2(str(fp), file_type="decisions", round_dir=str(tmp_path))
+        data = _result_dict(result)
+        # G2.6/G2.7 should NOT appear in checks
+        check_ids = [c.get("id", "") for c in data.get("checks", [])]
+        assert not any(c == "G2.6" for c in check_ids)
+        assert not any(c == "G2.7" for c in check_ids)
