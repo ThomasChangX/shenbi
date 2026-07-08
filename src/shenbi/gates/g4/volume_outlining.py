@@ -3,12 +3,14 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_volume_outlining(
@@ -22,9 +24,13 @@ def g4_volume_outlining(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    vm = pd / "outline" / "volume_map.md"
+    vm = rp.read("outline/volume_map.md")
     if not vm.exists():
         mf.append("G4.vo.not_found")
     else:

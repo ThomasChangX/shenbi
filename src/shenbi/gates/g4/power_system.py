@@ -3,12 +3,14 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_power_system(
@@ -22,9 +24,13 @@ def g4_power_system(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    ps = pd / "world" / "power_system.md"
+    ps = rp.read("world/power_system.md")
     if not ps.exists():
         mf.append("G4.ps.not_found")
     else:
