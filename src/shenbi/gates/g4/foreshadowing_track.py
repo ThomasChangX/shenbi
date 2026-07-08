@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_foreshadowing_track(fps: list[str], rd: str | None = None) -> str:
+def g4_foreshadowing_track(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Foreshadowing track: >= 1 hook state change or last_reinforced update,
     chapter refs, core_hook silence <= max_gap.
     """

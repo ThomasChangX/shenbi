@@ -12,7 +12,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_story_architecture(fps: list[str], rd: str | None = None) -> str:
+def g4_story_architecture(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Story architecture: story_frame frontmatter conflicts, volume_map Objective+KR."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

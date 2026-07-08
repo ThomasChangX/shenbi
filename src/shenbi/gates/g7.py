@@ -14,6 +14,7 @@ from typing import Any
 
 from shenbi.gates.shared import (
     ALL_SKILLS,
+    PROJECT,
     fail,
     jload,
     passed,
@@ -139,7 +140,16 @@ def gate_G7(round_dir: str) -> str:
                 if gate_id == "G4":
                     from shenbi.gates.g4 import gate_G4
 
-                    rerun = json.loads(gate_G4(target, test_type or "", files_checked, str(rd)))
+                    rerun = json.loads(
+                        gate_G4(
+                            target,
+                            test_type or "",
+                            files_checked,
+                            str(rd),
+                            project_dir=str(rd / "project-output"),
+                            repo_root=str(PROJECT),
+                        )
+                    )
                     if rerun.get("status") == "FAIL":
                         mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
                 elif gate_id == "G6":

@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_power_system(fps: list[str], rd: str | None = None) -> str:
+def g4_power_system(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Power system: level table (>=5 rows), advancement rules, ability boundaries,
     cost mechanism, power ceiling, cross-level combat reference.
     """

@@ -8,7 +8,12 @@ from pathlib import Path
 from shenbi.gates.shared import fail, passed
 
 
-def g4_book_spine_init(fps: list[str], rd: str | None = None) -> str:
+def g4_book_spine_init(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Validate book_spine.md has required frontmatter fields + sections."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

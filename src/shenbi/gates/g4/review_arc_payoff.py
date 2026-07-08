@@ -32,7 +32,12 @@ _VERDICTS = ("放行", "阻断")
 _FORESHADOW_FLOOR_RE = re.compile(r"伏笔兑现质量.{0,30}?15", re.DOTALL)
 
 
-def g4_review_arc_payoff(fps: list[str], rd: str | None = None) -> str:
+def g4_review_arc_payoff(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """review-arc-payoff: 5-dim 评分明细 table, 门判定 verdict,
     伏笔兑现质量 ≥15 sub-floor, and file+line evidence.
     """

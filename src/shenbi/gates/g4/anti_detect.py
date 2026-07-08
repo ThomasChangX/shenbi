@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_anti_detect(fps: list[str], rd: str | None = None) -> str:
+def g4_anti_detect(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Anti-detect: 改写报告 block present, applied techniques listed."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

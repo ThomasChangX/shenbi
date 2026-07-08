@@ -74,7 +74,16 @@ def gate_G6(
             try:
                 from shenbi.gates.g4 import gate_G4
 
-                g4r = json.loads(gate_G4("shenbi-chapter-drafting", "generative", [str(ch)]))
+                g4r = json.loads(
+                    gate_G4(
+                        "shenbi-chapter-drafting",
+                        "generative",
+                        [str(ch)],
+                        str(pd),
+                        project_dir=str(pd),
+                        repo_root=str(PROJECT),
+                    )
+                )
                 if g4r.get("status") == "FAIL":
                     mf.append(f"G6.3:{ch.name}")
             except Exception as e:

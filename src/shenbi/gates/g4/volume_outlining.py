@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_volume_outlining(fps: list[str], rd: str | None = None) -> str:
+def g4_volume_outlining(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Volume outlining: Objective (binary), 3-5 KRs, tension curve,
     >= 1 cross-volume bridge hook.
     """

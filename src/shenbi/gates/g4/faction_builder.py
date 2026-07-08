@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_faction_builder(fps: list[str], rd: str | None = None) -> str:
+def g4_faction_builder(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Faction builder: >= 2 factions each with hierarchy, internal conflicts,
     cross-faction relations, interest-driven behavior.
     """

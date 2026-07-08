@@ -9,7 +9,12 @@ from pathlib import Path
 from shenbi.gates.shared import fail, passed
 
 
-def g4_score_arc(fps: list[str], rd: str | None = None) -> str:
+def g4_score_arc(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Validate shenbi-score-arc output has Route C + Route A sections."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

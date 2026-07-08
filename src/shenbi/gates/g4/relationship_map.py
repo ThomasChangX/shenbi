@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
+def g4_relationship_map(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Relationship map: >= 3 pairs, each with interest foundation, info boundary enum,
     evolution trajectory.
     """

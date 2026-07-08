@@ -274,7 +274,13 @@ def gate_G5(
                             try:
                                 from shenbi.gates.g4 import gate_G4
 
-                                g4_raw = gate_G4(pr, "generative", [str(fp)])
+                                g4_raw = gate_G4(
+                                    pr,
+                                    "generative",
+                                    [str(fp)],
+                                    project_dir=str(project_dir),
+                                    repo_root=str(PROJECT),
+                                )
                                 g4_data = json.loads(g4_raw)
                                 if g4_data.get("status") == "FAIL":
                                     mf.append(f"G5.5:{fp.name}:G4_fail:{pr}")

@@ -9,7 +9,12 @@ from pathlib import Path
 from shenbi.gates.shared import fail, passed
 
 
-def g4_escalation_review(fps: list[str], rd: str | None = None) -> str:
+def g4_escalation_review(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Validate escalation review report has trigger + context + options."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

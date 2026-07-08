@@ -37,7 +37,12 @@ def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     return hashes
 
 
-def g4_chapter_drafting(fps: list[str], rd: str | None = None) -> str:
+def g4_chapter_drafting(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Chapter-drafting: PRE/POST check blocks, transition density,
     fatigue words, meta-narrative, word count.
     """

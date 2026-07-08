@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_chapter_planning(fps: list[str], rd: str | None = None) -> str:
+def g4_chapter_planning(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Chapter planning: 8 numbered sections (## 1. to ## 8.), golden-3 rules,
     section 4 has 关键抉择, section 5 has hook operation names.
     """

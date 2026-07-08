@@ -53,7 +53,12 @@ def _section_body(content: str, title_prefix: str) -> str:
     return "\n".join(body).strip()
 
 
-def g4_context_composing(fps: list[str], rd: str | None = None) -> str:
+def g4_context_composing(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Context composing: layer-based P1-P7 section titles present (P1+P2 non-empty)."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []

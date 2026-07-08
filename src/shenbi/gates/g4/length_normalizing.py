@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_length_normalizing(fps: list[str], rd: str | None = None) -> str:
+def g4_length_normalizing(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Length normalizing: checks per new SKILL.md thresholds.
     - 3000-10000 range: report only, no chapter body → skip word count check
     - <3000 expansion: chapter body ≥ 3000 words

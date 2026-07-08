@@ -22,7 +22,12 @@ from shenbi.gates.shared import fail, passed
 from shenbi.status import GateStatus
 
 
-def g4_decisions(fps: list[str], rd: str | None = None) -> str:
+def g4_decisions(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules.
 
     Only processes *.json files — non-JSON files (e.g., the main .md artifact
@@ -75,9 +80,10 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-decisions", c)
 
 
-# Type alias for G4 checker functions: (file_paths, round_dir) -> JSON result string.
+# Type alias for G4 checker functions:
+# (file_paths, round_dir, project_dir, repo_root) -> JSON result string.
 # Required for basedpyright to accept the checker dict values in generic.py.
-G4CheckerFn = Callable[[list[str], str | None], str]
+G4CheckerFn = Callable[[list[str], str | None, str | None, str | None], str]
 
 
 def make_composite_checker(
@@ -89,7 +95,12 @@ def make_composite_checker(
     Both checkers always run (even if the first fails) to collect all failures.
     """
 
-    def composite(fps: list[str], rd: str | None = None) -> str:
+    def composite(
+        fps: list[str],
+        rd: str | None = None,
+        project_dir: str | None = None,
+        repo_root: str | None = None,
+    ) -> str:
         # Partition by extension: structural checkers parse markdown and have NO
         # .json guard, so feeding them a .json file fails (no expected sections
         # in JSON). The decisions checker already skips non-.json. Route each
@@ -99,8 +110,8 @@ def make_composite_checker(
         json_files = [fp for fp in fps if fp.endswith(".json")]
         other_files = [fp for fp in fps if not fp.endswith((".md", ".json"))]
 
-        existing_result = existing_checker(md_files + other_files, rd)
-        decisions_result = decisions_checker(json_files + other_files, rd)
+        existing_result = existing_checker(md_files + other_files, rd, project_dir, repo_root)
+        decisions_result = decisions_checker(json_files + other_files, rd, project_dir, repo_root)
 
         # Parse both results and aggregate.
         # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.

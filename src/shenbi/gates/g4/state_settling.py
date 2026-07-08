@@ -11,7 +11,12 @@ from shenbi.gates.shared import (
 )
 
 
-def g4_state_settling(fps: list[str], rd: str | None = None) -> str:
+def g4_state_settling(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """State settling: current_state has position, char_matrix has characters, summaries appended, emotional arcs."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
