@@ -6,10 +6,10 @@
 # contract strings (the generator looks up a parametric's declared glob).
 
 concepts:
-  # project config
-  - {name: novel.json, kind: config}
-  - {name: genre-config.json, kind: config}
-  - {name: era-reference.md, kind: reference}        # author-supplied (read-only)
+  # project config (shared: worldbuilding skill + pipeline cli both write)
+  - {name: novel.json, kind: config, producer: shared}
+  - {name: genre-config.json, kind: config, producer: shared}
+  - {name: era-reference.md, kind: reference, producer: external}  # author-supplied (read-only)
   # world
   - {name: world/story_bible.md, kind: world}
   - {name: world/rules.md, kind: world}
@@ -49,7 +49,7 @@ concepts:
   # plans / chapters / context
   - {name: plans/chapter-N-plan.md, kind: plan}      # parametric: N
   - {name: chapters/chapter-N.md, kind: chapter}     # parametric: N
-  - {name: context/chapter-N-context.md, kind: context}
+  - {name: context/chapter-N-context.md, kind: context, producer: pipeline}
   - {name: context/chapter-N-context-decisions.json, kind: decisions}  # NEW: decisions sidecar
   - {name: chapters/chapter-N-decisions.json, kind: decisions}          # NEW: decisions sidecar
   - {name: chapters/chapter-N-revision-decisions.json, kind: decisions}  # revision decisions
@@ -65,18 +65,33 @@ concepts:
   - {name: audits/volume-N-score.md, kind: report}  # parametric: N (Wave 3)
   - {name: audits/stratum-N-score.md, kind: report}  # parametric: N (Wave 3)
   - {name: audits/escalation-N-report.md, kind: report}  # parametric: N
+  # chapter_loop consolidate (pipeline):
+  - {name: audits/chapter-N-review-summary.md, kind: report, producer: pipeline}
   # foundation / snapshots / import / short
   - {name: foundation/review_report.md, kind: report}
-  - {name: snapshots/chapter-NNN/manifest.json, kind: snapshot}
+  # D20: pipeline writes timestamped flatfiles snapshots/chapter-NNN-*.md
+  # (chapter_loop._snapshot_chapter_files); the fictional snapshots/chapter-NNN/
+  # directory concept is deprecated. Register the real flatfile.
+  - {name: snapshots/chapter-NNN-*.md, kind: snapshot, producer: pipeline}
+  # pipeline-written files (no skill producer):
+  - {name: snapshots/manifest.json, kind: snapshot, producer: pipeline}
+  - {name: truth-index.json, kind: truth, producer: pipeline}
+  - {name: pipeline-state.json, kind: config, producer: pipeline}
+  - {name: genesis-context/*.md, kind: context, producer: pipeline}
+  - {name: truth-embeddings.db, kind: truth, producer: pipeline}
+  - {name: context/review-checklist-N.json, kind: context, producer: pipeline}
   - {name: import/analysis/01_overview.md, kind: import}
   - {name: import/canon/01_SECTION.md, kind: import}
   - {name: import/packaging/package.md, kind: import}
+  # external seeds (author-supplied, read-only):
+  - {name: import/source/*.txt, kind: import, producer: external}
+  - {name: source_canon/*, kind: import, producer: external}
   - {name: short/outline.md, kind: short}
   - {name: short/package.md, kind: short}
   - {name: short/short-N-decisions.json, kind: decisions}  # short-drafting decisions
   # benchmarks (Wave 3: scoring anchor library, spec §4.3)
-  - {name: benchmarks/anchors/, kind: benchmark}            # anchor library dir (read)
-  - {name: benchmarks/anchors/AC-NNN.md, kind: benchmark}   # parametric: NNN
+  - {name: benchmarks/anchors/, kind: benchmark, producer: external}
+  - {name: benchmarks/anchors/AC-NNN.md, kind: benchmark}                   # parametric: NNN
 
 patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - {parametric: plans/chapter-N-plan.md, glob: plans/chapter-*-plan.md}
@@ -88,7 +103,9 @@ patterns:  # parametric -> glob (the generator's normalization is a lookup)
   - parametric: chapters/chapter-N-revision-decisions.json
     glob: chapters/chapter-*-revision-decisions.json
   - {parametric: plans/chapter-N-plan-decisions.json, glob: plans/chapter-*-plan-decisions.json}
-  - {parametric: snapshots/chapter-NNN/manifest.json, glob: snapshots/chapter-*/manifest.json}
+  # D20: snapshots/chapter-NNN/manifest.json parametric removed (fictional directory
+  # concept deprecated). The real flatfile snapshots/chapter-NNN-*.md is a literal
+  # glob concept (no parametric entry needed).
   - {parametric: audits/chapter-N-<dim>.md, glob: audits/chapter-*.md}
   - {parametric: audits/volume-N-payoff.md, glob: audits/volume-*.md}
   - {parametric: audits/arc-N-score.md, glob: audits/arc-*-score.md}
@@ -116,6 +133,7 @@ globs:  # declared wildcards contracts may use verbatim
   - {pattern: audits/chapter-*.md}
   - {pattern: audits/volume-*.md}
   - {pattern: snapshots/chapter-*/*}
+  - {pattern: snapshots/chapter-*-*.md}  # D20: real flatfile glob
   - {pattern: snapshots/*.json}
   - {pattern: import/analysis/*.md}
   - {pattern: import/canon/*.md}
