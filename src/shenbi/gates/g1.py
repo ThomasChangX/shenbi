@@ -8,12 +8,16 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+import fnmatch
 import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.legacy import load_contract, load_registry
 from shenbi.gates.shared import (
+    SKILLS,
+    bak_path,
     normalize_file_paths,
     fail,
     jload,
@@ -23,19 +27,43 @@ from shenbi.gates.shared import (
 from shenbi.safe_write import safe_write
 
 
-BACKUP_SKILLS: frozenset[str] = frozenset(
-    {
-        "shenbi-faction-builder",
-        "shenbi-location-builder",
-        "shenbi-relationship-map",
-        "shenbi-volume-outlining",
-        "shenbi-power-system",
-        "shenbi-foreshadowing-track",
-        "shenbi-truth-sync",
-        "shenbi-state-settling",
-        "shenbi-genre-config",
-    }
-)
+def derive_backup_skills() -> frozenset[str]:
+    """Auto-derive skills needing a ``.bak``: ``updates:`` intersects truth-kind concepts.
+
+    Replaces the former hardcoded frozenset of 9, which silently missed
+    several truth-updaters (e.g. review-resonance, memory-distill) and
+    caused G2.11's truth-diff to no-op for them. The derived set covers
+    every skill whose contract ``updates`` a truth-kind concept (matched
+    verbatim or via a declared registry glob like ``truth/*.md``), so a new
+    truth-updater is covered automatically with no gate edit.
+
+    Non-truth updaters (world/, outline/, config files) are excluded: their
+    ``.bak`` files were never read by G2.11 (which only fires for
+    ``file_type == "truth"``), so backing them up was dead work.
+    """
+    reg = load_registry()
+    truth_names = {c.name for c in reg.concepts if c.kind == "truth"}
+    result: set[str] = set()
+    for skill_dir in SKILLS.iterdir():
+        if not (skill_dir / "SKILL.md").exists():
+            continue
+        skill = skill_dir.name
+        try:
+            c = load_contract(skill)
+        except Exception:
+            # Skills without a contract block (e.g. writing-skills) cannot
+            # be truth-updaters; skip them rather than aborting import.
+            continue
+        for f in c.get("updates", []):
+            if any(f == t or fnmatch.fnmatch(f, t) for t in truth_names):
+                result.add(skill)
+                break
+    return frozenset(result)
+
+
+BACKUP_SKILLS: frozenset[str] = (
+    derive_backup_skills()
+)  # computed at import; covers all truth-updaters
 
 
 def compute_backup_targets(
@@ -50,7 +78,7 @@ def compute_backup_targets(
     """
     if not skill_name or skill_name not in BACKUP_SKILLS or not round_dir:
         return []
-    return [(fp, str(fp) + ".bak") for fp in file_paths]
+    return [(fp, bak_path(fp)) for fp in file_paths]
 
 
 def check_fields_exist(
@@ -62,10 +90,11 @@ def check_fields_exist(
     field-name drift warnings before the LLM sees filtered content.
     Non-blocking — returns warning strings only.
 
-    Markdown files: declared field names are matched against H2 headings
-    (``## Foo Bar`` -> ``foo_bar``). JSON files: matched against top-level
-    keys of an object. Files not present on disk, or of other extensions,
-    are skipped silently (existence is G1.1's concern).
+    Markdown files: declared field names are matched against the literal
+    text of ``## H2`` headings (e.g. ``## Foo Bar`` is matched as
+    ``"Foo Bar"``). JSON files: matched against top-level keys of an
+    object. Files not present on disk, or of other extensions, are skipped
+    silently (existence is G1.1's concern).
     """
     warnings: list[str] = []
     for fp in inputs:
@@ -77,7 +106,7 @@ def check_fields_exist(
             continue
         content = p.read_text(encoding="utf-8")
         if fp.endswith(".md"):
-            # Extract H2 headings -> snake_case keys.
+            # Collect literal H2 heading text (no snake_case normalization).
             actual: set[str] = set()
             for line in content.splitlines():
                 if line.startswith("## "):
@@ -176,10 +205,10 @@ def gate_G1(
         # G1.4 — create .bak for in-place modifying skills (decision via pure helper)
         target_dict = dict(targets)
         if fp in target_dict:
-            bak_path = Path(str(fp) + ".bak")
-            if not bak_path.exists():
+            bak = Path(bak_path(fp))
+            if not bak.exists():
                 try:
-                    safe_write(bak_path, Path(fp).read_bytes())
+                    safe_write(bak, Path(fp).read_bytes())
                     c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak created"})
                 except OSError:
                     mf.append({"id": "G1.4", "file": fp, "s": "FAIL", "r": "cannot create .bak"})

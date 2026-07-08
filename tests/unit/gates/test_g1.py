@@ -77,11 +77,11 @@ class TestG1ErrorPaths:
     def test_g14_creates_bak_for_inplace_skill(self, tmp_path: Path) -> None:
         """In-place skill + round_dir -> G1.4 PASS with .bak created on disk."""
         src = tmp_path / "input.md"
-        src.write_text("# Faction\n", encoding="utf-8")
+        src.write_text("# State\n", encoding="utf-8")
         round_dir = tmp_path / "round"
         round_dir.mkdir()
         gate_G1(
-            skill_name="shenbi-faction-builder",
+            skill_name="shenbi-state-settling",
             input_files=[str(src)],
             round_dir=str(round_dir),
         )
@@ -125,18 +125,18 @@ class TestG1ErrorPaths:
 @pytest.mark.unit
 def test_g14_creates_bak_for_inplace_skill(tmp_path: Path) -> None:
     """In-place skill + round_dir -> .bak created (covers g1.py:92-94)."""
-    src = tmp_path / "factions.json"
+    src = tmp_path / "truth_state.json"
     src.write_text('{"k": 1}', encoding="utf-8")
     round_dir = tmp_path / "round"
     round_dir.mkdir()
     result = _result_dict(
         gate_G1(
-            skill_name="shenbi-faction-builder",
+            skill_name="shenbi-state-settling",
             input_files=[str(src)],
             round_dir=str(round_dir),
         )
     )
-    assert (tmp_path / "factions.json.bak").exists()
+    assert (tmp_path / "truth_state.json.bak").exists()
     assert any(c.get("id") == "G1.4" and c.get("s") == "PASS" for c in result["checks"])
 
 
@@ -205,21 +205,21 @@ def test_g16_warns_when_scoring_history_not_a_list(tmp_path: Path) -> None:
 def test_compute_backup_targets_is_pure_decision() -> None:
     """Pure decision: which (src, bak) pairs to create. No I/O."""
     targets = compute_backup_targets(
-        "shenbi-faction-builder", ["/abs/world/factions.md"], "/abs/round"
+        "shenbi-state-settling", ["/abs/truth/current_state.md"], "/abs/round"
     )
-    assert targets == [("/abs/world/factions.md", "/abs/world/factions.md.bak")]
+    assert targets == [("/abs/truth/current_state.md", "/abs/truth/current_state.md.bak")]
 
 
 @pytest.mark.unit
 def test_compute_backup_targets_empty_without_round_dir() -> None:
     """No round_dir -> no backups targeted."""
-    assert compute_backup_targets("shenbi-faction-builder", ["/x.md"], None) == []
+    assert compute_backup_targets("shenbi-state-settling", ["/x.md"], None) == []
 
 
 @pytest.mark.unit
 def test_compute_backup_targets_skips_non_backup_skill() -> None:
-    """A skill not in BACKUP_SKILLS -> no targets."""
-    assert compute_backup_targets("shenbi-chapter-drafting", ["/x.md"], "/r") == []
+    """A skill not in BACKUP_SKILLS (e.g. a world-updater) -> no targets."""
+    assert compute_backup_targets("shenbi-faction-builder", ["/x.md"], "/r") == []
 
 
 # ── G1 glob expansion tests ───────────────────────────────────────────

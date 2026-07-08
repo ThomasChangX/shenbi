@@ -30,6 +30,17 @@ CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
 
+def bak_path(fp: str | Path) -> str:
+    """Return the ``.bak`` sibling path for ``fp``.
+
+    Single construction site for the truth-diff backup filename so the G1
+    writer, the G2.11 reader, and the G4 style-polishing word-ratio reader
+    all agree on the same root (``str(fp) + ".bak"``). Keeping this in one
+    place prevents the three call sites from drifting apart.
+    """
+    return str(fp) + ".bak"
+
+
 def jload(p: str | Path) -> dict[str, Any]:
     """Load a JSON file as a dict.
 

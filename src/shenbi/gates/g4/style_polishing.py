@@ -5,6 +5,7 @@ from typing import Any
 from pathlib import Path
 
 from shenbi.gates.shared import (
+    bak_path,
     fail,
     passed,
     word_count_md,
@@ -31,11 +32,12 @@ def g4_style_polishing(fps: list[str], rd: str | None = None) -> str:
             c.append({"id": "G4.sp.report", "file": fp, "s": "PASS"})
 
         # Word count change ratio within [0.85, 1.15]
-        # Check if there's a .bak file (pre-polish version)
-        bak = Path(str(fp) + ".bak")
+        # Check the .bak sibling (pre-polish version) at the same resolved
+        # root as the polished content (pf = base/fp), not a bare fp.
+        bak = Path(bak_path(pf))
         if bak.exists():
-            wc_before = word_count_md(str(bak))
-            wc_after = word_count_md(fp)
+            wc_before = word_count_md(bak)
+            wc_after = word_count_md(pf)
             if wc_before > 0:
                 ratio = wc_after / wc_before
                 if ratio < 0.85 or ratio > 1.15:

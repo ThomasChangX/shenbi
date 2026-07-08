@@ -20,6 +20,7 @@ from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import (
     CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
+    bak_path,
     fail,
     jload,
     passed,
@@ -228,7 +229,7 @@ def gate_G2(
 
         # G2.11 — truth files: .bak comparison (line-by-line diff)
         if file_type == "truth" and round_dir:
-            bak = Path(str(fp) + ".bak")
+            bak = Path(bak_path(fp))
             if bak.exists():
                 import difflib
 
