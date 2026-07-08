@@ -38,8 +38,10 @@ echo "--- pytest (with coverage >= 89%) ---"
 uv run pytest -n auto -m "not last" --cov-fail-under=85
 
 # 6. Coverage threshold test (serial, last only)
+# Must use --no-cov so this invocation doesn't overwrite coverage.xml
+# produced by step 5. The test reads the existing coverage.xml.
 echo "--- pytest coverage threshold ---"
-uv run pytest -p no:xdist -m "last" --cov-fail-under=85
+uv run pytest -p no:xdist -m "last" --no-cov
 
 # 6. Contract sync idempotency (ci.yml contract-sync job)
 echo "--- contract-sync idempotency ---"
