@@ -240,7 +240,9 @@
     ]
   },
   "chapters/chapter-N-decisions.json": {
-    "reads": [],
+    "reads": [
+      "shenbi-chapter-revision"
+    ],
     "writes": [
       "shenbi-chapter-drafting"
     ],
@@ -372,6 +374,13 @@
     "updates": []
   },
   "truth/state_snapshot-pre-rev.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-revision"
+    ],
+    "updates": []
+  },
+  "chapters/chapter-N-revision-decisions.json": {
     "reads": [],
     "writes": [
       "shenbi-chapter-revision"
@@ -911,10 +920,24 @@
     ],
     "updates": []
   },
+  "short/short-N-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-short-drafting"
+    ],
+    "updates": []
+  },
   "import/packaging/*": {
     "reads": [],
     "writes": [
       "shenbi-short-packaging"
+    ],
+    "updates": []
+  },
+  "truth/state-settling-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-state-settling"
     ],
     "updates": []
   },

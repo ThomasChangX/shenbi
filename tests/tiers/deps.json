@@ -72,7 +72,8 @@
         "audits/chapter-*.md",
         "chapters/chapter-*-decisions.json",
         "chapters/chapter-*.md",
-        "truth/*.md"
+        "truth/*.md",
+        "truth/state-settling-decisions.json"
       ],
       "g4_checker": "shenbi-chapter-drafting"
     },
@@ -154,6 +155,7 @@
         "shenbi-style-learning"
       ],
       "expected_outputs": [
+        "chapters/chapter-*-revision-decisions.json",
         "chapters/chapter-*.md",
         "foundation/review_report.md",
         "style/style_profile.md",
@@ -171,7 +173,8 @@
       "expected_outputs": [
         "chapters/chapter-*.md",
         "import/packaging/*",
-        "outline/*.md"
+        "outline/*.md",
+        "short/short-*-decisions.json"
       ],
       "g4_checker": null,
       "_g4_note": "G4 checker for short-outline not yet implemented in validate-gate.py"

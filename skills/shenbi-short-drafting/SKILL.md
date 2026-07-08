@@ -10,6 +10,7 @@ contract:
     - style/style_profile.md
   writes:
     - chapters/chapter-N.md
+    - short/short-N-decisions.json
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -23,7 +24,7 @@ contract:
 ## 数据契约
 
 - **Reads:** outline/short_story_map.md, truth/author_intent.md, genre-config.json, style/style_profile.md
-- **Writes:** chapters/chapter-N.md
+- **Writes:** chapters/chapter-N.md, short/short-N-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

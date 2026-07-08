@@ -133,8 +133,9 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes=[] + updates=7 truth files (all fold into outputs)
+    # shenbi-state-settling: writes a decisions sidecar + updates=7 truth files (all fold into outputs)
     assert derive_output_files("shenbi-state-settling") == [
+        "truth/state-settling-decisions.json",
         "truth/current_state.md",
         "truth/particle_ledger.md",
         "truth/character_matrix.md",

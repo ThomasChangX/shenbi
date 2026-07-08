@@ -966,6 +966,11 @@
       "file": "chapters/chapter-N.md"
     },
     {
+      "producer": "shenbi-chapter-drafting",
+      "consumer": "shenbi-chapter-revision",
+      "file": "chapters/chapter-N-decisions.json"
+    },
+    {
       "producer": "shenbi-review-anti-ai",
       "consumer": "shenbi-chapter-revision",
       "file": "audits/chapter-N-*.md"
