@@ -735,3 +735,21 @@ Four phases, each with explicit go/no-go gates:
 2. **short-drafting overlap with chapter-drafting**: short-drafting may share most decisions fields with chapter-drafting. Decide during Phase 2 whether to share schema or fork.
 3. **chapter-revision reads chapter-drafting's decisions**: chapter-revision produces its own decisions.json (Layer A.5), but should its `reads` also include `chapters/chapter-N-decisions.json` from the prior drafting pass? Likely yes (revision needs to understand drafting intent to revise coherently), but the exact contract reads update is deferred to Phase 2 when implementing chapter-revision.
 4. **chapter-drafting PRE_WRITE_CHECK overlap (raised in spec verification)**: `chapter-drafting` already embeds a `PRE_WRITE_CHECK` block as the first section of `chapters/chapter-N.md` (SKILL.md:64 — "PRE_WRITE_CHECK 必须作为章节文件的第一个区块输出"), recording "本章核心任务 / 要兑现的伏笔 / 本章禁忌 / 近3章结尾方式 / AI味重点防范". This partially overlaps with what Layer A's decisions.json would record for chapter-drafting. Before Phase 2 implementation, investigate: (a) does decisions.json duplicate PRE_WRITE_CHECK, or capture different intent (e.g., pacing deviations, foreshadowing placement rationale)? (b) should the 4 other NL-artifact skills (chapter-planning, chapter-revision, state-settling, short-drafting) also be checked for existing embedded-intent mechanisms before adding decisions.json? If overlap is high, consider narrowing L-A.2 scope to skills without existing intent-embedding, or making decisions.json conditional (only written when deviating from plan).
+
+   **RESOLVED (2026-07-07, Task 9 — `tests/unit/gates/test_pre_write_check_overlap.py`):**
+
+   Audit results (verbatim from the gate test's `-s` output):
+
+   | Skill | exists | PRE_WRITE_CHECK | POST_WRITE_SELF_CHECK |
+   |---|---|---|---|
+   | `shenbi-chapter-drafting` | ✓ | **yes** | **yes** |
+   | `shenbi-chapter-planning` | ✓ | no | no |
+   | `shenbi-chapter-revision` | ✓ | no | no |
+   | `shenbi-state-settling` | ✓ | no | no |
+   | `shenbi-short-drafting` | ✓ | no | no |
+
+   **(a) For chapter-drafting — complementary, not redundant.** `PRE_WRITE_CHECK` / `POST_WRITE_SELF_CHECK` (SKILL.md:70-119) are a *per-chapter pre-flight self-check*, embedded in the chapter file as a `<!--META-->` block and **human-approved before prose is written**. Their scope is execution guardrails: 本章核心任务 / 要兑现的伏笔 / 本章禁忌 / 近3章结尾方式 / AI味重点防范 / 转折词预算, and a post-hoc density checklist. They answer "did I line up the runway before writing?" `decisions.json` (per §Layer A table) records a different thing — **plan-vs-prose deviations**: which plan beats were used/modified, foreshadowing placement rationale, pacing deviations from plan, opening strategy (§"Selections/adjustments targets" row for chapter-drafting). It answers "why did I deviate from the plan, and how?" Different scope (guardrails vs. deviations), different lifecycle (PRE_WRITE_CHECK is consumed and approved by the human pre-write; decisions.json is consumed by downstream skills post-write), different consumers (human vs. `state-settling`/`review-*`). No field-level duplication.
+
+   **(b) For the other 4 skills — decisions.json is the ONLY intent channel.** chapter-planning, chapter-revision, state-settling, and short-drafting have no embedded PRE_WRITE_CHECK/POST_WRITE_SELF_CHECK at all. Adding decisions.json introduces intent persistence where none exists; this is unambiguously complementary.
+
+   **Decision: proceed with all 5 skills in Phase 2 (no scope narrowing, no conditional writing).** The audit gate passes and is now a permanent record. The only nuance to carry into Phase 2: for chapter-drafting, ensure the decisions.json schema's fields (pacing/opening/beat-selection deviations) do NOT re-derive the PRE_WRITE_CHECK guardrail fields — they are complementary and should stay disjoint. Phase 2 step 1 (resolve OQ#4) is now complete.
