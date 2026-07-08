@@ -3,12 +3,14 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
 def g4_foreshadowing_track(
@@ -22,9 +24,13 @@ def g4_foreshadowing_track(
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    rp = RoundPaths(
+        round_dir=Path(rd or "."),
+        project_dir=Path(project_dir or rd or "."),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    ph = pd / "truth" / "pending_hooks.md"
+    ph = rp.read("truth/pending_hooks.md")
     if not ph.exists():
         mf.append("G4.ft.not_found")
     else:
