@@ -78,7 +78,8 @@ def test_g4_generative_dispatch_with_shorthand(
 ) -> None:
     f = tmp_path / "novel.json"
     f.write_text('{"title": "T"}', encoding="utf-8")
-    rc, out = _run(["G4", "worldbuilding", str(f)], monkeypatch)
+    # Spec §4.2: G4 per-skill checkers require a round_dir (no silent CWD).
+    rc, out = _run(["G4", "worldbuilding", str(f), str(tmp_path)], monkeypatch)
     assert rc == 0
     json.loads(out)
 

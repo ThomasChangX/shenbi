@@ -267,7 +267,7 @@ class TestGateRouter:
         """
         f = tmp_path / "out.md"
         f.write_text("# Output\n", encoding="utf-8")
-        result_str = gate_G4("shenbi-worldbuilding", "generative", [str(f)])
+        result_str = gate_G4("shenbi-worldbuilding", "generative", [str(f)], str(tmp_path))
         # Result is valid JSON — the skill-specific checker ran
         parsed = json.loads(result_str)
         assert "status" in parsed

@@ -25,9 +25,11 @@ def g4_character_design(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
+    if rd is None and project_dir is None:
+        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
     rp = RoundPaths(
-        round_dir=Path(rd or project_dir or "."),
-        project_dir=Path(project_dir or rd or "."),
+        round_dir=Path(str(rd or project_dir)),
+        project_dir=Path(str(project_dir or rd)),
         repo_root=Path(repo_root or PROJECT),
     )
 

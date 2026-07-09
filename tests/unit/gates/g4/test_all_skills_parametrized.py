@@ -7,6 +7,12 @@ the test suite and adds the test volume needed for the 0.10 density target.
 Per-skill DEEP tests (covering each skill's specific business rules) live
 in dedicated test_<skill>.py files; this file provides BREADTH coverage so
 no skill ships without any test touching its checker.
+
+Spec §4.2 invariant: G4 checkers no longer silently fall back to CWD when
+no root is supplied — they raise ValueError. These smoke tests therefore
+always pass an explicit ``round_dir`` (a tmp_path) to exercise each
+checker's normal path; the no-root ValueError contract is covered in
+test_g4_signatures.py.
 """
 
 from __future__ import annotations
@@ -77,18 +83,26 @@ class TestPerSkillG4Contract:
         assert callable(checker)
 
     def test_returns_string_for_empty_file_list(
-        self, skill_name: str, module_path: str, func_name: str
+        self,
+        skill_name: str,
+        module_path: str,
+        func_name: str,
+        tmp_path: Path,
     ) -> None:
         """No input files must not crash the checker."""
         checker = _load_checker(module_path, func_name)
-        result = checker([], None)
+        result = checker([], str(tmp_path))
         assert isinstance(result, str)
 
     def test_returns_valid_json_for_empty_file_list(
-        self, skill_name: str, module_path: str, func_name: str
+        self,
+        skill_name: str,
+        module_path: str,
+        func_name: str,
+        tmp_path: Path,
     ) -> None:
         checker = _load_checker(module_path, func_name)
-        parsed = _result_dict(checker([], None))
+        parsed = _result_dict(checker([], str(tmp_path)))
         assert "status" in parsed
 
     def test_returns_valid_json_for_nonexistent_file(
@@ -100,7 +114,7 @@ class TestPerSkillG4Contract:
     ) -> None:
         """A non-existent file must produce a parseable result, not crash."""
         checker = _load_checker(module_path, func_name)
-        parsed = _result_dict(checker([str(tmp_path / "nope.md")], None))
+        parsed = _result_dict(checker([str(tmp_path / "nope.md")], str(tmp_path)))
         assert "status" in parsed
 
     def test_returns_valid_json_with_round_dir(
@@ -118,30 +132,44 @@ class TestPerSkillG4Contract:
         assert "status" in parsed
 
     def test_emits_timestamp_in_result(
-        self, skill_name: str, module_path: str, func_name: str
+        self,
+        skill_name: str,
+        module_path: str,
+        func_name: str,
+        tmp_path: Path,
     ) -> None:
         """All gate results include ISO-8601 timestamps for downstream
         correlation — verifiable across every checker.
         """
         checker = _load_checker(module_path, func_name)
-        parsed = _result_dict(checker([], None))
+        parsed = _result_dict(checker([], str(tmp_path)))
         # PASS/FAIL results include timestamp; UNIMPLEMENTED does too
         assert "timestamp" in parsed
 
-    def test_emits_gate_identifier(self, skill_name: str, module_path: str, func_name: str) -> None:
+    def test_emits_gate_identifier(
+        self,
+        skill_name: str,
+        module_path: str,
+        func_name: str,
+        tmp_path: Path,
+    ) -> None:
         """Every result names its gate for downstream routing."""
         checker = _load_checker(module_path, func_name)
-        parsed = _result_dict(checker([], None))
+        parsed = _result_dict(checker([], str(tmp_path)))
         assert "gate" in parsed
 
     def test_status_is_one_of_known_values(
-        self, skill_name: str, module_path: str, func_name: str
+        self,
+        skill_name: str,
+        module_path: str,
+        func_name: str,
+        tmp_path: Path,
     ) -> None:
         """Status is always one of PASS / FAIL / UNIMPLEMENTED / SKIP —
         downstream tools assume this closed set.
         """
         checker = _load_checker(module_path, func_name)
-        parsed = _result_dict(checker([], None))
+        parsed = _result_dict(checker([], str(tmp_path)))
         assert parsed["status"] in {"PASS", "FAIL", "UNIMPLEMENTED", "SKIP"}
 
     def test_handles_multiple_nonexistent_files(
@@ -153,7 +181,7 @@ class TestPerSkillG4Contract:
     ) -> None:
         checker = _load_checker(module_path, func_name)
         files = [str(tmp_path / f"missing-{i}.md") for i in range(3)]
-        parsed = _result_dict(checker(files, None))
+        parsed = _result_dict(checker(files, str(tmp_path)))
         assert "status" in parsed
 
     def test_with_substantial_markdown_file(
@@ -173,7 +201,7 @@ class TestPerSkillG4Contract:
             "---\ntype: output\n---\n\n# Substantial Output\n\n" + ("content line\n" * 20),
             encoding="utf-8",
         )
-        parsed = _result_dict(checker([str(f)], None))
+        parsed = _result_dict(checker([str(f)], str(tmp_path)))
         assert "status" in parsed
 
     def test_with_json_file(
@@ -189,7 +217,7 @@ class TestPerSkillG4Contract:
         checker = _load_checker(module_path, func_name)
         f = tmp_path / "data.json"
         f.write_text('{"key": "value"}', encoding="utf-8")
-        parsed = _result_dict(checker([str(f)], None))
+        parsed = _result_dict(checker([str(f)], str(tmp_path)))
         assert "status" in parsed
 
     def test_idempotent_on_repeated_calls(
@@ -197,13 +225,14 @@ class TestPerSkillG4Contract:
         skill_name: str,
         module_path: str,
         func_name: str,
+        tmp_path: Path,
     ) -> None:
         """Calling a checker twice with the same inputs must produce
         equivalent status (timestamps differ but business logic doesn't).
         """
         checker = _load_checker(module_path, func_name)
-        first = _result_dict(checker([], None))
-        second = _result_dict(checker([], None))
+        first = _result_dict(checker([], str(tmp_path)))
+        second = _result_dict(checker([], str(tmp_path)))
         assert first["status"] == second["status"]
 
 

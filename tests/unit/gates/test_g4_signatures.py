@@ -3,11 +3,17 @@
 These params are threaded but not yet consumed by the checkers (that is 15b).
 They MUST be accepted without error so the 4 call sites (cli/g5/g6/g7) can pass
 them today and so RoundPaths migration in 15b has a stable entry point.
+
+Spec §4.2 invariant: no silent CWD fallback. When neither round_dir nor
+project_dir is provided, the per-skill checkers raise ValueError instead of
+silently defaulting to CWD.
 """
 
 from __future__ import annotations
 
 import json
+
+import pytest
 
 from shenbi.gates.g4.generic import gate_G4
 
@@ -31,11 +37,10 @@ def test_gate_g4_accepts_project_dir_and_repo_root(tmp_path):
 
 
 def test_gate_g4_project_dir_repo_root_default_none():
-    # Omitting the new params must behave exactly as before (defaults are None).
-    result = gate_G4("shenbi-worldbuilding", "generative", [])
-    data = json.loads(result)
-    assert data["gate"] == "G4-worldbuilding"
-    assert "status" in data
+    # Spec §4.2: omitting BOTH round_dir and project_dir must raise ValueError
+    # (no silent CWD fallback). All 4 live callers pass round_dir positionally.
+    with pytest.raises(ValueError, match="round_dir or project_dir required"):
+        gate_G4("shenbi-worldbuilding", "generative", [])
 
 
 def test_gate_g4_threads_params_to_generic_bug_hunt(tmp_path):

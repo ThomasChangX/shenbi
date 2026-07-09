@@ -28,11 +28,13 @@ def g4_pacing_design(
     # Resolve the project root without shadowing the threaded project_dir param.
     # Preference order: explicit project_dir > rd > legacy fps[0] heuristic.
     if not project_dir:
-        project_dir = rd or (str(Path(fps[0]).parent.parent) if fps else ".")
+        project_dir = rd or (str(Path(fps[0]).parent.parent) if fps else None)
 
+    if rd is None and project_dir is None:
+        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
     rp = RoundPaths(
-        round_dir=Path(rd or project_dir or "."),
-        project_dir=Path(project_dir or "."),
+        round_dir=Path(str(rd or project_dir)),
+        project_dir=Path(str(project_dir or rd)),
         repo_root=Path(repo_root or PROJECT),
     )
 
