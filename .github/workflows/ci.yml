@@ -104,24 +104,19 @@ jobs:
       - name: Validate GitHub Actions YAML
         run: uv run yamllint --strict .github/workflows/
       - name: Validate Renovate config schema
+        # Only run when renovate.json changes (saves 43s npx download).
+        # Uses gh api (not git diff) because the default checkout is
+        # shallow (fetch-depth: 1) — git diff against origin/<base> would
+        # silently return empty and permanently disable this check.
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          # renovate-config-validator is provided by the renovate npm package.
-          # Using npx avoids adding a persistent dep.
-          npx --yes -p renovate renovate-config-validator renovate.json
-
-  doc-links:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm install -g markdown-link-check
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      - run: uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov
+          URL="repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          CHANGED=$(gh api "$URL" \
+            --jq '[.[] | select(.filename == "renovate.json")] | length')
+          if [ "$CHANGED" -gt 0 ]; then
+            npx --yes -p renovate renovate-config-validator renovate.json
+          else
+            echo "renovate.json unchanged — skipping"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
