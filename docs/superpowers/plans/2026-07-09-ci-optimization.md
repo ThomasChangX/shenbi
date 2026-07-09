@@ -324,7 +324,8 @@ with:
         # silently return empty and permanently disable this check.
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          CHANGED=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
+          URL="repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          CHANGED=$(gh api "$URL" \
             --jq '[.[] | select(.filename == "renovate.json")] | length')
           if [ "$CHANGED" -gt 0 ]; then
             npx --yes -p renovate renovate-config-validator renovate.json
@@ -359,12 +360,21 @@ Delete this exact text (lines 155-170):
       - run: uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov
 ```
 
-- [ ] **Step 3: Validate YAML locally**
+- [ ] **Step 3: Strip trailing blank lines**
+
+The deletions in Tasks 2 & 3 remove job bodies but leave separator blank lines, which pile up at end-of-file. yamllint's `empty-lines` rule (max 0 trailing) fails on this. Clean it up:
+
+Run: `uv run python -c "p='.github/workflows/ci.yml'; t=open(p).read().rstrip('\n')+'\n'; open(p,'w').write(t)"`
+This collapses trailing blank lines to a single trailing newline.
+
+- [ ] **Step 4: Validate YAML locally**
 
 Run: `uv run yamllint --strict .github/workflows/ci.yml`
 Expected: no errors.
 
-- [ ] **Step 4: Commit**
+> **If yamllint reports `line-length` on the `gh api` block:** ensure the URL is extracted into the `URL=` variable as shown in Step 1 (each line must be ≤100 chars). If it reports `empty-lines`, re-run Step 3.
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -466,14 +476,11 @@ jobs:
           enable-cache: true
       - run: uv sync --frozen --group dev
       - run: uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov
-
-  # ─────────────────────────────────────────────────────────────
-  # Future: mutation-testing
-  # Currently disabled due to mutmut 3.x incompatibility (mutants/ workspace
-  # omits src/shenbi/ package + skills/, cannot establish green baseline).
-  # Re-enable once mutmut is reconfigured for this project layout.
-  # ─────────────────────────────────────────────────────────────
 ```
+
+> **Trailing newline required:** The `Write` tool writes content verbatim. Ensure the file ends with a single newline after the last line (`...--no-cov\n`). yamllint's `new-line-at-end-of-file` rule fails otherwise. After writing, run `printf '\n' >> .github/workflows/nightly.yml` if unsure.
+>
+> **Note on removed `# Future: mutation-testing` block:** The original plan/spec had a trailing 2-space-indented comment block here. yamllint's `comments-indentation` rule flags comments indented under `jobs:` that don't align with a sibling job. The mutmut note is preserved in the top-of-file header comment and in the spec — no information lost.
 
 - [ ] **Step 2: Validate YAML locally**
 
@@ -510,10 +517,12 @@ consumption. Uncomment schedule + monitor alerts to re-enable."
 
 Run:
 ```bash
-grep -E "^  [a-z].*:" .github/workflows/ci.yml | grep -v "^  #"
+grep -nE "^  [a-z][a-z-]+:$" .github/workflows/ci.yml
 ```
 Expected jobs present: `quality:`, `codegen-idempotency:`, `dependency-review:`, `action-validation:`.
 Expected jobs ABSENT: `mutation-testing:`, `contract-sync:`, `plugin-manifest-freshness:`, `doc-links:`.
+
+(The `:$` anchor avoids false positives from `push:`, `pull_request:`, `on:`, etc. that appear under `on:`/`concurrency:`.)
 
 If any absent job still appears, a deletion in Tasks 2-3 was incomplete.
 
@@ -521,7 +530,7 @@ If any absent job still appears, a deletion in Tasks 2-3 was incomplete.
 
 Run:
 ```bash
-grep -E "^  [a-z].*:" .github/workflows/nightly.yml | grep -v "^  #"
+grep -nE "^  [a-z][a-z-]+:$" .github/workflows/nightly.yml
 ```
 Expected: `windows-smoke:`, `python-313-migration:`, `doc-links:`.
 
@@ -540,11 +549,28 @@ Manually confirm the strategy block in ci.yml reads:
 Run: `grep -c "Run tests (parallel" .github/workflows/ci.yml`
 Expected: `1` (exactly one "Run tests (parallel" step). If `2`, the Windows step wasn't collapsed.
 
-- [ ] **Step 5: No commit (validation-only task)**
+- [ ] **Step 5: Verify codegen-idempotency git diff covers all paths (perturbation test)**
+
+The merged `git diff` in `codegen-idempotency` must catch drift across all 7 paths. Verify by perturbing one generated artifact, confirming the local `git diff --exit-code` fails, then reverting:
+
+```bash
+# Perturb a committed plugin manifest (one of the 7 paths)
+echo "<!-- perturbation -->" >> .claude-plugin/plugin.json
+# Run the same diff the CI job runs
+git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ \
+      .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/
+echo "exit code: $?"  # Expected: non-zero (drift detected)
+# Revert
+git checkout -- .claude-plugin/plugin.json
+```
+
+Expected: the diff exits non-zero (drift detected). If it exits `0`, a path was dropped from the merged diff — the codegen merge (Task 2) is incomplete.
+
+- [ ] **Step 6: No commit (validation-only task)**
 
 This task produces no code changes. If all checks pass, the implementation is complete. Push and open a PR to validate on real CI.
 
-- [ ] **Step 6: Push and validate on real CI (spec Validation item 1-2)**
+- [ ] **Step 7: Push and validate on real CI (spec Validation item 1-2)**
 
 After pushing and opening a PR:
 - Confirm the `quality` job shows exactly **4** matrix legs (not 9).
