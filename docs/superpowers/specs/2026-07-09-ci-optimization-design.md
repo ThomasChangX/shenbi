@@ -72,6 +72,21 @@ strategy:
 `continue-on-error` remains `python-version == '3.13'` only (triggers only on
 main push; PR never includes 3.13).
 
+**Cleanup required alongside the matrix change** (Windows removal leaves dead code):
+- The two test steps (`ci.yml:54-62`) — currently split by
+  `if: matrix.os != 'windows-latest'` (POSIX) and
+  `if: matrix.os == 'windows-latest'` (Windows, with `--cov-fail-under=85`) —
+  collapse into **one** unconditional step. With Windows gone, the Windows
+  branch is unreachable dead code and the POSIX `if:` guard is always true.
+- Delete the comment at `ci.yml:19-22` ("Windows coverage threshold is 88...")
+  which contradicts the new reality.
+
+The collapsed step becomes simply:
+```yaml
+    - name: Run tests (parallel, excluding last)
+      run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+```
+
 ### Part 2: Delete dead code + merge redundant jobs (`ci.yml`)
 
 **Delete `mutation-testing` job** (`ci.yml:105-140`):
@@ -110,10 +125,17 @@ codegen-idempotency:
 ### Part 3: Low-frequency check migration + paths filter (`ci.yml`)
 
 **Remove `doc-links` job from `ci.yml`:** migrates to `nightly.yml` (Part 4).
-Rationale: 109 tests perform external HTTP link checks — depend on external site
-availability, high flaky risk, unrelated to code quality. Removing it also
-eliminates Node.js + npm install + uv sync environment setup (~30s pure
-overhead) from every PR.
+Rationale: `test_doc_links.py` runs `markdown-link-check` over `docs/*.md` and
+root `*.md`, which checks **both** internal links (`[text](file.md)`) and
+external HTTP links. The external checks depend on third-party site availability
+(high flaky risk, can block PRs on outages unrelated to this repo); the internal
+checks are a legitimate non-flaky regression signal (e.g. a renamed file
+breaking a relative link). This change accepts losing **per-PR internal-link
+gating** as a trade-off for eliminating the flaky external-link failures and
+the ~30s environment setup (Node.js + npm install + uv sync). Internal link
+rot will surface in nightly runs instead. If internal-link regressions become
+a real problem, a split is possible: a fast local-only link resolver on PR +
+the full external check on nightly.
 
 **`renovate-config-validator` paths filter:**
 
@@ -134,18 +156,30 @@ action-validation:
     - name: Validate GitHub Actions YAML
       run: uv run yamllint --strict .github/workflows/
     - name: Validate Renovate config schema
-      # Only run when renovate.json changes (saves 43s npx download)
+      # Only run when renovate.json changes (saves 43s npx download).
+      # Uses gh api (not git diff) because the default checkout is shallow
+      # (fetch-depth: 1) — git diff against origin/<base> would silently
+      # return empty and permanently disable this check. gh api reads the
+      # PR's changed-files list from GitHub directly, no history needed.
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q '^renovate\.json$'; then
+        CHANGED=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
+          --jq '[.[] | select(.filename == "renovate.json")] | length')
+        if [ "$CHANGED" -gt 0 ]; then
           npx --yes -p renovate renovate-config-validator renovate.json
         else
           echo "renovate.json unchanged — skipping"
         fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-On `push(main)`, `renovate.json` carries no unvalidated changes (PR already
-validated or skipped), so the conditional is PR-only.
+> **Note:** `gh api` requires the default `GITHUB_TOKEN` (always available),
+> no extra secret. On `push(main)`, `renovate.json` carries no unvalidated
+> changes (PR already validated or skipped), so the `if: pull_request` guard
+> is sufficient. If renovate.json is ever committed directly to main without
+> a PR, the validator won't run — an accepted gap (direct commits to main
+> are rare in this workflow).
 
 ### Part 4: New `nightly.yml` (dispatch-only)
 
@@ -164,8 +198,10 @@ name: Nightly
 #   - windows-smoke:        Smoke test for Windows fallback code
 #                           (defensive support, not a target platform)
 #   - python-313-migration: Python 3.13 migration monitoring
-#   - doc-links:            External markdown link checks
-#                           (depend on external site availability)
+#   - doc-links:            Markdown link checks (internal + external).
+#                           External links depend on third-party site
+#                           availability (flaky); internal links are a
+#                           valid signal but gated here for simplicity.
 #
 # To enable: uncomment the schedule trigger below and monitor
 # Actions failure alerts.
@@ -207,8 +243,11 @@ jobs:
       - run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
 
   doc-links:
-    # External markdown link checks. Depends on external site availability
-    # (flaky risk); kept here to avoid external outages blocking PRs.
+    # Markdown link checks (internal relative links + external HTTP links).
+    # External links depend on third-party site availability (flaky risk);
+    # kept here to avoid external outages blocking PRs. Internal link rot
+    # (e.g. renamed file) also surfaces here instead of per-PR — accepted
+    # trade-off.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -243,7 +282,7 @@ jobs:
 | `.github/workflows/ci.yml` | Matrix reduction (Part 1); delete `mutation-testing` + merge codegen (Part 2); renovate paths filter + delete `doc-links` (Part 3) |
 | `.github/workflows/nightly.yml` | **New file** — dispatch-only, collects windows-smoke / python-313 / doc-links (Part 4) |
 
-**Unchanged:** `security.yml`, `docs.yml`, `release.yml`, `pre-commit-autoupdate.yml`, `tools/pre-push-check.sh`.
+**Unchanged:** `security.yml`, `docs.yml`, `release.yml`, `codeql.yml`, `pre-commit-autoupdate.yml`, `tools/pre-push-check.sh`.
 
 ## Expected impact
 
@@ -270,7 +309,7 @@ push(main) also shrinks: 9 → 6 quality jobs (Windows gone; 3.13 kept w/ contin
 |------------------------|--------------------------|
 | Windows × 3 matrix | `nightly.yml` `windows-smoke` (manual trigger) |
 | Python 3.13 × 3 matrix | `nightly.yml` `python-313-migration` (manual trigger) |
-| doc-links external links | `nightly.yml` `doc-links` (manual trigger) |
+| doc-links (internal + external markdown links) | `nightly.yml` `doc-links` (manual trigger); internal-link gating on PR is the accepted trade-off |
 | mutation-testing | Deleted (was `if: false` dead code) |
 | contract-sync / plugin generation | Merged into `codegen-idempotency` (still runs on PR) |
 | lint / type-check / test core | **Fully retained** — all 4 PR jobs run them |
@@ -282,6 +321,37 @@ Python 3.13, and doc-links currently have **no automatic regression protection**
 This is the explicitly accepted trade-off from brainstorming ("not worth the
 effort to maintain/monitor alerts"). Mitigation: the file is preserved with
 comments; re-enabling requires uncommenting one `schedule` line.
+
+**Minor caveat (pre-push scope):** `tools/pre-push-check.sh` runs the
+contract-sync + autocheck-docs generators but **not** `shenbi-generate-plugins`.
+After Part 2 merges plugin generation into `codegen-idempotency`, CI gates
+plugin manifests but pre-push will not. This is acceptable (plugin manifests
+change rarely, and the check is cheap), but "pre-push simulates CI core" is
+slightly overstated — it covers the contract/doc generators, not plugins.
+
+**Billing note:** The ~90→~20 min/PR figure nets out the Windows (2x) savings.
+If this repository is private, macOS runners also carry a premium over Linux;
+the remaining 4 PR jobs include 2 macOS legs whose cost is understated here.
+For a public repo on the free tier this does not apply.
+
+## Validation
+
+After implementing, confirm each change actually works (conditional matrices
+and path filters are easy to ship broken and hard to notice):
+
+1. **Matrix leg count (Part 1):** Open a throwaway PR. Confirm the `quality`
+   job produces **exactly 4** matrix legs (`ubuntu/macOS × 3.11/3.12`), not 9.
+   Push the same branch to main (or a branch that triggers push) and confirm
+   **6** legs (add 3.13 × 2 OS).
+2. **Renovate filter (Part 3, regression test for the Critical fix):** In a PR,
+   modify `renovate.json` (e.g. add a harmless comment-key). Confirm the
+   `Validate Renovate config schema` step **runs** (not "skipping"). In another
+   PR that does not touch `renovate.json`, confirm it skips.
+3. **Codegen merge (Part 2):** Confirm `codegen-idempotency` runs all three
+   generators and the single `git diff` covers all paths (temporarily perturb
+   one generated file to confirm it fails).
+4. **Dead-code cleanup (Part 1):** Confirm only one `Run tests` step exists
+   per quality job and no Windows-threshold comment remains.
 
 ## Open questions
 
