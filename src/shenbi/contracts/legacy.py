@@ -107,7 +107,7 @@ def resolves(path: str, registry: TruthFilesRegistry) -> bool:
     return path in parametrics
 
 
-def _read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
+def read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
     text = skill_md.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise ContractError("frontmatter missing", skill=skill)
@@ -181,7 +181,7 @@ def load_contract(skill: str) -> Contract:
     if not path.exists():
         raise ContractError("skill SKILL.md not found", skill=skill)
     registry = load_registry()
-    raw = _read_frontmatter_contract(skill, path)
+    raw = read_frontmatter_contract(skill, path)
     return _validate(raw, skill, registry)
 
 

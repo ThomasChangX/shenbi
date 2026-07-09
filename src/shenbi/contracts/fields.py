@@ -53,17 +53,18 @@ def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
     return "\n\n".join(f"## {h}\n{b}" for h, b in matched.items()), True
 
 
-def _filter_json(text: str, fields: list[str]) -> tuple[str, bool]:
+def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool]:
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
-        log.warning("field_filter_json_invalid", path="json")
+        log.warning("field_filter_json_invalid", path=path)
         return text, False
     if not isinstance(data, dict):
+        log.warning("field_filter_json_not_object", path=path)
         return text, False
     projected = {k: v for k, v in data.items() if k in fields}
     if not projected:
-        log.warning("field_filter_no_match", fields=fields, available=list(data.keys()))
+        log.warning("field_filter_no_match", path=path, fields=fields, available=list(data.keys()))
         return text, False
     return json.dumps(projected, ensure_ascii=False, indent=2), True
 
@@ -75,5 +76,5 @@ def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool
     if path.endswith(".md"):
         return _filter_md(text, fields)
     if path.endswith(".json"):
-        return _filter_json(text, fields)
+        return _filter_json(text, fields, path)
     return text, True

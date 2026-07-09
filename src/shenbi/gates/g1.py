@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shenbi.contracts.legacy import load_contract, load_registry
+from shenbi.contracts.legacy import load_registry
 from shenbi.gates.shared import (
     SKILLS,
     bak_path,
@@ -40,21 +40,31 @@ def derive_backup_skills() -> frozenset[str]:
     Non-truth updaters (world/, outline/, config files) are excluded: their
     ``.bak`` files were never read by G2.11 (which only fires for
     ``file_type == "truth"``), so backing them up was dead work.
+
+    Optimization: load the registry ONCE (not per-skill) and read raw
+    frontmatter directly (``read_frontmatter_contract``), avoiding the
+    O(#skills) registry reloads that ``load_contract`` would trigger.
     """
+    from shenbi.contracts.legacy import read_frontmatter_contract
+
     reg = load_registry()
     truth_names = {c.name for c in reg.concepts if c.kind == "truth"}
     result: set[str] = set()
     for skill_dir in SKILLS.iterdir():
-        if not (skill_dir / "SKILL.md").exists():
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.exists():
             continue
         skill = skill_dir.name
         try:
-            c = load_contract(skill)
+            raw = read_frontmatter_contract(skill, skill_md)
+            updates = raw.get("updates", [])
         except Exception:
             # Skills without a contract block (e.g. writing-skills) cannot
             # be truth-updaters; skip them rather than aborting import.
             continue
-        for f in c.get("updates", []):
+        if not updates:
+            continue  # fast-skip non-updaters
+        for f in updates:
             # Match both directions: a declared glob like ``truth/*.md`` (f is
             # the pattern, t is the literal concept) and a literal update
             # against a registry glob concept. ``f == t`` covers exact hits.

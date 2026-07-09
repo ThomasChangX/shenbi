@@ -314,10 +314,9 @@ def test_g31_does_not_silently_query_missing_key() -> None:
        lookup in executable code (the dead function must not be reintroduced).
     """
     import ast
+    import inspect
     import tempfile
     from pathlib import Path
-
-    import shenbi.gates.g3 as g3_mod
 
     # 1. Runtime invariant: SKIP with the documented reason.
     with tempfile.TemporaryDirectory() as td:
@@ -332,7 +331,7 @@ def test_g31_does_not_silently_query_missing_key() -> None:
 
     # 2. Source invariant (executable code only, ignoring comments/docstrings):
     #    the dead query primitives must not be reintroduced.
-    source_path = Path(g3_mod.__file__)
+    source_path = Path(inspect.getfile(gate_G3))
     tree = ast.parse(source_path.read_text(encoding="utf-8"))
     code_names: list[str] = []
     for node in ast.walk(tree):
