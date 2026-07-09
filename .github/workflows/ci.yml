@@ -12,14 +12,20 @@ jobs:
   quality:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      # PR: fail fast to cancel sibling jobs on failure (save billable
+      # minutes). push(main): full visibility, no early cancel.
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.11", "3.12", "3.13"]
+        # Windows removed — defensive support, not a target platform.
+        # See .github/workflows/nightly.yml windows-smoke for fallback
+        # code regression protection (dispatch-only).
+        os: [ubuntu-latest, macos-latest]
+        # PR: 3.11 + 3.12 only. push(main): adds 3.13 (migration monitoring).
+        python-version: ${{ github.event_name == 'pull_request'
+                && fromJson('["3.11", "3.12"]')
+                || fromJson('["3.11", "3.12", "3.13"]') }}
     # 3.13 allow-failure during rollout (spec Risk table).
-    # Windows coverage threshold is 88 (vs 89 POSIX) because fcntl-based
-    # locking (~50 lines in filelock_utils.py) is structurally unreachable
-    # on Windows — covered on POSIX, uncovered on Windows.
+    # Only triggers on push(main) — PR never includes 3.13.
     continue-on-error: ${{ matrix.python-version == '3.13' }}
     env:
       # Default all file I/O and stdout to UTF-8 on every OS. The framework
@@ -52,18 +58,14 @@ jobs:
       - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Run tests (parallel, excluding last)
-        if: matrix.os != 'windows-latest'
         run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
-      - name: Run tests (parallel, excluding last, Windows)
-        if: matrix.os == 'windows-latest'
-        # 88% threshold on Windows: fcntl-based locking (~50 lines in
-        # filelock_utils.py) is structurally unreachable on Windows but
-        # covered on POSIX — the 1% gap is permanent platform divergence.
-        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci --cov-fail-under=85
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
-  contract-sync:
+  codegen-idempotency:
+    # Merges former contract-sync + plugin-manifest-freshness. Both follow
+    # the same pattern: run generators, git diff for drift. Sharing one
+    # uv sync saves ~25s of redundant environment setup.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -71,12 +73,17 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen --group dev
-      - name: Regenerate contract-derived artifacts
+      # Three generators run sequentially (each <1s, order-independent).
+      - name: Contract artifacts (deps.json, body views, DAG)
         run: uv run shenbi-sync-contracts
-      - name: Regenerate auto-check docs (spec P6)
+      - name: Auto-check docs (spec P6)
         run: uv run python tools/generate_autocheck_docs.py
-      - name: Idempotency — generated artifacts must match committed
-        run: git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
+      - name: Plugin manifests (.claude/.codex/.cursor/.opencode)
+        run: uv run shenbi-generate-plugins
+      - name: Idempotency — all generated artifacts must match committed
+        run: |
+          git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ \
+                                  .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/
 
   dependency-review:
     runs-on: ubuntu-latest
@@ -97,74 +104,21 @@ jobs:
       - name: Validate GitHub Actions YAML
         run: uv run yamllint --strict .github/workflows/
       - name: Validate Renovate config schema
+        # Only run when renovate.json changes (saves 43s npx download).
+        # Uses gh api (not git diff) because the default checkout is
+        # shallow (fetch-depth: 1) — git diff against origin/<base> would
+        # silently return empty and permanently disable this check.
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          # renovate-config-validator is provided by the renovate npm package.
-          # Using npx avoids adding a persistent dep.
-          npx --yes -p renovate renovate-config-validator renovate.json
-
-  mutation-testing:
-    runs-on: ubuntu-latest
-    # DISABLED on PRs: mutmut 3.x's mutants/ workspace omits the full
-    # src/shenbi/ package (ModuleNotFoundError: shenbi.gates.g4) and skills/,
-    # so the suite cannot establish a green baseline there. Re-enable (and
-    # drop this guard) once mutmut is reconfigured for this project layout.
-    if: false
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      - name: Run mutation testing
-        run: |
-          # mutmut 3.x reads source_paths from [tool.mutmut] config;
-          # per-file CLI scoping is not supported (no --paths-to-mutate
-          # or --use-cache flags in 3.x). Changed-file detection only
-          # decides whether to run mutmut at all.
-          BASE="origin/${{ github.event.pull_request.base.ref }}"
-          CHANGED=$(git diff --name-only "${BASE}...HEAD" \
-            -- 'src/shenbi/')
-          if [ -z "$CHANGED" ]; then
-            echo "No Python changes; skipping mutation testing"
-            exit 0
+          URL="repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          # --paginate: gh api returns 100 files/page; --jq emits
+          # filenames across all pages, grep -c counts matches.
+          CHANGED=$(gh api --paginate "$URL" --jq '.[].filename' \
+            | grep -c '^renovate\.json$' || true)
+          if [ "$CHANGED" -gt 0 ]; then
+            npx --yes -p renovate renovate-config-validator renovate.json
+          else
+            echo "renovate.json unchanged — skipping"
           fi
-          uv run mutmut run
-      - name: Compare to baseline (blocks on regression > 5%)
-        run: |
-          # compare_mutation_score.py runs 'mutmut results' internally
-          # and parses output; it only accepts --baseline and --threshold
-          # (Plan 2 PR-23). No --current flag exists.
-          uv run python tools/compare_mutation_score.py \
-            --baseline tests/baselines/mutation-score.txt
-
-  plugin-manifest-freshness:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      - name: Verify plugin manifests are up to date
-        run: |
-          uv run shenbi-generate-plugins
-          git diff --exit-code .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/
-
-  doc-links:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - run: npm install -g markdown-link-check
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-      - run: uv sync --frozen --group dev
-      - run: uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
