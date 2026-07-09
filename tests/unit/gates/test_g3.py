@@ -60,17 +60,19 @@ class TestG3ErrorPaths:
         assert any("G3.0" in mf for mf in result.get("must_fix", []))
 
     def test_g31_emits_check_with_real_deps_json(self, tmp_path: Path) -> None:
-        """With real repo deps.json, G3.1 emits some check (PASS/SKIP/FAIL).
+        """G3.1 always emits a SKIP check (D19: per-skill prereqs not modeled).
 
-        Source: TESTS/tiers/deps.json is read; skill_name looked up; for each
-        prerequisite, find_report() is called. Result depends on repo state.
+        Source: deps.json's top-level keys are phase/pipeline rosters
+        (t2-phases, t3-pipelines, ...), never per-skill prerequisite data, so
+        the old deps.get(skill_name) was a dead function. G3.1 now SKIPs
+        explicitly; readiness is covered by G3.2.
         """
         round_dir = tmp_path / "round"
         round_dir.mkdir()
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(round_dir)))
         g31 = next((c for c in result["checks"] if c.get("id") == "G3.1"), None)
-        if g31 is not None:
-            assert g31["s"] in ("PASS", "FAIL", "SKIP")
+        assert g31 is not None
+        assert g31["s"] == "SKIP"
 
     def test_g32_emits_check_with_real_acceptance_json(self, tmp_path: Path) -> None:
         """G3.2 reads TESTS/tiers/acceptance.json for threshold; emits check."""
@@ -289,3 +291,56 @@ def test_compute_rubric_weighted_score_returns_none_when_no_dimensions_match() -
     # data with non-matching keys
     result = _compute_rubric_weighted_score({"99": 80}, "shenbi-worldbuilding")
     assert result is None
+
+
+# ---------------------------------------------------------------------------
+# D19: G3.1 dead-function canary (spec §5.3 DepsDoc)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_g31_does_not_silently_query_missing_key() -> None:
+    """D19 canary: G3.1 must not do the dead deps.get(skill_name) query.
+
+    deps.json never stored per-skill prerequisite data (its keys are
+    t2-phases/t3-pipelines rosters), so the query was a dead function that
+    always SKIPped via "no prerequisites". After deletion G3.1 SKIPs
+    explicitly with a reason documenting that readiness is covered by G3.2.
+
+    This canary guards two invariants:
+    1. Runtime: G3.1 always emits exactly one SKIP check whose reason names
+       the modelling decision (never depends on skill_name or deps.json).
+    2. Source: g3.py no longer calls find_report or does a per-skill deps
+       lookup in executable code (the dead function must not be reintroduced).
+    """
+    import ast
+    import inspect
+    import tempfile
+    from pathlib import Path
+
+    # 1. Runtime invariant: SKIP with the documented reason.
+    with tempfile.TemporaryDirectory() as td:
+        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", td))
+    g31s = [c for c in result["checks"] if c.get("id") == "G3.1"]
+    assert len(g31s) == 1, "G3.1 emits exactly one check"
+    assert g31s[0]["s"] == "SKIP"
+    assert "not modeled" in g31s[0]["r"]
+    # The SKIP reason must NOT reference the legacy per-skill deps lookup.
+    assert "no prerequisites" not in g31s[0]["r"]
+    assert "no deps.json" not in g31s[0]["r"]
+
+    # 2. Source invariant (executable code only, ignoring comments/docstrings):
+    #    the dead query primitives must not be reintroduced.
+    source_path = Path(inspect.getfile(gate_G3))
+    tree = ast.parse(source_path.read_text(encoding="utf-8"))
+    code_names: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            code_names.append(node.func.id)
+        if isinstance(node, ast.Attribute) and node.attr == "get":
+            # detect deps.get(...) calls; ensure the receiver isn't a deps object.
+            if isinstance(node.value, ast.Name) and node.value.id == "deps":
+                pytest.fail("G3.1 must not call deps.get(...) (D19: dead function deleted)")
+    assert "find_report" not in code_names, (
+        "G3.1 must not call find_report (D19: dead prereq lookup deleted)"
+    )

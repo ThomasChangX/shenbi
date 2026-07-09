@@ -14,16 +14,21 @@ log = get_logger(__name__)
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
 )
 
 
-def g4_generic_generative(fps: list[str], rd: str | None = None) -> str:
+def g4_generic_generative(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Generic G4 for skills without specific checkers. Validates output exists, non-empty, has frontmatter."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
+        p = resolve_input_path(fp_path, rd)
         if not p.exists():
             mf.append(f"G4.gen.not_found:{fp_path}")
             continue
@@ -55,13 +60,17 @@ def g4_generic_generative(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-generic-gen", c)
 
 
-def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> str:
+def g4_generic_bughunt(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Generic G4 for bug-hunt reports. Validates report format: detection summary table, file+line citations, rule names, false positive check."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
+        p = resolve_input_path(fp_path, rd)
         if not p.exists():
             mf.append(f"G4.bh.not_found:{fp_path}")
             continue
@@ -98,13 +107,17 @@ def g4_generic_bughunt(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-bug-hunt", c)
 
 
-def g4_generic_clean(fps: list[str], rd: str | None = None) -> str:
+def g4_generic_clean(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Generic G4 for clean reports. Validates: per-file confirmation, zero issues assertion, no fabricated suggestions."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
     for fp_path in fps or []:
-        p = base / fp_path if not Path(fp_path).is_absolute() else Path(fp_path)
+        p = resolve_input_path(fp_path, rd)
         if not p.exists():
             mf.append(f"G4.cl.not_found:{fp_path}")
             continue
@@ -145,13 +158,18 @@ def g4_generic_clean(fps: list[str], rd: str | None = None) -> str:
 
 
 def gate_G4(
-    skill_name: str, test_type: str, file_paths: list[str], round_dir: str | None = None
+    skill_name: str,
+    test_type: str,
+    file_paths: list[str],
+    round_dir: str | None = None,
+    project_dir: str | None = None,
+    repo_root: str | None = None,
 ) -> str:
     """G4: Route to the correct per-skill checker."""
     if test_type == "bug-hunt":
-        return g4_generic_bughunt(file_paths, round_dir)
+        return g4_generic_bughunt(file_paths, round_dir, project_dir, repo_root)
     if test_type == "clean":
-        return g4_generic_clean(file_paths, round_dir)
+        return g4_generic_clean(file_paths, round_dir, project_dir, repo_root)
 
     # Late imports: per-skill checkers live in sibling modules to avoid
     # circular imports at module load time.
@@ -221,9 +239,9 @@ def gate_G4(
     }
     fn = checkers.get(skill_name)
     if fn:
-        return fn(file_paths, round_dir)
+        return fn(file_paths, round_dir, project_dir, repo_root)
     # Generic fallback for skills without dedicated checkers
-    return g4_generic_generative(file_paths, round_dir)
+    return g4_generic_generative(file_paths, round_dir, project_dir, repo_root)
 
 
 def gate_G4_bughunt(file_paths: list[str]) -> str:

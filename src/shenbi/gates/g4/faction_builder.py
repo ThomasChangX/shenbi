@@ -3,23 +3,36 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
-def g4_faction_builder(fps: list[str], rd: str | None = None) -> str:
+def g4_faction_builder(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Faction builder: >= 2 factions each with hierarchy, internal conflicts,
     cross-faction relations, interest-driven behavior.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    if rd is None and project_dir is None:
+        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
+    rp = RoundPaths(
+        round_dir=Path(str(rd or project_dir)),
+        project_dir=Path(str(project_dir or rd)),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    factions_path = pd / "world" / "factions.md"
+    factions_path = rp.read("world/factions.md")
     if not factions_path.exists():
         mf.append("G4.factions.not_found")
     else:

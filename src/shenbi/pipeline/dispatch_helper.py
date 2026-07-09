@@ -24,6 +24,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from shenbi.contracts.fields import filter_to_fields
+from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
@@ -95,124 +97,6 @@ _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 # ---------------------------------------------------------------------------
 
 
-def _extract_chapter(prompt: str) -> int | None:
-    """Extract chapter number from a pipeline prompt like '... for chapter 5.'"""
-    m = re.search(r"chapter\s+(\d+)", prompt, re.IGNORECASE)
-    return int(m.group(1)) if m else None
-
-
-def _resolve_path(path: str, chapter: int | None) -> str:
-    """Replace N / NNN placeholders with chapter number.
-
-    Uses bounded replacement: ``NNN`` → zero-padded chapter, then ``-N``
-    (preceded by hyphen/slash) → chapter number. Paths without chapter
-    context are returned as-is.
-    """
-    if chapter is None:
-        return path
-    result = path.replace("NNN", f"{chapter:03d}")
-    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
-
-
-# ---------------------------------------------------------------------------
-# Layer B: field-level filtering
-# ---------------------------------------------------------------------------
-
-
-def _extract_h2_sections(text: str, fields: list[str]) -> str:
-    """Extract H2 sections whose heading matches a declared field name.
-
-    Returns concatenated sections. If no fields match, returns full text
-    (escape hatch — prevents silent information loss).
-    """
-    if not fields:
-        return text
-
-    lines = text.splitlines()
-    sections: dict[str, list[str]] = {}
-    current_heading: str | None = None
-    current_body: list[str] = []
-
-    for line in lines:
-        if line.startswith("## "):
-            if current_heading is not None:
-                sections[current_heading] = current_body
-            # Normalize heading: strip "## " prefix and trim whitespace ONLY.
-            # Do NOT lowercase or translate — real truth files use Chinese
-            # headings (## 主角, ## 主角情感弧线). Field declarations must use
-            # the actual heading text. See spec B.3.
-            raw = line[3:].strip()
-            current_heading = raw
-            current_body = [line]
-        elif current_heading is not None:
-            current_body.append(line)
-
-    if current_heading is not None:
-        sections[current_heading] = current_body
-
-    # Match declared fields against headings (exact match, no normalization).
-    # Fields must be declared using the real heading text (Chinese or English).
-    # This is consistent with G1's check_fields_exist which uses set difference.
-    matched: list[str] = []
-    for field in fields:
-        if field in sections:
-            matched.extend(sections[field])
-
-    if not matched:
-        # Escape hatch: no declared field found → return full text
-        log.warning("field_filter_no_match", fields=fields, available=list(sections.keys()))
-        return text
-
-    return "\n".join(matched)
-
-
-def _project_json_keys(text: str, fields: list[str]) -> str:
-    """Project JSON to only declared top-level keys.
-
-    Returns JSON string with only declared keys. If no keys match or
-    JSON is invalid, returns original text (escape hatch).
-    """
-    if not fields:
-        return text
-
-    try:
-        data = json.loads(text)
-    except (json.JSONDecodeError, TypeError):
-        log.warning("field_filter_invalid_json")
-        return text
-
-    if not isinstance(data, dict):
-        return text
-
-    projected = {k: v for k, v in data.items() if k in fields}
-
-    if not projected:
-        # Escape hatch: no declared key found → return full text
-        log.warning("field_filter_no_json_keys", fields=fields, available=list(data.keys()))
-        return text
-
-    return json.dumps(projected, ensure_ascii=False, indent=2)
-
-
-def _filter_to_fields(text: str, fields: list[str], path: str) -> str:
-    """Filter file content to only declared fields.
-
-    - markdown: extract H2 sections matching field names
-    - json: project to declared top-level keys
-    - other: no filtering (safe default)
-
-    Escape hatch: if no fields match, returns full text + logs WARN.
-    """
-    if not fields:
-        return text
-
-    if path.endswith(".md"):
-        return _extract_h2_sections(text, fields)
-    if path.endswith(".json"):
-        return _project_json_keys(text, fields)
-    return text  # unknown extension: no filtering
-
-
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -248,11 +132,17 @@ def _build_skill_prompt(
     # Replaces only the read loop; truncation logic below stays intact and
     # consumes raw_inputs. Filtering is applied BEFORE truncation, so the
     # truncated content is already field-filtered.
+    #
+    # resolve_or_skip returns None when a read path carries an N/NNN placeholder
+    # but chapter is None (genesis mode) — such reads are skipped rather than
+    # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     input_texts: dict[str, str] = {}
     raw_inputs: dict[str, str] = {}
     fields_map = contract.get("read_fields", {})  # Layer B: stored field map
     for read_path in contract.get("reads", []):
-        resolved = _resolve_path(read_path, chapter)
+        resolved = resolve_or_skip(read_path, chapter)
+        if resolved is None:
+            continue  # unresolvable placeholder (genesis) — skip this read
         full_path = project_dir / resolved
         if full_path.exists():
             try:
@@ -262,7 +152,10 @@ def _build_skill_prompt(
             # Layer B: filter to declared fields if available for this path.
             fields = fields_map.get(resolved) or fields_map.get(read_path)
             if fields:
-                raw_text = _filter_to_fields(raw_text, fields, resolved)
+                # filter_to_fields returns (filtered_text, matched_any).
+                # The escape-hatch WARN is already logged inside (contracts.fields)
+                # when matched is False; we just consume the text here.
+                raw_text, _matched = filter_to_fields(raw_text, fields, resolved)
             raw_inputs[resolved] = raw_text
         else:
             raw_inputs[resolved] = f"[file not found: {resolved}]"
@@ -301,9 +194,9 @@ def _build_skill_prompt(
     # Collect output paths
     output_paths: list[str] = []
     for write_path in contract.get("writes", []):
-        output_paths.append(_resolve_path(write_path, chapter))
+        output_paths.append(resolve_chapter_path(write_path, chapter))
     for update_path in contract.get("updates", []):
-        output_paths.append(_resolve_path(update_path, chapter))
+        output_paths.append(resolve_chapter_path(update_path, chapter))
 
     # When uses_staging is True, prefix all output paths with staging/
     if uses_staging:
@@ -430,31 +323,75 @@ def _write_parsed_outputs(
     return written
 
 
+#: Truth files seeded by the worldbuilding genesis + their H1 titles. Each
+#: template's body is derived from the union of consumer-declared ``fields:``
+#: (fix D21) rather than a bare H1, so skills that read e.g.
+#: ``truth/current_state.md [主角状态, 当前世界局势, 活跃线索]`` find their H2
+#: headings present on first run instead of tripping G1 ``check_fields_exist``.
+_TRUTH_FILE_TITLES: dict[str, str] = {
+    "current_state.md": "Current State",
+    "character_matrix.md": "Character Matrix",
+    "emotional_arcs.md": "Emotional Arcs",
+    "chapter_summaries.md": "Chapter Summaries",
+}
+
+
+def _collect_declared_truth_fields() -> dict[str, list[str]]:
+    """Union of consumer-declared ``fields:`` per truth file, across all skills.
+
+    Scans every ``SKILL.md`` frontmatter ``contract.reads`` entry of the form
+    ``{file: truth/<name>.md, fields: [...]}`` and unions the declared field
+    names for each of the four seeded truth files. Order is stable
+    (first-seen) so template bodies are deterministic across runs. Skills with
+    no contract or an unparseable one are skipped — template seeding must
+    never block genesis on a single malformed skill.
+    """
+    from shenbi.contracts.legacy import ContractError, load_contract
+    from shenbi.gates.shared import ALL_SKILLS
+
+    declared: dict[str, dict[str, None]] = {name: {} for name in _TRUTH_FILE_TITLES}
+    for skill in ALL_SKILLS:
+        try:
+            contract = load_contract(skill)
+        except (ContractError, Exception):
+            continue  # malformed/missing contract — skip this skill
+        for read_path, fields in contract.get("read_fields", {}).items():
+            # read_fields is keyed by the contract path, e.g. "truth/current_state.md".
+            rel = read_path.removeprefix("truth/")
+            if rel in declared:
+                for field in fields:
+                    declared[rel][field] = None  # de-dupe, preserve first-seen order
+    return {name: list(fields) for name, fields in declared.items()}
+
+
 def _init_truth_templates(project_dir: Path) -> None:
-    """Create minimal truth template files with required YAML frontmatter."""
+    """Create minimal truth template files with required YAML frontmatter.
+
+    Each template's body carries the H1 title plus ``## <field>`` stubs for the
+    union of fields consumers declare (fix D21), so a freshly-seeded file
+    already satisfies G1 ``check_fields_exist`` instead of WARN-ing on every
+    consumer until state-settling fills it in.
+    """
     truth_dir = project_dir / "truth"
     truth_dir.mkdir(parents=True, exist_ok=True)
-    templates = {
-        "current_state.md": (
-            "type: current_state\ncategory: truth\nstatus: initialized\n---\n# Current State\n"
-        ),
-        "character_matrix.md": (
-            "type: character_matrix\ncategory: truth\nstatus: initialized\n"
-            "---\n# Character Matrix\n"
-        ),
-        "emotional_arcs.md": (
-            "type: emotional_arcs\ncategory: truth\nstatus: initialized\n---\n# Emotional Arcs\n"
-        ),
-        "chapter_summaries.md": (
-            "type: chapter_summaries\ncategory: truth\nstatus: initialized\n"
-            "---\n# Chapter Summaries\n"
-        ),
-    }
-    for filename, content in templates.items():
+    declared_fields = _collect_declared_truth_fields()
+    for filename, title in _TRUTH_FILE_TITLES.items():
         tp = truth_dir / filename
-        if not tp.exists():
-            safe_write(tp, f"---\n{content}")
-            log.info("truth_template_created", path=str(tp))
+        if tp.exists():
+            continue
+        stub_key = filename.removesuffix(".md")
+        body_lines = [f"# {title}"]
+        for field in declared_fields.get(filename, []):
+            body_lines.append("")
+            body_lines.append(f"## {field}")
+            body_lines.append("")
+            body_lines.append("> 待填充")
+        content = (
+            f"type: {stub_key}\ncategory: truth\nstatus: initialized\n"
+            f"---\n" + "\n".join(body_lines) + "\n"
+        )
+        safe_write(tp, f"---\n{content}")
+        log.info("truth_template_created", path=str(tp), fields=declared_fields.get(filename, []))
 
 
 # ---------------------------------------------------------------------------
@@ -477,7 +414,7 @@ def _dispatch_via_api(
     """
     from openai import OpenAI
 
-    chapter = _extract_chapter(prompt)
+    chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill, project_dir, prompt, chapter, uses_staging=uses_staging
@@ -554,7 +491,7 @@ def _dispatch_via_ide(
     Builds a complete prompt, spawns the IDE agent, parses the multi-file
     response, and writes per-file output to the project directory.
     """
-    chapter = _extract_chapter(prompt)
+    chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill, project_dir, prompt, chapter, uses_staging=uses_staging

@@ -5,7 +5,7 @@ Scans all skills' contract.reads dict-form fields, resolves each declared file
 to a representative on-disk sample (parametric paths via glob; runtime-only
 truth files via the ``tests/fixtures`` example fixtures), and reports any
 declared field that does not appear as an actual H2 heading (markdown) or
-top-level key (JSON). Hooked into ``just check`` via ``just lint-contract-fields``.
+top-level key (JSON). Hooked into ``just check`` via ``just lint-contracts``.
 
 Design notes (spec B.5):
 - Truth files like ``plans/chapter-N-plan.md`` are runtime-generated and never
@@ -13,21 +13,28 @@ Design notes (spec B.5):
   ``tests/fixtures/chapter-plan-example.md``. The lint resolves a declared path
   to the most representative available sample and skips paths with no sample
   (WARN-only: a missing sample is not a field-name drift).
-- Both declared field names and actual headings are normalized identically
-  (lower-cased; ASCII whitespace -> ``_``) before comparison so that numbered
-  CJK headings like ``## 1. 当前任务`` match a declared field ``"1. 当前任务"``.
+- Matching uses the UNIFIED matcher ``shenbi.contracts.fields.match_field``
+  (Task 2): strip + fold ASCII whitespace AND U+3000 to a single ASCII space;
+  does NOT lowercase (preserves CJK heading semantics). This keeps the lint and
+  the runtime field filter (``filter_to_fields``) identical, so any drift the
+  lint flags would also be a runtime WARN/FAIL. A declared field that no actual
+  heading/key matches is a contract drift -> exit 1 (FAIL, blocks PR).
 """
 
 from __future__ import annotations
 
 import glob as globmod
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+# Make the in-tree ``shenbi`` package importable regardless of CWD/invocation.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from shenbi.contracts.fields import match_field
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = REPO_ROOT / "skills"
@@ -76,37 +83,30 @@ EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     "outline/volume_map.md": None,
 }
 
-_WS_RE = re.compile(r"\s+")
-
-
-def normalize(name: str) -> str:
-    """Normalize a field/heading name for comparison.
-
-    Lower-case and collapse ASCII whitespace into a single underscore so that a
-    heading ``## 1. 当前任务`` and a declared field ``"1. 当前任务"`` compare
-    equal regardless of the surrounding whitespace in either source.
-    """
-    return _WS_RE.sub("_", name.strip().lower())
-
 
 def extract_headings_md(text: str) -> set[str]:
-    """Extract normalized H2 headings (``## Foo``) from markdown."""
+    """Extract raw H2 headings (``## Foo``) from markdown (post-``## ``)."""
     headings: set[str] = set()
     for line in text.splitlines():
         if line.startswith("## "):
-            headings.add(normalize(line[3:]))
+            headings.add(line[3:].strip())
     return headings
 
 
 def extract_keys_json(text: str) -> set[str]:
-    """Extract top-level keys from a JSON object (normalized)."""
+    """Extract raw top-level keys from a JSON object."""
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
         return set()
     if isinstance(data, dict):
-        return {normalize(k) for k in data}
+        return set(data)
     return set()
+
+
+def _field_unmatched(declared: str, actual: set[str]) -> bool:
+    """True if no actual heading/key matches ``declared`` via ``match_field``."""
+    return not any(match_field(declared, h) for h in actual)
 
 
 def resolve_sample(path: str) -> Path | None:
@@ -176,8 +176,8 @@ def _check_read_item(skill_name: str, item: object) -> str | None:
     if sample is not None:
         actual = _extract_actual(path, sample)
         if actual is not None:
-            declared = {normalize(f) for f in fields if isinstance(f, str)}
-            missing = declared - actual
+            declared = [f for f in fields if isinstance(f, str)]
+            missing = [f for f in declared if _field_unmatched(f, actual)]
             if missing:
                 preview = ", ".join(sorted(actual)[:10]) or "(none)"
                 rel = sample.relative_to(REPO_ROOT)

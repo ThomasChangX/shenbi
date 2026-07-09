@@ -26,7 +26,7 @@ def parametric_globs() -> dict[str, str]:
     from shenbi.contracts import load_registry
 
     reg = load_registry()
-    return {str(p["parametric"]): str(p["glob"]) for p in reg.get("patterns", [])}
+    return {str(p.parametric): str(p.glob) for p in reg.patterns}
 
 
 def _expand_patterns(root: Path, patterns: list[str]) -> list[str]:

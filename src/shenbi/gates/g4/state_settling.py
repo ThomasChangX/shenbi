@@ -3,22 +3,26 @@
 from __future__ import annotations
 from typing import Any
 import re
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
 )
 
 
-def g4_state_settling(fps: list[str], rd: str | None = None) -> str:
+def g4_state_settling(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """State settling: current_state has position, char_matrix has characters, summaries appended, emotional arcs."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.ss.not_found:{fp}")
             continue

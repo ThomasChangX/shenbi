@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 from typing import Any
-from pathlib import Path
 
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
     word_count_md,
 )
 
 
-def g4_length_normalizing(fps: list[str], rd: str | None = None) -> str:
+def g4_length_normalizing(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Length normalizing: checks per new SKILL.md thresholds.
     - 3000-10000 range: report only, no chapter body → skip word count check
     - <3000 expansion: chapter body ≥ 3000 words
@@ -20,9 +25,8 @@ def g4_length_normalizing(fps: list[str], rd: str | None = None) -> str:
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.ln.not_found:{fp}")
             continue

@@ -9,31 +9,32 @@ from __future__ import annotations
 import importlib
 import pkgutil
 
-import yaml
 from pydantic import BaseModel
 
-from shenbi.gates.shared import PROJECT, SKILLS
-
-_TRUTH_FILES_YAML = PROJECT / "docs" / "framework" / "truth-files.yaml"
+from shenbi.gates.shared import SKILLS
 
 
 def bootstrap_registry() -> dict[str, str]:
     """Read truth-files.yaml concepts for unmigrated skill file vocabulary.
 
-    Reserved for the transition-period integration (later pillars will wire
-    contract.py's 4 tools to call this). Not called by production code yet.
-    v2 C1: 真实结构 concepts:[{name,kind}]，非 files:[{path,kind}]。
-    返回 {name: kind}。
+    Returns the derived ``{name: kind}`` mapping used by the dispatcher executor
+    (``_truth_file_set`` / ``_decisions_file_set``) and the registry-consistency
+    property tests. After Task 10 this derives from the canonical
+    ``TruthFilesRegistry`` model (via ``load_registry``) rather than re-reading
+    and re-parsing the YAML, so the two never drift. Returns ``{}`` only when the
+    registry file is absent (pre-bootstrap), keeping the existing fall-back.
     """
-    if not _TRUTH_FILES_YAML.exists():
+    from shenbi.contracts.legacy import load_registry
+    from shenbi.exceptions import FrameworkError
+
+    try:
+        reg = load_registry()
+    except FrameworkError:
+        # load_registry raises ContractError (a FrameworkError subclass) when the
+        # registry file is missing/malformed. Preserve the historical {} fall-back
+        # for callers that run pre-bootstrap (no truth-files.yaml yet).
         return {}
-    data = yaml.safe_load(_TRUTH_FILES_YAML.read_text(encoding="utf-8")) or {}
-    out: dict[str, str] = {}
-    for entry in data.get("concepts", []):  # v2: concepts 非 files
-        name = entry.get("name")  # v2: name 非 path
-        if name:
-            out[name] = entry.get("kind", "truth")
-    return out
+    return {str(c.name): str(c.kind) for c in reg.concepts}
 
 
 def _discover_skill_models() -> dict[str, type[BaseModel]]:

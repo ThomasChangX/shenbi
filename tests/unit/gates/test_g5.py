@@ -92,25 +92,31 @@ class TestG5ErrorPaths:
     @pytest.mark.unit
     def test_g5_handoff_mismatch_detected(self, tmp_path: Path) -> None:
         """If a downstream skill Reads something the upstream never Writes,
-        G5.2 reports a handoff missing entry. We exercise the SKILL.md
-        parsing path against the REAL skills/ dir for the planning phase
-        (chapter-planning Reads plans/, foreshadowing-plant Reads truth/).
-        The gate either finds a real mismatch or not; the structural
-        contract is that G5.2 entries (if any) are well-formed. Here we
-        force a mismatch by pointing at an empty project_dir so the gate
-        runs the handoff loop on the real prereq skills.
+        G5.2 reports a non-blocking WARN (not FAIL). Matching is glob-aware:
+        paths fold to a dag_key, so a parametric read (chapters/chapter-N.md)
+        joins a declared glob (truth/*.md) under one key. We exercise the
+        SKILL.md parsing path against the REAL skills/ dir for the planning
+        phase. The structural contract: G5.2 entries are well-formed WARN
+        checks in `checks` (never in `must_fix`), and the missing list holds
+        dag_key-folded paths.
         """
         round_dir = tmp_path / "round"
         round_dir.mkdir()
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         result = _result_dict(gate_G5("planning", str(round_dir), str(project_dir)))
-        # planning's prereqs all have SKILL.md; the reviewer confirmed the gate
-        # emits 2 real G5.2 handoff entries against an empty project_dir.
-        g52 = [m for m in result["must_fix"] if m.startswith("G5.2:")]
-        assert g52, "G5.2 handoff entries should be emitted"
-        for mf in g52:
-            assert "handoff:" in mf
+        # G5.2 is a non-blocking WARN: entries live in `checks`, never in
+        # `must_fix` (the full closure check is Layer C / Task 18).
+        assert not any(m.startswith("G5.2:") for m in result.get("must_fix", []))
+        g52 = [chk for chk in result.get("checks", []) if chk.get("id") == "G5.2"]
+        assert g52, "G5.2 WARN entries should be emitted"
+        for chk in g52:
+            assert chk["s"] == "WARN"
+            assert "->" in chk["pair"]
+            assert chk["missing"], "missing list must be non-empty"
+            # dag_key folds parametric/literal paths to declared globs
+            # (e.g. truth/*.md), never to a bare parametric literal.
+            assert all("->" not in m for m in chk["missing"])
         assert result["gate"] == "G5"
 
     @pytest.mark.unit

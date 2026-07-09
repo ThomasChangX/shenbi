@@ -4,9 +4,18 @@ from __future__ import annotations
 
 import pytest
 
+from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from tools.lint_contracts import find_completeness_violations
 
-_REG = {"concepts": [], "patterns": [], "globs": [{"pattern": "audits/chapter-*.md"}]}
+# Only ``globs`` is exercised by the completeness check; concepts must be
+# non-empty per the TruthFilesRegistry D24 structural-drift guard.
+_REG = TruthFilesRegistry.model_validate(
+    {
+        "concepts": [{"name": "novel.json", "kind": "config"}],
+        "patterns": [],
+        "globs": [{"pattern": "audits/chapter-*.md"}],
+    }
+)
 
 
 @pytest.mark.unit

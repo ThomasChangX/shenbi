@@ -15,6 +15,7 @@ from typing import Any
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
 )
 
 # Required 评分明细 columns. The header row is matched as a whole so the
@@ -32,16 +33,20 @@ _VERDICTS = ("放行", "阻断")
 _FORESHADOW_FLOOR_RE = re.compile(r"伏笔兑现质量.{0,30}?15", re.DOTALL)
 
 
-def g4_review_arc_payoff(fps: list[str], rd: str | None = None) -> str:
+def g4_review_arc_payoff(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """review-arc-payoff: 5-dim 评分明细 table, 门判定 verdict,
     伏笔兑现质量 ≥15 sub-floor, and file+line evidence.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.ap.not_found:{fp}")
             continue

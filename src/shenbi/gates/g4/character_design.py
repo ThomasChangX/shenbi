@@ -6,20 +6,35 @@ import re
 from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
+    resolve_input_path,
     yload,
 )
+from shenbi.paths import RoundPaths
 
 
-def g4_character_design(fps: list[str], rd: str | None = None) -> str:
+def g4_character_design(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Character-design: frontmatter fields, voice_profile arrays, relationship pairs."""
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
+    if rd is None and project_dir is None:
+        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
+    rp = RoundPaths(
+        round_dir=Path(str(rd or project_dir)),
+        project_dir=Path(str(project_dir or rd)),
+        repo_root=Path(repo_root or PROJECT),
+    )
+
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
 
         # protagonist.md checks
         if "protagonist" in str(fp) and pf.suffix == ".md":
@@ -102,7 +117,7 @@ def g4_character_design(fps: list[str], rd: str | None = None) -> str:
 
         # Check for major character files (SKILL.md Writes: characters/major/*.md)
         # Genesis mode only creates protagonist.md; expansion creates major chars.
-        major_dir = base / "characters" / "major"
+        major_dir = rp.read("characters/major")
         if major_dir.exists():
             major_files = list(major_dir.glob("*.md"))
             if len(major_files) >= 2:

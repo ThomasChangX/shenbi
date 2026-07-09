@@ -269,23 +269,21 @@ def test_dispatch_routes_to_codex_api(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.unit
-def test_resolve_chapter_path_with_chapter() -> None:
-    """_resolve_chapter_path resolves N/NNN with chapter number."""
-    from shenbi.dispatcher.executor import _resolve_chapter_path
+def test_section_path_not_corrupted() -> None:
+    """C2: uppercase N mid-token must NOT be replaced by chapter substitution.
 
-    assert _resolve_chapter_path("chapters/chapter-N.md", 5) == "chapters/chapter-5.md"
-    assert _resolve_chapter_path("chapters/chapter-NNN.md", 5) == "chapters/chapter-005.md"
-    assert _resolve_chapter_path("no-placeholder.md", 5) == "no-placeholder.md"
+    Old executor._resolve_chapter_path did str.replace('N',...) unbounded and
+    corrupted import/canon/01_SECTION.md -> 01_SECTIO5.md. The bounded regex in
+    shenbi.contracts.paths only replaces N at separator boundaries, so SECTION
+    survives intact. Sentinel regression for the marquee C2 bug.
+    """
+    from shenbi.contracts.paths import resolve_chapter_path
 
-
-@pytest.mark.unit
-def test_resolve_chapter_path_none_sentinel() -> None:
-    """_resolve_chapter_path returns '' sentinel when chapter=None and N present."""
-    from shenbi.dispatcher.executor import _resolve_chapter_path
-
-    assert _resolve_chapter_path("chapters/chapter-N.md", None) == ""
-    assert _resolve_chapter_path("chapters/chapter-NNN.md", None) == ""
-    assert _resolve_chapter_path("no-placeholder.md", None) == "no-placeholder.md"
+    assert resolve_chapter_path("import/canon/01_SECTION.md", 5) == "import/canon/01_SECTION.md"
+    # sanity: real placeholders still resolve
+    assert resolve_chapter_path("chapters/chapter-N.md", 5) == "chapters/chapter-5.md"
+    assert resolve_chapter_path("chapters/chapter-NNN.md", 5) == "chapters/chapter-005.md"
+    assert resolve_chapter_path("no-placeholder.md", 5) == "no-placeholder.md"
 
 
 @pytest.mark.unit
@@ -307,7 +305,12 @@ def test_derive_input_files_with_chapter_resolution(monkeypatch: pytest.MonkeyPa
 
 @pytest.mark.unit
 def test_derive_input_files_filter_empty_sentinels(monkeypatch: pytest.MonkeyPatch) -> None:
-    """derive_input_files filters empty sentinels when chapter=None (genesis mode)."""
+    """derive_input_files skips unresolvable placeholders when chapter=None (genesis mode).
+
+    resolve_or_skip returns None for paths with N/NNN placeholders when chapter is
+    None; derive_input_files filters those out so genesis dispatches don't reference
+    files that don't exist yet.
+    """
     monkeypatch.setattr(
         "shenbi.dispatcher.executor.load_contract",
         lambda s: {

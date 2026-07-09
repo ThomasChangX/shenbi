@@ -30,6 +30,17 @@ CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
 
+def bak_path(fp: str | Path) -> str:
+    """Return the ``.bak`` sibling path for ``fp``.
+
+    Single construction site for the truth-diff backup filename so the G1
+    writer, the G2.11 reader, and the G4 style-polishing word-ratio reader
+    all agree on the same root (``str(fp) + ".bak"``). Keeping this in one
+    place prevents the three call sites from drifting apart.
+    """
+    return str(fp) + ".bak"
+
+
 def jload(p: str | Path) -> dict[str, Any]:
     """Load a JSON file as a dict.
 
@@ -44,15 +55,24 @@ def jload(p: str | Path) -> dict[str, Any]:
     return data
 
 
-def resolve_g4_base(rd: str | None = None) -> Path:
-    """Return the base directory for G4 file resolution.
+def resolve_input_path(fp: str | Path, rd: str | None = None) -> Path:
+    """Resolve a caller-supplied file path (an entry of ``fps``) for G4 checkers.
 
-    When ``rd`` (the pipeline/gate round_dir) is provided, use it as the
-    absolute base. Otherwise fall back to the current working directory.
-    All G4 checkers should use this as their single source of path resolution
-    to avoid the ``fps[0].parent.parent`` anti-pattern.
+    Absolute paths are returned unchanged. Relative paths are joined to the
+    round_dir ``rd``; if ``rd`` is None a ``ValueError`` is raised rather than
+    silently falling back to the current working directory. This replaces the
+    ``base = Path(rd) if rd else Path.cwd()`` inline anti-pattern in the generic
+    + inline checkers.
     """
-    return Path(rd) if rd else Path.cwd()
+    p = Path(fp)
+    if p.is_absolute():
+        return p
+    if not rd:
+        raise ValueError(
+            f"round_dir required to resolve relative path {fp!r}; "
+            "silent CWD fallback removed (Task 15b)"
+        )
+    return Path(rd) / fp
 
 
 def yload(p: str | Path) -> dict[str, Any]:

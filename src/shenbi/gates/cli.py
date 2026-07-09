@@ -23,7 +23,7 @@ from shenbi.gates.g7 import gate_G7
 from shenbi.gates.g_dispatch import gate_G_DISPATCH
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 from shenbi.gates.g_transition import gate_G_TRANSITION
-from shenbi.gates.shared import write_gate_marker
+from shenbi.gates.shared import PROJECT, write_gate_marker
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -110,7 +110,14 @@ Examples:
             result = gate_G4_clean(file_list)
         else:
             full_name = SHORT_MAP.get(skill_or_type, skill_or_type)
-            result = gate_G4(full_name, "generative", file_list, rd)
+            result = gate_G4(
+                full_name,
+                "generative",
+                file_list,
+                rd,
+                project_dir=rd,
+                repo_root=str(PROJECT),
+            )
             write_gate_marker("G4", full_name, "generative", result, rd, file_list)
 
     elif gate == "G5":

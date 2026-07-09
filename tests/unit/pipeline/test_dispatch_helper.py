@@ -270,3 +270,89 @@ class TestMultiFileOutputFormat:
 
         assert len(output_paths) == 1
         assert "shenbi-decisions-v1" not in user_prompt
+
+
+class TestTruthTemplates:
+    """D21: truth templates derive H2 headings from consumer-declared fields."""
+
+    def test_seeds_all_four_files(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        truth = tmp_path / "truth"
+        for name in (
+            "current_state.md",
+            "character_matrix.md",
+            "emotional_arcs.md",
+            "chapter_summaries.md",
+        ):
+            assert (truth / name).exists()
+
+    def test_current_state_has_declared_h2_stubs(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
+        # chapter-planning/review-continuity declare these 3 fields.
+        assert "## 主角状态" in body
+        assert "## 当前世界局势" in body
+        assert "## 活跃线索" in body
+        assert "# Current State" in body
+
+    def test_character_matrix_has_declared_h2_stubs(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        body = (tmp_path / "truth" / "character_matrix.md").read_text(encoding="utf-8")
+        # context-composing declares these 4 fields.
+        assert "## 主角" in body
+        assert "## 主要配角" in body
+        assert "## 反派" in body
+        assert "## 角色关系图谱" in body
+
+    def test_chapter_summaries_has_declared_h2(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        body = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
+        assert "## 已完成章节" in body
+
+    def test_yaml_frontmatter_present(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert body.startswith("---\n")
+        assert "type: current_state" in body
+        assert "category: truth" in body
+        assert "status: initialized" in body
+
+    def test_does_not_overwrite_existing_file(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        truth = tmp_path / "truth"
+        truth.mkdir(parents=True)
+        pre_existing = "PRESERVED CONTENT"
+        (truth / "current_state.md").write_text(pre_existing, encoding="utf-8")
+        _init_truth_templates(tmp_path)
+        assert (truth / "current_state.md").read_text(encoding="utf-8") == pre_existing
+
+    def test_template_satisfies_check_fields_exist(self, tmp_path):
+        """D21 canary: a freshly-seeded template produces no G1 field WARNs."""
+        from shenbi.gates.g1 import check_fields_exist
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(tmp_path)
+        inputs = [str(tmp_path / "truth" / "current_state.md")]
+        # Key must be str(fp) (absolute path), matching check_fields_exist's
+        # lookup convention (g1.py:104); a relative key matches neither fp nor
+        # Path(fp).name, making the canary vacuously pass.
+        fields_map = {
+            str(tmp_path / "truth" / "current_state.md"): [
+                "主角状态",
+                "当前世界局势",
+                "活跃线索",
+            ]
+        }
+        warnings = check_fields_exist("shenbi-chapter-planning", inputs, fields_map)
+        assert warnings == []

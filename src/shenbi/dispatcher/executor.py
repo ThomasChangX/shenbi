@@ -10,12 +10,12 @@ import json
 import os
 import subprocess
 import uuid
-import re
 from pathlib import Path
 from typing import Any
 
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts import OutputKind
+from shenbi.contracts.paths import extract_chapter, resolve_or_skip
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
 
@@ -60,21 +60,6 @@ def generate_agent_id(round_dir: Path, skill: str, test_type: str) -> str:
     return f"{round_dir.name}-{skill}-{test_type}-{uuid.uuid4().hex[:8]}"
 
 
-_CHAPTER_RE = re.compile(r"\bchapter\s+(\d+)\b", re.IGNORECASE)
-
-
-def _resolve_chapter_path(path: str, chapter: int | None) -> str:
-    """Replace N/NNN placeholders with the actual chapter number.
-    Returns empty string sentinel when chapter is None and path has
-    unresolved N/NNN placeholders (genesis mode: file doesn't exist yet).
-    """
-    if chapter is None:
-        if "NNN" in path or "N" in path:
-            return ""  # sentinel: no chapter context, file won't exist
-        return path
-    return path.replace("NNN", f"{chapter:03d}").replace("N", str(chapter))
-
-
 def derive_file_type(skill: str) -> str:
     """Derive G2 FILE_TYPE from the contract layer (spec New-I).
 
@@ -105,11 +90,16 @@ def derive_input_files(
 ) -> list[str]:
     """Return the skill's contract reads, resolving chapter placeholders.
     When *chapter* is provided, N/NNN placeholders are resolved.
-    When *round_dir* is provided, relative paths are made absolute.
+    Paths with unresolvable placeholders (genesis mode) are skipped via
+    resolve_or_skip → None → filtered. When *round_dir* is provided,
+    relative paths are made absolute.
     """
     try:
-        paths = [_resolve_chapter_path(p, chapter) for p in load_contract(skill)["reads"]]
-        paths = [p for p in paths if p]  # filter "" sentinels (genesis mode)
+        paths = [
+            rp
+            for p in load_contract(skill)["reads"]
+            if (rp := resolve_or_skip(p, chapter)) is not None
+        ]
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
         return paths
@@ -122,12 +112,17 @@ def derive_output_files(
 ) -> list[str]:
     """Return the skill's contract writes+updates, resolving chapter placeholders.
     When *chapter* is provided, N/NNN placeholders are resolved.
-    When *round_dir* is provided, relative paths are made absolute.
+    Paths with unresolvable placeholders (genesis mode) are skipped via
+    resolve_or_skip → None → filtered. When *round_dir* is provided,
+    relative paths are made absolute.
     """
     try:
         c = load_contract(skill)
-        paths = [_resolve_chapter_path(p, chapter) for p in [*c["writes"], *c["updates"]]]
-        paths = [p for p in paths if p]  # filter "" sentinels (genesis mode)
+        paths = [
+            rp
+            for p in [*c["writes"], *c["updates"]]
+            if (rp := resolve_or_skip(p, chapter)) is not None
+        ]
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
         return paths
@@ -166,21 +161,6 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
     return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
-def _extract_chapter(prompt: str) -> int | None:
-    """Extract chapter number from a pipeline dispatch prompt.
-
-    Pipeline prompts follow the convention::
-        "Execute <skill> for chapter 5. Project dir: /path"
-
-    Returns the integer chapter number, or None when not found
-    (non-pipeline dispatches are not chapter-scoped).
-    """
-    m = _CHAPTER_RE.search(prompt)
-    if m:
-        return int(m.group(1))
-    return None
-
-
 def detect_mode() -> str:
     """Detect available dispatch mode.
 
@@ -201,7 +181,7 @@ def dispatch(
     agent_id = generate_agent_id(round_dir, skill, test_type)
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)
     if chapter is None:
-        chapter = _extract_chapter(prompt)
+        chapter = extract_chapter(prompt)
     file_type = derive_file_type(skill)
     input_files = derive_input_files(skill, chapter, round_dir)
 
@@ -284,7 +264,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     from shenbi.audit.snapshot import snapshot_tree
     from shenbi.audit.write_audit import audit_writes
 
-    chapter = _extract_chapter(prompt)
+    chapter = extract_chapter(prompt)
     watch = _audit_watch_paths(skill, chapter)
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot

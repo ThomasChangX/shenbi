@@ -55,7 +55,12 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
 
     safe_write(scores_file, json.dumps(scores))
 
-    rubric_path = Path(os.environ.get("RUBRIC", f"tests/tiers/t1-skill/{skill}/rubric.md"))
+    # Repo-root-relative (the only CWD-dependent path left in the dispatcher).
+    # parents[4]: modes -> dispatcher -> shenbi -> src -> <repo root>.
+    repo_root = Path(__file__).resolve().parents[4]
+    rubric_path = Path(
+        os.environ.get("RUBRIC", str(repo_root / f"tests/tiers/t1-skill/{skill}/rubric.md"))
+    )
     result = subprocess.run(
         [
             "uv",

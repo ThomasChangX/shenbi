@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.paths import resolve_volume_path
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import (
     dispatch_skill,
@@ -134,11 +135,6 @@ def _record_done(state: PipelineState, skill: str) -> None:
     _reset_closure_retries(state, skill)
 
 
-def _substitute_volume(path: str, volume: int) -> str:
-    """Replace N placeholder with the actual volume number (I5)."""
-    return path.replace("N", str(volume))
-
-
 def _current_volume(project_dir: Path) -> int:
     """Determine the current (last) volume number from volume_map.md (I5).
 
@@ -159,7 +155,7 @@ def _resolve_closure_g4_path(step: ClosureStep, project_dir: Path) -> str:
         return ""
     if "N" in step.output_path:
         vol = _current_volume(project_dir)
-        return _substitute_volume(step.output_path, vol)
+        return resolve_volume_path(step.output_path, vol)
     return step.output_path
 
 

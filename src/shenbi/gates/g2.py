@@ -13,9 +13,14 @@ import re
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
+from shenbi.contracts.schemas.adapt import decisions_err_to_g2_failures
+from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import (
     CHAPTER_WORD_CEILING,
     CHAPTER_WORD_FLOOR,
+    bak_path,
     fail,
     jload,
     passed,
@@ -62,7 +67,10 @@ def gate_G2(
             continue
 
         # G2.dec — decisions.json validation (M4)
-        # Placed after G2.3 (content is now available) and before G2.4/G2.5.
+        # Schema/rationale rules now live in DecisionsDoc (Task 5); this branch
+        # only handles JSON-syntax (G2.dec.1) and delegates the rest to the
+        # contract layer. The numeric IDs G2.dec.{1,2,3} are preserved by the
+        # decisions_err_to_g2_failures adapter.
         if file_type == "decisions":
             # Skip non-JSON files — the decisions branch only validates JSON.
             # Skills like chapter-drafting/context-composing produce BOTH a .md
@@ -88,30 +96,12 @@ def gate_G2(
                     }
                 )
                 continue
-            # G2.dec.2 — schema version
-            if data.get("$schema") != "shenbi-decisions-v1":
-                mf.append(
-                    {
-                        "id": "G2.dec.2",
-                        "file": fp,
-                        "s": "FAIL",
-                        "r": f"schema version mismatch: {data.get('$schema')}",
-                    }
-                )
-            # G2.dec.3 — required keys
-            required = {"skill", "chapter", "selections", "produced_at"}
-            missing = required - data.keys()
-            if missing:
-                mf.append(
-                    {
-                        "id": "G2.dec.3",
-                        "file": fp,
-                        "s": "FAIL",
-                        "r": f"missing keys: {missing}",
-                    }
-                )
-            else:
+            # G2.dec.2/.3 — schema version, required keys, P2.5 rationale (DecisionsDoc)
+            try:
+                DecisionsDoc.model_validate(data)
                 checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
+            except ValidationError as e:
+                mf.extend(decisions_err_to_g2_failures(e, fp))
             continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
 
         # G2.4 — JSON syntax (if JSON file)
@@ -239,7 +229,7 @@ def gate_G2(
 
         # G2.11 — truth files: .bak comparison (line-by-line diff)
         if file_type == "truth" and round_dir:
-            bak = Path(str(fp) + ".bak")
+            bak = Path(bak_path(fp))
             if bak.exists():
                 import difflib
 

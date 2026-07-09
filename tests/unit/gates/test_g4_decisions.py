@@ -120,6 +120,50 @@ class TestG4DecisionsValidation:
 
 
 @pytest.mark.unit
+class TestG4DecisionsFailureIdFormat:
+    """Pin the micro-failure ID format as ``G4.dec.<type>``.
+
+    Regression for a double-prefix bug: the validator previously re-split and
+    re-prefixed the adapter's ``id``, producing ``G4.dec.dec.<type>``. The
+    adapter (called with prefix "G4.dec") already emits ``G4.dec.<type>``, so
+    the validator must use its output verbatim. No existing test checked the ID
+    string, which masked the bug.
+    """
+
+    def test_must_fix_ids_are_single_prefixed(self, tmp_path: Path) -> None:
+        """Every must_fix entry must start with exactly ``G4.dec.`` (no ``dec.dec.``)."""
+        decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-context-composing",
+            "chapter": 5,
+            "produced_at": "2026-07-07T12:00:00Z",
+            "selections": [
+                {
+                    "target": "truth/arcs/arc-N.md",
+                    "selected": ["climax"],
+                    "basis": "arc_relevance",
+                    "severity": "high",
+                    "omitted": [],
+                }
+            ],
+        }
+        fp = tmp_path / "chapter-5-context-decisions.json"
+        fp.write_text(json.dumps(decisions), encoding="utf-8")
+        result = g4_decisions([str(fp)])
+        data = json.loads(result)
+        assert data["status"] == "FAIL"
+        must_fix: list[str] = data["must_fix"]
+        assert must_fix, "expected at least one micro-failure"
+        for entry in must_fix:
+            # Each entry is "<id>:<file>:<reason>"; the id is the part before the first ':'.
+            id_part = entry.split(":", 1)[0]
+            assert id_part.startswith("G4.dec."), f"id {id_part!r} missing G4.dec. prefix"
+            assert not id_part.startswith("G4.dec.dec."), f"double-prefix bug recurred: {id_part!r}"
+            # Must be G4.dec.<single-token-type>, i.e. exactly two dots.
+            assert id_part.count(".") == 2, f"expected shape G4.dec.<type>, got {id_part!r}"
+
+
+@pytest.mark.unit
 class TestG4DecisionsNonJsonSkip:
     """Critical: g4_decisions MUST skip non-JSON files.
 
@@ -170,25 +214,40 @@ class TestG4CompositeChecker:
         from shenbi.gates.g4.decisions_validator import make_composite_checker
         from shenbi.gates.shared import passed
 
-        def passing_checker(fps: list[str], rd: str | None = None) -> str:
+        def passing_checker(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return passed("G4-fake", [{"id": "G4.fake", "s": "PASS"}])
 
         composite = make_composite_checker(passing_checker, passing_checker)
-        result = json.loads(composite([], None))
+        result = json.loads(composite([], None, None, None))
         assert result["status"] == "PASS"
 
     def test_composite_fails_when_first_fails(self) -> None:
         from shenbi.gates.g4.decisions_validator import make_composite_checker
         from shenbi.gates.shared import fail, passed
 
-        def failing_checker(fps: list[str], rd: str | None = None) -> str:
+        def failing_checker(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return fail("G4-fail", [], "scoring", ["G4.fail:broken"])
 
-        def passing_checker(fps: list[str], rd: str | None = None) -> str:
+        def passing_checker(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return passed("G4-ok", [{"id": "G4.ok", "s": "PASS"}])
 
         composite = make_composite_checker(failing_checker, passing_checker)
-        result = json.loads(composite([], None))
+        result = json.loads(composite([], None, None, None))
         assert result["status"] == "FAIL"
         # must_fix from first checker is preserved (key is "must_fix", not "failures")
         assert "G4.fail:broken" in result["must_fix"]
@@ -197,14 +256,24 @@ class TestG4CompositeChecker:
         from shenbi.gates.g4.decisions_validator import make_composite_checker
         from shenbi.gates.shared import fail, passed
 
-        def passing_checker(fps: list[str], rd: str | None = None) -> str:
+        def passing_checker(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return passed("G4-ok", [{"id": "G4.ok", "s": "PASS"}])
 
-        def failing_checker(fps: list[str], rd: str | None = None) -> str:
+        def failing_checker(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return fail("G4-fail", [], "scoring", ["G4.dec:broken"])
 
         composite = make_composite_checker(passing_checker, failing_checker)
-        result = json.loads(composite([], None))
+        result = json.loads(composite([], None, None, None))
         assert result["status"] == "FAIL"
         assert "G4.dec:broken" in result["must_fix"]
 
@@ -212,14 +281,24 @@ class TestG4CompositeChecker:
         from shenbi.gates.g4.decisions_validator import make_composite_checker
         from shenbi.gates.shared import fail
 
-        def fail_a(fps: list[str], rd: str | None = None) -> str:
+        def fail_a(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return fail("G4-a", [], "scoring", ["err_a"])
 
-        def fail_b(fps: list[str], rd: str | None = None) -> str:
+        def fail_b(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             return fail("G4-b", [], "scoring", ["err_b"])
 
         composite = make_composite_checker(fail_a, fail_b)
-        result = json.loads(composite([], None))
+        result = json.loads(composite([], None, None, None))
         assert result["status"] == "FAIL"
         assert "err_a" in result["must_fix"]
         assert "err_b" in result["must_fix"]
@@ -276,7 +355,7 @@ class TestG4CompositeFilePartitioning:
         json_fp.write_text(json.dumps(self._valid_decisions()), encoding="utf-8")
 
         composite = make_composite_checker(g4_context_composing, g4_decisions)
-        result = json.loads(composite([str(md_fp), str(json_fp)], str(tmp_path)))
+        result = json.loads(composite([str(md_fp), str(json_fp)], str(tmp_path), None, None))
         assert result["status"] == "PASS", f"composite failed: {result.get('must_fix', [])}"
 
     def test_composite_partitions_json_away_from_structural_checker(self, tmp_path: Path) -> None:
@@ -290,7 +369,12 @@ class TestG4CompositeFilePartitioning:
 
         seen: list[list[str]] = []
 
-        def spy_structural(fps: list[str], rd: str | None = None) -> str:
+        def spy_structural(
+            fps: list[str],
+            rd: str | None = None,
+            project_dir: str | None = None,
+            repo_root: str | None = None,
+        ) -> str:
             seen.append(list(fps))
             return passed("G4-spy", [{"id": "G4.spy", "s": "PASS"}])
 
@@ -300,7 +384,7 @@ class TestG4CompositeFilePartitioning:
         json_fp.write_text(json.dumps(self._valid_decisions()), encoding="utf-8")
 
         composite = make_composite_checker(spy_structural, g4_decisions)
-        composite([str(md_fp), str(json_fp)], str(tmp_path))
+        composite([str(md_fp), str(json_fp)], str(tmp_path), None, None)
 
         assert len(seen) == 1
         received = seen[0]

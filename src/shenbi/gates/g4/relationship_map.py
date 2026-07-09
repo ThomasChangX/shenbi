@@ -3,23 +3,36 @@
 from __future__ import annotations
 from typing import Any
 import re
+from pathlib import Path
 
 from shenbi.gates.shared import (
+    PROJECT,
     fail,
     passed,
-    resolve_g4_base,
 )
+from shenbi.paths import RoundPaths
 
 
-def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
+def g4_relationship_map(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Relationship map: >= 3 pairs, each with interest foundation, info boundary enum,
     evolution trajectory.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    pd = resolve_g4_base(rd)
+    if rd is None and project_dir is None:
+        raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
+    rp = RoundPaths(
+        round_dir=Path(str(rd or project_dir)),
+        project_dir=Path(str(project_dir or rd)),
+        repo_root=Path(repo_root or PROJECT),
+    )
 
-    rel_path = pd / "characters" / "relationships.md"
+    rel_path = rp.read("characters/relationships.md")
     if not rel_path.exists():
         mf.append("G4.rel.not_found")
     else:
@@ -46,7 +59,7 @@ def g4_relationship_map(fps: list[str], rd: str | None = None) -> str:
                 c.append({"id": "G4.rm.complete", "s": "PASS", "complete": valid})
 
     # truth/character_matrix.md: must exist (SKILL.md Updates target)
-    cm_path = pd / "truth" / "character_matrix.md"
+    cm_path = rp.read("truth/character_matrix.md")
     if cm_path.exists():
         cm_content = cm_path.read_text(encoding="utf-8")
         if len(cm_content.strip()) > 0:

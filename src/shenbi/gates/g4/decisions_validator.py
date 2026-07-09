@@ -1,22 +1,32 @@
-"""G4 checker for decisions.json schema validation (Layer A)."""
+"""G4 checker for decisions.json schema validation (Layer A).
+
+Schema version, required keys, and P2.5 rationale rules now live in
+:class:`DecisionsDoc` (Task 5). This checker handles file I/O (skip non-JSON,
+invalid-JSON, not-object) and delegates structural validation to the model,
+mapping its ``ValidationError`` to ``G4.dec.{type}`` micro-failures via the
+generic adapter.
+"""
 
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 from collections.abc import Callable
 
-from shenbi.gates.shared import fail, passed
+from pydantic import ValidationError
+
+from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
+from shenbi.contracts.schemas.decisions import DecisionsDoc
+from shenbi.gates.shared import fail, passed, resolve_input_path
 from shenbi.status import GateStatus
-from shenbi.gates.g4._decisions_schema import (
-    DECISIONS_SCHEMA_VERSION,
-    validate_selection_rationale,
-    validate_adjustment_rationale,
-)
 
 
-def g4_decisions(fps: list[str], rd: str | None = None) -> str:
+def g4_decisions(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules.
 
     Only processes *.json files — non-JSON files (e.g., the main .md artifact
@@ -26,10 +36,9 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
-    base = Path(rd) if rd else Path.cwd()
 
     for fp in fps or []:
-        p = base / fp if not Path(fp).is_absolute() else Path(fp)
+        p = resolve_input_path(fp, rd)
         if not p.exists():
             mf.append(f"G4.dec.not_found:{fp}")
             continue
@@ -49,39 +58,17 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
             mf.append(f"G4.dec.not_object:{fp}:got {type(data).__name__}")
             continue
 
-        # Schema version
-        if data.get("$schema") != DECISIONS_SCHEMA_VERSION:
-            mf.append(f"G4.dec.schema_version:{fp}:{data.get('$schema')}")
-
-        # Required keys
-        required = {"skill", "chapter", "selections", "produced_at"}
-        missing = required - data.keys()
-        if missing:
-            mf.append(f"G4.dec.missing_keys:{fp}:{missing}")
-
-        # Validate selections (P2.5)
-        for i, sel in enumerate(data.get("selections", [])):
-            if not isinstance(sel, dict):
-                mf.append(f"G4.dec.selection[{i}]:{fp}:not a dict ({type(sel).__name__})")
-                continue
-            errors = validate_selection_rationale(
-                basis=sel.get("basis", ""),
-                severity=sel.get("severity", "low"),
-                rationale=sel.get("rationale"),
+        # Schema version, required keys, and P2.5 rationale (DecisionsDoc).
+        try:
+            DecisionsDoc.model_validate(data)
+            c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
+        except ValidationError as e:
+            # pydantic_err_to_gate_failures already produces "G4.dec.<type>" IDs
+            # (prefix is passed as "G4.dec"). Use its output directly — do NOT
+            # re-split/re-prefix the id, which double-prefixes to "G4.dec.dec.<type>".
+            mf.extend(
+                f"{f['id']}:{fp}:{f['r']}" for f in pydantic_err_to_gate_failures(e, fp, "G4.dec")
             )
-            for err in errors:
-                mf.append(f"G4.dec.selection[{i}]:{fp}:{err}")
-
-        # Validate adjustments (always require rationale)
-        for i, adj in enumerate(data.get("adjustments", [])):
-            if not isinstance(adj, dict):
-                mf.append(f"G4.dec.adjustment[{i}]:{fp}:not a dict ({type(adj).__name__})")
-                continue
-            errors = validate_adjustment_rationale(adj.get("rationale"))
-            for err in errors:
-                mf.append(f"G4.dec.adjustment[{i}]:{fp}:{err}")
-
-        c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
 
     if not fps:
         c.append({"id": "G4.dec", "s": "SKIP", "r": "no files"})
@@ -91,9 +78,10 @@ def g4_decisions(fps: list[str], rd: str | None = None) -> str:
     return passed("G4-decisions", c)
 
 
-# Type alias for G4 checker functions: (file_paths, round_dir) -> JSON result string.
+# Type alias for G4 checker functions:
+# (file_paths, round_dir, project_dir, repo_root) -> JSON result string.
 # Required for basedpyright to accept the checker dict values in generic.py.
-G4CheckerFn = Callable[[list[str], str | None], str]
+G4CheckerFn = Callable[[list[str], str | None, str | None, str | None], str]
 
 
 def make_composite_checker(
@@ -105,7 +93,12 @@ def make_composite_checker(
     Both checkers always run (even if the first fails) to collect all failures.
     """
 
-    def composite(fps: list[str], rd: str | None = None) -> str:
+    def composite(
+        fps: list[str],
+        rd: str | None = None,
+        project_dir: str | None = None,
+        repo_root: str | None = None,
+    ) -> str:
         # Partition by extension: structural checkers parse markdown and have NO
         # .json guard, so feeding them a .json file fails (no expected sections
         # in JSON). The decisions checker already skips non-.json. Route each
@@ -115,8 +108,8 @@ def make_composite_checker(
         json_files = [fp for fp in fps if fp.endswith(".json")]
         other_files = [fp for fp in fps if not fp.endswith((".md", ".json"))]
 
-        existing_result = existing_checker(md_files + other_files, rd)
-        decisions_result = decisions_checker(json_files + other_files, rd)
+        existing_result = existing_checker(md_files + other_files, rd, project_dir, repo_root)
+        decisions_result = decisions_checker(json_files + other_files, rd, project_dir, repo_root)
 
         # Parse both results and aggregate.
         # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.

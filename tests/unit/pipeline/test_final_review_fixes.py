@@ -10,9 +10,9 @@ from unittest.mock import patch
 
 import pytest
 
+from shenbi.contracts.paths import resolve_volume_path
 from shenbi.pipeline.closure import (
     _resolve_closure_g4_path,
-    _substitute_volume,
     run_closure_step,
 )
 from shenbi.pipeline.dispatch_helper import DispatchResult
@@ -314,9 +314,9 @@ class TestI5VolumeSubstitution:
     """Closure steps 4-6 substitute N with the actual volume number."""
 
     def test_substitute_volume(self) -> None:
-        assert _substitute_volume("audits/volume-N-score.md", 3) == "audits/volume-3-score.md"
+        assert resolve_volume_path("audits/volume-N-score.md", 3) == "audits/volume-3-score.md"
         assert (
-            _substitute_volume("audits/chapter-N-long-span.md", 2)
+            resolve_volume_path("audits/chapter-N-long-span.md", 2)
             == "audits/chapter-2-long-span.md"
         )
 

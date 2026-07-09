@@ -36,6 +36,9 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any, cast
 
+from shenbi.contracts.paths import resolve_chapter_path
+from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
+
 import yaml
 
 from shenbi.logging import get_logger
@@ -232,11 +235,15 @@ CHAPTER_STEPS: list[ChapterStep] = [
         output_path="chapters/chapter-N.md",
     ),
     # Snapshot + drift (spec section 6.1 steps 12-13).
+    # D20: snapshot-manage is handled inline by _snapshot_chapter_files, which
+    # writes a timestamped flatfile snapshots/chapter-NNN-{ts}.md (never a
+    # fixed path). The old output_path="snapshots/chapter-NNN/" was a fictional
+    # directory that never existed on disk. Empty output_path = no single file.
     ChapterStep(
         19,
         "shenbi-snapshot-manage",
         "snapshot-manage",
-        output_path="snapshots/chapter-NNN/",
+        output_path="",
     ),
     ChapterStep(
         20,
@@ -329,18 +336,6 @@ def _gate_passed(result: dict[str, Any]) -> bool:
     return str(result.get("status", "")) == GateStatus.PASS
 
 
-def _substitute_chapter(path: str, chapter: int) -> str:
-    """Replace N / NNN placeholders with the actual chapter number.
-
-    Uses bounded regex for single-N replacement (after ``-`` or ``/``, before
-    ``-``, ``.``, ``/``, or end-of-string) to avoid corrupting paths with
-    multiple N characters not intended as placeholders. Matches the resolution
-    logic in ``dispatch_helper._resolve_path``.
-    """
-    result = path.replace("NNN", f"{chapter:03d}")
-    return re.sub(r"(?<=[-/])N(?=[-./]|$)", str(chapter), result)
-
-
 def _retry_key(chapter: int, skill: str) -> str:
     """Chapter-scoped retry key so retries from different chapters don't collide."""
     return f"ch{chapter}-{skill}"
@@ -355,7 +350,7 @@ def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     """
     if not step.output_path:
         return ""
-    resolved = _substitute_chapter(step.output_path, chapter)
+    resolved = resolve_chapter_path(step.output_path, chapter)
     if step.uses_staging:
         from shenbi.pipeline.checkpoint import STAGING_DIR
 
@@ -522,7 +517,7 @@ def _advance(
             # Auto mode: commit staging immediately since no human review
             from shenbi.pipeline.checkpoint import commit_staging
 
-            target = _substitute_chapter(step.output_path, chapter)
+            target = resolve_chapter_path(step.output_path, chapter)
             try:
                 commit_staging(project_dir, [target])
                 log.info("staging_auto_committed", chapter=chapter, target=target)
@@ -550,7 +545,7 @@ def _advance(
             # Fall through to chapter-completion check (no checkpoint raised)
         else:
             artifact = (
-                _substitute_chapter(step.output_path, chapter)
+                resolve_chapter_path(step.output_path, chapter)
                 if step.output_path
                 else f"chapter-{chapter}/{step.name}"
             )
@@ -644,8 +639,10 @@ def _count_triggered_hooks(text: str) -> int:
     r"""Count hooks with state TRIGGERED in the pending_hooks.md content.
 
     Parses YAML frontmatter (``---\\n...\\n---``) for a ``hooks`` list where
-    entries have a ``state`` field. Falls back to a text scan for
-    ``state: TRIGGERED`` when frontmatter is absent or malformed.
+    entries have a ``state`` field. State comparison goes through
+    :func:`parse_hook_state` (fix D22): case-insensitive, and the
+    non-canonical ``TRIGGER`` spelling folds to ``TRIGGERED``. Falls back to a
+    text scan for ``state: TRIGGERED`` when frontmatter is absent or malformed.
     """
     # Try YAML frontmatter first.
     if text.startswith("---"):
@@ -656,7 +653,10 @@ def _count_triggered_hooks(text: str) -> int:
                 hooks = fm.get("hooks", [])
                 if isinstance(hooks, list):
                     return sum(
-                        1 for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"
+                        1
+                        for h in hooks
+                        if isinstance(h, dict)
+                        and parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
                     )
             except Exception:
                 pass  # fall through to text scan
@@ -768,7 +768,9 @@ def _should_run_recall(project_dir: Path, chapter: int) -> bool:
     hooks = _read_pending_hooks(project_dir)
 
     # Condition 2: >5 TRIGGERED hooks
-    triggered_count = sum(1 for h in hooks if h.get("state") == "TRIGGERED")
+    triggered_count = sum(
+        1 for h in hooks if parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
+    )
     if triggered_count > 5:
         log.info(
             "recall_triggered_by_triggered_count",
@@ -1425,7 +1427,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if "review-resonance" in step.skill:
         # Parse resonance score from the audit report
         cs = _get_chapter_state(state, chapter)
-        report_path = project_dir / _substitute_chapter("audits/chapter-N-resonance.md", chapter)
+        report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
         cs.resonance_score = _parse_resonance_score(report_path)
         log.info(
             "resonance_score_parsed",

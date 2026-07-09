@@ -13,9 +13,8 @@ install group="dev":
 # Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
 check:
     uv run python tools/lint_status_strings.py
-    uv run python tools/lint_contracts.py
-    uv run python scripts/lint_contract_fields.py
     uv run python tools/lint_repo_consistency.py
+    just lint-contracts
     uv run ruff check .
     uv run ruff format --check .
     uv run mypy src/shenbi/
@@ -48,6 +47,12 @@ lint-status:
 # Lint contract.reads fields vs truth file headings/keys (spec B.5)
 lint-contract-fields:
 	uv run python scripts/lint_contract_fields.py
+
+# All contract lints: graph closure (Task 18) + field drift (B.5) + load/completeness (§5.5)
+lint-contracts:
+	uv run python tools/lint_contract_graph.py
+	uv run python scripts/lint_contract_fields.py
+	uv run python tools/lint_contracts.py
 
 # Regenerate contract-derived artifacts (deps.json expected_outputs, DAG, index, body views)
 generate:

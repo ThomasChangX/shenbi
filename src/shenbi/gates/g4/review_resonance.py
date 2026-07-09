@@ -14,6 +14,7 @@ from typing import Any
 from shenbi.gates.shared import (
     fail,
     passed,
+    resolve_input_path,
 )
 
 # Required 评分明细 columns. The header row is matched as a whole so the
@@ -24,16 +25,20 @@ _DETAIL_COLS = ("维度", "得分", "满分", "置信度", "证据", "裁判理�
 _VERDICTS = ("通过", "阻断", "待人机复核")
 
 
-def g4_review_resonance(fps: list[str], rd: str | None = None) -> str:
+def g4_review_resonance(
+    fps: list[str],
+    rd: str | None = None,
+    project_dir: str | None = None,  # threaded by 15a, consumed by 15b
+    repo_root: str | None = None,  # threaded by 15a, consumed by 15b
+) -> str:
     """review-resonance: 评分明细 table (6 cols), 校准门判定 verdict,
     evidence carrying file+line references.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
 
-    base = Path(rd) if rd else Path.cwd()
     for fp in fps or []:
-        pf = base / fp if not Path(fp).is_absolute() else Path(fp)
+        pf = resolve_input_path(fp, rd)
         if not pf.exists():
             mf.append(f"G4.rr.not_found:{fp}")
             continue
