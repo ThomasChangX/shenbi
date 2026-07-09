@@ -69,6 +69,8 @@ Replace this exact text:
     continue-on-error: ${{ matrix.python-version == '3.13' }}
 ```
 
+> **Note (pre-existing inconsistency):** The original ci.yml comment above says "88% threshold" but the actual Windows step used `--cov-fail-under=85`. This mismatch predates this plan — the "replace" block is verbatim from the original file so the Edit matches. Both the comment and the Windows step are deleted in Step 2, so the inconsistency is removed rather than propagated.
+
 with:
 
 ```yaml

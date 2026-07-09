@@ -111,8 +111,10 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           URL="repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          CHANGED=$(gh api "$URL" \
-            --jq '[.[] | select(.filename == "renovate.json")] | length')
+          # --paginate: gh api returns 100 files/page; --jq emits
+          # filenames across all pages, grep -c counts matches.
+          CHANGED=$(gh api --paginate "$URL" --jq '.[].filename' \
+            | grep -c '^renovate\.json$' || true)
           if [ "$CHANGED" -gt 0 ]; then
             npx --yes -p renovate renovate-config-validator renovate.json
           else
