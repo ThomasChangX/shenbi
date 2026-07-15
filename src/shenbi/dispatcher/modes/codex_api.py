@@ -1,4 +1,11 @@
-"""Codex API dispatch mode (currently unimplemented)."""
+"""DEPRECATED: codex-api dispatch mode — superseded by unified API executor.
+
+This mode was never reachable: detect_mode() only returns 'codex' or
+'internal', and the executor.py branch that referenced it was removed (P0.4).
+API dispatch is handled by pipeline/dispatch_helper._dispatch_via_api.
+
+Safe to delete entirely in the next minor release.
+"""
 
 from __future__ import annotations
 

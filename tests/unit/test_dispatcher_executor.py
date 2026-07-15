@@ -247,28 +247,6 @@ def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.unit
-def test_dispatch_routes_to_codex_api(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Dispatch routes to codex-api mode when detect_mode returns 'codex-api'."""
-    import subprocess
-    from pathlib import Path
-
-    import shenbi.dispatcher.executor as exec_mod
-    import shenbi.dispatcher.modes.codex_api as codex_api_mod
-
-    def mock_run(*a, **kw):
-        return type("R", (), {"stdout": '{"status": "PASS"}'})()
-
-    monkeypatch.setattr(subprocess, "run", mock_run)
-    monkeypatch.setattr(exec_mod, "detect_mode", lambda: "codex-api")
-    monkeypatch.setattr(codex_api_mod, "dispatch_codex_api", lambda *a, **kw: 0)
-
-    from shenbi.dispatcher.executor import dispatch
-
-    result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
-    assert result == 0
-
-
-@pytest.mark.unit
 def test_section_path_not_corrupted() -> None:
     """C2: uppercase N mid-token must NOT be replaced by chapter substitution.
 

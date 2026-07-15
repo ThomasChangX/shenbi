@@ -234,10 +234,6 @@ def dispatch(
         from shenbi.dispatcher.modes.codex import dispatch_codex
 
         return dispatch_codex(skill, test_type, round_dir, prompt, agent_id)
-    if mode == "codex-api":
-        from shenbi.dispatcher.modes.codex_api import dispatch_codex_api
-
-        return dispatch_codex_api(skill, test_type, round_dir, prompt, agent_id)
     from shenbi.dispatcher.modes.internal import dispatch_internal
 
     return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
