@@ -52,18 +52,27 @@ def now_iso() -> str:
 
 
 def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
-    """Run a gate via validate-gate.py, return parsed JSON."""
-    vg = str(TESTS / "validate-gate.py")
-    r = subprocess.run(
-        [sys.executable, vg, gate] + args,
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
+    """Run a gate via the live ``shenbi.gates.cli`` module, return parsed JSON.
+
+    Gate logic was extracted from the legacy ``tests/validate-gate.py`` into
+    ``src/shenbi/gates/`` (PR-19). This function targets the module directly
+    via ``python -m shenbi.gates.cli``, matching ``dispatch_helper.run_gate_g3/g4``.
+    """
+    r: subprocess.CompletedProcess[str] | None = None
     try:
+        r = subprocess.run(
+            [sys.executable, "-m", "shenbi.gates.cli", gate] + args,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
         return cast(dict[str, Any], json.loads(r.stdout))
-    except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "raw_stdout": r.stdout, "raw_stderr": r.stderr}
+    except (json.JSONDecodeError, ValueError, OSError):
+        return {
+            "status": GateStatus.FAIL,
+            "raw_stdout": r.stdout if r is not None else "",
+            "raw_stderr": r.stderr if r is not None else "",
+        }
 
 
 def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
