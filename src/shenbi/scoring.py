@@ -300,9 +300,10 @@ def main() -> dict[str, Any]:
         idx = sys.argv.index("--files") if "--files" in sys.argv else -1
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
-        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         proc_result = subprocess.run(
-            [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
+            [sys.executable, "-m", "shenbi.gates.cli", gate_type, ",".join(files), ftype],
+            capture_output=True,
+            text=True,
         )
         emit_json(json.loads(proc_result.stdout))
         sys.exit(0 if proc_result.returncode == 0 else 1)
@@ -329,7 +330,6 @@ def main() -> dict[str, Any]:
     if tier:
         import subprocess
 
-        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         if tier == "T1" and test_type:
             # G3: prerequisite check — extract skill_name from rubric path
             rubric_p = Path(rubric_path)
@@ -337,7 +337,15 @@ def main() -> dict[str, Any]:
             if skill_name:
                 if round_dir:
                     gate_result = subprocess.run(
-                        [sys.executable, vg, "G3", skill_name, test_type, round_dir],
+                        [
+                            sys.executable,
+                            "-m",
+                            "shenbi.gates.cli",
+                            "G3",
+                            skill_name,
+                            test_type,
+                            round_dir,
+                        ],
                         capture_output=True,
                         text=True,
                     )
