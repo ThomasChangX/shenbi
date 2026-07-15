@@ -9,7 +9,6 @@ Commands:
     review <project-dir> approve|reject|modify [--feedback <file>]
     resume <project-dir>
     chapters <project-dir>
-    rollback <project-dir> --chapter <N>
 
 All machine-readable output goes to stdout via :func:`emit_json`; human
 diagnostics go to stderr via structlog (see ``cli_utils`` module docstring).
@@ -784,18 +783,24 @@ def cmd_chapters(args: argparse.Namespace) -> int:
 def cmd_rollback(args: argparse.Namespace) -> int:
     """Rollback to a chapter snapshot.
 
-    Placeholder: requires snapshot integration landing in Wave 3/4. The
-    ``--chapter`` argument is accepted now so the interface is stable.
+    Not yet implemented -- requires snapshot integration (deferred to a future
+    spec, see docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
+    The subparser registration has been removed so 'pipeline --help' does not
+    advertise this command. This function is retained for direct callers and
+    returns a non-zero exit code.
     """
     project_dir = Path(args.project_dir)
-    log.info("rollback_requested", project_dir=str(project_dir), chapter=args.chapter)
+    log.info("rollback_not_implemented", project_dir=str(project_dir), chapter=args.chapter)
     emit_json(
         {
             "status": "not_implemented",
-            "message": "Rollback requires snapshot integration (Wave 3/4)",
+            "message": (
+                "Rollback requires snapshot integration (deferred to future spec). "
+                "See docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
+            ),
         }
     )
-    return 0
+    return 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -835,11 +840,6 @@ def main(argv: list[str] | None = None) -> int:
     p_chapters = sub.add_parser("chapters", help="Show chapter progress")
     p_chapters.add_argument("project_dir", type=str)
     p_chapters.set_defaults(func=cmd_chapters)
-
-    p_rollback = sub.add_parser("rollback", help="Rollback to chapter snapshot")
-    p_rollback.add_argument("project_dir", type=str)
-    p_rollback.add_argument("--chapter", type=int, required=True)
-    p_rollback.set_defaults(func=cmd_rollback)
 
     args = parser.parse_args(argv)
     # argparse stores set_defaults(func=...) as Any; annotate so the dispatched

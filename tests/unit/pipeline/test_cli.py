@@ -514,18 +514,25 @@ class TestChaptersCommand:
 
 
 class TestRollbackCommand:
-    """``rollback <dir> --chapter <N>`` restores a snapshot (Wave 3/4 placeholder)."""
+    """``cmd_rollback`` is retained for direct callers (subparser removed)."""
 
     def test_rollback_not_implemented(
         self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Rollback reports not_implemented until snapshot integration lands."""
+        """Rollback returns non-zero not_implemented until snapshot integration lands."""
+        import argparse
+
+        from shenbi.pipeline.cli import cmd_rollback
+
         project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
+        out = io.StringIO()
+        monkeypatch.setattr(sys, "stdout", out)
 
-        rc, out = _run(["rollback", str(project_dir), "--chapter", "2"], monkeypatch)
-        result = json.loads(out)
+        args = argparse.Namespace(project_dir=str(project_dir), chapter=2)
+        rc = cmd_rollback(args)
+        result = json.loads(out.getvalue())
 
-        assert rc == 0
+        assert rc != 0, "rollback should return non-zero (not faking success)"
         assert result["status"] == "not_implemented"
 
 
