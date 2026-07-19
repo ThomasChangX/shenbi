@@ -221,11 +221,12 @@ class TestContextAssembly:
         """Step 2 (chapter-planning) calls context assembly (calls_context_assembly=True)."""
         from unittest.mock import patch as _patch
 
-        with _patch(
-            "shenbi.pipeline.chapter_loop.dispatch_skill",
-            return_value=DispatchResult(True, 0, "{}", ""),
-        ), _patch(
-            "shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}
+        with (
+            _patch(
+                "shenbi.pipeline.chapter_loop.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ),
+            _patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
         ):
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
@@ -245,11 +246,12 @@ class TestContextAssembly:
         """
         from unittest.mock import patch as _patch
 
-        with _patch(
-            "shenbi.pipeline.chapter_loop.dispatch_skill",
-            return_value=DispatchResult(True, 0, "{}", ""),
-        ), _patch(
-            "shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}
+        with (
+            _patch(
+                "shenbi.pipeline.chapter_loop.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ),
+            _patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
         ):
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
@@ -490,10 +492,13 @@ class TestConditionalResolveIntegration:
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
         # Mock run_parallel_post_draft_steps to return success for both
-        with patch(
-            "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
-            return_value=(DispatchResult(True, 0, "{}", ""), DispatchResult(True, 0, "{}", "")),
-        ), patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}):
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(DispatchResult(True, 0, "{}", ""), DispatchResult(True, 0, "{}", "")),
+            ),
+            patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
+        ):
             run_chapter_step(state, tmp_path)
         # Advances past both lifecycle (6) and settling (7) to index 8
         assert state.chapter_loop.step_index == 8

@@ -203,31 +203,23 @@ class TestWriteTruthFileValidation:
     def test_upsert_yaml_missing_key_field_raises(self, tmp_path: Path):
         """upsert_yaml without key_field must raise ValueError."""
         with pytest.raises(ValueError, match="key_field"):
-            write_truth_file(
-                tmp_path, "test.md", [{"a": 1}], mode="upsert_yaml"
-            )
+            write_truth_file(tmp_path, "test.md", [{"a": 1}], mode="upsert_yaml")
 
     def test_upsert_yaml_non_list_raises(self, tmp_path: Path):
         """upsert_yaml with non-list new_data must raise ValueError."""
         with pytest.raises(ValueError, match="list"):
-            write_truth_file(
-                tmp_path, "test.md", "not a list", mode="upsert_yaml", key_field="id"
-            )
+            write_truth_file(tmp_path, "test.md", "not a list", mode="upsert_yaml", key_field="id")
 
     def test_upsert_yaml_with_dict_raises(self, tmp_path: Path):
         """upsert_yaml with dict (not list) new_data must raise ValueError."""
         with pytest.raises(ValueError, match="list"):
-            write_truth_file(
-                tmp_path, "test.md", {"a": 1}, mode="upsert_yaml", key_field="id"
-            )
+            write_truth_file(tmp_path, "test.md", {"a": 1}, mode="upsert_yaml", key_field="id")
 
     def test_upsert_markdown_row_missing_key_field_raises(self, tmp_path: Path):
         """upsert_markdown_row with dict data and no key_field must raise."""
         (tmp_path / "truth").mkdir()
         with pytest.raises(ValueError, match="key_field"):
-            write_truth_file(
-                tmp_path, "test.md", {"chapter": "1"}, mode="upsert_markdown_row"
-            )
+            write_truth_file(tmp_path, "test.md", {"chapter": "1"}, mode="upsert_markdown_row")
 
     def test_replace_mode_with_dict_produces_bullet_format(self, tmp_path: Path):
         """Replace mode with dict new_data writes bullet-format content."""
@@ -242,9 +234,7 @@ class TestWriteTruthFileValidation:
     def test_replace_mode_with_list_data(self, tmp_path: Path):
         """Replace mode with list new_data writes str() representation."""
         (tmp_path / "truth").mkdir()
-        write_truth_file(
-            tmp_path, "items.md", [{"a": 1}, {"b": 2}], mode="replace"
-        )
+        write_truth_file(tmp_path, "items.md", [{"a": 1}, {"b": 2}], mode="replace")
         content = (tmp_path / "truth" / "items.md").read_text()
         assert "a" in content
 
