@@ -9,6 +9,7 @@ import json
 import threading
 from dataclasses import dataclass, field
 from enum import StrEnum
+from pathlib import Path
 from typing import Any
 
 from shenbi.config.thresholds import DEFAULT_THRESHOLDS
@@ -368,3 +369,56 @@ class PipelineState:
             _get_log(__name__).error("state_json_decode_error", error=str(_e))
             raise
         return cls.from_dict(data)
+
+
+# ---------------------------------------------------------------------------
+# 10d: Pipeline-state compaction
+# ---------------------------------------------------------------------------
+
+
+def _archive_chapter_state(
+    project_dir: Path | str, chapter_key: str, chapter_state: ChapterState
+) -> None:
+    """Archive a single chapter state to a JSON file in state/archive/."""
+    archive_dir = Path(project_dir) / "state" / "archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = archive_dir / f"chapter-{chapter_key}.json"
+    archive_data = {
+        "chapter": chapter_key,
+        "steps_done": chapter_state.steps_done,
+        "status": chapter_state.status,
+        "resonance_score": chapter_state.resonance_score,
+        "audit_results": chapter_state.audit_results,
+        "revision_count": chapter_state.revision_count,
+        "audit_retry_count": chapter_state.audit_retry_count,
+    }
+    from shenbi.safe_write import safe_write
+
+    safe_write(
+        archive_path,
+        json.dumps(archive_data, indent=2, ensure_ascii=False),
+    )
+
+
+def compact_pipeline_state(state: PipelineState) -> None:
+    """Archive old chapter states and prune retry feedback.
+
+    Reduces ~236KB (at 100 chapters) to ~80KB.
+    """
+    if not hasattr(state, "chapter_loop"):
+        return
+
+    cl = state.chapter_loop
+    current = cl.current_chapter
+
+    # Archive chapter states beyond last 10
+    if hasattr(cl, "chapter_states"):
+        keys_to_archive = [k for k in cl.chapter_states if k.isdigit() and int(k) < current - 10]
+        for k in keys_to_archive:
+            _archive_chapter_state(state.project_dir, k, cl.chapter_states.pop(k))
+
+    # Prune retry_feedback to last 30 entries (dict order preserved, Python 3.7+)
+    if hasattr(cl, "retry_feedback") and len(cl.retry_feedback) > 30:
+        # Keep only the most recent 30 entries by insertion order
+        items = list(cl.retry_feedback.items())
+        cl.retry_feedback = dict(items[-30:])

@@ -678,18 +678,90 @@ def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> Non
     state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
 
 
+# ---------------------------------------------------------------------------
+# 10c: Truth-index periodic rebuild
+# ---------------------------------------------------------------------------
+
+
+def _maybe_rebuild_truth_index(project_dir: Path, chapter: int) -> None:
+    """Rebuild truth-index at volume boundaries or every 15 chapters."""
+    from shenbi.pipeline.triggers import is_volume_boundary
+
+    if chapter % 15 == 0 or is_volume_boundary(chapter, project_dir):
+        from shenbi.pipeline.truth_index import build_index
+
+        build_index(project_dir)
+        log.info("truth_index_rebuilt", chapter=chapter)
+
+
+# ---------------------------------------------------------------------------
+# 10e: World file freshness check
+# ---------------------------------------------------------------------------
+
+
+def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
+    """Check if locations.md needs updating at volume boundaries.
+
+    NOTE: The scr_extractor import is lazy (inside function body). This module
+    is delivered by Plan 18. If Plan 17 executes first, the scr_extractor
+    feature will silently degrade until Plan 18 ships. This is intentional --
+    no hard dependency.
+    """
+    from shenbi.pipeline.triggers import is_volume_boundary
+
+    if not is_volume_boundary(chapter, project_dir):
+        return
+
+    locations_path = project_dir / "world" / "locations.md"
+    if not locations_path.exists():
+        return
+
+    # Compare against SCR-extracted locations from last 10 chapters
+    try:
+        from shenbi.pipeline.scr_extractor import extract_scr  # type: ignore[import-not-found]  # Plan 18 delivers this
+    except ImportError:
+        log.debug("scr_extractor_not_available_skipping_world_freshness", chapter=chapter)
+        return
+
+    recent_locations: set[str] = set()
+    for ch in range(max(1, chapter - 10), chapter):
+        try:
+            scr = extract_scr(project_dir, ch)
+            for ref in scr.world_refs:
+                if ref.get("category") == "location":
+                    recent_locations.add(ref["element"])
+        except Exception:
+            continue
+
+    current_locations_text = locations_path.read_text(encoding="utf-8")
+    missing = [loc for loc in recent_locations if loc not in current_locations_text]
+    if missing:
+        log.warning(
+            "world_file_stale_locations",
+            chapter=chapter,
+            missing_locations=missing[:10],
+        )
+
+
 def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     """Advance to the next chapter, optionally setting a per-chapter checkpoint.
 
     Returns True when a per-chapter checkpoint is set (review needed), False
     when automatic advancement is configured.
     """
+    project_dir = Path(state.project_dir)
     key = str(chapter)
     cs = state.chapter_loop.chapter_states.get(key)
     if cs is None:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = "complete"
+
+    # 10c: Rebuild truth-index at volume boundaries or every 15 chapters
+    _maybe_rebuild_truth_index(project_dir, chapter)
+
+    # 10e: Check world file freshness at volume boundaries
+    _check_world_file_freshness(project_dir, chapter)
 
     state.chapter_loop.current_chapter = chapter + 1
     state.chapter_loop.step_index = 0

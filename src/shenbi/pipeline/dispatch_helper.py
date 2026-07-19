@@ -90,6 +90,42 @@ def _load_executor_config() -> dict[str, Any]:
     return _executor_config_cache[0]
 
 
+# ---------------------------------------------------------------------------
+# 10a: META block stripping for non-drafting LLM calls
+# ---------------------------------------------------------------------------
+
+_META_PATTERN = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
+
+def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
+    """Strip META blocks from chapter text for non-drafting LLM calls.
+
+    Only drafting and revision skills need META blocks.
+    All other skills (auditors, state-settling, etc.) receive stripped text.
+    Saves 16-31% input per non-drafting call.
+    """
+    if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
+        return text
+    return _META_PATTERN.sub("", text)
+
+
+# ---------------------------------------------------------------------------
+# 10b: Genre-config per-chapter cache
+# ---------------------------------------------------------------------------
+
+_genre_config_cache: dict[int, dict[str, Any]] = {}
+
+
+def _load_genre_config_cached(project_dir: Path, chapter: int) -> dict[str, Any]:  # pyright: ignore[reportUnusedFunction]
+    """Load genre-config.json with per-chapter cache. ~7 disk I/O -> 1."""
+    if chapter in _genre_config_cache:
+        return _genre_config_cache[chapter]
+    config_path = project_dir / "config" / "genre-config.json"
+    config: dict[str, Any] = json.loads(config_path.read_text(encoding="utf-8"))
+    _genre_config_cache[chapter] = config
+    return config
+
+
 def _get_skill_temperature(skill_name: str) -> float:
     """Get temperature for a skill from executor_config.toml."""
     config = _load_executor_config()
@@ -464,6 +500,8 @@ def _build_skill_prompt(
                 content = f"[binary or unreadable: {full_path}]"
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
+            # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
+            content = _strip_meta_for_non_drafting(skill, content)
             raw_inputs[full_path.name] = content
 
     # Inject cached fields from shared_context so auditors skip re-reading
