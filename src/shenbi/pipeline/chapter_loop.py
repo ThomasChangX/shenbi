@@ -2072,54 +2072,89 @@ def _extract_key_terms(text: str) -> list[str]:
     return filtered
 
 
-def _run_title_check(project_dir: Path, chapter: int) -> None:
-    """G4.cd.title: validate chapter title quality after drafting.
-
-    Reads the chapter file, extracts the title from the first H1 heading,
-    collects previous titles from earlier chapters, and logs warnings for
-    any title quality issues detected.
-    """
-    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if not chapter_path.exists():
-        return
-
+def _extract_chapter_title(chapter_path: Path) -> str:
+    """Extract title from chapter markdown file. Title is first H1 heading."""
     text = chapter_path.read_text(encoding="utf-8")
-    # Extract title: first H1 heading
-    title_match = re.match(r"^#\s+(.+)", text)
-    if not title_match:
-        return
+    match = re.match(r"^#\s+(.+?)$", text, re.MULTILINE)
+    return match.group(1).strip() if match else ""
 
-    raw_title = title_match.group(1).strip()
 
-    # Collect previous titles from earlier chapters (clean, no chapter prefix)
-    previous_titles: dict[str, int] = {}
+def _load_previous_titles(project_dir: Path, current_chapter: int) -> dict[str, int]:
+    """Load all previous chapter titles for duplicate detection.
+
+    Reads H1 headings from chapters/chapter-{1..current_chapter-1}.md.
+    Returns a dict mapping cleaned title -> chapter number.
+    """
+    previous: dict[str, int] = {}
     chapters_dir = project_dir / "chapters"
-    if chapters_dir.exists():
-        for ch_file in sorted(chapters_dir.glob("chapter-*.md")):
-            ch_match = re.match(r"chapter-(\d+)\.md", ch_file.name)
-            if not ch_match:
-                continue
-            ch_num = int(ch_match.group(1))
-            if ch_num >= chapter:
-                continue
-            try:
-                ch_text = ch_file.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                continue
-            ch_title_match = re.match(r"^#\s+(.+)", ch_text)
-            if ch_title_match:
-                ch_raw = ch_title_match.group(1).strip()
-                # Clean chapter number prefix for dedup key
-                ch_title = re.sub(r"^第\d+章[：:\s]*", "", ch_raw).strip()
-                if ch_title:
-                    previous_titles[ch_title] = ch_num
+    if not chapters_dir.exists():
+        return previous
+    for ch_file in sorted(chapters_dir.glob("chapter-*.md")):
+        ch_match = re.match(r"chapter-(\d+)\.md", ch_file.name)
+        if not ch_match:
+            continue
+        ch_num = int(ch_match.group(1))
+        if ch_num >= current_chapter:
+            continue
+        try:
+            ch_text = ch_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        ch_title_match = re.match(r"^#\s+(.+)", ch_text)
+        if ch_title_match:
+            ch_raw = ch_title_match.group(1).strip()
+            # Clean chapter number prefix for dedup key
+            ch_title = re.sub(r"^第\d+章[：:\s]*", "", ch_raw).strip()
+            if ch_title:
+                previous[ch_title] = ch_num
+    return previous
 
-    # Run title quality check against raw title (chapter number detection)
+
+def _run_g4_checks(state: PipelineState, chapter: int) -> list[str]:
+    """Run post-drafting G4 quality checks.
+
+    Called after chapter-drafting step succeeds. Runs structural gate checks
+    that validate chapter quality before the pipeline proceeds.
+
+    Checks:
+    - G4.cd.title: validate chapter title quality (via check_chapter_title)
+    - G4.cd.hook_fulfillment: verify plan hooks are fulfilled in chapter
+
+    Args:
+        state: Pipeline state with project_dir.
+        chapter: Current chapter number.
+
+    Returns:
+        List of issue strings found (empty if all checks pass).
+    """
+    all_issues: list[str] = []
+    project_dir = Path(state.project_dir)
+
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+
+    if not chapter_path.exists():
+        return all_issues
+
+    # --- G4.cd.title ---
     from shenbi.gates.g4.chapter_drafting import check_chapter_title
 
-    issues = check_chapter_title(raw_title, previous_titles)
-    for issue in issues:
-        log.warning("chapter_title_quality", chapter=chapter, title=raw_title, issue=issue)
+    title = _extract_chapter_title(chapter_path)
+    previous_titles = _load_previous_titles(project_dir, chapter)
+    title_issues = check_chapter_title(title, previous_titles)
+    all_issues.extend(title_issues)
+
+    # --- G4.cd.hook_fulfillment ---
+    from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment
+
+    hook_issues = check_hook_fulfillment(plan_path, chapter_path)
+    all_issues.extend(hook_issues)
+
+    # Log all issues for observability
+    for issue in all_issues:
+        log.warning("g4_post_drafting_issue", chapter=chapter, issue=issue)
+
+    return all_issues
 
 
 # ---------------------------------------------------------------------------
@@ -2643,10 +2678,10 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
 
-    # Blueprint alignment check after chapter drafting (WARN-level, non-blocking)
+    # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
     if "chapter-drafting" in step.skill:
         _check_volume_map_alignment(project_dir, chapter)
-        _run_title_check(project_dir, chapter)
+        _run_g4_checks(state, chapter)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":

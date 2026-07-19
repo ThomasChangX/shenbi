@@ -21,6 +21,21 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
+    """G4.cd.hook_fulfillment: Verify plan hooks are fulfilled in chapter.
+
+    Stub: returns empty list. Full implementation is tracked by Task 3 (W3T6).
+
+    Args:
+        plan_path: Path to the chapter plan markdown file.
+        chapter_path: Path to the chapter markdown file.
+
+    Returns:
+        List of issue strings (empty for now).
+    """
+    return []
+
+
 def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str]:
     """G4.cd.title: Validate chapter title quality.
 
