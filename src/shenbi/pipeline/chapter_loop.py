@@ -890,7 +890,7 @@ def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
 
     # Compare against SCR-extracted locations from last 10 chapters
     try:
-        from shenbi.pipeline.scr_extractor import extract_scr  # type: ignore[import-not-found]  # Plan 18 delivers this
+        from shenbi.pipeline.scr_extractor import extract_scr  # Plan 18 delivers this
     except ImportError:
         log.debug("scr_extractor_not_available_skipping_world_freshness", chapter=chapter)
         return
