@@ -29,11 +29,9 @@ The orchestrator is stateless itself: it mutates the passed-in
 
 from __future__ import annotations
 
-import atexit as _atexit
 import json
 import re
 import shutil as _shutil
-import signal as _signal
 import time
 from dataclasses import dataclass
 from enum import StrEnum
@@ -84,18 +82,6 @@ from shenbi.status import GateStatus
 from datetime import UTC
 
 log = get_logger(__name__)
-
-
-# ---------------------------------------------------------------------------
-# Module-level storage for emergency snapshot params (spec §3.6).
-# Set at pipeline init, consumed by the atexit + signal handlers.
-# This is the "checkpoint-on-step": updated on every chapter-loop step so the
-# signal handler always knows the latest chapter to snapshot on SIGTERM/SIGINT.
-# ---------------------------------------------------------------------------
-_emergency_snapshot_project_dir: Path | None = None
-_emergency_snapshot_chapter: int = 0
-_emergency_signal_handler_installed: bool = False
-_emergency_flag: bool = False
 
 
 @dataclass
@@ -1666,7 +1652,7 @@ def _has_minimum_chinese_chars(text: str, threshold: int = 500) -> bool:
     return count >= threshold
 
 
-def _snapshot_chapter_files(
+def _snapshot_chapter_files(  # pyright: ignore[reportUnusedFunction]
     project_dir: Path,
     chapter: int,
     label: str = "",
@@ -1791,137 +1777,6 @@ def _snapshot_chapter_files(
 
         # Prune old snapshots
         _prune_old_snapshots(project_dir)
-
-
-# ---------------------------------------------------------------------------
-# Emergency snapshot system (spec §3.6)
-# ---------------------------------------------------------------------------
-
-
-def _check_emergency_flag(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
-    """Called at step boundaries in the main loop. If flag is set,
-    perform emergency snapshot safely from the main thread.
-    """
-    global _emergency_flag  # noqa: PLW0603
-    if _emergency_flag:
-        _emergency_flag = False
-        _do_emergency_snapshot()
-
-
-def _should_generate_starting_snapshot(
-    current_chapter: int,
-    step_index: int,
-    project_dir: Path | None = None,
-) -> bool:
-    """Determine if a starting snapshot should be generated.
-
-    Generates snapshot at:
-        - Chapter 1, step 0 (initialization)
-        - Any chapter step 0 if Ch1 snapshot is missing (self-heal)
-
-    Args:
-        current_chapter: Current chapter number.
-        step_index: Current step index (0 = start).
-        project_dir: Optional project dir to check for existing snapshots.
-
-    Returns:
-        True if a starting snapshot is warranted.
-    """
-    if current_chapter == 1 and step_index == 0:
-        return True
-
-    # Self-heal: if we're at step 0 of any chapter and no Ch1 snapshot exists
-    if step_index == 0 and project_dir is not None:
-        snapshots_dir = project_dir / "snapshots"
-        if not snapshots_dir.exists():
-            return True
-        ch1_snapshots = list(snapshots_dir.glob("chapter-1-*.md"))
-        if not ch1_snapshots:
-            return True
-
-    return False
-
-
-def _do_emergency_snapshot() -> None:  # pyright: ignore[reportUnusedFunction]
-    """Best-effort emergency snapshot. Never raises.
-
-    Reads the module-level checkpoint state (set by checkpoint-on-step) and
-    writes an ``emergency`` snapshot of the current chapter. Safe to call from
-    a signal handler or atexit: any exception is swallowed so the crash handler
-    never crashes the crash.
-    """
-    try:
-        pd = _emergency_snapshot_project_dir
-        ch = _emergency_snapshot_chapter
-        if pd is not None and ch > 0:
-            _snapshot_chapter_files(pd, ch, label="emergency")
-            log.warning("emergency_snapshot_saved", chapter=ch)
-    except Exception:
-        pass
-
-
-def _register_emergency_snapshot(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
-    """Register handlers that generate an emergency snapshot on termination.
-
-    Three layers of defense (per spec §3.6, atexit alone is insufficient):
-
-    1. ``signal.signal(SIGTERM/SIGINT)`` — catches abnormal termination that
-       ``atexit`` misses (SIGTERM does not run atexit handlers).
-    2. ``atexit.register`` — backstop for clean-ish interpreter shutdown.
-    3. Checkpoint-on-step — ``_update_emergency_checkpoint`` is called on every
-       chapter-loop step so handlers always snapshot the LATEST chapter, not a
-       stale one from init.
-
-    The signal handler is installed exactly once (guarded by
-    ``_emergency_signal_handler_installed``) to avoid stacking duplicate
-    handlers across pipeline re-entries.
-
-    Args:
-        project_dir: Root directory of the novel project.
-        chapter: Current chapter number at registration time.
-    """
-    global _emergency_snapshot_project_dir, _emergency_snapshot_chapter  # noqa: PLW0603
-    global _emergency_signal_handler_installed  # noqa: PLW0603
-    _emergency_snapshot_project_dir = project_dir
-    _emergency_snapshot_chapter = chapter
-
-    # Layer 2: atexit backstop
-    _atexit.register(_do_emergency_snapshot)
-
-    # Layer 1: signal handlers for SIGTERM/SIGINT (installed once)
-    if not _emergency_signal_handler_installed:
-        _signal.signal(_signal.SIGTERM, _emergency_snapshot_signal_handler)
-        _signal.signal(_signal.SIGINT, _emergency_snapshot_signal_handler)
-        _emergency_signal_handler_installed = True
-
-
-def _emergency_snapshot_signal_handler(signum: int, frame: object) -> None:  # pyright: ignore[reportUnusedFunction]
-    """Signal handler: ONLY sets atomic flag. No I/O, no locks.
-
-    The actual snapshot work is done in _check_emergency_flag(), called at
-    step boundaries in the main loop. This keeps I/O out of signal context
-    (which is unsafe and can deadlock).
-    """
-    global _emergency_flag  # noqa: PLW0603
-    _emergency_flag = True
-    # Restore default disposition so a second signal terminates immediately
-    _signal.signal(signum, _signal.SIG_DFL)
-
-
-def _update_emergency_checkpoint(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
-    """Checkpoint-on-step: refresh the emergency-snapshot state every step.
-
-    Called on each chapter-loop iteration so signal/atexit handlers always
-    snapshot the LATEST chapter rather than the chapter active at init. This
-    is what closes the gap that lost Ch56's snapshot (spec §3.6).
-
-    Args:
-        project_dir: Root directory of the novel project.
-        chapter: The chapter just entered (or currently being processed).
-    """
-    global _emergency_snapshot_project_dir, _emergency_snapshot_chapter  # noqa: PLW0603
-    _emergency_snapshot_project_dir = project_dir
-    _emergency_snapshot_chapter = chapter
 
 
 def _update_last_recall_manifest(project_dir: Path, chapter: int) -> None:
@@ -2691,15 +2546,8 @@ def _run_chapter_step_impl(
         )
         return True
 
-    # ── Starting snapshot + emergency registration (first step only) ─────
+    # ── Emergency registration (first step only) ─────────────────────────
     if step_idx == 0:
-        if _should_generate_starting_snapshot(
-            state.chapter_loop.current_chapter,
-            state.chapter_loop.step_index,
-            project_dir=project_dir,
-        ):
-            _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter, state=state)
-
         # Register emergency handler ONCE (installs signal handlers + atexit backstop)
         register_emergency_handlers(project_dir, state)
 
