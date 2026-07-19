@@ -31,6 +31,10 @@
       "shenbi-review-era",
       "shenbi-review-fanfic",
       "shenbi-review-foreshadowing",
+      "shenbi-review-group-character",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-factual",
+      "shenbi-review-group-plan",
       "shenbi-review-highpoint",
       "shenbi-review-long-span",
       "shenbi-review-memo-compliance",
@@ -72,6 +76,9 @@
       "shenbi-pacing-design",
       "shenbi-review-anti-ai",
       "shenbi-review-era",
+      "shenbi-review-group-character",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-factual",
       "shenbi-review-highpoint",
       "shenbi-review-long-span",
       "shenbi-review-pacing",
@@ -186,6 +193,8 @@
       "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-review-foreshadowing",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-plan",
       "shenbi-review-highpoint",
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
@@ -274,6 +283,7 @@
       "shenbi-foundation-review",
       "shenbi-memory-distill",
       "shenbi-review-continuity",
+      "shenbi-review-group-factual",
       "shenbi-review-pacing",
       "shenbi-review-world-rules",
       "shenbi-volume-consolidation"
@@ -296,6 +306,8 @@
       "shenbi-chapter-planning",
       "shenbi-foundation-review",
       "shenbi-review-continuity",
+      "shenbi-review-group-character",
+      "shenbi-review-group-factual",
       "shenbi-review-pov",
       "shenbi-review-world-rules"
     ],
@@ -317,6 +329,8 @@
       "shenbi-plot-thread-weaver",
       "shenbi-review-arc-payoff",
       "shenbi-review-foreshadowing",
+      "shenbi-review-group-craft",
+      "shenbi-review-group-plan",
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
       "shenbi-review-spinoff",
@@ -398,6 +412,7 @@
       "shenbi-faction-builder",
       "shenbi-location-builder",
       "shenbi-power-system",
+      "shenbi-review-group-factual",
       "shenbi-review-world-rules",
       "shenbi-short-packaging",
       "shenbi-story-architecture"
@@ -416,6 +431,7 @@
       "shenbi-location-builder",
       "shenbi-power-system",
       "shenbi-review-continuity",
+      "shenbi-review-group-factual",
       "shenbi-review-spinoff",
       "shenbi-review-world-rules"
     ],
@@ -429,6 +445,7 @@
     "reads": [
       "shenbi-review-character",
       "shenbi-review-dialogue",
+      "shenbi-review-group-character",
       "shenbi-review-motivation"
     ],
     "writes": [
@@ -441,6 +458,7 @@
     "reads": [
       "shenbi-review-character",
       "shenbi-review-dialogue",
+      "shenbi-review-group-character",
       "shenbi-review-motivation"
     ],
     "writes": [
@@ -524,6 +542,7 @@
       "shenbi-relationship-map",
       "shenbi-review-character",
       "shenbi-review-dialogue",
+      "shenbi-review-group-character",
       "shenbi-review-motivation",
       "shenbi-review-pov"
     ],
@@ -684,6 +703,7 @@
   "world/locations.md": {
     "reads": [
       "shenbi-location-builder",
+      "shenbi-review-group-factual",
       "shenbi-review-world-rules"
     ],
     "writes": [
@@ -723,6 +743,7 @@
   },
   "world/power_system.md": {
     "reads": [
+      "shenbi-review-group-factual",
       "shenbi-review-world-rules"
     ],
     "writes": [
@@ -735,7 +756,8 @@
   "audits/chapter-N-anti-ai.md": {
     "reads": [],
     "writes": [
-      "shenbi-review-anti-ai"
+      "shenbi-review-anti-ai",
+      "shenbi-review-group-craft"
     ],
     "updates": []
   },
@@ -748,7 +770,8 @@
   },
   "truth/emotional_arcs.md": {
     "reads": [
-      "shenbi-review-character"
+      "shenbi-review-character",
+      "shenbi-review-group-character"
     ],
     "writes": [],
     "updates": [
@@ -758,21 +781,24 @@
   "audits/chapter-N-character.md": {
     "reads": [],
     "writes": [
-      "shenbi-review-character"
+      "shenbi-review-character",
+      "shenbi-review-group-character"
     ],
     "updates": []
   },
   "audits/chapter-N-continuity.md": {
     "reads": [],
     "writes": [
-      "shenbi-review-continuity"
+      "shenbi-review-continuity",
+      "shenbi-review-group-factual"
     ],
     "updates": []
   },
   "audits/chapter-N-dialogue.md": {
     "reads": [],
     "writes": [
-      "shenbi-review-dialogue"
+      "shenbi-review-dialogue",
+      "shenbi-review-group-character"
     ],
     "updates": []
   },
@@ -799,7 +825,8 @@
   },
   "truth/subplot_board.md": {
     "reads": [
-      "shenbi-review-foreshadowing"
+      "shenbi-review-foreshadowing",
+      "shenbi-review-group-plan"
     ],
     "writes": [],
     "updates": [
@@ -809,7 +836,64 @@
   "audits/chapter-N-foreshadowing.md": {
     "reads": [],
     "writes": [
-      "shenbi-review-foreshadowing"
+      "shenbi-review-foreshadowing",
+      "shenbi-review-group-plan"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-motivation.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character",
+      "shenbi-review-motivation"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-pov.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-character",
+      "shenbi-review-pov"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-texture.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-craft",
+      "shenbi-review-texture"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-reader-pull.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-craft",
+      "shenbi-review-reader-pull"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-world-rules.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-factual",
+      "shenbi-review-world-rules"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-pacing.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-factual",
+      "shenbi-review-pacing"
+    ],
+    "updates": []
+  },
+  "audits/chapter-N-memo-compliance.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-group-plan",
+      "shenbi-review-memo-compliance"
     ],
     "updates": []
   },
@@ -824,41 +908,6 @@
     "reads": [],
     "writes": [
       "shenbi-review-long-span"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-memo-compliance.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-memo-compliance"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-motivation.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-motivation"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-pacing.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-pacing"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-pov.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-pov"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-reader-pull.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-reader-pull"
     ],
     "updates": []
   },
@@ -883,20 +932,6 @@
     "reads": [],
     "writes": [
       "shenbi-review-spinoff"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-texture.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-texture"
-    ],
-    "updates": []
-  },
-  "audits/chapter-N-world-rules.md": {
-    "reads": [],
-    "writes": [
-      "shenbi-review-world-rules"
     ],
     "updates": []
   },

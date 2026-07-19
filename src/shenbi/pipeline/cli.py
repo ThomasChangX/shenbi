@@ -543,7 +543,7 @@ def cmd_review(args: argparse.Namespace) -> int:
                 if cp.type == CheckpointType.CHAPTER_MEMO:
                     state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
                 elif cp.type == CheckpointType.STATE_SETTLE:
-                    state.chapter_loop.step_index = 6  # CHAPTER_STEPS[6] = state-settling
+                    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
                 elif cp.type == CheckpointType.GENESIS_COMPLETE:
                     state.genesis.current_step = max(0, state.genesis.current_step - 1)
 

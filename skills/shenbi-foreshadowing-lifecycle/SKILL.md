@@ -4,7 +4,7 @@ description: Combined foreshadowing lifecycle -- recall dormant hooks, track act
 contract:
   kind: artifact
   reads:
-    - {file: plans/chapter-N-plan.md, fields: [7. Hook Ledger]}
+    - {file: plans/chapter-N-plan.md, fields: [7. 本章 hook 账]}
     - {file: chapters/chapter-N.md}
     - {file: truth/pending_hooks.md}
     - {file: outline/volume_map.md, fields: [cross-volume bridges]}

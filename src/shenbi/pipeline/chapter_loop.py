@@ -106,6 +106,10 @@ class ChapterStep:
         skill: Skill name dispatched (``shenbi-*``) or pipeline-internal
             identifier (``pipeline-*`` -- not dispatched, just advanced).
         name: Human-readable label.
+        step_type: Step category: ``core`` (LLM dispatch), ``audit`` (LLM audit),
+            ``context`` (context assembly), ``checkpoint`` (deterministic checkpoint).
+        conditional: If True, the step is gated by ``_should_run_step`` and
+            only executes when its specific condition is met.
         checkpoint: Checkpoint type raised after this step succeeds, or None.
         uses_staging: If True, the dispatched skill writes to ``staging/``
             and G4 validates the staging copy (spec section 2.7).
@@ -120,6 +124,8 @@ class ChapterStep:
     step_num: int
     skill: str
     name: str
+    step_type: str = "core"
+    conditional: bool = False
     checkpoint: CheckpointType | None = None
     uses_staging: bool = False
     calls_context_assembly: bool = False
@@ -127,157 +133,170 @@ class ChapterStep:
     output_path: str = ""
 
 
-# Full 13-step + sub-steps from spec section 6.1.
-# The audit layer (spec step 8) is expanded into 7 individual core-circle
-# skills for serial execution. Genre-circle skills are dispatched dynamically
-# by the audit sub-orchestrator (W3T4).
+# Restructured CHAPTER_STEPS: 16 core steps (shrunk from 20 per Plan 18 Task 5).
+# Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
+#   foreshadowing-recall, context-composing.
+# Merged: 3 foreshadowing skills → shenbi-foreshadowing-lifecycle (MERGE-1).
+# Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
+# Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
+#   linguistic-drift-check, pre-revision-snapshot).
+# Conditional: intent-management, drift-guidance, snapshot-manage moved to
+#   CONDITIONAL_STEPS (invoked only when gates open).
+# NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
+#   reactively by revision_router.dispatch_escalation (Spec 5).
 CHAPTER_STEPS: list[ChapterStep] = [
+    # Step 1: Volume alignment (deterministic, pre-planning)
     ChapterStep(
         1,
-        "shenbi-intent-management",
-        "intent-management",
-        output_path="truth/current_focus.md",
+        "pipeline-volume-align",
+        "volume-align",
+        step_type="checkpoint",
     ),
+    # Step 2: Chapter planning (LLM)
     ChapterStep(
         2,
         "shenbi-chapter-planning",
         "chapter-planning",
-        checkpoint=CheckpointType.CHAPTER_MEMO,
-        uses_staging=True,
+        step_type="core",
         output_path="plans/chapter-N-plan.md",
+        calls_context_assembly=True,
     ),
+    # Step 3: Context prepare (deterministic, merged context-assemble + curation)
     ChapterStep(
         3,
-        "shenbi-foreshadowing-plant",
-        "foreshadowing-plant",
-        output_path="truth/pending_hooks.md",
+        "pipeline-context-prepare",
+        "context-prepare",
+        step_type="context",
+        calls_context_assembly=True,
+        uses_staging=True,
     ),
+    # Step 4: Chapter drafting (LLM)
     ChapterStep(
         4,
-        "pipeline-context-assemble",
-        "context-assembly",
-        calls_context_assembly=True,
-        output_path="context/chapter-N-context.md",
-    ),
-    ChapterStep(
-        5,
-        "shenbi-context-composing",
-        "context-composing",
-        output_path="",
-    ),
-    ChapterStep(
-        6,
         "shenbi-chapter-drafting",
         "chapter-drafting",
+        step_type="core",
         output_path="chapters/chapter-N.md",
     ),
+    # Step 5: Post-draft extract (deterministic)
+    ChapterStep(
+        5,
+        "pipeline-post-draft-extract",
+        "post-draft-extract",
+        step_type="checkpoint",
+    ),
+    # Step 6: Linguistic drift check (deterministic)
+    ChapterStep(
+        6,
+        "pipeline-linguistic-drift-check",
+        "linguistic-drift-check",
+        step_type="checkpoint",
+    ),
+    # Step 7: Foreshadowing lifecycle (LLM, MERGE-1 -- single call for recall+track+plant)
     ChapterStep(
         7,
-        "shenbi-state-settling",
-        "state-settling",
-        checkpoint=CheckpointType.STATE_SETTLE,
+        "shenbi-foreshadowing-lifecycle",
+        "foreshadowing-lifecycle",
+        step_type="core",
+        output_path="truth/pending_hooks.md",
         uses_staging=True,
-        output_path="",
     ),
+    # Step 8: State settling (LLM, runs parallel to Step 7)
     ChapterStep(
         8,
-        "shenbi-foreshadowing-track",
-        "foreshadowing-track",
-        output_path="truth/pending_hooks.md",
+        "shenbi-state-settling",
+        "state-settling",
+        step_type="core",
+        uses_staging=True,
     ),
+    # Step 9-14: Grouped audits (LLM, MERGE-2 -- dispatch as parallel waves
+    # via the existing parallel_dispatch.py, preserving the two-wave model)
     ChapterStep(
         9,
-        "shenbi-foreshadowing-recall",
-        "foreshadowing-recall",
-        output_path="truth/foreshadowing_recall_result.md",
+        "shenbi-review-group-factual",
+        "audit:factual",
+        step_type="audit",
+        is_audit=True,
     ),
-    # foreshadowing-resolve is conditional -- handled in run_chapter_step
-    # after foreshadowing-track succeeds (spec section 6.1 step 7b).
-    # Audit core circle: 7 skills, serial, BLOCKING stops (spec section 6.2).
     ChapterStep(
         10,
-        "shenbi-review-anti-ai",
-        "audit:anti-ai",
+        "shenbi-review-group-character",
+        "audit:character",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-anti-ai.md",
     ),
     ChapterStep(
         11,
-        "shenbi-review-continuity",
-        "audit:continuity",
+        "shenbi-review-group-craft",
+        "audit:craft",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-continuity.md",
     ),
     ChapterStep(
         12,
-        "shenbi-review-character",
-        "audit:character",
+        "shenbi-review-group-plan",
+        "audit:plan",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-character.md",
     ),
     ChapterStep(
         13,
-        "shenbi-review-pacing",
-        "audit:pacing",
+        "shenbi-review-resonance",
+        "review-resonance",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-pacing.md",
     ),
     ChapterStep(
         14,
-        "shenbi-review-foreshadowing",
-        "audit:foreshadowing",
+        "shenbi-review-sensitivity",
+        "audit:sensitivity",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-foreshadowing.md",
     ),
+    # Step 15: Pre-revision snapshot (deterministic)
     ChapterStep(
         15,
-        "shenbi-review-memo-compliance",
-        "audit:memo-compliance",
-        is_audit=True,
-        output_path="audits/chapter-N-memo-compliance.md",
+        "pipeline-pre-revision-snapshot",
+        "pre-revision-snapshot",
+        step_type="checkpoint",
     ),
+    # Step 16: Chapter revision (LLM, conditional on audit findings)
     ChapterStep(
         16,
-        "shenbi-review-pov",
-        "audit:pov",
-        is_audit=True,
-        output_path="audits/chapter-N-pov.md",
-    ),
-    # Genre circle dispatched dynamically by audit sub-orchestrator (W3T4).
-    # TODO(W3T4): from shenbi.pipeline.audit_layer import run_audit_layer
-    #   Call after step 16 (last core-circle audit) to run genre-circle skills.
-    # review-resonance (independent agent, G3 required, spec section 6.1 step 9).
-    ChapterStep(
-        17,
-        "shenbi-review-resonance",
-        "review-resonance",
-        output_path="audits/chapter-N-resonance.md",
-    ),
-    # Revision routing + execution (conditional, spec section 6.1 steps 10-11).
-    # Revision routing runs after review-resonance (W3T5 integrated, spec §6.3).
-    # Step 18 is skipped when route == RevisionRoute.NO_REVISION.
-    ChapterStep(
-        18,
         "shenbi-chapter-revision",
         "revision",
+        step_type="core",
+        conditional=True,
         output_path="chapters/chapter-N.md",
     ),
-    # Snapshot + drift (spec section 6.1 steps 12-13).
-    # D20: snapshot-manage is handled inline by _snapshot_chapter_files, which
-    # writes a timestamped flatfile snapshots/chapter-NNN-{ts}.md (never a
-    # fixed path). The old output_path="snapshots/chapter-NNN/" was a fictional
-    # directory that never existed on disk. Empty output_path = no single file.
+]
+
+# Conditional steps (not in main list, invoked only when gates open).
+# NOTE: escalation-review is intentionally ABSENT -- it is dispatched
+# reactively from revision_router.dispatch_escalation (Spec 5), NOT from here.
+CONDITIONAL_STEPS: list[ChapterStep] = [
     ChapterStep(
-        19,
-        "shenbi-snapshot-manage",
-        "snapshot-manage",
-        output_path="",
+        1,
+        "shenbi-intent-management",
+        "intent-management",
+        step_type="core",
+        conditional=True,
+        output_path="truth/current_focus.md",
     ),
     ChapterStep(
-        20,
+        2,
         "shenbi-drift-guidance",
         "drift-guidance",
+        step_type="core",
+        conditional=True,
         output_path="truth/drift_guidance.md",
+    ),
+    ChapterStep(
+        3,
+        "shenbi-snapshot-manage",
+        "snapshot-manage",
+        step_type="checkpoint",
+        conditional=True,
     ),
 ]
 
@@ -1420,7 +1439,7 @@ def _get_last_drift_chapter(project_dir: Path) -> int | None:
     return manifest.get("last_drift_chapter")
 
 
-def _should_run_recall(project_dir: Path, chapter: int) -> bool:
+def _should_run_recall(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
     """Determine whether foreshadowing recall should run for *chapter*.
 
     Triggers when any of these conditions are met:
@@ -1498,7 +1517,7 @@ def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 
     return scores
 
 
-def _should_run_drift(project_dir: Path, chapter: int) -> bool:
+def _should_run_drift(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
     """Determine whether drift guidance should run for *chapter*.
 
     Triggers when either:
@@ -1914,30 +1933,76 @@ def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
     _save_manifest(project_dir, manifest)
 
 
-def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path) -> bool:
-    """Determine whether *step* should execute based on adaptive triggering rules.
+def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
+    """Check if chapter is at a volume boundary.
 
-    Returns True if the step should execute normally (dispatch + gates).
-    Returns False if the step should be skipped for this chapter.
-
-    For ``shenbi-snapshot-manage``, the file-based snapshot is taken inline
-    and the LLM dispatch is always skipped (returns False).
+    Delegates to :func:`shenbi.pipeline.triggers.is_volume_boundary`.
     """
-    skill = step.skill
+    from shenbi.pipeline.triggers import is_volume_boundary as _is_vol_boundary
+
+    return _is_vol_boundary(chapter, project_dir)
+
+
+def _drift_guidance_triggered(state: PipelineState) -> bool:
+    """Check if drift guidance should run (3+ consecutive drift alerts)."""
+    alerts = getattr(state, "drift_alerts", [])
+    return len(alerts) >= 3
+
+
+def _any_audit_has_findings(state: PipelineState) -> bool:
+    """Check if any audit reported findings needing revision.
+
+    Scans audit files for BLOCKING or FAIL markers.
+    """
+    project_dir = Path(state.project_dir)
     chapter = state.chapter_loop.current_chapter
+    audit_dir = project_dir / "audits"
 
-    if skill == "shenbi-foreshadowing-recall":
-        return _should_run_recall(project_dir, chapter)
+    for atype in [
+        "continuity",
+        "character",
+        "world-rules",
+        "pacing",
+        "dialogue",
+        "motivation",
+        "pov",
+        "memo-compliance",
+        "foreshadowing",
+        "anti-ai",
+        "texture",
+        "reader-pull",
+        "sensitivity",
+    ]:
+        af = audit_dir / f"chapter-{chapter}-{atype}.md"
+        if af.exists():
+            text = af.read_text(encoding="utf-8")
+            if "BLOCKING" in text or "FAIL" in text:
+                return True
+    return False
 
-    if skill == "shenbi-drift-guidance":
-        return _should_run_drift(project_dir, chapter)
 
-    if skill == "shenbi-snapshot-manage":
-        # Replace LLM dispatch with deterministic file-based snapshot.
-        _snapshot_chapter_files(project_dir, chapter, state=state)
-        return False
+def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
+    """Determine if a step should run based on its conditional gates.
 
-    # All other steps run unconditionally.
+    Steps with ``conditional=False`` always run.
+    Steps with ``conditional=True`` are gated by skill-specific conditions.
+
+    NOTE: escalation-review is NOT gated here -- it is dispatched reactively
+    by revision_router.dispatch_escalation (see Spec 5).
+    """
+    if not step.conditional:
+        return True
+
+    if step.skill == "shenbi-intent-management":
+        return _is_volume_boundary(Path(state.project_dir), state.chapter_loop.current_chapter)
+
+    if step.skill == "shenbi-drift-guidance":
+        return _drift_guidance_triggered(state)
+
+    if step.skill == "shenbi-chapter-revision":
+        return _any_audit_has_findings(state)
+
+    # Other conditional steps default to running
     return True
 
 
@@ -2108,7 +2173,7 @@ def _ensure_revision_decisions_exists(
 # ---------------------------------------------------------------------------
 
 
-def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
+def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:  # pyright: ignore[reportUnusedFunction]
     """Check chapter text for linguistic drift and apply tiered intervention.
 
     Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
@@ -2704,26 +2769,11 @@ def _run_chapter_step_impl(
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # Adaptive triggering: recall, drift, snapshot run only when data indicates need.
-    if not _should_run_step(step, state, project_dir):
+    # Conditional dispatch: gated steps only run when their condition is met.
+    if not _should_run_step(state, step):
+        log.info("conditional_step_skipped", chapter=chapter, skill=step.skill)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
-        # Update manifest tracking for steps that were handled inline.
-        if step.skill == "shenbi-snapshot-manage":
-            # snapshot already taken + manifest updated in _snapshot_chapter_files
-            # Run linguistic drift check after snapshot (spec §3.4, Task 5)
-            try:
-                _check_linguistic_drift(project_dir, chapter)
-            except DriftEscalationError as e:
-                log.error("drift_escalation_checkpoint", chapter=chapter, error=str(e))
-                set_checkpoint(
-                    state,
-                    CheckpointType.ESCALATION,
-                    chapter=chapter,
-                    artifact=f"audits/escalation-{chapter}-drift.md",
-                    context=str(e),
-                )
-                return True
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
