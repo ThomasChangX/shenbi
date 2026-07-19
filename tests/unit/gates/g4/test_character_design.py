@@ -167,3 +167,46 @@ def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Pat
     assert any(
         c.get("id") == "G4.cd.major_chars" and c.get("s") == "PASS" for c in result["checks"]
     )
+
+
+# ── SKILL.md content tests (Task 6: 4-phase restructuring) ──────────────────
+
+
+def test_skill_md_has_four_explicit_phases():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert (
+        "Phase 1:" in content or "阶段一" in content or "第一阶段" in content
+    )  # Chinese or English
+    assert "Phase 2:" in content
+    assert "Phase 3:" in content
+    assert "Phase 4:" in content
+
+
+def test_skill_md_has_iron_law_for_named_characters():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "every character" in content.lower() or "iron law" in content.lower()
+    assert "chapter_outline" in content or "three_act" in content
+
+
+def test_skill_md_declares_major_and_minor_writes():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "characters/major/" in content
+    assert "characters/minor/" in content
+
+
+def test_skill_md_includes_archetype_sources_requirement():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "archetype_sources" in content
+    assert "historical" in content.lower() or "archetype" in content.lower()
