@@ -689,7 +689,16 @@ def cmd_resume(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
 
-            # Truth-integrity check (spec \u00a73.4): verify truth files exist
+            # Self-heal orphaned counters/pointers from disk (spec §3.4):
+            # retry_budget_consumed, revision_count, last_snapshot.
+            from shenbi.pipeline.state_heal import heal_state_counters
+
+            heal_state_counters(state, project_dir)
+
+            # Persist healed values immediately so crash-resume sees them.
+            save_state(project_dir, state)
+
+            # Truth-integrity check (spec §3.4): verify truth files exist
             # before resuming, so missing files surface immediately rather than
             # on the first step dispatch.
             _verify_truth_integrity(state, project_dir)
