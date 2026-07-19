@@ -74,3 +74,33 @@ def test_doc_references_existing_files(doc_relative: str) -> None:
             missing.append(f"{doc_relative}: references `{rel}` which does not exist")
 
     assert not missing, "Documentation references missing files:\n" + "\n".join(missing)
+
+
+def test_chapter_file_format_doc_exists():
+    doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
+    assert doc_path.exists(), f"Expected {doc_path} to exist"
+
+
+def test_chapter_file_format_documents_meta_blocks():
+    doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
+    if not doc_path.exists():
+        pytest.skip("File not yet created")
+    content = doc_path.read_text(encoding="utf-8")
+    assert "META" in content
+    assert "<!--META-BEGIN-->" in content or "META-BEGIN" in content
+
+
+def test_chapter_file_format_documents_stripping_method():
+    doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
+    if not doc_path.exists():
+        pytest.skip("File not yet created")
+    content = doc_path.read_text(encoding="utf-8")
+    assert "strip" in content.lower() or "shared.py" in content
+
+
+def test_chapter_file_format_states_meta_not_prose():
+    doc_path = Path(__file__).resolve().parents[2] / "docs" / "framework" / "chapter-file-format.md"
+    if not doc_path.exists():
+        pytest.skip("File not yet created")
+    content = doc_path.read_text(encoding="utf-8")
+    assert "not part of" in content.lower() or "not prose" in content.lower()
