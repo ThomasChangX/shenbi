@@ -327,6 +327,60 @@ def _extract_check_id(must_fix_item: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# G4 format examples for enriched retry feedback (Task 6)
+# ---------------------------------------------------------------------------
+
+
+G4_FORMAT_EXAMPLES: dict[str, str] = {
+    "G4.rr.detail_table": (
+        "评分明细表格式：\n"
+        "| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |\n"
+        "|------|------|------|--------|------|----------|\n"
+        '| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 > "..." | ... |\n'
+        "注意：六列必须完整，不可缺列。"
+    ),
+    "G4.rr.verdict": (
+        "校准门判定必须包含以下行：\n"
+        "判定: 通过    （或：判定: 阻断  / 判定: 待人机复核）\n"
+        "注意：'判定: ' 后必须有空格，且必须使用中文冒号"
+    ),
+    "G4.rr.evidence": (
+        "证据列每行必须包含文件和行号引用，格式：\n"
+        'chapter-N.md L45-52 > "引用原文"\n'
+        "至少一行包含 Lnn 或 line nn 格式的行号引用。"
+    ),
+}
+
+
+def _enrich_g4_feedback(failures: list[str]) -> str:
+    """Build enriched retry feedback with format examples for each failed check.
+
+    For each failure in ``failures``, extracts the check ID prefix and
+    appends the corresponding format example from ``G4_FORMAT_EXAMPLES``.
+    Failures without a known check ID receive generic retry guidance.
+
+    Args:
+        failures: List of G4 failure strings (e.g., "G4.rr.verdict:file.md:reason").
+
+    Returns:
+        A formatted feedback string suitable for inclusion in retry prompts.
+    """
+    lines = ["以下 G4 检查失败，请按指定格式修正：", ""]
+    for f in failures:
+        # Extract check ID prefix (e.g., "G4.rr.verdict" from "G4.rr.verdict:file:reason")
+        check_prefix = f.split(":")[0] if ":" in f else f
+        lines.append(f"- **{f}**")
+        if check_prefix in G4_FORMAT_EXAMPLES:
+            lines.append("  期望格式：")
+            for fmt_line in G4_FORMAT_EXAMPLES[check_prefix].split("\n"):
+                lines.append(f"  {fmt_line}")
+        else:
+            lines.append("  (请重新生成此检查的输出以达到标准格式)")
+        lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -1403,9 +1457,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 )
 
         if hard_fails:
-            state.chapter_loop.retry_feedback[retry_key] = (
-                f"G4 HARD check failed: {hard_fails}\nFull result: {json.dumps(g4, default=str)}"
-            )
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
             if state.config.per_chapter_review_enabled:
                 return _handle_failure(state, step, chapter, "gate", project_dir)
             count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
