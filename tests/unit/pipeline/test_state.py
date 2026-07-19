@@ -43,7 +43,7 @@ class TestPipelineStateSerialization:
         assert state.genesis.state == GenesisState.PENDING
         assert state.pending_checkpoint.type == CheckpointType.NONE
         assert state.config.max_revision_retries == 3
-        assert state.config.resonance_global_floor == 50
+        assert state.config.resonance_global_floor == 65
 
     def test_to_json_round_trip(self):
         state = PipelineState.default(project_dir="/tmp/novel")
@@ -106,3 +106,9 @@ class TestPipelineStateSerialization:
 
         restored.chapter_loop = ChapterLoopStateData(chapter_states={"1": ChapterState()})
         assert restored.chapter_loop.chapter_states["1"].audit_retry_count == 0
+
+    def test_default_floor_matches_single_source_of_truth(self):
+        from shenbi.config.thresholds import DEFAULT_THRESHOLDS
+
+        state = PipelineState.default(project_dir="/tmp/novel")
+        assert state.config.resonance_global_floor == DEFAULT_THRESHOLDS.resonance_global_floor

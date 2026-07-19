@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from shenbi.config.thresholds import DEFAULT_THRESHOLDS
+
 
 class PipelinePhase(StrEnum):
     GENESIS = "genesis"
@@ -62,7 +64,10 @@ class PipelineConfig:
     context_budget_override: int | None = None
     style_learning_interval: int = 12
     genre_config_update_on_drift: bool = True
-    resonance_global_floor: int = 50
+    #: Resonance global floor (spec §6.3). Imported from the single source of
+    #: truth in ``shenbi.config.thresholds`` so config / skills / gates can
+    #: never drift apart again (root cause of E11).
+    resonance_global_floor: int = DEFAULT_THRESHOLDS.resonance_global_floor
     snapshot_retention_chapters: int = 50
 
 

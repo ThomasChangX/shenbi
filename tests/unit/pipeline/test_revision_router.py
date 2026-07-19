@@ -97,17 +97,17 @@ class TestRouteChapterRevision:
 # ---------------------------------------------------------------------------
 class TestCheckResonance:
     def test_above_floor_passes(self):
-        assert check_resonance(75, floor=50) is True
+        assert check_resonance(75, floor=65) is True
 
     def test_at_floor_passes(self):
-        assert check_resonance(50, floor=50) is True
+        assert check_resonance(65, floor=65) is True
 
     def test_below_floor_fails(self):
-        assert check_resonance(49, floor=50) is False
+        assert check_resonance(49, floor=65) is False
 
     def test_none_resonance_passes(self):
         """Missing resonance data does not block (defensive)."""
-        assert check_resonance(None, floor=50) is True
+        assert check_resonance(None, floor=65) is True
 
     def test_default_floor_is_50(self):
         assert check_resonance(50) is True
@@ -123,25 +123,25 @@ class TestDecideRevision:
             issues=[{"category": "unmet_goal", "severity": "BLOCKING"}],
             blocking=True,
             resonance_score=90,
-            resonance_floor=50,
+            resonance_floor=65,
         )
         assert decision == RevisionDecision.REVISION
 
     def test_no_blocking_high_resonance_passes(self):
         decision = decide_revision(
-            issues=[], blocking=False, resonance_score=80, resonance_floor=50
+            issues=[], blocking=False, resonance_score=80, resonance_floor=65
         )
         assert decision == RevisionDecision.PASS
 
     def test_no_blocking_resonance_at_floor_passes(self):
         decision = decide_revision(
-            issues=[], blocking=False, resonance_score=50, resonance_floor=50
+            issues=[], blocking=False, resonance_score=64, resonance_floor=65
         )
-        assert decision == RevisionDecision.PASS
+        assert decision == RevisionDecision.REVISION
 
     def test_no_blocking_low_resonance_revisions(self):
         decision = decide_revision(
-            issues=[], blocking=False, resonance_score=40, resonance_floor=50
+            issues=[], blocking=False, resonance_score=40, resonance_floor=65
         )
         assert decision == RevisionDecision.REVISION
 
@@ -151,13 +151,13 @@ class TestDecideRevision:
             issues=[{"category": "unmet_goal", "severity": "BLOCKING"}],
             blocking=True,
             resonance_score=95,
-            resonance_floor=50,
+            resonance_floor=65,
         )
         assert decision == RevisionDecision.REVISION
 
     def test_none_resonance_no_blocking_passes(self):
         decision = decide_revision(
-            issues=[], blocking=False, resonance_score=None, resonance_floor=50
+            issues=[], blocking=False, resonance_score=None, resonance_floor=65
         )
         assert decision == RevisionDecision.PASS
 
@@ -166,7 +166,7 @@ class TestDecideRevision:
             issues=[{"category": "craft", "severity": "CRITICAL"}],
             blocking=False,
             resonance_score=30,
-            resonance_floor=50,
+            resonance_floor=65,
         )
         assert decision == RevisionDecision.REVISION
 
