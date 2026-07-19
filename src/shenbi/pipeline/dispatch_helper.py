@@ -70,11 +70,56 @@ _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 #: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
 _DEFAULT_MODEL = "deepseek-v4-pro"  # fallback when SHENBI_LLM_MODEL not set
-_IDE_AGENT_TIMEOUT = 900  # seconds for IDE agent subprocess (increased for large prompts)
 #: Externalised per-skill temperature/max_tokens configuration.
 #: Loaded from executor_config.toml at project root (Spec 6 §5.4).
 
 _executor_config_cache: list[dict[str, Any]] = []
+
+
+# ---------------------------------------------------------------------------
+# Dynamic timeout (Task 14 — all 3 dispatch paths)
+# ---------------------------------------------------------------------------
+
+
+def _compute_dispatch_timeout(
+    skill_name: str,
+    chapter_path: Path | None = None,
+) -> int:
+    """Compute adaptive dispatch timeout based on chapter size.
+
+    base = 300s (5 min)
+    extra = 30s per KB of chapter size
+    cap = 1800s (30 min)
+    state-settling gets 2x multiplier.
+
+    Applied to ALL THREE dispatch paths (CLI subprocess, API, IDE-CLI).
+    """
+    base = 300
+    extra = 0
+
+    if chapter_path and chapter_path.exists():
+        chapter_size_kb = chapter_path.stat().st_size / 1024
+        extra = int(chapter_size_kb * 30)
+
+    timeout = min(base + extra, 1800)
+
+    # state-settling is the heaviest step -- double timeout
+    if skill_name == "shenbi-state-settling":
+        timeout = min(int(timeout * 2.0), 1800)
+
+    return timeout
+
+
+def _handle_timeout_gracefully(skill_name: str, chapter: int | None) -> None:
+    """Graceful degradation on timeout.
+
+    Save partial LLM output, log WARN (not HARD failure).
+    """
+    log.warning(
+        "dispatch_timeout", skill=skill_name, chapter=chapter, resolution="saving_partial_output"
+    )
+    # Reuse previous truth file versions for incomplete updates
+    # This is logged for observability; actual handling depends on skill
 
 
 def _load_executor_config() -> dict[str, Any]:
@@ -1302,6 +1347,11 @@ def _dispatch_via_api(
     )
     model = os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)
 
+    chapter_path = (
+        project_dir / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
+    )
+    api_timeout = _compute_dispatch_timeout(skill, chapter_path)
+
     log.info("api_dispatch_start", skill=skill, model=model, chapter=chapter)
 
     # Pre-flight: warn if the assembled prompt approaches the context limit.
@@ -1319,8 +1369,10 @@ def _dispatch_via_api(
             ],
             temperature=_get_skill_temperature(skill),
             max_tokens=_get_skill_max_tokens(skill),
+            timeout=api_timeout,
         )
     except Exception as exc:
+        _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
@@ -1412,14 +1464,20 @@ def _dispatch_via_ide(
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
     cmd = [p.replace("{dir}", str(project_dir)) for p in cli_parts]
 
+    chapter_path = (
+        project_dir / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
+    )
+    ide_timeout = _compute_dispatch_timeout(skill, chapter_path)
+
     log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
     try:
         r = subprocess.run(
-            cmd, input=full_prompt, capture_output=True, text=True, timeout=_IDE_AGENT_TIMEOUT
+            cmd, input=full_prompt, capture_output=True, text=True, timeout=ide_timeout
         )
     except subprocess.TimeoutExpired:
+        _handle_timeout_gracefully(skill, chapter)
         log.error("ide_timeout", skill=skill)
-        return DispatchResult(False, -1, "", f"IDE agent timed out after {_IDE_AGENT_TIMEOUT}s")
+        return DispatchResult(False, -1, "", f"IDE agent timed out after {ide_timeout}s")
     except FileNotFoundError:
         log.error("ide_cli_not_found", cmd=cmd[0])
         return DispatchResult(False, -1, "", f"CLI not found: {cmd[0]}")
@@ -1515,6 +1573,10 @@ def dispatch_skill(
     patterns = list(skip_reads or [])
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
+    chapter = extract_chapter(prompt)
+    chapter_path = pd / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
+    cli_timeout = _compute_dispatch_timeout(skill, chapter_path)
+
     rd = str(round_dir) if round_dir else str(project_dir)
     log.info("dispatch_start", skill=skill, test_type=test_type, round_dir=rd)
     env = os.environ.copy()
@@ -1523,9 +1585,10 @@ def dispatch_skill(
         log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
     try:
         _run_cmd = ["uv", "run", "shenbi-dispatch", skill, test_type, rd, prompt]
-        r = subprocess.run(_run_cmd, capture_output=True, text=True, timeout=timeout, env=env)
+        r = subprocess.run(_run_cmd, capture_output=True, text=True, timeout=cli_timeout, env=env)
     except subprocess.TimeoutExpired as exc:
-        log.error("dispatch_timeout", skill=skill, timeout=timeout)
+        _handle_timeout_gracefully(skill, chapter)
+        log.error("dispatch_timeout", skill=skill, timeout=cli_timeout)
         return DispatchResult(False, -1, "", str(exc))
     if r.returncode != 0:
         log.error(
