@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+
 from shenbi.logging import get_logger
 from shenbi.pipeline.context_curation import ENDING_PATTERNS
 from shenbi.safe_write import safe_write
@@ -460,18 +461,135 @@ def _estimate_chapter_char_count(project_dir: Path, chapter: int) -> int:
     return len(re.sub(r"\s+", "", text))
 
 
+# ---------------------------------------------------------------------------
+# Static/Dynamic Split (Plan 11 Task 3)
+# ---------------------------------------------------------------------------
+
+STATIC_FIELDS = {
+    "ai_blacklist",
+    "fatigue_warnings",
+    "voice_constraints",
+    "pov_mode",
+    "world_rules_brief",
+    "sensitivity_flags",
+}
+DYNAMIC_FIELDS = {
+    "chapter",
+    "transition_budget",
+    "ending_constraints",
+    "hook_deliverables",
+    "fatigue_warnings_dynamic",
+}
+
+
+def generate_static_template(project_dir: Path) -> dict[str, Any]:
+    """Generate the static review checklist template from Genesis sources."""
+    return {
+        "ai_blacklist": _load_blacklist(project_dir),
+        "voice_constraints": _load_voice_constraints(project_dir),
+        "pov_mode": _load_pov_mode(project_dir),
+        "world_rules_brief": _load_world_rules_brief(project_dir),
+        "sensitivity_flags": 0,
+        "fatigue_warnings": [],
+    }
+
+
+def generate_chapter_delta(project_dir: Path, chapter: int) -> dict[str, Any]:
+    """Generate per-chapter dynamic delta for review checklist."""
+    return {
+        "chapter": chapter,
+        "transition_budget": 0,
+        "ending_constraints": "",
+        "hook_deliverables": _extract_hooks_from_plan(project_dir, chapter),
+    }
+
+
+def get_checklist(project_dir: Path, chapter: int) -> dict[str, Any]:
+    """Merge static template with per-chapter delta."""
+    context_dir = project_dir / "context"
+    template_file = context_dir / "review-checklist-template.json"
+    delta_file = context_dir / f"review-checklist-chapter-{chapter:03d}.json"
+
+    template: dict[str, Any] = {}
+    if template_file.exists():
+        template = json.loads(template_file.read_text(encoding="utf-8"))
+
+    delta: dict[str, Any] = {}
+    if delta_file.exists():
+        delta = json.loads(delta_file.read_text(encoding="utf-8"))
+
+    return {**template, **delta}
+
+
+def _extract_hooks_from_plan(project_dir: Path, chapter: int) -> list[dict[str, Any]]:
+    """Extract hook operations from chapter plan Section 7 hook ledger."""
+    plan_file = project_dir / "plans" / f"chapter-{chapter:03d}-plan.md"
+    if not plan_file.exists():
+        return []
+    plan_text = plan_file.read_text(encoding="utf-8")
+    # Parse Section 7 hook ledger table
+    hooks = []
+    in_section_7 = False
+    hook_pattern = re.compile(r"\|\s*(MH-\d+|P\d+-[a-z]+)\s*\|\s*(\w+)\s*\|")
+    for line in plan_text.split("\n"):
+        if "Hook Ledger" in line or "钩子账本" in line:
+            in_section_7 = True
+            continue
+        if in_section_7 and line.startswith("##"):
+            break
+        if in_section_7:
+            match = hook_pattern.search(line)
+            if match:
+                hooks.append({"id": match.group(1), "operation": match.group(2)})
+    return hooks
+
+
+def _load_blacklist(project_dir: Path) -> list[str]:
+    style_file = project_dir / "style" / "style_profile.md"
+    if style_file.exists():
+        text = style_file.read_text(encoding="utf-8")
+        # Extract blacklist items
+        return [line.strip("- ") for line in text.split("\n") if "avoid" in line.lower()][:10]
+    return []
+
+
+def _load_voice_constraints(project_dir: Path) -> str:
+    return "third_person_limited"
+
+
+def _load_pov_mode(project_dir: Path) -> str:
+    return "multi_pov"
+
+
+def _load_world_rules_brief(project_dir: Path) -> str:
+    rules_file = project_dir / "truth" / "world_rules.md"
+    if rules_file.exists():
+        return rules_file.read_text(encoding="utf-8")[:3000]
+    return ""
+
+
 __all__ = [
+    "DYNAMIC_FIELDS",
+    "STATIC_FIELDS",
     "ReviewChecklist",
     "_build_checklist",
     "_estimate_chapter_char_count",
     "_extract_ai_blacklist",
     "_extract_fatigue_warnings",
     "_extract_hook_deliverables",
+    "_extract_hooks_from_plan",
     "_extract_voice_constraints",
     "_get_max_source_mtime",
     "_get_recent_ending_types",
+    "_load_blacklist",
     "_load_genre_config",
+    "_load_pov_mode",
+    "_load_voice_constraints",
+    "_load_world_rules_brief",
     "_summarize_world_rules",
+    "generate_chapter_delta",
     "generate_review_checklist",
+    "generate_static_template",
+    "get_checklist",
     "inject_checklist_into_prompt",
 ]
