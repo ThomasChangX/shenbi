@@ -785,6 +785,24 @@ def _resolve_chapter_for_audit(full_path: Path, project_dir: Path) -> Path:
     return full_path.parent / f"chapter-{num}.md"
 
 
+def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[str]) -> None:
+    """Persist post-write integrity findings for the G4 checker to read."""
+    m = _CHAPTER_NUM_RE.search(file_path.stem)
+    num = m.group(1) if m else "unknown"
+    out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    existing = out.read_text(encoding="utf-8") if out.exists() else ""
+    for issue in issues:
+        existing += (
+            json.dumps(
+                {"file": str(file_path.relative_to(project_dir)), "finding": issue},
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+    safe_write(out, existing)
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -888,6 +906,8 @@ def _write_parsed_outputs(
 
         for issue in issues:
             log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)
+        if issues:
+            _append_integrity_findings(project_dir, full_path, issues)
 
     # Process literal contract paths
     for rel_path in literal_paths:
