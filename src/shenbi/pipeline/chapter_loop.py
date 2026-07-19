@@ -669,50 +669,6 @@ def _handle_failure(
     return True
 
 
-def _record_step_done(state: PipelineState, step: ChapterStep, chapter: int) -> None:
-    """Append the skill to the chapter's steps_done list and emit MARK_DONE trace event."""
-    key = str(chapter)
-    cs = state.chapter_loop.chapter_states.get(key)
-    if cs is None:
-        cs = ChapterState()
-        state.chapter_loop.chapter_states[key] = cs
-    if step.skill not in cs.steps_done:
-        cs.steps_done.append(step.skill)
-
-    # Emit MARK_DONE trace event for progress tracking (spec §2.7).
-    # The progress.json view is derived from trace events; without this,
-    # progress.json stays frozen at the last manual update.
-    try:
-        from datetime import datetime
-
-        from shenbi.trace.writer import TraceWriter
-
-        round_dir = Path(state.project_dir) / "trace"
-        round_dir.mkdir(parents=True, exist_ok=True)
-        writer = TraceWriter(round_dir)
-        writer.append(
-            actor="pipeline",
-            actor_role="SYSTEM",
-            action="MARK_DONE",
-            target=f"chapter-{chapter}",
-            skill=step.skill,
-            payload={
-                "chapter": chapter,
-                "skill": step.skill,
-                "test_type": "generative",
-                "status": "done",
-                "timestamp": datetime.now(UTC).isoformat(),
-            },
-        )
-    except Exception:
-        log.warning(
-            "mark_done_event_failed",
-            skill=step.skill,
-            chapter=chapter,
-            exc_info=True,
-        )
-
-
 def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
     """Clear retry count after a successful step."""
     state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
@@ -2644,7 +2600,7 @@ def _run_chapter_step_impl(
         # Record all review steps as done and advance past them
         for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
             if i < len(CHAPTER_STEPS):
-                _record_step_done(state, CHAPTER_STEPS[i], chapter)
+                state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
 
         state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
         state.chapter_loop.current_step = ""
@@ -2712,9 +2668,9 @@ def _run_chapter_step_impl(
                 )
 
         # Record both steps as done and advance past them.
-        _record_step_done(state, lifecycle_step, chapter)
+        state.add_step_done(chapter, lifecycle_step.skill)
         _reset_retries(state, lifecycle_step, chapter)
-        _record_step_done(state, settling_step, chapter)
+        state.add_step_done(chapter, settling_step.skill)
         _reset_retries(state, settling_step, chapter)
 
         # Advance past both steps (idx 6 and 7 -> idx 8)
@@ -2750,14 +2706,14 @@ def _run_chapter_step_impl(
                     exc_info=True,
                 )
 
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # context-composing replaced by deterministic curation in step 4
     if step.skill == "shenbi-context-composing":
         log.info("context_composing_replaced_by_curation", chapter=chapter)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
@@ -2767,7 +2723,7 @@ def _run_chapter_step_impl(
 
         count = plant_hooks_from_plan(project_dir, chapter)
         log.info("foreshadowing_plant_replaced_by_deterministic", chapter=chapter, count=count)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
@@ -2777,7 +2733,7 @@ def _run_chapter_step_impl(
     # 20) must always run regardless of the revision route.
     if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
         log.info("revision_step_skipped", chapter=chapter)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
@@ -2785,7 +2741,7 @@ def _run_chapter_step_impl(
     # Conditional dispatch: gated steps only run when their condition is met.
     if not _should_run_step(state, step):
         log.info("conditional_step_skipped", chapter=chapter, skill=step.skill)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
@@ -3044,7 +3000,7 @@ def _run_chapter_step_impl(
             log.info("resonance_score_persisted", chapter=chapter, overall=overall)
 
     # Success: record, reset retries, advance.
-    _record_step_done(state, step, chapter)
+    state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
 
     # Materialize progress.json from trace every 5 steps (Task 12).
