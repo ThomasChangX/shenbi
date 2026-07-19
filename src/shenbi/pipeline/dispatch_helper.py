@@ -551,6 +551,71 @@ def _parse_file_outputs(response: str) -> dict[str, str]:
     return {"__stdout__": response}
 
 
+# Minimum ratio of new content to original before overwrite is allowed.
+# Below this, the write is refused (WARN + skip) to prevent revision metadata
+# summaries from overwriting actual chapter prose. This is a DEFENSE-IN-DEPTH
+# secondary safety net — the primary fix is the revision write-contract change
+# (Spec 2) + the pre-revision backup (Task 1).
+_CONTENT_SIZE_MIN_RATIO = 0.20
+
+
+def _check_content_size_guard(
+    project_dir: Path,
+    rel_path: str,
+    new_content: str,
+) -> tuple[bool, str]:
+    """Check if new content is too small compared to existing file.
+
+    Only applies to ``chapters/chapter-N.md`` files (not metadata, audits,
+    truth files, or ``-pre-rev.md`` backups). Path matching uses
+    ``parent.name``/``name.startswith()`` — NOT ``PurePath.match``, which
+    does not handle multi-segment patterns reliably.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        rel_path: Relative path within the project directory.
+        new_content: The new content about to be written.
+
+    Returns:
+        A tuple of ``(should_block, reason)``. ``should_block`` is True
+        when the write should be refused. ``reason`` is a human-readable
+        explanation (empty string if not blocking).
+    """
+    # Only guard chapter body files: parent dir must be "chapters", name must
+    # start with "chapter-" and end with ".md", and must NOT be a -pre-rev
+    # backup. Use parent.name/name.startswith() per spec §3.2 (PurePath.match
+    # does not handle multi-segment patterns reliably).
+    path = Path(rel_path)
+    if path.parent.name != "chapters":
+        return False, ""
+    if not path.name.startswith("chapter-"):
+        return False, ""
+    if not path.name.endswith(".md"):
+        return False, ""
+    if path.name.endswith("-pre-rev.md"):
+        return False, ""
+
+    full_path = project_dir / rel_path
+    if not full_path.exists():
+        return False, ""
+
+    original_size = full_path.stat().st_size
+    if original_size == 0:
+        return False, ""
+
+    new_size = len(new_content)
+    ratio = new_size / original_size
+
+    if ratio < _CONTENT_SIZE_MIN_RATIO:
+        reason = (
+            f"content_too_small: {new_size}B is {ratio:.1%} of "
+            f"original {original_size}B (threshold: {_CONTENT_SIZE_MIN_RATIO:.0%})"
+        )
+        return True, reason
+
+    return False, ""
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -580,6 +645,11 @@ def _write_parsed_outputs(
         except ValueError as e:
             log.error("output_validation_failed", path=rel_path, error=str(e))
             raise  # Pipeline must stop rather than persist corrupt data
+
+        should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
+        if should_block:
+            log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
+            continue  # Skip this file, preserve original
 
         safe_write(full_path, content)
         written.append(rel_path)
