@@ -672,11 +672,13 @@ class TestRevisionRoutingIntegration:
         # Advancing through it should not dispatch.
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.step_index == 19
-        # Verify file-based snapshot was created.
+        # Verify file-based snapshot was created (differential format).
         snap_dir = tmp_path / "snapshots"
         assert snap_dir.exists()
-        snapshots = list(snap_dir.glob("chapter-001-*.md"))
-        assert len(snapshots) == 1
+        chapter_snap_dir = snap_dir / "chapter-001"
+        assert chapter_snap_dir.exists()
+        manifest_file = chapter_snap_dir / "snapshot-manifest.json"
+        assert manifest_file.exists()
 
         # Step 20 (drift-guidance): skipped when no resonance data.
         # Still advances and completes chapter.

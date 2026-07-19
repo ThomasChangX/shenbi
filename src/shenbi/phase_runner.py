@@ -182,6 +182,7 @@ def cmd_post_skill(
     project_dir: str | None,
     chapter: int | None = None,
 ) -> None:
+    configure_logging()
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "post-skill")
     assert project_dir is not None

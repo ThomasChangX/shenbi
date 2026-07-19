@@ -574,6 +574,8 @@ def _handle_failure(
     chapter: int,
     failure: str,
     project_dir: Path | str,
+    *,
+    budget_pre_consumed: bool = False,
 ) -> bool:
     """Record a dispatch/gate failure for a chapter step.
 
@@ -581,6 +583,10 @@ def _handle_failure(
     then raises an escalation checkpoint. Returns False when the step should
     be retried on the next call (step_index unchanged) or True once an
     escalation checkpoint has been raised.
+
+    When *budget_pre_consumed* is True, the caller has already incremented
+    ``retry_budget_consumed`` (e.g. G4 hard-fail path), so this function
+    skips its own increment to avoid double-counting.
     """
     key = _retry_key(chapter, step.skill)
     count = state.chapter_loop.retry_counts.get(key, 0) + 1
@@ -588,8 +594,11 @@ def _handle_failure(
 
     # Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
     # can enforce max_audit_retries even after a successful retry.
-    consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
-    state.chapter_loop.retry_budget_consumed[key] = consumed
+    if not budget_pre_consumed:
+        consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
+        state.chapter_loop.retry_budget_consumed[key] = consumed
+    else:
+        consumed = state.chapter_loop.retry_budget_consumed.get(key, 0)
     if consumed > state.config.max_audit_retries:
         log.error(
             "retry_budget_exhausted",
@@ -2320,7 +2329,11 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                     f"(consumed {consumed})"
                 )
             if state.config.per_chapter_review_enabled:
-                return _handle_failure(state, step, chapter, "gate", project_dir)
+                # Budget already consumed above; prevent _handle_failure from
+                # double-incrementing the durable counter.
+                return _handle_failure(
+                    state, step, chapter, "gate", project_dir, budget_pre_consumed=True
+                )
             count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
             state.chapter_loop.retry_counts[retry_key] = count
             if count <= 1:

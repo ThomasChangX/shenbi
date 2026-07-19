@@ -48,14 +48,15 @@ class TestFileSnapshot:
 
         snap_dir = tmp_path / "snapshots"
         assert snap_dir.exists()
-        snapshots = list(snap_dir.glob("chapter-005-*.md"))
-        assert len(snapshots) == 1
-        assert "Chapter 5 content" in snapshots[0].read_text(encoding="utf-8")
-
-        manifest = snap_dir / "manifest.json"
-        assert manifest.exists()
-        data = json.loads(manifest.read_text(encoding="utf-8"))
-        assert "5" in data["chapters"]
+        # Differential snapshots create chapter subdirectories with a manifest.
+        chapter_snap_dir = snap_dir / "chapter-005"
+        assert chapter_snap_dir.exists()
+        manifest_file = chapter_snap_dir / "snapshot-manifest.json"
+        assert manifest_file.exists()
+        data = json.loads(manifest_file.read_text(encoding="utf-8"))
+        assert data["chapter"] == 5
+        # Verify the chapter file entry exists.
+        assert any("chapter-5.md" in f["path"] for f in data.get("files", []))
 
 
 class TestShouldRunStep:
