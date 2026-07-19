@@ -21,6 +21,44 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str]:
+    """G4.cd.title: Validate chapter title quality.
+
+    Checks:
+    - No chapter numbers in title
+    - No duplicate titles
+    - No day-of-week labels (WARN, not HARD)
+    - Thematic naming encouraged (1-4 Chinese characters)
+    """
+    issues = []
+
+    # HARD FAIL: Chapter number in title
+    if re.search(r"第\d+章", title):
+        issues.append(
+            "G4.cd.title:contains_chapter_number -- "
+            "title must not include chapter number (SKILL.md:125)"
+        )
+
+    # HARD FAIL: Duplicate title
+    if title in previous_titles:
+        issues.append(
+            f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- title '{title}' already used"
+        )
+
+    # WARN: Day-of-week or date label
+    day_pattern = re.compile(
+        r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|"
+        r"周[一二三四五六日])"
+    )
+    if day_pattern.search(title):
+        issues.append(
+            "G4.cd.title:day_label_instead_of_thematic_name -- "
+            "prefer thematic 1-4 character name over date label"
+        )
+
+    return issues
+
+
 def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     """Build a set of paragraph hashes for content overlap comparison."""
     body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)

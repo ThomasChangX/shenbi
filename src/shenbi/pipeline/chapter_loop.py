@@ -2072,6 +2072,56 @@ def _extract_key_terms(text: str) -> list[str]:
     return filtered
 
 
+def _run_title_check(project_dir: Path, chapter: int) -> None:
+    """G4.cd.title: validate chapter title quality after drafting.
+
+    Reads the chapter file, extracts the title from the first H1 heading,
+    collects previous titles from earlier chapters, and logs warnings for
+    any title quality issues detected.
+    """
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_path.exists():
+        return
+
+    text = chapter_path.read_text(encoding="utf-8")
+    # Extract title: first H1 heading
+    title_match = re.match(r"^#\s+(.+)", text)
+    if not title_match:
+        return
+
+    raw_title = title_match.group(1).strip()
+
+    # Collect previous titles from earlier chapters (clean, no chapter prefix)
+    previous_titles: dict[str, int] = {}
+    chapters_dir = project_dir / "chapters"
+    if chapters_dir.exists():
+        for ch_file in sorted(chapters_dir.glob("chapter-*.md")):
+            ch_match = re.match(r"chapter-(\d+)\.md", ch_file.name)
+            if not ch_match:
+                continue
+            ch_num = int(ch_match.group(1))
+            if ch_num >= chapter:
+                continue
+            try:
+                ch_text = ch_file.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            ch_title_match = re.match(r"^#\s+(.+)", ch_text)
+            if ch_title_match:
+                ch_raw = ch_title_match.group(1).strip()
+                # Clean chapter number prefix for dedup key
+                ch_title = re.sub(r"^第\d+章[：:\s]*", "", ch_raw).strip()
+                if ch_title:
+                    previous_titles[ch_title] = ch_num
+
+    # Run title quality check against raw title (chapter number detection)
+    from shenbi.gates.g4.chapter_drafting import check_chapter_title
+
+    issues = check_chapter_title(raw_title, previous_titles)
+    for issue in issues:
+        log.warning("chapter_title_quality", chapter=chapter, title=raw_title, issue=issue)
+
+
 # ---------------------------------------------------------------------------
 # Resume cleanup
 # ---------------------------------------------------------------------------
@@ -2596,6 +2646,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Blueprint alignment check after chapter drafting (WARN-level, non-blocking)
     if "chapter-drafting" in step.skill:
         _check_volume_map_alignment(project_dir, chapter)
+        _run_title_check(project_dir, chapter)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":
