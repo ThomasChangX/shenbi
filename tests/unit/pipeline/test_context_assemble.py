@@ -17,6 +17,7 @@ from shenbi.pipeline.context_assemble import (
     TOKEN_FACTOR,
     ContextPackage,
     ContextSection,
+    _load_volume_context,
     assemble_context,
     rerank_results,
     write_context_file,
@@ -240,3 +241,74 @@ class TestRouteBIntegration:
 
         pkg = assemble_context(p, "plans/chapter-1-plan.md")
         assert len(pkg.sections) > 0
+
+
+# ---------------------------------------------------------------------------
+# Volume map context injection (Plan 10, Task 1)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def project_with_volume_map(tmp_path: Path) -> Path:
+    outline_dir = tmp_path / "outline"
+    outline_dir.mkdir()
+    volume_map = outline_dir / "volume_map.md"
+    volume_map.write_text("""# Volume Map
+
+## Volume 1: Awakening (Ch 1-15)
+**Objective:** Introduce protagonist Lin Feng and establish the cultivation world
+
+### Key Results
+#### KR1: Foundation Building
+- Opening (Ch1-3): Lin Feng discovers spiritual roots
+- Progression (Ch4-7): Basic training at Qingyun Sect
+- Turn (Ch8-11): First crisis - sect invasion
+- Closing (Ch12-15): Resolution and advancement
+
+### Chapter Nodes
+| Ch | Role | Content |
+|----|------|---------|
+| 1 | opening | Lin Feng awakens in a mysterious cave with no memory |
+| 2 | progression | First encounter with cultivation elder Chen Weimin |
+
+## Volume 2: Rising Storm (Ch 16-35)
+**Objective:** Expand the world, introduce political factions
+
+## Cross-Volume Bridges
+| Bridge ID | Content | Expected Activation Ch |
+|-----------|---------|----------------------|
+| V1-B1 | Brahmi inscription metal fragment | Ch 26 |
+| V1-B2 | Spirit beast egg prophecy | Ch 28 |
+""")
+    return tmp_path
+
+
+def test_load_volume_context_returns_current_volume_info(project_with_volume_map: Path):
+    result = _load_volume_context(project_with_volume_map, chapter=3)
+    assert "Volume 1" in result
+    assert "Awakening" in result
+    assert "Lin Feng" in result
+
+
+def test_load_volume_context_includes_chapter_node(project_with_volume_map: Path):
+    result = _load_volume_context(project_with_volume_map, chapter=1)
+    assert "Lin Feng awakens" in result
+    assert "opening" in result.lower()
+
+
+def test_load_volume_context_returns_bridge_info_when_near_activation(
+    project_with_volume_map: Path,
+):
+    result = _load_volume_context(project_with_volume_map, chapter=25)
+    assert "V1-B1" in result
+    assert "Brahmi inscription" in result
+
+
+def test_load_volume_context_returns_empty_for_missing_volume_map(tmp_path: Path):
+    result = _load_volume_context(tmp_path, chapter=5)
+    assert result == ""
+
+
+def test_load_volume_context_returns_empty_for_chapter_out_of_range(project_with_volume_map: Path):
+    result = _load_volume_context(project_with_volume_map, chapter=200)
+    assert result == ""

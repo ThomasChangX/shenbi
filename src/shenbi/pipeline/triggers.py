@@ -316,7 +316,7 @@ _END_RE = re.compile(
     re.IGNORECASE,
 )
 _RANGE_RE = re.compile(
-    r"chapters?\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
+    r"(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
     re.IGNORECASE,
 )
 
