@@ -61,3 +61,30 @@ class TestCheckConfigCoherence:
         )
         issues = check_config_coherence(tmp_path, resonance_global_floor=65)
         assert not any("threshold_mismatch" in i for i in issues)
+
+
+class TestG0Integration:
+    def test_gate_g0_surfaces_disabled_texture(self, tmp_path, monkeypatch):
+        """End-to-end: gate_G0 scans PROJECT / "novel-output" / "*" for
+        genre-config.json and surfaces a G0.cc.critical_audit_disabled check
+        when a production project has texture disabled.
+        """
+        # Production layout: genre-config.json lives under
+        # novel-output/<project>/, NOT at the repo root. Mirror that here.
+        project_dir = tmp_path / "novel-output" / "xinghuo-ranqiong"
+        project_dir.mkdir(parents=True)
+        _write_genre_config(
+            project_dir,
+            {"texture": False, "antiAi": True, "continuity": True},
+        )
+        # Force gate_G0 to treat tmp_path as the repo root (PROJECT).
+        import sys
+
+        from shenbi.gates import g0 as g0mod
+
+        monkeypatch.setattr(sys.modules["shenbi.gates.shared"], "PROJECT", tmp_path)
+        # Run with a seed file so gate_G0 does not short-circuit at G0.1.
+        seed = tmp_path / "seed.md"
+        seed.write_text("目标字数：300000\n", encoding="utf-8")
+        result = g0mod.gate_G0(seed_file=str(seed))
+        assert "G0.cc.critical_audit_disabled:texture" in result

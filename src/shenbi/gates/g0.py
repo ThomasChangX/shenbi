@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.g0_config_coherence import check_config_coherence
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
@@ -612,4 +613,32 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
     )
 
+    # G0.cc — configuration coherence (threshold mismatch + critical audit
+    # disabled). Production genre-config.json does NOT live at the repo root
+    # (PROJECT); it lives one level down under novel-output/<project>/. So scan
+    # PROJECT / "novel-output" / "*" for any subdir containing a genre-config.json
+    # and run the coherence check against each. G0 is also invoked standalone on
+    # the repo itself, where there may be no novel-output/ at all — in that case
+    # the loop finds nothing and the check is a silent no-op.
+    cc_must_fix: list[str] = []
+    try:
+        novel_output = PROJECT / "novel-output"
+        project_dirs: list[Path] = []
+        if novel_output.is_dir():
+            project_dirs = [
+                p
+                for p in novel_output.iterdir()
+                if p.is_dir() and (p / "genre-config.json").exists()
+            ]
+        for project_dir in project_dirs:
+            cc_issues = check_config_coherence(project_dir)
+            for idx, issue in enumerate(cc_issues):
+                check_id = f"G0.cc.{idx + 1}"
+                checks.append({"id": check_id, "s": "FAIL", "r": issue})
+                cc_must_fix.append(check_id)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        log.debug("g0_config_coherence_skipped")
+
+    if cc_must_fix:
+        return fail("G0", checks, "config_coherence", cc_must_fix)
     return passed("G0", checks)
