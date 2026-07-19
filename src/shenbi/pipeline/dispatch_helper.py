@@ -26,7 +26,7 @@ from typing import Any
 from uuid import uuid4
 
 import httpx
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from tenacity import (
     retry,
     retry_if_exception,
@@ -158,6 +158,20 @@ def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> dict[str, st
 # Regex matching control characters EXCEPT newline (\n), carriage return (\r),
 # and tab (\t) which are valid in JSON strings when properly escaped.
 _ILLEGAL_CTRL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+
+
+class FileOutput(BaseModel):
+    """A single file output from a structured LLM response."""
+
+    path: str
+    content: str
+
+
+class SkillOutput(BaseModel):
+    """Structured output from a skill execution (JSON mode primary format)."""
+
+    files: list[FileOutput] = []
+    decisions: dict[str, Any] | None = None
 
 
 @dataclass
@@ -335,6 +349,7 @@ def _build_skill_prompt(
     chapter: int | None,
     uses_staging: bool = False,
     shared_context: Any = None,
+    json_mode: bool = False,
 ) -> tuple[str, str, list[str]]:
     """Build a complete execution prompt for a skill.
 
@@ -354,6 +369,9 @@ def _build_skill_prompt(
             (world_rules, character_list, style_profile, pending_hooks). When
             provided, cached fields are injected into input_texts so auditors
             skip re-reading those files from disk.
+        json_mode: If True, output format instructions request JSON
+            (SkillOutput schema) instead of ### FILE: markers. Used by the
+            API dispatch path with ``response_format={"type": "json_object"}``.
     """
     from shenbi.contracts.legacy import ContractError, load_contract
 
@@ -470,23 +488,52 @@ def _build_skill_prompt(
         "",
         f"## Task\n{prompt}",
         "",
-        "## Output Format (CRITICAL — follow exactly)",
-        "Output each file using this EXACT format with NO extra text:",
-        "```",
-        "### FILE: path/to/file1.md",
-        "[complete file content — no markdown wrappers]",
-        "### FILE: path/to/file2.json",
-        "[complete file content — no markdown wrappers]",
-        "```",
-        "Rules:",
-        "- Use ### FILE: markers EXACTLY as shown above",
-        "- File content starts on the line AFTER the marker",
-        "- Do NOT wrap content in ``` fences",
-        "- Do NOT add text before the first ### FILE: marker",
-        "- Do NOT add text after the last file's content",
-        "",
-        "Files to create:",
     ]
+
+    if json_mode:
+        user_parts.extend(
+            [
+                "## Output Format (CRITICAL — output valid JSON only)",
+                "Respond with a single JSON object conforming to this schema:",
+                "```json",
+                "{",
+                '  "files": [',
+                '    {"path": "path/to/file1.md", "content": "complete file content here"},',
+                '    {"path": "path/to/file2.json", "content": "complete file content here"}',
+                "  ],",
+                '  "decisions": null',
+                "}",
+                "```",
+                "Rules:",
+                "- Output ONLY the JSON object — no markdown wrappers, no extra text",
+                "- Each file's content must be the COMPLETE file content",
+                "- Use the exact file paths listed below",
+                "- The response must be parseable by `json.loads()`",
+                "",
+            ]
+        )
+    else:
+        user_parts.extend(
+            [
+                "## Output Format (CRITICAL — follow exactly)",
+                "Output each file using this EXACT format with NO extra text:",
+                "```",
+                "### FILE: path/to/file1.md",
+                "[complete file content — no markdown wrappers]",
+                "### FILE: path/to/file2.json",
+                "[complete file content — no markdown wrappers]",
+                "```",
+                "Rules:",
+                "- Use ### FILE: markers EXACTLY as shown above",
+                "- File content starts on the line AFTER the marker",
+                "- Do NOT wrap content in ``` fences",
+                "- Do NOT add text before the first ### FILE: marker",
+                "- Do NOT add text after the last file's content",
+                "",
+            ]
+        )
+
+    user_parts.append("Files to create:")
     for p in output_paths:
         if "*" not in p:
             user_parts.append(f"- {p}")
@@ -669,6 +716,32 @@ def sanitize_json_content(content: str) -> str:
     return _ILLEGAL_CTRL_RE.sub("", content)
 
 
+def _parse_structured_output(raw_content: str) -> SkillOutput:
+    """Parse LLM response via JSON mode (Pydantic).
+
+    Falls back to ### FILE: regex parsing for CLI backend.
+    """
+    try:
+        return SkillOutput.model_validate_json(raw_content)
+    except (ValidationError, json.JSONDecodeError):
+        # Fallback: regex parse ### FILE: markers
+        return _parse_file_markers(raw_content)
+
+
+def _parse_file_markers(raw_content: str) -> SkillOutput:
+    """Legacy ### FILE: regex fallback parser."""
+    files = []
+    pattern = re.compile(r"###\s*FILE:\s*(.+?)\n(.*?)(?=###\s*FILE:|\Z)", re.DOTALL)
+    for match in pattern.finditer(raw_content):
+        files.append(
+            FileOutput(
+                path=match.group(1).strip(),
+                content=match.group(2).strip(),
+            )
+        )
+    return SkillOutput(files=files)
+
+
 def _parse_file_outputs(response: str) -> dict[str, str]:
     """Parse a multi-file response into {filepath: content} dict.
 
@@ -818,6 +891,7 @@ def _write_parsed_outputs(
     *,
     skill: str | None = None,
     skip_paths: set[str] | None = None,
+    parsed: dict[str, str] | None = None,
 ) -> list[str]:
     """Parse agent response and write per-file content, honoring no_op_behavior.
 
@@ -837,7 +911,8 @@ def _write_parsed_outputs(
 
     Returns list of successfully written paths.
     """
-    parsed = _parse_file_outputs(response)
+    if parsed is None:
+        parsed = _parse_file_outputs(response)
     written: list[str] = []
     skip = skip_paths or set()
 
@@ -1091,6 +1166,7 @@ def _dispatch_via_api(
             chapter,
             uses_staging=uses_staging,
             shared_context=shared_context,
+            json_mode=True,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -1118,6 +1194,7 @@ def _dispatch_via_api(
             ],
             temperature=_API_TEMPERATURE,
             max_tokens=_API_MAX_TOKENS,
+            response_format={"type": "json_object"},
         )
     except Exception as exc:
         log.error("api_call_failed", skill=skill, error=str(exc))
@@ -1151,12 +1228,15 @@ def _dispatch_via_api(
             log.warning("ledger_record_failed", skill=skill, error=str(exc))
 
     try:
+        output = _parse_structured_output(output_text)
+        parsed_dict = {f.path: f.content for f in output.files}
         written = _write_parsed_outputs(
             output_text,
             output_paths,
             project_dir,
             create_truth_templates=True,
             skill=skill,
+            parsed=parsed_dict,
         )
     except DispatchWriteFailureError as exc:
         log.error(
