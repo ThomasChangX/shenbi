@@ -65,6 +65,11 @@ def derive_backup_skills() -> frozenset[str]:
         if not updates:
             continue  # fast-skip non-updaters
         for f in updates:
+            # Normalize dict-form writes/updates (spec §3.2): {file, mode?, ...}
+            if isinstance(f, dict) and "file" in f:
+                f = str(f["file"])
+            if not isinstance(f, str):
+                continue  # skip malformed entries gracefully
             # Match both directions: a declared glob like ``truth/*.md`` (f is
             # the pattern, t is the literal concept) and a literal update
             # against a registry glob concept. ``f == t`` covers exact hits.

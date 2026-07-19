@@ -141,7 +141,6 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "truth/character_matrix.md",
         "truth/current_state.md",
         "truth/particle_ledger.md",
-        "truth/character_matrix.md",
         "truth/emotional_arcs.md",
         "truth/subplot_board.md",
         "truth/pending_hooks.md",

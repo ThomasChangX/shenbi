@@ -48,6 +48,23 @@ def _contract(skill: str) -> dict[str, Any]:
     return _load_frontmatter(skill)["contract"]
 
 
+def _normalize_path_list(items: list[Any]) -> list[str]:
+    """Normalize a contract list (reads/writes/updates) that may contain plain
+    strings or dict-form entries (``{file, ...}``) into a flat list of file
+    paths. This mirrors ``_normalize_write_item`` / ``_normalize_read_item``
+    in ``shenbi.contracts.legacy`` but operates on the raw frontmatter.
+    """
+    out: list[str] = []
+    for item in items:
+        if isinstance(item, dict) and "file" in item:
+            out.append(str(item["file"]))
+        elif isinstance(item, str):
+            out.append(item)
+        else:
+            out.append(str(item))
+    return out
+
+
 def _read_paths(skill: str) -> list[str]:
     """Reads paths normalized: plain strings and ``{file, fields?}`` dict-form
     both collapse to their ``file`` path.
@@ -55,14 +72,7 @@ def _read_paths(skill: str) -> list[str]:
     Contract reads may declare field-level filtering (Layer B dict-form); tests
     that pin which files a skill reads must look through the dict wrapper.
     """
-    reads = _contract(skill)["reads"]
-    out: list[str] = []
-    for item in reads:
-        if isinstance(item, dict):
-            out.append(str(item["file"]))
-        else:
-            out.append(str(item))
-    return out
+    return _normalize_path_list(_contract(skill)["reads"])
 
 
 class TestCharacterDesignExpand:
@@ -70,7 +80,7 @@ class TestCharacterDesignExpand:
 
     def test_contract_unchanged(self) -> None:
         # expand mode reuses existing I/O paths; the genesis writes must remain.
-        writes = _contract("shenbi-character-design")["writes"]
+        writes = _normalize_path_list(_contract("shenbi-character-design")["writes"])
         assert "characters/protagonist.md" in writes
         assert "characters/relationships.md" in writes
 
@@ -96,7 +106,7 @@ class TestForeshadowingPlantGenesis:
 
     def test_per_chapter_reads_unchanged(self) -> None:
         reads = _read_paths("shenbi-foreshadowing-plant")
-        updates = _contract("shenbi-foreshadowing-plant")["updates"]
+        updates = _normalize_path_list(_contract("shenbi-foreshadowing-plant")["updates"])
         # default per-chapter mode contract must survive the additive edit
         assert "plans/chapter-N-plan.md" in reads
         assert "truth/pending_hooks.md" in updates
@@ -163,7 +173,7 @@ class TestStyleLearningBootstrap:
 
     def test_normal_mode_reads_unchanged(self) -> None:
         reads = _contract("shenbi-style-learning")["reads"]
-        writes = _contract("shenbi-style-learning")["writes"]
+        writes = _normalize_path_list(_contract("shenbi-style-learning")["writes"])
         assert "chapters/*.md" in reads
         assert "import/source/*.txt" in reads
         assert "style/style_profile.md" in writes
@@ -192,8 +202,9 @@ class TestContextComposingPipelineMode:
         # It now writes a durable decisions sidecar (context/chapter-N-context-decisions.json)
         # so downstream skills can read the composed decisions.
         contract = _contract("shenbi-context-composing")
+        writes = _normalize_path_list(contract["writes"])
         assert contract["kind"] == "artifact"
-        assert "context/chapter-N-context-decisions.json" in contract["writes"]
+        assert "context/chapter-N-context-decisions.json" in writes
 
 
 class TestMemoryDistillDensityTrigger:
