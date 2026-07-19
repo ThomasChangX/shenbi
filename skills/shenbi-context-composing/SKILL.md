@@ -14,7 +14,7 @@ contract:
     - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计]}
     - truth/audit_drift.md
     - world/rules.md
-    - {file: truth/character_matrix.md, fields: [主角, 主要配角, 反派, 角色关系图谱]}
+    - truth/character_matrix.md
     - style/style_profile.md
     - chapters/chapter-N.md
   writes:
