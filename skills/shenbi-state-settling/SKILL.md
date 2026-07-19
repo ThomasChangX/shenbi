@@ -7,6 +7,7 @@ contract:
     - chapters/chapter-N.md
   writes:
     - truth/state-settling-decisions.json
+    - truth/character_matrix.md
   updates:
     - truth/current_state.md
     - truth/particle_ledger.md
@@ -27,7 +28,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md
-- **Writes:** truth/state-settling-decisions.json
+- **Writes:** truth/state-settling-decisions.json, truth/character_matrix.md
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/character_matrix.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
 <!-- END AUTO-GENERATED -->
@@ -248,3 +249,29 @@ digraph state_settling {
 | "结算太费时间" | 结算5分钟 vs 回溯修30章30小时 |
 | "审批门禁太繁琐，直接写 truth 就行" | 不经审批的结算 = 未经人类确认的状态变更 = 潜在漂移源 |
 | "跨文件一致性等发现不一致再查" | 事后修复成本是事前检查的10倍以上 |
+
+## Character Matrix Update (NEW)
+
+After updating character state, update `truth/character_matrix.md`:
+
+1. For each character that appeared in the current chapter:
+   - Update "Current State" (e.g., Active, Deceased, Injured, Missing)
+   - Update "Current Location" with slug reference to location
+   - Update "Current Emotion" (primary emotional state)
+   - Update "Active Relationships" with slug references
+   - Update "Arc Stage" if a stage transition occurred this chapter
+   - Set "Last Updated Ch" to current chapter number
+
+2. For the protagonist specifically, append an `arc_log` entry to
+   `characters/protagonist.md` frontmatter:
+
+```yaml
+arc_log:
+  - chapter: {N}
+    stage: {current_arc_stage}
+    key_beat: {one-line description of arc-relevant event}
+    emotional_shift: {from -> to}
+    relationship_change: {brief description or "none"}
+```
+
+3. Write updated character_matrix.md to disk.

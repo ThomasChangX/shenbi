@@ -522,7 +522,9 @@
       "shenbi-review-motivation",
       "shenbi-review-pov"
     ],
-    "writes": [],
+    "writes": [
+      "shenbi-state-settling"
+    ],
     "updates": [
       "shenbi-relationship-map",
       "shenbi-state-settling"
