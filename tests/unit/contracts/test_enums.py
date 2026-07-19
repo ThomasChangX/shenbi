@@ -18,7 +18,7 @@ def test_cpzone_members() -> None:
 
 
 def test_actor_role_members() -> None:
-    assert set(get_args(ActorRole)) == {"GENERATOR", "SCORER", "GATE", "SKILL", "HUMAN"}
+    assert set(get_args(ActorRole)) == {"GENERATOR", "SCORER", "GATE", "SKILL", "HUMAN", "SYSTEM"}
 
 
 def test_all_enums_complete() -> None:

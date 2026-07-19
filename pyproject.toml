@@ -104,6 +104,9 @@ pytest_add_cli_args_test_selection = ["tests/unit/"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = [
+    "novel-output/",
+]
 
 [tool.ruff.lint]
 select = [

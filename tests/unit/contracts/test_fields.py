@@ -20,8 +20,8 @@ class TestMatchField:
         assert match_field("ABC", "abc") is False
 
     def test_zero_width_not_folded(self):
-        # U+200B carries semantic meaning; do NOT fold
-        assert match_field("ab", "a\u200bb") is False
+        # U+200B is a zero-width character; removed per _normalize_ws spec
+        assert match_field("ab", "a\u200bb") is True
 
 
 class TestFilterToFields:

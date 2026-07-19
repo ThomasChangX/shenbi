@@ -1275,7 +1275,7 @@ def _call_llm_streaming(
     return result, stop_reason
 
 
-@retry(  # type: ignore[untyped-decorator]
+@retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential_jitter(initial=1, max=30),
     retry=retry_if_exception(_is_retryable),
