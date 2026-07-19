@@ -145,6 +145,8 @@ CHAPTER_STEPS: list[ChapterStep] = [
         "shenbi-chapter-planning",
         "chapter-planning",
         step_type="core",
+        checkpoint=CheckpointType.CHAPTER_MEMO,
+        uses_staging=True,
         output_path="plans/chapter-N-plan.md",
         calls_context_assembly=True,
     ),
@@ -2613,6 +2615,11 @@ def _run_chapter_step_impl(
         cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
 
+        # Run revision routing after all reviews complete (spec §6.3).
+        # In the serial path this is called after review-resonance; in the
+        # parallel path we call it once after consolidation.
+        _route_revision_after_resonance(state, project_dir, chapter)
+
         _reset_retries(state, step, chapter)
         return _advance(
             state,
@@ -2685,7 +2692,21 @@ def _run_chapter_step_impl(
 
         if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
             return _complete_chapter(state, chapter)
-        return False
+
+        # Raise state-settle checkpoint after both parallel steps complete.
+        settling_artifact = (
+            resolve_chapter_path(settling_step.output_path, chapter)
+            if settling_step.output_path
+            else f"chapter-{chapter}/{settling_step.name}"
+        )
+        set_checkpoint(
+            state,
+            CheckpointType.STATE_SETTLE,
+            chapter=chapter,
+            artifact=settling_artifact,
+            context=f"Review {settling_step.name} for chapter {chapter}",
+        )
+        return True
 
     # Context assembly (step 4): materialize package before chapter-drafting.
     if step.calls_context_assembly:
