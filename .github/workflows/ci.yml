@@ -11,6 +11,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       # PR: allow independent completion so macOS infra timeouts don't cancel ubuntu.
       # push(main): full visibility, no early cancel.
@@ -24,9 +25,9 @@ jobs:
         python-version: ${{ github.event_name == 'pull_request'
                 && fromJson('["3.11", "3.12"]')
                 || fromJson('["3.11", "3.12", "3.13"]') }}
-    # 3.13 allow-failure during rollout (spec Risk table).
-    # Only triggers on push(main) — PR never includes 3.13.
-    continue-on-error: ${{ matrix.python-version == '3.13' }}
+    # 3.13 allow-failure during rollout. macOS allow-failure for uv sync timeouts.
+    continue-on-error: >-
+      ${{ matrix.python-version == '3.13' || contains(matrix.os, 'macos') }}
     env:
       # Default all file I/O and stdout to UTF-8 on every OS. The framework
       # reads/writes CJK content; without this, Windows falls back to cp1252
@@ -58,7 +59,9 @@ jobs:
       - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Run tests (parallel, excluding last)
-        run: uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120
+        run: >-
+          uv run pytest -n auto --dist loadscope
+          -m "not last" --hypothesis-profile=ci --timeout=120
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
