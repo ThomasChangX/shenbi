@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Semaphore
+from typing import Any
 
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill
@@ -41,12 +42,16 @@ class ReviewTask:
         project_dir: Project root directory.
         prompt: The review prompt to dispatch.
         output_path: Expected output file path (for tracking).
+        shared_context: Optional SharedAuditContext with pre-extracted fields
+            (world_rules, character_list, style_profile, pending_hooks) shared
+            across all audit calls for a single chapter.
     """
 
     skill: str
     project_dir: Path
     prompt: str
     output_path: str
+    shared_context: Any = None
 
 
 def _dispatch_with_retry(
@@ -79,6 +84,7 @@ def _dispatch_with_retry(
                     skill=task.skill,
                     project_dir=task.project_dir,
                     prompt=task.prompt,
+                    shared_context=task.shared_context,
                 )
                 if result.success:
                     log.info(

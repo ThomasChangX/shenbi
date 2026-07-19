@@ -288,9 +288,7 @@ CASCADABLE_AUDITS = [
 CASCADE_STREAK_LENGTH = 3  # N=3
 
 
-def _should_skip_audit(  # pyright: ignore[reportUnusedFunction]
-    skill: str, audit_history: list[dict[str, Any]]
-) -> bool:
+def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
     """N-chapter-streak cascade heuristic (Spec 8 Fix 8).
 
     Skip `skill` only when ALL of the following hold:
@@ -328,6 +326,43 @@ def _should_skip_audit(  # pyright: ignore[reportUnusedFunction]
             return False  # Any HARD failure → break streak
 
     return True  # N=3 streak of zero-HARD-failure passes → cascade-skip
+
+
+def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[str, Any]]:
+    """Extract audit results from previous chapters in pipeline state.
+
+    Returns list of dicts with keys: skill, chapter, passed, issues
+    for all audit results from chapters < current_chapter.
+    The returned list is most-recent-last (sorted by chapter number).
+    """
+    results: list[dict[str, Any]] = []
+    for ch_num, ch_state in sorted(state.chapter_loop.chapter_states.items()):
+        ch_num_int = int(ch_num)
+        if ch_num_int >= current_chapter:
+            continue
+        for audit_key, audit_result in ch_state.audit_results.items():
+            if isinstance(audit_result, dict):
+                results.append(
+                    {
+                        "skill": audit_key,
+                        "chapter": ch_num_int,
+                        "passed": audit_result.get("passed", False),
+                        "hard_failures": audit_result.get("hard_failures", 0),
+                        "issues": audit_result.get("issues", []),
+                    }
+                )
+    return results
+
+
+def _audit_short_name(skill_name: str) -> str:
+    """Map full skill name to short audit dimension name.
+
+    Examples:
+        "shenbi-review-anti-ai" -> "anti-ai"
+        "shenbi-review-continuity" -> "continuity"
+        "shenbi-review-dialogue" -> "dialogue"
+    """
+    return skill_name.replace("shenbi-review-", "")
 
 
 # ---------------------------------------------------------------------------
@@ -1311,6 +1346,27 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         from shenbi.pipeline.dispatch_helper import DispatchResult
         from shenbi.safe_write import safe_write
 
+        # Build shared audit context ONCE per chapter so auditors skip
+        # re-reading the same files from disk (Task 6 Step 2 wiring).
+        from shenbi.pipeline.audit_context_cache import build_shared_audit_context
+
+        shared_ctx = build_shared_audit_context(project_dir, chapter)
+        log.info(
+            "shared_audit_context_built_for_wave",
+            chapter=chapter,
+            estimated_tokens=shared_ctx.estimated_tokens,
+        )
+
+        # Load per-skill audit history for cascade filtering (Task 6 Step 3).
+        audit_history = _get_audit_history(state, chapter)
+
+        def _keep_task(task: ReviewTask) -> bool:
+            skill_short = _audit_short_name(task.skill)
+            if _should_skip_audit(skill_short, audit_history):
+                log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
+                return False
+            return True
+
         # Wave 1: Core-circle reviews (7 skills in parallel)
         core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
         core_tasks = [
@@ -1319,11 +1375,19 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 project_dir=project_dir,
                 prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
                 output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
+                shared_context=shared_ctx,
             )
             for skill in core_skills
         ]
-        log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
-        core_results = dispatch_reviews_parallel(core_tasks)
+        # Filter cascaded audits (core audits + always-run are never skipped)
+        core_tasks = [t for t in core_tasks if _keep_task(t)]
+
+        core_results: list[DispatchResult] = []
+        if core_tasks:
+            log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
+            core_results = dispatch_reviews_parallel(core_tasks)
+        else:
+            log.info("parallel_review_wave1_empty", chapter=chapter)
 
         # Wave 2: Genre-circle reviews (conditionally active, in parallel)
         gc_path = project_dir / "genre-config.json"
@@ -1335,13 +1399,19 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 project_dir=project_dir,
                 prompt=f"Execute {skill} audit for chapter {chapter}.",
                 output_path=audit_relative_path(chapter, skill),
+                shared_context=shared_ctx,
             )
             for skill in genre_skills
         ]
+        # Filter cascaded audits for genre wave too
+        genre_tasks = [t for t in genre_tasks if _keep_task(t)]
+
         genre_results: list[DispatchResult] = []
         if genre_tasks:
             log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
             genre_results = dispatch_reviews_parallel(genre_tasks)
+        else:
+            log.info("parallel_review_wave2_empty", chapter=chapter)
 
         # Consolidate all results
         all_results = core_results + genre_results

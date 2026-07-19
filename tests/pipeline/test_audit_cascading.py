@@ -1,5 +1,5 @@
-"""Tests for audit cascading (N=3 chapter zero-HARD-failure streak heuristic)
-and 3-tier instruction hierarchy injection.
+"""Tests for audit cascading (N=3 chapter zero-HARD-failure streak heuristic),
+3-tier instruction hierarchy injection, and Task 6 wiring helpers.
 """
 
 from shenbi.pipeline.dispatch_helper import _inject_instruction_hierarchy
@@ -74,3 +74,92 @@ def test_non_cascadable_skill_is_not_skipped():
         {"continuity": {"passed": True, "hard_failures": 0}},
     ]
     assert _should_skip_audit("continuity", audit_history) is False
+
+
+# ---------------------------------------------------------------------------
+# Task 6 wiring tests: helpers _audit_short_name and _get_audit_history
+# ---------------------------------------------------------------------------
+
+
+def test_audit_short_name_strips_prefix():
+    """_audit_short_name maps full skill names to short dimension names."""
+    from shenbi.pipeline.chapter_loop import _audit_short_name
+
+    assert _audit_short_name("shenbi-review-anti-ai") == "anti-ai"
+    assert _audit_short_name("shenbi-review-continuity") == "continuity"
+    assert _audit_short_name("shenbi-review-dialogue") == "dialogue"
+    assert _audit_short_name("shenbi-review-resonance") == "resonance"
+    assert _audit_short_name("shenbi-review-memo-compliance") == "memo-compliance"
+
+
+def test_get_audit_history_extracts_previous_chapters():
+    """_get_audit_history returns results from chapters < current_chapter."""
+    from shenbi.pipeline.chapter_loop import _get_audit_history
+    from shenbi.pipeline.state import ChapterState, PipelineState
+
+    state = PipelineState(project_dir="/tmp/test")
+    # Populate chapter 1 audit results
+    cs1 = ChapterState()
+    cs1.audit_results["dialogue"] = {
+        "passed": True,
+        "hard_failures": 0,
+        "issues": [],
+    }
+    state.chapter_loop.chapter_states["1"] = cs1
+
+    # Populate chapter 2 audit results
+    cs2 = ChapterState()
+    cs2.audit_results["dialogue"] = {
+        "passed": True,
+        "hard_failures": 0,
+        "issues": [],
+    }
+    cs2.audit_results["continuity"] = {
+        "passed": False,
+        "hard_failures": 1,
+        "issues": ["plot hole"],
+    }
+    state.chapter_loop.chapter_states["2"] = cs2
+
+    history = _get_audit_history(state, current_chapter=3)
+    assert len(history) == 3  # 2 from ch1 + 1 from ch2? Wait, 1 from ch1 + 2 from ch2 = 3
+
+    # Verify chapter 2's entries are included
+    dialogue_entries = [h for h in history if h["skill"] == "dialogue"]
+    assert len(dialogue_entries) == 2
+
+    # Verify chapter 3+ entries are excluded
+    cs3 = ChapterState()
+    cs3.audit_results["dialogue"] = {"passed": True, "hard_failures": 0, "issues": []}
+    state.chapter_loop.chapter_states["3"] = cs3
+    history = _get_audit_history(state, current_chapter=3)
+    assert len(history) == 3  # chapter 3 excluded
+
+
+def test_cascade_wiring_skips_dialogue_keeps_continuity():
+    """Task 6 Step 3: given a 3-chapter zero-HARD-failure streak for dialogue,
+    _should_skip_audit returns True for dialogue but False for continuity/core.
+    """
+    from shenbi.pipeline.chapter_loop import _should_skip_audit
+
+    audit_history = [
+        {
+            "dialogue": {"passed": True, "hard_failures": 0},
+            "continuity": {"passed": True, "hard_failures": 0},
+        },
+        {
+            "dialogue": {"passed": True, "hard_failures": 0},
+            "continuity": {"passed": True, "hard_failures": 0},
+        },
+        {
+            "dialogue": {"passed": True, "hard_failures": 0},
+            "continuity": {"passed": True, "hard_failures": 0},
+        },
+    ]
+
+    # dialogue is cascadable and has a 3-chapter clean streak → skip
+    assert _should_skip_audit("dialogue", audit_history) is True
+    # continuity is a core audit → never cascade-skipped
+    assert _should_skip_audit("continuity", audit_history) is False
+    # resonance is always-run → never skipped
+    assert _should_skip_audit("resonance", audit_history) is False

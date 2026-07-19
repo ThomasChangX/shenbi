@@ -215,6 +215,7 @@ def _build_skill_prompt(
     prompt: str,
     chapter: int | None,
     uses_staging: bool = False,
+    shared_context: Any = None,
 ) -> tuple[str, str, list[str]]:
     """Build a complete execution prompt for a skill.
 
@@ -223,6 +224,17 @@ def _build_skill_prompt(
     - user_prompt: task description + input file contents + output format
     - output_paths: resolved contract writable paths (prefixed with staging/
       when uses_staging=True)
+
+    Args:
+        skill: The skill name (e.g. 'shenbi-review-anti-ai').
+        project_dir: Pipeline project root directory.
+        prompt: The task prompt describing what to do.
+        chapter: Chapter number, or None for genesis mode.
+        uses_staging: If True, prefix output paths with staging/.
+        shared_context: Optional SharedAuditContext with pre-extracted fields
+            (world_rules, character_list, style_profile, pending_hooks). When
+            provided, cached fields are injected into input_texts so auditors
+            skip re-reading those files from disk.
     """
     from shenbi.contracts.legacy import ContractError, load_contract
 
@@ -241,14 +253,13 @@ def _build_skill_prompt(
         system_prompt = f"Execute the {skill} skill."
 
     # Read contract inputs with field-level filtering (Layer B).
-    # Replaces only the read loop; truncation logic below stays intact and
-    # consumes raw_inputs. Filtering is applied BEFORE truncation, so the
-    # truncated content is already field-filtered.
+    # Filtering is applied BEFORE truncation, so the truncated content is
+    # already field-filtered.
     #
     # resolve_or_skip returns None when a read path carries an N/NNN placeholder
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
-    input_texts: dict[str, str] = {}
+    raw_inputs: dict[str, str] = {}
     reads: list[Any] = contract.get("reads", [])
     for read_path_entry in reads:
         if isinstance(read_path_entry, dict):
@@ -272,17 +283,53 @@ def _build_skill_prompt(
                 content = f"[binary or unreadable: {full_path}]"
             if fields:
                 content, _matched = filter_to_fields(content, fields, str(full_path))
-            # Apply per-file char cap
-            if len(content) > _INPUT_MAX_CHARS_PER_FILE:
-                log.warning(
-                    "input_truncated",
-                    skill=skill,
-                    path=str(full_path),
-                    original=len(content),
-                    truncated=_INPUT_MAX_CHARS_PER_FILE,
+            raw_inputs[full_path.name] = content
+
+    # Inject cached fields from shared_context so auditors skip re-reading
+    # those files from disk (Task 6 Step 2 wiring).
+    if shared_context is not None:
+        _INJECT_FROM_CACHE: dict[str, str] = {}
+        if getattr(shared_context, "world_rules", ""):
+            _INJECT_FROM_CACHE["world_rules.md"] = shared_context.world_rules
+        if getattr(shared_context, "character_list", ""):
+            _INJECT_FROM_CACHE["character_matrix.md"] = shared_context.character_list
+        if getattr(shared_context, "style_profile", ""):
+            _INJECT_FROM_CACHE["style_profile.md"] = shared_context.style_profile
+        if getattr(shared_context, "pending_hooks", ""):
+            _INJECT_FROM_CACHE["pending_hooks.md"] = shared_context.pending_hooks
+        for fname, cached in _INJECT_FROM_CACHE.items():
+            if cached:
+                raw_inputs[fname] = cached
+
+    # Priority-weighted budgeted truncation (Task 4/6 wiring).
+    # Replaces the old equal-weight proportional budget with priority-driven
+    # allocation via _budgeted_truncate.
+    input_texts: dict[str, str] = {}
+    if not raw_inputs:
+        input_texts = {}
+    else:
+        total_raw = sum(len(v) for v in raw_inputs.values())
+        if total_raw > _INPUT_MAX_CHARS_TOTAL:
+            log.warning(
+                "input_over_budget_applying_priority_truncation",
+                skill=skill,
+                total_chars=total_raw,
+                budget=_INPUT_MAX_CHARS_TOTAL,
+            )
+            input_texts = _budgeted_truncate(raw_inputs, _INPUT_MAX_CHARS_TOTAL)
+            # _budgeted_truncate respects _INPUT_MAX_CHARS_PER_FILE per file via
+            # the weights; if a stricter per-file ceiling is still required, cap
+            # each result here AFTER budgeted truncation.
+        else:
+            # Under budget: still enforce the per-file cap.
+            input_texts = {
+                fname: (
+                    text[:_INPUT_MAX_CHARS_PER_FILE]
+                    if len(text) > _INPUT_MAX_CHARS_PER_FILE
+                    else text
                 )
-                content = content[:_INPUT_MAX_CHARS_PER_FILE]
-            input_texts[full_path.name] = content
+                for fname, text in raw_inputs.items()
+            }
 
     # Collect output paths
     output_paths: list[str] = []
@@ -617,6 +664,7 @@ def _dispatch_via_api(
     project_dir: Path,
     prompt: str,
     uses_staging: bool = False,
+    shared_context: Any = None,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -630,7 +678,12 @@ def _dispatch_via_api(
     chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
-            skill, project_dir, prompt, chapter, uses_staging=uses_staging
+            skill,
+            project_dir,
+            prompt,
+            chapter,
+            uses_staging=uses_staging,
+            shared_context=shared_context,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -728,6 +781,7 @@ def _dispatch_via_ide(
     project_dir: Path,
     prompt: str,
     uses_staging: bool = False,
+    shared_context: Any = None,
 ) -> DispatchResult:
     """Execute a skill via an IDE agent CLI (codex / zcode).
 
@@ -737,7 +791,12 @@ def _dispatch_via_ide(
     chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
-            skill, project_dir, prompt, chapter, uses_staging=uses_staging
+            skill,
+            project_dir,
+            prompt,
+            chapter,
+            uses_staging=uses_staging,
+            shared_context=shared_context,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -794,6 +853,7 @@ def dispatch_skill(
     timeout: int = 900,
     skip_reads: list[str] | None = None,
     uses_staging: bool = False,
+    shared_context: Any = None,
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
@@ -801,16 +861,33 @@ def dispatch_skill(
     1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API
     2. IDE CLI available (codex / zcode) → spawn agent subprocess
     3. Fallback → ``shenbi-dispatch`` CLI subprocess
+
+    Args:
+        skill: The skill name to dispatch (e.g. 'shenbi-chapter-drafting').
+        project_dir: Pipeline project root directory.
+        prompt: The task prompt describing what to generate/audit.
+        test_type: Test mode identifier (default 'generative').
+        round_dir: Optional round-specific directory for output isolation.
+        timeout: Subprocess timeout in seconds (default 900).
+        skip_reads: Optional list of read patterns to skip.
+        uses_staging: If True, dispatch writes to staging/ first.
+        shared_context: Optional SharedAuditContext with pre-extracted fields.
+            Passed through to _build_skill_prompt so auditors skip re-reading
+            common files from disk.
     """
     pd = Path(project_dir)
 
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):
-        return _dispatch_via_api(skill, pd, prompt, uses_staging=uses_staging)
+        return _dispatch_via_api(
+            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+        )
 
     # IDE CLI path
     if _find_ide_cli():
-        return _dispatch_via_ide(skill, pd, prompt, uses_staging=uses_staging)
+        return _dispatch_via_ide(
+            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+        )
 
     # Legacy CLI subprocess path
     if uses_staging:
