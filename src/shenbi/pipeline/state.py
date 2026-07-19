@@ -500,3 +500,37 @@ def _validate_state_consistency(state: PipelineState, chapter_steps: list[Any]) 
         cl.current_step = "chapter_complete"
 
     return issues
+
+
+# ---------------------------------------------------------------------------
+# Single-writer merge helpers (Task 6 of Plan 18)
+# ---------------------------------------------------------------------------
+
+
+def _merge_step_result(state: PipelineState, result: Any) -> None:  # pyright: ignore[reportUnusedFunction]  -- called from chapter_loop.py
+    """Merge a worker thread's result into PipelineState on the main thread.
+
+    Single-writer (actor-model) pattern: only the main thread mutates state.
+    Worker threads never touch PipelineState directly -- they return result
+    objects. No lock required -- this runs only on the main thread.
+
+    Args:
+        state: The PipelineState to merge into.
+        result: A DispatchResult or similar from a worker thread.
+    """
+    if getattr(result, "result", None):
+        _apply_step_outputs(state, result.result)
+
+
+def _apply_step_outputs(state: PipelineState, outputs: dict[str, Any]) -> None:
+    """Apply step outputs to PipelineState on the main thread.
+
+    Implementation depends on the result schema; e.g. update chapter_states,
+    retry_feedback, etc. No lock required -- this runs only on the main thread.
+
+    Args:
+        state: The PipelineState to update.
+        outputs: Dict of output fields from a worker thread result.
+    """
+    # Currently DispatchResult does not carry a structured result dict,
+    # so this is a no-op. Future result types may pass structured data.

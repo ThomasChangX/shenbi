@@ -2539,6 +2539,90 @@ def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[
 
 
 # ---------------------------------------------------------------------------
+# Parallel post-draft dispatch (Task 6 of Plan 18)
+# ---------------------------------------------------------------------------
+
+
+# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS.
+# Used to trigger parallel execution of steps 6-7 together.
+_FORESHADOWING_LIFECYCLE_IDX = 6
+
+
+def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
+    """Execute foreshadowing-lifecycle and state-settling in parallel.
+
+    Reuses the ThreadPoolExecutor + Future pattern already proven by
+    parallel_dispatch.dispatch_reviews_parallel() for the audit waves.
+    Worker threads return DispatchResult objects; the main thread merges
+    them sequentially to PipelineState (single-writer / actor-model).
+
+    Both steps depend on drafting completion and write to disjoint files:
+    - lifecycle -> pending_hooks.md
+    - state-settling -> 6 truth files
+    Zero data conflict.
+
+    Returns:
+        Tuple of (lifecycle_result, settling_result) DispatchResult objects.
+    """
+    import concurrent.futures
+
+    from shenbi.pipeline.state import _merge_step_result  # pyright: ignore[reportPrivateUsage]
+
+    project_dir = Path(state.project_dir)
+    chapter = state.chapter_loop.current_chapter
+
+    lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
+    settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
+
+    # Build prompts (mirrors the serial dispatch path)
+    def _build_prompt(step: ChapterStep) -> str:
+        prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
+        if step.uses_staging:
+            prompt += " Write output to staging/ directory."
+        return prompt
+
+    lifecycle_prompt = _build_prompt(lifecycle_step)
+    settling_prompt = _build_prompt(settling_step)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        lifecycle_future = executor.submit(
+            dispatch_skill,
+            lifecycle_step.skill,
+            project_dir,
+            lifecycle_prompt,
+            uses_staging=lifecycle_step.uses_staging,
+        )
+        settling_future = executor.submit(
+            dispatch_skill,
+            settling_step.skill,
+            project_dir,
+            settling_prompt,
+            uses_staging=settling_step.uses_staging,
+        )
+
+        lifecycle_result = lifecycle_future.result()
+        settling_result = settling_future.result()
+
+    # Single-writer: merge results on the main thread ONLY.
+    _merge_step_result(state, lifecycle_result)
+    _merge_step_result(state, settling_result)
+
+    if not lifecycle_result.success:
+        log.warning(
+            "foreshadowing_lifecycle_failed",
+            chapter=chapter,
+        )
+
+    if not settling_result.success:
+        log.warning(
+            "state_settling_failed",
+            chapter=chapter,
+        )
+
+    return lifecycle_result, settling_result
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -2728,6 +2812,71 @@ def _run_chapter_step_impl(
             chapter,
             project_dir=project_dir,
         )
+
+    # ── Parallel post-draft dispatch (Task 6) ────────────────────────────
+    # When the foreshadowing-lifecycle step is reached, execute it and
+    # state-settling in parallel. Both are LLM skills that write to
+    # disjoint files (pending_hooks.md vs truth/*.md) with zero data
+    # conflict. Workers call dispatch_skill; the main thread handles G4,
+    # step recording, and advancing (single-writer pattern).
+    if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
+        lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
+        settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
+
+        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+
+        # State-settling failure: mark settling_failed and pause (spec §11).
+        if not settling_result.success:
+            from shenbi.pipeline.error_handler import handle_state_settle_failure
+
+            handle_state_settle_failure(state, chapter)
+            log.error(
+                "chapter_state_settle_failed",
+                chapter=chapter,
+            )
+            return True  # checkpoint raised, pause for human
+
+        # Lifecycle failure: log but do not block (settling succeeded).
+        if not lifecycle_result.success:
+            log.error(
+                "chapter_dispatch_failed",
+                chapter=chapter,
+                step=lifecycle_step.step_num,
+                skill=lifecycle_step.skill,
+            )
+
+        # G4: structural validation for both steps (main thread only).
+        for pstep in (lifecycle_step, settling_step):
+            g4_files = _resolve_g4_files(project_dir, pstep, chapter)
+            g4 = run_gate_g4(
+                pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
+            )
+            if not _gate_passed(g4):
+                log.warning(
+                    "parallel_post_draft_g4_failed",
+                    chapter=chapter,
+                    skill=pstep.skill,
+                )
+
+        # Record both steps as done and advance past them.
+        _record_step_done(state, lifecycle_step, chapter)
+        _reset_retries(state, lifecycle_step, chapter)
+        _record_step_done(state, settling_step, chapter)
+        _reset_retries(state, settling_step, chapter)
+
+        # Advance past both steps (idx 6 and 7 -> idx 8)
+        next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
+        state.chapter_loop.step_index = next_idx
+        state.chapter_loop.current_step = (
+            CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
+        )
+
+        # Materialize progress from trace events
+        _maybe_materialize_progress(state, chapter)
+
+        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            return _complete_chapter(state, chapter)
+        return False
 
     # Context assembly (step 4): materialize package before chapter-drafting.
     if step.calls_context_assembly:
