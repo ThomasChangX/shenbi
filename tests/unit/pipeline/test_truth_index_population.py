@@ -135,7 +135,7 @@ class TestHookIdRegex:
 
 
 class TestPopulationAssertion:
-    def test_warns_when_rules_file_has_content_but_index_empty(self, tmp_path, capsys):
+    def test_warns_when_rules_file_has_content_but_index_empty(self, tmp_path):
         """A rules.md with Chinese-ordinal headings that the OLD regex would
         miss must NOT silently produce an empty index. After the Task 1 fix
         this file indexes fine; to test the WARNING path we feed a format no
@@ -148,20 +148,48 @@ class TestPopulationAssertion:
         )
         idx = build_index(p)
         assert len(idx.rules) == 0
-        captured = capsys.readouterr()
-        assert "truth_index_empty_rules" in captured.out
+        # Verify via the module-level logger directly: the warning must be
+        # emitted when a source file has content but the index bucket is empty.
+        # We patch log.warning instead of using capsys because
+        # configure_logging() binds structlog to a specific file descriptor
+        # at import time, and capsys cannot reliably capture the output
+        # across test-ordering variations (see test_cli.py line 6-9).
+        from unittest.mock import patch
 
-    def test_no_warning_when_index_populated(self, tmp_path, capsys):
+        import shenbi.pipeline.truth_index as ti_mod
+
+        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+            build_index(p)
+            assert mock_warn.called
+            call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
+            assert any("truth_index_empty_rules" in str(a) for a in call_args)
+
+    def test_no_warning_when_index_populated(self, tmp_path):
         p = _make_project(tmp_path)
         (p / "world" / "rules.md").write_text("## 规则一：守恒\n" + "正文。" * 50, encoding="utf-8")
         idx = build_index(p)
         assert len(idx.rules) == 1
-        captured = capsys.readouterr()
-        assert "truth_index_empty_rules" not in captured.out
+        # Patch log.warning to verify it is NOT called when the index is
+        # successfully populated.
+        from unittest.mock import patch
 
-    def test_no_warning_when_source_file_absent(self, tmp_path, capsys):
+        import shenbi.pipeline.truth_index as ti_mod
+
+        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+            build_index(p)
+            call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
+            assert not any("truth_index_empty_rules" in str(a) for a in call_args)
+
+    def test_no_warning_when_source_file_absent(self, tmp_path):
         """Early-stage project with no rules.md yet — must not warn."""
         p = _make_project(tmp_path)
-        build_index(p)
-        captured = capsys.readouterr()
-        assert "truth_index_empty_rules" not in captured.out
+        # Patch log.warning to verify it is NOT called when the source file
+        # is absent.
+        from unittest.mock import patch
+
+        import shenbi.pipeline.truth_index as ti_mod
+
+        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+            build_index(p)
+            call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
+            assert not any("truth_index_empty_rules" in str(a) for a in call_args)
