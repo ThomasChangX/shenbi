@@ -34,7 +34,7 @@ class TestLLMStreamingRetry:
             [_mock_chunk("ok")],
         ]
 
-        result, stop_reason = _call_llm_streaming_with_retry(
+        result, stop_reason, _ = _call_llm_streaming_with_retry(
             mock_client, "test-model", [{"role": "user", "content": "hi"}]
         )
         assert result == "ok"
@@ -51,7 +51,7 @@ class TestLLMStreamingRetry:
             [_mock_chunk("ok")],
         ]
 
-        result, stop_reason = _call_llm_streaming_with_retry(
+        result, stop_reason, _ = _call_llm_streaming_with_retry(
             mock_client, "test-model", [{"role": "user", "content": "hi"}]
         )
         assert result == "ok"
@@ -90,7 +90,7 @@ class TestLLMStreamingRetry:
             [_mock_chunk("ok")],
         ]
 
-        result, stop_reason = _call_llm_streaming_with_retry(
+        result, stop_reason, _ = _call_llm_streaming_with_retry(
             mock_client, "test-model", [{"role": "user", "content": "hi"}]
         )
         assert result == "ok"

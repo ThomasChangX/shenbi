@@ -1227,6 +1227,68 @@ def _init_truth_templates(project_dir: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Dispatch-level token logging (Task 7 of Plan 18)
+# ---------------------------------------------------------------------------
+
+
+def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
+    """Log token usage from API response."""
+    if not hasattr(response, "usage") or response.usage is None:
+        return
+
+    usage = response.usage
+    log.info(
+        "llm_token_usage",
+        skill=skill_name,
+        prompt_tokens=usage.prompt_tokens,
+        completion_tokens=usage.completion_tokens,
+        total_tokens=usage.total_tokens,
+    )
+
+    if state:
+        _record_token_usage(state, skill_name, usage)
+
+
+def _record_token_usage(state: Any, skill_name: str, usage: Any) -> None:
+    """Accumulate token usage in pipeline state."""
+    if not hasattr(state, "token_usage"):
+        state.token_usage = {}
+
+    if skill_name not in state.token_usage:
+        state.token_usage[skill_name] = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "calls": 0,
+        }
+
+    rec = state.token_usage[skill_name]
+    rec["prompt_tokens"] += usage.prompt_tokens
+    rec["completion_tokens"] += usage.completion_tokens
+    rec["total_tokens"] += usage.total_tokens
+    rec["calls"] += 1
+
+
+def print_token_summary(state: Any) -> None:
+    """Print token usage summary at end of pipeline."""
+    if not hasattr(state, "token_usage") or not state.token_usage:
+        return
+
+    log.info("token_usage_summary_header", msg="Token usage by skill:")
+    for skill_name, rec in sorted(state.token_usage.items()):
+        avg_prompt = rec["prompt_tokens"] / max(rec["calls"], 1)
+        avg_completion = rec["completion_tokens"] / max(rec["calls"], 1)
+        log.info(
+            "token_usage_summary_row",
+            skill=skill_name,
+            avg_prompt_tokens=int(avg_prompt),
+            avg_completion_tokens=int(avg_completion),
+            total_tokens=rec["total_tokens"],
+            calls=rec["calls"],
+        )
+
+
+# ---------------------------------------------------------------------------
 # Retry with exponential backoff for LLM API calls
 # ---------------------------------------------------------------------------
 
@@ -1248,16 +1310,27 @@ def _call_llm_streaming(
     messages: list[dict[str, str]],
     early_stop_patterns: list[str] | None = None,
     **kwargs: Any,
-) -> tuple[str, str | None]:
+) -> tuple[str, str | None, Any]:
     """Stream LLM response with optional early-stop patterns.
 
-    Returns (collected_text, stop_reason) where stop_reason is None for
-    normal completion or a description string for early termination.
+    Returns (collected_text, stop_reason, usage) where stop_reason is None for
+    normal completion or a description string for early termination, and usage
+    is the token usage object from the API response (or None if unavailable).
     """
     collected: list[str] = []
     stop_reason: str | None = None
-    stream = client.chat.completions.create(model=model, messages=messages, stream=True, **kwargs)
+    usage: Any = None
+    stream = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        stream=True,
+        stream_options={"include_usage": True},
+        **kwargs,
+    )
     for chunk in stream:
+        # Collect usage from final chunk (when stream_options include_usage is set)
+        if hasattr(chunk, "usage") and chunk.usage is not None:
+            usage = chunk.usage
         if chunk.choices and chunk.choices[0].delta.content:
             delta = chunk.choices[0].delta.content
             collected.append(delta)
@@ -1272,7 +1345,10 @@ def _call_llm_streaming(
     result = "".join(collected)
     if stop_reason:
         log.info("streaming_early_stop", reason=stop_reason)
-    return result, stop_reason
+    # Fallback: try stream.usage if not captured from individual chunks
+    if usage is None and hasattr(stream, "usage") and stream.usage is not None:
+        usage = stream.usage
+    return result, stop_reason, usage
 
 
 @retry(
@@ -1291,11 +1367,14 @@ def _call_llm_streaming_with_retry(
     messages: list[dict[str, str]],
     early_stop_patterns: list[str] | None = None,
     **kwargs: Any,
-) -> tuple[str, str | None]:
+) -> tuple[str, str | None, Any]:
     """Stream LLM response with retry on transient failures.
 
     Retries: 429 (rate limit), 5xx (server errors), timeouts.
     Does NOT retry: 400, 401, 403 (client errors).
+
+    Returns (collected_text, stop_reason, usage) where usage is the token
+    usage object from the API response (or None if unavailable).
     """
     return _call_llm_streaming(
         client,
@@ -1317,6 +1396,7 @@ def _dispatch_via_api(
     prompt: str,
     uses_staging: bool = False,
     shared_context: Any = None,
+    state: Any = None,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -1324,6 +1404,14 @@ def _dispatch_via_api(
     - ``SHENBI_LLM_API_KEY`` (required)
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
+
+    Args:
+        skill: The skill name to dispatch.
+        project_dir: Path to the project directory.
+        prompt: The prompt text to send to the skill.
+        uses_staging: Whether to use staging directories for output paths.
+        shared_context: Optional shared context object for prompt building.
+        state: Optional PipelineState for token usage accumulation (Task 7).
     """
     from openai import OpenAI
 
@@ -1360,7 +1448,7 @@ def _dispatch_via_api(
     warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
 
     try:
-        output_text, stop_reason = _call_llm_streaming_with_retry(
+        output_text, stop_reason, usage = _call_llm_streaming_with_retry(
             client,
             model,
             [
@@ -1380,8 +1468,12 @@ def _dispatch_via_api(
     if stop_reason:
         log.info("api_dispatch_early_stop", skill=skill, stop_reason=stop_reason)
 
-    # Token usage is not available via streaming; cost estimation uses
-    # the pre-flight heuristic (warn_if_over_budget above) instead.
+    # Dispatch-level token logging (Task 7 of Plan 18).
+    # Logs token usage when the provider includes usage in streaming responses
+    # (via stream_options={"include_usage": True}). Falls back to pre-flight
+    # heuristic (warn_if_over_budget) when usage is unavailable.
+    if usage is not None:
+        _log_token_usage(usage, skill, state=state)
 
     try:
         output = _parse_structured_output(output_text)
@@ -1528,6 +1620,7 @@ def dispatch_skill(
     skip_reads: list[str] | None = None,
     uses_staging: bool = False,
     shared_context: Any = None,
+    state: Any = None,
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
@@ -1548,13 +1641,14 @@ def dispatch_skill(
         shared_context: Optional SharedAuditContext with pre-extracted fields.
             Passed through to _build_skill_prompt so auditors skip re-reading
             common files from disk.
+        state: Optional PipelineState for token usage accumulation (Task 7).
     """
     pd = Path(project_dir)
 
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):
         return _dispatch_via_api(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context, state=state
         )
 
     # IDE CLI path

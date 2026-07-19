@@ -56,6 +56,7 @@ from shenbi.pipeline.dispatch_helper import (
     requires_independent,
     run_gate_g3,
     run_gate_g4,
+    print_token_summary,
 )
 from shenbi.pipeline.snapshot_diff import create_differential_snapshot
 from shenbi.pipeline.crash_recovery import (
@@ -971,6 +972,9 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     # 11a: Print per-step timing summary at chapter completion
     _print_timing_summary(state)
 
+    # Task 7: Print dispatch-level token usage summary at chapter completion
+    print_token_summary(state)
+
     state.chapter_loop.current_chapter = chapter + 1
     state.chapter_loop.step_index = 0
     state.chapter_loop.current_step = ""
@@ -1299,6 +1303,7 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
             "shenbi-foreshadowing-resolve",
             project_dir,
             f"Resolve {triggered_count} TRIGGERED hooks for chapter {chapter}.",
+            state=state,
         )
     else:
         log.debug("no_triggered_hooks", chapter=chapter)
@@ -2955,6 +2960,7 @@ def _run_chapter_step_impl(
         project_dir,
         prompt,
         uses_staging=step.uses_staging,
+        state=state,
     )
 
     # State-settling failure: mark settling_failed and pause (spec §11).
@@ -3125,6 +3131,7 @@ def _run_chapter_step_impl(
                 "shenbi-chapter-revision",
                 project_dir,
                 f"Revise chapter {chapter} to fix audit BLOCKING issues.",
+                state=state,
             )
             if not rev.success:
                 return _handle_failure(state, step, chapter, "audit-revision", project_dir)
