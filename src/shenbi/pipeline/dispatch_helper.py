@@ -24,6 +24,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from pydantic import ValidationError
+
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
 from shenbi.logging import get_logger
@@ -269,6 +271,80 @@ def _is_review_skill(skill: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
+def _validate_json_output(content: str, path: Path) -> str:
+    """Validate and clean JSON content before writing to disk.
+
+    Recovery policy (tightened per spec §3 Layer 1):
+    - Clean JSON parses and is returned unchanged.
+    - The dominant corruption pattern (valid JSON + trailing markdown) is
+      recovered via ``json.JSONDecoder().raw_decode()`` (truncates to the
+      first complete JSON object).
+    - After truncation, if the recovered object declares
+      ``$schema == "shenbi-decisions-v1"`` it MUST pass
+      ``DecisionsDoc.model_validate`` (schema + required-field completeness).
+      A recovered object missing required fields raises ValueError rather
+      than being persisted (prevents recovering a truncated-tail fragment).
+    - Non-decisions JSON files (no matching ``$schema``) are returned as-is
+      after truncation.
+    - Completely unrecoverable content raises ValueError.
+
+    Args:
+        content: Raw content to validate.
+        path: Target file path (used to check extension and for error messages).
+
+    Returns:
+        Cleaned JSON string.
+
+    Raises:
+        ValueError: If content is JSON-typed but unrecoverable, or if a
+            recovered decisions object fails schema validation.
+    """
+    if path.suffix != ".json":
+        return content
+
+    # Try strict parse first — fastest path for clean JSON
+    try:
+        json.loads(content)
+        return content
+    except json.JSONDecodeError:
+        pass
+
+    # Recovery: extract first complete JSON object
+    decoder = json.JSONDecoder()
+    try:
+        clean_data, end_pos = decoder.raw_decode(content)
+    except json.JSONDecodeError as e:
+        log.error("decisions_json_unrecoverable", path=str(path), error=str(e))
+        raise ValueError(f"Decisions JSON invalid and unrecoverable for {path}: {e}") from e
+
+    # Tightened recovery: a shenbi-decisions-v1 object must pass schema +
+    # required-field completeness before being accepted. This prevents
+    # recovering a truncated-tail fragment that is missing required fields.
+    if isinstance(clean_data, dict) and clean_data.get("$schema") == "shenbi-decisions-v1":
+        try:
+            from shenbi.contracts.schemas.decisions import DecisionsDoc
+
+            DecisionsDoc.model_validate(clean_data)
+        except (ValidationError, ImportError) as e:
+            log.error(
+                "decisions_json_recovered_but_schema_incomplete",
+                path=str(path),
+                error=str(e),
+            )
+            raise ValueError(
+                f"Recovered decisions JSON for {path} failed schema validation "
+                f"(missing required fields): {e}"
+            ) from e
+
+    log.warning(
+        "decisions_json_truncated",
+        path=str(path),
+        original_len=len(content),
+        cleaned_len=end_pos,
+    )
+    return json.dumps(clean_data, ensure_ascii=False, indent=2)
+
+
 def _parse_file_outputs(response: str) -> dict[str, str]:
     """Parse a multi-file response into {filepath: content} dict.
 
@@ -313,6 +389,12 @@ def _write_parsed_outputs(
             continue
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            content = _validate_json_output(content, full_path)
+        except ValueError as e:
+            log.error("output_validation_failed", path=rel_path, error=str(e))
+            raise  # Pipeline must stop rather than persist corrupt data
+
         safe_write(full_path, content)
         written.append(rel_path)
         log.info("output_written", path=rel_path, size=len(content))

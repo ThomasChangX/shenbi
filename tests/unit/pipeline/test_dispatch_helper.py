@@ -8,10 +8,14 @@ from __future__ import annotations
 
 import json
 import subprocess
+from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from shenbi.pipeline.dispatch_helper import (
     DispatchResult,
+    _validate_json_output,
     dispatch_skill,
     requires_independent,
     run_gate_g3,
@@ -37,11 +41,12 @@ class TestDispatchSkill:
 
     @patch(PATCH)
     def test_success_is_true(self, mock_run, tmp_path):
-        mock_run.return_value = MagicMock(returncode=0, stdout="ok", stderr="")
+        # Valid JSON required since _validate_json_output runs on .json outputs
+        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
         result = dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt")
         assert result.success is True
         assert result.returncode == 0
-        assert result.stdout == "ok"
+        assert result.stdout == "{}"
 
     @patch(PATCH)
     def test_timeout_returns_error(self, mock_run, tmp_path):
@@ -354,3 +359,104 @@ class TestTruthTemplates:
         }
         warnings = check_fields_exist("shenbi-chapter-planning", inputs, fields_map)
         assert warnings == []
+
+
+# ---------------------------------------------------------------------------
+# JSON validation + raw_decode() recovery tests (Plan 02 Task 1)
+# ---------------------------------------------------------------------------
+
+
+class TestValidateJsonOutput:
+    """Tests for _validate_json_output (pre-write JSON validation with recovery).
+
+    The dominant corruption pattern (verified by filesystem audit) is a valid
+    JSON object followed by trailing markdown — NOT multi-JSON concatenation.
+    """
+
+    def test_validate_json_passes_clean_json(self):
+        """Clean JSON passes validation unchanged."""
+        content = json.dumps({"key": "value", "number": 42}, ensure_ascii=False)
+        result = _validate_json_output(content, Path("test.json"))
+        assert json.loads(result) == {"key": "value", "number": 42}
+
+    def test_validate_json_truncates_trailing_markdown(self):
+        """Dominant pattern: valid JSON + trailing markdown -> truncate to first object."""
+        content = '{"key": "value"}\n\n---\n**G4 failure summary:**\n- Fixed X\n'
+        result = _validate_json_output(content, Path("test.json"))
+        parsed = json.loads(result)
+        assert parsed == {"key": "value"}
+        assert "G4 failure summary" not in result
+
+    def test_validate_json_recovers_decisions_with_complete_schema(self):
+        """A shenbi-decisions-v1 object + trailing markdown passes schema + recovers."""
+        valid_decisions = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-chapter-drafting",
+            "chapter": 5,
+            "selections": [],
+            "adjustments": [],
+            "produced_at": "2026-07-19T00:00:00+00:00",
+        }
+        content = json.dumps(valid_decisions, ensure_ascii=False) + (
+            "\n\n---\n\n**两项 G4 失败修复摘要：**\n1. 修正转折词。\n"
+        )
+        result = _validate_json_output(content, Path("chapter-5-decisions.json"))
+        parsed = json.loads(result)
+        assert parsed["$schema"] == "shenbi-decisions-v1"
+        assert parsed["chapter"] == 5
+        assert "G4 失败修复摘要" not in result
+
+    def test_validate_json_recovers_revision_decisions_adjustments(self):
+        """A revision decisions object with non-empty adjustments recovers."""
+        valid_rev = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-chapter-revision",
+            "chapter": 5,
+            "selections": [],
+            "adjustments": [
+                {
+                    "issue_id": "resonance.sentiment",
+                    "severity": "high",
+                    "handling": "explicit_callout",
+                    "rationale": "Dialogue lacked emotional grounding in scene.",
+                }
+            ],
+            "produced_at": "2026-07-19T00:00:00+00:00",
+        }
+        content = json.dumps(valid_rev, ensure_ascii=False) + "\n\nSummary text."
+        result = _validate_json_output(content, Path("chapter-5-revision-decisions.json"))
+        parsed = json.loads(result)
+        assert parsed["adjustments"][0]["issue_id"] == "resonance.sentiment"
+
+    def test_validate_json_raises_when_recovered_object_missing_required_fields(self):
+        """Recovery tightened: if the recovered object fails DecisionsDoc schema
+        (missing required fields), raise rather than persisting an incomplete file.
+        """
+        # Object with trailing markdown but MISSING required fields (no skill/chapter/...)
+        incomplete = {"$schema": "shenbi-decisions-v1", "note": "partial"}
+        content = json.dumps(incomplete) + "\n\n---\ntail markdown"
+        with pytest.raises(ValueError, match=r"schema|incomplete|unrecoverable"):
+            _validate_json_output(content, Path("chapter-5-decisions.json"))
+
+    def test_validate_json_handles_multiple_concatenated_json_defensively(self):
+        """Defensive (not the dominant pattern): multiple concatenated JSON objects
+        extracts only the first, then validates it against schema. If the first
+        object is not a decisions doc, the non-decisions branch returns it as-is.
+        """
+        content = '{"a":1}\n{"b":2}\n{"c":3}'
+        result = _validate_json_output(content, Path("test.json"))
+        parsed = json.loads(result)
+        assert parsed == {"a": 1}
+        assert "b" not in result
+
+    def test_validate_json_raises_on_unrecoverable(self):
+        """Completely invalid JSON (no recoverable object) raises ValueError."""
+        content = "not json at all"
+        with pytest.raises(ValueError, match="unrecoverable"):
+            _validate_json_output(content, Path("test.json"))
+
+    def test_validate_json_skips_non_json_files(self):
+        """Non-JSON files are returned unchanged."""
+        content = "# Chapter 5\n\n## Section 1\nProse content here."
+        result = _validate_json_output(content, Path("chapter-5.md"))
+        assert result == content

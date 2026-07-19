@@ -80,12 +80,50 @@ def gate_G2(
             # file_type gate instead.
             if not fp.endswith(".json"):
                 continue  # skip .md files — decisions branch only validates JSON
-            # G2.dec.1 — valid JSON
+            # G2.dec.1 — valid JSON (with multi-JSON concatenation recovery)
+            # Multi-JSON detection runs BEFORE json.loads(): if raw_decode()
+            # succeeds where json.loads() fails (due to concatenated JSON objects),
+            # extract only the first complete object and warn about truncation.
+            data: Any = None
             try:
                 data = json.loads(content)
             except json.JSONDecodeError:
-                mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
-                continue
+                # Recovery: attempt raw_decode() to extract first complete JSON object
+                decoder = json.JSONDecoder()
+                try:
+                    clean_data, end_pos = decoder.raw_decode(content)
+                    if isinstance(clean_data, dict):
+                        data = clean_data
+                        remaining = content[end_pos:].strip()
+                        if remaining:
+                            log.warning(
+                                "g2_decisions_multi_json_truncated",
+                                file=fp,
+                                original_len=len(content),
+                                recovered_len=end_pos,
+                                remaining_preview=remaining[:200],
+                            )
+                        else:
+                            # Trailing whitespace only — borderline valid, accept
+                            log.info(
+                                "g2_decisions_json_trailing_ws_recovered",
+                                file=fp,
+                                original_len=len(content),
+                                cleaned_len=end_pos,
+                            )
+                    else:
+                        mf.append(
+                            {
+                                "id": "G2.dec.1",
+                                "file": fp,
+                                "s": "FAIL",
+                                "r": f"recovered non-object JSON: {type(clean_data).__name__}",
+                            }
+                        )
+                        continue
+                except json.JSONDecodeError:
+                    mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
+                    continue
             if not isinstance(data, dict):
                 mf.append(
                     {
