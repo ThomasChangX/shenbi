@@ -261,6 +261,76 @@ _LAST_AUDIT_IDX = max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
 
 
 # ---------------------------------------------------------------------------
+# Audit Cascading (Spec 8 Fix 8)
+# ---------------------------------------------------------------------------
+
+# Core 4 pass, skip 8 (NOT "skip 9").
+# memo-compliance and resonance ALWAYS run (scoring requires them) — they are
+# excluded from CASCADABLE_AUDITS and are never cascade-skipped. There is no
+# "confidence >90%" signal available; instead we use an N=3 chapter streak with
+# zero HARD failures as the cascade trigger.
+
+CORE_AUDITS = ["continuity", "character", "world-rules", "pacing"]
+
+ALWAYS_RUN = {"memo-compliance", "resonance"}
+
+CASCADABLE_AUDITS = [
+    "dialogue",
+    "motivation",
+    "sensitivity",
+    "foreshadowing",
+    "pov",
+    "anti-ai",
+    "texture",
+    "reader-pull",
+]
+
+CASCADE_STREAK_LENGTH = 3  # N=3
+
+
+def _should_skip_audit(  # pyright: ignore[reportUnusedFunction]
+    skill: str, audit_history: list[dict[str, Any]]
+) -> bool:
+    """N-chapter-streak cascade heuristic (Spec 8 Fix 8).
+
+    Skip `skill` only when ALL of the following hold:
+      1. `skill` is in CASCADABLE_AUDITS (core audits and ALWAYS_RUN audits run).
+      2. We have at least N=3 chapters of history for `skill`.
+      3. Each of the trailing N=3 entries for `skill` passed with zero HARD
+         failures.
+
+    Args:
+        skill: audit skill short-name (e.g. "dialogue", "continuity").
+        audit_history: list of per-chapter audit result dicts, most-recent-last.
+            Each entry maps skill -> {"passed": bool, "hard_failures": int}.
+
+    Returns:
+        True if the audit may be cascade-skipped this chapter.
+    """
+    # Core audits and always-run audits are never cascade-skipped.
+    if skill in CORE_AUDITS or skill in ALWAYS_RUN:
+        return False
+    if skill not in CASCADABLE_AUDITS:
+        return False  # Unknown skill → run normally
+
+    # Need at least N=3 chapters of history to establish a streak.
+    recent = audit_history[-CASCADE_STREAK_LENGTH:]
+    if len(recent) < CASCADE_STREAK_LENGTH:
+        return False
+
+    for chapter_results in recent:
+        result = chapter_results.get(skill)
+        if result is None:
+            return False  # No record for this skill in that chapter → no streak
+        if not result.get("passed", False):
+            return False  # Did not pass → break streak
+        if result.get("hard_failures", 0) > 0:
+            return False  # Any HARD failure → break streak
+
+    return True  # N=3 streak of zero-HARD-failure passes → cascade-skip
+
+
+# ---------------------------------------------------------------------------
 # G4 Severity Classification (spec §11)
 # ---------------------------------------------------------------------------
 

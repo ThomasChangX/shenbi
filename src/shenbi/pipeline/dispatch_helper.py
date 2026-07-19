@@ -356,6 +356,30 @@ def _build_skill_prompt(
     return system_prompt, user_prompt, output_paths
 
 
+def _inject_instruction_hierarchy(prompt: str) -> str:  # pyright: ignore[reportUnusedFunction]
+    """Add 3-tier instruction hierarchy to prompt (Anthropic Context Engineering pattern)."""
+    header = """## Instruction Hierarchy
+
+<HARD_CONSTRAINTS>
+- These rules CANNOT be violated under any circumstances
+- Violation = automatic rejection
+</HARD_CONSTRAINTS>
+
+<GUIDELINES>
+- Follow these unless there is a compelling creative reason not to
+- Deviations must be justified in the decisions JSON
+</GUIDELINES>
+
+<REFERENCE>
+- This section provides context and examples
+- Use for inspiration, not as strict rules
+</REFERENCE>
+
+---
+"""
+    return header + prompt
+
+
 def _is_review_skill(skill: str) -> bool:
     """Check whether a skill name indicates a review skill."""
     return "review" in skill.lower()
