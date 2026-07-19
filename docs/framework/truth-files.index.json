@@ -637,6 +637,13 @@
     ],
     "updates": []
   },
+  "truth/bridge_tracker.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-foreshadowing-track"
+    ],
+    "updates": []
+  },
   "world/*.md": {
     "reads": [
       "shenbi-foundation-review",
