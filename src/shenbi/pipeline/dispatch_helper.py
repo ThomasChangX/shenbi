@@ -527,6 +527,12 @@ def _dispatch_via_api(
     model = os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)
 
     log.info("api_dispatch_start", skill=skill, model=model, chapter=chapter)
+
+    # Pre-flight: warn if the assembled prompt approaches the context limit.
+    from shenbi.cost.estimate import warn_if_over_budget
+
+    warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
+
     try:
         response = client.chat.completions.create(
             model=model,
