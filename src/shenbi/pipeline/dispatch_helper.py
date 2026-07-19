@@ -53,6 +53,86 @@ _API_TEMPERATURE = 0.7  # default temperature for API calls
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
+# ---------------------------------------------------------------------------
+# Priority-driven context budget allocation
+# ---------------------------------------------------------------------------
+
+
+class _Priority:
+    """Priority weight constants for budgeted truncation."""
+
+    HIGH: float = 1.0
+    MEDIUM: float = 0.5
+    LOW: float = 0.2
+
+
+_FILE_PRIORITY_WEIGHTS: dict[str, float] = {
+    # HIGH priority (1.0) — essential for task completion
+    "chapter": 1.0,
+    "chapter-current": 1.0,
+    "chapter-plan": 1.0,
+    # MEDIUM-HIGH (0.8) — strongly influences output quality
+    "volume_map": 0.8,
+    "character_matrix": 0.8,
+    "world_rules": 0.8,
+    "current_state": 0.8,
+    # MEDIUM (0.5) — provides important context
+    "style_profile": 0.5,
+    "pending_hooks": 0.5,
+    "review_checklist": 0.5,
+    "current_focus": 0.5,
+    # LOW (0.2) — supplementary, can be heavily truncated
+    "archive": 0.2,
+    "snapshot": 0.2,
+    "default": 0.5,
+}
+
+
+def _get_priority(filename: str) -> float:
+    """Get priority weight for a filename based on keyword matching.
+
+    Checks explicit path prefixes first to avoid substring misclassification
+    (e.g., ``audits/chapter-1-anti-ai.md`` must not match the ``audit`` key
+    and return LOW when it contains ``chapter`` in its name).
+    """
+    # Explicit path-prefix checks (avoid substring false matches)
+    if filename.startswith("audits/"):
+        return _Priority.LOW
+    if "chapter" in filename.lower():
+        return _Priority.HIGH
+    # Fall back to keyword matching for remaining entries
+    for key, weight in _FILE_PRIORITY_WEIGHTS.items():
+        if key in filename.lower():
+            return weight
+    return _FILE_PRIORITY_WEIGHTS["default"]
+
+
+def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> dict[str, str]:  # pyright: ignore[reportUnusedFunction]
+    """Truncate input texts to fit within budget, preserving high-priority content.
+
+    Uses weighted allocation: high-priority files get proportionally more budget.
+    """
+    if not input_texts:
+        return {}
+
+    # Calculate total weight
+    weights = {name: _get_priority(name) for name in input_texts}
+    total_weight = sum(weights.values())
+
+    # Allocate budget proportionally by weight
+    result: dict[str, str] = {}
+    for name, content in input_texts.items():
+        allocation = int(budget * weights[name] / total_weight)
+        if len(content) <= allocation:
+            result[name] = content
+        else:
+            result[name] = content[:allocation] + f"\n\n[... truncated from {len(content)} chars]"
+        # Enforce per-file character ceiling
+        result[name] = result[name][:_INPUT_MAX_CHARS_PER_FILE]
+
+    return result
+
+
 # Regex matching control characters EXCEPT newline (\n), carriage return (\r),
 # and tab (\t) which are valid in JSON strings when properly escaped.
 _ILLEGAL_CTRL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
