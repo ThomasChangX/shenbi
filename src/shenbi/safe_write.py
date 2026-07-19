@@ -66,7 +66,7 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
     # (touch() grants zero exclusion — two writers both proceed).
     try:
         fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        os.chmod(lockfile, 0o644)
+        os.chmod(lockfile, 0o600)
         return fd, lockfile
     except FileExistsError:
         # Another writer holds the lock — retry with backoff
@@ -76,7 +76,7 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
             time.sleep(0.1)
             try:
                 fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                os.chmod(lockfile, 0o644)
+                os.chmod(lockfile, 0o600)
                 return fd, lockfile
             except FileExistsError:  # retry with backoff
                 continue
@@ -87,7 +87,7 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
         except FileNotFoundError:
             pass  # already gone — safe to proceed with O_EXCL recreate
         fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        os.chmod(lockfile, 0o644)
+        os.chmod(lockfile, 0o600)
         return fd, lockfile
 
 

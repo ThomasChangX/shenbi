@@ -350,8 +350,7 @@ def _scan_fatigue_words(prose: str) -> list[dict[str, Any]]:
     results = []
     counts: dict[str, int] = {}
     for word in _FATIGUE_WORDS:
-        for _match in re.finditer(re.escape(word), prose):
-            counts[word] = counts.get(word, 0) + 1
+        counts[word] = counts.get(word, 0) + len(re.findall(re.escape(word), prose))
     for word, count in counts.items():
         if count > 0:
             results.append(

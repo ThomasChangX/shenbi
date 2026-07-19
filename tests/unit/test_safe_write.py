@@ -60,7 +60,7 @@ def test_safe_write_no_lockfile_leak(tmp_path: Path) -> None:
 
 
 def test_lockfile_has_correct_permissions():
-    """Lockfile created by safe_write has 0o644 permissions."""
+    """Lockfile created by safe_write has 0o600 permissions."""
     import tempfile
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -72,10 +72,10 @@ def test_lockfile_has_correct_permissions():
         os.close(fd)
 
         # Set permissions
-        os.chmod(lockfile, 0o644)
+        os.chmod(lockfile, 0o600)
 
         actual_mode = lockfile.stat().st_mode & 0o777
-        assert actual_mode == 0o644, f"Expected 0o644, got {oct(actual_mode)}"
+        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
 
         # Clean up
         os.unlink(lockfile)
@@ -92,10 +92,10 @@ def test_lockfile_permissions_are_set_via_os_chmod():
         os.close(fd)
 
         # Set permissions
-        os.chmod(lockfile, 0o644)
+        os.chmod(lockfile, 0o600)
 
         actual_mode = lockfile.stat().st_mode & 0o777
-        assert actual_mode == 0o644, f"Expected 0o644, got {oct(actual_mode)}"
+        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
 
         # Clean up
         os.unlink(lockfile)
