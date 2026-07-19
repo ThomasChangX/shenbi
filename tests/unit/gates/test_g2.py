@@ -8,7 +8,7 @@ from typing import Any, cast
 
 import pytest
 
-from shenbi.gates.g2 import gate_G2
+from shenbi.gates.g2 import _check_meta_ratio, gate_G2
 
 
 def _result_dict(result: str) -> dict[str, Any]:
@@ -549,3 +549,64 @@ class TestG2DecisionsBranch:
         dec_pass = [c for c in data.get("checks", []) if c.get("id") == "G2.dec"]
         assert dec_pass
         assert dec_pass[0]["s"] == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# G2.meta_ratio — META block proportion check (Task 12)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_meta_ratio_returns_pass_when_under_50_percent(tmp_path: Path):
+    chapter = tmp_path / "chapter-1.md"
+    # 20% META content
+    chapter.write_text("""<!--META-BEGIN-->
+some meta
+<!--META-END-->
+This is the actual prose content of the chapter. It is much longer than the META block.
+The prose continues for several more lines to ensure the ratio stays low.
+Extra text here to pad the prose content and keep the META ratio under 50 percent.
+More prose content to ensure the ratio is healthy.
+Even more content here to make the prose section larger.
+""")
+    checks, failures = _check_meta_ratio(chapter)
+    assert len(failures) == 0
+    meta_check = [c for c in checks if "meta_ratio" in c.get("id", "")]
+    assert len(meta_check) > 0
+    assert meta_check[0]["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_meta_ratio_warns_when_over_50_percent(tmp_path: Path):
+    chapter = tmp_path / "chapter-1.md"
+    # 60% META content
+    chapter.write_text("""<!--META-BEGIN-->
+some meta content that takes up a lot of space in the file
+more meta content to pad the ratio
+even more meta content to make it really large
+still more meta content to ensure ratio exceeds 50%
+additional meta content for padding purposes
+<!--META-END-->
+short prose.
+""")
+    checks, failures = _check_meta_ratio(chapter)
+    assert len(failures) > 0
+    assert any("G2.meta_ratio" in f for f in failures)
+
+
+@pytest.mark.unit
+def test_meta_ratio_skips_file_with_no_meta_blocks(tmp_path: Path):
+    chapter = tmp_path / "chapter-1.md"
+    chapter.write_text("Pure prose content with no META blocks at all.")
+    checks, failures = _check_meta_ratio(chapter)
+    assert len(failures) == 0
+
+
+@pytest.mark.unit
+def test_meta_ratio_calculates_correctly(tmp_path: Path):
+    chapter = tmp_path / "chapter-1.md"
+    # META block (including markers) = 36 chars, prose = 36 chars = 50% exactly
+    chapter.write_text("<!--META-BEGIN-->AAAA<!--META-END-->" + "B" * 36)
+    checks, failures = _check_meta_ratio(chapter)
+    # Exactly at 50% threshold, should PASS (only > 50% triggers WARN)
+    assert len(failures) == 0

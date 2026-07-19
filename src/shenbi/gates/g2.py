@@ -28,6 +28,8 @@ from shenbi.gates.shared import (
     yload,
 )
 
+_META_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
 
 def gate_G2(
     file_paths: str | list[str] | None,
@@ -319,6 +321,13 @@ def gate_G2(
         else:
             checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
 
+        # G2.meta_ratio: WARN when META block proportion > 50%
+        meta_checks, meta_failures = _check_meta_ratio(p)
+        checks.extend(meta_checks)
+        if meta_failures:
+            for f in meta_failures:
+                checks.append({"id": "G2.meta_ratio", "file": fp, "s": "WARN", "r": f})
+
     if mf:
         return fail(
             "G2",
@@ -327,6 +336,47 @@ def gate_G2(
             [x["id"] + ":" + x.get("file", "") for x in mf],
         )
     return passed("G2", checks)
+
+
+def _check_meta_ratio(
+    file_path: Path,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Check META block proportion in chapter files.
+
+    Returns (checks, failures). WARN-level: triggers when META block
+    content exceeds 50% of total file size (indicates planning bloat).
+    """
+    checks: list[dict[str, Any]] = []
+    failures: list[str] = []
+
+    if not file_path.exists() or file_path.suffix != ".md":
+        return checks, failures
+
+    content = file_path.read_text(encoding="utf-8")
+    total_chars = len(content)
+
+    meta_chars = sum(len(m.group(0)) for m in _META_RE.finditer(content))
+
+    if total_chars == 0:
+        return checks, failures
+
+    ratio = meta_chars / total_chars
+
+    if meta_chars > 0:
+        checks.append(
+            {
+                "id": "G2.meta_ratio",
+                "s": "WARN" if ratio > 0.5 else "PASS",
+                "ratio": f"{ratio:.1%}",
+                "meta_chars": meta_chars,
+                "total_chars": total_chars,
+            }
+        )
+
+        if ratio > 0.5:
+            failures.append(f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold")
+
+    return checks, failures
 
 
 def _is_important_chapter(fp: str, project_dir: str) -> bool:
