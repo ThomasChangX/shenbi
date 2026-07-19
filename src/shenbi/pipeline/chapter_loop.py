@@ -1268,18 +1268,23 @@ def _prune_old_snapshots(project_dir: Path) -> None:
     """Remove snapshot files older than the retention window.
 
     Keeps only the most recent ``snapshot_retention_chapters`` worth of
-    snapshots. Removes files from disk and updates the manifest.
+    snapshots (counting CHAPTERS, not the numeric range — robust to gaps).
+    Removes files from disk and updates the manifest. Spec 22 E40: fixes the
+    off-by-one in the previous ``ch < keep_from`` comparator (which kept
+    ``retention + 1``) and adds a post-prune guard.
     """
     retention = _get_snapshot_retention(project_dir)
     manifest = _load_manifest(project_dir)
     chapters_dict = manifest.get("chapters", {})
 
     all_chapters = sorted(int(k) for k in chapters_dict)
-    if not all_chapters:
+    if len(all_chapters) <= retention:
         return
 
-    keep_from = max(all_chapters) - retention
-    to_prune = [ch for ch in all_chapters if ch < keep_from]
+    # Keep the newest ``retention`` chapters; prune the rest. Slice-based so
+    # gaps in chapter numbering do not distort the count.
+    keep_set = set(all_chapters[-retention:])
+    to_prune = [ch for ch in all_chapters if ch not in keep_set]
 
     if not to_prune:
         return
@@ -1295,6 +1300,18 @@ def _prune_old_snapshots(project_dir: Path) -> None:
 
     _save_manifest(project_dir, manifest)
     log.info("snapshots_pruned", pruned=len(to_prune), retention=retention)
+
+    # GUARD: assert the cap is now respected (fail loudly if a concurrent
+    # writer re-added snapshots between the prune and this check).
+    remaining = len(chapters_dict)
+    if remaining > retention:
+        log.error(
+            "snapshot_prune_failed",
+            count=remaining,
+            cap=retention,
+            msg="snapshot count still exceeds cap after pruning — "
+            "concurrent writer or manifest corruption suspected",
+        )
 
 
 # ---------------------------------------------------------------------------
