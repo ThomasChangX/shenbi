@@ -253,7 +253,11 @@ def _build_skill_prompt(
     if input_texts:
         user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():
-            user_parts.append(f"### {fname}\n```\n{content}\n```")
+            # Escape ALL '<' in content to '\u003c' to prevent any tag injection.
+            # (Spec 8 §3 Bug 2: the wrapper is </document>, NOT </doc>; the safest
+            # approach is escaping every '<' rather than only replacing the tag.)
+            safe_content = content.replace("<", "\u003c")
+            user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
     user_prompt = "\n".join(user_parts)
 
     # Inject shared review checklist for review skills (Phase 2.3).
