@@ -114,8 +114,8 @@ def _protag_at_depth_two(tmp_path: Path) -> Path:
 
 
 @pytest.mark.unit
-def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
-    """characters/major/ with < 2 files -> WARN with G4.cd.major_chars:need_2_got_1."""
+def test_fails_when_major_chars_dir_has_fewer_than_three(tmp_path: Path) -> None:
+    """characters/major/ with < 3 files -> FAIL with G4.cd.major_chars."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
     project_dir = protag.parent.parent
@@ -124,31 +124,27 @@ def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
     (major / "only.md").write_text("# x\n", encoding="utf-8")
 
     result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
-    assert result["status"] == "PASS"
-    assert any(
-        c.get("id") == "G4.cd.major_chars" and c.get("s") == "WARN" for c in result["checks"]
-    )
+    assert result["status"] == "FAIL"
+    assert any("G4.cd.major_chars" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
 def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
-    """No characters/major/ dir -> SKIP with G4.cd.major_chars (genesis mode)."""
+    """No characters/major/ dir -> FAIL with G4.cd.major_chars:directory_missing."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
     project_dir = protag.parent.parent
 
     result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
-    assert result["status"] == "PASS"
-    assert any(
-        c.get("id") == "G4.cd.major_chars" and c.get("s") == "SKIP" for c in result["checks"]
-    )
+    assert result["status"] == "FAIL"
+    assert any("G4.cd.major_chars:directory_missing" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
 def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Path) -> None:
-    """relationships.md with >=3 '## 关系对' and >=2 major chars -> both PASS.
+    """relationships.md with >=3 '## 关系对' and >=3 major chars -> both PASS.
 
-    Covers g4 lines 82-88 (relationships check) and 96 (major_chars PASS).
+    Covers g4 lines 82-88 (relationships check) and major_chars PASS (threshold >=3).
     """
     project_dir = tmp_path / "project"
     sub = project_dir / "skill-output"
@@ -162,6 +158,7 @@ def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Pat
     major.mkdir(parents=True)
     (major / "hero.md").write_text("# Hero\n", encoding="utf-8")
     (major / "villain.md").write_text("# Villain\n", encoding="utf-8")
+    (major / "mentor.md").write_text("# Mentor\n", encoding="utf-8")
     result = _result(g4_character_design([str(rel)], rd=str(project_dir)))
     assert any(c.get("id") == "G4.rel.pairs" and c.get("s") == "PASS" for c in result["checks"])
     assert any(
@@ -210,3 +207,115 @@ def test_skill_md_includes_archetype_sources_requirement():
     content = skill_path.read_text(encoding="utf-8")
     assert "archetype_sources" in content
     assert "historical" in content.lower() or "archetype" in content.lower()
+
+
+# ── Task 7: Raise G4.cd.major_chars threshold and add G4.cd.minor_chars ──────
+
+
+@pytest.fixture
+def project_with_characters(tmp_path: Path) -> Path:
+    """Create a project directory with character archives."""
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    # Create protagonist
+    protag = tmp_path / "characters" / "protagonist.md"
+    protag.write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Become strongest cultivator
+goal_deep: Protect those he loves
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: naive villager
+arc_turning: loss of mentor
+arc_ending: enlightened protector
+voice_profile:
+  speech_patterns: [short sentences, asks questions]
+  catchphrases: ["This is my path"]
+  avoid_patterns: [self-pity]
+---""")
+
+    # Create 3 major characters
+    for i, name in enumerate(["Chen Weimin", "Zhao Tiezhu", "Chu Yunlan"]):
+        slug = name.lower().replace(" ", "-")
+        (major_dir / f"{slug}.md").write_text(f"# {name}\n\nMajor character profile.")
+
+    # Create 2 minor characters
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"# {name}\n\nMinor character profile.")
+
+    # Create relationships
+    rel = tmp_path / "characters" / "relationships.md"
+    rel.write_text("""| Character A | Character B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor-student |
+| Lin Feng | Zhao Tiezhu | partnership |
+| Lin Feng | Chu Yunlan | alliance |
+""")
+
+    return tmp_path
+
+
+def test_g4_character_design_major_count_pass(project_with_characters: Path):
+    fps = [
+        str(project_with_characters / "characters" / "protagonist.md"),
+        str(project_with_characters / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(project_with_characters))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "PASS"
+
+    # Verify G4.cd.major_chars check exists (threshold raised to >= 3) and passes
+    major_check = None
+    for c in data.get("checks", []):
+        if c.get("id", "") == "G4.cd.major_chars":
+            major_check = c
+            break
+    assert major_check is not None, "G4.cd.major_chars check missing"
+    assert major_check["s"] == "PASS", f"Expected PASS, got {major_check['s']}"
+    assert major_check.get("count", 0) >= 3
+
+
+def test_g4_character_design_minor_count_pass(project_with_characters: Path):
+    fps = [
+        str(project_with_characters / "characters" / "protagonist.md"),
+        str(project_with_characters / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(project_with_characters))
+    import json
+
+    data = json.loads(result)
+
+    # Verify G4.cd.minor_chars check exists (NEW, threshold >= 2) and passes
+    minor_check = None
+    for c in data.get("checks", []):
+        if c.get("id", "") == "G4.cd.minor_chars":
+            minor_check = c
+            break
+    assert minor_check is not None, "G4.cd.minor_chars check missing"
+    assert minor_check["s"] == "PASS", f"Expected PASS, got {minor_check['s']}"
+    assert minor_check.get("count", 0) >= 2
+
+
+def test_g4_character_design_fails_when_too_few_major(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    major_dir.mkdir(parents=True)
+    (tmp_path / "characters" / "minor").mkdir()
+    (major_dir / "only-one.md").write_text("# Only One")
+
+    # No protagonist or relationships needed in fps for this check
+    fps: list[str] = []
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "FAIL"
+    assert any("G4.cd.major_chars" in f for f in data.get("must_fix", []))

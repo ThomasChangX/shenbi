@@ -115,25 +115,44 @@ def g4_character_design(
             else:
                 c.append({"id": "G4.rel.pairs", "s": "PASS", "count": rel_pairs})
 
-        # Check for major character files (SKILL.md Writes: characters/major/*.md)
-        # Genesis mode only creates protagonist.md; expansion creates major chars.
-        major_dir = rp.read("characters/major")
-        if major_dir.exists():
-            major_files = list(major_dir.glob("*.md"))
-            if len(major_files) >= 2:
-                c.append({"id": "G4.cd.major_chars", "s": "PASS", "count": len(major_files)})
-            elif len(major_files) == 1:
-                c.append(
-                    {"id": "G4.cd.major_chars", "s": "WARN", "r": f"need_2_got_{len(major_files)}"}
-                )
-        else:
+    # G4.cd.major_chars (EXISTING -- raise threshold from >=2 to >=3):
+    # characters/major/ must have >= 3 .md files
+    major_dir = rp.read("characters/major")
+    if major_dir.exists():
+        major_files = list(major_dir.glob("*.md"))
+        if len(major_files) >= 3:
             c.append(
                 {
                     "id": "G4.cd.major_chars",
-                    "s": "SKIP",
-                    "r": "no major directory yet (genesis mode)",
+                    "s": "PASS",
+                    "count": len(major_files),
                 }
             )
+        elif len(major_files) >= 1:
+            mf.append(f"G4.cd.major_chars:need_3_got_{len(major_files)}")
+        else:
+            mf.append("G4.cd.major_chars:need_3_got_0")
+    else:
+        mf.append("G4.cd.major_chars:directory_missing")
+
+    # G4.cd.minor_chars (NEW): characters/minor/ must have >= 2 .md files
+    minor_dir = rp.read("characters/minor")
+    if minor_dir.exists():
+        minor_files = list(minor_dir.glob("*.md"))
+        if len(minor_files) >= 2:
+            c.append(
+                {
+                    "id": "G4.cd.minor_chars",
+                    "s": "PASS",
+                    "count": len(minor_files),
+                }
+            )
+        elif len(minor_files) >= 1:
+            mf.append(f"G4.cd.minor_chars:need_2_got_{len(minor_files)}")
+        else:
+            mf.append("G4.cd.minor_chars:need_2_got_0")
+    else:
+        mf.append("G4.cd.minor_chars:directory_missing")
 
     if mf:
         return fail("G4-character-design", c, "scoring", mf)
