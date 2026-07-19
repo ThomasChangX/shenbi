@@ -132,3 +132,36 @@ class TestHookIdRegex:
         plan = "本章回访 P0-4 与 P0-9 两条伏笔。"
         hits = extract_entities_from_plan(idx, plan)
         assert "P0-4" in hits["hooks"]
+
+
+class TestPopulationAssertion:
+    def test_warns_when_rules_file_has_content_but_index_empty(self, tmp_path, capsys):
+        """A rules.md with Chinese-ordinal headings that the OLD regex would
+        miss must NOT silently produce an empty index. After the Task 1 fix
+        this file indexes fine; to test the WARNING path we feed a format no
+        regex matches (``### not-a-rule``).
+        """
+        p = _make_project(tmp_path)
+        (p / "world" / "rules.md").write_text(
+            "# Rules\n\n### not-a-rule-heading\n" + "x" * 200,
+            encoding="utf-8",
+        )
+        idx = build_index(p)
+        assert len(idx.rules) == 0
+        captured = capsys.readouterr()
+        assert "truth_index_empty_rules" in captured.out
+
+    def test_no_warning_when_index_populated(self, tmp_path, capsys):
+        p = _make_project(tmp_path)
+        (p / "world" / "rules.md").write_text("## 规则一：守恒\n" + "正文。" * 50, encoding="utf-8")
+        idx = build_index(p)
+        assert len(idx.rules) == 1
+        captured = capsys.readouterr()
+        assert "truth_index_empty_rules" not in captured.out
+
+    def test_no_warning_when_source_file_absent(self, tmp_path, capsys):
+        """Early-stage project with no rules.md yet — must not warn."""
+        p = _make_project(tmp_path)
+        build_index(p)
+        captured = capsys.readouterr()
+        assert "truth_index_empty_rules" not in captured.out

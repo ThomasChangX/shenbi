@@ -242,12 +242,21 @@ def build_index(project_dir: Path | str) -> TruthIndex:
 
     Missing source directories are treated as empty rather than errors, so an
     early-stage project with only a characters/ dir still yields a valid index.
+
+    After building, emits ``truth_index_empty_*`` warnings when a source file
+    has content but its index bucket is empty — the silent-success-failure
+    signal (spec §3.3).
     """
     project_dir = Path(project_dir)
     idx = TruthIndex()
     _index_characters(project_dir, idx)
     _index_hooks(project_dir, idx)
     _index_rules(project_dir, idx)
+
+    # Silent-success-failure detection (spec §3.3).
+    _warn_if_empty(project_dir / "truth" / "pending_hooks.md", idx.hooks, "hooks")
+    _warn_if_empty(project_dir / "world" / "rules.md", idx.rules, "rules")
+
     log.info(
         "truth_index_built",
         characters=len(idx.characters),
@@ -255,6 +264,26 @@ def build_index(project_dir: Path | str) -> TruthIndex:
         rules=len(idx.rules),
     )
     return idx
+
+
+def _warn_if_empty(source_file: Path, bucket: dict[str, Any], kind: str) -> None:
+    """Log a warning if *source_file* has >100 bytes but *bucket* is empty."""
+    if bucket:
+        return
+    if not source_file.exists():
+        return
+    try:
+        size = source_file.stat().st_size
+    except OSError:
+        return
+    if size > 100:
+        log.warning(
+            f"truth_index_empty_{kind}",
+            file=str(source_file),
+            size=size,
+            msg=f"{source_file.name} exists with content but index extracted "
+            f"zero {kind} — parser format mismatch likely",
+        )
 
 
 def query_index(
