@@ -698,6 +698,25 @@ def cmd_resume(args: argparse.Namespace) -> int:
             # Persist healed values immediately so crash-resume sees them.
             save_state(project_dir, state)
 
+            # Heal emergency shutdown state (spec §3.4): if the pipeline was
+            # interrupted by a crash/SIGTERM, the current_step will be marked
+            # "EMERGENCY_SHUTDOWN_AT_{skill}". Restore the correct step name
+            # from CHAPTER_STEPS so the loop can resume cleanly.
+            cl = state.chapter_loop
+            if cl.current_step and cl.current_step.startswith("EMERGENCY_SHUTDOWN"):
+                from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
+                log.warning(
+                    "resuming_from_emergency_shutdown",
+                    chapter=cl.current_chapter,
+                    step=cl.current_step,
+                )
+                if cl.step_index < len(CHAPTER_STEPS):
+                    cl.current_step = CHAPTER_STEPS[cl.step_index].skill
+                else:
+                    cl.current_step = ""
+                save_state(project_dir, state)
+
             # Truth-integrity check (spec §3.4): verify truth files exist
             # before resuming, so missing files surface immediately rather than
             # on the first step dispatch.

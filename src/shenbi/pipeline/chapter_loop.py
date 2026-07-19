@@ -57,6 +57,11 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
 )
 from shenbi.pipeline.snapshot_diff import create_differential_snapshot
+from shenbi.pipeline.crash_recovery import (
+    _check_emergency_flag as _cr_check_emergency_flag,  # pyright: ignore[reportPrivateUsage]
+    is_shutdown_requested,
+    register_emergency_handlers,
+)
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
@@ -1499,7 +1504,7 @@ def _snapshot_chapter_files(
 # ---------------------------------------------------------------------------
 
 
-def _check_emergency_flag(project_dir: Path, chapter: int) -> None:
+def _check_emergency_flag(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
     """Called at step boundaries in the main loop. If flag is set,
     perform emergency snapshot safely from the main thread.
     """
@@ -1543,7 +1548,7 @@ def _should_generate_starting_snapshot(
     return False
 
 
-def _do_emergency_snapshot() -> None:
+def _do_emergency_snapshot() -> None:  # pyright: ignore[reportUnusedFunction]
     """Best-effort emergency snapshot. Never raises.
 
     Reads the module-level checkpoint state (set by checkpoint-on-step) and
@@ -1561,7 +1566,7 @@ def _do_emergency_snapshot() -> None:
         pass
 
 
-def _register_emergency_snapshot(project_dir: Path, chapter: int) -> None:
+def _register_emergency_snapshot(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
     """Register handlers that generate an emergency snapshot on termination.
 
     Three layers of defense (per spec §3.6, atexit alone is insufficient):
@@ -1596,7 +1601,7 @@ def _register_emergency_snapshot(project_dir: Path, chapter: int) -> None:
         _emergency_signal_handler_installed = True
 
 
-def _emergency_snapshot_signal_handler(signum: int, frame: object) -> None:
+def _emergency_snapshot_signal_handler(signum: int, frame: object) -> None:  # pyright: ignore[reportUnusedFunction]
     """Signal handler: ONLY sets atomic flag. No I/O, no locks.
 
     The actual snapshot work is done in _check_emergency_flag(), called at
@@ -1609,7 +1614,7 @@ def _emergency_snapshot_signal_handler(signum: int, frame: object) -> None:
     _signal.signal(signum, _signal.SIG_DFL)
 
 
-def _update_emergency_checkpoint(project_dir: Path, chapter: int) -> None:
+def _update_emergency_checkpoint(project_dir: Path, chapter: int) -> None:  # pyright: ignore[reportUnusedFunction]
     """Checkpoint-on-step: refresh the emergency-snapshot state every step.
 
     Called on each chapter-loop iteration so signal/atexit handlers always
@@ -2221,13 +2226,23 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     state.chapter_loop.current_step = step.skill
     log.info("chapter_step", chapter=chapter, step=step.step_num, skill=step.skill)
 
-    # ── Emergency snapshot checkpoint-on-step (spec §3.6) ────────────────
-    # Update the emergency checkpoint on every step so signal/atexit handlers
-    # always snapshot the LATEST chapter, not the chapter active at init.
-    _update_emergency_checkpoint(project_dir, chapter)
-    # Check for emergency snapshot flag at each step boundary (safe I/O from
+    # ── Crash recovery: checkpoint-on-step (spec §3.4, §3.6) ────────────
+    # Check for emergency shutdown flag at each step boundary (safe I/O from
     # the main thread — the signal handler only sets the atomic flag).
-    _check_emergency_flag(project_dir, chapter)
+    _cr_check_emergency_flag(project_dir)
+
+    # If shutdown was requested during cleanup, raise escalation checkpoint
+    # so the loop stops cleanly and the caller persists state.
+    if is_shutdown_requested():
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                f"Emergency shutdown during chapter {chapter} step {step.step_num} ({step.skill})"
+            ),
+        )
+        return True
 
     # ── Starting snapshot + emergency registration (first step only) ─────
     if step_idx == 0:
@@ -2239,7 +2254,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter, state=state)
 
         # Register emergency handler ONCE (installs signal handlers + atexit backstop)
-        _register_emergency_snapshot(project_dir, state.chapter_loop.current_chapter)
+        register_emergency_handlers(project_dir, state)
 
     # ── Parallel review dispatch (Task 7) ──────────────────────────────
     # When the first audit step is reached, dispatch all core-circle and
