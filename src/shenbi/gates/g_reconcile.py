@@ -72,8 +72,12 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
                 )
 
     # GR.3 / GR.4 — deferred
-    c.append({"id": "GR.3", "s": "PASS", "note": "cross-file hash check deferred"})
-    c.append({"id": "GR.4", "s": "PASS", "note": "agent trace consistency deferred"})
+    c.append(
+        {"id": "GR.3", "s": "UNIMPLEMENTED", "note": "cross-file hash check not yet implemented"}
+    )
+    c.append(
+        {"id": "GR.4", "s": "UNIMPLEMENTED", "note": "agent trace consistency not yet implemented"}
+    )
     if mf:
         return fail("G_RECONCILE", c, "reconcile", mf)
     return passed("G_RECONCILE", c)

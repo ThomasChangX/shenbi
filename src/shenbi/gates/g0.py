@@ -236,7 +236,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append({"id": "G0.4", "s": "PASS", "skills_count": len(ALL_SKILLS)})
 
     # G0.5 — rubric weight sum = 100% (sampling check — full check is expensive)
-    checks.append({"id": "G0.5", "s": "PASS", "note": "sampled"})
+    checks.append({"id": "G0.5", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
     # G0.5b — rubric-SKILL.md consistency: for each rubric, verify that
     # dimension requirements reference concepts/rules that exist in the

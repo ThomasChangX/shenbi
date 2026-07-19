@@ -106,10 +106,12 @@ def gate_G7(round_dir: str) -> str:
         c.append({"id": "G7.6", "s": "SKIP", "r": "truth/ not found"})
 
     # G7.2 / G7.3 / G7.4 / G7.8 — sampled / deferred
-    c.append({"id": "G7.2", "s": "PASS", "note": "skill-traces check deferred"})
-    c.append({"id": "G7.3", "s": "PASS", "note": "t1-reports check deferred"})
-    c.append({"id": "G7.4", "s": "PASS", "note": "expected outputs sampled"})
-    c.append({"id": "G7.8", "s": "PASS", "note": "gate_blockers check deferred"})
+    c.append({"id": "G7.2", "s": "UNIMPLEMENTED", "note": "skill-traces check not yet implemented"})
+    c.append({"id": "G7.3", "s": "UNIMPLEMENTED", "note": "t1-reports check not yet implemented"})
+    c.append({"id": "G7.4", "s": "UNIMPLEMENTED", "note": "expected outputs not yet implemented"})
+    c.append(
+        {"id": "G7.8", "s": "UNIMPLEMENTED", "note": "gate_blockers check not yet implemented"}
+    )
 
     # G7.13 — Gate re-run verification
     marker_dir = rd / "gate-markers"

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
+from shenbi.contracts.thresholds import TEST_PASS
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
 
@@ -174,7 +175,7 @@ def compute_score(
 
 
 def classify(score: float | int) -> ScoreClassification:
-    if score >= 90:
+    if score >= TEST_PASS:
         return ScoreClassification.PASS_EXCELLENT
     if score >= 75:
         return ScoreClassification.PASS_ACCEPTABLE

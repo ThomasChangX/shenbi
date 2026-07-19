@@ -228,6 +228,6 @@ just pipeline-resume ./novel
 
 Initialization creates `pipeline-state.json`, `novel.json`, `genre-config.json`, and the `genesis-context/` directory. The review command clears the checkpoint block and records the decision.
 
-> **注意：** 自动编排（`next`/`resume`）目前为占位实现，完整生成逻辑将在后续版本落地。状态机、检查点、种子解析等基础层已就绪。
+> **注意：** 自动编排（`next`/`resume`）构建于状态机、检查点和种子解析基础层之上。详见流水线文档了解当前能力和路线图。
 >
-> **Note:** Automated orchestration (`next`/`resume`) is currently a placeholder; full generation logic arrives in a later wave. The state machine, checkpoint, and seed parsing foundation layers are ready.
+> **Note:** Automated orchestration (`next`/`resume`) builds on the state machine, checkpoint, and seed parsing foundation layers. See the pipeline documentation for current capabilities and roadmap.
