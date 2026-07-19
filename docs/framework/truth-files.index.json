@@ -21,6 +21,7 @@
       "shenbi-chapter-revision",
       "shenbi-context-composing",
       "shenbi-drift-guidance",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-track",
       "shenbi-length-normalizing",
       "shenbi-review-anti-ai",
@@ -110,6 +111,7 @@
     "reads": [
       "shenbi-book-spine-init",
       "shenbi-chapter-planning",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-pacing-design",
       "shenbi-plot-thread-weaver",
@@ -181,6 +183,7 @@
       "shenbi-chapter-drafting",
       "shenbi-chapter-revision",
       "shenbi-context-composing",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-review-foreshadowing",
       "shenbi-review-highpoint",
@@ -305,6 +308,7 @@
     "reads": [
       "shenbi-chapter-planning",
       "shenbi-context-composing",
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-foreshadowing-recall",
       "shenbi-foreshadowing-resolve",
@@ -320,6 +324,7 @@
     ],
     "writes": [],
     "updates": [
+      "shenbi-foreshadowing-lifecycle",
       "shenbi-foreshadowing-plant",
       "shenbi-foreshadowing-resolve",
       "shenbi-foreshadowing-track",

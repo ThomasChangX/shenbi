@@ -15,6 +15,9 @@ contract:
       mode: append_dedup
       key: hook_id
 ---
+# DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+# This skill is retained for reference. Do not dispatch.
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)
