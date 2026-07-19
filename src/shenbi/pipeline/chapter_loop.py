@@ -703,6 +703,28 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     return None
 
 
+def _build_resonance_trend_row(chapter: int, overall: int) -> str:
+    """Build a 7-column markdown table row for resonance_trend.md.
+
+    Format MUST match what parse_resonance_scores
+    (src/shenbi/orchestration/escalation_bridge.py:15-17) reads:
+    lines starting with "|", split on "|", requires >=7 cells, reads
+    cells[6] (7th column) as the overall score.
+
+    Only the overall score (cs.resonance_score, an int) is available here;
+    the upstream parser _parse_resonance_score (chapter_loop.py:667) returns
+    int|None with no per-dimension breakdown. Columns without data use "-"
+    placeholders so the column count stays at 7. Key column (cells[0]) is
+    Ch{N} for key-based dedup.
+
+    Column layout (split("|")[1:-1] yields exactly these cells):
+        cells[0] = Ch{N}     (key)
+        cells[1..5] = "-"    (placeholder dimensions)
+        cells[6] = {overall} (7th column — what parse_resonance_scores reads)
+    """
+    return f"| Ch{chapter} | - | - | - | - | - | {overall} |"
+
+
 # ---------------------------------------------------------------------------
 # Adaptive triggering (spec §6.1 steps 9, 19-20 / Phase 4.2)
 # ---------------------------------------------------------------------------
@@ -1436,6 +1458,23 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         )
 
         _route_revision_after_resonance(state, project_dir, chapter)
+
+        # Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML).
+        # _parse_resonance_score (chapter_loop.py:667) already ran and stored the
+        # overall int in cs.resonance_score. Reuse it — do NOT re-parse.
+        overall = cs.resonance_score  # int | None
+        if overall is not None:
+            from shenbi.pipeline.truth_io import write_truth_file
+
+            trend_row = _build_resonance_trend_row(chapter, overall)
+            write_truth_file(
+                project_dir,
+                "resonance_trend.md",
+                trend_row,
+                mode="upsert_markdown_row",
+                key_field="chapter",  # dedup on first column (Ch{N})
+            )
+            log.info("resonance_score_persisted", chapter=chapter, overall=overall)
 
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
