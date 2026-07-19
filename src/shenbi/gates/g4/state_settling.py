@@ -10,6 +10,50 @@ from shenbi.gates.shared import (
     resolve_input_path,
 )
 
+# Known parameter-agent identifiers that must NOT appear in character_matrix
+_PARAMETER_AGENT_NAMES = {"冷", "光", "安静", "缺口", "在场于", "参数", "槽位"}
+
+
+def _validate_character_matrix(
+    content: str,
+    known_parameter_agents: set[str] | None = None,
+) -> list[str]:
+    """Validate that character_matrix.md does not contain parameter agents.
+
+    Parameter agents (冷, 光, 安静, etc.) must be written to
+    ``particle_ledger.md``, not to ``character_matrix.md``.
+
+    Returns:
+        List of issue strings (empty if valid).
+    """
+    agents = known_parameter_agents or _PARAMETER_AGENT_NAMES
+    issues: list[str] = []
+
+    # Only check the content after the frontmatter, excluding the 角色定义 section
+    body = content
+    if "---" in content:
+        parts = content.split("---", 2)
+        if len(parts) >= 3:
+            body = parts[2]
+
+    # Find the 角色定义 section boundaries
+    def_section = ""
+    if "## 角色定义" in body:
+        def_parts = body.split("## 角色定义", 1)
+        if len(def_parts) > 1:
+            def_section = def_parts[1].split("\n## ", 1)[0]
+
+    for agent in agents:
+        if agent in body:
+            # Check if agent appears in per-chapter state sections (not 角色定义)
+            state_sections = body
+            if def_section:
+                state_sections = body.replace(def_section, "")
+            if agent in state_sections:
+                issues.append(f"G4.ss.parameter_agent_in_character_matrix: {agent}")
+
+    return issues
+
 
 def g4_state_settling(
     fps: list[str],
@@ -56,6 +100,12 @@ def g4_state_settling(
                 )
             else:
                 c.append({"id": "G4.ss.characters", "file": fp, "s": "PASS"})
+
+            # G4.ss.parameter_agent_in_character_matrix: prevent parameter agent
+            # names from leaking into character_matrix instead of particle_ledger
+            matrix_issues = _validate_character_matrix(content)
+            if matrix_issues:
+                mf.extend(matrix_issues)
 
         if "chapter_summaries" in str(fp):
             if not re.search(r"#{1,4}\s*第\d+章", content):

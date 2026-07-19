@@ -38,6 +38,62 @@ def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     return hashes
 
 
+def _check_protagonist_presence(
+    text: str,
+    protagonist_names: list[str],
+    threshold: int = 3,
+) -> list[str]:
+    """G4.cd.protagonist_presence: verify protagonist appears >= threshold times.
+
+    Args:
+        text: Chapter prose text.
+        protagonist_names: List of protagonist names/pronouns to search for.
+        threshold: Minimum required occurrences.
+
+    Returns:
+        List of issue strings (empty if check passes).
+    """
+    total = sum(text.count(name) for name in protagonist_names)
+    if total < threshold:
+        return [
+            f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"
+        ]
+    return []
+
+
+def _load_protagonist_names(project_dir: str) -> list[str]:
+    """Load protagonist names from character design files."""
+    names: list[str] = []
+    chars_dir = Path(project_dir) / "characters"
+    if not chars_dir.exists():
+        return ["林烽", "他"]
+    protag = chars_dir / "protagonist.md"
+    if protag.exists():
+        text = protag.read_text(encoding="utf-8")
+        # Try frontmatter name first
+        match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
+        if match:
+            names.append(match.group(1).strip())
+        # Also try YAML frontmatter
+        if text.startswith("---"):
+            parts = text.split("---", 2)
+            if len(parts) >= 3:
+                try:
+                    import yaml as _yaml
+
+                    fm = _yaml.safe_load(parts[1])
+                    if isinstance(fm, dict) and "name" in fm:
+                        names.append(str(fm["name"]))
+                except Exception:
+                    pass
+    if not names:
+        names = ["林烽", "他"]
+    # Always include common pronoun
+    if "他" not in names:
+        names.append("他")
+    return names
+
+
 def g4_chapter_drafting(
     fps: list[str],
     rd: str | None = None,
@@ -198,6 +254,16 @@ def g4_chapter_drafting(
                         mf.append(f"G4.cd.no_hook:{fp}")
                     else:
                         c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": "PASS"})
+
+        # G4.cd.protagonist_presence: protagonist appears >= threshold times
+        protagonist_names = (
+            _load_protagonist_names(str(project_root)) if project_dir else ["林烽", "他"]
+        )
+        protagonist_issues = _check_protagonist_presence(content, protagonist_names)
+        if protagonist_issues:
+            mf.extend(protagonist_issues)
+        else:
+            c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": "PASS"})
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

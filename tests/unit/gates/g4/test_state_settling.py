@@ -127,3 +127,32 @@ def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> Non
     f.write_text("# Ledger\n\n## 粒子账本\n- 粒子甲\n", encoding="utf-8")
     result = _run([str(f)])
     assert any(c["id"] == "G4.ss.particle_ledger" and c["s"] == "PASS" for c in result["checks"])
+
+
+# ── Task 6: Character Matrix Write-Protection ──────────────────────────────
+
+
+@pytest.mark.unit
+def test_state_settling_character_matrix_protection():
+    """state_settling prevents parameter agent names in character_matrix."""
+    from shenbi.gates.g4.state_settling import _validate_character_matrix
+
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+- 陈为民: 配角
+
+## Ch50 State
+- 冷: 参数化存在
+- 光: 格式层出现
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    assert len(issues) > 0
+    assert "parameter_agent" in issues[0].lower()
