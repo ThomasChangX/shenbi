@@ -1086,6 +1086,67 @@ def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
     return cs.audit_results.get(_REVISION_ROUTE_KEY) == RevisionRoute.NO_REVISION.value
 
 
+def _is_revision_routed(route: str | None) -> bool:
+    """Check if a revision route was actually assigned.
+
+    Returns True for any non-None route, including 'no_revision'.
+    """
+    return route is not None
+
+
+def _ensure_revision_decisions_exists(
+    project_dir: Path,
+    chapter: int,
+    state: PipelineState | None = None,
+    log: Any = None,
+) -> None:
+    """Write a minimal revision decisions file if one does not exist.
+
+    The file conforms to DecisionsDoc (extra="forbid"): $schema, skill,
+    chapter, selections, adjustments, produced_at. The skip decision is
+    documented in ``selections`` (not a ``route`` key). This ensures every
+    chapter routed through revision (including no-revision) produces an
+    audit-trail artifact.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+        state: Optional pipeline state for checking revision routing.
+        log: Optional logger for recording fallback writes.
+    """
+    rev_path = project_dir / "chapters" / f"chapter-{chapter}-revision-decisions.json"
+    if rev_path.exists():
+        return
+
+    if state is not None:
+        ch_state = state.chapter_loop.chapter_states.get(str(chapter))
+        route = ch_state.audit_results.get(_REVISION_ROUTE_KEY) if ch_state else None
+        if not _is_revision_routed(route):
+            return  # Chapter was never routed through revision
+
+    from datetime import datetime
+
+    min_decisions = {
+        "$schema": "shenbi-decisions-v1",
+        "skill": "shenbi-chapter-revision",
+        "chapter": chapter,
+        "selections": [
+            {
+                "target": "no_revision_needed",
+                "selected": [],
+                "basis": "arc_relevance",
+                "severity": "low",
+                "omitted": [],
+            }
+        ],
+        "adjustments": [],  # empty = no changes made
+        "produced_at": datetime.now(UTC).isoformat(),
+    }
+    safe_write(rev_path, json.dumps(min_decisions, ensure_ascii=False, indent=2))
+    if log is not None:
+        log.info("revision_decisions_fallback_written", chapter=chapter)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -1226,6 +1287,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         log.info("revision_step_skipped", chapter=chapter)
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
+        _ensure_revision_decisions_exists(project_dir, chapter, state, log)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Adaptive triggering: recall, drift, snapshot run only when data indicates need.
@@ -1479,6 +1541,10 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
     _reset_retries(state, step, chapter)
+
+    # After chapter-revision step succeeds, ensure decisions file exists
+    if "chapter-revision" in step.skill:
+        _ensure_revision_decisions_exists(project_dir, chapter, state, log)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":
