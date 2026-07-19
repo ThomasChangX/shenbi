@@ -200,13 +200,14 @@ class TestGenesisToChapterLoopTransition:
         assert main(["resume", str(seeded_project)]) == 0
 
         state = load_state(seeded_project)
-        # Chapter 1 advanced past step 1 (intent-management) and stopped at
+        # Chapter 1 advanced past step 1 (volume-align, pipeline-internal) and stopped at
         # step 2 (chapter-planning), which raises the chapter-memo checkpoint.
         assert state.chapter_loop.step_index == 2
         assert state.pending_checkpoint.type == CheckpointType.CHAPTER_MEMO
         assert state.pending_checkpoint.chapter == 1
-        # Two chapter-loop steps were dispatched before the checkpoint.
-        assert chapter_loop_succeeds.dispatch.call_count == 2
+        # Only one chapter-loop step was dispatched before the checkpoint
+        # (volume-align is pipeline-internal, not dispatched).
+        assert chapter_loop_succeeds.dispatch.call_count == 1
 
     def test_checkpoint_history_records_genesis_approval(
         self,
