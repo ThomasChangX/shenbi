@@ -20,6 +20,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -70,8 +71,51 @@ _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
 _DEFAULT_MODEL = "deepseek-v4-pro"  # fallback when SHENBI_LLM_MODEL not set
 _IDE_AGENT_TIMEOUT = 900  # seconds for IDE agent subprocess (increased for large prompts)
-_API_MAX_TOKENS = 16384  # max tokens per API call
-_API_TEMPERATURE = 0.7  # default temperature for API calls
+#: Externalised per-skill temperature/max_tokens configuration.
+#: Loaded from executor_config.toml at project root (Spec 6 §5.4).
+
+_executor_config_cache: list[dict[str, Any]] = []
+
+
+def _load_executor_config() -> dict[str, Any]:
+    """Load executor_config.toml, caching in memory."""
+    if _executor_config_cache:
+        return _executor_config_cache[0]
+    config_path = _PROJECT_ROOT / "executor_config.toml"
+    if config_path.exists():
+        with open(config_path, "rb") as f:
+            _executor_config_cache.append(tomllib.load(f))
+    else:
+        _executor_config_cache.append({})
+    return _executor_config_cache[0]
+
+
+def _get_skill_temperature(skill_name: str) -> float:
+    """Get temperature for a skill from executor_config.toml."""
+    config = _load_executor_config()
+    overrides = config.get("overrides", {})
+    if skill_name in overrides:
+        return float(
+            overrides[skill_name].get(
+                "temperature", config.get("default", {}).get("temperature", 0.7)
+            )
+        )
+    return float(config.get("default", {}).get("temperature", 0.7))
+
+
+def _get_skill_max_tokens(skill_name: str) -> int:
+    """Get max_tokens for a skill from executor_config.toml."""
+    config = _load_executor_config()
+    overrides = config.get("overrides", {})
+    if skill_name in overrides:
+        return int(
+            overrides[skill_name].get(
+                "max_tokens", config.get("default", {}).get("max_tokens", 16384)
+            )
+        )
+    return int(config.get("default", {}).get("max_tokens", 16384))
+
+
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
@@ -1115,6 +1159,39 @@ def _is_retryable(exception: BaseException) -> bool:
     return False
 
 
+def _call_llm_streaming(
+    client: Any,
+    model: str,
+    messages: list[dict[str, str]],
+    early_stop_patterns: list[str] | None = None,
+    **kwargs: Any,
+) -> tuple[str, str | None]:
+    """Stream LLM response with optional early-stop patterns.
+
+    Returns (collected_text, stop_reason) where stop_reason is None for
+    normal completion or a description string for early termination.
+    """
+    collected: list[str] = []
+    stop_reason: str | None = None
+    stream = client.chat.completions.create(model=model, messages=messages, stream=True, **kwargs)
+    for chunk in stream:
+        if chunk.choices and chunk.choices[0].delta.content:
+            delta = chunk.choices[0].delta.content
+            collected.append(delta)
+            if early_stop_patterns:
+                text_so_far = "".join(collected)
+                for pat in early_stop_patterns:
+                    if pat in text_so_far:
+                        stop_reason = f"early_stop: matched '{pat[:30]}'"
+                        break
+                if stop_reason:
+                    break
+    result = "".join(collected)
+    if stop_reason:
+        log.info("streaming_early_stop", reason=stop_reason)
+    return result, stop_reason
+
+
 @retry(  # type: ignore[untyped-decorator]
     stop=stop_after_attempt(3),
     wait=wait_exponential_jitter(initial=1, max=30),
@@ -1125,15 +1202,25 @@ def _is_retryable(exception: BaseException) -> bool:
         exception=str(retry_state.outcome.exception()) if retry_state.outcome else "unknown",
     ),
 )
-def _call_llm_with_retry(
-    client: Any, model: str, messages: list[dict[str, str]], **kwargs: Any
-) -> Any:
-    """Call LLM API with exponential backoff retry on transient failures.
+def _call_llm_streaming_with_retry(
+    client: Any,
+    model: str,
+    messages: list[dict[str, str]],
+    early_stop_patterns: list[str] | None = None,
+    **kwargs: Any,
+) -> tuple[str, str | None]:
+    """Stream LLM response with retry on transient failures.
 
     Retries: 429 (rate limit), 5xx (server errors), timeouts.
     Does NOT retry: 400, 401, 403 (client errors).
     """
-    return client.chat.completions.create(model=model, messages=messages, **kwargs)
+    return _call_llm_streaming(
+        client,
+        model,
+        messages,
+        early_stop_patterns=early_stop_patterns,
+        **kwargs,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1185,47 +1272,26 @@ def _dispatch_via_api(
     warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
 
     try:
-        response = _call_llm_with_retry(
+        output_text, stop_reason = _call_llm_streaming_with_retry(
             client,
             model,
             [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperature=_API_TEMPERATURE,
-            max_tokens=_API_MAX_TOKENS,
-            response_format={"type": "json_object"},
+            temperature=_get_skill_temperature(skill),
+            max_tokens=_get_skill_max_tokens(skill),
         )
     except Exception as exc:
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
-    output_text = response.choices[0].message.content or ""
     log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
+    if stop_reason:
+        log.info("api_dispatch_early_stop", skill=skill, stop_reason=stop_reason)
 
-    # Capture response.usage (spec §3.1): persist to cost ledger.
-    # Defensive: some OpenAI-compatible endpoints omit usage.
-    usage_obj = getattr(response, "usage", None)
-    if usage_obj is not None:
-        usage = {
-            "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
-            "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
-            "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
-        }
-        log.info(
-            "llm_token_usage",
-            skill=skill,
-            chapter=chapter,
-            model=model,
-            **usage,
-        )
-        try:
-            from shenbi.cost.ledger import TokenLedger
-
-            TokenLedger(project_dir).record(skill, chapter or 0, usage, model=model)
-        except Exception as exc:
-            # Cost accounting must NEVER break a dispatch.
-            log.warning("ledger_record_failed", skill=skill, error=str(exc))
+    # Token usage is not available via streaming; cost estimation uses
+    # the pre-flight heuristic (warn_if_over_budget above) instead.
 
     try:
         output = _parse_structured_output(output_text)
