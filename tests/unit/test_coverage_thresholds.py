@@ -20,7 +20,7 @@ import pytest
 
 COVERAGE_XML = Path(__file__).resolve().parent.parent / "coverage" / "coverage.xml"
 
-BRANCH_THRESHOLD_PCT = 78
+BRANCH_THRESHOLD_PCT = 79
 
 
 @pytest.mark.last
