@@ -687,7 +687,7 @@ def _advance(
         cfg = state.config
         if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
             # Auto mode: commit staging immediately since no human review
-            from shenbi.pipeline.checkpoint import commit_staging
+            from shenbi.pipeline.checkpoint import commit_staging, clear_staging
 
             target = resolve_chapter_path(step.output_path, chapter)
             try:
@@ -695,11 +695,12 @@ def _advance(
                 log.info("staging_auto_committed", chapter=chapter, target=target)
             except FileNotFoundError:
                 log.warning("staging_auto_commit_skipped_no_file", chapter=chapter, target=target)
+            clear_staging(project_dir)  # Fix: clean staging after auto-commit
             # Fall through to chapter-completion check (no checkpoint raised)
         elif (
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
-            from shenbi.pipeline.checkpoint import STAGING_DIR
+            from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
@@ -714,6 +715,7 @@ def _advance(
                 )
             else:
                 log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
+            clear_staging(project_dir)  # Fix: clean staging after auto-commit
             # Fall through to chapter-completion check (no checkpoint raised)
         else:
             artifact = (
