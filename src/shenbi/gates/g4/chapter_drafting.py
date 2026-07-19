@@ -22,17 +22,36 @@ log = get_logger(__name__)
 
 
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
-    """G4.cd.hook_fulfillment: Verify plan hooks are fulfilled in chapter.
+    """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
-    Stub: returns empty list. Full implementation is tracked by Task 3 (W3T6).
+    Extracts hook IDs from plan Section 7 (Hook Ledger) and searches
+    for their presence in the chapter prose.
 
     Args:
         plan_path: Path to the chapter plan markdown file.
         chapter_path: Path to the chapter markdown file.
 
     Returns:
-        List of issue strings (empty for now).
+        List of issue strings. Empty if all hooks are fulfilled or plan
+        is missing/has no hooks.
     """
+    if not plan_path.exists():
+        return []
+
+    plan_text = plan_path.read_text(encoding="utf-8")
+    chapter_text = chapter_path.read_text(encoding="utf-8")
+
+    # Extract hook IDs from plan -- match patterns like MH-003, CP-012, etc.
+    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", plan_text))
+    # Extract hook IDs from chapter body
+    chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
+
+    missing = plan_hooks - chapter_hooks
+    if missing:
+        return [
+            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+            f"but none found in chapter body"
+        ]
     return []
 
 
