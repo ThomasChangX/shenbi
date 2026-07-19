@@ -10,7 +10,9 @@ contract:
     - {file: outline/volume_map.md, fields: [cross-volume bridges]}
   writes: []
   updates:
-    - truth/pending_hooks.md
+    - file: truth/pending_hooks.md
+      mode: append_dedup
+      key: hook_id
 ---
 <!-- AUTO-CHECK-START -->
 
