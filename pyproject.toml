@@ -45,6 +45,7 @@ dev = [
     "git-cliff>=2.4.0",
     "types-PyYAML>=6.0.12",
     "sentence-transformers>=3.0.0",
+    "setuptools>=81.0.0",
 ]
 docs = [
     "mkdocs>=1.5.3",

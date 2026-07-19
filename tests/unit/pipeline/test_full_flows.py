@@ -32,7 +32,10 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from shenbi.pipeline.cli import main
+from shenbi.pipeline.crash_recovery import reset_emergency_state
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.error_handler import (
     handle_dispatch_failure,
@@ -50,6 +53,12 @@ from shenbi.pipeline.triggers import check_triggers
 
 # Every dispatched step passes G4; closure steps 4/8 additionally pass G3.
 _GATE_PASS = {"status": "PASS"}
+
+
+@pytest.fixture(autouse=True)
+def _reset_crash_state():
+    """Prevent cross-test contamination of module-level emergency globals under xdist."""
+    reset_emergency_state()
 
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,23 @@ _emergency_flag = False
 _emergency_state: dict[str, Any] = {}
 
 
+def reset_emergency_state() -> None:
+    """Reset all module-level emergency state to defaults.
+
+    Tests that interact with signal handlers or shutdown flags MUST call
+    this (usually via an autouse fixture) to prevent cross-test contamination
+    under xdist, where workers share module-level globals across test modules.
+    """
+    global _shutdown_requested, _emergency_flag  # noqa: PLW0603
+    _shutdown_requested = False
+    _emergency_flag = False
+    _emergency_state.clear()
+    # Restore default signal disposition so a second SIGTERM kills immediately,
+    # and remove any atexit hooks registered by earlier tests.
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
 def is_shutdown_requested() -> bool:
     """Check if emergency shutdown has been requested.
 

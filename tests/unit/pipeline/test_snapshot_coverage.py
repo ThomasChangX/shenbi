@@ -3,6 +3,8 @@
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from shenbi.pipeline.chapter_loop import (
     _get_core_snapshot_files,
     _has_minimum_chinese_chars,
@@ -11,8 +13,15 @@ from shenbi.pipeline.crash_recovery import (
     _snapshot_chapter_files,
     is_shutdown_requested,
     register_emergency_handlers,
+    reset_emergency_state,
 )
 from shenbi.pipeline.state import PipelineState
+
+
+@pytest.fixture(autouse=True)
+def _reset_crash_state():
+    """Prevent cross-test contamination of module-level emergency globals under xdist."""
+    reset_emergency_state()
 
 
 class TestRegisterEmergencyHandlers:

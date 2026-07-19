@@ -33,6 +33,10 @@ uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
 echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
+# 4b. Security audit (ci.yml security workflow)
+echo "--- pip-audit ---"
+uv run pip-audit
+
 # 5. Tests (ci.yml step 10)
 # --dist loadscope groups tests by module so ThreadPoolExecutor tests
 # don't interfere across modules. --timeout prevents indefinite hangs.
@@ -54,12 +58,12 @@ fi
 echo "--- pytest coverage threshold ---"
 uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
 
-# 6. Contract sync idempotency (ci.yml contract-sync job)
+# 8. Contract sync idempotency (ci.yml contract-sync job)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
 git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
 
-# 8. Auto-check docs idempotency
+# 9. Auto-check docs idempotency
 echo "--- autocheck-docs idempotency ---"
 uv run python tools/generate_autocheck_docs.py >/dev/null
 git diff --exit-code -- skills/

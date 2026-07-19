@@ -23,12 +23,19 @@ from shenbi.pipeline.chapter_loop import (
     CHAPTER_STEPS,
     run_chapter_step,
 )
+from shenbi.pipeline.crash_recovery import reset_emergency_state
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.revision_router import RevisionRoute
 from shenbi.pipeline.state import (
     CheckpointType,
     PipelineState,
 )
+
+
+@pytest.fixture(autouse=True)
+def _reset_crash_state():
+    """Prevent cross-test contamination of module-level emergency globals under xdist."""
+    reset_emergency_state()
 
 
 # ---------------------------------------------------------------------------
