@@ -1556,6 +1556,18 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     cs = _get_chapter_state(state, chapter)
     cs.audit_results[_REVISION_ROUTE_KEY] = route.value
 
+    # Wire revision_count (spec §3.2): increment only on an actual revision
+    # route, not on NO_REVISION. Previously this was missing entirely, leaving
+    # revision_count at 0 for all chapters.
+    if route != RevisionRoute.NO_REVISION:
+        cs.revision_count += 1
+        log.info(
+            "revision_count_incremented",
+            chapter=chapter,
+            route=route.value,
+            revision_count=cs.revision_count,
+        )
+
     # Resonance floor check (spec §6.3). Full borderline/escalation handling
     # is deferred pending chapter_role calibration (Wave 4+); for now a
     # below-floor score with no audit issues is logged so it is visible.
