@@ -124,6 +124,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "skills/**/*.md" = ["ALL"]
+"tools/audit-skill-descriptions.py" = ["N999"]
 # P-1.A: legacy code in tests/*.py has many style violations.
 # PR-12 (P-1.D) will refactor these files and remove the ignores.
 "tests/*.py" = [
