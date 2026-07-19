@@ -3,6 +3,8 @@ import json
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from shenbi.gates.gate_manifest import (
     GATE_MANIFEST_FILENAME,
     get_gate_result,
@@ -10,6 +12,7 @@ from shenbi.gates.gate_manifest import (
 )
 
 
+@pytest.mark.last
 def test_record_and_retrieve_gate_result():
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
