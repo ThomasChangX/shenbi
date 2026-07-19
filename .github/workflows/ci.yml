@@ -12,9 +12,9 @@ jobs:
   quality:
     runs-on: ${{ matrix.os }}
     strategy:
-      # PR: fail fast to cancel sibling jobs on failure (save billable
-      # minutes). push(main): full visibility, no early cancel.
-      fail-fast: ${{ github.event_name == 'pull_request' }}
+      # PR: allow independent completion so macOS infra timeouts don't cancel ubuntu.
+      # push(main): full visibility, no early cancel.
+      fail-fast: false
       matrix:
         # Windows removed — defensive support, not a target platform.
         # See .github/workflows/nightly.yml windows-smoke for fallback
