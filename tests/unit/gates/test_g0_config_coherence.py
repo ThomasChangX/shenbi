@@ -77,12 +77,30 @@ class TestG0Integration:
             project_dir,
             {"texture": False, "antiAi": True, "continuity": True},
         )
-        # Force gate_G0 to treat tmp_path as the repo root (PROJECT).
-        import sys
+
+        # --- Build a minimal project skeleton inside tmp_path so every G0
+        # sub-check passes (or skips cleanly) and we reach the G0.cc block. ---
+        import hashlib
+
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        fixtures_dir = tests_dir / "fixtures"
+        fixtures_dir.mkdir()
+        (tests_dir / "tiers").mkdir()
+        deps = {"_calibration_hashes": {"combined": hashlib.sha256(b"").hexdigest()}}
+        (tests_dir / "tiers" / "deps.json").write_text(json.dumps(deps), encoding="utf-8")
 
         from shenbi.gates import g0 as g0mod
 
-        monkeypatch.setattr(sys.modules["shenbi.gates.shared"], "PROJECT", tmp_path)
+        monkeypatch.setattr(g0mod, "PROJECT", tmp_path)
+        monkeypatch.setattr(g0mod, "SKILLS", skills_dir)
+        monkeypatch.setattr(g0mod, "TESTS", tests_dir)
+        monkeypatch.setattr(g0mod, "FIXTURES", fixtures_dir)
+        monkeypatch.setattr(g0mod, "ALL_SKILLS", [])
+        monkeypatch.setattr(g0mod, "G4_CHECKER_SKILLS", set())
+
         # Run with a seed file so gate_G0 does not short-circuit at G0.1.
         seed = tmp_path / "seed.md"
         seed.write_text("目标字数：300000\n", encoding="utf-8")
