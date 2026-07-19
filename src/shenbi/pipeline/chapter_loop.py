@@ -664,7 +664,7 @@ def _handle_failure(
 
 
 def _record_step_done(state: PipelineState, step: ChapterStep, chapter: int) -> None:
-    """Append the skill to the chapter's steps_done list."""
+    """Append the skill to the chapter's steps_done list and emit MARK_DONE trace event."""
     key = str(chapter)
     cs = state.chapter_loop.chapter_states.get(key)
     if cs is None:
@@ -673,10 +673,110 @@ def _record_step_done(state: PipelineState, step: ChapterStep, chapter: int) -> 
     if step.skill not in cs.steps_done:
         cs.steps_done.append(step.skill)
 
+    # Emit MARK_DONE trace event for progress tracking (spec §2.7).
+    # The progress.json view is derived from trace events; without this,
+    # progress.json stays frozen at the last manual update.
+    try:
+        from datetime import datetime
+
+        from shenbi.trace.writer import TraceWriter
+
+        round_dir = Path(state.project_dir) / "trace"
+        round_dir.mkdir(parents=True, exist_ok=True)
+        writer = TraceWriter(round_dir)
+        writer.append(
+            actor="pipeline",
+            actor_role="SYSTEM",
+            action="MARK_DONE",
+            target=f"chapter-{chapter}",
+            skill=step.skill,
+            payload={
+                "chapter": chapter,
+                "skill": step.skill,
+                "test_type": "generative",
+                "status": "done",
+                "timestamp": datetime.now(UTC).isoformat(),
+            },
+        )
+    except Exception:
+        log.warning(
+            "mark_done_event_failed",
+            skill=step.skill,
+            chapter=chapter,
+            exc_info=True,
+        )
+
 
 def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
     """Clear retry count after a successful step."""
     state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
+
+
+# ---------------------------------------------------------------------------
+# Progress materialization from trace (Task 12: MARK_DONE events)
+# ---------------------------------------------------------------------------
+
+
+def _maybe_materialize_progress(state: PipelineState, chapter: int) -> None:
+    """Materialize progress.json from trace events every 5 steps.
+
+    The progress.json view is derived from trace events (spec §2.7). Without
+    periodic materialization, progress.json stays frozen at the last manual
+    update, even though trace events record every MARK_DONE.
+    """
+    steps_done = len(state.chapter_loop.chapter_states.get(str(chapter), ChapterState()).steps_done)
+    if steps_done % 5 == 0:
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(Path(state.project_dir), total_skills=total_skills)
+        except Exception:
+            pass  # Materialization is best-effort; failures should not block the pipeline.
+
+
+def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume via local import
+    """Rebuild progress.json if trace events exist but progress is stale.
+
+    Called on pipeline resume. Checks:
+    1. If progress.json is missing but trace events exist, rebuild it.
+    2. If trace events are newer than progress.json, rebuild it (stale).
+
+    This self-heals progress.json after crashes or if the process was killed
+    before materialization could run.
+    """
+    progress_path = project_dir / "progress.json"
+    trace_dir = project_dir / "trace"
+
+    if not trace_dir.exists():
+        return
+
+    trace_events = list(trace_dir.glob("*.jsonl"))
+    if not trace_events:
+        return
+
+    if not progress_path.exists():
+        log.info("auto_rebuilding_progress_from_trace")
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(project_dir, total_skills=total_skills)
+        except Exception:
+            log.warning("auto_rebuild_progress_failed", exc_info=True)
+        return
+
+    # Check staleness: trace has newer events than progress.json
+    trace_mtime = max(p.stat().st_mtime for p in trace_events)
+    if trace_mtime > progress_path.stat().st_mtime:
+        log.info("progress_stale_rebuilding_from_trace")
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(project_dir, total_skills=total_skills)
+        except Exception:
+            log.warning("auto_rebuild_progress_failed", exc_info=True)
 
 
 # ---------------------------------------------------------------------------
@@ -2858,6 +2958,9 @@ def _run_chapter_step_impl(
     # Success: record, reset retries, advance.
     _record_step_done(state, step, chapter)
     _reset_retries(state, step, chapter)
+
+    # Materialize progress.json from trace every 5 steps (Task 12).
+    _maybe_materialize_progress(state, chapter)
 
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
