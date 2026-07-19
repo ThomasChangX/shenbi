@@ -17,6 +17,7 @@ from typing import Any
 
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill
+from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 
 log = get_logger(__name__)
 
@@ -125,6 +126,25 @@ def _dispatch_with_retry(
     return DispatchResult(False, -1, "", f"All {MAX_RETRIES} retries exhausted")
 
 
+def assert_parallelizable(tasks: list[ReviewTask]) -> None:
+    """Verify every task's skill is safe to run concurrently (spec §3.4).
+
+    Raises ValueError listing any task whose skill is not READ_ONLY_AUDIT.
+    Called before threads are spawned so a write-shared skill can never
+    reach the concurrent path.
+    """
+    unsafe = [
+        f"{t.skill}={classify_skill_write_safety(t.skill).value}"
+        for t in tasks
+        if classify_skill_write_safety(t.skill) != WriteSafety.READ_ONLY_AUDIT
+    ]
+    if unsafe:
+        raise ValueError(
+            "refusing to parallelize non-read-only skills (WRITE_SHARED/"
+            f"WRITE_ISOLATED must run serially per spec §3.4): {unsafe}"
+        )
+
+
 def dispatch_reviews_parallel(
     tasks: list[ReviewTask],
 ) -> list[DispatchResult]:
@@ -141,6 +161,7 @@ def dispatch_reviews_parallel(
     """
     if not tasks:
         return []
+    assert_parallelizable(tasks)  # spec §3.4 — never parallelize write-capable skills
 
     semaphore = Semaphore(MAX_CONCURRENT_REVIEWS)
     results: dict[int, DispatchResult] = {}
