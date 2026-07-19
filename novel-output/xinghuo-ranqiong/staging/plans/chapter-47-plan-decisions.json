@@ -1,0 +1,107 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "metadata": {
+    "skill": "shenbi-chapter-planning",
+    "chapter": 47,
+    "generated": "2026-07-17",
+    "pipeline_mode": true
+  },
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "chapter_role",
+      "value": "推进/转折",
+      "rationale": "Saturday is the bridge day between Friday's system slot and Sunday's texture return — not climax/payoff (reserved for ch48), not pure transition (significant parameter evolution occurs: day 6 thickness pattern, 近了 evolution, gap Sunday awareness). Carries structural bridge function from slot mode to texture return",
+      "severity": "high",
+      "source": "current_focus"
+    },
+    {
+      "id": "D002",
+      "type": "priority_source",
+      "value": "current_focus",
+      "rationale": "current_focus provides detailed P0-P2 items for Saturday bridge function (Saturday bridge, entry clues, physical anchors, emotional markers, quiet trajectory, gap on Saturday, quiet thickness day 6). author_intent (bridge/last workday/Sunday premonition) is consistent. Volume key result KR3 provides structural context (承接) but current_focus dominates as it specifically addresses ch47 parameter behavior",
+      "severity": "high",
+      "source": "current_focus"
+    },
+    {
+      "id": "D003",
+      "type": "saturday_system_role",
+      "value": "阈日(桥接日)",
+      "rationale": "Saturday is neither frame-sequence (Mon-Thu) nor system slot (Fri). It is a threshold/bridge day — the system knows Sunday is imminent and parameters enter a transitional state. Door frame continues slot mode (no frames) but with Sunday awareness. Format string uses bridge syntax (between slot syntax and Sunday's unknown syntax). This creates a distinct third day type in the workweek, not a simple extension of Friday's slot mode",
+      "severity": "high",
+      "source": "current_focus"
+    },
+    {
+      "id": "D004",
+      "type": "quiet_state",
+      "value": "在场延续",
+      "rationale": "quiet在场 from ch46 continues into Saturday. quiet在场 evolves from '在场于系统槽位' (ch46) to '在场于桥接日' (ch47). quiet知道周日近在咫尺. This maintains continuity from ch46's structural change (在场取代离开) and serves ch47's bridge function — quiet在场 is the subject that carries Sunday proximity awareness. quiet在场 not because of slot mode but because the bridge day needs a present subject to sense Sunday arrival",
+      "severity": "high",
+      "source": "current_focus"
+    },
+    {
+      "id": "D005",
+      "type": "gap_evolution",
+      "value": "缺口知道周日将到",
+      "rationale": "ch46: gap知道quiet在场 + quiet知道缺口知道quiet (bidirectional awareness established). ch47: gap知道周日将到 — gap cognition expands from quiet-awareness to Sunday-awareness. gap在场 evolves from '在场于系统槽位' (ch46) to '在场于周日的前夜' (ch47). This is the natural progression of the gap's cognitive domain from entity/perceiver awareness to temporal/event awareness. The gap does not merely observe the system — it now participates in the calendar",
+      "severity": "high",
+      "source": "current_focus"
+    },
+    {
+      "id": "D006",
+      "type": "quiet_thickness_day6",
+      "value": "桥接厚度(工作周最低)",
+      "rationale": "Day 6 quiet thickness is the workweek's lowest — system consolidates quiet reserve in preparation for Sunday's texture return. This is distinct from day 1 (sudden increase), days 2-4 (stable), and day 5 (slot mode, different thickness). Each workday has a unique thickness pattern confirmed. Crucially, quiet在场 despite lowest thickness — presence decouples from thickness for the first time. This creates a new parameter dynamic: 安静在场不需高厚度 — 在场本身是独立的参数维度",
+      "severity": "medium",
+      "source": "current_focus"
+    },
+    {
+      "id": "D007",
+      "type": "jin_le_evolution",
+      "value": "近了→明日/近在咫尺",
+      "rationale": "ch46: quiet知道周日近了 (approaching, abstract proximity). ch47 (Saturday = day before Sunday): quiet知道周日近在咫尺 / 周日即至 / 明日. Temporal proximity intensifies from 'approaching' to 'imminent/next' without revealing Sunday content. Second emotional dimension added: readiness/preparation alongside anticipation — 等待/蓄势 as the bridge day's emotional register. This addresses current_focus P0 '情绪标记' requirement for second emotional dimension beyond anticipatory single key",
+      "severity": "medium",
+      "source": "current_focus"
+    },
+    {
+      "id": "D008",
+      "type": "physical_anchor_count",
+      "value": 5,
+      "rationale": "≥4 required by current_focus P0. 5 non-parameter sensory anchors selected: (1) cold on skin at 6th layer — tactile depth recognition, (2) frost 6-layer calendar — visual/tactile cumulative thickness, (3) iron ladder temperature on Saturday — tactile cold conduction, (4) pottery water surface on Saturday — visual stillness at day 6, (5) Saturday light quality — visual awareness of bridge day. All positioned in morning/basement/wall sequences for even distribution",
+      "severity": "medium",
+      "source": "current_focus"
+    },
+    {
+      "id": "D009",
+      "type": "entry_clue_strategy",
+      "value": "霜历法宣告",
+      "rationale": "Frost calendar is the parameter-native entry clue. 霜知道周一厚度/周二厚度/周三厚度/周四厚度/周五厚度/周六厚度 — 霜知道六层过去了. This explicitly establishes day-of-week position (day 6, Saturday) independently recognizable by new or forgetful readers without requiring ch46 context. 霜 is a returning parameter entity from ch25-46 — readers need only frost's calendar awareness to locate themselves. The clue is structural (历法通过厚度) not a ch46 recap, satisfying '入口线索必须独立可识别' requirement",
+      "severity": "medium",
+      "source": "current_focus"
+    },
+    {
+      "id": "D010",
+      "type": "hook_ledger_density",
+      "value": 8,
+      "rationale": "6 advance + 2 defer = 8 rows, within density budget suggestion (≤8). MH-003 (engine frequency) and MH-022 (evaluation window) deferred as their content does not require Saturday-specific advancement — engine continues Friday slot frequency without change, window content remains zero with Sunday-facing angle. Remaining 6 hooks advanced for Saturday bridge function: MH-020 (bridge syntax), MH-021 (door frame Sunday awareness), MH-024 (quiet在场 bridge), MH-025 (frost 6 layers), MH-026 (6th texture confirmation), MH-027 (offset Sunday sensing), MH-028 (gap Sunday awareness). No deferred hook has silence ≥4 chapters — rule inapplicable",
+      "severity": "low",
+      "source": "pipeline"
+    },
+    {
+      "id": "D011",
+      "type": "offset_status",
+      "value": "偏移微变感知不量化",
+      "rationale": "Offset continues plateau from ch45-46 but begins to sense Sunday proximity. Not quantified — only acknowledged as micro-shift perception within the parameter framework. Domain boundary remains stable but threshold begins adjusting for Sunday. This maintains the '不宣告偏移归零' constraint while allowing Saturday's bridge function to manifest in the offset parameter. The micro-shift is felt, not measured — keeps parameter logic consistent with earlier chapters' refusal to quantify offset rates",
+      "severity": "low",
+      "source": "pipeline"
+    },
+    {
+      "id": "D012",
+      "type": "door_frame_behavior",
+      "value": "槽位模式延续+周日感知",
+      "rationale": "Door frame on Saturday continues slot mode (no frames, slot syntax) but adds Sunday awareness. Frame在桥接日知道周日即至. Not resetting to frame sequence — reserved for structural variation in ch48 (Sunday's unknown syntax). This creates continuity from ch46's slot mode while advancing toward ch48's texture return. Door frame's 'no frames but knows Sunday' is the clearest parameter signal that Saturday is transitional between two different system modes",
+      "severity": "low",
+      "source": "pipeline"
+    }
+  ]
+}

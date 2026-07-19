@@ -1,0 +1,53 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 23,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "plan.basis",
+      "selected": ["三次线交汇", "评估倒计时背景化", "门框第七天稳定性", "MH-020环境变量调制", "非认知型回报"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_001_olfactory",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "嗅觉锚点自然嵌入焦炭渣过道段+晨醒地下室段，不增加独立场景"
+    },
+    {
+      "issue_id": "drift_002_cognitive_reward_chain",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "检查站行为模式变化作为非认知型回报，登记不分析，打破3章全认知模式"
+    },
+    {
+      "issue_id": "drift_003_parameter_density",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "引擎声体感定位替代参数测量值，降低分析框架密度"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+Ch23 — "域" — complete. Key deliverables:
+
+**Chapter content**: The convergence chapter. Three lines (MH-021 doorframe day 7, MH-020 format string operability, MH-003 engine rhythm) overlap in the same walking segment at the triangle space→old cement road transition — with the body straddling two materials as the spatial anchor. No analytical marking. Lin Feng does not notice the convergence.
+
+**P0 achievements**: Three-line positional convergence executed / Assessment countdown backgrounded from behavioral encoding to walking-parameter default / Doorframe day 7 stability verified (plateau day 4, perception frame now baseline → ~2 breaths)
+
+**P1 milestones**: Non-cognitive reward (checkpoint behavior pattern change — static→moving shift, registered not analyzed) / MH-020 environmental modulation revealed (openness as dimension 1, ambient humidity as dimension 2) / MH-003 rhythm morphology confirmed in the convergence field / MH-001 Phase 2 maintained (condensation absent due to conditions, not triggered)
+
+**Audit drift fixes**: Olfactory anchors (basement composite air + coke-ash saturated ground) / Non-cognitive reward breaking the 3-chapter cognitive-only chain / Non-parameterized sensory frame (engine sound as spatial-field presence rather than measurement)
+
+**Constraints honored**: No analytical convergence / no checkpoint convergence / no meaning assigned / no non-cognitive reward followed by analysis / no new characters/settings/range / no assessment "decision stage" / no "感到/意识到/似乎/仿佛" / no "好转/变好了/安全了"

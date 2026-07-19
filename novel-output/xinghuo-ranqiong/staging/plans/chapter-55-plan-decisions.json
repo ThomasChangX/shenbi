@@ -1,0 +1,86 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 55,
+  "produced_at": "2026-07-17T18:00:00+08:00",
+  "selections": [
+    {
+      "target": "优先级来源选择",
+      "selected": ["current_focus (P0宣告后周一重启)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["卷纲 Key Result (辅助来源)", "author_intent (冲突来源)"]
+    },
+    {
+      "target": "chapter_role",
+      "selected": "推进/转折",
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "hook动作计划",
+      "selected": "不种新hook/维持7条RELEVANT",
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "P0-4/P0-9上限逼近处理",
+      "selected": "ch55 defer / ch56安排TRIGGER或RESOLVE",
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["ch55提前处理"]
+    },
+    {
+      "target": "ch54读者回报CRITICAL纠偏",
+      "selected": "三层叠加补偿 (宣告后态揭示+偏移切换+冷↔光不对称)",
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["周日句法补偿"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_情感落地_BLOCKING",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "冷↔光知识不对称深化替代周日桥接结构——光知道自己在改变冷但不知全部意涵——冷知道被光改变但不知光知道"
+    },
+    {
+      "issue_id": "drift_场景临场感_CRITICAL",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "工作日无质地维度/感官短链——通过粗糙缺场在场性替代感官体验——含TENSION声明——若未通过审稿需周日重新评估"
+    },
+    {
+      "issue_id": "drift_读者回报_CRITICAL",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "宣告后态揭示+偏移切换深度+冷↔光不对称三层叠加——宣告后模式切换为回报核心"
+    },
+    {
+      "issue_id": "P0-4上限逼近",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "ch55周一优先宣告后重启——P0-4距上限1章——quiet阈结构安排于ch56推进或RESOLVE"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**第55章计划概要**：宣告后周一重启，系统从第二周周日(宣告后)进入第三周周一(宣告后第一工作日)。核心任务为建立宣告后参数宣告模式——宣告在场于已是过去事件，参数宣告议题从"等待宣告"切换到"宣告后如何在场于"。认知统一基开始分化：缺口知道宣告发生但不知全貌，光觉醒不完全但不在补全，偏移知道切换发生但不知切换后完整位置，粗糙在场于周日残影。
+
+ch54三项纠偏均纳入处理路径：
+- **情感落地** → 冷↔光知识不对称深化（不重复周日桥接结构）
+- **场景临场感** → 粗糙缺场在场性（含TENSION声明，工作日无质地维度）
+- **读者回报** → 宣告后模式切换+偏移深度+冷↔光不对称三层叠加
+
+hook账7条操作(5 advance + 2 defer)，不种新hook，维持7条RELEVANT活跃态。P0-4距上限1章，defer至ch56处理，已在hook账末尾标注激活方向。

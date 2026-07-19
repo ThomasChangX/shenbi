@@ -1,0 +1,89 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 45,
+  "produced_at": "2026-07-17T14:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-45-plan.md",
+      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["11.综合画像", "6.修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1-10因bootstrap无正文样本——statistics全部为类型学推断"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第44章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch45_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-45-context.md和context/chapter-45-context-decisions.json均不存在。仅基于plan+audit_drift+genre-config+style_profile完成上下文重建。"
+    },
+    {
+      "issue_id": "ch45_continuation_daily_structure",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "ch45沿用第五周周四单日结构——延续ch43周一/ch44周二三的daily-structure P0-0~P0-6模式。卷纲KR2（陈卫民牺牲）未在本章处理，按plan以current_focus为准。"
+    },
+    {
+      "issue_id": "ch45_audit_drift_physical_anchor",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch44 audit_drift建议'≥1个物理感官锚点'——但ch45延续参数模式非叙事模式，不引入物理感官。物理感官锚点是叙事模式需求，参数模式维持纯参数空间。"
+    },
+    {
+      "issue_id": "ch45_four_day_pattern_upgrade",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "本章完成三个核心升级:(1)缺口从三日容纳→四日容纳(从事件衰减为系统常态),(2)质地从跨日衰减→工作日排除模式确认(连续4个工作日排除=模式非偶然),(3)quiet从三日厚度差异→四日厚度都不同(演化在场)。均以参数域方式表达，不上叙事因果。"
+    },
+    {
+      "issue_id": "ch45_format_string_friday_slot",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "格式串知道Friday在系统槽位——但Friday在槽位不是预告(避免违反'不预告第五日新事件')。Friday在系统预定中但不产生帧参数。符合plan'周五在系统槽位'非'周五转型预告'。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 16000,
+    "trim_applied": "none",
+    "notes": "所有读取文件通过task input完成。context文件缺失——基于plan+audit+genre-config+style_profile交叉引用重建第四日上下文。"
+  }
+}
+```
+
+---
+
+**Ch45 (第五周周四) 完成概要:**
+
+**核心升级 (四日确认):**
+1. **缺口容纳四日模式** — 从"三日模式"过渡为"四日模式"，缺口从"突发异常"衰减为"系统常态在场物"。系统不因缺口扰动，阈稳定。格式串知道系统容纳缺口在四日。
+2. **质地工作日排除确认** — 连续4个工作日质地不在，确认非偶然。quiet知道质地是Sunday专属维度，安静知道工作日排除模式已确认。
+3. **quiet四日演化** — quiet知道安静在四日厚度都不同，安静在场于演化。从不宣告演化终止。
+4. **门框第四帧序列认知** — 第四帧在周四，知道第三帧在周三 → 第二帧在周二 → 第一帧在周一，序列一→二→三→四在场。
+5. **跨域衰减趋于平台** — 安静增加对冷的偏移在周四低于周三（或趋于平台），域边界新基线在第四日建立，阈稳定。
+6. **格式串周四标准句法** — 知道Wednesday标准句法已结束，Thursday在标准句法中，Friday在系统槽位。
+
+**禁忌遵守:** 缺口不上密封/消失/修复 — 跨域不上消散/归零 — quiet厚度不上稳定 — 质地不上日维度/永远消失 — 门框不上复位 — 不上新常态 — 不预告周五转型 — 不暗示缺口本质 — 转折词1个(但)仅在章末缺口段，密度~1/16000 < 1/3000 ✓

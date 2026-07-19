@@ -1,0 +1,51 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 23,
+  "revision_mode": "spot-fix",
+  "produced_at": "2026-07-16T21:10:00Z",
+  "sources": {
+    "audit": "audits/chapter-23-anti-ai.md",
+    "resonance": "audits/chapter-23-resonance.md",
+    "plan": "plans/chapter-23-plan.md"
+  },
+  "selections": [
+    {
+      "target": "revision.mode",
+      "selected": ["spot-fix"],
+      "basis": "单一局部工艺问题(正文165处'——'超标)，无结构/情节/角色问题。其余11项审核全部通过，备忘合规10/10，共鸣82/100通过)",
+      "severity": "low",
+      "omitted": ["regenerate", "constrained-regenerate"]
+    },
+    {
+      "target": "delegation",
+      "selected": ["handle_inline"],
+      "basis": "anti-detect为专项表面变换skill，但pipeline模式下委派不可行，由chapter-revision代为执行(不涉及情节/角色/伏笔修改)"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_overflow",
+      "target": "chapters/chapter-23.md body text",
+      "severity": "critical",
+      "handling": "compensate_via_spot_fix",
+      "rationale": "REQUIRED — critical severity anti-ai failure. 165 dashes = AIGC detection marker. Purely local punctuation issue, no narrative content change.",
+      "summary": "正文中165处'——'→保留11处(对比强调/节奏断点/高潮停顿)，其余154处替换为句号'。'。长度变化-1.75%(±15%合规)。影响范围:纯标点替换，零内容语义变更。"
+    }
+  ],
+  "preservation_verification": {
+    "dialogues": "OK — 无对话内容在本章出现",
+    "fulfilled_foreshadowing": "OK — 三条线位置型交汇/MH-020环境调制/门框第七天基准化/评估倒计时背景化/范围第三天惯性全部保留",
+    "character_state": "OK — MH-001 Phase 2维持/行走参数化/交汇域生成全部保留",
+    "scene_transitions": "OK — 全部场景转换标记保留(地下室→门框→岔路口→焦炭渣→三角形空间→交汇段→旧水泥路面→午后段→归途→墙角)",
+    "violations": []
+  },
+  "budget": {
+    "context_tokens_estimate": 11500,
+    "limit": 15000,
+    "trim_applied": "none",
+    "revision_attempt": 1,
+    "max_attempts": 3,
+    "revision_count": 1
+  }
+}

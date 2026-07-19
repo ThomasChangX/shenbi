@@ -1,0 +1,68 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 44,
+  "produced_at": "2026-07-17T15:30:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-44-plan.md",
+      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["11.综合画像", "6.修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1-10因bootstrap无正文样本——statistics全部为类型学推断"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["Ch43修复"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch44_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-44-context.md和context/chapter-44-context-decisions.json均不存在。仅基于plan+audit_drift+genre-config完成上下文重建。"
+    },
+    {
+      "issue_id": "ch44_dual_day_structure",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "第五周周二和周三在同一章处理——双日结构。格式串在周二/周三标准句法确认——门框帧1→2→3——quiet厚度逐日演化。周日结构按日分节。"
+    },
+    {
+      "issue_id": "ch44_system_accommodation_mapping",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2断后映射为参数域系统在缺口在场下维持常态。参数系统在周二/周三不再对缺口做紧急查询。不上叙事因果。不写陈卫民。"
+    },
+    {
+      "issue_id": "ch44_texture_absence",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "质地不在周二或周三出现。同为第五周第二日第三日场中均无质地。质地是Sunday专属维度,不在第五周日常工作日系统槽位中。quiet知道质地不在。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10000,
+    "limit": 16000,
+    "trim_applied": "none",
+    "notes": "所有读取文件通过task input完成。context文件缺失——基于plan+audit+genre-config交叉引用重建双日上下文。"
+  }
+}

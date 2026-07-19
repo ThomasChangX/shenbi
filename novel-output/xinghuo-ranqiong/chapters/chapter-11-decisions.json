@@ -1,0 +1,125 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 11,
+  "produced_at": "2026-07-16T12:00:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-11-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-11-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第10章（推进/转折）", "Ch9→Ch10 短板修复追踪"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch10_emotion_landing",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "引入非指向性感知触媒（管道滴水）拓宽情绪光谱，Phase1密集决策→Phase2深呼吸式落地→Phase3因果展开的三阶段节奏替代Ch10同等张力执行"
+    },
+    {
+      "issue_id": "drift_ch10_style_rhetoric",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "催收决策场景中置入1处设问（'还能怎么算？'）+1处反复修辞（'不是'×3递进排除），在推进叙事的同时调节阅读节奏"
+    },
+    {
+      "issue_id": "drift_ch10_reader_reward",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "催收还款决策段计算完成后插入深呼吸式低点（管道滴水观察），让读者在密集信息后'落一次地'再进入因果链展开"
+    },
+    {
+      "issue_id": "plan_debt_decision_behavior",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收三方案计算展示——每一方向均不可行（现金缺口/分期首付无筹/延期认证不确定+一次性不可及），认知为'每个选项在自己内部有一堵墙'，不决策≈默认延期方向"
+    },
+    {
+      "issue_id": "plan_mh020_interaction_explore",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-020交互方向探索——长按→亮度渐变，双击→字符滚动/重置，翻转→材料振动；max_distance从8重置至12；排除锁屏状态触发和单次短触方向"
+    },
+    {
+      "issue_id": "plan_mh003_ground_evidence",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-003地面间接证据以装备运输车队形式呈现（三辆卡车+帆布覆盖金属箱体+蓝黑色押送制服+向西行进），低信号强度仅确认军事态势变化，不改变焦点优先级"
+    },
+    {
+      "issue_id": "plan_door_insert_operation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门框金属件轴向操作尝试——轴向按压不动→垂直门框方向（朝内）可位移1-2mm+弹性回位；排除锁闩（行程不足）和定位销（无弹性回位）假设；门后内容不揭示"
+    },
+    {
+      "issue_id": "plan_gray_channel_rhythm",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "灰色渠道偶数日试探——水塔东侧新沙覆盖确认系统活动痕迹，第七日接货→偶数日休息/结算节奏假设建立；无第三次任务触发"
+    },
+    {
+      "issue_id": "plan_continuity_debt_state",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收状态从'三方案待定'升级为'产生决策行为（默认延期方向）+没有缝隙的认知建立'，催收线进入'决策压力已释放但后果尚未落地'过渡期"
+    },
+    {
+      "issue_id": "plan_three_phase_structure",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "全章采用三阶段节奏替代Ch10的四场景同等张力：Phase1仓促催收计算（设问修辞）→Phase2管道滴水深呼吸低点（非指向性感知触媒）→Phase3因果链展开（MH-020/MH-003/灰色渠道/门框）"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 16000,
+    "limit": 16500,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Chapter 11 "沉" — execution summary:**
+
+**三阶段节奏**: Phase1 紧迫决策（仓库催收计算，设问修辞"还能怎么算？"）→ Phase2 落地节拍（管道滴水三字符视角，情绪从紧张→警觉→短暂悬浮→回到紧张）→ Phase3 因果链展开（MH-020长按/双击/翻转交互确认，max_distance 8→12；MH-003车队地面间接证据；灰色渠道新沙信号+偶数日节奏假设；门框2mm弹性回位排除锁闩/定位销假设）
+
+**四条 advance 全部兑现**:
+1. 催收→"没有缝隙"认知建立，默认延期方向已启动
+2. MH-020→交互方式初步确认（触摸响应+翻转振动），max_distance重置至12
+3. MH-003→城西装备运输车队确认军事态势变化
+4. 门框金属件→可动参数确认（2mm弹性回位→触点/限位元件假设）
+
+**HARD-GATE约束**: 转折词0个（≤2✓），AI标记词零，反思句零，并列堆叠以断裂递进替代，不揭示任何功能/决策后果/品类，陈卫民/灵火会不入场，催收员二次接触不触发，落地节拍自治退场（"和他做的事情没有关系"）。

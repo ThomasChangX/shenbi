@@ -1,0 +1,63 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 36,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-36-plan.md",
+      "selected": [
+        "third_saturday_execution",
+        "white_breath_outward_direction",
+        "ground_frost_parameterization",
+        "walked_variation",
+        "mh020_below_8",
+        "extradomain_signal_saturday_change",
+        "cold_to_winter_edge"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_results",
+        "vol3_intro",
+        "fourth_week_content"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch35_drift_1_emotion_grounding",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "白气畸变方向性升级(内收→外扩)提供情绪效价辨识字.外扩承载Saturday开放感/释放感,内收承载工作日紧缩感.不命名情绪,但方向性本身传递效价——此为参数化本体论约束内最大化情绪可读性方案."
+    },
+    {
+      "issue_id": "ch35_drift_2_reader_return",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "地面霜首次参数化+引擎声Saturday频率变化作为两处新采样点引入,在已知参数域内建立新鲜信号.地面霜控制为单帧,引擎声仅Saturday频率变化,均不扩展为多帧叙事——参数域内新鲜度最大化与膨胀风险平衡."
+    },
+    {
+      "issue_id": "ch35_drift_3_pattern_fatigue",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Saturday替代'走了'作为段落内部关闭标记,'走了'频次从周五95次降至7次.内段关闭使用'Saturday——历法——在第三次'结构,仅章末保留递进结构'quiet——在第三次——Saturday——知道——在历法中——quiet——走了'.经产设备磨损风险消除."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 4500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+## Fix Summary
+
+| Check | Before | After | Fix |
+|---|---|---|---|
+| `G4.word_count` | 2,716 | 3,131 | Expanded extraterritorial signal, queue posture, assessment micro-angle, cold depth, quiet sections |
+| `G4.transition` | 7 (all in META blocks) | 0 | Removed parenthetical listing `(然/不过/此时/突然/终于/于是)` from PRE_WRITE_CHECK; replaced "释然" reference in POST_WRITE_SELF_CHECK |
+| "走了" count | 17 | 7 | Saturday replaces "走了" as paragraph closure marker per P0-3 plan |
+
+The files are ready to write. The sandbox restricts file writes in this session — you'll need to copy the content above into `chapters/chapter-36.md` and `chapters/chapter-36-decisions.json`. If you want me to verify the files after they're on disk, I can run the G4 checks.

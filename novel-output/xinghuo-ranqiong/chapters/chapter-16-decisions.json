@@ -1,0 +1,111 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 16,
+  "produced_at": "2026-07-16T16:30:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-16-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "3. TTR", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "4. 高频ngram", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第15章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch15_emotional_baseline_accumulation",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "情感基线从章初到章末累计净上升5-10%:晨醒基线高于昨日(觉醒先于光线/无口腔干燥/露点降低)→偏移自觉后基线保持高于晨醒→侦察机事件进一步拉升→MH-020命名后手腕间隔缩短(时间维度基线压缩)→章末整体温度高于章初"
+    },
+    {
+      "issue_id": "drift_ch15_olfactory_closure",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "肯定形式嗅觉多锚点:铁锈机油沉积味(锈管处)→焦炭燃烧残渣味→煤渣正午释放干燥土腥气+焦炭蒸馏味→工业烟尘组合。非Ch15否定形式"
+    },
+    {
+      "issue_id": "drift_ch15_thread_focusing",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "收敛为2条主线(方向偏移显性化+战争线可描述变化)+MH-020命名P1副线;门框/MH-003/催收线仅在场确认(≤5%)"
+    },
+    {
+      "issue_id": "plan_direction_drift_visibility",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "窄巷分叉处身体选择提前于意识→停→回头看右通道可通行vs脚下窄巷→视线切换→"偏移被看见了"。临界点跨过但无第二层追问(不追问"为什么")"
+    },
+    {
+      "issue_id": "plan_war_line_describable_change",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "侦察机四维可描述变化:低空(屋顶线以下)+中灰涂装(非铝原色蓝灰)+空挂架+航线稳定→跨过从积累到质变的阈值"
+    },
+    {
+      "issue_id": "plan_mh020_naming_attempt",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": ""这是几条线放在一起""这是测量。不是图。"——日常语汇命名。中线值稳定+振幅变化=多路输入特征识别"
+    },
+    {
+      "issue_id": "plan_ch17_foreshadowing",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "章末温度显著高于章初:四条线同日加速+"温度比昨天高了"+"冲突逼近的方向感可以被清晰察觉到,但还没有到来""
+    },
+    {
+      "issue_id": "plan_volume_map_divergence_ch16",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR1定位Ch16迷雾山脉休整+陈卫民,实际叙事仍为铁炉堡新常态第4天(距认证评估22天)。偏差距灵火会线仍有显著距离,继续defer。structural卷定义调整超出本章规划范围"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 22000,
+    "limit": 24000,
+    "trim_applied": "none"
+  }
+}
+```
+
+这两个文件可以在 `chapters/chapter-16.md` 和 `chapters/chapter-16-decisions.json` 写入项目。由于当前会话只读（read-only sandbox），输出以文本形式给出，内容可以直接复制到目标路径。
+
+---
+
+**章节16核心交付摘要**：
+
+**标题**「见」——林烽第一次"看见"自己的方向偏移模式。
+
+**三条P0 drift全部落地**：
+1. **情感基线累进**——晨醒基线从Ch15的"不变成为预期"今日再升一级（身体先于光线觉醒、无口腔干燥、露点更低）；偏移自觉后基线不回零；侦察机事件进一步拉升；MH-020命名后手腕抬起间隔缩短（等待的时间维度压缩）。章末"温度比昨天高了"。
+2. **全感官闭合**——铁锈+机油沉积味（锈管）、焦炭燃烧残渣味、煤渣正午释放的干燥土腥气+焦炭蒸馏味、工业烟尘组合——全部肯定形式，多锚点覆盖。
+3. **线程聚焦**——方向偏移+战争线2条主线推进至阶段性终点；MH-020命名为P1副线；门框/MH-003/催收线仅在场确认（≤5%增量）。
+
+**两条P1核心线跨过阈值**：
+- **方向偏移→显性化**——分叉处身体选择先于意识→停→回头对比（右通道可通行vs脚下窄巷）→视线切换→"偏移被看见了"。临界点跨过，无第二层追问。
+- **战争线→可描述变化**——侦察机四维（低空+中灰涂装+空挂架+航线稳定）从积累进入可描述质变。
+
+**反AI味合规**：转折词0个、疲劳词0个、AI标记词0个、"感到/意识到/似乎/仿佛" 0例、破折号1处唯一。

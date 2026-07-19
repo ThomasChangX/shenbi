@@ -1,0 +1,104 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 6,
+  "produced_at": "2026-07-16T07:30:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-6-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["2. 读者此刻在等什么", "4. 日常/过渡承担什么任务", "5. 关键抉择过三连问", "7. 本章 hook 账"]
+    },
+    {
+      "target": "context/chapter-6-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "6. 标点密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第5章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第1章（铺垫）", "第2章（推进/转折）", "第3章（推进/转折）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_MH020_first_text_evidence",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-020首次文本证据落地：在废铁市东缘电子回收摊前，手机震动+屏幕短暂显示梅德兰文字（<3秒）。保持微妙——不解释原理、不产生即时收益、Lin Feng不理解内容。Concept flip执行：手机从'死掉的硬件'转变为'在这个世界产生了主动行为'，颠覆Ch1-Ch5读者认知框架。符合plan §3 P0 and §8（不能立刻产生实用功能）。触发后插入3句感官/环境描述（电子垃圾堆/日光/金属壳触感）作为Ch5 drift补偿的沮丧悬浮。"
+    },
+    {
+      "issue_id": "plan_psychic_first_feedback",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "灵能第一次自发反馈：Lin Feng返回地下室后闭眼感知到门在无人主动触碰的情况下发出微弱气息感（风过门缝的位移感知）。非主动触碰产生——门在自己的感知框架内生成了变化。证实Ch5的触碰在灵能系统中产生了持续影响（'它记住了我曾触碰过它'）。反馈不提供任何有用功能/战斗力/知识量变，仅确认真实性。符合plan §6 灵能认知型改变 and §8（不让变成有用东西）。"
+    },
+    {
+      "issue_id": "plan_survival_line_transition",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "生存线过渡完成：6件废品出售获4.5铜币（总计20.5铜币）；中年女人提供(1)白粉笔标记（'告诉你这里还能待'）作为可信信号系统、(2)检查站西侧招工信息（申时前到路牌底下）。生存状态从'一天算一天的不确定'转向'半计划状态——有明天能做的事'。符合plan §6 生存模式型改变。"
+    },
+    {
+      "issue_id": "plan_S006_experience",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "S-006烂尾楼势力从'被目击'升级为'被体验'：废铁市场中央设折叠桌+铁皮盒子征收过路费，推板车者无反抗支付。Lin Feng全程旁观，认知更新：'有人在废铁市的地盘上收过路费了。秩序真空的填补不是渐进的，每天都在加速。'仅一个场景（收过路费），不塑造为大反派，符合plan §8（不只是唯一威胁）。"
+    },
+    {
+      "issue_id": "plan_outside_rumors_seed",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "城外生路传闻以'工人的对话碎片'形式植入：'东边矿道有人走通了' + '旧铁路沿线有几个村子还在'。Lin Feng放慢一步但不表现出兴趣，仅存入记忆。传闻不确认真伪、不给定路线、不转化为行动。为Ch7转移决策埋下第一颗种子。"
+    },
+    {
+      "issue_id": "plan_middle_aged_woman_depth",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "中年女人第三次相遇保持厚度：不解释粉笔标记的完整含义；白线画完后即收粉笔；招工信息仅展示方向和条件（申时/路牌底下/搬货）。'为什么告诉我这些？'——'这里不是一个人活的地方'回应信息差但保留完全了解的缺口。她的背景仍然碎片化（只有一个桶+铜丝+粉笔，没有更多个人史）。"
+    },
+    {
+      "issue_id": "plan_door_not_opened",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门全程不被推开。仅地下室闭眼感知阶段出现自发气息感信号——不是开启、不是泄露、不是实用信息。Lin Feng不做任何主动触碰。门的本质/门后世界/开启条件全部保持封存。"
+    },
+    {
+      "issue_id": "drift_ch5_emotional_landing",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Ch5 drift补偿——沮丧悬浮：MH-020触发段在手机暗屏后插入3句环境聚焦描述（'站在电子垃圾堆之间，在日光下，看着手里这台在另一个世界的地铁里买的手机' + 手指碰到金属外壳的感觉），让震惊/不解在'不解决'的状态中持续。"
+    },
+    {
+      "issue_id": "drift_ch5_sensory_revisit",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Ch5 drift补偿——场景临场感：重返救济站追加2个前次缺失的感官新信号——听觉（帐篷布被风吹动的扑扑声）和嗅觉+视觉（干燥谷物气味混着灰烬涩味 + 粗麻布在日光的浅褐色光）。重返产生感知增量而非冗余。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12500,
+    "limit": 13000,
+    "trim_applied": "none"
+  }
+}

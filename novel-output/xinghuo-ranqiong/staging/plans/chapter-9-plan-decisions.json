@@ -1,0 +1,114 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 9,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md",
+      "selected": [
+        "P0: 门决策开场——以实际后果承载选择",
+        "P0: 情感落地——非警觉换气事件",
+        "P0: 灰色渠道持续代价",
+        "P0: 催收倒计时收窄",
+        "P1: MH-020第三次信号（max_distance临界）",
+        "P1: MH-022间接强化（cultivation_interval=2到期）"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "P1: MH-001与灵能持续试探（推迟至Ch10——cultivation_interval仍在范围内，本章hook密度已5/8）",
+        "P2: 战争二次打击预兆（排至Ch10-Ch11）",
+        "P2: 矿工组织线索铺垫（排至Ch10——灰色渠道第2-3次接触时自然引出更合适）"
+      ]
+    },
+    {
+      "target": "volume_map.md (KR2)",
+      "selected": ["KR2整体方向（从独善其身到加入组织）——保持总体方向认同"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": [
+        "第9章原定位'第一次参与游击作战，现代知识+灵能的实战检验'"
+      ],
+      "rationale": "Ch9实际轨迹聚焦门决策后果+灰色渠道规则内化+催收倒计时收窄+MH-020第三次信号，仍停留在铁炉堡城内。陈卫民/灵火会相遇连续第四次推迟（Ch6→Ch7→Ch8→Ch9），需在Ch10重新评估"
+    },
+    {
+      "target": "pending_hooks.md",
+      "selected": [
+        "MH-021: advance（门决策开场——部分响应，Ch8→Ch9连续两章推进此线——累积密集但必要）",
+        "MH-022: advance indirect（cultivation_interval=2到期，催收间接信号强化）",
+        "MH-020: advance（max_distance=8距Ch2已过7章——最终安全窗口之一，第三次信号略强于温度）",
+        "MH-003: defer（Ch8刚激活，保持潜伏观察期）",
+        "MH-001: defer（cultivation_interval=3未到限，Ch7→Ch9=2章在容忍范围内）"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "author_intent.md",
+      "selected": [
+        "非英雄化觉醒——门决策以谨慎好奇承载，非勇敢/顿悟",
+        "每一步都有代价——灰色收入换来食物但增加暴露面",
+        "道德灰度——灰色收入使用产生自我认知变化（用灰色钱买食物的滋味）"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_vs_actual_trajectory_continued_v4",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2第9章定位'第一次参与游击作战'被实际轨迹第四次覆盖。Ch5-Ch8持续停留在铁炉堡城内灰色经济生态中。强行跳到灵火会场景会破坏底层叙事的自然积累"
+    },
+    {
+      "issue_id": "door_continuity_intensity",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "MH-021从Ch7→Ch8→Ch9连续三章推进（触摸→方向纹理→部分响应）。密集度高于avg间隔但合理——Ch7是首次触觉认知，Ch8是结构认知，Ch9是决策兑现。每章推进幅度不同（Ch7大/Ch8中/Ch9小），形成递进收敛而非膨胀"
+    },
+    {
+      "issue_id": "MH-020_max_distance_critical",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "MH-020种植于Ch2（7章前），max_distance=8剩1章。Ch9为倒数第二个操作窗口，必须advance。第三次信号略强于温度但仍不展示完整功能——保持最终悬念至Ch10信号定性或解决"
+    },
+    {
+      "issue_id": "Ch8_drift_injection_payoff",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch8章尾悬停（门决策）+情感光谱窄带（全章警觉-紧张）需在Ch9释放。门章首处理提供读者回报，换气事件提供情感释放——两个drift注入均通过结构编排解决"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 11000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**Ch9 备忘自检结果**:
+
+| 检查项 | 结果 |
+|--------|------|
+| 段完整性 8/8 | ✅ |
+| 段标题精确匹配 | ✅ |
+| 优先级来源声明（段1） | ✅ 局部覆盖→current_focus，含冲突说明 |
+| chapter_role 声明 | ✅ `推进/转折` |
+| 章尾改变 ≥1（≥Ch3需advance型） | ✅ 3条全部advance型（信息/物理/关系各1） |
+| hook账列名 | ✅ ID/操作/推进方式/沉默章数 |
+| hook操作有效性 | ✅ 3 advance + 2 defer |
+| 沉默检测（无defer+≥4沉默） | ✅ 无僵尸伏笔 |
+| 密度预算 ≤8 | ✅ 5/8 |
+
+**关键决策说明**:
+
+- **优先级链**: 局部覆盖（实际轨迹偏移）→ current_focus。卷纲KR2 Ch9节点"第一次参与游击作战"被覆盖，第四次推迟。核心原因：Ch5-Ch8故事始终停留在铁炉堡城内灰色经济生态中——从灰色入口接受（Ch7）到首次执行（Ch8）到规则内化（Ch9），这是一个完整的弧线运动。强行跳到灵火会场景会破坏"每步都有代价"的底层叙事承诺。current_focus为Ch9-Ch11弧线提供精确执行指引
+- **门决策处理原则**: 不通过内心独白消耗momentum，以实际后果承载选择。门部分响应（裂缝/漏光/温度/气息）但不进入不掌握——提供Ch8章尾悬停的读者回报同时保持悬念。"从不开到能开一条缝但选择不看或看不到全貌"——这是门线从Ch7（触碰）→Ch8（方向纹理）→Ch9（部分响应）的第三条递进台阶
+- **MH-020临界处理**: max_distance=8极限接近（Ch2→Ch9=7章），剩最后一章操作窗口。Ch9 advance（略强于温度但非完整功能）必须在Ch10或Ch11做最终定性或解决。第三次信号的数据点积累模式（Ch6文字闪现→Ch7温度变化→Ch9白光/字符闪现+温度叠加）暗示序列模式但含义仍完全模糊
+- **情感换气设计**: 非警觉驱动的街头偶遇事件是Ch8"情感光谱持续收缩于紧张-警觉-不安窄带"的定向修复。选择标准：事件本身不推进主线、不产生新钩子、退场后不留待跟踪的线索——纯粹的世界生态延续和情感释放节拍
+- **新常态脆弱性**: 灰色收入购买食物改善生存基线但附带三重暴露风险（消费行为被目击→被城卫军注意；灰色系统规则内化→被标记为"可用之人"；催收倒计时不可逆接近→还款压力与灰色暴露可能交汇）。不做无代价改善

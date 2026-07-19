@@ -1,0 +1,93 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 27,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "评估社会性暴露密度提升 (P0)",
+        "情感微差引入——感知微差路径 (P0, audit drift)",
+        "轻量读者回报——微兑现路径 (P0, audit drift)",
+        "评估+催收交汇日常化 (P0)"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "迷雾山脉探索 (KR3)",
+        "偏移策略主动操作 (P1)",
+        "门框差异触发 (P1)"
+      ]
+    },
+    {
+      "target": "outline/volume_map.md",
+      "selected": ["KR3: 梵天遗产发现与盟友建立 (chapter role: 承接)"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["MH-022", "MH-021", "MH-003", "MH-020"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["MH-001 (RESOLVED)"]
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态 (walking baseline from Ch26)"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["narrative_principles", "thematic_progress"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotional_gradient",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch23-26 emotional range stable; micro-variation injected via perceptual micro-difference without baseline shift"
+    },
+    {
+      "issue_id": "drift_reader_payoff",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "information advancement dominant since Ch13; micro-payoff (checkpoint scene evolution) restores reader balance"
+    },
+    {
+      "issue_id": "kr3_vs_current_focus_conflict",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map KR3 positions Ch27 as Chu Yunlan encounter; current_focus overrides as vol 2 advancement. Deferred to Ch28+."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+两个文件均已就绪。
+
+**章节备忘核心决策**：
+
+- **chapter_role**: `推进/转折` — vol 2第二章，评估在场从首帧推进为周期性背景项，情感基线首次引入微差
+- **评估密度**: 从Ch26的1-2处升至2-4处（检查站两次经过 + 灰色渠道碎片 + 城市空间新增通知/排队形态变化）——仍为外部痕迹约束
+- **情感微差路径**: 路径B 感知微差 — 旧水泥过渡段秋日低角度光线的色温变化帧（0.5秒感知亮度变化，不分析不命名）
+- **读者回报路径**: 路径B 微兑现 — 检查站场景自然演化（桌子位置移位/表格堆叠变化/通知张贴/队列形态变化），证明时间在走、世界有活性
+- **交汇日常化**: 三角形空间蹲下时身体感"走了几天"——两倒计时不再需认知标记
+- **hook账**: 4操作（1 advance + 3 defer），密度预算内✓，无僵尸伏笔
+- **出口推荐**: 安静——评估密度上升但行走不变——感知微差被经历但未转化——走了——走完了——明天从同一基线——安静有了一天的时间厚度
+
+由于沙箱只读权限，以上内容需人工写入对应路径。

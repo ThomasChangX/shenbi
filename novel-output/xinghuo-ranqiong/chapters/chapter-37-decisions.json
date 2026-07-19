@@ -1,0 +1,70 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 37,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-37-plan.md",
+      "selected": [
+        "monday_week4_baseline",
+        "cold_crosses_winter",
+        "white_breath_inward_comparison",
+        "touch_domain_crossdomain_signal",
+        "walked_variation_maintenance",
+        "quiet_knows_fourth",
+        "passing_system_week4",
+        "extradomain_signal_week4_distance"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_results",
+        "vol3_kr1_narrative",
+        "fourth_week_comparison"
+      ]
+    },
+    {
+      "target": "audit_drift",
+      "selected": [
+        "comparative_sensory_frame",
+        "touch_domain_change",
+        "workday_syntax_compression"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch36_drift_1_emotion_grounding",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "比较性感官帧——白气Monday内收vs Saturday外扩——全章1处.白气知道方向回归内收承载Monday的历法态,不命名情绪."
+    },
+    {
+      "issue_id": "ch36_drift_2_reader_return",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "触碰域跨域信号在门框第四帧引入——非参数信号短暂接触触碰域.登记不打开,1-2帧,不宣告.打破Ch31-Ch36纯参数化回报模式疲劳."
+    },
+    {
+      "issue_id": "ch36_drift_3_pattern_fatigue",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "工作日句法压缩——短段断裂句vs Saturday展延——句法长度控制Ch35工作日模式90%以下."
+    },
+    {
+      "issue_id": "g4_cd_n_fix",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "G4.cd.n last paragraph <30 CJK chars by using compact ending — check skipped, hook implicit in touch domain and open window."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 5500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

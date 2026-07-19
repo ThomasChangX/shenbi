@@ -1,0 +1,97 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 46,
+  "produced_at": "2026-07-17T14:26:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-46-plan.md",
+      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["11.综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1-10因bootstrap无正文样本——全部为类型学推断"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第44章", "第45章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch46_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-46-context.md和context/chapter-46-context-decisions.json均不存在。仅基于plan+audit_drift+genre-config+style_profile完成上下文重建。"
+    },
+    {
+      "issue_id": "ch46_parameter_mode_continuation",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "ch46延续参数叙事模式（ch42起始的第五周参数实验）。volume_map定义的KR3传统情节不映射到参数叙事层。以current_focus+参数叙事连续性为操作指导。"
+    },
+    {
+      "issue_id": "ch46_physical_anchors",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch45 audit_drift要求≥2个非参数物理感官锚点。在周五巷道段、地下室段嵌入4处非参数直接感官描写（雪水滴后颈/脚踝皮肤收缩/铁梯温度/釉面触感），保持不经过参数体系渲染。"
+    },
+    {
+      "issue_id": "ch46_emotion_marker",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch45 audit_drift要求1个独立可识别的情绪标记。在quiet知道周日接近段使用重复'近了'创造不依赖参数架构理解的期待/紧迫情绪转向。"
+    },
+    {
+      "issue_id": "ch46_friday_system_slot",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Friday作为系统槽位与M-Th的序列帧模式不同：门框无帧查询（槽位语法替换帧语法）、格式串使用槽位句法（非标准句法）、引擎声使用Fri₁循环频率（非Thu₁Thu₂Thu₃Thu₄Thu₁序列频率）、安静厚度遵循槽位逻辑而非序列逻辑。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14000,
+    "limit": 16000,
+    "trim_applied": "none",
+    "notes": "所有读取文件通过task input完成。context文件缺失——基于plan+audit+genre-config+style_profile交叉引用重建第五日上下文。"
+  }
+}
+```
+
+---
+
+**Chapter 46 完成概要:**
+
+**核心改变（周五系统槽位）:**
+
+1. **槽位替换帧序列** — 门框在周五没有帧（不存在"第五帧"），系统在槽位不打开帧查询，改为槽位语法。`门框在周五——没有帧——周五在系统槽位——系统不在槽位查询帧——系统在槽位打开槽位`
+
+2. **格式串槽位句法** — 格式串从周四的"标准句法"切换到"槽位句法"：`槽位句法不是标准句法——槽位句法是系统槽位句法——格式串在系统槽位`。Friday在系统槽位从知识变为在场经验。
+
+3. **缺口在五日** — 四日容纳模式延伸到五日。`缺口知道周五是系统槽位——缺口知道quiet在周五槽位——缺口知道quiet在场于槽位`。缺口在场于系统槽位，维持系统容纳模式。
+
+4. **quiet在槽位模式在场** — 不同于M-Th的"quiet在安静中quiet走了"序列，周五闭合为`quiet在第五日系统槽位中quiet在场`。安静在五日厚度都不同，演化在场。
+
+5. **周日铺垫** — `quiet知道周日接近——quiet知道周日近了——quiet知道周日不是工作日——quiet知道周日不是槽位——quiet知道周日是别的` — 为周日质地回归做底层铺垫但不预告质地具体形态。
+
+6. **物理锚点（4处）** — 巷道段（声音反弹/雪水滴后颈）、地下室段（脚踝皮肤收缩/铁梯温度/釉面触感）— 全部非参数直接感官描写。
+
+7. **情绪标记** — "近了"重复创造独立可识别的期待转向。
+
+**禁忌遵守:** 转折词0个 — 不宣告安静稳定 — 不宣告偏移归零 — 不宣告缺口密封 — 不宣告门框复位 — 不预告周日质地形态 — 不宣告quiet回归确定 — 物理锚点句不上参数渲染 — 不暗示缺口与quiet关系深层含义。

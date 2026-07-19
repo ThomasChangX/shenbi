@@ -1,0 +1,60 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 7,
+  "produced_at": "2026-07-16T07:50:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md",
+      "selected": ["第一次主动选择", "催收回归", "Drift注入"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "volume_map.md (KR2)",
+      "selected": ["KR2整体方向（从独善其身到加入组织）"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["第7章原定位'与陈卫民相遇'"],
+      "rationale": "实际轨迹偏移——Ch5/Ch6均停留在铁炉堡城内而非荒野/灵火会场景，Ch7无法跳转到陈卫民相遇"
+    },
+    {
+      "target": "pending_hooks.md",
+      "selected": ["MH-021 advance", "MH-020 advance", "MH-003 advance(弱)", "MH-001 defer"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_vs_actual_trajectory",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2第7章定位'与陈卫民相遇'已被实际轨迹覆盖，推迟至Ch9以后"
+    },
+    {
+      "issue_id": "MH-003_silence_threshold",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "MH-003沉默4章触发沉默推进铁律，Ch7以weak advance响应"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+**Note**: The sandbox is read-only so files couldn't be written to disk. The content above is the complete output. Either the pipeline needs to capture this stdout and write the files, or permissions need to be escalated to write `staging/plans/chapter-7-plan.md` and `staging/plans/chapter-7-plan-decisions.json`.
+
+**Chapter 7 Plan Summary**:
+
+- **chapter_role**: 推进/转折 — 第7章是从被动承受进入主动决策的结构节点
+- **优先级来源**: current_focus.md（P0: 第一次主动选择 + 催收回归），卷纲 KR2 的"与陈卫民相遇"被实际轨迹覆盖
+- **核心事件链**: 清晨物资告罄→催收回归信号（催收员/催收通知）→检查站西侧货栈招工→发现明暗两条路→做出第一次主动选择（接近灰色渠道）→门第二次主动触碰→MH-020 微弱保持信号
+- **Hook 操作**: 3 advance（MH-021 门主动探索升级、MH-020 保持信号、MH-003 背景弱推进）+ 1 defer（MH-001），密度 4/8
+- **沉默规则处理**: MH-003 沉默 4 章触发阈值，通过货栈背景对话（工人闲聊涅普敦飞机异样声响）以 weak advance 响应，附带 Ch8/Ch9 激活方案
+- **Drift 注入**: P0 级执行——认知转变时用环境信号替代抽象总结（铁轨震动/风中气味/乌云遮蔽），情感强度时刻用非分析性身体信号（手抖/心跳）

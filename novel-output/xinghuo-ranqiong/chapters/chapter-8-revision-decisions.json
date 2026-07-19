@@ -1,0 +1,69 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 8,
+  "produced_at": "2026-07-16T12:30:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-8-resonance.md",
+      "selected": "pass",
+      "basis": "overall 90/100 ≥ 65 (推进章阈值); all 4 dimensions above sub-floor; Route C all hard binary items achieved",
+      "severity": "low"
+    },
+    {
+      "target": "route_c.chapter_role_fulfillment",
+      "selected": "achieved",
+      "basis": "5 deliverables all executed: grey channel task (4.5 trips + settlement), MH-003 activation (non-standard engine sound), body betraying will (triple release: wound/stomach cramp/knee click), new normal (37.5 copper + recorded identity), door texture micro-adjustment (zero simile)",
+      "severity": "low"
+    },
+    {
+      "target": "route_c.§6_chapter_end_change",
+      "selected": "achieved",
+      "basis": "3 advances: MH-003 activation (info), grey channel completion + income + recorded identity (physical), body betrayal release signal (physical/emotional)",
+      "severity": "low"
+    },
+    {
+      "target": "route_c.hook_ledger",
+      "selected": "achieved",
+      "basis": "4 hooks all fulfilled: grey channel first run ✓, MH-003 activation ✓, body betrayal ✓, door perception micro-adjustment ✓. Zero dropped hooks.",
+      "severity": "low"
+    },
+    {
+      "target": "revision_mode",
+      "selected": "no_revision_needed",
+      "basis": "Resonance audit passed (90/100 ≥ 65). Route C diagnosis: all hard binary items 'achieved'. No BLOCKING unachieved targets. No revision_routing triggered per spec §11.3.",
+      "severity": "low"
+    },
+    {
+      "target": "ch7_ch8_shortfall_fix",
+      "selected": "all_resolved",
+      "basis": "Emotion landing (triple release signal ✅ excess), scene presence (zero calculation break ✅), prose quality (door texture zero simile ✅). All 3 Ch7 shortfalls resolved and exceeded.",
+      "severity": "low"
+    },
+    {
+      "target": "resonance_shortboards",
+      "selected": "defer_to_ch9",
+      "basis": "P2 items: emotional spectrum narrow band (alert-tension-anxiety across 3 chapters) + chapter-end hook medium momentum. Both are Ch9 design guidance, not Ch8 revision items. Revising Ch8 would break tone/pacing that earned 90/100.",
+      "severity": "low"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "resonance_emotion_narrow_band",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Emotion spectrum confined to alert-tension-anxiety across Ch6-Ch8. Appropriate for character but reader fatigue may start at Ch9. Recorded as Ch9 design input — non-release breather recommended in next chapter. Not a Ch8 revision item (revising would break the tonal consistency that scored 90)."
+    },
+    {
+      "issue_id": "resonance_chapter_end_hook_momentum",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Ch8 ending ('他不确定要不要在今天打开') leans toward aesthetic suspension over page-turn impulse. Resonance report recommends Ch9 open directly with door decision and carry consequences. Not a Ch8 revision item — modifying ending would dilute the thematic closure earned by the chapter arc."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}

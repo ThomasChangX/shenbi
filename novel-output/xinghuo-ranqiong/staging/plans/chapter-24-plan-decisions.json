@@ -1,0 +1,86 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 24,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md vs volume_map KR2",
+      "selected": ["P0:前后对比收束", "P0:交汇后状态收束", "P0:评估路径汇合", "P1:情感落地", "P1:读者回报"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲KR2军事行动方向"],
+      "rationale": "实际叙事已沿MH线演化，卷纲前期方向在当前阶段不适用"
+    },
+    {
+      "target": "P2催收线激活",
+      "selected": ["defer_to_vol2"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["Ch24激活作为卷末最后一环"]
+    },
+    {
+      "target": "MH-021 door frame day 8 direction",
+      "selected": ["plateau_continuation"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["cycle_turning_point"]
+    },
+    {
+      "target": "reader_payoff_type for drift correction",
+      "selected": ["窄巷遗址参照（情感回报）"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["plot_payoff（休眠伏笔间接在场）"],
+      "rationale": "窄巷线Ch17-24跨8章闭合确定性高，情节回报不确定性大"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_Ch23_emotion_deficit",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch23情绪节拍智性化偏移要求Ch24交汇位+章末出口至少1处情感阶梯"
+    },
+    {
+      "issue_id": "drift_Ch23_reader_payoff_deficit",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch23结构回报独占要求Ch24至少1处情感/情节回报打破隔阂"
+    },
+    {
+      "issue_id": "drift_nonparametric_sensory_continuous",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "收束段至少1处体感帧降低分析密度以修复共鸣"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9800,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**Auto-check summary**:
+
+| Check | Status |
+|-------|--------|
+| 段完整性 (8/8) | ✅ 全部存在 |
+| 段标题精确匹配 | ✅ 8个段标题全部精确匹配 |
+| 优先级来源声明 (段1) | ✅ current_focus.md + 冲突说明完整 |
+| chapter_role声明 | ✅ 推进/转折 — 合法值 |
+| 章尾改变数 (≥1, ≥1 advance) | ✅ 3条改变，3条均为advance型 |
+| hook账列名 (ID/操作/推进方式/沉默章数) | ✅ 精确匹配四列 |
+| hook操作有效性 | ✅ 仅使用 advance (open/advance/resolve/defer 合规) |
+| 沉默检测 (无defer≥4章行) | ✅ 全表advance，无沉默违规 |
+| 密度预算 (≤8) | ✅ 5操作 |
+
+**Key planning decisions**:
+- **Volume-ending closure**: Ch24 closes the post-convergence state by transitioning the three-line overlap from structural event (Ch23) to daily background parameter — the "域" dissolves into the walking's default layer by chapter end without naming or announcing the dissolution
+- **Assessment path cross-volume interface**: Gray channel information brings the assessment from countdown number to tangible path (流程/时间/入口条件) — first formal narrative presence without triggering decision-making, leaving vol 2 to formally launch
+- **Emotional payoff**: 窄巷遗址参照 provides a Ch17-24 cross-arc emotional closure — not recollection, not grief, just the body knowing the entrance is gone before arriving, and continuing to walk without needing to look
+- **Drift correction priority**: Ch23's emotional deficit and reader payoff deficit addressed via explicit emotional ladder (交汇位体感帧 + 章末出口体感帧) and the 窄巷 emotional payoff
+- **Door frame**: Plateau continuation chosen over cycle turning point for cross-volume consistency

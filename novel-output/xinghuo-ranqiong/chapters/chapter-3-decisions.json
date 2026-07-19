@@ -1,0 +1,120 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 3,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-3-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["2. 读者此刻在等什么", "4. 日常/过渡承担什么任务", "5. 关键抉择过三连问", "7. 本章 hook 账"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "7. 连接词密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第1章（铺垫）", "第2章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_metal_piece_advance",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-001 advanced through micro-heat during awakening. Physical phenomenon only, no causal interpretation."
+    },
+    {
+      "issue_id": "plan_egoism_rupture",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Girl's death transforms ch2 egoism crack into trauma-driven commitment: throat-blocked' gesture of unspoken grief."
+    },
+    {
+      "issue_id": "plan_no_awakening_explanation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Awakening shown through instinctive reaction (brick deflection), confusion ('what was that'), no internal monologue."
+    },
+    {
+      "issue_id": "plan_no_heroism",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Lin Feng stumbles, chokes on smoke, knees buckle, can't remember sprint, doesn't look back at ruins."
+    },
+    {
+      "issue_id": "plan_no_global_strategy",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Full ch3 stays in first-person limited view. No strategic context, no analysis of which faction."
+    },
+    {
+      "issue_id": "plan_metal_piece_passive",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Metal piece shows micro-heat only. No causal claim ('gives power'). Purely descriptive physical phenomenon."
+    },
+    {
+      "issue_id": "drift_sensory_transition",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Added transition signals: passing vent (steam smell), crossing brick buildings, passerby's gaze per ch2 audit_drift."
+    },
+    {
+      "issue_id": "plan_girl_death_sidewriting",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Girl's death via hand temperature simile: 'like stone just pulled from well water', no direct dying process."
+    },
+    {
+      "issue_id": "drift_ch1_rhetorical_density",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Parallel accumulation at peak: 'through the stomach, through the chest, through the throat, between the teeth'."
+    },
+    {
+      "issue_id": "plan_three_changes",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "All three changes delivered: psychic entry (info-advance), relation anchor (relation-advance), shack gone (phys-advance)."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+第三章已经完成。以下是交付要点：
+
+**叙事结构**: 7个场景连贯推进——清晨棚屋（危境确认）→ 外出寻药（阶级壁垒的具象化展示，含 audit_drift 要求的过渡信号）→ 空袭降临（声音驱动混乱，引擎由远及近+爆炸节奏变化）→ 逆流救少女（非英雄化的恐惧本能）→ 防空洞死亡（通过手温侧写，避开了正面描写）→ 废墟觉醒（金属片微热+本能灵能释放）→ 废墟站立（失去一切的物理+心理双重状态改变）
+
+**关键纪律校验**:
+- 转折词密度: 0（禁止列表中的 然/不过/此时/突然/终于/于是 均未出现，限额1/3000 ✓）
+- 破折号: 0使用（对话中的"空袭！！"使用双叹号，"不是...而是..."结构也未出现 ✓）
+- 疲劳词/禁用词: 均为0 ✓
+- AI标记词: 似乎/仿佛/不由得/缓缓地/微微/不禁/淡淡的/嘴角微扬/瞳孔微缩 — 全部未出现 ✓
+- 少女死亡: 通过"手凉了，是一种从深处透出来的冷，像握住了一块刚从井水里捞起来的石头"侧写 ✓
+- 觉醒: 困惑/本能/非顿悟（"那到底是什么"）✓
+- 林烽非英雄化: 呛烟咳嗽、膝盖发软、不记得怎么跑完的、没有回头 ✓
+- 三处 advance: 灵能进入（信息）、关系锚点转换（关系）、棚屋被毁（物理）✓

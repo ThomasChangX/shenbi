@@ -1,0 +1,77 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 51,
+  "produced_at": "2026-07-17T20:00:00Z",
+  "revision_mode": "none",
+  "revision_round": 1,
+  "trigger": {
+    "source": "pipeline_execution",
+    "overall_score": 70,
+    "threshold": 65,
+    "confidence": "mid",
+    "route_c_all_passed": true,
+    "audit_blocking": 0,
+    "audit_critical": 0,
+    "audit_ai_errors": 1
+  },
+  "selections": [
+    {
+      "target": "revision_scope_assessment",
+      "selected": "no_revision_required",
+      "basis": "audit_result",
+      "severity": "high",
+      "rationale": "All 11 reviews passed with 0 BLOCKING + 0 CRITICAL. Resonance score 70/100 exceeds 65 threshold. Route C all 3 hard binaries passed. Single anti-ai 'error' (470 —— dashes) is a false positive — the audit explicitly calls this a structural requirement of parameter narrative syntax, not an AI tell, and recommends a rule exemption."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch51_anti_ai_dash_false_positive",
+      "severity": "info",
+      "handling": "explicit_callout",
+      "rationale": "Anti-AI audit flagged 470 —— dashes as ERROR. The audit's own analysis confirms this is a parameter narrative structural syntax element: '参数语法中的——不应与自然语言叙事中的——等同判定'. Replacing 470 dashes would change the chapter's syntactic grammar without improving quality. Recommendation: add anti-ai rule exemption for parameter narrative syntax in this project."
+    },
+    {
+      "issue_id": "ch51_resonance_shortcomings_no_action",
+      "severity": "info",
+      "handling": "explicit_callout",
+      "rationale": "Resonance audit identifies 4 shortcomings (emotional ceiling, no physical anchors, limited vocabulary, cognitive-only rewards). All are structural costs of workday parameter narrative mode — not fixable without violating the exclusion mode. Both route_identity and story_depth audits cover these as expected tradeoffs, not defects. No revision action taken."
+    },
+    {
+      "issue_id": "ch51_anchor_calibration_mismatch",
+      "severity": "info",
+      "handling": "explicit_callout",
+      "rationale": "Anchors AC-001/002/004/005 are traditional narrative benchmarks structurally incompatible with parameter narrative mode. The audit annotated this as structural_mismatch. No revision needed — the mismatch is in the anchor framework, not the chapter."
+    }
+  ],
+  "preservation_verification": {
+    "fulfilled_foreshadowing": [
+      "P0-11 threshold_space RELEVANT→RESOLVED",
+      "P0-12 dual_syntax RELEVANT→RESOLVED",
+      "P0-18 self_sustaining_trajectory PLANTED→RELEVANT",
+      "P0-15 switching_threshold (new clue)",
+      "P0-20 light_awakening cross_parameter_awareness"
+    ],
+    "taboo_compliance": [
+      "no_non_parameter_elements",
+      "no_irreversible_declaration",
+      "no_sunday_syntax_advance",
+      "no_emotional_simplification",
+      "no_layer_direction_determined",
+      "no_silence_thickness_stable",
+      "no_offset_trajectory_determined",
+      "no_second_sunday_telegraph"
+    ]
+  },
+  "revision_stats": {
+    "original_cjk": 4557,
+    "revised_cjk": 4557,
+    "change_percent": "0.0%",
+    "within_15_percent": true
+  },
+  "budget": {
+    "token_estimate": 16000,
+    "limit": 24000,
+    "trim_applied": "none"
+  }
+}

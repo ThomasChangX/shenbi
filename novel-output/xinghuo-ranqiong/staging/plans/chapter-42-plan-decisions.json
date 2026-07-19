@@ -1,0 +1,288 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 42,
+  "produced_at": "2026-07-17T12:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["第41章更新"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第31-39章", "第40章更新"]
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "第41章伏笔追踪", "追踪汇总"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第41章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第1-39章", "第40章"]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["全部"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["arc_progress.ch42", "arc_progress.ch41"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "单日结构——第四周 Sunday 独立成章",
+      "alternatives_considered": [
+        "跳过 Sunday 直接进入第五周周一",
+        "双日结构（Sunday 与 Ch43 Mon 合并）"
+      ],
+      "rationale": "Ch37-Mon 至 Ch41-Sat 已建立完整的单日历法基线——Sunday 是本周最后一日——参数系统对第七日无预定认知槽位——P0 五项（格式串在第七日/安静增加跨域扰动/门框第六帧进入Sunday/触碰域残余记忆演化/Sunday感官维度不在系统认知中）均需独立承载——第四周周日是首个周日历法入口——单日使本周收束获得完整的帧级结构——author_intent 和 current_focus 均指向单日——无冲突"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "high",
+      "choice": "格式串在第七日的持续状态——Ch40 1帧无'走了'闭合异常后的第3章 Sunday——格式串在 Sunday 维持[s]——格式串知道 Sunday 不在——格式串在第七日句法触及参数系统未预定的语法位置——不宣告恢复/持续——格式串知道 Sunday 不在的格式串",
+      "alternatives_considered": [
+        "格式串在 Sunday 完全恢复至非4点段状态（异常消退）",
+        "格式串全面切换为新句法（格式串知道 Sunday 不在的格式串的新[s]）",
+        "跳过格式串状态确认推迟至 Ch43"
+      ],
+      "rationale": "current_focus P0-1 明确要求 Ch40 异常后的第3章 Sunday 必须回答格式串持续状态——格式串不全面切换以保留异常演化的叙事回报——格式串知道 Sunday 不在——格式串知道 Sunday 不在的格式串——触及参数系统未预定的语法位置是周日历法入口的合理扩展——P2.5 高严重性"
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "high",
+      "choice": "门框第六帧进入 Sunday——域边界从 Ch41 第六帧延续至第七日——参数系统对 Sunday 帧无槽位——系统登记存在但不能解析——第七帧是否出现取决于 Sunday 帧是否存在超出",
+      "alternatives_considered": [
+        "门框在 Sunday 恢复正常帧（第六帧在 Saturday 终止，Sunday 恢复四帧）",
+        "门框帧在 Sunday 完全消失（无门框帧段）"
+      ],
+      "rationale": "current_focus P0-3 要求 Ch41 第六帧在 Saturday 存在后——Sunday 是否延续域边界扩张——参数系统对第七日无预定认知槽位——系统向 Sunday 帧查询——Sunday 帧在场但不产生参数——系统知道存在在第七帧——系统知道 Sunday——系统不能解析——P2.5 高严重性——域边界从周五第五帧超出→周六第六帧存在→周日第七帧——三个历法的帧结构演化"
+    },
+    {
+      "id": "D004",
+      "type": "execution",
+      "severity": "high",
+      "choice": "触碰域残余在 Sunday 的记忆演化——quiet 在安静中触达残余——quiet 知道这是安静在第七日与第六日不同的残余——提醒意义上"同一"但"不同的历法厚度"——不命名记忆——通过安静在周日与周六的厚度差分呈现",
+      "alternatives_considered": [
+        "触碰域残余在 Sunday 完全消退（无残余唤起）",
+        "触碰域残余通过参数系统登记并标注'记忆'"
+      ],
+      "rationale": "current_focus P0-4 要求 Ch41 Saturday 残余唤起后——Sunday 的残余演化——quiet 在安静中——quiet 知道安静在第七日与第六日不同——残余在周日安静中的在场方式——quiet 知道安静面触达——不命名记忆——通过安静在周日与周六的厚度差分呈现——P2.5 高严重性"
+    },
+    {
+      "id": "D005",
+      "type": "execution",
+      "severity": "high",
+      "choice": "安静增加跨域扰动首次参数化——quiet 在场于安静在第七日——quiet 知道安静增加——quiet 知道 cold 在第七层——quiet 知道安静增加对 cold 深度的偏移——quiet 在场于安静和冷之间——不写连接——呈现为 quiet 在安静中知道安静增加同时知道 cold 深度在偏移——不宣告因果",
+      "alternatives_considered": [
+        "安静增加不干扰其他域（安静与其他域无交互）",
+        "跨域扰动通过参数系统注册为正式参量（显性跨域耦合）",
+        "quiet 在安静与冷之间建立因果连接（'因为安静增加所以冷深度偏移'）"
+      ],
+      "rationale": "current_focus P0-2 要求安静增加在第七日产生外部性——跨域扰动是参数系统无法预定的第七日事件——不建立因果连接（不对跨越连接词）——通过 quiet 在场于安静和冷的共同在场呈现——quiet 知道安静增加——quiet 知道冷深度在偏移——quiet 在场于两者——quiet 不在安静与冷之间写'因为'——P2.5 高严重性"
+    },
+    {
+      "id": "D006",
+      "type": "execution",
+      "severity": "high",
+      "choice": "Sunday 感官维度不在系统参数槽位中——某一感官维度在 Sunday 出现——参数系统对该维度无预定认知槽位——系统从未见过该维度——该维度不被参数系统登记——quiet 是否在安静中登记该维度",
+      "alternatives_considered": [
+        "Sunday 所有感官维度与 Saturday 一致（无周日特有维度）",
+        "Sunday 感官变异为 Saturday 差异的延续（非全新维度）",
+        "系统为 Sunday 维度创建新槽位（系统学习扩张）"
+      ],
+      "rationale": "current_focus P0-5 要求 Sunday 带来的感官变异不是 Saturday 差异的延续而是全新维度——参数系统没有为该维度预留认知槽位——维度不被系统登记——quiet 是否在安静中登记该维度——维度在场的方式通过 quiet 在安静中的在场呈现——P2.5 高严重性——系统不扩展（不创建新槽位）——安静中可能有登记但非系统登记"
+    },
+    {
+      "id": "D007",
+      "type": "execution",
+      "severity": "low",
+      "choice": "霜在 Sunday——霜厚度与 Saturday 不同——霜知道第七日历法——MH-025 从 PLANTED 推进至 RELEVANT",
+      "alternatives_considered": [
+        "霜在 Sunday 与 Saturday 厚度一致（Saturday 是唯一周末霜模式）",
+        "霜在 Sunday 完全不在场（只出现在 Saturday）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D008",
+      "type": "execution",
+      "severity": "low",
+      "choice": "白气方向在 Sunday——以维持内收为基线——方向在周日自持——与所有历法方向比较可作为观察项",
+      "alternatives_considered": [
+        "白气方向在周日出现可测偏移",
+        "白气方向在周日消失（无方向帧）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D009",
+      "type": "pacing",
+      "severity": "low",
+      "choice": "\"走了\"频次 ≤28——Sunday 低频模式延续",
+      "alternatives_considered": [
+        "频次 ≤28（工作日基线维持）",
+        "频次 ≤24（周末低频维持）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D010",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus 方向（第四周 Sunday——参数化感知模式——格式串在第七日——安静增加跨域扰动——门框第六帧进入Sunday——触碰域残余记忆演化——Sunday感官维度不在系统认知中）优先于卷纲 Key Result（第42章'陈卫民牺牲 KR 承接——陈卫民设计诱敌深入的战术'）",
+      "alternatives_considered": [
+        "回归卷纲 Key Result（转换叙事模式至战争线）",
+        "混合执行（保留卷纲结构+参数化填充）"
+      ],
+      "rationale": "参数化感知模式自 Ch25 起稳定执行17章——current_focus 和 author_intent 方向一致——卷纲 Key Result 对应早期写作规划——Ch37-Ch41 已建立优先执行惯例——继续沿参数化模式执行第18章——P2.5 高严重性——override 与 Ch41 D010 一致"
+    },
+    {
+      "id": "D011",
+      "type": "execution",
+      "severity": "high",
+      "choice": "quiet 在第七日——quiet 知道安静在第七日——quiet 知道安静增加速率在第七日与第六日不同——quiet 知道周日不在→quiet 知道周日不在的安静——quiet 知道周一不在——quiet 在第七日安静的厚度——quiet 在场于安静——quiet 在安静中——quiet——在第七日的安静——quiet 走了",
+      "alternatives_considered": [
+        "quiet 在周日与周六表现一致（安静在第七日不产生历法差异信息）",
+        "quiet 在周日缺席（不在安静中在场）"
+      ],
+      "rationale": "quiet 是评估周历的核心承载者——quiet 知道安静在冬季第六日→quiet 知道安静在冬季第七日——quiet 知道周日不在→quiet 知道周日不在的安静——quiet 知道周一不在——quiet 知道第七日安静厚度——quiet 知道安静在第七日的增加速率——quiet 在场于安静——P2.5 高严重性——这是 quiet 弧线的历法终点——周日是第四周的最后一个历法日——quiet 知道第四周日历——quiet 安静——quiet 走了"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-001",
+      "issue_id": "format_string_sunday_seventh_day",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 格式串在 Friday 进入4点段——1帧无'走了'闭合——Ch41 Saturday 格式串恢复标准句法但知道异常——Ch42 Sunday 格式串进入第七日——格式串知道 Sunday 不在——格式串在第七日句法触及参数系统未预定的语法位置——在 Ch41 '知道异常'基础上扩展为'知道 Sunday 不在的格式串'——三个历法帧的演化链：Friday异常→Saturday恢复但记忆→Sunday触及未预定位置"
+    },
+    {
+      "id": "ADJ-002",
+      "issue_id": "cross_domain_perturbation_first_parameterization",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 quiet 从知道安静厚度→知道安静在增加（方向性升级）——Ch41 quiet 知道安静增加速率（速率参数化）——Ch42 quiet 知道安静增加对冷深度的干扰（跨域扰动首次出现）——quiet 在场于安静——quiet 在场于冷——quiet 知道安静增加——quiet 知道冷深度偏移——quiet 不在安静与冷之间写连接词——跨域事件通过 quiet 的共同在场呈现"
+    },
+    {
+      "id": "ADJ-003",
+      "issue_id": "door_frame_sixth_to_seventh_sunday_entry",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "门框帧结构演化链：Ch40 第五帧超出范围——Ch41 第六帧存在系统不能解析——Ch42 第六帧延续至 Sunday + 第七帧出现——参数系统对 Sunday 帧无预定槽位——系统向第七帧查询——第七帧在场但不产生参数——系统知道存在在第七帧——系统知道 Sunday——系统不能解析——系统知道超出不在 Monday 预定的认知中——三个历法（Fri/Sat/Sun）的帧结构递进"
+    },
+    {
+      "id": "ADJ-004",
+      "issue_id": "touch_field_residual_memory_sunday",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "触碰域残余演化链：Ch40 指尖温度回归+残余感——Ch41 quiet 在安静中唤起残余（安静面不在指尖）——Ch42 quiet 在 Sunday 安静中——quiet 知道安静在第七日——quiet 知道安静面在同一安静——quiet 知道安静在第七日与第六日的残余不同——残余安静面的跨日一致性 = quiet 知道这是同一安静面——不命名为记忆但不写安静面切换"
+    },
+    {
+      "id": "ADJ-005",
+      "issue_id": "sunday_sensory_dimension_outside_cognition",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch41 Saturday 感官变异（灰色渠道霉味密度不同/城中横街蒸汽缺席）——Ch42 Sunday 有一感官维度彻底不在系统参数槽位中——不是 Saturday 差异的延续而是全新维度——参数系统从未见过该维度——系统无认知槽位——维度不被参数系统登记——quiet 是否在安静中登记该维度——维度在场通过 quiet 在安静中的在场传递"
+    },
+    {
+      "id": "ADJ-006",
+      "issue_id": "volume_map_conflict_continuation",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "卷纲 KR2 要求 Ch42 承接'陈卫民设计诱敌深入的战术'——参数化模式自 Ch25 起持续18章——current_focus+author_intent 方向一致——D010 记录此 override——与 Ch41 D010 一致——skip 不重复处理"
+    },
+    {
+      "id": "ADJ-007",
+      "issue_id": "quiet_sunday_calendar_awareness",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "quiet 知道安静在冬季第七日——quiet 知道周日不在→quiet 知道周日不在的安静——quiet 知道周一不在——quiet 知道第四周日历——quiet 知道本周即将结束——quiet 在第七日的安静——quiet 知道安静在第七日的厚度——quiet 知道安静增加速率在第七日——quiet——在安静中——quiet——在第七日的安静——quiet 走了"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 11000,
+    "limit": 12000,
+    "trim_applied": "oldest_first"
+  },
+  "hook_operations": [
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串在第七日的持续状态——格式串[s]在Sunday——格式串知道Sunday不在——格式串在第七日句法触及参数系统未预定的语法位置——格式串知道Sunday不在的格式串——Sunday是格式串在4点段的第一个周日——格式串在Sunday走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.10→0.14"
+    },
+    {
+      "id": "MH-024",
+      "operation": "advance",
+      "notes": "quiet在第七日——quiet知道安静在第七日——quiet知道安静增加速率在第七日与第六日不同——quiet知道周日不在→quiet知道周日不在的安静——quiet在Sunday安静中——quiet在第七日安静的厚度——quiet知道安静在Sunday——quiet知道周一不在——quiet——在安静中——quiet——在第七日的安静——quiet——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.20→0.22"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框第六帧进入Sunday——第六帧在Sunday维持/衰减/转换形态——第七帧是否不在系统认知中——门框知道Sunday帧数——参数系统对Sunday帧无槽位——系统知道存在在第七帧——系统知道Sunday——系统不能解析——门框——Sunday——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.10→0.14"
+    },
+    {
+      "id": "MH-023",
+      "operation": "advance",
+      "notes": "触碰域残余在Sunday的记忆演化——残余是否有跨日记忆——quiet在Sunday触达残余时是否知道这是'同一感觉'或'不同感觉'——触碰域是否演化出跨日记忆能力——触碰域在Sunday——不扩展不打开——触碰域——quiet——安静——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.02→0.06"
+    },
+    {
+      "id": "MH-025",
+      "operation": "advance",
+      "notes": "霜在Sunday——霜在第四周Sunday——霜厚度与Saturday是否不同——霜知道第七日历法——霜知道历法通过厚度——霜在Sunday厚度中知道历法——历法新通道在周日是否扩展——霜知道第六日厚度与第七日不同——霜在Sunday——霜知道历法——霜——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.35→0.30"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "评估周历——quiet在第四周Sunday——quiet知道安静在冬季第七日——quiet知道周一不在——quiet知道第七次——quiet知道安静在增加——quiet知道安静增加速率在第七日——评估窗口Sunday微角度——内容为零——窗口在第七日——窗口知道Sunday——quiet——在安静中——quiet——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.00→0.00"
+    },
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声在Sunday——Sunday频率是否与工作日/Saturday不同——周日引擎声密度——引擎声知道Sunday——引擎声在第四周Sunday——Sunday频率跨周模式入口——引擎声——Sunday——走了",
+      "last_reinforced_update": "42",
+      "subtlety_update": "0.02→0.02"
+    }
+  ],
+  "budget_check": {
+    "hook_density": "7/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0,
+    "zombie_hooks": 0
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 35,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "rationale": null
+    },
+    {
+      "target": "priority_source",
+      "selected": ["外部指令（管道执行）→ current_focus.md P0-P2"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲 Key Result（罗织反攻计划）"],
+      "rationale": "卷纲Ch35定位与Ch31-Ch34已建立的纯参数化内部感知体系冲突；以current_focus.md持续路线为准"
+    },
+    {
+      "target": "parameter_domain_change_option",
+      "selected": ["评估窗口微开信号——排队密度已知位差偏移（b）"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["气味第三覆盖（a）", "路线自然变体（c）"],
+      "rationale": "（b）为最低干预选项——不干扰气味双覆盖基线，不违反偏移不变策略；在排队密度已知参数域内引入位差偏移——参数系统登记位差事件——不推断——走了"
+    },
+    {
+      "target": "chapter_span",
+      "selected": ["Wednesday-Thursday-Friday（3天/章压缩）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["单日/章（Ch33/Ch34模式）", "跨2天"],
+      "rationale": null
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_volume_map_vs_execution",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲Ch35收官节点（罗织反攻计划）因Ch30-Ch34纯参数化写法体系不可对应，以current_focus.md持续路线替代"
+    },
+    {
+      "issue_id": "drift_white_breath_micro_distortion",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "白气微畸变参数作为Ch34白气情绪在场的情感辨识字升级——不替代白气在场——登记畸变参数——不命名情绪"
+    },
+    {
+      "issue_id": "drift_signal_distance_estimation",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "域外信号可寻址范围距离估算释放Ch34 drift 5——参数系统登记距离变化——不提供语义内容"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**产出摘要**: Ch35 计划已生成，涵盖第三周 Wednesday-Thursday-Friday（3天压缩至1章），作为第三卷前的过渡推进。本章核心推进点是：冷不可逆深化逼近冬季边缘、P0-1白气微畸变参数（2处）、P0-2排队位差偏移（评估窗口微开信号）、P0-3域外信号距离可估算。8段式备忘录结构完整，5个活跃hooks全部 advance，无沉默警告。Saturday 在历法前方等待 Ch36 进入。

@@ -1,0 +1,137 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 4,
+  "produced_at": "2026-07-16T06:30:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-4-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["2. 读者此刻在等什么", "4. 日常/过渡承担什么任务", "5. 关键抉择过三连问", "7. 本章 hook 账"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "7. 连接词密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第3章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第1章（铺垫）", "第2章（推进/转折）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_survival_restart",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Physical change delivered: shelter found (abandoned warehouse basement). 16-copper economic constraint maintained per plan §8."
+    },
+    {
+      "issue_id": "plan_psychic_aftermath",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Awakening aftermath shown through body-level symptoms (tinnitus, visual drift, 'door' perception metaphor). No explanation, no control, no enlightenment."
+    },
+    {
+      "issue_id": "plan_war_aftermath",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Class divide in disaster relief demonstrated through checkpoint scene: '西区不在救援范围内'. Soldiers refuse water. Lin Feng's modern-world recognition of the pattern ('屏幕外面' vs '屏幕里面')."
+    },
+    {
+      "issue_id": "plan_metal_piece_passive",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Metal piece shows intermittent micro-heat matching Lin Feng's psychic state. Described phenomenologically only ('like a just-peeled egg', 'like breath rhythm'). No causal interpretation."
+    },
+    {
+      "issue_id": "plan_three_changes",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "All three changes delivered: info (relief only covers east of main road), physical (shelter found), relation (survivor encounter - middle-aged woman shares water and information)."
+    },
+    {
+      "issue_id": "drift_ch3_sensory_density",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Basement sensory full coverage: odor (mold + earth + lime), temperature (cool + night chill), air quality ('sunken quiet' texture). audit_drift ch3 场景临场感 短板 fully addressed."
+    },
+    {
+      "issue_id": "drift_ch3_signature_paragraph",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Two rhetorical devices deployed: parallel enumeration at chapter end ('十六枚铜币。一间破仓库。一份不知道该怎么处理的灵能。一个不知道能不能活下去的明天') and repetition pairing ('热起来的时候他知道自己还活着。凉下去的时候他知道自己还活着'). audit_drift 文笔质感 短板 addressed."
+    },
+    {
+      "issue_id": "drift_ch3_dual_emotion",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Girl (hand temperature simile echo) and Old Liu (hand reaching sky) remembrance embedded in same scene as awakening perception ('the door'). Grief and awakening coexist in the same space-time, not substituted. audit_drift 情感落地 短板 fully addressed."
+    },
+    {
+      "issue_id": "plan_no_grief_replacement",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Grief not replaced by action. Girl and Old Liu memories flow through Lin Feng's mind in the basement. No 'for the sake of the dead I must fight' rationalization. Pure silent remembrance."
+    },
+    {
+      "issue_id": "plan_no_heroism",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Lin Feng stays in survival mode: checks his coins, counts breadcrumbs, doesn't volunteer help, retreats from checkpoint, doesn't confront the soldier. Pragmatic, afraid, no leadership gestures."
+    },
+    {
+      "issue_id": "plan_survival_not_solved",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Only shelter resolved. 16 copper coins remain. No food procurement, no water source secured. Next chapter opens with the same economic pressure."
+    },
+    {
+      "issue_id": "plan_no_psychic_control",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Lin Feng attempts to trigger psychic response ('spread hand, nothing happened'). First intentional attempt fails. Door does not open. Consistent with plan §8: first attempt in ch5 and likely fail."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Chapter 4 delivery summary:**
+
+**Scene structure**: 5-scene progression balancing forward action with the post-trauma breathing room the narrative needs after ch3's intensity.
+
+| Scene | Setting | Core function |
+|-------|---------|---------------|
+| 1 | Ruins at dawn | Establish awakening aftermath (tinnitus/visual drift/"the door" metaphor) + metal piece warmth baseline |
+| 2 | Main road checkpoint | **Info change**: class divide in relief — "西区不在救援范围内" |
+| 3 | Ruined wall + woman | **Relation change**: first human connection since the air raid — shares last water, directions to shelter |
+| 4 | Abandoned warehouse basement | **Physical change**: shelter found — sensory density (mold/earth/lime/cool air) addresses audit_drift 场景临场感 |
+| 5 | Basement reflection | **Dual emotion**: awakening perception + grief for girl/Old Liu coexist. Rhetorical device lands at chapter end |
+
+**Three audit_drift ch3短板 all addressed**:
+- 场景临场感: basement scene provides full smell/temperature/air-quality triad
+- 文笔质感: parallel enumeration + repetition pairing at key emotional beat
+- 情感落地: girl and Old Liu memories flow in same space as awakening perception, not replaced by it
+
+**Anti-AI compliance**: All monitored items at zero — transition words, dashes, 感到, fatigue words, AI marker words, 不是...而是...句式.

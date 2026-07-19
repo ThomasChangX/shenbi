@@ -1,0 +1,24 @@
+{
+  "gate": "G4-foreshadowing-track",
+  "status": "PASS",
+  "timestamp": "2026-07-17T13:32:04.182595+00:00",
+  "checks": [
+    {
+      "id": "G4.ft.changes",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ft.chapter_refs",
+      "s": "PASS",
+      "refs": 5
+    },
+    {
+      "id": "G4.ft.core_silence",
+      "s": "PASS",
+      "note": "core_hook gap check requires LLM judgment"
+    }
+  ],
+  "files_checked": [
+    "truth/pending_hooks.md"
+  ]
+}

@@ -1,0 +1,6 @@
+Stage 4: PARTIAL at 2026-07-19T15:01:00+08:00
+  Step 1 (G0): FAILED — G0.16 (missing_write_semantics)
+  Step 2 (G2): PASSED (10/10 chapters, xinghuo-ranqiong substitute)
+  Step 3 (G4): MIXED — chapter-drafting FAIL (word_count <3000, no_hook), character-design FAIL (missing dirs), review-resonance PASS
+  Step 4 (manifest): FAILED — pipeline-manifest.json not found
+  Root cause: test-validation pipeline not run (no LLM backend); validated against xinghuo-ranqiong production data

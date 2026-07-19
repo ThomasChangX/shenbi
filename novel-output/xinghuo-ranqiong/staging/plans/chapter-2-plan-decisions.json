@@ -1,0 +1,90 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 2,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results",
+      "selected": ["KR1: 困境建立与第一次觉醒 - Ch.2 承接定位"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "current_focus.md 第2章指令",
+      "selected": [
+        "阶级鸿沟深化——权贵灵能护盾 vs 平民废料堆",
+        "梵天铭文金属片发现（MH-001）",
+        "被遗弃少女——良知种子",
+        "良知与利己第一次碰撞",
+        "穿越者认知差胜利",
+        "情绪共鸣锚定（触觉/嗅觉符号）",
+        "场景主导声音设计"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "概念翻译APP底层架构（MH-020）——仅保留单句级暗示，subtlety=0.7，实质搁置未作为主线驱动"
+      ]
+    },
+    {
+      "target": "黄金三章纪律——第2章专用约束",
+      "selected": [
+        "验证主角特殊性（穿越者认知差胜利）",
+        "建立第一个对手（灵能贷款系统+买办政府阶级壁垒）"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_001_emotion_anchor",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch.1 drift报告要求Ch.2弥补情绪共鸣短板。少女被弃场景叠加触觉符号（掌心冰冷）+ 嗅觉符号（血迹铁锈味）锚定"
+    },
+    {
+      "issue_id": "drift_002_cognitive_edge",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch.1缺少穿越题材标志性'认知差胜利'，Ch.2插入现代急救知识vs本地灵能医疗的对比"
+    },
+    {
+      "issue_id": "drift_003_audio_dimension",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "Ch.1听觉维度薄弱。Ch.2每场景分配主导声音（权贵区飞艇嗡鸣/废料场金属回音/诊所灵能晶石嗡声）"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 7200,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**Validation pass**. All structural checks clear:
+
+| Check | Result |
+|-------|--------|
+| 8 sections present | ✓ |
+| Section titles exact match | ✓ |
+| Priority source declared (段1) | ✓ — current_focus.md |
+| `chapter_role` + valid value | ✓ — `推进/转折` |
+| Change count >= 1 | ✓ — 3 changes (info, relation, relation) |
+| Hook ledger 4 column names | ✓ — ID/操作/推进方式/沉默章数 |
+| Hook operations valid | ✓ — open(3), advance(3), resolve(1) |
+| No silent defer >=4 | ✓ |
+| Density <= 8 | ✓ — 7/8 |
+
+**Key decisions**:
+- Scene sequence: Iron Mountain crash → abandoned girl encounter → medical rejection → cognitive difference win (first aid) → debt collector pressure → night棚屋 closure
+- MH-001 planted as open with zero interpretation (keeps神秘感)
+- MH-020 held to single-line subtlety=0.7 — correct per pending_hooks spec
+- Ch.2 golden chapter obligations met: protagonist specialness verified via cognitive difference; first opponent established as灵能贷款 system (concrete through催收员+clinic refusal)
+- H01-H04 from Ch.1 all advanced/resolved, creating clean handoff to Ch.3

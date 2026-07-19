@@ -1,0 +1,104 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 8,
+  "produced_at": "2026-07-16T09:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md",
+      "selected": [
+        "P0: 灰色渠道执行与代价",
+        "P0: MH-003紧急激活",
+        "P0: 身体背叛意志（Ch7→Ch8 drift注入）",
+        "P0: 门感知用触感节奏代替类比（Ch7→Ch8 drift注入）",
+        "P1: 新常态建立",
+        "P1: 门结构深化保持悬念"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "P1: MH-001与灵能第一次微弱确认（推迟至Ch9）",
+        "P1: 战后新常态之稳定协作关系建立（过早——灰色渠道风险未消化）",
+        "P2: 战争二次打击预兆（排至Ch9-Ch10）"
+      ]
+    },
+    {
+      "target": "volume_map.md (KR2)",
+      "selected": ["KR2整体方向（从独善其身到加入组织）"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": [
+        "第8章原定位'陈卫民讲述三年前起义的真相——林烽的世界观开始动摇'"
+      ],
+      "rationale": "Ch8实际轨迹聚焦灰色渠道执行与代价，仍停留在铁炉堡城内。陈卫民相遇连续第三次推迟（Ch6→Ch7→Ch8），需在Ch9重新评估是否可汇入"
+    },
+    {
+      "target": "pending_hooks.md",
+      "selected": [
+        "MH-003: advance（cultivation_interval=5耗尽，CRITICAL）",
+        "MH-022: advance indirect（cultivation_interval=2，间接信号强化）",
+        "MH-021: advance（触感节奏替代类比，drift注入）",
+        "MH-020: defer（Ch8已5条操作，保留密度空间）",
+        "MH-001: defer（cultivation_interval=3未到限）"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_vs_actual_trajectory_continued",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2第8章定位'陈卫民讲述三年前起义真相'被实际轨迹第三次覆盖，推迟至Ch9以后"
+    },
+    {
+      "issue_id": "MH-003_cultivation_interval_exhausted",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "MH-003沉默5章（Ch3-Ch7），cultivation_interval=5恰好耗尽。Ch8为最后安全激活窗口，通过北墙引擎声强制性激活"
+    },
+    {
+      "issue_id": "Ch7_drift_injection_emotion",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch7情绪释放为压抑性（拇指刮动），Ch8追加释放性生理暴露（擦破皮/痉挛）以平衡"
+    },
+    {
+      "issue_id": "Ch7_drift_injection_door",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch7门感知使用说明性类比（'像A或B'），Ch8用触感节奏本身替代"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Ch8 备忘自检结果**:
+
+| 检查项 | 结果 |
+|--------|------|
+| 段完整性 8/8 | ✅ |
+| 段标题精确匹配 | ✅ |
+| 优先级来源声明（段1） | ✅ 局部覆盖→current_focus，含冲突说明 |
+| chapter_role 声明 | ✅ `推进/转折` |
+| 章尾改变 ≥1（≥Ch3需advance型） | ✅ 3条全部advance型 |
+| hook账列名 | ✅ ID/操作/推进方式/沉默章数 |
+| hook操作有效性 | ✅ 3 advance + 2 defer |
+| 沉默检测（无defer+≥4沉默） | ✅ 无僵尸伏笔 |
+| 密度预算 ≤8 | ✅ 5/8 |
+
+**关键决策说明**:
+
+- **优先级链**: 局部覆盖（实际轨迹偏移）→ current_focus。卷纲KR2 Ch8节点"陈卫民讲述三年前起义真相"被覆盖，第三次推迟。此偏移从Ch6开始累积，Ch7正式记录，Ch8延续。核心原因：Ch5-Ch7故事始终停留在铁炉堡城内灰色经济生态中，尚未到达灵火会场景——强行跳转会破坏底层叙事的连贯性
+- **MH-003强制激活**: cultivation_interval=5恰好耗尽，最后安全窗口。通过北墙室外场景自然植入引擎声——最轻量级激活方式，不中断主线叙事节奏，不引入新角色或场景
+- **Ch7→Ch8 Drift注入**: 三个P0维度——身体背叛意志（释放性vs Ch7压抑性）、生存计算融入动作节奏（vs Ch7纯认知段落）、门感知触感节奏（vs Ch7说明性类比）。Ch7短板在此备忘录中全部以具体执行指令标记
+- **新常态代价原则**: 灰色收入改善生存基线但引入暴露风险——被灰色系统标记、被城卫军注意、被纳入规则约束。不做无代价改善，不做越界的浪漫化

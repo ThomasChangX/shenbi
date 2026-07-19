@@ -1,0 +1,27 @@
+{
+  "gate": "G4-volume-outlining",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:19:39.236628+00:00",
+  "checks": [
+    {
+      "id": "G4.vo.objective",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.vo.krs",
+      "s": "PASS",
+      "count": 4
+    },
+    {
+      "id": "G4.vo.tension_curve",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.vo.bridge",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "outline/volume_map.md"
+  ]
+}

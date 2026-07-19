@@ -1,0 +1,84 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 36,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "rationale": null
+    },
+    {
+      "target": "priority_source",
+      "selected": ["卷纲 Key Result (Vol 3 KR1: 内奸危机) + current_focus.md P0-P2 (Ch35 audit drifts)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["仅卷纲 Key Result", "仅 current_focus.md"],
+      "rationale": "卷纲（Vol 3开篇：列塔尼亚要求全面配合清剿）与 current_focus（第三次Saturday评估执行+Ch35三项drift）各覆盖不同层面——卷纲提供故事方向层，current_focus提供具体执行层。两者不冲突：passing system 制度化排斥的Saturday终极深化即是列塔尼亚施压在个体层的映射"
+    },
+    {
+      "target": "parameter_domain_new_sampling_points",
+      "selected": ["地面霜首次参数化 (a) + 周六引擎声微变化 (b)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["排队形态新信号 (c)"],
+      "rationale": "（a）（b）两项足够打破三天同构疲劳且不干扰现参数基线——排队形态Saturday特有信号与排队位差偏移（P0-2已覆盖）重叠，引入则过度采样"
+    },
+    {
+      "target": "chapter_span",
+      "selected": ["第三周Saturday（单日/章）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["多日压缩", "跨天过渡"],
+      "rationale": null
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_volume_transition_v2_v3",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲Vol 3开篇（列塔尼亚要求全面配合清剿）与当前Ch31-Ch35纯参数化内部感知体系在叙事语言层不兼容——以域外信号intensity变化+评估窗口形态变化作为Vol 3入场气氛前导，而非参数域内直接引入叙事要素"
+    },
+    {
+      "issue_id": "drift_white_breath_distortion_directionality",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "P0-1：白气畸变方向（外扩/内收）承担Saturday情绪效价信号，但不命名情绪——畸变方向在参数域内登记为参数变化"
+    },
+    {
+      "issue_id": "drift_new_sampling_points_ground_frost",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "P0-2a：地面霜在第三次Saturday首次参数化——霜知道历法——单帧登记——不重复"
+    },
+    {
+      "issue_id": "drift_zoule_variation",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "P0-3：'走了'频次降至周五1/3；Saturday自身关闭标记替代至少3处关键帧"
+    },
+    {
+      "issue_id": "drift_volume_map_vs_execution_vol3",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲Vol 3 KR1具体叙事事件（内奸/怀特曼/清剿配合）不在参数域内展开——仅以域外信号intensity映射，Ch36实质为third Saturday评估执行+Winter edge+新参数采样，为Vol 3真正的叙事要素入场做气氛前导"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**产出摘要**: Ch36 计划已完成，定位为第三卷开篇第一章（同时也是第三周第三次 Saturday 评估执行章）。8 段式备忘录结构完整，三项 Ch35 audit drift 全部合入：P0-1 白气畸变方向性升级（外扩承载 Saturday 情绪效价），P0-2 新采样点（地面霜首次参数化 + 周六引擎声微变化），P0-3 "走了"变奏（Saturday 自关闭标记）。6 个活跃 hooks 全部获得操作（5 advance + 1 reinforce），无沉默警告。卷纲 Vol 3 开篇（列塔尼亚清剿配合）以域外信号 intensity 变化映射至参数域，不在本章引入具体叙事要素——为真正的叙事入场做气氛前导。
+
+沙盒为只读模式，以上文件内容需手动写入 `staging/plans/` 目录。

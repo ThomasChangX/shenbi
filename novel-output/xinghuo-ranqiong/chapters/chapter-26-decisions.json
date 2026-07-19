@@ -1,0 +1,82 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 26,
+  "produced_at": "2026-07-17T00:27:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-26-plan.md",
+      "selected": [
+        "assessment_path_social_exposure_MH022",
+        "autumn_sensory_frames",
+        "vol_2_baseline_confirmation",
+        "walking_parameters_inherited_from_ch25",
+        "technical_density_management_at_assessment_beats",
+        "sensory_spectrum_compensation_smell_wind_cold"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_internal_content",
+        "assessment_decision_trigger",
+        "volume_2_meta_narrative",
+        "passing_system_explanation",
+        "foggy_mountains",
+        "MH_020_full_function",
+        "MH_003_operator_identity"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "vol_2_baseline_P0",
+        "assessment_social_exposure_P0",
+        "sensory_spectrum_compensation_P0",
+        "technical_density_management_P0",
+        "door_frame_vol_2_independent_P1",
+        "phase_2_near_assessment_P1",
+        "MH_020_vol_2_first_P1",
+        "MH_003_vol_2_first_P1",
+        "emotional_baseline_vol_2_P1"
+      ],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": [
+        "offset_strategy_activation_P1",
+        "low_freq_mechanical_sound_P2",
+        "psychic_awakening_dimension_P2"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_sensory_spectrum_ch25",
+      "severity": "medium",
+      "handling": "compensate_via_scene_transition",
+      "rationale": "vol 2 first chapter uses autumn transition to open sensory spectrum beyond thermoradiation/visual/sound — introduces olfactory (coal smoke morning air, dry leaves + dew, coke residue), full-body tactile (cold wind on face — not as temperature delta but as 'wind on skin'), and temperature as subjective cold ('冷' instead of '体表热辐射速率')"
+    },
+    {
+      "issue_id": "drift_technical_density_ch25",
+      "severity": "medium",
+      "handling": "compensate_via_language_switch",
+      "rationale": "at assessment social exposure beats and chapter exit, switched from system language ('感知系统登记'/'参数寄存器') to direct perceptual language ('看见'/'走过'/'在场的方式是在空间中看见') — system language retained only for walking routine beats (door frame, format string, engine sound) where it constitutes the established character voice"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9000,
+    "chapter_word_count_estimate": 8500,
+    "pacing_notes": "vol 2 first chapter — quiet opening without urgency or relief. Walking baseline unchanged. Assessment now visible in physical world but information presence does not trigger action. Autumn settled as sensory backdrop. Technical language density reduced at key emotional beats."
+  }
+}
+```
+
+Chapter 26 is complete as `chapters/chapter-26.md` (~9000 chars, `晨` title) and its decisions sidecar.
+
+**What the chapter delivers (P0s from the plan):**
+
+- **vol 2 baseline established** — Door frame plateau continues, narrow alley exclusion preset, format string [s] maintained, engine sound rhythm unchanged. All walking parameters inherited from Ch25 final state without announcement.
+- **Assessment social exposure** — The assessment application front-end appears as a physical-world object: white paper forms, new desk+chair outside the checkpoint, queue visible, multi-column registration forms. Information presence shifts from "overheard gray-channel fragments" to "seen in physical space."
+- **Sensory spectrum opened** — Coal smoke in morning inversion layer, dry leaves underfoot with dew, cold wind on face (not as temperature differential but as "wind"), cold light (warm→cold white shift), body cold (ankle, back against cold wall, cold ground through shoe soles).
+- **Technical density managed** — Assessment beats and chapter exit use perceptual language ("看见" / "在场的方式是在空间中看见" / "冷白" / "风吹在脸上的感觉"), not system terminology. System language retained only for walking routine beats (door frame, format string, engine sound) where it constitutes established character voice.
+
+**Iron rules enforced:** No assessment internal content, no decision trigger, no volume 2 meta-narrative, no "autumn" as narrative label, no passing system explanation, no dashed-line at exit, zero fatigue words, zero AI marker words ("仿佛/似乎/不禁/感到/意识到"), one transition word in ~9000 characters (well within 1/3000 limit).

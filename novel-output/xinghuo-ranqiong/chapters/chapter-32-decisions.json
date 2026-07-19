@@ -1,0 +1,73 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 32,
+  "produced_at": "2026-07-17T04:00:00+08:00",
+  "selections": [
+    {
+      "target": "plans/chapter-32-plan.md",
+      "selected": [
+        "P0_1_second_saturday_calendrical_presence",
+        "P0_1_cold_covers_saturday",
+        "P0_2_pre_avoidance_habituation",
+        "P0_3_saturday_assessment_emotional_broadening",
+        "P1_emotional_baseline_deepening",
+        "P1_sensory_baseline_maintenance",
+        "P1_offset_strategy",
+        "P1_door_frame",
+        "P1_phase_2_saturday",
+        "P2_MH_020_format_string",
+        "P2_MH_003_engine_sound",
+        "P2_seasonal_progression"
+      ],
+      "basis": "current_focus_P0_P1_P2_coverage",
+      "severity": "low",
+      "omitted": [
+        "assessment_internal_content",
+        "zero_category_extension_to_other_sensory_domains",
+        "cold_assessment_causal_link",
+        "meta_narrative_declaration",
+        "foggy_mountains_chu_yunlan",
+        "long_op_breakthrough",
+        "saturday_discovery_week1_comparison",
+        "new_walking_routes"
+      ]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": [
+        "ch31_audit_1_pre_avoidance_cognitive_barrier",
+        "ch31_audit_2_emotional_range_narrow"
+      ],
+      "basis": "arc_relevance_and_drift_merge",
+      "severity": "high",
+      "omitted": [],
+      "rationale": "Both Ch31 audit items merged to Ch32 per plan — pre-avoidance naturalization addresses cognitive barrier, emotional broadening via crowd-in-cold addresses narrow emotional range"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "no_assemble_context",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "context/chapter-32-context.md and context/chapter-32-context-decisions.json not found; loaded from plan + truth files + adjacent chapters"
+    },
+    {
+      "issue_id": "drift_pre_avoidance_cognitive_barrier_ch31",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Pre-avoidance advanced from discovery (Ch31 clock metaphor) to natural operation (Ch32 archive administrator metaphor) — cognitive threshold lowered via habituation framing, ≤2 frames, no declaration"
+    },
+    {
+      "issue_id": "drift_emotional_range_narrow_ch31",
+      "severity": "high",
+      "handling": "compensate_via_emotional_broadening",
+      "rationale": "Saturday assessment crowd in cold provides emotional broadening through material details (foot stomp/visible breath/shrugging necks/hands in pockets/contrast ratio of light in cold/oppression in queue silence) — reader perceives oppression without parameter framework"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "chapter_word_count_estimate": 8200,
+    "pacing_notes": "Ch32 spans Saturday morning→Saturday afternoon→Saturday evening—single calendar day. No Sunday/Monday baseline transition as in Ch29. Emotional baseline: quiet that knows Saturday is in the calendar—quiet now contains calendrical knowledge + pre-avoidance knowledge. Assessment trajectory: Ch29 discovery→Ch31 habitual→Ch32 calendrical finalization—Saturday in knowing, no discovery needed. Cold progression: deep autumn at second week depth—cold changes queue body behavior (foot stomp, visible breath concentration above queues, hand depth in pockets rediscovered, shoulders shrugged, contrast ratio elevated by cold). Pre-avoidance habituation: archive administrator metaphor replaces clock metaphor—natural path avoidance, no decision, no analysis. Emotional broadening: queue crowd oppression through material cold details—cold density in shadows, light sharpness in cold air, weighted breathing collective, body weight alternation rhythm, silence in waiting. MH-020: numbers moved down to 10.5/10.9/11.1—seasonal progression. MH-003: engine sound in Saturday cold air—clearer/brighter, cold changes high-frequency transmission, engine sound has its own week calendar. Phase 2: Saturday condensation morphology registered as distinct from weekday—no causal inference. Door frame: difference presence rate maintained at second week Saturday same as first week Saturday—no comparison between weeks. Offset strategy: not activated by Saturday line—same level as day 1. Transition words: 0. Exit: shorter than Ch31 (~70 chars vs ~90)—no analytical review of Saturday passage."
+  }
+}

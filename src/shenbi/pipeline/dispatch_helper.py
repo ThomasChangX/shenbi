@@ -94,7 +94,7 @@ def _compute_dispatch_timeout(
 
     Applied to ALL THREE dispatch paths (CLI subprocess, API, IDE-CLI).
     """
-    base = 300
+    base = 900
     extra = 0
 
     if chapter_path and chapter_path.exists():

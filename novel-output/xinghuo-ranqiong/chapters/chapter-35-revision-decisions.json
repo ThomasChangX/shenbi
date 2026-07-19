@@ -1,0 +1,43 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 35,
+  "produced_at": "2026-07-17T06:35:40+08:00",
+  "selections": [
+    {
+      "target": "audits/chapter-35-memo-compliance.md",
+      "selected": [
+        "minor_density_cross_week_compare",
+        "minor_cold_depth_cross_week_compare"
+      ],
+      "basis": "manual_override",
+      "severity": "low",
+      "rationale": "2 MINOR memo compliance violations at L81 (density comparison: 与在第二周的周三——同一密度) and L107 (cold depth comparison: 比在第二周——同一位置) both violating plan Section 8 no-compare rule \"第三周 Wed 不比较第二周 Wed\""
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotional_grounding",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "forward-looking recommendation for Ch36 per resonance report \"下章可考虑在不引入情绪标签的前提下让白气畸变携带信号方向的定性\" — not a Ch35 fix item"
+    },
+    {
+      "issue_id": "drift_reader_reward_three_day_isomorphism",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "forward-looking recommendation for Ch36 per resonance report \"建议下章在参数域内引入一处微小新采样点\" — signal staying stable for 3 working days is Ch35 design intent"
+    },
+    {
+      "issue_id": "drift_mode_fatigue_zou_le_density",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "forward-looking recommendation for Ch36 per resonance report \"建议下章引入走了的变奏或替代关闭标记\" — not a Ch35 fix item"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "chapter_word_count_estimate": 9500,
+    "pacing_notes": "Minimal spot-fix only — 2 memo compliance fixes (L81 + L107), <0.5% length change, all P0/P1/P2 items preserved, 0 transition word budget, 0 AI tell budget, length change well under 15% limit"
+  }
+}

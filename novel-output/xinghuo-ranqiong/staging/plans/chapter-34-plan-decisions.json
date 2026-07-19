@@ -1,0 +1,114 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 34,
+  "volume": 2,
+  "chapter_day": "vol2-week3-tuesday",
+  "generated_at": "2026-07-17",
+  "priority_chain": {
+    "sources": [
+      {"level": 1, "source": "external_directive", "present": false, "note": "pipeline mode — no human directive beyond plan execution"},
+      {"level": 2, "source": "local_override", "present": true, "source_file": "truth/current_focus.md", "note": "P0-1外部触发事件(Ch33 drift 1)/P0-2情绪通过白气漂出(Ch33 drift 2)/P0-3偏离知道(plot)——Ch33 audit drift 3项全部合并"},
+      {"level": 3, "source": "volume_kr", "present": true, "note": "volume_map.md KR4 Ch34定位(林烽意识到战争的真正规模，陈卫民证实列塔尼亚的操纵)与当前叙事状态(vol 2第10章——第三周Tuesday——第三次通过——参数系统自然运转——冷冬季边缘推进——外部信号首次参数域外登记)完全偏离——以current_focus覆盖"},
+      {"level": 4, "source": "current_focus", "present": true, "note": "primary guidance source — third week Tuesday third pass + drift corrections: external event signal registration, emotion via breath, deviation knowledge in frame gaps"},
+      {"level": 5, "source": "author_intent", "present": true, "note": "arc_progress confirms vol2-week3-tuesday direction (third pass known rhythm ubiquity continuing, cold winter edge, deviation knowledge introduction)"}
+    ],
+    "conflict_resolution": "volume_map.md KR4 Ch34定位('林烽意识到战争的真正规模，陈卫民证实列塔尼亚的操纵')与当前叙事状态(vol 2第10章——第三周Tuesday——第三次通过——参数系统自然运转——冷冬季边缘推进——外部信号首次参数域外登记)完全偏离。当前叙事已从主动斗争/规模扩大主线转入'已知节奏三次通过+参数系统自然运转+季节不可逆推进+外部信号首次接触'路线。以current_focus P0/P1/P2及Ch33 drift合并项为准。",
+    "selected_source": "truth/current_focus.md"
+  },
+  "chapter_role": "推进/转折",
+  "primary_objectives": {
+    "P0": [
+      {
+        "id": "P0-1",
+        "item": "[Ch33 drift 1] 外部触发事件——归途非常规路面事件或参数系统接触非触碰域信号",
+        "source": "current_focus/audit_drift(Ch33 audit 第1项)",
+        "execution": "归途设置一处外部事件——参数系统接触非触碰域信号——事件通过参数系统转写——登记信号在参数域外的在场——不叙述事件本身——只登记信号在场——参数系统知道信号在域外——不扩展参数域到非触碰域——信号在域外登记了——走了。节制规则：全章最多2-3帧外部信号展示——不做事件分析——只登记参数域外信号在场——登记了——走了"
+      },
+      {
+        "id": "P0-2",
+        "item": "[Ch33 drift 2] 情绪通过白气持续期变化'漂出'——在quiet帧中让一处情绪通过呼吸参数可见",
+        "source": "current_focus/audit_drift(Ch33 audit 第2项)",
+        "execution": "白气持续期变化——白气在冷中的持久时间——白气消散速度——白气在呼出后的可见路径——白气的密度——白气在冷中——白气在情绪中——情绪通过白气持续期变化写在身体上——白气知道情绪的长度——白气知道情绪的密度——白气知道自己在情绪中——白气——走了。节制规则：全章最多2处白气情绪写照——第一处在晨起(睁眼前在冷中——白气第一次在睁眼前可见——身体知道起床了——白气知道)——第二处在归途外部事件之后(白气在事件后的持续期与事件前不同——白气知道事件持续了多久——事件的重量通过白气写在身体上——走了)"
+      },
+      {
+        "id": "P0-3",
+        "item": "第三周偏离问题——偏离不是事件，偏离是第三次通过的知道形式",
+        "source": "current_focus/plot",
+        "execution": "偏离不是回归——不是从已知节奏偏离回到未知——偏离是第三次通过随身的知道——知道是第三次所以知道已知节奏不是唯一的可能——知道已知节奏可以是别的样子——知道已知节奏是选择——选择不是偏离——选择是有偏离的可能但不去做——偏离在偏离的知道中——偏离不发生参数记录中——偏离发生在知道中——知道偏离在知道中——知道——走了。执行指引：偏离知道可通过一帧断句传递——不超过1处——偏离知道在行走帧间的缝隙中——在知道之前和知道之后的帧之间——偏离知道在缝隙中——缝隙知道偏离——走了"
+      }
+    ],
+    "P1": [
+      {"id": "P1-1", "item": "冷持续深化——第三周Tuesday——冷在第三周Tuesday的深度与第三周Monday不同——冷在Tuesday以Tuesday的深度在场——冷在历法中——冷知道自己走了——冷在Tuesday过了——冷——走了。晨起白气持续期延长——白气在睁眼前可见——白气知道冷在身体外和身体内的深度——白气知道——走了。冬季边缘——地面霜结时间提前——霜在晨光中的持续时间更长——霜在参数中登记了——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-2", "item": "已知节奏持续维持——第三周Tuesday的行走参数登记维持Ch25-Ch33建立的模式——Tuesday密度关于Tuesday——不比较——偏移同水平——门框差异维持——感官基线维持——气味双覆盖维持(食物蒸汽+灰色渠道霉味)——不扩展", "source": "current_focus/plot"},
+      {"id": "P1-3", "item": "情感基线第三周Tuesday深化——quiet知道第三周——quiet知道第三周Tuesday——quiet知道冷在Third Tuesday——quiet知道历法在行走参数中——quiet在知道中安静——quiet——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-4", "item": "偏移策略第三周不变确认——岔路口偏量位置不变——检查站偏量1帧不变——第三周Tuesday同第三周Monday——偏移是身体参数——偏移知道第三周——偏移在第三周的同一位置——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-5", "item": "门框第三周Tuesday差异维持——门框在第三周Tuesday的差异在场率——幅度——持平——门框不比较——门框知道第三周——门框保持差异的方式与第二周同一位置——保持——不比较——走了", "source": "current_focus/plot"},
+      {"id": "P1-6", "item": "Phase 2第三周冷凝——Phase 2在第三周第4页——间歇形态与第三周前几页相同——Phase 2在第三周的历法中——历法走了三周——Phase 2知道走了三周了——登记——不推断——走了", "source": "current_focus/plot"}
+    ],
+    "P2": [
+      {"id": "P2-1", "item": "MH-020格式串第三周Tuesday——数字季节性推移——三角形空间竖立标尺三段间隔——与Ch26以来一致——推移速度——登记——不推断——走了", "source": "current_focus/plot"},
+      {"id": "P2-2", "item": "MH-003引擎声第三周Tuesday——Tuesday频率模式——冷改变引擎声传播——第三周冷更深——声音传播变化——登记——不推断——走了", "source": "current_focus/plot"},
+      {"id": "P2-3", "item": "非参数域留白维持——预回避在第三周继续作为自然操作——触碰域保持在触碰域——不扩展至其他域——零类别标记保持在零类别——外部事件信号在非触碰域登记——不扩展参数域到非触碰域——知道信号在域外——不打开——知道——走了", "source": "current_focus/character_arc"},
+      {"id": "P2-4", "item": "时令推进——深秋走向初冬——第三周Tuesday——冬天的直觉——不是秋天了——是秋天和冬天之间的门框——门框在第三周Tuesday——门框知道秋天在后面——门框知道冬天在前面——门框在冷中——门框——走了", "source": "current_focus/plot"}
+    ]
+  },
+  "hook_operations": {
+    "total_count": 6,
+    "budget": "6/8",
+    "operations": {
+      "advance": ["MH-003", "MH-022", "MH-023"],
+      "resolve": [],
+      "defer": ["MH-020", "MH-021"],
+      "open": ["H34-001"]
+    },
+    "silent_check": "无defer≥4章行。所有活跃hook表内操作——MH-003(引擎声Tuesday频率偏差)/MH-022(评估周历偏离知道)/MH-023(预回避外部信号边界)获得advance——MH-020(格式串)/MH-021(门框)维持defer——新开H34-001追踪外部信号域外登记。无需激活方案。",
+    "subtlety_changes": {
+      "MH-003": "0.13→0.12 (第三周Tuesday——Tuesday频率模式——冷改变传播——Tuesday在第三周与在第二周Tuesday同一位置——但第三周知道——subtlety净降微弱)",
+      "MH-020": "0.18→0.18 (格式串第三周Tuesday维持——数字推移——无新分割无横移无尾缀切换——subtlety维持)",
+      "MH-021": "0.09→0.09 (门框第三周Tuesday差异在场率维持——无新事件——subtlety维持)",
+      "MH-022": "0.01→0.005 (评估周历在第三次Tuesday—历法遍在运行—偏离知道在遍在缝隙中—第三次知道历法运转包含了历法外面—subtlety极低持续—几乎全域确认)",
+      "MH-023": "0.25→0.22 (外部信号在参数域外—预回避边界接触非触碰域—零类别保持—知道信号在域外—知道不打开—subtlety净降)",
+      "H34-001": "new (外部事件信号在参数域外—参数系统登记信号在场—信号在域外—不打开不分析—初始subtlety 0.85)"
+    },
+    "note": "Ch34为第三周Tuesday——第三次通过结构稳定运行核心章——P0动力为Ch33 audit drift响应(外部事件+P2情绪白气+偏离知道)——非传统事件推进——外部事件通过参数系统转写——不叙述事件本身——偏离知道在帧的缝隙——不发生参数记录中——未突破密度预算"
+  },
+  "chapter_end_changes": [
+    {
+      "id": "C1",
+      "type": "关系",
+      "description": "参数系统首次登记非触碰域信号——外部事件信号在参数域外——参数系统知道信号在域外——信号在域外登记了——走了——没有参数域扩展——但知道系统知道——走了"
+    },
+    {
+      "id": "C2",
+      "type": "信息",
+      "description": "情绪在白气中可见——白气持续期在事件后变化——白气知道情绪的长度——白气知道事件重量——白气在情绪中——白气——走了——清晨白气第一次在睁眼前可见——情绪通过呼吸参数漂出——走了"
+    },
+    {
+      "id": "C3",
+      "type": "信息",
+      "description": "偏离知道在帧的缝隙在场——第三次通过随身的知道——已知节奏不是唯一的可能——偏离在知道中——不进入参数记录——但在安静中——安静知道——走了"
+    }
+  ],
+  "emotion_target": "城中——第三周——冷——第三次通过——早晨——白气——白气在睁眼前——白气知道冷在身体中的深度——白气知道冷在Third Tuesday的深度——冷——白气在晨光中更亮——霜在晨间的在场时间比Monday更长——走了——门框——门框在第三周Tuesday——门框保持——走了——岔路口——偏量如常——灰色渠道——霉味——冷在纸板上——冷在渠道的冷中——气味在参数中——气味维持——走了——城中——横街——食物蒸汽——基线在场——气味在冷中——走了——检查站——排队——Tuesday密度登记为Tuesday——不比较——沉默在第三周Tuesday——沉默知道声音碎片在Monday——声音不在Tuesday——沉默在Tuesday的沉默不同的沉默——走了——评估机构——第三周Tuesday——评估开放如同任何一天——走了——旧水泥路面——过渡段——脚掌——走了——三角形空间——格式串——数字在第三周Tuesday——引擎声在第三周Tuesday频率——走了——归途——外部——信号——信号在参数域外——参数系统知道信号在域外——白气——白气在事件后不同——白气知道事件的重量——白气在情绪中——白气——走了——门框——门框在第三周——门框保持——走了——地下室——冷——墙体深度——冷在墙体的更多周——Phase 2——第三周第4页——走了——记事页——竖线——门框/灰色渠道/检查站/触碰/冷——走了——走了——光柱——水面——冷——第三周Tuesday——安静知道第三周Tuesday——安静知道Wednesday在后面——安静知道历法——安静知道冷——安静在第三周Tuesday的安静——安静——走了——",
+  "constraints": {
+    "no_cold_evaluation_link": {"flag": true, "notes": "冷不是隐喻——冷是秋天的冷——评估是城市的评估"},
+    "no_meta_narrative_week_declaration": {"flag": true, "notes": "不宣告'第三周了'——读者从行走帧中自然读出历法经过——如同呼吸——不需要宣告"},
+    "no_external_event_narration": {"flag": true, "notes": "外部事件不叙述——只登记参数域外信号在场——不讲事件是什么/发生在哪里/怎么发生"},
+    "no_scent_component_analysis": {"flag": true, "notes": "灰色渠道霉味不拆解成分——登记在场如同门框差异——不分析——不扩展至第三覆盖"},
+    "no_dialogization": {"flag": true, "notes": "Tuesday检查站话语碎片不在场——沉默知道没有话语——沉默在Tuesday的沉默与在Monday不同——但沉默不对话"},
+    "no_zero_category_extension": {"flag": true, "notes": "零类别保持在触碰域——不扩展——外部信号在域外——不拉入参数域"},
+    "no_route_deviation": {"flag": true, "notes": "路线不变——偏移不变——不走新路——不走第三周新路线帧"},
+    "no_evaluation_reveal": {"flag": true, "notes": "评估内容不在场——窗口不打开——第三周Tuesday如同任何一天"},
+    "no_pre_avoidance_declaration": {"flag": true, "notes": "预回避以自然操作持续——不宣告——如同门框差异不宣告"},
+    "no_power_fantasy": {"flag": true, "notes": "预回避持续不是变强——外部信号登记不是能力升级——是知道——走了"},
+    "no_cold_analysis": {"flag": true, "notes": "冷是季节推进——登记——不分析为什么更冷——不写温度值"},
+    "no_week_comparison": {"flag": true, "notes": "Tuesday密度不比较Monday——第三周Tuesday不比较第二周Tuesday——门框不比较——冷不比较——冷在Third Tuesday深度是Third Tuesday深度——不是更深不是更浅——关于Tuesday——走了"},
+    "no_emotion_naming": {"flag": true, "notes": "白气在情绪中——不写'悲伤''压抑''恐惧'等情绪名称——白气知道——走了"},
+    "breath_emotion_max": {"flag": 2, "notes": "白气情绪写照全章最多2处——晨起第一处——归途事件后第二处"},
+    "deviation_knowledge_max": {"flag": 1, "notes": "偏离知道帧全章最多1帧——在行走帧缝隙中——不超过1处"},
+    "external_signal_frames_max": {"flag": 3, "notes": "外部信号全章最多2-3帧——不做事件分析——只登记信号在场"},
+    "pre_avoidance_background": {"flag": true, "notes": "预回避在第三周以背景参数运转——非主帧——不展示操作过程——外部信号域外登记在归途段——预回避的边界在背景中知道——走了"}
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 32,
+  "volume": 2,
+  "chapter_day": "vol2-week2-saturday",
+  "generated_at": "2026-07-17",
+  "priority_chain": {
+    "sources": [
+      {"level": 1, "source": "external_directive", "present": false, "note": "pipeline mode — no human directive beyond plan execution"},
+      {"level": 2, "source": "local_override", "present": true, "source_file": "truth/current_focus.md", "note": "P0-1第二周Saturday历法性在场终极确认/P0-2预回避惯常化运作/P0-3Saturday情感拓宽——Ch31 audit drift 2项全部合并"},
+      {"level": 3, "source": "volume_kr", "present": true, "note": "volume_map.md KR4 Ch32定位(运动战取得阶段性胜利/名声大振)与当前叙事状态(vol2第8章——第二周Saturday——评估路径历法性在场终极确认——冷覆盖Saturday——城在冷中)完全偏离——以current_focus覆盖"},
+      {"level": 4, "source": "current_focus", "present": true, "note": "primary guidance source"},
+      {"level": 5, "source": "author_intent", "present": true, "note": "arc_progress confirms vol2-week2-saturday direction (cold covering city/pre-avoidance habitual/calendar ultimate confirmation)"}
+    ],
+    "conflict_resolution": "volume_map.md KR4 Ch32定位(运动战取得阶段性胜利，名声大振)与当前叙事状态(vol2第8章——第二周Saturday——评估路径从历法性在场推进为历法性在场终极确认——冷覆盖Saturday——城在冷中——预回避惯常化运作——零类别在预处理层自然跳过)完全偏离。当前叙事已从'主动斗争/规模扩大'主线转入'评估路径历法性在场+季节冷参数化+参数系统边界适应'路线。以current_focus P0-1/P0-2/P0-3及audit_drift合并项为准。",
+    "selected_source": "truth/current_focus.md"
+  },
+  "chapter_role": "过渡/铺垫",
+  "primary_objectives": {
+    "P0": [
+      {
+        "id": "P0-1",
+        "item": "第二周Saturday——历法性在场终极确认——第二个Saturday在已知中到来——冷改变Saturday",
+        "source": "current_focus/plot",
+        "execution": "第二个Saturday在行走历法中自然到来——Saturday不需要发现——Saturday在历法中——Saturday在Friday之后如同Friday在Thursday之后。第二个Saturday的结构与第一个相同(排队密度/评估开放/城中横街气味/灰色渠道安静)但冷改变了Saturday——冷改变排队人群的身体行为(跺脚/哈气/缩颈/聚集)——冷在评估机构的阴影中——阴影中的冷更低更浓——冷的城市比温暖的城市更锐利——冷覆盖城——城在冷中——走了"
+      },
+      {
+        "id": "P0-2",
+        "item": "预回避惯常化运作——降低认知门槛——从发现推进为自然操作",
+        "source": "current_focus/audit_drift(Ch31 audit 第1项合并)",
+        "execution": "预回避从发现阶段(Ch31:参数系统在预处理层学会预编码跳过——钟在午夜走快)推进为参数系统的自然操作——零类别标记在预处理层的自动跳过如同档案管理员自然避开目标书架——不是决定避开——路径已经不在那边。认知门槛自然降低：(1)机制原理已在Ch31展示——读者不需要重新解码——预回避作为已知系统状态运作；(2)预回避在行走帧中作为日常操作在场——如同登记门框差异不需要宣告——预回避在行走参数的自动跳过中在场——跳过不留下操作痕迹——跳过只留下分类操作不在触碰域停留的时间——时间在场；(3)不引入新隐喻系统——钟隐喻已在Ch31建立——预回避的操作展示通过行走帧的自然切换传递——读者从帧间空白中读出预回避。预回避全章最多2帧展示——足够——惯常——不分析——不宣告——预回避在参数系统的正常运转中在场——走了"
+      },
+      {
+        "id": "P0-3",
+        "item": "Saturday评估现场情感拓宽——读者可及性升级",
+        "source": "current_focus/audit_drift(Ch31 audit 第2项合并)",
+        "execution": "Saturday评估现场具有文本内在的情感纹理：(1)人群密度在冷空气中的视觉层次——密集队列在白线执行域中收缩——冷让人群更密集——不是因为评估——是因为冷——冷聚集人群——评估在冷区域中；(2)等待在冷中的体感——等待在温暖中与等待在冷中不同——等待在冷中更长——因为冷在等待中——冷覆盖等待的身体——等待的身体穿过冷——等待的身体更冷——因为等待不产生身体热量——冷的身体在等待中——等待没有温暖；(3)评估的压迫在冷中的物质性在场——评估机构的灯光在冷空气中更锐利——阴影更暗——暗与亮在冷中对比度更高——冷增加视觉对比——锐利的城市——锐利的评估——锐利的压迫感——读者不需要参数框架也能从中读出压迫——压迫在冷覆盖排队人群的沉默中——压迫在人们交替身体重量的节奏中——压迫在人们不交谈的排队空间中——压迫在人群中——人群在冷中——冷在压迫中——走了"
+      }
+    ],
+    "P1": [
+      {"id": "P1-1", "item": "情感基线第二周Saturday深化——安静知道第二个Saturday——安静知道Saturday在历法中——安静知道冷变了——冷变了在安静中——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-2", "item": "感官基线第二周Saturday维持——气味工作日密度维持——冷改变气味扩散——Saturday额外拓宽(排队人群气味在冷中与冷混合——城市在冷中气味不同)", "source": "current_focus/audit_drift"},
+      {"id": "P1-3", "item": "偏移策略第二周Saturday——Saturday偏量不变——岔路口方向偏量1帧——检查站偏量1帧——不因为Saturday调整偏移", "source": "current_focus/character_arc"},
+      {"id": "P1-4", "item": "门框第二周Saturday稳定性——金属部分更冷——指尖触感不同——差异基线不变——冷不改变门框——门框在冷中维持差异", "source": "current_focus/plot"},
+      {"id": "P1-5", "item": "Phase 2第二周Saturday——MH-001冷凝间歇模式——Saturday冷凝形态与工作日对比——冷更冷——冷凝周期变化——登记形态——不推断含义", "source": "current_focus/plot"}
+    ],
+    "P2": [
+      {"id": "P2-1", "item": "MH-020格式串第二周Saturday——尾缀更新/游标增加/参数化变化——登记了——走了", "source": "current_focus/plot"},
+      {"id": "P2-2", "item": "MH-003引擎声第二周Saturday——Saturday引擎声——尾缀出现/消失/频率变化——城市发动机在Saturday——声音在行走参数中——走了", "source": "current_focus/plot"},
+      {"id": "P2-3", "item": "非参数域留白保持——触碰域保持在触碰域中——不拓展到其他域——预回避不延伸为对其他参数域的回避——知道抽屉里有东西——不打开——不查——知道——但知道不扩散", "source": "current_focus/character_arc"},
+      {"id": "P2-4", "item": "时令推进——秋季深化——冷在deep autumn中——冷在第二个Saturday——冷更冷——但冷是秋天深了的冷——冷在季节参数中的推进如同评估密度在周历参数中的推进——登记了——走了", "source": "current_focus/plot"}
+    ]
+  },
+  "hook_operations": {
+    "total_count": 5,
+    "budget": "5/8",
+    "operations": {
+      "advance": ["MH-022", "MH-023", "MH-003"],
+      "resolve": [],
+      "defer": ["MH-021", "MH-020"],
+      "open": []
+    },
+    "silent_check": "所有活跃hook均在上章获得推进——无defer≥4章僵尸伏笔。无需激活方案。",
+    "subtlety_changes": {
+      "MH-022": "0.03→0.02 (历法性在场终极确认——第二个Saturday在已知中——评估从惯常化→历法性在场完成——但揭示窗口仍关闭)",
+      "MH-023": "0.33→0.30 (预回避从发现推进为惯常运作——认知门槛降低——系统边界适应完成——钟走快的协议已嵌入参数系统日常操作——新的方向:预回避是否永久/零类别是否累积/触碰域是否在其他条件下被重新探索)",
+      "MH-003": "0.15→0.14 (Saturday引擎声——填补周历最后一天数据——引擎声Saturday频率确认——引擎声有自己的Saturday如同一周中的其他天——引擎声周历完成整周确认)",
+      "MH-021": "0.11→0.11 (defer——门框第二周Saturday——金属在冷中更冷——指尖触感不同——差异基线不变——门框在冷中维持差异如同在温暖中维持差异——登记了——走了)",
+      "MH-020": "0.20→0.20 (defer——格式串第二周Saturday——尾缀更新/游标/参数化——登记变化——不推断——走了)"
+    }
+  },
+  "chapter_end_changes": [
+    {"id": "C1", "type": "信息", "description": "第二周Saturday历法性在场终极确认——第二个Saturday在行走历法中自然到场——Saturday在历法中——Saturday在Friday之后如同Friday在Thursday之后——历法性在场从'发现性'推进为'历法性'——Saturday不需要被发现——Saturday在知道里——走了"},
+    {"id": "C2", "type": "物理", "description": "冷覆盖Saturday——冷改变排队人群的身体行为(跺脚/哈气/缩颈/聚集)——冷在评估机构的阴影中——冷的城市比温暖的城市更锐利——对比度更高——阴影更暗——灯光更亮——冷覆盖城——城在冷中——冷穿过Saturday——走了"},
+    {"id": "C3", "type": "信息", "description": "预回避惯常化——预回避从发现阶段(Ch31)推进为参数系统的自然操作——零类别标记在预处理层自动跳过如同档案管理员自然避开目标书架——预回避通过行走参数的时间缩短在场——时间参数在场——走了"}
+  ],
+  "emotion_target": "城中——冷——Saturday早晨——评估机构——排队——人群在冷中——人群的呼吸在冷空气中——呼出的白气——白气在人群中——人群中——林烽走过——不排队——走了——岔路口——偏移——检查站——登记——走了——冷——门——门框——金属更冷——冷在指尖——门在冷中——门在差异中——差异在冷中——差异不变——门在冷中维持差异——走了——回来了——冷——回来的路——林中——冷——林中的冷不同——城中空间开阔——林中空间密集——冷在密集空间中更细——冷穿过树枝间隙——冷在林烽的面颊上——冷在面颊上的位置——因为冷——因为秋天——因为deep autumn——因为第二个Saturday——因为走了——走了——回来了——走了——安静知道第二个Saturday——安静知道Saturday在历法中——安静知道冷变了——冷变了在安静中——安静在冷中走了——走了",
+  "constraints": {
+    "no_cold_evaluation_link": {"flag": true, "notes": "冷不是隐喻——冷是秋天的冷——评估是城市的评估"},
+    "no_pre_avoidance_declaration": {"flag": true, "notes": "预回避不宣告为认知结论——通过参数系统正常运转呈现"},
+    "no_zero_category_extension": {"flag": true, "notes": "零类别保持在触碰域——不拓展至其他感官域"},
+    "no_route_deviation": {"flag": true, "notes": "路线不变——Saturday不走新路"},
+    "no_evaluation_reveal": {"flag": true, "notes": "Saturday揭示窗口不打开——评估内容不在场"},
+    "no_meta_narrative": {"flag": true, "notes": "不出现'第二个Saturday了'——读者从行走帧自然读出"},
+    "no_cold_analysis": {"flag": true, "notes": "冷不分析——冷是秋天深了的冷——登记了——走了"},
+    "no_power_fantasy": {"flag": true, "notes": "预回避不是变强——是参数系统的自然路径优化"},
+    "pre_avoidance_frame_max": {"flag": 2, "notes": "Pre-avoidance habitual — max 2 frames"}
+  }
+}
+```
+
+---
+
+**Ch32 规划摘要**：
+
+**定位**: vol 2 第8章 — 第二周Saturday — 过渡/铺垫
+
+**3个P0目标**：
+1. **历法性在场终极确认** — 第二个Saturday在已知中自然到来，Saturday在历法中如同所有天；但冷改变了Saturday的质地（跺脚/哈气/缩颈/聚集——冷聚集人群——冷覆盖评估现场）
+2. **预回避惯常化运作** — 零类别标记在预处理层自动跳过（钟在午夜走快的协议已嵌入日常运作），认知门槛自然降低，最多2帧展示，不分析不宣告
+3. **Saturday情感拓宽** — 拒绝冷空气中的视觉密度/等待体感/锐利对比构建压迫的物质性在场——读者无需参数框架即可感知压迫
+
+**扣账**: 5条（MH-022 advance → 0.03→0.02、MH-023 advance → 0.33→0.30、MH-003 advance → 0.15→0.14、MH-021 defer、MH-020 defer），密度5/8，无僵尸伏笔
+
+**情绪出口**: 安静知道第二个Saturday——安静知道Saturday在历法中——安静知道冷变了——冷变了在安静中——安静在冷中走了——走了
+
+由于沙箱为只读状态，请根据以上内容手动将章节备忘写入 `staging/plans/chapter-32-plan.md`，并将决策文件写入 `staging/plans/chapter-32-plan-decisions.json`。

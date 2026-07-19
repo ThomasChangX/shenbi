@@ -1,0 +1,71 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 20,
+  "produced_at": "2026-07-16T18:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["过渡/铺垫"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "推进/转折"],
+      "rationale": ""
+    },
+    {
+      "target": "priority_source",
+      "selected": ["局部覆盖(truth/current_state.md)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲 Key Result(volume_map KR1收官)"],
+      "rationale": "卷纲指定Ch20为第二卷KR1收官(根据地雏形建立/灵火会改编)但故事实际进程未达该节点——以实际故事状态为准，卷纲KR1延后"
+    },
+    {
+      "target": "emotion_payoff",
+      "selected": ["停止恶化信号(门框温度稳定+MH-001'和昨天一样')"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["路径恢复通行可能"],
+      "rationale": ""
+    },
+    {
+      "target": "physiological_cross_reference",
+      "selected": ["心率对照Ch19围挡段峰值——在封锁确认场景段植入"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["体温对照"],
+      "rationale": ""
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_deviation",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map Ch20定位(第二卷KR1收官)与actual state(铁炉堡西区生存线)偏差已超越可忽略范围——局部覆盖(truth/current_state.md)优先于卷纲，KR1目标整体延后至故事自然推进到达"
+    },
+    {
+      "issue_id": "audit_drift_P0_physiological_baseline",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch19情感编码为纯show+无跨段生理锚点——Ch20在封锁确认段强制植入跨时段心率对照(对Ch19围挡段峰值)"
+    },
+    {
+      "issue_id": "audit_drift_P0_emotional_reward",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch19回报全为发现型——Ch20在门框段植入停止恶化信号(温度梯度不再上升)+在MH-001检查段植入'和昨天一样'(无恶化)"
+    },
+    {
+      "issue_id": "offset_reassessment_depth",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "P1偏移策略重新评估——Ch20限定为操作层面调整(路线选择多一个考量维度)不做认知追问，符合current_focus约束"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 2400,
+    "limit": 4000,
+    "trim_applied": "none"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 16,
+  "produced_at": "2026-07-16T13:16:00Z",
+  "selections": [
+    {
+      "target": "drift:情感基线累进",
+      "selected": ["章内基线微幅累进上升(每次脉冲后+5-10%)", "禁止脉冲→回零循环", "晨醒基线略高(昨日新路径残余影响)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch15单脉冲→回落→中性基线延续", "情感基线在章内无净上升"],
+      "rationale": "Ch15 resonance audit — 情感光谱窄(单脉冲→回落无累进),P0强制纠偏"
+    },
+    {
+      "target": "drift:全感官闭合",
+      "selected": ["肯定形式嗅觉锚点(铁锈/焦炭/沉积灰尘/化学气味)", "新路径探索场景中自然融入"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch15仅否定形式嗅觉(L185)", "五感继续缺嗅觉维度"],
+      "rationale": "Ch15 resonance audit — 嗅觉/味觉维度几乎缺位,P0强制闭合"
+    },
+    {
+      "target": "drift:线程聚焦",
+      "selected": ["收敛为2条重点(方向偏移显性化阈值+战争线可描述变化)", "其余线程在场确认(增量≤5%)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch15六线程并行稀释回报感", "M-020作为核心推进线(降为P1)"],
+      "rationale": "Ch15 resonance audit — 六线程并行稀释单线程回报感,P0强制收敛"
+    },
+    {
+      "target": "cr:方向偏移显性化",
+      "selected": ["主角第一次对偏移产生自觉(间接自觉)", "绕过可直穿区域或到达无理由位置时捕捉模式"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["完整认知突破/觉醒宣言", "追问"为什么选边缘"的第二层", "偏移驱动力揭示"]
+    },
+    {
+      "target": "cr:战争线可描述变化",
+      "selected": ["一条信号从积累→质变(侦察机涂装/高度/频次或地面防线调动)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["战争线深入展开或定性", "多信号同时质变"]
+    },
+    {
+      "target": "cr:MH-020输出命名",
+      "selected": ["主角尝试为输出模式命名或分类(日常语汇)", "为Ch17功能域使用方式揭示做认知准备"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["术语命名(灵能图谱/频谱分析)", "完整准确的命名", "功能域使用方式揭示"]
+    },
+    {
+      "target": "P2在场线",
+      "selected": ["门框积累起点留存确认(增量≤5%)", "MH-003信号持续在场确认(不演化)", "催收线不推进至新触发点"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["门后揭示", "MH-003引擎来源揭示", "催收线新触发点", "灰色渠道面孔化深化"]
+    },
+    {
+      "target": "volume_map_divergence",
+      "selected": ["继续defer", "以current_focus局部覆盖为准"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["跳至灵火会/陈卫民场景", "引入迷雾山脉线"],
+      "rationale": "volume_map卷二KR1定位与实际叙事严重偏离,偏差距灵火会线仍有显著距离。结构性卷定义调整超出章节规划范围,继续defer"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_011_emotional_accumulation",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch15情感光谱窄——单次警觉脉冲完成后返回中性观察基线。Ch16强制情感基线章内累进上升(每次脉冲后+5-10%)，禁止脉冲→回零循环"
+    },
+    {
+      "issue_id": "drift_012_olfactory_closure",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch15嗅觉/味觉维度几乎缺位——仅否定形式嗅觉(L185),味觉仅水温。Ch16强制引入肯定形式嗅觉锚点完成五感闭合"
+    },
+    {
+      "issue_id": "drift_013_thread_focus",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch15六线程并行推进稀释单线程回报感。Ch16强制收敛为2条(方向偏移显性化阈值+战争线可描述变化)至阶段性终点"
+    },
+    {
+      "issue_id": "volume_map_vs_actual_divergence_ch16",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map卷二KR1 Ch16定位'迷雾山脉中休整与重组'与实际叙事(新常态第4天/铁炉堡城内)严重偏离——以current_focus局部覆盖为准,继续defer至卷末催收线高潮后方开启灵火会线"
+    },
+    {
+      "issue_id": "volume_1_chapter_count_divergence",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map第一卷1-15章但实际轨迹Ch16仍在催收适应期新常态第4天,距灵火会相遇+迷雾山脉撤退场景遥远——Ch15后需延长卷1或调整卷定义,此结构性调整超出章节规划范围"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

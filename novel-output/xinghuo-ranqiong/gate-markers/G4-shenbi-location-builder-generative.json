@@ -1,0 +1,16 @@
+{
+  "gate": "G4-location-builder",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:41:24.122016+00:00",
+  "checks": [
+    {
+      "id": "G4.lb",
+      "s": "PASS",
+      "locations": 4,
+      "complete": 4
+    }
+  ],
+  "files_checked": [
+    "world/locations.md"
+  ]
+}

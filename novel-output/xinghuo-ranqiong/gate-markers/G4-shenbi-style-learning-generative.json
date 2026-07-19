@@ -1,0 +1,15 @@
+{
+  "gate": "G4-generic-gen",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:52:15.927345+00:00",
+  "checks": [
+    {
+      "id": "G4.gen.style_profile.md",
+      "s": "PASS",
+      "size": 3231
+    }
+  ],
+  "files_checked": [
+    "style/style_profile.md"
+  ]
+}

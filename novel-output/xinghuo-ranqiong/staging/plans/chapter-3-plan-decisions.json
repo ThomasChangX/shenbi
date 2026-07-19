@@ -1,0 +1,78 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 3,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results",
+      "selected": ["KR1: 困境建立与第一次觉醒 - Ch.3 转折定位（涅普敦空袭，工友与少女惨死，灵能觉醒）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "黄金三章纪律——第3章专用约束",
+      "selected": [
+        "第一次小高潮（空袭暴力+灵能觉醒）",
+        "打开大主线钩子（灵能觉醒MH-004 + 列塔尼亚幕后操纵MH-003）"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "current_focus.md 第2章drift补偿指令",
+      "selected": [
+        "场景切换段插入过渡环境信号（清晨街景→空袭的日常→混乱对比）",
+        "金属片在觉醒时微热/微震反应（归入MH-001 advance操作）"
+      ],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch2_geo_transition",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch2 drift要求第3章场景切换段补环境过渡信号，已在清晨棚屋→街道→空袭的场景过渡设计中执行"
+    },
+    {
+      "issue_id": "drift_ch2_metal_reaction",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch2 drift要求觉醒时金属片微热/微震，已归入MH-001 advance操作"
+    },
+    {
+      "issue_id": "MH-020_planting_defect",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "pending_hooks报告MH-020第2章种植锚点缺失。第3章不做修正，由后续shenbi-foresight评估"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 7800,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+Two files produced for chapter 3 planning:
+
+- **chapter-3-plan.md** — complete 8-section structure with:
+  - `chapter_role: 推进/转折` (matches volume_map KR1 Ch.3 node designation)
+  - Priority source: 卷纲 Key Result (Ch.2 drift compensations are local enhancements, not conflicts)
+  - Scene sequence: 清晨棚屋 → 寻药/工友互动 → 空袭降临 → 防空洞少女之死 → 灵能觉醒(金属片微热/微震) → 废墟觉醒
+  - 3 advance-type changes at chapter end (info: 灵能觉醒认知, relation: 少女之死心理锚点, physical: 棚屋被毁)
+  - 4 hook ops (MH-001 advance, MH-020 defer, MH-003 open, MH-004 open) — density 4/8, no zombie hooks
+
+- **chapter-3-plan-decisions.json** — shenbi-decisions-v1 schema with:
+  - 3 selections (2 volume_scope+low→no rationale, 1 manual_override+high→adjustment rationale via P2.5)
+  - 3 adjustments (geo_transition, metal_reaction, MH-020_defect) — all with rationales ≤100 chars
+  - Budget: 7800/12000 tokens
+
+Note: The sandbox blocked direct file writes due to `com.apple.provenance` extended attributes on the existing files from the prior failed attempt. The content above is the complete output — the pipeline should capture it from this response and write to `staging/plans/`.

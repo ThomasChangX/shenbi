@@ -1,0 +1,60 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 40,
+  "produced_at": "2026-07-17T22:00:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-40-*.md — all 12 audits",
+      "selected": [],
+      "basis": "all_audits_within_threshold_no_fixable_blocking",
+      "severity": "none",
+      "omitted": [
+        "pacing_maxchapters_overflow",
+        "pacing_transition_4consecutive",
+        "pacing_diversity_bias",
+        "anti_ai_hyphen_exempted",
+        "resonance_future_chapter_advice",
+        "echo_of_suggestions"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch40_pacing_maxchapters_overflow",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Ch25–Ch40 连续 16 章无 FIRE 事件，突破 genre-config.json maxChaptersPerCycle=15 上限。宏观跨章结构问题，非 Ch40 单章 ±15% 可修范围。Ch41 (Saturday) 须触发至少一项外部可见事件（检查站关闭/MH-020连锁/门框溢出下溢/触碰域残余升级/安静阈值）。"
+    },
+    {
+      "issue_id": "ch40_pacing_transition_4consecutive",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Ch37–Ch40 连续 4 章过渡类型（maxConsecutive=1），已达 warningThreshold=2 的 2 倍。跨章类型选择问题，非 Ch40 单章可解决。Ch41 (Saturday) 必须切换为非过渡类型（反思/人物/世界观）。"
+    },
+    {
+      "issue_id": "ch40_pacing_diversity_bias",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "近 10 章仅 2/8 类型（过渡 60%+反思 40%），连续 7 期审计未改善。需 Ch41+ 多章规划引入新类型。"
+    },
+    {
+      "issue_id": "ch40_anti_ai_hyphen_exempted",
+      "severity": "info",
+      "handling": "no_action",
+      "rationale": "破折号 error 为实验性文体的结构性句法特征（——作为逗号/句号等价物出现），非 AI 检测特征。同 Ch39 豁免判定。"
+    },
+    {
+      "issue_id": "ch40_resonance_emotional_floor",
+      "severity": "info",
+      "handling": "defer_to_next_chapter",
+      "rationale": "情感落地 18/30——情绪交付完全通过参数方向性，非参数读者不可感知。共振短板建议已转交 Ch41: 安静增加外部性参数效应（干扰冷深度/触碰域灵敏度）作为跨域物理信号。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 0,
+    "limit": 12000,
+    "trim_applied": "none",
+    "notes": "no-revision decision — zero token consumption for content generation"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 15,
+  "produced_at": "2026-07-16T16:00:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-15-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "3. TTR", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "4. 高频ngram", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第14章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch14_emotional_gradient",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "运输车视线遮断制造松弛→警觉→回落完整脉冲:呼吸深度/肌肉张力/注意收窄及恢复编码微幅波动,不延伸为事件弧"
+    },
+    {
+      "issue_id": "plan_mh020_mode_selector_confirm",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "折线图标在不同场景位置不同(左上→底部)对应不同显示模式——跨条件模式选择器验证。三角形箭头指示过程量触碰上边界区域"
+    },
+    {
+      "issue_id": "plan_mh020_output_selectivity",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "圆形加点今日未出现——触发条件假设部分排除,输出选择性进一步确认。格式串受位置条件影响今日未触发"
+    },
+    {
+      "issue_id": "plan_door_frame_decay_cycle",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "全衰减周期约3天确认(从~33%维持→~10%→不可量化),积累路径存在但阈值密度未达到。门完全不揭示"
+    },
+    {
+      "issue_id": "plan_emotional_pulse_no_hook",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "运输车视线遮断触发警觉→回落—无回头检查/无后续跟踪/无推断延伸。脉冲在身体底层完成完整循环"
+    },
+    {
+      "issue_id": "plan_direction_drift_extension",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "方向偏移从路线选择延伸到空间位置偏好:身体在开放场地中沿墙根阴影带推进而非中轴——边缘倾向深化"
+    },
+    {
+      "issue_id": "plan_war_line_accumulation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "三种信号同时在场:MH-003第4种干涉模式(振幅调制)+间歇低频机械声(新引入,城西偏南,手动操作)+侦察机未过境(路线调整本身为信号变化)。战争线从单信号确认进入多信号积累"
+    },
+    {
+      "issue_id": "plan_gray_channel_facialization",
+      "severity": "low",
+      "handling": "apply",
+      "rationale": "北巷铁门内侧非执行日组员面孔—面孔-地点绑定初步形成(非执行日自然暴露机制)"
+    },
+    {
+      "issue_id": "plan_class_seed_behavioral",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "方向偏移从路线延伸到视线模式和空间位置偏好(边缘倾向——身体自主选择非安全评估),无认知宣言"
+    },
+    {
+      "issue_id": "plan_volume_map_divergence",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR3定位Ch15灵火会撤入迷雾山脉与实际叙事(新常态第3天)继续偏离。以current_focus局部覆盖为准,偏离在Ch16-17决议前保持defer"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 19500,
+    "limit": 20000,
+    "trim_applied": "none"
+  }
+}

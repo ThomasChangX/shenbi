@@ -1,0 +1,47 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 19,
+  "produced_at": "2026-07-16T15:00:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-19-review-summary.md",
+      "selected": ["BLOCKING count", "CRITICAL count", "review status"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-19-resonance.md",
+      "selected": ["overall score", "5.4 diversion verdict", "sub-floor checks"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_density",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "122 dashes (2.73/100chars) is core stylistic feature but strong AIGC marker; needs targeted reduction via shenbi-anti-detect"
+    },
+    {
+      "issue_id": "anti_ai_not_but_pattern",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "1 occurrence of NOT-BUT pattern MINOR; delegate to shenbi-anti-detect"
+    },
+    {
+      "issue_id": "anti_ai_transition_word",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "2 instances of '此时' slightly over threshold; delegate to shenbi-anti-detect"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 25000,
+    "limit": 30000,
+    "trim_applied": "none"
+  }
+}

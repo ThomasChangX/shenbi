@@ -1,0 +1,75 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 45,
+  "produced_at": "2026-07-17T14:18:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-45-review-summary.md",
+      "selected": ["Reviews executed: 11", "Successful: 11", "Failed: 0", "BLOCKING Issues: 0", "CRITICAL Issues: 0"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-45-anti-ai.md",
+      "selected": ["结果: 不通过（1个ERROR）", "ERROR: 破折号「——」全文680次", "建议修复: 标记为已知风格豁免"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["建议修复中的替换方案（将破坏文体）"]
+    },
+    {
+      "target": "audits/chapter-45-pacing.md",
+      "selected": ["BLOCKING: 累积周期超硬上限5章", "CRITICAL: 连续9章CONSTELLATION", "评分: 5/10"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "high",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-45-resonance.md",
+      "selected": ["Overall 79/100 ≥ 65 ✓", "Route: 明确通过", "情感落地短板", "场景临场感短板"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-45-foreshadowing.md",
+      "selected": ["评分: 5.5/10 有瑕疵", "密度超限 10/8 连续三章", "schema持续缺口", "PRE_WRITE_ALIGNMENT"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch45_revision_noop",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "所有12项审计中0 BLOCKING+0 CRITICAL可作用于本内容。Pacing的BLOCKING(周期超限5章)和CRITICAL(连续9章CONSTELLATION)为全书级结构问题——须在Ch46-Ch47通过操作型事件解决，非Ch45修订可处理。Anti-AI的破折号ERROR已由审计自荐为风格豁免。本修订无内容变更。"
+    },
+    {
+      "issue_id": "ch45_pacing_blocking_deferred",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "累积蓄压周期~20章超maxChaptersPerCycle=15达5章。这是全书最严重的节奏结构问题。Ch45在缺口常态化和质地确认上提供了2处breakthrough微释放，但不足以补偿周期长度的持续恶化。需要在Ch46-Ch47通过操作型事件创造可感知突破——候选方向：缺口溢出至可感知域、格式串对缺口进行句法操作、安静增加速率拐点。"
+    },
+    {
+      "issue_id": "ch45_anti_ai_emdash_exemption",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "破折号「——」全文680次为参数空间实验文体的结构性分隔符，非传统中文破折号用法(非语气断裂、非强调、非补充说明)。全章其余9项anti-AI检查全PASS。审计明确建议标记为已知风格豁免。不修改。"
+    },
+    {
+      "issue_id": "ch45_foreshadowing_density_deferred",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "密度10/8连续三章超限——Ch45为单日结构无结构性豁免理由。Ch46应在密度管理上严格执行≤6/8，通过场景内多钩合并帧降低操作计数。DENSITY_VIOLATION为MINOR，不触发修订。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 500,
+    "limit": 500,
+    "trim_applied": "none",
+    "notes": "Minimal budget — no content changes performed. All analysis is audit-read-only."
+  }
+}

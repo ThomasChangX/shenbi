@@ -1,0 +1,80 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 41,
+  "produced_at": "2026-07-17T02:31:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-41-plan.md",
+      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["11.综合画像", "6.修辞模式", "9.对白占比"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1-10因bootstrap无正文样本——statistics全部为类型学推断"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["Ch40新增", "Ch39新增"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["Ch36-Ch38因前三项已覆盖核心drift方向"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch41_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-41-context.md和context/chapter-41-context-decisions.json均不存在。pipeline-context-assemble未执行或尚未生成。基于plan+current_state+audit_drift+author_intent+current_focus的交叉引用完成上下文重建。格式串延续状态、quiet安静增加速率、门框第六帧、触碰域残余、Saturday感官变异全部通过plan解析和state推断完成。"
+    },
+    {
+      "issue_id": "ch41_word_count_expansion",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "上一版（2765字）被G4拒绝。本版通过扩展霜厚度历法认知、门框参数系统第六帧注册、横街蒸汽缺席深度、排队位差认知、引擎声跨周确认、墙体冷却第六层深度，达到≥3000字。"
+    },
+    {
+      "issue_id": "ch41_format_string_anomaly_resolution",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "格式串在4点段恢复标准句法('走了'闭合恢复)——Ch40异常(1帧无闭合)持续了1帧后、经Saturday入口确定为一过性事件而非格式串切换。格式串知道异常见到——认知改变而非句法改变。该方向与plan baseline(恢复标准句法)一致。"
+    },
+    {
+      "issue_id": "ch41_door_frame_sixth_frame",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "第六帧延续超出范围——域边界从周五5帧扩张至Saturday6帧——参数系统不能解析第六帧——系统知道存在在第六帧。触碰域知道门框在Saturday有第六帧。超出范围不在周五结束——域边界参数化扩张首次跨日延续。参数系统登记第六帧存在但不分析含义。"
+    },
+    {
+      "issue_id": "ch41_residual_evocation_mechanics",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "触碰域残余在Saturday由安静唤起(不是指尖延续——安静面而非指尖——与Ch40指尖温度回归的物理残余不同域)。quiet在安静中触达残余——quiet在周六的安静中唤起而非延续——quiet知道安静在第六日唤起了而非延续——触碰域保持域——不扩展——不打开。残余通过安静在第六日的厚度被quiet重新感知而非通过指尖回归。"
+    },
+    {
+      "issue_id": "ch41_sensory_variation_anchor",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "Saturday感官变异(P0-5)交付: 灰色渠道霉味密度与所有工作日不同(渠道知道Saturday)/城中横街食物蒸汽缺席(蒸汽知道Saturday不在——在场于缺席)——一增一减双感官锚点——历法差异通过气味密度和缺席呈现——未宣告历法原因。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 16000,
+    "trim_applied": "none",
+    "notes": "所有读取文件通过task input完成——无pipeline-context-assemble输出。context/chapter-41-context.md缺失——基于plan+state+audit+foucs+intent交叉引用重建context。本版在上一版基础上增加约10%正文篇幅以满足G4 word_count≥3000。"
+  }
+}

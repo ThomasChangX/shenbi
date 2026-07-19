@@ -1,0 +1,84 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 13,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "drift:轻极锚定",
+      "selected": ["行为层面的轻——空间感知变化", "好奇心替代焦虑", "不回归焦虑基线"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["轻仅停留在Ch12单一"一个月"口型锚定"],
+      "rationale": "Ch12两极叙事重量不均衡——愤怒编码饱满但轻极仅L139锚定,P0 drift纠偏"
+    },
+    {
+      "target": "drift:感官密度维续",
+      "selected": ["认知段前锚定感官细节", "中段密度保持至章末"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch12章尾认知推理段替代感官锚定模式"],
+      "rationale": "Ch12章尾L169-233感官密度下降,P0 drift纠偏"
+    },
+    {
+      "target": "cr:催收适应期",
+      "selected": ["身份标签化后行动范围变化", "追踪感知建立", "新常态日常化"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "cr:强制hook出场",
+      "selected": ["MH-001 advance(培育间隔3/3)", "MH-003 advance(max_distance 10/10)", "MH-021 advance(培育间隔2/2)", "MH-020 advance(第一次有意义输出)", "MH-022 defer(适应期无新操作)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["任一强制hook零出场导致OVERDUE/CRITICAL"],
+      "rationale": "pending_hooks.md风险信号:MH-001距上限1章,MH-021距上限1章,MH-003 max_distance已耗尽——三钩必须同时出场"
+    },
+    {
+      "target": "cr:阶级觉醒种子",
+      "selected": ["具体场景触发非语言性行动方向偏移", "林烽在他人处境中看到自己影子"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["认知宣言/顿悟式觉醒"]
+    },
+    {
+      "target": "P2线处理",
+      "selected": ["灰色渠道面孔化(组员轮换/新面孔)", "战争线两条地面信号保持(侦察机+防线/灵能协会)", "MH-001银币测试(有时间窗口微测试)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["灰色渠道任务执行", "战争线深入展开"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_006_light_pole_underweight",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch12愤怒编码饱满而轻极篇幅偏少——Ch13以空间感知和行为模式偏移锚定轻极"
+    },
+    {
+      "issue_id": "drift_007_sensory_density_drop",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch12章尾认知推理段替换感官锚定——Ch13认知段前强制锚定感官细节"
+    },
+    {
+      "issue_id": "volume_map_vs_actual_divergence_ch13",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR3定位Ch13为'清剿行动'转折但实际叙事在城市生存期——以current_focus为准延迟至卷末转折"
+    },
+    {
+      "issue_id": "triple_hook_mandatory_advance",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "MH-001/MH-003/MH-021同时达到各自间隔上限——Ch13必须同时推进三条钩子以规避OVERDUE/CRITICAL"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

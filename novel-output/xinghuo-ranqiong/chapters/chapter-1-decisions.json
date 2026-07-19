@@ -1,0 +1,92 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 1,
+  "produced_at": "2026-07-16T10:30:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-1-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "7. 连接词密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["第1章：穿越即负债", "核心任务：黄金三章世界观建立", "避免的风险"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第2章", "第3章", "张力曲线", "交叉点提醒"]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": [],
+      "basis": "manual_override",
+      "severity": "low",
+      "omitted": ["file not found — first chapter, no audit history"],
+      "rationale": "file not found (no previous chapters to audit). First chapter, no drift reference available."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "G4_transition_fix",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "previous run failed G4.transition (7 hits > 5 limit). This draft uses 0 transition words from monitored set (然/不过/此时/突然/终于/于是). Replaced '林烽点头'→'林烽颔首', '皱了皱眉'→'眉心微拧' to also minimize 慎用 fatigue words. All禁用 fatigue words absent."
+    },
+    {
+      "issue_id": "G4_no_hook_fix",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "previous run failed G4.cd.no_hook. Added concrete info hook at chapter end: miners rushing toward 铁山 shouting '亮光' and '有东西掉下来', plus一盏灵能路灯 flickering. Reader leaves with '要出事了' anticipation."
+    },
+    {
+      "issue_id": "drift_missing_audit",
+      "severity": "low",
+      "handling": "ignore",
+      "rationale": "first chapter — no audit_drift file exists yet. Skipped."
+    },
+    {
+      "issue_id": "missing_context_decisions",
+      "severity": "low",
+      "handling": "ignore",
+      "rationale": "context/chapter-1-context-decisions.json not found (no composer run yet). Used raw context files directly."
+    },
+    {
+      "issue_id": "chapter_structure",
+      "severity": "low",
+      "handling": "apply",
+      "rationale": "Three scene blocks: (1) scrapyard scavenging + debt escape, (2) street crossing with airship contrast, (3) return to shack + info hook. No梵天 relic or air raid content per plan §8. No smartphone/APP per current_focus (MH-020 reserved for ch2). Transmigrator identity revealed through unfamiliarity with 灵能路灯 and loan contract, not exposition."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 7000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**两项 G4 失败修复摘要：**
+
+1. **G4.transition (7→0)** — 正文中监控转折词（然/不过/此时/突然/终于/于是）使用量为零。同时将"林烽点头"替换为"林烽颔首"，"皱了皱眉"替换为"眉心微拧"，避免慎用疲劳词。
+
+2. **G4.cd.no_hook** — 章尾安装明确信息钩子：矿工狂奔铁山，呼喊"亮光""有东西掉下来"；一盏灵能路灯毫无征兆地闪烁；林烽最终迈步走出棚屋。三重信号叠加，让读者带着"要出事了"的预期翻页。
+
+其他设计要点：穿越者身份通过陌生化细节暗示（对灵能路灯的愣神、对贷款合同的不解），种姓压迫通过视觉对比展示（飞艇vs废料堆），无大段说明，无梵天遗物/空袭/列塔尼亚内容，无疲劳词和反思句。章节约3200字，符合G4.word_count范围。

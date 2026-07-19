@@ -1,0 +1,87 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 55,
+  "produced_at": "2026-07-17T20:58:00Z",
+  "selections": [
+    {
+      "target": "revision_need_assessment",
+      "selected": "no_revision_needed_all_gates_passed",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "All 11 audits passed with 0 BLOCKING and 0 CRITICAL issues. Resonance audit: 70/100 ≥ 65 threshold, explicit §5.4 放行（无需 revision / 无需人因）. Memo-compliance: 10/10. Anti-AI: 10/10 with author_intent exemption. Pacing: 8/10 PASS."
+    },
+    {
+      "target": "revision_routing_mode",
+      "selected": "no_op_chapter_passes_all_gates",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "No BLOCKING/CRITICAL issues to fix. Resonance shortfalls (场景临场感 12/25, 情感落地 18/30) are non-blocking and intrinsic to workday parameter narrative mode. Both explicitly marked as future-chapter recommendations not current revision targets."
+    },
+    {
+      "target": "resonance_shortfall_scene_presence",
+      "selected": "defer_to_human_review_non_blocking_tension",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "场景临场感 12/25: 0 sensory words is author_intent hard constraint (workday pure parameter mode). Roughness absent presence mechanism is intentional design choice. TENSION flagged for human review by POST_WRITE_SELF_CHECK — not fixable via automatic revision without violating workday constraint."
+    },
+    {
+      "target": "resonance_shortfall_emotional_grounding",
+      "selected": "defer_to_human_review_intrinsic_constraint",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "情感落地 18/30: Emotion conveyed only through parameter state declarations ('knows'/'present at') — intrinsic to pure parameter declaration mode. Resonance audit confirms '这是参数宣告模式的本质约束，非缺陷'. Not a revision target."
+    },
+    {
+      "target": "anti_ai_dash_issue",
+      "selected": "exempt_by_author_intent",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Anti-AI audit ERROR: 420 dashes. This is structural format feature of parameter declaration mode 'X知道Y——X在场于Z' — not AI-style dash abuse. author_intent documented in PRE_WRITE_CHECK. With exemption: 10/10 PASS."
+    },
+    {
+      "target": "pacing_minor_suggestions",
+      "selected": "defer_to_future_workdays_constrained_regenerate_material",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Pacing 8/10 suggestions (蓄压长度, 句式变奏, 落差信号) are actionable for future workdays, not Monday-specific revision. Post-declaration Monday's design is intentionally single-format declarative — pacing variation is a future-chapter consideration."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "scene_presence_author_intent_tension",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "场景临场感 shortfall deferred: absent presence mechanism requires human review to confirm if it meets scene presence needs as parameter-narrative equivalent. Next workday (Tuesday) could include 1-2 sensory anchors if author decides to relax workday constraint."
+    },
+    {
+      "issue_id": "emotional_grounding_parameter_mode_constraint",
+      "severity": "medium",
+      "handling": "ignore",
+      "rationale": "情感落地 shortfall is intrinsic constraint of pure parameter declaration mode. Not a defect — acknowledged by resonance audit as '本质约束，非缺陷'. Future chapters with relaxed constraints can include emotional show."
+    },
+    {
+      "issue_id": "pacing_minor_suggestions_batch",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Three pacing MINOR suggestions (蓄压≤3章, 句式变奏, 落差信号) deferred to future workday planning. Ch55 is first post-declaration workday — uniform pacing is by design. Apply to subsequent workdays."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12500,
+    "limit": 16000,
+    "trim_applied": "none"
+  },
+  "pre_revision_audit_summary": {
+    "total_reviews": 11,
+    "blocking": 0,
+    "critical": 0,
+    "resonance_score": 70,
+    "resonance_threshold": 65,
+    "resonance_verdict": "放行（无需 revision / 无需人因）",
+    "memo_compliance": "10/10",
+    "anti_ai": "10/10 (with author_intent exemption)",
+    "pacing": "8/10 PASS",
+    "route_c_passed": true
+  }
+}

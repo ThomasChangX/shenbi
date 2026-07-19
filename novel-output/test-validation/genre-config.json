@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-19",
+  "fatigueWords": {
+    "禁用": [
+      "心中暗道",
+      "不由得想到",
+      "眸光一闪",
+      "嘴角勾起一抹弧度",
+      "心中一凛",
+      "不由得感叹万千",
+      "脑海中浮现",
+      "瞳孔骤然收缩"
+    ],
+    "慎用": [
+      "眼中闪过一丝",
+      "不禁感慨",
+      "微微一笑",
+      "深邃的眼眸",
+      "嘴角微扬",
+      "淡淡的语气",
+      "缓缓开口",
+      "若有所思",
+      "眉头微皱",
+      "心如止水"
+    ],
+    "替换建议": {
+      "心中暗道": ["暗自盘算", "心里打定主意"],
+      "不由得想到": ["念头一转", "忽然想起"],
+      "眸光一闪": ["视线一凝", "目光顿住"],
+      "嘴角勾起一抹弧度": ["唇线微弯", "笑意浮上嘴角"],
+      "心中一凛": ["背脊发凉", "心头一沉"],
+      "不由得感叹万千": ["心头五味杂陈", "一时间百感交集"],
+      "脑海中浮现": ["眼前晃过", "记起"],
+      "瞳孔骤然收缩": ["眼神一紧", "目光陡然锐利"],
+      "眼中闪过一丝": ["眸底掠过", "目光里掺进"],
+      "不禁感慨": ["长出一口气", "暗叹一声"],
+      "微微一笑": ["嘴角轻扬", "唇角微勾"],
+      "深邃的眼眸": ["深沉的目光", "看不透的眼睛"],
+      "嘴角微扬": ["唇角翘起", "笑意微露"],
+      "淡淡的语气": ["声音平得没起伏", "语调听不出情绪"],
+      "缓缓开口": ["顿了顿才说", "一字一句道"],
+      "若有所思": ["眼神放空了瞬", "像在琢磨什么"],
+      "眉头微皱": ["眉心拧了一下", "两道眉凑到一起"],
+      "心如止水": ["心里没起半点波澜", "情绪纹丝不动"]
+    }
+  },
+  "pacing": {
+    "softRange": 0.15,
+    "hardRange": 0.30,
+    "minChaptersPerCycle": 8,
+    "maxChaptersPerCycle": 15
+  },
+  "chapterTypes": {
+    "battle": { "maxConsecutive": 2, "warningThreshold": 3 },
+    "dialogue": { "maxConsecutive": 3, "warningThreshold": 4 },
+    "exploration": { "maxConsecutive": 2, "warningThreshold": 3 },
+    "politics": { "maxConsecutive": 3, "warningThreshold": 4 },
+    "worldbuilding": { "maxConsecutive": 1, "warningThreshold": 2 },
+    "training": { "maxConsecutive": 2, "warningThreshold": 3 },
+    "twist": { "maxConsecutive": 1, "warningThreshold": 2 },
+    "emotional": { "maxConsecutive": 2, "warningThreshold": 3 }
+  },
+  "auditDimensions": {
+    "antiAi": true,
+    "character": true,
+    "motivation": true,
+    "pacing": true,
+    "continuity": true,
+    "foreshadowing": true,
+    "sensitivity": true,
+    "worldRules": true,
+    "dialogue": true,
+    "texture": true
+  },
+  "customRules": [
+    {
+      "id": "rule-001",
+      "description": "知识金手指必须有明确代价或限制（冷却、消耗、副作用、知识盲区等），禁止无限制的 Deus ex machina。",
+      "enforcement": "blocking",
+      "example": "主角凭现代知识瞬间造出火炮且无任何材料/技术门槛 → 违规"
+    },
+    {
+      "id": "rule-002",
+      "description": "高魔力量体系需前后一致：已设定的魔法规则、等级、代价不可被随意打破或跳级。",
+      "enforcement": "blocking",
+      "example": "前文设定禁咒需三人合力，后文主角单人轻松施展 → 违规"
+    },
+    {
+      "id": "rule-003",
+      "description": "现代知识/技术引入需自然融入剧情，避免大段集中倾倒（info-dump），每次引入应伴随冲突或代价。",
+      "enforcement": "warning",
+      "example": "连续两章大段科普现代冶金/农业/军事知识而无剧情推进 → 违规"
+    },
+    {
+      "id": "rule-004",
+      "description": "架空中世纪社会逻辑需自洽：政治结构、经济运行、军事动员需符合时代生产力与高魔设定的交互。",
+      "enforcement": "warning",
+      "example": "中世纪背景下出现现代民主选举或工业时代物流体系而无合理推导 → 违规"
+    },
+    {
+      "id": "rule-005",
+      "description": "主题呼应：每卷至少一次点题『文明轮回／知识即力量／觉醒与反抗』之一，避免主题漂移。",
+      "enforcement": "warning",
+      "example": "整卷仅推进剧情而无任何主题层面的意象、对话或事件呼应 → 违规"
+    }
+  ],
+  "approval": {
+    "reviewer": "pipeline-autonomous",
+    "decision": "approved",
+    "date": "2026-07-19",
+    "note": "Pipeline 自主执行生成（PIPELINE MODE）。将 worldbuilding 创建的 stub 细化为完整 genre-config.json。建议人类合作者在下一检查点复核 fatigueWords 与 customRules 后再大规模投入写作。"
+  }
+}

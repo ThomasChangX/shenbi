@@ -1,0 +1,93 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 47,
+  "produced_at": "2026-07-17T08:15:00Z",
+  "revision_type": "constrained-regenerate",
+  "pre_revision": {
+    "resonance_score": 73,
+    "blocking": 0,
+    "critical": 0
+  },
+  "selections": [
+    {
+      "target": "continuity_sixth_week",
+      "selected": "fix_to_fifth_week",
+      "basis": "audit_finding",
+      "severity": "minor",
+      "rationale": "连续性审计#1——陶罐水面段两处'第六周'应为'第五周'。本章所有其他元素一致标注为'第五周周六'。已修正。"
+    },
+    {
+      "target": "emotional_grounding_waiting",
+      "selected": "add_breath_anchor",
+      "basis": "resonance_audit_finding",
+      "severity": "medium",
+      "rationale": "共鸣审计[情感落地]22/30指出等待/蓄势通过参数宣告而非感官show传达。在首段quiet等待后嵌入呼吸/皮肤收缩节拍（呼吸在上颚——冷——短于昨日的节拍——皮肤在呼吸的间隙——缩）以物理感受锚定等待情绪。保持参数叙事风格统一。"
+    },
+    {
+      "target": "writing_texture_variation",
+      "selected": "fragment_variation_at_close",
+      "basis": "resonance_audit_finding",
+      "severity": "low",
+      "rationale": "共鸣审计[文笔质感]19/25指出单速重复节奏词汇范围受限。在章末'安静在场——在场——在场——在场'改为'安静在场——在场安静在场——安静在场——安静——在场——在场'，用'在场安静在场'碎片打破四次等长重复。"
+    },
+    {
+      "target": "micro_release",
+      "selected": "eaves_drip_interval",
+      "basis": "resonance_audit_finding",
+      "severity": "low",
+      "rationale": "共鸣审计[读者回报]14/20指出纯参数推进无释放。在归途段添加檐口滴水间隔变长环境信号——物理细节本身为微释放，不量化不宣告。"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "resonance_emotional_grounding",
+      "severity": "medium",
+      "handling": "compensate_via_physical_anchor",
+      "rationale": "参数叙事框架内嵌入呼吸/皮肤收缩节拍，不改变叙事模式，增加情感传达物理锚点。"
+    },
+    {
+      "issue_id": "resonance_reader_reward",
+      "severity": "low",
+      "handling": "compensate_via_environmental_detail",
+      "rationale": "檐口滴水间隔作为微释放——不量化不宣告，保持参数叙事一致性。"
+    },
+    {
+      "issue_id": "foreshadowing_density_10_8",
+      "severity": "critical",
+      "handling": "note_for_next_chapter",
+      "rationale": "密度10/8超出铁律25%。桥接日全部10个伏笔需从槽位过渡到桥接模式，结构上不可削减。Ch48周日必须严格控制≤8。建议MH-023/MH-025改为轻量巡查。"
+    },
+    {
+      "issue_id": "anti_ai_emdash_1380",
+      "severity": "critical",
+      "handling": "stylistic_exemption",
+      "rationale": "1380处'——'为实验性文体语法框架（链式认知流），非AI生成痕迹。审计员明确建议文体豁免。保留。"
+    },
+    {
+      "issue_id": "pacing_internal_redundancy",
+      "severity": "minor",
+      "handling": "note_for_future",
+      "rationale": "归途/墙体→记事页段存在语义冗余（quiet在桥接中等待周日的同义反复）。桥接章风格特征与冗余边界模糊，ch48周日质地回归后自然缓解。当前保持。"
+    },
+    {
+      "issue_id": "foreshadowing_MH003_mismatch",
+      "severity": "minor",
+      "handling": "note_in_plan",
+      "rationale": "plan§7对MH-003标记为'defer/无频率改变'，但正文中引擎声从槽位频率过渡到桥接频率。正文执行正确（桥接模式要求频率过渡），建议更新plan为'advance'。非章节内容问题。"
+    }
+  ],
+  "preservation_check": {
+    "critical_dialogues": "preserved_na_parameter_narrative",
+    "resolved_foreshadowing_MH020_028": "preserved_all_8_advance",
+    "character_state_changes_quiet_gap": "preserved",
+    "scene_transitions_7_sequences": "preserved",
+    "chapter_prohibitions_13_items": "preserved_zero_violations"
+  },
+  "retry_count": 0,
+  "budget": {
+    "length_change_estimate": "+0.15%",
+    "limit": "±15%",
+    "compliant": true
+  }
+}

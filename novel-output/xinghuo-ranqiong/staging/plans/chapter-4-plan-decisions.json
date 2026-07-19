@@ -1,0 +1,87 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 4,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results KR1",
+      "selected": ["KR1: 困境建立与第一次觉醒 - Ch.4 承接定位（混乱中的生存重启，第一次灵能震荡期, 生存线重建）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "current_focus.md P0-P2 优先级指令",
+      "selected": [
+        "P0: 封闭空间感官补偿（气味/温度/空气质感）",
+        "P0: 空袭后生存重启（16铜币临时容身之所）",
+        "P0: 灵能觉醒后续（震荡期/后效应/金属片反应）",
+        "P1: 标志性句段落地（关键情绪节拍处1-2句排比/意象叠加）",
+        "P1: 觉醒与哀悼双重情绪叠加（在觉醒后行动中穿插对已逝之人的无声回望）",
+        "P1: 战争后遗症展开（救援/秩序/难民流动）",
+        "P2: 幸存者偶遇（社交关系新锚点）",
+        "P2: MH-001继续REINFORCE（金属片跟随灵能状态的间歇性反应）"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "P2: 催收债务回归（空袭刚结束，催收员未必第一时间回到废墟区——延迟至第5章）"
+      ]
+    },
+    {
+      "target": "黄金三章纪律",
+      "selected": [],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第4章超出 golden_opening_chapters=3 范围，黄金三章特殊纪律不再适用"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch3_enclosed_sensory",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch3 drift要求封闭空间场景补气味/温度/空气质感感官锚点，已在段1动作中明确要求"
+    },
+    {
+      "issue_id": "drift_ch3_rhetoric",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch3 drift要求关键情绪节拍处落地排比/意象叠加，已在段1动作中明确要求"
+    },
+    {
+      "issue_id": "drift_ch3_dual_emotion",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch3 drift要求觉醒与哀悼双重情绪共存，已在段1动作中明确要求"
+    },
+    {
+      "issue_id": "MH-020_planting_defect",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "MH-020种植锚点缺陷延续——第3章未修复、第4章继续defer，建议由shenbi-foresight在下一规划周期评估"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8200,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**生产摘要**: 第4章规划已完成，基于卷纲 KR1 第4章"承接"定位，融合了 current_focus.md 的 Ch3 drift 补偿指令。
+
+**结构检查**:
+- 8/8 段全部存在 ✓
+- 段标题精确匹配 ✓
+- 优先级来源声明（卷纲 Key Result）✓
+- `chapter_role: 推进/转折`（合法值）✓
+- 章尾改变 3 条（信息/物理/关系），含 2 条 advance 型 ✓（Ch4 > 3 达标）
+- hook 账 4 行（列名精确匹配 ✓），密度 4/8（预算充裕）✓
+- 无僵尸伏笔（无 defer+沉默≥4 的条目）✓
+- 操作值全部合法（open/advance/defer）✓
+- 段 8 含 5 条"不做"，无空值 ✓

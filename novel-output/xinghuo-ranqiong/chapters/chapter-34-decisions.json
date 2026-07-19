@@ -1,0 +1,82 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 34,
+  "produced_at": "2026-07-17T05:20:00+08:00",
+  "selections": [
+    {
+      "target": "plans/chapter-34-plan.md",
+      "selected": [
+        "P0_1_third_pass_deviation_knowing_in_gaps",
+        "P0_1_external_signal_outside_domain",
+        "P0_1_white_breath_emotion_portrayal",
+        "P0_2_MH_023_pre_avoidance_non_touch_boundary",
+        "P1_1_cold_deepening_winter_edge",
+        "P1_2_known_rhythm_sustained",
+        "P1_3_emotional_baseline_third_week_quiet_knows",
+        "P1_4_offset_strategy_unchanged",
+        "P1_5_door_frame_third_week_maintenance",
+        "P1_6_phase_2_third_week_condensation",
+        "P2_1_MH_020_format_string_third_week_tuesday",
+        "P2_2_MH_003_engine_sound_third_week_tuesday",
+        "P2_3_non_parameter_domain_blank_maintenance",
+        "P2_4_seasonal_advance_autumn_winter"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_content_standards_costs",
+        "external_event_narration",
+        "parameter_domain_extension_to_non_touch",
+        "deviation_knowing_analysis_or_declaration",
+        "route_changes_new_paths",
+        "odor_baseline_replacement",
+        "pre_avoidance_declaration",
+        "comparison_Tuesday_Monday_or_week3_week2",
+        "emotion_naming_sadness_fear",
+        "meta_narrative_declaration"
+      ]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": [
+        "ch33_drift_1_reader_return_low_progression",
+        "ch33_drift_2_emotion_grounding_breath_bridge"
+      ],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "both Ch33 audit drift items merged to Ch34 per plan: drift 1 (external signal outside domain on return path), drift 2 (white breath duration change as emotion portrayal)"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_no_assemble_context_ch34",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "context/chapter-34-context.md and context/chapter-34-context-decisions.json not found; loaded from plan + truth files + adjacent chapters (Ch31-Ch33 style reference)"
+    },
+    {
+      "issue_id": "drift_external_signal_first_contact",
+      "severity": "high",
+      "handling": "compensate_via_parameter_transcription",
+      "rationale": "return path signal detected outside touch domain — parameter system registers signal outside domain without extending domain — no event narration — max 2-3 frames control"
+    },
+    {
+      "issue_id": "drift_white_breath_emotion_bridge",
+      "severity": "high",
+      "handling": "compensate_via_breath_parameter",
+      "rationale": "white breath duration change after external event — breath knows emotion length/density — breath in emotion — max 2 instances (morning + return path) — strict control"
+    },
+    {
+      "issue_id": "drift_deviation_knowing_frame_gap",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "deviation knowing between crossroads and grey channel — frame gap — knowledge that known rhythm could be otherwise — max 1 frame — not in parameter records — in knowing — goes"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "chapter_word_count_estimate": 8300,
+    "pacing_notes": "Ch34 third week Tuesday. Third pass knowing — deviation knowing in frame gaps (1 instance between crossroads and grey channel). External signal registers outside parameter domain on return path (2-3 frames, no event narration). White breath emotion portrayal (morning + return path, max 2). Cold deepening toward winter edge — in wall three weeks. Pre-avoidance continues as natural operation. MH-020 9.4/9.7/10.0. Engine sound same Tuesday frequency, cold changes propagation. 12 operations in budget. 0 transition words. Exit: '安静——知道——冷——走了' — shorter than Ch33 exit — no analytical review — quiet knows deviation/signal/breath."
+  }
+}

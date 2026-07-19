@@ -1,0 +1,52 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 24,
+  "revision_mode": "spot-fix",
+  "produced_at": "2026-07-16T22:32:00Z",
+  "sources": {
+    "audit": "audits/chapter-24-anti-ai.md",
+    "resonance": "audits/chapter-24-resonance.md",
+    "plan": "plans/chapter-24-plan.md",
+    "review_summary": "audits/chapter-24-review-summary.md"
+  },
+  "selections": [
+    {
+      "target": "revision.mode",
+      "selected": ["spot-fix"],
+      "basis": "单一局部工艺问题(正文32处'——'超标)，无结构/情节/角色问题。其余10项审核全部通过(BLOCKING=0, CRITICAL=0 except anti-ai=1), 备忘合规10/10, 共鸣83/100通过",
+      "severity": "low",
+      "omitted": ["regenerate", "constrained-regenerate"]
+    },
+    {
+      "target": "delegation",
+      "selected": ["handle_inline"],
+      "basis": "anti-detect为专项表面变换skill，但pipeline模式下委派不可行，由chapter-revision代为执行(不涉及情节/角色/伏笔修改)。修正为纯标点替换，零语义变更。"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_overflow",
+      "target": "chapters/chapter-24.md body text",
+      "severity": "critical",
+      "handling": "compensate_via_spot_fix",
+      "rationale": "REQUIRED — critical severity anti-ai failure. 32 dashes = AIGC detection marker risk. Purely local punctuation issue, no narrative content change.",
+      "summary": "正文中32处'——'→保留0处，全部替换为句号'。'(31处)或逗号'，'(1处)。影响范围:纯标点替换，零内容语义变更。窄巷空间状态段落的首个'——'替换为逗号(例:行走层可通行性扫描结果中，入口...)，其余全部替换为句号。灰色渠道信息段落(时间——下周三)同步重构为陈述句式(时间是下周三)。"
+    }
+  ],
+  "preservation_verification": {
+    "dialogues": "OK — 无对话内容在本章出现(灰色渠道碎片为非具名背景声)",
+    "fulfilled_foreshadowing": "OK — 前后对比收束(窄巷遗址)/交汇后背景化(三项帧汇入行走参数层)/评估路径灰色渠道具象化/门框第八天高原持续/情感落地全部保留",
+    "character_state": "OK — MH-001 Phase 2维持/门框方向行走参数化/记事页格式空白稳定化/全部保留",
+    "scene_transitions": "OK — 全部场景转换标记保留(地下室→门框→岔路口→检查站→三角形空间→过渡段→归途→墙角)",
+    "violations": []
+  },
+  "budget": {
+    "context_tokens_estimate": 11500,
+    "limit": 15000,
+    "trim_applied": "none",
+    "revision_attempt": 1,
+    "max_attempts": 3,
+    "revision_count": 1
+  }
+}

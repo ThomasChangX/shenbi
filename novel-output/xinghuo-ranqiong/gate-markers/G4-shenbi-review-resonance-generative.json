@@ -1,0 +1,26 @@
+{
+  "gate": "G4-review-resonance",
+  "status": "PASS",
+  "timestamp": "2026-07-17T12:58:51.867934+00:00",
+  "checks": [
+    {
+      "id": "G4.rr.detail_table",
+      "file": "audits/chapter-55-resonance.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.rr.verdict",
+      "file": "audits/chapter-55-resonance.md",
+      "s": "PASS",
+      "v": "通过"
+    },
+    {
+      "id": "G4.rr.evidence",
+      "file": "audits/chapter-55-resonance.md",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "audits/chapter-55-resonance.md"
+  ]
+}

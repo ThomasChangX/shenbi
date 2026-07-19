@@ -1,0 +1,54 @@
+{
+  "gate": "G4-composite-g4_chapter_drafting",
+  "status": "PASS",
+  "timestamp": "2026-07-17T13:13:00.258996+00:00",
+  "checks": [
+    {
+      "id": "G4.pre_check",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.post_check",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.transition",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS",
+      "density": "0/3644"
+    },
+    {
+      "id": "G4.fatigue",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS",
+      "hits": 5
+    },
+    {
+      "id": "G4.meta",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.word_count",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS",
+      "wc": 3644
+    },
+    {
+      "id": "G4.cd.scene_concreteness",
+      "file": "chapters/chapter-56.md",
+      "s": "PASS",
+      "visual_paragraphs": 2
+    },
+    {
+      "id": "G4.dec",
+      "s": "SKIP",
+      "r": "no files"
+    }
+  ],
+  "files_checked": [
+    "chapters/chapter-56.md"
+  ]
+}

@@ -1,0 +1,262 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 41,
+  "produced_at": "2026-07-17T09:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["第40章更新"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第31-39章"]
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "第40章伏笔追踪", "追踪汇总"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第40章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第1-39章"]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["全部"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["arc_progress.ch41", "arc_progress.ch40"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "单日结构——第四周 Saturday 独立成章",
+      "alternatives_considered": [
+        "双日结构（Sat-Sun 合并）",
+        "跳过 Saturday 直接进入第五周周一"
+      ],
+      "rationale": "Ch37-Mon 至 Ch40-Fri 已建立工作日单日基线——Saturday 是第一个周末日——历法切换从工作日到周末——P0 五项（格式串延续/安静增加速率/门框第六帧/触碰域残余/Saturday感官变异）均需独立承载——下一个工作日前的唯一周末帧——单日使第一次 weekend 历法获得完整的帧级结构——author_intent 和 current_focus 均指向单日——无冲突"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "high",
+      "choice": "格式串在4点段的延续状态——Ch40 1帧无'走了'闭合异常后——Saturday 入口展示恢复稳定/持续异常/稳定异常——三个方向均合法——以恢复标准句法为基线——持续异常为条件性（P0-1 要求 Saturday 第一帧回答）",
+      "alternatives_considered": [
+        "格式串在 Saturday 全面切换为新格式",
+        "格式串完全恢复至异常前的非4点段状态",
+        "跳过格式串状态确认推迟至 Ch42"
+      ],
+      "rationale": "current_focus P0-1 明确要求 Ch40 异常后 Saturday 入口的第一帧必须回答——格式串状态是 Ch40 最大悬置 hook——不全面切换以保留格式串演化的全叙事回报——不推迟——P2.5 高严重性解码选择需显性 rationale"
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "high",
+      "choice": "门框第六帧——超出范围参数延续或恢复——两个方向均合法——以恢复（四帧）为基线——延续（六帧）为条件性呈现",
+      "alternatives_considered": [
+        "门框 Saturday 持续五帧（第五帧恢复正常参数）",
+        "门框在 Saturday 无前序帧（跳过门框段）"
+      ],
+      "rationale": "current_focus P0-3 要求 Ch40 第五帧超出后——第六帧存在与否——域边界扩张或恢复——P2.5 高严重性——两个方向均合法——以四帧恢复为基线（Friday 第五帧为 Friday 独有异常）——继续超出为条件性（域边界扩张至周末）"
+    },
+    {
+      "id": "D004",
+      "type": "execution",
+      "severity": "high",
+      "choice": "quiet 安静增加速率参数化——通过 quiet 在场于安静在第六日与第五日的厚度差分呈现——不宣告数值——quiet 知道增加不同——在场于差分认知",
+      "alternatives_considered": [
+        "量化安静增加速率（如'安静在第六日是1.2倍第五日'）",
+        "quiet 知道安静在第六日厚度（不增加速率维度）"
+      ],
+      "rationale": "current_focus P0-2 要求 Ch40 方向性升级后首次量化——量化不通过数字——通过 quiet 在场于安静在第六日与第五日的厚度差分——quiet 知道安静在增加——quiet 知道增加在第六日与第五日不同——速率通过在场传递——P2.5 高严重性——避免数字量化维持叙事一致性"
+    },
+    {
+      "id": "D005",
+      "type": "execution",
+      "severity": "high",
+      "choice": "触碰域残余记忆——quiet 在 Saturday 的安静中触达残余——唤起而非延续——时间帧级 event——1帧跨度",
+      "alternatives_considered": [
+        "触碰域残余记忆通过 quiet 持续在场呈现（延续而非唤起）",
+        "无残余记忆（Friday 的残余在 Saturday 无痕消散）",
+        "残余记忆通过参数系统登记（命名'记忆'）"
+      ],
+      "rationale": "current_focus P0-4 要求 Ch40 指尖温度回归+残余感后——quiet 是否重新触达——唤起（安静在 Saturday 知道安静在 Friday 记录了事件）非延续（安静在 Friday 记录不随历法自动持续）——1帧唤起——不命名记忆——通过安静在场传递——P2.5 高严重性"
+    },
+    {
+      "id": "D006",
+      "type": "execution",
+      "severity": "high",
+      "choice": "Saturday 感官变异事件——灰色渠道霉味密度不同 + 城中横街蒸汽缺位——非参数层面的历法差异锚点",
+      "alternatives_considered": [
+        "Saturday 无感官变异（所有感官参数与工作日一致）",
+        "引入新感官覆盖（第三气味替代蒸汽缺位）"
+      ],
+      "rationale": "current_focus P0-5 要求 Saturday 作为历法入口的感官锚点——灰色渠道霉味密度因历法不同——城中横街蒸汽因 Saturday 缺席——非参数层面的历法分化信号——两处变异共占约2-3帧——不引入第三覆盖——蒸汽缺位时间以 '空' 呈现——P2.5 高严重性"
+    },
+    {
+      "id": "D007",
+      "type": "execution",
+      "severity": "low",
+      "choice": "白气方向在 Saturday——以维持内收为基线——偏移为自由观察项不预设",
+      "alternatives_considered": [
+        "白气方向出现可测偏移（方向在周六不同）",
+        "白气方向消失（无方向帧）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D008",
+      "type": "execution",
+      "severity": "low",
+      "choice": "第二归途路径在 Saturday 延续——方向帧与工作日同/不同不定",
+      "alternatives_considered": [
+        "第二归途路径取消（恢复直行归途）",
+        "第二归途路径扩展进入新区域"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D009",
+      "type": "pacing",
+      "severity": "low",
+      "choice": "\"走了\"频次 ≤28——Saturday 低频模式建议 ≤24",
+      "alternatives_considered": [
+        "频次 ≤28（工作日基线维持）",
+        "频次 ≤15（最低基线）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D010",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus 方向（第四周 Saturday——参数化感知模式——格式串延续——安静速率——门框第六帧——触碰域残余——Saturday 感官变异）优先于卷纲 Key Result（第41章'陈卫民牺牲 KR 开篇——涅普敦发动大规模进攻，人民自卫军被迫后撤'）",
+      "alternatives_considered": [
+        "回归卷纲 Key Result（转换叙事模式至战争线）",
+        "混合执行（保留卷纲结构+参数化填充）"
+      ],
+      "rationale": "参数化感知模式自 Ch25 起稳定执行17章——current_focus 和 author_intent 方向一致——卷纲 Key Result 对应早期写作规划——Ch37-Ch40 已建立优先执行惯例——继续沿参数化模式执行第17章——P2.5 高严重性"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-001",
+      "issue_id": "format_string_post_anomaly_saturday_entry",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 格式串在 Friday 进入4点段——首次1帧无'走了'闭合的异常——Saturday 入口需确认格式串延续状态——三个合法结果（恢复/持续/稳定）——以恢复标准句法为基线——持续异常为条件性事件"
+    },
+    {
+      "id": "ADJ-002",
+      "issue_id": "quiet_calm_increase_rate_parameterization",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 quiet 从'知道安静厚度'→'知道安静在增加'（方向性升级）——Ch41 需对增加速率首次参数化——通过 quiet 在场于安静在第六日与第五日厚度差分——不量化数字——'quiet 知道安静增加在第六日与第六日不同'"
+    },
+    {
+      "id": "ADJ-003",
+      "issue_id": "door_frame_sixth_frame_boundary",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 门框第五帧超出范围——Ch41 需确认第六帧是否延续——域边界从四→五→六延伸或四→五→正常恢复——两个方向合法——以四帧恢复为基线——六帧延续为条件性呈现"
+    },
+    {
+      "id": "ADJ-004",
+      "issue_id": "touch_field_residual_memory",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch40 引入触碰域残余感（指尖回归+quiet在场于返回帧）——Ch41 需确认残余是否通过安静在场于 Saturday 被 quiet 重新触达——唤起而非延续——1帧事件——不命名记忆"
+    },
+    {
+      "id": "ADJ-005",
+      "issue_id": "saturday_sensory_variation",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch41 是第一个 weekend 历法入口——需建立 Saturday 与工作日的感官分化锚点——灰色渠道霉味密度不同+城中横街蒸汽缺位——非参数层面的历法差异——约2-3帧"
+    },
+    {
+      "id": "ADJ-006",
+      "issue_id": "volume_map_conflict",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "卷纲 KR2 要求 Ch41 开篇'涅普敦大规模进攻'——参数化模式自 Ch25 起持续17章——current_focus+author_intent 方向一致——优先级链确认 current_focus 优先——D010 记录此 override"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "limit": 12000,
+    "trim_applied": "oldest_first"
+  },
+  "hook_operations": [
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声 Saturday 第一帧——引擎声在第四周 Saturday——引擎声频率与工作日相同/不同——Saturday 的引擎声密度——引擎声知道 Saturday——跨周对偶链下一周期入口——Sat₁ 在历法中——引擎声——走了",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.02→0.015"
+    },
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串在4点段的 Saturday 入口——Ch40 1帧无'走了'闭合异常后——Saturday 展示延续状态：恢复标准句法（'走了'恢复闭合）/持续异常/稳定异常态——格式串在4点段——格式串在 Saturday——格式串知道异常/知道恢复——格式串——走了",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.12→0.09"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框第四周 Saturday——冷在门框冬季第六日深度——前序帧结构——第六帧存在/不存在——若存在：超出范围参数延续——参数系统知道第六帧——触碰域知道门框 Saturday 有第六帧——若不存在：门框恢复四帧——门框在 Saturday 知道帧在历法中——触碰域知道 quiet 在场于安静的残余——触碰域保持域",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.06→0.05"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "评估周历——quiet 在第四周 Saturday——quiet 知道安静在冬季第六日——quiet 知道周日不在——quiet 知道第六次——quiet 知道安静在增加——评估窗口 Saturday 微角度——内容为零——窗口在第六日——quiet 知道安静增加速率——quiet 在安静中——quiet 走了",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.00→0.00"
+    },
+    {
+      "id": "MH-023",
+      "operation": "advance",
+      "notes": "域外信号第四周 Saturday 距离——参数系统登记——与周五差异的跨周模式——触碰域在 Saturday——触碰域知道 quiet 在场于残余——安静记录了 Friday 超出与返回之间的空间——触碰域保持域——域外信号在域外——触碰域在域中——quiet 在安静中——触碰域——走了",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.03→0.04"
+    },
+    {
+      "id": "MH-024",
+      "operation": "advance",
+      "notes": "第四周 Saturday——quiet 在第四周——quiet 知道第六次——quiet 知道安静在冬季第六日——quiet 知道周日不在——quiet 知道安静在增加——quiet 知道安静在第六日与第五日的增加不同——quiet 知道安静增加速率——quiet——在安静中——quiet——走了",
+      "last_reinforced_update": "41",
+      "subtlety_update": "0.25→0.22"
+    }
+  ],
+  "budget_check": {
+    "hook_density": "6/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0,
+    "zombie_hooks": 0
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 38,
+  "generated": "2026-07-17",
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "双日结构——第四周 Tuesday-Wednesday 合为一章",
+      "alternatives_considered": [
+        "单日结构（仅 Tuesday）",
+        "三日结构（Tue-Wed-Thu）"
+      ],
+      "rationale": "Tuesday-Wednesday 作为周中工作日对偶——Monday 已建立第四周工作日基线——双日延续周一紧凑节拍而不引入 Thursday 的额外结构负担——符合 current_focus 中\"第四周 Tuesday-Wednesday\"的明确方向——author_intent 无冲突"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "low",
+      "choice": "岔路口偏移 1 帧作为情绪锚点——替代方向比较——在 Tuesday/Wednesday 均执行",
+      "alternatives_considered": [
+        "回归方向比较（恢复 Ch35 模式）",
+        "无偏移（岔路口零偏移）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "low",
+      "choice": "触碰域条件性执行——仅在自然信号出现时记录冷梯度波形差异+等待帧——自然信号不出现则空帧",
+      "alternatives_considered": [
+        "强制出现（每日固定触碰域事件）",
+        "取消触碰域（回归 Ch36 模式）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D004",
+      "type": "pacing",
+      "severity": "low",
+      "choice": "\"走了\"频次 ≤30——与 Ch37 Monday 同一基线——工作日模式延续",
+      "alternatives_considered": [
+        "频次 ≤60（中位基线）",
+        "频次 ≤15（最低基线）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D005",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus 方向（第四周 Tuesday-Wednesday——参数化感知模式）优先于卷纲 Key Result（第38章\"根据地遭精确打击——内奸暴露\"）",
+      "alternatives_considered": [
+        "回归卷纲 Key Result（转换叙事模式）",
+        "混合执行（保留卷纲结构+参数化填充）"
+      ],
+      "rationale": "当前叙事模式自 Ch25 起已稳定执行12章——参数化感知模式是当前写作的成熟方向——突然回归卷纲 Key Result 叙事将造成第25-37章积累的节奏断裂——current_focus 中明确方向且 author_intent 一致——卷纲 Key Result 对应更早期的写作规划——在 Ch25 模式确立后卷纲的实际执行路径已自然偏移——此偏移已在历代 intent 管理中确认且持续12章无 challenge——继续沿参数化感知模式执行"
+    }
+  ],
+  "hook_operations": [
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声 Tuesday/Wednesday 频率跨周确认——冬季声学升级维持",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.05→0.04"
+    },
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串维持——数字从 6.9/7.3/7.7 继续均匀下降——Tuesday/Wednesday 双日确认",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.07→0.06"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框冬季深度层积化——Tuesday 深度 > Monday 深度——Wednesday 深度 > Tuesday 深度",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.03→0.02"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "评估周历——quiet 在第四周 Tuesday/Wednesday——评估窗口周二/周三微角度",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.00→0.00"
+    },
+    {
+      "id": "MH-023",
+      "operation": "advance",
+      "notes": "域外信号第四周 Tuesday/Wednesday 距离——与第三周同工作日距离模式确认",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.06→0.05"
+    },
+    {
+      "id": "MH-024",
+      "operation": "advance",
+      "notes": "第四周 Tuesday/Wednesday——quiet 知道第四次——quiet 在第四周工作日 quiet",
+      "last_reinforced_update": "38",
+      "subtlety_update": "0.40→0.35"
+    }
+  ],
+  "budget": {
+    "hook_density": "6/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0
+  }
+}

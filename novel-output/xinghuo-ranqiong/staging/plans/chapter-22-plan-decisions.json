@@ -1,0 +1,92 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 22,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md",
+      "selected": ["第二次冲突峰值储备", "认证评估倒计时~15天空窗", "战争线与评估驱动力区分"],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "卷纲KR2方向与当前叙事实际偏离——以current_focus局部覆盖为准",
+      "omitted": ["卷纲KR2原定'林烽提出游击战十六字诀'"]
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态", "位置变更", "状态标签", "身体状态", "当前动机", "存活物资", "紧迫程度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["active_hooks", "resolved_hooks", "下一章建议动作"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第19章", "第20章", "第21章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "outline/volume_map.md",
+      "selected": ["第二卷Objective", "KR2章节节点"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "outline/story_frame.md",
+      "selected": ["段1前台故事", "段3主角旅程"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["narrative_principles", "arc_progress", "thematic_progress"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_drift",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2方向与Ch19-21实际叙事偏离——Ch22不执行'游击战十六字诀'以current_focus局部覆盖为准"
+    },
+    {
+      "issue_id": "drift_dash_density",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch21 ~32处——Ch22目标≤30处逼近基准上限"
+    },
+    {
+      "issue_id": "drift_smell_channel",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch21全感官覆盖除嗅觉——Ch22激活1-2次嗅觉编码"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**目录确认**: `staging/plans/` 已存在，上述两个文件直接写入即可。
+
+**计划摘要** — 第22章为卷末中段储备章（非高潮），三条在场线同步推进至交汇前夜的70-80%储备水平但不交汇：MH-021门框第六天方向延续（~40-45%在场）、MH-020不同开敞度格式串对照（~30-35%）、MH-003操作者节奏在场延续（~25-30%）。认证评估倒计时进入~15天空窗临界——行为从"知道接近"转向"正在准备"。情感基调从Ch21"安静的例行"演进为"精密的时间感在压缩空间中诞生"——不是焦虑，是知道时钟在走的沉静。
+
+**方向冲突说明**: 卷纲KR2将Ch22定位为"林烽提出游击战十六字诀"，但Ch19-21实际叙事已转向新常态生存基线下的感官编码与空间压缩记录。以current_focus.md为局部覆盖，priority chain中局部覆盖优先级高于卷纲Key Result。

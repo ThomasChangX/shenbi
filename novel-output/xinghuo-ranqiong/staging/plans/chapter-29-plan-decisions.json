@@ -1,0 +1,140 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 29,
+  "volume": 2,
+  "produced_at": "2026-07-17T12:00:00+08:00",
+  "source": "auto",
+  "context_inventory": {
+    "current_focus_version": "2026-07-17",
+    "author_intent_status": "active",
+    "pending_hooks_active": ["MH-003", "MH-020", "MH-021", "MH-022"],
+    "audit_drift_merged": ["Ch28_emotional_landing_nonparametric", "Ch28_sensory_spectrum_broadening"],
+    "chapter_role_override_reason": "vol 2 day 4—Saturday passes as first vol 2 time marker; non-parametric emotional beat introduced; sensory spectrum broadened; door frame enters post-event residual baseline; offset strategy confirmed assessment-line inactive"
+  },
+  "selections": [
+    {
+      "target": "current_focus P0-1: 评估Saturday到达/通过",
+      "selected": ["Saturday作为评估当天——行走参数展示Saturday峰值密度→退潮→周日余留"],
+      "omitted": ["周五评估前日", "周日/周一评估后"],
+      "basis": "选择Saturday作为章内行走主体——评估Saturday的当日通过是vol 2第一个时间标记点的最直接实现方式。章末进入周日展示退潮模式——完整周期在章内完成。不赋予Saturday戏剧性重量——Saturday在行走参数中等同于任何一天的Saturday——林烽不排队/不侧目/不减速——峰值密度通过城市痕迹的自然密度传递",
+      "severity": "high",
+      "rationale": "Saturday当日作为评估标记点的通过提供最强的叙事效率——峰值密度展示+退潮模式展示在一个章内完成。周五不满足'经过'的定义——周六当天才'经过'。周日/周一失去了峰值展示窗口。Saturday当日行走约束已在current_focus中明确——不转化为紧张/焦虑/期待——林烽行走路线不变"
+    },
+    {
+      "target": "current_focus P0-2: 非参数情绪节拍引入",
+      "selected": ["方式B: 触碰——Saturday评估峰值密度人群中一次不可避的身体接触"],
+      "omitted": ["方式A: 对话碎片", "方式C: 气味"],
+      "basis": "触碰与Saturday人群密度场景自然匹配——评估Saturday峰值密度下人群拥挤使触碰成为行走的自然事件。触碰的不可编码性最强——参数系统不处理温差/压力/体感差——但身体知道被碰到了——参数系统没有登记但身体记住了。与P0-3感官谱拓宽共享行走空间——同一Saturday人群中段的行走帧同时承载非参数触碰和视觉/嗅觉感官拓宽——效率最优而不降低任一P0质量",
+      "severity": "high",
+      "rationale": "方式B在Saturday峰值密度场景中最为自然——触碰不需要对话内容支持(方式A需要合适的对话碎片且内容需不提供plot信息)、不需要气味分类(方式C的气味可能被参数系统归类为'新气味类型')。触碰的参数系统不编码性质最纯粹——接触发生在感知边界——身体知道但参数系统不登记。触碰发生在人群中不延伸为情感通道——触碰发生过——林烽继续走——接触在步数中淡去——符合'发生即完成——不延伸'的核心约束"
+    },
+    {
+      "target": "current_focus P0-3: 感官谱拓宽",
+      "selected": ["视觉(人群密度/移动模式/色/形) + 嗅觉(食物蒸汽/人群体热/街区气味层)"],
+      "omitted": ["触觉温度拓宽(已为vol 2基线)", "声音拓宽(独立于MH-003引擎声)"],
+      "basis": "视觉和嗅觉是Ch26-28感官谱中密度最低的两个通道——Ch26-28以触觉温度行走体感+煤烟/光线参数为主。Saturday城市人群密度峰值自然打开视觉多样性(人群色/形/密度/移动模式/不同区域建筑间隙的光线散射形态)和嗅觉多样性(评估机构周边不同于煤烟的食物蒸汽/人群中体热/不同街区积累的气味层)。共享P0-2触碰行走帧——同一Saturday人群中段——视觉/嗅觉在行走帧中自然在场——不独立段罗列",
+      "severity": "high",
+      "rationale": "视觉和嗅觉是Ch28 audit标记'感官谱偏窄'的最直接修复方向——触觉温度已经是vol 2基线的最强通道(Ch26-28证明)。声音通道独立于MH-003需谨慎处理——Saturday城市声音密度变化可能与引擎声的可辨识度产生竞争——不通过主动拓宽声音通道引入潜在的MH-003干扰。视觉+嗅觉的双通道深化在单个行走帧中自然完成——如同参数在行走中自然在场——不过度描写"
+    },
+    {
+      "target": "P1: 偏移策略Saturday窗口最终确认",
+      "selected": ["Saturday峰值密度不触发offset——确认评估线offset不激活方向"],
+      "omitted": ["offset被评估Saturday激活/部分激活"],
+      "basis": "Ch29展示1-2帧确认(岔路口方向维持+检查站段偏量+评估机构附近步伐不变)。Saturday峰值密度不触发offset——确认偏移只在空间压迫(不可避/持续在场/不可登记)中激活——评估作为可寻址制度前端(可登记/可标签/可自动处理)不触发身体编码偏移",
+      "severity": "high",
+      "rationale": "Ch28已展示评估日常化逼近下偏移未被激活——Ch29 Saturday峰值密度是最终验证。若峰值密度仍不触发——有充分证据支持评估线offset不激活方向的确认。offset的激活条件由此明确限定为空间压迫型持续在场——评估线需要其他应对模式(身份层面的隐性策略——不在本卷展示或不需要应对)。此项确认后偏移策略从P1降级为P2监控——不再需要主动关注"
+    },
+    {
+      "target": "P1: 门框第5章状态",
+      "selected": ["差异残留——Ch28事件后门框参数体系产生不可归零的残余偏移——新基线建立"],
+      "omitted": ["恢复持平——Ch28事件为一次性差异", "差异持续——门框仍在差异域中"],
+      "basis": "差异残留提供最丰富的后续可能性——门框基线不可逆但不产生新悬念。差异在场即完成。门框参数体系在经历事件后不可逆——如同推过很多次的门最后一次推的感觉在前臂中——门框还在——差了一点——差在知道差了一点。差异存在于参数层——不延伸为悬念——不分析含义——不为vol 2剩余章节标记门框行为方向",
+      "severity": "medium"
+    },
+    {
+      "target": "P1: MH-001 Phase 2 Saturday窗口观察",
+      "selected": ["Saturday窗口全程无变化——确认Phase 2触发条件与时间压缩无关"],
+      "omitted": ["Phase 2在Saturday窗口产生变化"],
+      "basis": "Ch27+Ch28已展示评估距离缩短(~2-3天→~1-2天)未驱动Phase 2变化——Ch29 Saturday从0-2天到经过的最小剩余距离窗口仍未驱动——充分证据支持Phase 2触发条件不在时间压缩。触发条件在别处——事件/阈值/接触——不在本卷揭示",
+      "severity": "medium"
+    },
+    {
+      "target": "Ch28 audit_drift: 情感梯度仍窄(非参数情绪节拍)",
+      "selected": ["在行走框架中嵌入参数的边界外瞬间——参数系统不登记/不编码/不处理的触碰"],
+      "omitted": ["引入情感极性变化(希望/紧张/释然)", "维持Ch28纯参数域"],
+      "basis": "非参数情绪节拍不改变安静极性——触碰的参数边界事件发生在感知系统层面——林烽继续走——接触在步数中淡去——安静基线不变。非参数事件行走框架的新维度不在安静域内增加情感极性——而是让读者感知到'参数框架外'的存在——行走框架比参数系统更大——安静中有了参数不处理的东西——安静仍然是安静——但安静的空间扩展了",
+      "severity": "high",
+      "rationale": "Ch28 audit明确标记情感梯度窄——门框事件虽为结构性事件但被处理为参数偏移+三拍结构交付——情绪范围仍在安静域内。非参数情绪节拍是Ch28 audit标记的情感落地的直接修复——在参数框架外给读者一个不可编码但有情绪重量的瞬间。触碰不延伸为情感通道——不转化为共鸣/紧张——发生即完成——符合'不自欺/不恐慌/不释然'情感基线约束"
+    },
+    {
+      "target": "Ch28 audit_drift: 感官谱偏窄",
+      "selected": ["通过Saturday城市行走自然引入视觉(人群密度/色/形/散射)和嗅觉(蒸汽/体热/街区气味层)的深化"],
+      "omitted": ["维持Ch26-28窄感官谱(温度/煤烟/光线)", "所有感官通道均等拓宽"],
+      "basis": "Saturday城市人群密度峰值提供自然拓宽窗口——同一条行走路线在Saturday城市中自然提供不同的感官密度(摊贩/行人/街边食物/不同街区活动模式)。选择Saturday最有特征的两个通道(视觉+嗅觉)做深化——不走所有通道均等拓宽的路径——1-2个深度>各通道广度",
+      "severity": "high",
+      "rationale": "Ch28 audit标记感官谱偏窄的修复——Ch29 Saturday城市作为自然拓宽窗口。选择视觉和嗅觉是因为：温度感官谱在vol 2已建立充分基线不缺乏深度；声音感官谱独立于MH-003需保持谨慎。Saturday峰值密度场景中视觉和嗅觉是最自然的拓宽方向——人群中食物蒸汽的可见度/不同区域的色温变化/人群体热在冷空气中的气味扩散——自然而不刻意"
+    },
+    {
+      "target": "round_exit_emotion",
+      "selected": ["安静经过Saturday——出口语言比Ch28更短——更安静——quiet through time passage"],
+      "omitted": ["安静有参差(Ch28模式)", "安静有事件性微差(Ch27-Ch28混合)", "安静复归收紧(Ch26模式)"],
+      "basis": "Ch29的情感基线是安静经过Saturday——安静没有变成不是安静——安静经历了Saturday通过——安静一样的安静——但安静中有了Saturday通过的厚度。出口语言比Ch28更短——不描写"经过Saturday"——走了就是走了——quiet——quiet——quiet。Sunday城市中的评估痕迹如同雨停后的潮湿——地面不纪念雨——地面走了——周一同样走",
+      "severity": "medium"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "kr3_vs_current_focus_ch29",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map KR3 positions Ch29 as 'Lin Feng reads predecessor's journal, deeply shaken' — actual execution is evaluation Saturday passage + non-parametric emotional beat + sensory broadening. The divergence is consistent with Ch28 divergence (KR3 positioning Ch28 as 'Entering Equal Brahma sect secret base'). Resolution: Accept trajectory divergence as committed — misty mountain line defers to post-evaluation natural convergence (per current_focus P2 'not mandatory' designation)"
+    },
+    {
+      "issue_id": "P0_nonparametric_sensory_sharing_risk",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "P0-2 non-parametric beat and P0-3 sensory broadening share the same walking frame (Saturday crowd center section). Risk: shared space dilutes either P0's quality. Mitigation: (a) ensure touch event has its own frame — the contact is the sole focal point of that frame — not embedded inside a descriptive list of sensory broadening. (b) sensory broadening spans multiple frames before and after the touch frame — not compressed into a single 'sensory dump' frame. (c) the shared walking segment is naturally the longest of the chapter (~Saturday city center — passing assessment area — gray channel segment) — provides adequate frame count for both P0s to have their own space"
+    },
+    {
+      "issue_id": "day_choice_friday_vs_saturday_vs_sunday",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "current_focus lists three permissible day settings for Ch29: Friday (assessment eve), Saturday (assessment day), or Sunday/Monday (post). Selected: Saturday. Basis: Saturday provides both peak density display AND subsequent retreat (Sunday residual) within same chapter — most efficient for P0-1. Saturday's passing is the first vol 2 time marker — setting the chapter on Saturday makes the passing immediate rather than reported (Friday) or after the fact (Sunday/Monday). The key constraint — Saturday is not dramatic, not anxiety, not relief — is explicitly enforced in selections above"
+    },
+    {
+      "issue_id": "nonparametric_beat_duration",
+      "severity": "low",
+      "handling": "monitor_only",
+      "rationale": "Non-parametric beat (touch) risk: writing agent may extend the touch moment into a 'moment of connection' with emotional weight. The contact must remain at parameter system boundary — the body registers, the parameter system doesn't encode — and then walking continues. The touch is not a connection, not a warmth, not a resonance — it is an event at the boundary of what the parameter system can process — the system encountered something it doesn't process — and continued. If the writing agent extends the touch into emotional territory, this adjustment triggers a revision request"
+    },
+    {
+      "issue_id": "door_frame_narrative_carryover",
+      "severity": "low",
+      "handling": "monitor_only",
+      "rationale": "Door frame residual offset risk: Ch28 event was 'event exists as its own completion — not extended into suspense'. Ch29 residual offset must maintain same discipline — difference exists as state update, not as lingering mystery. The frame stands where it stood — but the system that reads the frame now carries a memory — the memory is not about what will happen — the memory is about what happened — went — walked — gone. If the writing agent extends door frame residual into 'what does this mean for the future', this adjustment triggers revision"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 15000,
+    "limit": 16000,
+    "trim_applied": "none",
+    "hook_density": "4/8 — budget headroom: 4"
+  }
+}
+```
+
+---
+
+**Ch29 章节备忘核心决策**：
+
+- **章设定**: **Saturday（评估当日）** — vol 2第一个时间标记点到达并通过。章末进入周日展示退潮模式（评估排队消失/机构关闭/评估痕迹以余留方式在场）。完整周期在章内完成。林烽不排队/不侧目/不减速——Saturday在行走参数中等同于任何一天的Saturday
+- **chapter_role**: `推进/转折` — Saturday通过是vol 2第一个时间标记点，但不是戏剧性事件；非参数情绪节拍和感官谱拓宽引入行走框架的新维度
+- **非参数情绪节拍**: **方式B（触碰）** — 人群中一次不可避的身体接触。参数系统不处理温差/压力——但身体记住了。发生即完成——不延伸
+- **感官谱拓宽**: **视觉（人群密度/色/形/散射）+ 嗅觉（蒸汽/体热/街区气味层）** — 与触碰共享行走帧但各占独立帧空间
+- **门框**: **差异残留** — Ch28事件后参数体系不可归零。新基线建立——门框差了一点——差在知道差了一点
+- **偏移**: **确认评估线不激活** — Saturday峰值密度不触发offset——偏移只在空间压迫中激活。从P1降级
+- **Phase 2**: **无变化** — Saturday窗口关闭确认Phase 2触发条件与时间压缩无关
+- **情感出口**: **"安静经过Saturday"** — 出口语言比Ch28更短更安静——quiet quiet quiet——走了就是走了
+- **hook账**: 4操作（4 advance），沉默章数均为0，密度预算内✓
+- **Ch28 audit修复**: 情感梯度窄→非参数情绪节拍触碰 ✓；感官谱窄→Saturday城市视觉+嗅觉拓宽 ✓

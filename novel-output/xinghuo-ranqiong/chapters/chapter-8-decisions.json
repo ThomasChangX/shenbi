@@ -1,0 +1,98 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 8,
+  "produced_at": "2026-07-16T10:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-8-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["2. 读者此刻在等什么", "4. 日常/过渡承担什么任务", "5. 关键抉择过三连问", "7. 本章 hook 账"]
+    },
+    {
+      "target": "context/chapter-8-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第7章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第6章（推进/转折）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_MH003_activation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-003（非标涅普敦侦察机引擎声）激活：北墙等待时头顶方向传来引擎声，音色与常规涅普敦轰炸机有差异——极高音域间歇性节律异常。极淡背景层，不中断主线叙事（林烽未抬头追看，未做明确解读）。符合plan §3兑现清单第1条和§8（不做明确解读）。cultivation_interval=5耗尽，Ch8为最后安全窗口。"
+    },
+    {
+      "issue_id": "plan_first_grey_task",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "灰色渠道第一趟任务落地：接头（干瘦手下）→北墙外缺口→浅谷废料堆放区搬运铁皮封口木箱回城→北巷交接点→报酬14铜币。任务中保持合理紧张度（哨音中断+巡逻风险+不知货物性质），不做惊险高潮。货物内容保持模糊（木箱铁皮封条密封完整+重心均匀，不推测具体内容），符合plan §3和§8。"
+    },
+    {
+      "issue_id": "plan_body_betraying_will",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "释放性身体信号三重落地：返回路上林烽在清点铜币时发现右手食指指腹有一道已凝固的伤口（不知何时划破，边缘不规则，从流血到止血全程无意识）+发现后胃部出现不明显的痉挛（非饥饿抽搐，是更浅的腹壁反射）+站起时膝盖发出响动。三重释放信号与Ch7拇指刮动（压抑性信号）形成'克制→释放'对照。身体在意志介入前已暴露恐惧信号。"
+    },
+    {
+      "issue_id": "plan_new_normal",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "新常态建立：任务收入14铜币，生存基线从'弹尽粮绝'（23.5铜）提升至37.5铜——'有缓冲但附带暴露风险'。风险以灰夹克手下的话呈现：'今天开始你是活着还是死了，账上就有人记着了'。林烽认知到'多了一个被记录的人'和'不是同一套体系里的人'。不浪漫化越界，不做无痛越界——身体恐惧信号在任务完成后才浮现。"
+    },
+    {
+      "issue_id": "plan_door_perception",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门感知微调：不使用'像A或B'的说明性类比。以触感节奏本身暗示秩序感——横向触碰时细密均匀的凸粒排列（每粒高度一致，间隔固定）产生阻滞感和跳跃感；纵向触碰时顺滑，仅少数线性凸棱。感知到'不是随机纹理，是有方向的'，确认表面有工艺痕迹。不跨域类比（不出现'像旧木头的年轮'或'像金属表面的铸造痕迹'）。符合plan §8和Ch7 audit_drift文笔质感修复要求。"
+    },
+    {
+      "issue_id": "plan_drift_emotion_Ch7",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Ch7 audit_drift情感落地修复：追加释放性身体信号（三重释放：指腹伤口/胃痉挛/膝盖响动），与Ch7压抑性信号（拇指刮动）形成克制→释放对照。伤口发现过程不通过理性分析（'他不记得是什么时候划破的'），以纯发现→回溯→无法还原的体验呈现。"
+    },
+    {
+      "issue_id": "plan_drift_scene_Ch7",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Ch7 audit_drift场景临场感修复：生存计算融入行动——林烽在返回路上边走边倒铜币在手心数（'手指在铜币表面依次碾过'）而非停下来做分析性计算段；回到地下室后'隔着布料压在大腿上'的感受也让计算融入身体体验而非文本分析。"
+    },
+    {
+      "issue_id": "plan_continuity_night_movement",
+      "severity": "low",
+      "handling": "apply",
+      "rationale": "Ch7→Ch8时间连续性：林烽在Ch7结尾接受了灰夹克凌晨三点的邀约，Ch8开篇直接从他凌晨醒来出发执行任务开始。Ch7末尾出现的猫（从墙头跳下无声落地）在Ch8返回途中再次出现（墙头蹲着同一只猫），提供物理时空的连续性锚点。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 13600,
+    "limit": 14000,
+    "trim_applied": "none"
+  }
+}

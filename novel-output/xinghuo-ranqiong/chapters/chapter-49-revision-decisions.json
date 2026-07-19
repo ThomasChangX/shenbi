@@ -1,0 +1,66 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 49,
+  "produced_at": "2026-07-17T16:30:00Z",
+  "selections": [
+    {
+      "target": "revision_decision",
+      "selected": "no_revision_needed",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    },
+    {
+      "target": "revision_mode",
+      "selected": "spot_fix_not_applicable",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    },
+    {
+      "target": "reroute_decision",
+      "selected": "no_reroute_needed",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "resonance_gap_emotional_grounding",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Resonance identified parameter-level emotional differentiation as improved (gap non-uniform evolution/quiet displacement/cold accumulation/offset self-sustained direction) but notes no sensory anchoring. This is an inherent property of parameter narrative mode — defer to future chapters for cross-parameter cognition growth rather than retrofitting non-parameter moments into ch49."
+    },
+    {
+      "issue_id": "resonance_gap_scene_presence",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "5 physical anchors present (iron ladder/ceramic pot/notepad page/snow/window light) but all parameterized. Adding a non-parameterized sensory moment would break Monday workday exclusion mode. Defer to a transition or Sunday chapter where sensory content is permitted."
+    },
+    {
+      "issue_id": "resonance_gap_reader_payoff",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Horizon signal (gap knows dual-mode) is present and evaluated as the strongest improvement from ch48. Additional cross-parameter interaction events (e.g., cold registers gap knowing cycle) can strengthen payoff in future chapters without altering ch49's established parameter geometry."
+    },
+    {
+      "issue_id": "audit_diff_none_required",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "All 11 audits passed with 0 blocking/0 critical issues. Resonance pass (79/100 ≥ 65). Route C goals all met (chapter_role=推进/转折, §6 changes, hook budget). Chapter requires no revision — output unchanged."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 5000,
+    "limit": 8000,
+    "trim_applied": "none"
+  },
+  "revision_stats": {
+    "attempt": 0,
+    "resonance_before": 79,
+    "blocking_before": 0,
+    "critical_before": 0,
+    "ai_tell_before": 0,
+    "revision_attempted": false,
+    "acceptance_criteria_met": true
+  }
+}

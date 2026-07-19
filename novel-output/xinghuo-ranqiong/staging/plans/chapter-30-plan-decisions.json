@@ -1,0 +1,97 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 30,
+  "volume": 2,
+  "chapter_day": 8,
+  "generated_at": "2026-07-17",
+  "priority_chain": {
+    "sources": [
+      {"level": 1, "source": "external_directive", "present": false, "note": "pipeline mode — no human directive beyond plan execution"},
+      {"level": 2, "source": "local_override", "present": true, "source_file": "truth/current_focus.md", "note": "P0-1/P0-2/P0-3 fully specified"},
+      {"level": 3, "source": "volume_kr", "present": true, "note": "volume_map.md KR3收官定位已偏离——以current_focus覆盖"},
+      {"level": 4, "source": "current_focus", "present": true, "note": "primary guidance source"},
+      {"level": 5, "source": "author_intent", "present": true, "note": "arc_progress confirms post-Saturday direction"}
+    ],
+    "conflict_resolution": "volume_map.md Ch30定位(KR3收官:楚云岚开放知识库)与当前叙事状态(vol2第5天——评估路径运行阶段——后Saturday时期——已知周节奏)完全偏离。以current_focus P0-1/P0-2/P0-3为准。",
+    "selected_source": "truth/current_focus.md"
+  },
+  "chapter_role": "推进/转折",
+  "primary_objectives": {
+    "P0": [
+      {
+        "id": "P0-1",
+        "item": "后Saturday时期——已知周节奏中的行走",
+        "source": "current_focus/plot",
+        "execution": "评估密度在行走参数中从可寻址信号推进为历法性在场——不宣告——通过行走帧中评估密度在场方式的朴素变化让读者自然读出——如同身体知道午后的太阳方向"
+      },
+      {
+        "id": "P0-2",
+        "item": "情感梯度升级——尝试编码失败帧",
+        "source": "current_focus/audit_drift(Ch29 audit 合并)",
+        "execution": "感知系统为触碰余留分配参数类别→温度/形变/压力检查→全部失败→零类别→悬停帧。章中最多1处。不扩展为认知结论。"
+      },
+      {
+        "id": "P0-3",
+        "item": "感官密度保留——保留Saturday拓宽渠道在工作日基线",
+        "source": "current_focus/audit_drift(Ch29 audit 合并)",
+        "execution": "保留嗅觉食物蒸汽气味通道在工作日基线——密度从Saturday峰值降为工作日密度但通道在场——推荐嗅觉"
+      }
+    ],
+    "P1": [
+      {"id": "P1-1", "item": "后Saturday偏移状态确认", "source": "current_focus/character_arc"},
+      {"id": "P1-2", "item": "门框基线后Saturday稳定性", "source": "current_focus/plot"},
+      {"id": "P1-3", "item": "Phase 2后Saturday自然状态", "source": "current_focus/foreshadowing"},
+      {"id": "P1-4", "item": "MH-020格式串维持", "source": "current_focus/plot"},
+      {"id": "P1-5", "item": "MH-003引擎声维持", "source": "current_focus/plot"},
+      {"id": "P1-6", "item": "情感基线维持(安静携带不可编码物)", "source": "current_focus/character_arc"}
+    ],
+    "P2": [
+      {"id": "P2-1", "item": "秋末→初冬推进", "source": "current_focus/plot"},
+      {"id": "P2-2", "item": "第二评估周预设", "source": "current_focus/plot"},
+      {"id": "P2-3", "item": "低频机械声延续", "source": "current_focus/plot"},
+      {"id": "P2-4", "item": "灵能觉醒维度预留", "source": "current_focus/plot"},
+      {"id": "P2-5", "item": "非参数域长期存在方式预留", "source": "current_focus/plot"}
+    ]
+  },
+  "hook_operations": {
+    "total_count": 5,
+    "budget": "5/8",
+    "operations": {
+      "advance": ["MH-022", "MH-023", "MH-021", "MH-020", "MH-003"],
+      "resolve": [],
+      "defer": [],
+      "open": []
+    },
+    "silent_check": "无defer操作——所有活跃hook均获得advance——无僵尸伏笔",
+    "subtlety_changes": {
+      "MH-022": "0.06→0.05",
+      "MH-023": "0.45→0.38",
+      "MH-021": "0.14→0.13",
+      "MH-020": "0.22→0.21",
+      "MH-003": "0.19→0.18"
+    }
+  },
+  "chapter_end_changes": [
+    {"id": "C1", "type": "信息", "description": "评估周节奏从发现性在场→历法性在场"},
+    {"id": "C2", "type": "信息", "description": "感知系统边界首次被自身触及——不可编码物在场——参数系统短暂不可靠性窗口"},
+    {"id": "C3", "type": "物理", "description": "感官基线小幅拓宽——嗅觉通道在工作日基线保留Saturday拓宽残余"}
+  ],
+  "emotion_target": "安静——包含了一个未编码触碰的重量——安静在参数系统悬停的瞬间更安静了——安静恢复——安静包含标签缺失的知识——安静不在标签缺失处停留——安静走过档案架——安静走了——走了",
+  "constraints": {
+    "no_declarations": true,
+    "no_meta_cognition": true,
+    "no_emotional_extension": true,
+    "no_saturday_density_coverage": true,
+    "no_trigger_inference": true,
+    "no_trend_inference": true,
+    "no_pattern_mastery_claim": true,
+    "coding_failure_frame_max": 1
+  }
+}
+```
+
+---
+
+**输出完成**。两份文件内容已以 `

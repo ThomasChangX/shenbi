@@ -1,0 +1,93 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 21,
+  "produced_at": "2026-07-16T18:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "rationale": ""
+    },
+    {
+      "target": "priority_source",
+      "selected": ["局部覆盖(truth/current_state.md + current_focus.md)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲 Key Result(volume_map KR2开篇)"],
+      "rationale": "卷纲指定Ch21为第二卷KR2开篇(首次主动进攻/钢山铁哉登场)但故事实际进程仍处于铁炉堡西区生存线——以局部覆盖优先，卷纲KR2延后"
+    },
+    {
+      "target": "positive_somatic_anchoring",
+      "selected": ["引擎声回归时肩部微释——独立正面体征输出"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["门框第五天确认时"],
+      "rationale": ""
+    },
+    {
+      "target": "door_frame_day_5_direction",
+      "selected": ["横向维持(停滞→稳定期确认)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["横向消失(临时特征消散)", "新变形阶段(第三维度开始形成)"],
+      "rationale": ""
+    },
+    {
+      "target": "MH-003_return_type",
+      "selected": ["间接回归(引擎声框架在声场中自然重新在场)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["直接在场(视觉确认/巡逻密度再表述显性化)"],
+      "rationale": ""
+    },
+    {
+      "target": "MH-020_operation_count",
+      "selected": ["1次(晨间或午后——与Ch20时段对照)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["2+次(多次跨时段操作)", "0次(本章跳过)"],
+      "rationale": ""
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_deviation",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map Ch21定位(第二卷KR2开篇:首次主动进攻/钢山铁哉登场/游击战十六字诀)与actual state(铁炉堡西区生存线/主角独自探索)偏差持续——延续Ch20同类处理，局部覆盖优先，卷纲KR2保持为远期结构目标"
+    },
+    {
+      "issue_id": "audit_drift_P0_positive_somatic",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch20情感落地以排除法界定为主('不是X→是Y'结构频繁)——Ch21在MH-003回归确认瞬时强制植入独立正面体征输出(肩部微释/呼吸深度调整)，建立从'不是恶化'→'是确认'的输出模式"
+    },
+    {
+      "issue_id": "MH-003_absence_recovery",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "MH-003完全缺席Ch20(无直接描写/无间接在场标记/无巡逻密度再表述/无引擎声参照)——subtlety从0.32降至0.28。距2章警告窗口仅剩1章容错。Ch21必须至少间接回归一次(引擎声框架在场/操作者节奏确认)"
+    },
+    {
+      "issue_id": "audit_drift_P2_vibration_tactile",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch20窄巷确认段缺位脚步→围挡结构的振动传递反馈。Ch21在接近封锁结构或管道支架段嵌入一次材料振动低频响应——补全封闭空间物理质感"
+    },
+    {
+      "issue_id": "audit_drift_P2_reader_pacing_buffer",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch20情感小回报(停止恶化信号)嵌入在流程步骤中无段末独立感官余韵。Ch21在章末宣告前留出一个呼吸节拍的感官延展句——光/温度/接触面余感——给读者完成情感接收的时间窗口"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 3000,
+    "limit": 4000,
+    "trim_applied": "none"
+  }
+}

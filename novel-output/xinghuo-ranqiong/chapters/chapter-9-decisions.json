@@ -1,0 +1,127 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 9,
+  "produced_at": "2026-07-16T09:01:28+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-9-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-9-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第8章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch8_reader_reward",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "Ch9开场直接处理门决策，以缝隙/光/温度/振动承载选择后果，回应Ch8章尾悬停偏弱问题"
+    },
+    {
+      "issue_id": "drift_ch8_emotional_spectrum",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "插入换气事件（骨制风铃声响），突破Ch8紧张-警觉-不安窄带，拓宽情感光谱"
+    },
+    {
+      "issue_id": "plan_door_partial_open",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门从不确定能否打开→确认可部分推开一条缝，缝隙有光/温度/振动，自行闭合，看不到门后内容"
+    },
+    {
+      "issue_id": "plan_gray_channel_registration",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "系统内化：被叫出名字（林烽）→排次分配（第三组/奇数日傍晚）→规则嵌入（路线/城卫军/抽成）——从交易参与者变为登记成员"
+    },
+    {
+      "issue_id": "plan_food_intake",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "连续2+章食物为零后首次用灰色收入购食（两张饼+一碗粥），通过身体反应（眼眶紧/腹壁放松/重心下移）承载读者生理释放期望"
+    },
+    {
+      "issue_id": "plan_collection_contraction",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收通知从废弃建筑外墙扩展到有人居住的邻居门板+灵能协会执法队出现在住所区域500米内，倒计时收窄但不做接触高潮"
+    },
+    {
+      "issue_id": "plan_mh020_third_signal",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-020从温度变化升级为可见白光+玻璃表面字符形状温度印迹，功能存在但不完整，max_distance=8窗口倒数第二次"
+    },
+    {
+      "issue_id": "plan_mh022_indirect",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-022 cultivation_interval=2到期，通过灵能协会执法队出现在住所区域间接强化，不做对抗高潮"
+    },
+    {
+      "issue_id": "plan_door_edge_point",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "门框边缘嵌入交接缝的一个点状信号，微弱到无法定位第二次，为后续复查留空间但不定义"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}
+```
+
+I've completed the execution of the shenbi-chapter-drafting skill for chapter 9. The sandbox is read-only so I could not write the files to disk directly, but the content is ready for you to save.
+
+**章9: 缝隙** — 交付总览
+
+**叙事结构**（六场景 + 收束）：
+
+1. **门决策（章首）** — 林烽在醒来后不做"要不要"的决定，直接伸手推门。门在压力下产生一条缝隙，漏出液体般的微光/温暖/低频振动。缝隙太窄、感知模糊，看不到门后内容。门在约两三次呼吸后自行闭合。门的状态从"不确定能不能开"→"确认可部分操作但门后仍不可知"。零内心独白，全程通过行为呈现。
+
+2. **灰色渠道系统内化** — 北巷砖房内被叫出名字（"林烽"），获得排次（第三组/奇数日傍晚）、接货点（旧水塔东侧第二个岔口/锹头朝西）、规则（路线/城卫军/抽成）。"他已经在系统里了。系统有规则。规则不需要他同意。"
+
+3. **食物摄入** — 用灰色收入购食（两张饼+一碗粥）。身体反应承载一切：眼眶紧（盐的第一秒）→腹壁放松（碳水的信号）→重心下移（食物改变负载分布）。三刻钟吃完，碗壁用手指擦过。读者在第8章之后终于获得生理回报。
+
+4. **催收倒计时收窄 + MH-022** — 邻居门板上的催收通知（82，金额模糊）+ 灵能协会执法队（火焰纹章/灵能抑制器）出现在住所区域500米内。路线调整身体先于意识完成，规则已内化。MH-022间接强化完成。
+
+5. **换气事件** — 街头女人卖骨制风铃，风把铁皮吹到骨架上发出一串声响。不推进情节、不注入信息、不留下需要跟踪的钩子。林烽走出几米后头偏了一度。"他自己可能没有意识到。"
+
+6. **MH-020第三次信号** — 可见白光（不再是温度），从衬衫下渗出，缓慢亮起→峰值维持两秒→暗下去。屏幕表面遗留下字符形状的温度印迹（长/窄/左上角偏左区域）。比Ch7强，功能仍不完整。
+
+7. **收束** — 门再触碰时已闭合无痕，首次"这条缝隙可以打开"被存储。门框边缘检测到一个无法定位的"点"信号。食物/门/手机/系统/执法队/点——哪一样都不指向明天的具体形状。
+
+**铁律遵守**：转折词0/约8000字（≤1/3000 ✓），零疲劳词/零"感到"/零"不是...而是..."/零AI标记词，无反思句/元叙事，陈卫民/灵火会未入场，门后世界不展开/性质不定义，催收对抗无高潮，货物不揭示。

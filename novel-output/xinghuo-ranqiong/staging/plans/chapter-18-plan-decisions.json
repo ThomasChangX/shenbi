@@ -1,0 +1,62 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 18,
+  "produced_at": "2026-07-16T14:50:00Z",
+  "selections": [
+    {
+      "target": "plots/ch18_lines",
+      "selected": ["conflict_diffusion", "drift_pressure_test", "mh020_deepen", "mh001_cultivation"],
+      "basis": "local_override",
+      "severity": "high",
+      "rationale": "current_focus.md: 冲突扩散(P0)→偏移压力测试(P1)→MH-020深化(P1)→MH-001 cultivation(P1)"
+    },
+    {
+      "target": "volume_map_v2_kr1",
+      "selected": ["defer_divergence", "continue_current_trajectory"],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "卷2KR1定位Ch18'截获情报/营地防御' vs 实际仍在铁炉堡扩散段。继续defer至current_focus轨迹"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_sensory_density_drop_ch17",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "Ch17末段感官密度回落(P0)—Ch18末段强制2-3锚点+至少1中等强度感知锚点"
+    },
+    {
+      "issue_id": "mh001_cultivation_urgency",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "MH-001距上次强化5章(Ch13→Ch18),超出6-8章窗口中位。Ch18强制推进至TRIGGERED预备态"
+    },
+    {
+      "issue_id": "style_profile_bootstrap",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "style_profile仍为bootstrap—Ch18初稿后运行compute_stats.py覆盖"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Summary of Chapter 18 plan — 冲突扩散（推进/转折）**
+
+第18章核心指令是**扩散**——Ch17三条核心线全部触发后，Ch18必须让每条线产生代价：
+
+- **战争线累计代价**— 军列连锁效应(检查站升级/窄巷封锁/巡逻密度增加)迫使林烽的活动范围客观收缩至少一条日常路线不可通行，冲突从"可感受的物理压迫"升级为"行动轨道被外力改变"
+- **偏移策略压力测试**— 林烽在连续五天自动选择窄巷后，第一次在入口处因异常停住并重新评估"窄巷是否仍安全"，偏移从绝对有效→条件有效(依赖于不被注意)
+- **MH-020系统差异发现**— 在被迫绕行的不同环境位置操作，发现折线图标位置/中线值/格式串尾缀随开阔度系统变化，同时代价萌芽：更多对比操作=更长暴露时间
+- **MH-001推进至TRIGGERED预备态**— 战争线环境变化后检测金属片，确认被动响应出现可识别变化(梯度格局改变)，满足检测结果变化条件
+- **P0 drift修正**— 末段强制2-3个感官锚点+至少1个中等强度感知锚点(光锥温度跃变等)
+
+**decisions.json** 记录了三个关键决策：冲突扩散优先级选择(local_override)、卷定义偏离继续defer(manual_override)、MH-001 cultivation紧迫补偿。工作区不可写入，内容已全部输出至上方

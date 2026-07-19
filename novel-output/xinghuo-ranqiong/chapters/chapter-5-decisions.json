@@ -1,0 +1,159 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 5,
+  "produced_at": "2026-07-16T06:50:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-5-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["2. 读者此刻在等什么", "4. 日常/过渡承担什么任务", "5. 关键抉择过三连问", "7. 本章 hook 账"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "6. 标点密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第3章（推进/转折）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第1章（铺垫）", "第2章（推进/转折）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_first_step_outward",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Behavioral change delivered: Lin Feng transitions from passive survival to active outward mobility. He wakes, goes out to find water, navigates checkpoint zone, explores scrap market—all conscious choices, not reactive flight. Advance-type change §6 confirmed."
+    },
+    {
+      "issue_id": "plan_psychic_first_attempt",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "First intentional psychic attempt delivered during survival pressure gap (return walk, not meditation). 'Door' touched but not opened. Vibrational resonance felt, perception shifted from passive presence to actively reachable. Ends with headache and confusion. Consistent with plan §8: must fail, no enlightenment."
+    },
+    {
+      "issue_id": "plan_relationship_deepening",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Relationship with middle-aged woman upgraded from one-time aid to repeatable contact. She provides: (a) well location, (b) iron shop buying channel, (c) territorial intelligence (烂尾楼 gangs), (d) explicit return arrangement '明天早上还在这边'. Advance-type change §6 confirmed."
+    },
+    {
+      "issue_id": "plan_war_aftermath_normalized",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Three markers of normalization: (1) checkpoint runs like clockwork, soldiers' faces show practiced indifference; (2) debris cleanup has stopped—collapsed building interior with hanging curtain untouched; (3) social restructuring underway—two men staking claims on scrap territory. West/east fracture transitions from 'event' to 'new normal' as per plan §3 P1."
+    },
+    {
+      "issue_id": "plan_metal_piece_passive",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Metal piece (MH-001) shows only temperature correlation: cool at low-psychic morning baseline, warm after intentional psychic attempt. No origin/meaning revealed. Temperature change treated phenomenologically only ('without understanding how'). Consistent with plan §3 压住的底牌."
+    },
+    {
+      "issue_id": "plan_smartphone_passive",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Smartphone (MH-020) not used. No functional appearance, no translation app activation. Consistent with plan §3: at most an implied glance presence, not actioned."
+    },
+    {
+      "issue_id": "plan_door_nature_hidden",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "'Door' nature fully suppressed. No hint of what lies beyond, no opening conditions, no causal logic. Lin Feng's internal stance: '不知道门后面是什么。不知道推开的后果。甚至不确定推门这个动作本身想达到什么目的。'"
+    },
+    {
+      "issue_id": "drift_ch4_frustration_suspension",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Frustration/injustice scene delivered: teenage boy forced off scrap by two men. 4-sentence suspension block with no narrative relief: '日光斜照着...灰尘...铁皮桶哐啷...叮叮当当...那两个人继续翻着瓦砾堆...' Between 'watch' and 'turn away', the narrative hangs without resolution."
+    },
+    {
+      "issue_id": "drift_ch4_sensory_anchors",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Two sensory-specific anchors in key dialogue scene with middle-aged woman: (1) auditory: '叮，叮，叮' metal sorting clang as sustained scene soundmark; (2) gustatory/tactile: well water's cold mineral taste (iron + lime) and the physical sensation of rope friction on hands. Both anchored to the dialogue environment per plan §8 compensation."
+    },
+    {
+      "issue_id": "drift_ch4_breath_beat",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Deep breath beat inserted before key choice (psychic attempt). Lin Feng stops in collapsed corridor, puts down water jar, notes wall texture and shadow angle, breathes. The environment-bearing pause precedes the choice to close eyes and reach for the door."
+    },
+    {
+      "issue_id": "plan_no_enlightenment",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Zero enlightenment moments. Psychic attempt conclusion framed as '这是一个确认' not '他明白了'. All internal states expressed as uncertainty: '不确定', '不知道', '不理解'. Emotional tone remains tentative and confused per plan §8."
+    },
+    {
+      "issue_id": "plan_basement_not_safe",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Return journey external pressure sustained: checkpoint soldier's three-second gaze, dorsal surveillance feeling, dog's aggressive barking from collapsed building. Basement not portrayed as haven—merely a temporary spot to set down water."
+    },
+    {
+      "issue_id": "plan_dual_lines_parallel",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Psychic line not deferred by survival urgency. Lin Feng's first intentional attempt occurs mid-journey returning from scrap market, during a rest pause. Both threads advance in same chapter without one overshadowing the other."
+    },
+    {
+      "issue_id": "plan_woman_not_exposition_tool",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Middle-aged woman's dialogue preserves information gaps and pacing. She doesn't explain everything at once—delivers well info first, then work registration constraints, then territorial intel as separate beats. Her background stays fragmented (only mentioned brother at east district warehouse). Characterization through action (sorting copper wire) rather than exposition."
+    },
+    {
+      "issue_id": "plan_miner_group_not_unfolded",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Iron Mountain anomaly and miner group entirely suppressed per plan §3. No mention, no hint, no thread carried into ch5 content."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 11500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+## Chapter 5 Delivery Summary
+
+**Scene structure**: 6-scene progression transitioning from passive survival to active agency, with psychic and survival threads running in parallel.
+
+| Scene | Setting | Core function |
+|-------|---------|---------------|
+| 1 | Warehouse basement dawn | Psychic baseline: humming softened, door passive, metal piece cool. Thirst motivates outward movement |
+| 2 | Checkpoint + relief station | **War normalized**: checkpoint becomes routine procedure, relief station out of water, debris uncleared |
+| 3 | Scrap iron market + well | **Relational advance**: middle-aged woman encounter deepens — well location, iron shop channel, territorial intel. Repeatable contact established |
+| 4 | Market east corner | **Frustration suspension**: boy forced off scrap by two territorial men. 4-sentence no-relief suspension |
+| 5 | Collapsed corridor | **Psychic advance**: door touched but not opened. Perception shifts from passive to actively reachable. Headache + confusion |
+| 6 | Return to warehouse | **External pressure**: checkpoint gaze, barking dog. Ending: door position confirmed as accessible |
+
+**Three advance-type changes** all delivered (plan §6):
+- **Behavioral**: curled up → walked out (water procurement, route navigation, market negotiation)
+- **Relational**: one-time aid → repeatable contact (explicit next-meet arrangement)
+- **Psychic**: passive peripheral presence → actively reachable target (touched once, not opened)
+
+**Ch4 drift compensations**:
+- 沮丧节拍: boy-gang confrontation with 4-sentence suspension ✓
+- 感官专属信号: metal clang (auditory) + well water mineral taste/texture (gustatory/tactile) in dialogue scene ✓
+- 深呼吸节拍: before psychic attempt, collapsed corridor pause with environmental detail ✓
+
+**Anti-AI compliance**: transition words 0/6000, fatigue words 0, dashes 0, `感到` 0, `不是...而是...` 0, AI marker words 0.

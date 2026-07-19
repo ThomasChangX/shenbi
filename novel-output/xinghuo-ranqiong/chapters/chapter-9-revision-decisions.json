@@ -1,0 +1,41 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 9,
+  "produced_at": "2026-07-16T21:00:00+0800",
+  "selections": [
+    {
+      "target": "revision_routing",
+      "selected": "skip",
+      "basis": "Route C all achieved, no BLOCKING, overall 92/100 >= 90 auto-pass threshold, blocking=0/critical=0/ai_tell=0 — no issues requiring revision",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_rhythmic_fatigue",
+      "severity": "low",
+      "handling": "defer",
+      "rationale": "P2 style-level observation only. Delegated to shenbi-style-polishing per skill boundary rules. Not a revision target."
+    },
+    {
+      "issue_id": "drift_chapter_end_suspense",
+      "severity": "low",
+      "handling": "defer",
+      "rationale": "P2 reader-reward observation about two-chapter parallel ending structure. To be addressed in next chapter's PRE_WRITE_CHECK. Not a revision target."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8000,
+    "limit": 16000,
+    "trim_applied": "none"
+  },
+  "revision_verdict": {
+    "status": "skipped",
+    "reason": "Chapter passed all audits with 92/100. No blocking/critical/AI-tell issues. Route C hard binaries all achieved. Resonance audit explicitly states '无需触发 revision_routing'.",
+    "iteration_count": 0,
+    "fallback_required": false,
+    "chapter_unchanged": true
+  }
+}

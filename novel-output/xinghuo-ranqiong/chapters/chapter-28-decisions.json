@@ -1,0 +1,85 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 28,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-28-plan.md",
+      "selected": [
+        "door_frame_event_path_A",
+        "assessment_daily_normalization",
+        "intersection_baseline_completion",
+        "event_micro_difference_three_beat",
+        "reader_payoff_event_type",
+        "offset_verification_window"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "engine_tail_variant_path_B",
+        "format_string_cursor_path_C",
+        "assessment_internal_content",
+        "time_urgency_narrative",
+        "foggy_mountains_chu_yunlan",
+        "MH_020_format_conversion_activation",
+        "MH_003_operator_identity_revelation"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "event_micro_difference_P0_2",
+        "event_reader_payoff_P0_3",
+        "assessment_normalization_P0_1",
+        "intersection_completion_P0_4",
+        "door_frame_variance_window_P1",
+        "offset_verification_P1"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "phase_2_triggered_prediction",
+        "psychic_awakening_dimension",
+        "low_freq_mechanical_deepening"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotional_gradient_ch27",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch27 light-level micro-nuance correctly introduced but insufficient amplitude for reader fatigue risk. Ch28 upgrades to event-level micro-difference (door frame thermal gradient offset at 4th sample point after 4-chapter plateau). Three-beat structure (confirm→change→recover) embedded in natural door frame routine. Reader experiences parameter event rather than perceptual variance."
+    },
+    {
+      "issue_id": "drift_reader_payoff_accumulation_ch27",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch26-Ch27 payoff dominated by accumulation (perceiving change) without event contact points. Ch28 embeds event-type payoff via door frame variance — change beat confirmed at 4th sample point with first non-zero reading in walking parameters. Event exists and completes within chapter — no extension, no analysis, no meaning assignment."
+    },
+    {
+      "issue_id": "drift_intersection_ch26",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Intersection (assessment Saturday + collection deadline) completed from cognitive-association layer to sensory-baseline layer. Gray channel dialogue fragment mentions Saturday while walking body time naturally carries collection timeline — two times indistinguishable in same body frame. '不能分出哪一个是Saturday哪一个是催收——交汇在场——基底化了'. Downgraded from P0."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "chapter_word_count_estimate": 8300,
+    "pacing_notes": "vol 2 day three — door frame produces first non-zero reading after 4-chapter plateau (Ch25 end→Ch26→Ch27→Ch28 morning). Three-beat structure (confirm→change→recover) completes within door frame check section. Assessment normalization transitions from 'needs registration' to 'background parameter' — signal density maintains Ch27 level (2-4/chapter) but qualitative shift: assessment presence processed like intersection direction info — automatically, without attention allocation. Intersection completes and downgraded from P0. Emotional baseline: quiet with event residue — event passes, baseline recovers, quiet carries parametric variance. Exit shorter and more parametric than Ch27. Transition words: 0."
+  }
+}
+```
+
+---
+
+**Ch28 key execution decisions:**
+
+- **Event path**: Path A (door frame) selected — simultaneously serves P0-2 (event micro-difference), P0-3 (three-beat payoff), and the P1 door frame variance window. 1 event = satisfies 2 P0s.
+- **Assessment normalization**: Density maintained at Ch27 level (~4 signals across walking segments) but qualitative shift — signal processed as background parameter, not registered item. "如同钟在墙上的位置——不需要每天看它还在不在".
+- **Intersection completion**: Gray channel dialogue mentions Saturday while walking body time carries collection deadline — "不能分出哪一个是Saturday哪一个是催收——交汇在场——基底化了". Downgraded from P0 after this chapter.
+- **Offset verification**: Assessment normalization does not re-activate vol 1 offset patterns — offset is space-oppression specific encoding, not triggered by identity-level/system-threshold pressure.
+- **Exit**: "门框和之前的每一天一样——和之前每一天不一样——走了就是走了" — period close, no analytical review of event, shorter and more parametric than Ch27 exit.
+- **Transition words**: 0. **Fatigue words**: 0. **AI markers**: 0.

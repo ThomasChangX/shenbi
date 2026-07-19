@@ -1,0 +1,86 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 50,
+  "produced_at": "2026-07-17T17:25:00Z",
+  "revision_mode": "rewrite",
+  "revision_round": 1,
+  "trigger": {
+    "source": "resonance_audit",
+    "overall_score": 51,
+    "threshold": 65,
+    "confidence": "low",
+    "route_c_all_passed": true
+  },
+  "selections": [
+    {
+      "target": "cross_parameter_spatial_anchor",
+      "selected": "cold_wall_windowsill_light",
+      "basis": "audit_issue",
+      "severity": "critical",
+      "rationale": "Audit scene_presence 9/25(CRITICAL) - single physical anchor. Added cold-wall-windowsill-light geometry: cold knows windowsill outside wall, light knows cold in wall, doorframe knows parameter spatial gap."
+    },
+    {
+      "target": "parameter_cognitive_web",
+      "selected": "cross_parameter_references_6_sections",
+      "basis": "audit_issue",
+      "severity": "blocking",
+      "rationale": "Audit emotional_landing 14/30(BLOCKING) - no cross-parameter references. Added cognitive web: cold→light→windowsill, gap→cold→space, silence→windowsill shadow, offset→windowsill direction."
+    },
+    {
+      "target": "vocabulary_expansion",
+      "selected": "spatial_relationship_terms",
+      "basis": "audit_issue",
+      "severity": "critical",
+      "rationale": "Audit style 13/25(CRITICAL) - vocabulary exhaustion. Added: 参数之间的空间, 参数之间的间隙, 知道冷知道空间, 梯度在场于阴影."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch50_emotional_landing_structural",
+      "severity": "blocking",
+      "handling": "explicit_callout",
+      "rationale": "Partially structural - Tuesday exclusion prevents sensory show. Cross-refs are max available fix. Expected: 14→~18/30."
+    },
+    {
+      "issue_id": "ch50_scene_presence_windowsill",
+      "severity": "critical",
+      "handling": "explicit_callout",
+      "rationale": "Added cold-wall-windowsill spatial geometry. Expected: 9→~14/25."
+    },
+    {
+      "issue_id": "ch50_vocabulary_exhaustion",
+      "severity": "critical",
+      "handling": "explicit_callout",
+      "rationale": "Added 7 new term types. Expected: 13→~16/25."
+    }
+  ],
+  "preservation_verification": {
+    "fulfilled_foreshadowing": [
+      "P0-1",
+      "P0-2",
+      "P0-3",
+      "P0-4",
+      "P0-5",
+      "P0-6",
+      "P0-7"
+    ],
+    "taboo_compliance": [
+      "no_final_declaration",
+      "no_tuesday_texture",
+      "no_second_sunday",
+      "no_limit_values",
+      "no_frame_determined"
+    ]
+  },
+  "revision_stats": {
+    "original_cjk": 4949,
+    "revised_cjk": 5336,
+    "change_percent": "+7.8%",
+    "within_15_percent": true
+  },
+  "budget": {
+    "token_estimate": 18000,
+    "limit": 24000
+  }
+}

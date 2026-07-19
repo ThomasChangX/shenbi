@@ -1,0 +1,110 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 12,
+  "produced_at": "2026-07-16T10:50:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-12-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-12-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第11章（推进/转折）", "Ch11→Ch12 短板修复追踪"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch11_emotion_spectrum",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "从Ch11压缩窄带向外偏移:通过催收登记场景的强制触发(身份纳入系统/金属棒接触/卡片上的符号)激活愤怒的生理编码(额头贴墙/心跳沉重/指尖收紧/铁门露水触感),叠加登记完成后'一个月'口型带来的决定之轻(悬而未决→30天可计算框架),完成双相情感极性迁移"
+    },
+    {
+      "issue_id": "drift_ch11_reader_reward",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "章尾以认知飞跃替代静坐收束:灵能协会符号=MH-020符号的跨系统关联建立,30天边界确立但路径未知的待续感,金属棒功能未知+评估证明方向提示作为递进的悬念锚点,替代Ch11'就坐着'的静置收尾"
+    },
+    {
+      "issue_id": "plan_collector_morning_whistle",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收员晨哨回归——默认路径执行:在巷口外侧以身体姿态给出方向指示而非言语指令,直接带至灵能协会进行催收登记+延期担保登记。三状态变化同步兑现:催收线从倒计时→系统执行阶段,林烽从匿名→灵能协会有记录债务人,情绪从压缩→愤怒+决定之轻"
+    },
+    {
+      "issue_id": "plan_psyregister_scene",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "灵能协会登记室内场景:身份核对→簿子书写→卡片印制→圆形加点符号登场(Ch11手机第二行字符的跨系统关联验证)→金属棒接触掌心(暗示灵能检测功能)→30天延期登记完成。建筑外部描述(米白砂岩/窄高窗/深色木门)建立铁炉堡官僚系统的物质化存在感"
+    },
+    {
+      "issue_id": "plan_symbol_cross_system",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-020圆点符号与灵能协会符号的形状关联:笔迹顺序推断(先圆后点/弧线笔触浅于点/力度差异/墨水厚度差)通过触觉编码验证,建立'设备内置了这个世界信息编码'的认知飞跃"
+    },
+    {
+      "issue_id": "plan_emotion_shift_no_word",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "情感极性迁移完全通过生理行为编码:额头贴灰岩墙面的凉意感知+心跳计数(六次,八次,抬起来)+手指在身侧收紧又松开的微反应+铁门露水触感+额温自行注意——无一出现'愤怒'一词"
+    },
+    {
+      "issue_id": "plan_forward_ending",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "推进性收束:章尾以'一天的终点不是静止——是待续。不是Ch11的等待开始'明确声明方向性差异,以30天边界+符号关联+评估证明线索+金属棒功能疑问构成四重待续锚点,替代静坐等待"
+    },
+    {
+      "issue_id": "plan_cigarette_continuity",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Ch10/Ch12催收员两次留烟的连续性:Ch10抛入巷口立住→林烽捡起放在膝盖上→Ch12催收员放在墙垛上过滤嘴朝林烽方向→林烽握在掌心→放入铁皮烟盒。烟草碎屑散落手背+风把碎屑吹走——触感细节提供跨章物资锚点"
+    },
+    {
+      "issue_id": "plan_metallic_rod_clue",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "登记室桌面的金属棒:放在凹槽中→接触掌心→收回。通过章尾回顾建立'在测量、判断或记录某样东西'的认知,为Ch13+的灵能协会认证评估流程预埋物质锚点"
+    },
+    {
+      "issue_id": "plan_no_new_hooks",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "不开新伏笔:MH-022 resolve使用催收密度预算(晨哨回归/登记/符号关联),全章无新增MH条目。灰色渠道/门后/引擎来源/陈卫民/灵火会均按§8完全压住"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 17000,
+    "limit": 17500,
+    "trim_applied": "none"
+  }
+}

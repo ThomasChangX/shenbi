@@ -1,0 +1,32 @@
+{
+  "gate": "G4-story-architecture",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:11:47.347978+00:00",
+  "checks": [
+    {
+      "id": "G4.sf.surface_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sf.personal_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sf.deep_conflict",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.volumes",
+      "s": "PASS",
+      "count": 5,
+      "with_obj_kr": 4
+    },
+    {
+      "id": "G4.sa.rhythm_principles",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "outline/story_frame.md"
+  ]
+}

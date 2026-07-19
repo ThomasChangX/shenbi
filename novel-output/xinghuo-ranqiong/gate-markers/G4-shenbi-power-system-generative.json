@@ -1,0 +1,35 @@
+{
+  "gate": "G4-power-system",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:34:05.469016+00:00",
+  "checks": [
+    {
+      "id": "G4.ps.level_table",
+      "s": "PASS",
+      "rows": 38
+    },
+    {
+      "id": "G4.ps.advancement",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ps.boundaries",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ps.cost",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ps.ceiling",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ps.cross_level",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "world/power_system.md"
+  ]
+}

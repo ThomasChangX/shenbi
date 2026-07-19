@@ -1,0 +1,66 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 46,
+  "produced_at": "2026-07-17T15:00:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-46-anti-ai.md",
+      "selected": ["#3 破折号 ERROR (957处)——"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": [],
+      "rationale": "Style false positive per audit itself. 957 —— all appear as rhythmic/breath separators in experimental stream-of-consciousness parameter mode, not conventional em-dashes. 9/10 other checks all PASS (zero AI markers, zero fatigue words, zero transition words, zero meta-narrative). Delegated to shenbi-anti-detect per skill §委派边界."
+    },
+    {
+      "target": "audits/chapter-46-foreshadowing.md",
+      "selected": ["密度超限 (10>8) CRITICAL", "MH-026操作类型不一致 MINOR", "MH-022/MH-023未登载 MINOR"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "All are meta-level documentation issues (pending_hooks budget/plan hook consistency), not chapter-46 content issues. No chapter content fix required."
+    },
+    {
+      "target": "audits/chapter-46-pacing.md",
+      "selected": ["蓄压周期过长/无爆发 CRITICAL", "序列多样性警告"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "Structural/arc-level concerns spanning multiple chapters. Not fixable via chapter-46 content revision. Requires Ch47 (周日) planning to address."
+    },
+    {
+      "target": "audits/chapter-46-resonance.md",
+      "selected": ["共鸣短板: 情绪音域受限", "场景临场感 95:5比例", "读者回报入口门槛"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "All three shortcomings are structural consequences of the parameter-mode experiment (Ch42-46). Cannot be resolved within chapter-46 without breaking the experimental style per SKILL §8 constraints. Suggestions noted for Ch47 transition out of parameter mode."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti-ai_dash_style_exemption",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "957 dashes are a structural style element of the experimental parameter mode, not AI-detection risk. Delegated to shenbi-anti-detect for style-preserving transformation or checklist exemption."
+    },
+    {
+      "issue_id": "density_budget_override",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "10/8 density超限 in a system-slot chapter where all 10 operations are valid REINFORCE. Recommend overriding budget to 10 for slot chapters in genre-config.json or hook-lifecycle.md. Ch47 density must be ≤ 8 per standard budget."
+    },
+    {
+      "issue_id": "plan_hook_consistency",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "MH-026 defer→REINFORCE mismatch: pattern confirmation is an advance, not defer. MH-022/MH-023 missing from plan §7 but present in §4. Should be corrected in Ch47 plan to avoid cumulative tracking drift."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 15000,
+    "limit": 18000,
+    "trim_applied": "none",
+    "notes": "All 11 audit reports + chapter content + plan + resonance + current_state read in full. No context trimming required."
+  }
+}

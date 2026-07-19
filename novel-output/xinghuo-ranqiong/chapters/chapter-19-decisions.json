@@ -1,0 +1,85 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 19,
+  "produced_at": "2026-07-16T15:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-19-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-19-context.md",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context文件缺失，以plans/chapter-19-plan.md为主输入"]
+    },
+    {
+      "target": "context/chapter-19-context-decisions.json",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context-decisions文件缺失"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第18章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["第15章", "第16章", "第17章"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch18_white_line_olfactory_pre_anchor",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "白线场景嗅觉前置锚定: 林烽在转角前通过喷漆气味(溶剂挥发阶段/施工时间推定/化学成分同源/浓度梯度追踪)建立预警，非事后确认。白线围挡场景和转角白线执行场景均使用嗅觉前置。"
+    },
+    {
+      "issue_id": "style_profile_bootstrap",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "style_profile仍为bootstrap(confidence: low)，Ch19产出后建议运行compute_stats.py覆盖"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 32000,
+    "limit": 35000,
+    "trim_applied": "none"
+  }
+}
+```
+
+Chapter 19 《绝》已完成。核心交付：
+
+**三条 irreversible 质变：**
+
+- **战争线→白线执行**：林烽亲眼目睹灰衣服的人因无身份证明被白线内侧的人拦住——白线从标记升级为活性的边界。通过嗅觉前置锚定（喷漆气味在到达转角前已达可辨识浓度），修正 Ch18 drift。
+- **窄巷→永久封锁**：窄巷中段在第三天被钢结构围挡封堵，支架嵌入墙体——不是临时设施。施工在夜间进行，距仓库不到二百米。
+- **MH-001→TRIGGERED**：夹缝中退无可退、进无可进时，金属片在无接触情况下单次主动脉冲。"不是他的手在抖。是它在动。"
+
+**支撑线推进：**
+- 门框第三天方向与上周期一致（~65-70%），但出现横向微幅偏移——周期开始产生自己的变形
+- MH-020完全封闭空间[s]尾缀稳定(±0.1)，竖立标尺位置敏感，操作时间触发第三维模式切换
+- 巡逻密度升级——30秒间隔消失，回程多绕约三百米，有效活动时间缩短四十分钟
+
+**章末**："今天有一条路回不去了。不是一条——是选择的数量结构性地减少了。"——终结于"他不确定明天还会剩下什么"，与 Ch16(边界检查)/Ch17(可能性收缩)/Ch18(收缩+开放) 形成差异化收束。

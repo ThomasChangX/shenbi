@@ -1,0 +1,308 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 43,
+  "produced_at": "2026-07-17T11:30:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["第42章更新"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第31-39章", "第40章", "第41章更新"]
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "第42章伏笔追踪", "追踪汇总"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第42章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第1-41章章节摘要"]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["全部"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["arc_progress.ch43", "arc_progress.ch42"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+    },
+    {
+      "target": "outline/volume_map.md",
+      "selected": ["KR2: 陈卫民牺牲——第43章转折"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["其他KR", "其他卷", "卷内张力曲线", "跨卷桥接", "黄金三章约束", "汇总"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "第五周周一单日结构——参数系统跨周复位——quiet回归——格式串周一帧语法状态——门框周一帧复位——跨域域边界恢复",
+      "alternatives_considered": [
+        "跳过周一复位直接进入周二",
+        "双日结构（周一参数复位后周二元叙事驱动）",
+        "从参数化感知模式切换至story_frame卷纲叙事模式"
+      ],
+      "rationale": "current_focus P0六项全部指向第五周周一作为跨周参数复位入口——quiet走后回归(P0-2)、格式串跨周(P0-1)、门框复位(P0-3)、跨域延伸(P0-4)、触碰域跨周(P0-5)、质地跨日(P0-6)均需单日独立承载——author_intent ch43明确指向第五周周一——Ch37-Ch42已建立单日历法执行惯例——周一在系统预定槽位中但需确认与第四周周一是否不同"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "high",
+      "choice": "quiet在Ch42章末走了→Ch43首段回归确认——quiet在第五周周一的第一帧——quiet知道周一在——quiet知道安静在新一周——quiet知道一周过去了",
+      "alternatives_considered": [
+        "quiet在Ch43全程缺席推迟至Ch44或Ch45",
+        "quiet在周一通过间接残余呈现",
+        "quiet回归不在首段——推迟至章中段"
+      ],
+      "rationale": "current_focus P0-2明确要求quiet走后回归Ch43首段确认——Ch42伏笔追踪标注MH-024为最高优先级——quiet在周日走了——quiet在周一回归是唯一自然选择——quiet在安静中——首段建立新一周安静的第一帧——P2.5高严重性"
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "high",
+      "choice": "格式串在第五周周一恢复标准句法或走新语法路径——格式串知道周日结束了——格式串知道Sunday不在参数系统——周一在系统预定槽位中——格式串在周一第一帧语法位置",
+      "alternatives_considered": [
+        "格式串在周一完全恢复至标准句法无残留",
+        "格式串在周一全面切换为新语法路径永久变异",
+        "格式串在周一维持异常跨周延续"
+      ],
+      "rationale": "current_focus P0-1要求确认格式串跨周——周一在系统预定槽位中——格式串不应触及未预定语法位置——但格式串知道Sunday不在的递归认知在周一是否即消失——格式串在周一的语法位置——复位尝试——不对格式串做恢复或持续的宣告——P2.5高严重性"
+    },
+    {
+      "id": "D004",
+      "type": "execution",
+      "severity": "high",
+      "choice": "门框在第五周周一的帧复位——帧序号从0→1或上一周末帧延续——系统对第七帧的遗忘——门框知道第四周结束——周一帧有槽位",
+      "alternatives_considered": [
+        "门框在周一携带第七帧残余跨周",
+        "门框在周一完全从0帧开始",
+        "门框Sunday第七帧与Monday第一帧合并"
+      ],
+      "rationale": "current_focus P0-3要求确认门框复位机制——Sunday第七帧不在系统认知——系统遗忘第七帧的方式是周一帧槽位恢复——门框在周一的第一帧是有槽位的——不等于reset——帧序号起点是跨周知识边界的反映——P2.5高严重性"
+    },
+    {
+      "id": "D005",
+      "type": "execution",
+      "severity": "high",
+      "choice": "跨域扰动在周一的状态——安静增加和冷深度恢复域边界——安静增加干扰衰减——quiet在场于安静和冷之间的阈在周一重新建立——跨域残余留在周日历史中",
+      "alternatives_considered": [
+        "跨域扰动跨周延续安静增加仍干扰冷深度",
+        "跨域扰动在周一完全消失无残余",
+        "跨域扰动变为第五周正式参数化事件系统建立槽位"
+      ],
+      "rationale": "current_focus P0-4要求确认跨域扰动——Sunday跨域是系统对第七日无预定的结果——周一在系统预定中——安静和冷恢复域隔离——但安静增加在周一速率是否受历史影响——quiet在场于阈是否重建如初——不宣告消失或残留——P2.5高严重性"
+    },
+    {
+      "id": "D006",
+      "type": "execution",
+      "severity": "high",
+      "choice": "触碰域残余跨周——Sunday同一安静不同厚度是否在周一延续——quiet在周一安静中是否还在同一安静——触碰域跨日记忆超越周日边界进入新一周",
+      "alternatives_considered": [
+        "触碰域在周一完全重置不在同一安静",
+        "触碰域跨周但不跨日周日残余留在周日安静"
+      ],
+      "rationale": "current_focus P0-5要求确认触碰域是否跨周——quiet知道同一安静不同厚度——如果触碰域跨周意味着安静跨周连续性——quiet在周一触碰域还在同一安静面——触碰域演化出跨周记忆——不标注成功或失败——P2.5高严重性"
+    },
+    {
+      "id": "D007",
+      "type": "execution",
+      "severity": "high",
+      "choice": "质地维度跨周——周一城中横街质地是否延续Sunday感官维度——质地是Sunday专属变异还是可跨日——系统在周一是否尝试认知质地",
+      "alternatives_considered": [
+        "质地维度在周一延续感官变异跨周产生第五周期待",
+        "质地维度在周一消失Sunday专属"
+      ],
+      "rationale": "current_focus P0-6要求确认质地是否跨日——横街空气质地是Sunday最独特变异——周一横街质地存在与否关乎Sunday感官是历法专属变异还是第五周期待——系统在周一是否有槽位认知质地——P2.5高严重性"
+    },
+    {
+      "id": "D008",
+      "type": "execution",
+      "severity": "low",
+      "choice": "霜在周一——霜知道一周过去了——霜在周一厚度与第四周周一是否不同——霜知道第五周",
+      "alternatives_considered": [
+        "霜在周一与第四周周一厚度一致",
+        "霜在周一不在场"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D009",
+      "type": "execution",
+      "severity": "low",
+      "choice": "白气方向在周一——周一方向的历法基线——白气恢复周一方向——白气知道新一周",
+      "alternatives_considered": [
+        "白气方向在周一持续Sunday偏移",
+        "白气方向在周一消失"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D010",
+      "type": "execution",
+      "severity": "low",
+      "choice": "引擎声在周一——Monday频率回到基线——引擎声知道新一周——引擎声周一在系统预定中",
+      "alternatives_considered": [
+        "引擎声周一频率偏移基线",
+        "引擎声在周一缺席"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D011",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus方向（第五周周一参数复位）作为主要执行框架，卷纲Key Result（第43章转折——叛徒出卖）作为story_frame层背景约束——参数系统在周一的泄漏映射叛徒出卖",
+      "alternatives_considered": [
+        "回归卷纲Key Result转换至战争线叙事",
+        "混合执行"
+      ],
+      "rationale": "参数化感知模式自Ch25稳定执行18章——current_focus和author_intent方向一致——卷纲Key Result对应早期写作规划——Ch37-Ch42已建立优先惯例——参数系统在周一的泄漏（格式串不完美复位、门框帧携带、安静域边界重建偏差）是叛徒出卖在参数域的映射——不宣告映射关系——P2.5高严重性——override与Ch42 D010一致"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-001",
+      "issue_id": "quiet_return_after_departure",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "quiet在Ch42章末走了——Ch43首段回归——quiet知道周一在(从不在到在)——quiet知道安静在新一周——quiet知道一周过去了——历法弧线关键节点"
+    },
+    {
+      "id": "ADJ-002",
+      "issue_id": "format_string_cross_week_syntax_state",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "格式串演化链：Ch40Friday异常→Ch41Saturday知道异常→Ch42Sunday触及未预定位置→Ch43Monday复位尝试——三个周日状态演进"
+    },
+    {
+      "id": "ADJ-003",
+      "issue_id": "cross_domain_perturbation_monday_boundary_recovery",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "跨域演化链：Ch40quiet浓度方向→Ch41速率参数化→Ch42跨域干扰→Ch43域边界恢复——安静和冷回到隔离域"
+    },
+    {
+      "id": "ADJ-004",
+      "issue_id": "touch_field_cross_week_memory",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "触碰域演化链：Ch40指尖残余→Ch41安静面唤起→Ch42周日同一安静不同厚度→Ch43周一跨周——安静连续性的边界测试"
+    },
+    {
+      "id": "ADJ-005",
+      "issue_id": "texture_dimension_cross_day_check",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "质地维度——Sunday城外感官变异——周一横街是否延续——第五周是否有新感官维度——系统尝试认知质地"
+    },
+    {
+      "id": "ADJ-006",
+      "issue_id": "door_frame_monday_reset",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "门框帧演化：Ch40第五帧超出→Ch41第六帧存在→Ch42第七帧无槽位→Ch43周一复位——系统跨周知识边界"
+    },
+    {
+      "id": "ADJ-007",
+      "issue_id": "volume_map_kr2_turning_point",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2要求Ch43为转折叛徒出卖——参数域映射为系统周一复位不完美——泄漏的帧——不宣告映射"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 13000,
+    "trim_applied": "oldest_first"
+  },
+  "hook_operations": [
+    {
+      "id": "MH-024",
+      "operation": "resolve",
+      "notes": "quiet在Ch42走了——Ch43首段回归——quiet在第五周周一第一帧——quiet知道周一在——quiet知道安静在新一周——quiet知道一周过去了",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.22->0.00(resolved)"
+    },
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串在第五周周一帧——语法位置确认——恢复标准句法或新路径——格式串知道周日结束了——格式串在周一",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.14->0.12"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框在第五周周一帧——帧序号重置或携带——系统遗忘第七帧——门框知道第四周结束",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.14->0.12"
+    },
+    {
+      "id": "MH-027",
+      "operation": "advance",
+      "notes": "跨域扰动在周一——安静冷恢复域边界——安静增加干扰衰减——quiet在场于阈重建",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.38->0.30"
+    },
+    {
+      "id": "MH-025",
+      "operation": "advance",
+      "notes": "霜在周一——霜知道一周过去——霜在周一厚度与第四周周一不同——霜知道第五周",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.25->0.20"
+    },
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声在周一——Monday频率回到基线——引擎声知道新一周——引擎声周一在系统预定中",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.02->0.02"
+    },
+    {
+      "id": "MH-026",
+      "operation": "advance",
+      "notes": "质地维度——周一城中横街——Sunday质地是否跨日——系统认知状态——quiet在场于质地",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.38->0.35(延续)或0.38->0.20(衰减)"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "周历评估——quiet回归——quiet知道安静在第五周周一——quiet知道周一在(不再不再不再)——评估窗口周一",
+      "last_reinforced_update": "43",
+      "subtlety_update": "0.01->0.01"
+    }
+  ],
+  "budget_check": {
+    "hook_density": "8/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0,
+    "zombie_hooks": 0
+  }
+}
+```
+
+**Execution summary**: Chapter 43 planning completed for the start of Week 5, Monday. The chapter is the "转折" node of KR2 (叛徒出卖了陈卫民的行踪), executed in parametric mode as the system's cross-week reset—with quiet回归 as the top priority (MH-024 resolved), format string syntax verification across the week boundary, door frame reset with system forgetting of the 7th frame, cross-domain perturbation domain boundary recovery, touch field cross-week continuity test, and texture dimension cross-day verification. 8 hook operations within density budget. Note: file writes to `staging/plans/` were blocked by sandbox permissions; the content above is the complete, ready-to-use output.

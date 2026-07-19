@@ -1,0 +1,128 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 14,
+  "produced_at": "2026-07-16T14:30:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-14-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["第14章核心", "第14章线优先级", "第14章线优先级表格", "Ch13→Ch14 短板修复追踪"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["第15章核心", "第16章核心", "情绪弧线", "伏笔节奏"]
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态", "当前世界局势", "进行中的情节线"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["已揭示的伏笔", "待解决的冲突"]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第13章", "Ch12→Ch13 短板修复追踪"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "追踪汇总"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["本章操作", "过期警告", "密度账本"]
+    },
+    {
+      "target": "truth/character_matrix.md",
+      "selected": ["主角", "关系角色", "信息边界"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch13_emotional_grounding",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "所有接触动作延展至多感官锚定:水罐裂缝触觉深度变化+水温在口腔内壁时间延续+侦察机直达/反射两重声学延迟"
+    },
+    {
+      "issue_id": "drift_ch13_tasteless_water",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "通过东区供水站余氯/石灰味对比参照使无味成为有效感官信号——温度-时间-对比三轴锚定"
+    },
+    {
+      "issue_id": "drift_ch13_info_emotion_balance",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "三段信息密集操作(MH-020/侦察机/引擎声)后各追加身体回响锚点:灰尘涡流/手在外袋确认物品轮廓/墙面油烟沉积观察"
+    },
+    {
+      "issue_id": "plan_door_frame_plasticity",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门框灵能场偏移约1/3维持——塑性/跨日积累有效(衰减系数~66%在6-8小时)。门后完全不揭示"
+    },
+    {
+      "issue_id": "plan_mh020_scale",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "竖立标尺确认波动中间1/3边界(过程量特征)+折线图标可移动(模式选择器)+[s]12.4*0.3[s]格式串揭示n尾缀在更大状态标记中的位置"
+    },
+    {
+      "issue_id": "plan_direction_drift_behavioral",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "方向偏移从Ch13触发→Ch14路线预期:身体在转角前自动偏左选择窄巷——不需要场景支撑。回程另走一条方向偏差一致的新窄巷"
+    },
+    {
+      "issue_id": "plan_mh003_three_engines",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "三台引擎在场+第三分钟相位差位移/干涉模式三次切换(强弱交替→均匀持续→强弱交替)。引擎来源不揭示"
+    },
+    {
+      "issue_id": "plan_reconnaissance_plane",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "单发活塞式侦察机低空通过——识别涂装(铝原色→蓝灰色)+固定航线复查特征+北偏西进南偏东退。战争线地面信号积累"
+    },
+    {
+      "issue_id": "plan_gray_channel_trace",
+      "severity": "low",
+      "handling": "apply",
+      "rationale": "废弃装卸场被刺穿撕开的饮料罐——囤积期旧开法/灰区生态残迹(非面孔化推进)"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 19500,
+    "limit": 20000,
+    "trim_applied": "none"
+  }
+}
+```
+
+实际写入文件需将以上内容保存至 `chapters/chapter-14.md` 和 `chapters/chapter-14-decisions.json`。当前会话因只读沙箱无法执行写操作，你可手动复制或切换至允许写入的会话后重新执行。
