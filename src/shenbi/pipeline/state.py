@@ -6,6 +6,7 @@ Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 3.
 from __future__ import annotations
 
 import json
+import threading
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
@@ -165,6 +166,51 @@ class PipelineState:
     pending_re_dispatches: list[dict[str, Any]] = field(default_factory=list)
     config: PipelineConfig = field(default_factory=PipelineConfig)
     last_trigger_failure: dict[str, Any] | None = None  # set by run_triggered_skills on failure
+    # Instance-level lock guarding concurrent mutations to mutable fields
+    # (steps_done append, audit_results/retry_counts dict update). MUST be an
+    # instance attribute (spec §3.3): a class-level lock would serialize
+    # across unrelated PipelineState objects. Excluded from to_dict via the
+    # explicit field list there (not a data field).
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
+
+    def add_step_done(self, chapter: int, step: str) -> None:
+        """Thread-safe append to chapter_states[chapter].steps_done (idempotent).
+
+        Replaces the non-thread-safe _record_step_done() in chapter_loop.py.
+        After this lands, remove the old _record_step_done and update all call sites.
+        """
+        key = str(chapter)
+        with self._lock:
+            cs = self.chapter_loop.chapter_states.get(key)
+            if cs is None:
+                cs = ChapterState()
+                self.chapter_loop.chapter_states[key] = cs
+            if step not in cs.steps_done:
+                cs.steps_done.append(step)
+
+    def add_audit_result(self, chapter: int, result_key: str, value: Any) -> None:
+        """Thread-safe update to chapter_states[chapter].audit_results."""
+        key = str(chapter)
+        with self._lock:
+            cs = self.chapter_loop.chapter_states.get(key)
+            if cs is None:
+                cs = ChapterState()
+                self.chapter_loop.chapter_states[key] = cs
+            cs.audit_results[result_key] = value
+
+    def increment_retry(self, chapter: int, skill: str) -> int:
+        """Thread-safe increment of retry_counts; returns the new count."""
+        rk = f"ch{chapter}-{skill}"
+        with self._lock:
+            count = self.chapter_loop.retry_counts.get(rk, 0) + 1
+            self.chapter_loop.retry_counts[rk] = count
+            return count
+
+    def reset_retry(self, chapter: int, skill: str) -> None:
+        """Thread-safe clear of retry_counts[chN-skill]."""
+        rk = f"ch{chapter}-{skill}"
+        with self._lock:
+            self.chapter_loop.retry_counts.pop(rk, None)
 
     @classmethod
     def default(cls, project_dir: str) -> PipelineState:
