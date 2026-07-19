@@ -355,6 +355,7 @@ class TestCmdPreSkill:
 # --- TestCmdPostSkill ----------------------------------------------------
 
 
+@pytest.mark.last
 class TestCmdPostSkill:
     def test_runs_g2_and_g4_when_output_files_present(
         self,
