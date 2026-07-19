@@ -613,6 +613,33 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
     )
 
+    # G0.16 — skill contract + description quality (spec §3.1). Validates every
+    # skills/*/SKILL.md: description <= 500 chars and trigger-only, writes/
+    # updates disjoint, write semantics (mode) declared.
+    from shenbi.gates.g0_skill_contract import check_skill_contracts
+
+    sc_issues = check_skill_contracts()
+    if sc_issues:
+        return fail(
+            "G0",
+            checks
+            + [
+                {
+                    "id": "G0.16",
+                    "s": "FAIL",
+                    "r": "; ".join(sc_issues),
+                }
+            ],
+            "round_creation",
+            [
+                "G0.16: shorten descriptions to <=500 chars (trigger-only), "
+                "remove writes/updates overlap, add mode: to declared writes/updates"
+            ],
+        )
+    checks.append(
+        {"id": "G0.16", "s": "PASS", "note": "all skills pass contract + description checks"}
+    )
+
     # G0.cc — configuration coherence (threshold mismatch + critical audit
     # disabled). Production genre-config.json does NOT live at the repo root
     # (PROJECT); it lives one level down under novel-output/<project>/. So scan
