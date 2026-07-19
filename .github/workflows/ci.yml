@@ -58,7 +58,7 @@ jobs:
       - name: Purity lint (no FS-mutation in src/shenbi/, spec P4)
         run: uv run python tools/lint_no_fs_mutation.py src/shenbi
       - name: Run tests (parallel, excluding last)
-        run: uv run pytest -n auto -m "not last" --hypothesis-profile=ci
+        run: uv run pytest -n auto --dist loadscope -m "not last" --hypothesis-profile=ci --timeout=120
       - name: Run coverage threshold test (serial, last only)
         run: uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci
 
