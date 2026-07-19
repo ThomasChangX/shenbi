@@ -460,3 +460,50 @@ class TestValidateJsonOutput:
         content = "# Chapter 5\n\n## Section 1\nProse content here."
         result = _validate_json_output(content, Path("chapter-5.md"))
         assert result == content
+
+
+# ---------------------------------------------------------------------------
+# Control character sanitization tests (Plan 02 Task 2)
+# ---------------------------------------------------------------------------
+
+
+class TestSanitizeJsonContent:
+    """Tests for sanitize_json_content (illegal control character removal)."""
+
+    def test_sanitize_strips_illegal_control_characters(self):
+        r"""Removes control characters except \\n, \\r, \\t."""
+        from shenbi.pipeline.dispatch_helper import sanitize_json_content
+
+        content = '{"key": "val\x00\x01\x02\x08\x0b\x0c\x0e\x1fue"}'
+        result = sanitize_json_content(content)
+        assert "\x00" not in result
+        assert "\x01" not in result
+        assert "\x08" not in result
+        assert "value" in result
+
+    def test_sanitize_preserves_legal_control_characters(self):
+        r"""Preserves \\n, \\r, \\t which are valid in JSON strings."""
+        from shenbi.pipeline.dispatch_helper import sanitize_json_content
+
+        content = '{"text": "line1\\nline2\\r\\n\\tindented"}'
+        result = sanitize_json_content(content)
+        assert "\\n" in result
+        assert "\\r" in result
+        assert "\\t" in result
+
+    def test_sanitize_handles_clean_input(self):
+        """Clean input is returned unchanged."""
+        from shenbi.pipeline.dispatch_helper import sanitize_json_content
+
+        content = '{"key": "value"}'
+        result = sanitize_json_content(content)
+        assert result == content
+
+    def test_sanitize_handles_chinese_characters(self):
+        """Chinese characters are preserved."""
+        from shenbi.pipeline.dispatch_helper import sanitize_json_content
+
+        content = '{"name": "林烽", "status": "在场"}'
+        result = sanitize_json_content(content)
+        assert "林烽" in result
+        assert "在场" in result

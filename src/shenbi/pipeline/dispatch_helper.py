@@ -52,6 +52,10 @@ _API_TEMPERATURE = 0.7  # default temperature for API calls
 _INPUT_MAX_CHARS_PER_FILE = 32000  # hard cap per input file (~8K tokens)
 _INPUT_MAX_CHARS_TOTAL = 128000  # total input budget (~32K tokens)
 
+# Regex matching control characters EXCEPT newline (\n), carriage return (\r),
+# and tab (\t) which are valid in JSON strings when properly escaped.
+_ILLEGAL_CTRL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+
 
 @dataclass
 class DispatchResult:
@@ -345,6 +349,24 @@ def _validate_json_output(content: str, path: Path) -> str:
     return json.dumps(clean_data, ensure_ascii=False, indent=2)
 
 
+def sanitize_json_content(content: str) -> str:
+    r"""Remove illegal control characters from JSON content.
+
+    JSON spec (RFC 8259) only permits specific control characters
+    (``\\n``, ``\\r``, ``\\t``) within strings. All other control
+    characters in the range ``0x00-0x1F`` are stripped before write.
+
+    This applies to both staging and final paths equally.
+
+    Args:
+        content: Raw JSON string to sanitize.
+
+    Returns:
+        Sanitized string with illegal control characters removed.
+    """
+    return _ILLEGAL_CTRL_RE.sub("", content)
+
+
 def _parse_file_outputs(response: str) -> dict[str, str]:
     """Parse a multi-file response into {filepath: content} dict.
 
@@ -389,6 +411,8 @@ def _write_parsed_outputs(
             continue
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
+        if full_path.suffix == ".json":
+            content = sanitize_json_content(content)
         try:
             content = _validate_json_output(content, full_path)
         except ValueError as e:
