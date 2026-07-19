@@ -26,10 +26,37 @@ from shenbi.text import find_terms
 
 log = get_logger(__name__)
 
-# Hook ids embedded in prose, e.g. "resolve H01" or "payoff MH02".
-_HOOK_ID_RE = re.compile(r"[HM]\d+")
-# Rule headings like "## R1: ..." or "## 2. ...".
-_RULE_RE = re.compile(r"^##\s+(R?\d+)[:.]?\s*(.+)$", re.MULTILINE)
+# Hook ids embedded in prose. Supports BOTH the legacy canonical form
+# (``H01``, ``MH02``) AND the production form used by shenbi-foreshadowing-*
+# (``P0-4``, ``P0-9``). Spec §3.2b.
+_HOOK_ID_RE = re.compile(r"(?:[HM]\d+|P\d*-\d+)")
+# Rule headings — Chinese ordinals: ``## 规则一：能量守恒`` (production).
+_RULE_HEADING_RE = re.compile(
+    r"^##\s+规则\s*[：:.]?\s*([一二三四五六七八九十百\d]+)[:：]?\s*(.+)$",
+    re.MULTILINE,
+)
+# Rule headings — legacy numeric IDs: ``## R1: ...`` / ``## 2. ...``.
+_RULE_NUMERIC_RE = re.compile(r"^##\s+(R?\d+)[:.]?\s*(.+)$", re.MULTILINE)
+
+
+def _parse_rules(rules_text: str) -> list[tuple[str, str]]:
+    """Parse worldbuilding rule headings. Supports both formats:
+
+    * Chinese ordinals: ``## 规则一: 能量守恒`` (production)
+    * Numeric IDs:      ``## 1:`` / ``## R1:`` (legacy + tests)
+
+    Returns a list of ``(rule_id, content)`` tuples. A line matching both
+    patterns is yielded once (Chinese-ordinal takes precedence).
+    """
+    rules: list[tuple[str, str]] = []
+    seen_spans: set[tuple[int, int]] = set()
+    for rx in (_RULE_HEADING_RE, _RULE_NUMERIC_RE):
+        for m in rx.finditer(rules_text):
+            if (m.start(), m.end()) in seen_spans:
+                continue
+            seen_spans.add((m.start(), m.end()))
+            rules.append((m.group(1), m.group(2).strip()))
+    return rules
 
 
 @dataclass
@@ -147,18 +174,21 @@ def _index_hooks(project_dir: Path, idx: TruthIndex) -> None:
 
 
 def _index_rules(project_dir: Path, idx: TruthIndex) -> None:
-    """Index world rules declared as ``## <id>: <text>`` headings."""
+    """Index world rules declared as ``## <id>: <text>`` headings.
+
+    Supports Chinese ordinals (``## 规则一:``) and numeric IDs (``## R1:``).
+    """
     rules_file = project_dir / "world" / "rules.md"
     if not rules_file.exists():
         return
-    for match in _RULE_RE.finditer(rules_file.read_text(encoding="utf-8")):
-        rule_id = match.group(1)
+    text = rules_file.read_text(encoding="utf-8")
+    for rule_id, content in _parse_rules(text):
         idx.rules[rule_id] = IndexEntry(
             category="rule",
             entity_id=rule_id,
             file="world/rules.md",
             ref=f"world/rules.md#{rule_id}",
-            extra={"content": match.group(2).strip()},
+            extra={"content": content},
         )
 
 
