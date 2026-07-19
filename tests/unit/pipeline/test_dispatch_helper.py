@@ -865,3 +865,40 @@ class TestWriteParsedOutputsIntegrity:
         response = f"### FILE: chapters/chapter-1.md\n{clean_prose}\n"
         written = _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
         assert written == ["chapters/chapter-1.md"]
+
+
+# ---------------------------------------------------------------------------
+# Retry write-confirmation tests (Plan 16 Task 4)
+# ---------------------------------------------------------------------------
+
+
+class TestRetryWriteConfirmation:
+    def test_retry_prompt_includes_signature(self):
+        from shenbi.exceptions import DispatchWriteFailureError
+        from shenbi.pipeline.dispatch_helper import build_retry_feedback
+
+        err = DispatchWriteFailureError("write failed", signature="由于沙箱限制，我无法直接写文件")
+        feedback = build_retry_feedback(err)
+        assert "CRITICAL" in feedback
+        assert "write access" in feedback
+        assert "由于沙箱限制，我无法直接写文件" in feedback
+
+    def test_non_dispatch_write_error_returns_generic(self):
+        """Non-DispatchWriteFailureError should return a generic retry message."""
+        from shenbi.pipeline.dispatch_helper import build_retry_feedback
+
+        err = ValueError("something else broke")
+        feedback = build_retry_feedback(err)
+        assert "Previous attempt failed" in feedback
+        assert "something else broke" in feedback
+        assert "CRITICAL" not in feedback
+
+    def test_empty_signature_still_produces_critical(self):
+        """Even with an empty signature, the critical confirmation is included."""
+        from shenbi.exceptions import DispatchWriteFailureError
+        from shenbi.pipeline.dispatch_helper import build_retry_feedback
+
+        err = DispatchWriteFailureError("write failed", signature="")
+        feedback = build_retry_feedback(err)
+        assert "CRITICAL" in feedback
+        assert "write access" in feedback

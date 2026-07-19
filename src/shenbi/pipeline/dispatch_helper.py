@@ -32,6 +32,7 @@ from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolv
 from shenbi.logging import get_logger
 from shenbi.exceptions import DispatchWriteFailureError
 from shenbi.pipeline.llm_output_integrity import (
+    RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
     check_audit_line_refs,
     check_markdown_fence_balance,
@@ -171,6 +172,18 @@ def requires_independent(skill: str) -> bool:
     except Exception:
         log.debug("requires_independent_error", skill=skill)
         return False
+
+
+def build_retry_feedback(exc: BaseException) -> str:
+    """Build the retry-prompt feedback for a failed dispatch.
+
+    For :class:`DispatchWriteFailureError` the feedback is the write-capability
+    confirmation quoting the matched signature, so the model stops emitting
+    sandbox diagnostics. For any other exception, a generic message is used.
+    """
+    if isinstance(exc, DispatchWriteFailureError):
+        return RETRY_WRITE_CONFIRMATION.format(signature=exc.signature)
+    return f"Previous attempt failed: {exc}. Retry, producing the complete output."
 
 
 #: Skills and their reads that are optional (produced late, missing in ramp-up).
@@ -1072,13 +1085,21 @@ def _dispatch_via_api(
             # Cost accounting must NEVER break a dispatch.
             log.warning("ledger_record_failed", skill=skill, error=str(exc))
 
-    written = _write_parsed_outputs(
-        output_text,
-        output_paths,
-        project_dir,
-        create_truth_templates=True,
-        skill=skill,
-    )
+    try:
+        written = _write_parsed_outputs(
+            output_text,
+            output_paths,
+            project_dir,
+            create_truth_templates=True,
+            skill=skill,
+        )
+    except DispatchWriteFailureError as exc:
+        log.error(
+            "api_write_failure_detected",
+            skill=skill,
+            signature=exc.signature,
+        )
+        return DispatchResult(False, -1, "", build_retry_feedback(exc))
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
@@ -1160,13 +1181,21 @@ def _dispatch_via_ide(
 
     log.info("ide_dispatch_complete", skill=skill)
 
-    written = _write_parsed_outputs(
-        r.stdout,
-        output_paths,
-        project_dir,
-        create_truth_templates=True,
-        skill=skill,
-    )
+    try:
+        written = _write_parsed_outputs(
+            r.stdout,
+            output_paths,
+            project_dir,
+            create_truth_templates=True,
+            skill=skill,
+        )
+    except DispatchWriteFailureError as exc:
+        log.error(
+            "ide_write_failure_detected",
+            skill=skill,
+            signature=exc.signature,
+        )
+        return DispatchResult(False, -1, "", build_retry_feedback(exc))
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
