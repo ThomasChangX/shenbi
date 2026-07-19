@@ -726,17 +726,20 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     """Materialize the three-route context package for the chapter.
 
     Calls :func:`assemble_context` + :func:`write_context_file` from
-    ``context_assemble``. Missing plan files are tolerated (early-stage
-    projects): a warning (with stack trace) is logged and the step continues
-    so chapter-drafting can proceed without context.
+    ``context_assemble``. Closing spec §3.1 Gap 1: the previous body wrapped
+    everything in a try/except that only logged a warning, so a throw from
+    ``write_context_file`` left NO context file on disk and the pipeline
+    silently continued. This version adds a mandatory post-check that verifies
+    the file exists and writes a minimal Route-C fallback if it does not.
     """
+    plan_path = f"plans/chapter-{chapter}-plan.md"
+    context_path = project_dir / "context" / f"chapter-{chapter}-context.md"
     try:
         from shenbi.pipeline.context_assemble import (
             assemble_context,
             write_context_file,
         )
 
-        plan_path = f"plans/chapter-{chapter}-plan.md"
         pkg = assemble_context(project_dir, plan_path)
         out = write_context_file(project_dir, chapter, pkg)
         log.info(
@@ -748,6 +751,49 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
         )
     except Exception as e:
         log.warning("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
+
+    # HARD VERIFY (Gap 1 fix): output file must exist regardless of the try/except.
+    if not context_path.exists() or context_path.stat().st_size == 0:
+        log.error("context_assembly_no_output", chapter=chapter)
+        _write_minimal_context_fallback(project_dir, chapter)
+
+
+def _write_minimal_context_fallback(project_dir: Path, chapter: int) -> None:
+    """Write a minimal Route-C-only context when full assembly failed.
+
+    Uses :func:`safe_write` (atomic + locked) so the fallback itself cannot be
+    half-written. Inlines the Route C fixed-rule retrieval to avoid importing
+    the private ``_route_c`` from ``context_assemble``.
+    """
+    from shenbi.safe_write import safe_write
+
+    project_dir = Path(project_dir)
+    # Route C: inline fixed-rule retrieval (same as _route_c in context_assemble)
+    _ROUTE_C_FILES: list[tuple[str, str]] = [
+        ("truth/book_spine.md", "book_spine"),
+        ("truth/audit_drift.md", "audit_drift"),
+        ("style/style_profile.md", "style_profile"),
+    ]
+    _ROUTE_C_MAX_CHARS = 2000
+    entries: list[dict[str, object]] = []
+    for fname, label in _ROUTE_C_FILES:
+        p = project_dir / fname
+        if p.exists():
+            entries.append(
+                {
+                    "source": f"route-c:{label}",
+                    "weight": 0.6,
+                    "text": p.read_text(encoding="utf-8")[:_ROUTE_C_MAX_CHARS],
+                    "id": label,
+                }
+            )
+    body = "\n\n".join(str(e.get("text", "")) for e in entries) or (
+        "## Context (Minimal Fallback)\n\n"
+        "Full context assembly failed; only Route C fixed rules available.\n"
+    )
+    out = project_dir / "context" / f"chapter-{chapter}-context.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    safe_write(out, body)
 
 
 def _run_context_curation(project_dir: Path, chapter: int) -> None:
