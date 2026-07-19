@@ -306,8 +306,11 @@ def main() -> dict[str, Any]:
             capture_output=True,
             text=True,
         )
-        emit_json(json.loads(proc_result.stdout))
-        sys.exit(0 if proc_result.returncode == 0 else 1)
+        gate_output = json.loads(proc_result.stdout)
+        emit_json(gate_output)
+        # shenbi.gates.cli always returns exit code 0 for known gates,
+        # even on FAIL — derive exit code from JSON status field instead.
+        sys.exit(0 if gate_output.get("status") != "FAIL" else 1)
 
     rubric_path = sys.argv[1]
     dimensions, kill_switches = load_rubric(rubric_path)
@@ -356,7 +359,7 @@ def main() -> dict[str, Any]:
                             emit_json(gate_out)
                             sys.exit(1)
                     except Exception:
-                        pass
+                        pass  # Expected when gate output is not valid JSON (e.g. subprocess error)
 
     # Gate marker enforcement — MUST pass before scoring can proceed
     if test_type:

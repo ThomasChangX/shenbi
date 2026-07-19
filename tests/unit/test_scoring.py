@@ -1061,8 +1061,6 @@ class TestScoringGatePath:
 
     def test_gate_only_uses_cli_module(self, tmp_path, monkeypatch):
         """--gate-only must invoke python -m shenbi.gates.cli, not validate-gate.py."""
-        import shenbi.scoring as scoring_mod
-
         captured_cmds: list[list[str]] = []
 
         class FakeCompleted:
@@ -1093,7 +1091,7 @@ class TestScoringGatePath:
         )
 
         try:
-            scoring_mod.main()
+            main()
         except SystemExit:
             pass  # --gate-only calls sys.exit()
 
@@ -1111,8 +1109,6 @@ class TestScoringGatePath:
         shenbi.gates.cli, not validate-gate.py. This covers the second dead-path
         site that test_gate_only_uses_cli_module does not exercise.
         """
-        import shenbi.scoring as scoring_mod
-
         captured_cmds: list[list[str]] = []
 
         class FakeCompleted:
@@ -1124,9 +1120,12 @@ class TestScoringGatePath:
             captured_cmds.append(list(cmd))
             return FakeCompleted()
 
-        monkeypatch.setattr("subprocess.run", fake_run)
-        # Build a minimal rubric file so load_rubric doesn't crash
-        rubric = tmp_path / "rubric.md"
+        # Build rubric under t1-skill/<skill>/rubric.md so that --tier T1
+        # G3 gate integration fires (scoring.py extracts skill_name from
+        # parent directory when parent's parent is "t1-skill").
+        skill_root = tmp_path / "t1-skill" / "testskill"
+        skill_root.mkdir(parents=True)
+        rubric = skill_root / "rubric.md"
         rubric.write_text(
             "| # | Dimension | Weight |\n|---|---|---|\n| 1 | Quality | 100% |\n",
             encoding="utf-8",
@@ -1135,29 +1134,33 @@ class TestScoringGatePath:
         scores.write_text('{"1": 90}', encoding="utf-8")
         round_dir = tmp_path / "round"
         round_dir.mkdir()
+
+        import subprocess
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
         monkeypatch.setattr(
             "sys.argv",
             [
                 "shenbi-score",
                 str(rubric),
                 str(scores),
-                "--test-type",
-                "generative",
                 "--tier",
                 "T1",
+                "--test-type",
+                "generative",
                 "--round-dir",
                 str(round_dir),
             ],
         )
 
         try:
-            scoring_mod.main()
+            main()
         except SystemExit:
-            pass
+            pass  # Expected when --gate-only or gate-fail triggers sys.exit()
 
         gate_cmds = [c for c in captured_cmds if "gates.cli" in c or "validate-gate" in " ".join(c)]
-        if gate_cmds:  # only assert if the tier path fired a gate subprocess
-            cmd = gate_cmds[-1]
-            assert not any("validate-gate.py" in str(p) for p in cmd), (
-                f"scoring --tier T1 still references deleted validate-gate.py: {cmd}"
-            )
+        assert gate_cmds, "expected --tier T1 to trigger a gate subprocess call"
+        cmd = gate_cmds[-1]
+        assert not any("validate-gate.py" in str(p) for p in cmd), (
+            f"scoring --tier T1 still references deleted validate-gate.py: {cmd}"
+        )

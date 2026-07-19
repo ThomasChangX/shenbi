@@ -8,8 +8,6 @@ never call dispatch_codex_api.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 
 class TestNoCodexApiBranch:
     def test_codex_api_mode_falls_through_to_internal(self, monkeypatch, tmp_path):
@@ -22,7 +20,6 @@ class TestNoCodexApiBranch:
         import shenbi.dispatcher.executor as exec_mod
         import shenbi.dispatcher.modes.codex_api as codex_api_mod
         import shenbi.dispatcher.modes.internal as internal_mod
-        from shenbi.dispatcher.executor import dispatch
 
         # Force detect_mode to return the removed mode value
         monkeypatch.setattr(exec_mod, "detect_mode", lambda: "codex-api")
@@ -47,7 +44,7 @@ class TestNoCodexApiBranch:
         # G2 subprocess on non-existent output files.
         (round_dir / "pipeline-state.json").write_text("{}", encoding="utf-8")
         # dispatch should return without calling codex_api (falls to internal)
-        rc = dispatch("shenbi-worldbuilding", "generative", round_dir, "test")
+        rc = exec_mod.dispatch("shenbi-worldbuilding", "generative", round_dir, "test")
         assert rc == 0
         assert not codex_api_called, (
             "dispatch_codex_api was called — the dead codex-api branch still routes to it"
