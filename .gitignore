@@ -89,3 +89,9 @@ mutants/
 staging/
 
 novel-output/
+
+# Allow novel output for auditable pipeline verification (novel-output/ already
+# exists on disk but is currently untracked -- this makes artifacts auditable
+# via git history).
+!novel-output/
+!novel-output/**
