@@ -13,6 +13,7 @@ Dispatch routing (tried in order):
 
 from __future__ import annotations
 
+import glob as glob_module
 import json
 import os
 import re
@@ -99,6 +100,31 @@ _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
 
 
 # ---------------------------------------------------------------------------
+# Path resolution (glob expansion)
+# ---------------------------------------------------------------------------
+
+
+def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
+    """Resolve a read path, expanding glob patterns if present.
+
+    Args:
+        project_dir: Pipeline project root directory.
+        read_path: Path string from contract reads, may contain glob patterns.
+
+    Returns:
+        List of resolved Path objects. Empty list if no matches.
+    """
+    if "*" in read_path or "?" in read_path or "[" in read_path:
+        pattern = str(project_dir / read_path)
+        matches = glob_module.glob(pattern)
+        return [Path(m) for m in sorted(matches)]
+    full_path = project_dir / read_path
+    if full_path.exists():
+        return [full_path]
+    return []
+
+
+# ---------------------------------------------------------------------------
 # Prompt building
 # ---------------------------------------------------------------------------
 
@@ -143,59 +169,40 @@ def _build_skill_prompt(
     # but chapter is None (genesis mode) — such reads are skipped rather than
     # raising. With a chapter, resolve_chapter_path does a bounded N/NNN replace.
     input_texts: dict[str, str] = {}
-    raw_inputs: dict[str, str] = {}
-    fields_map = contract.get("read_fields", {})  # Layer B: stored field map
-    for read_path in contract.get("reads", []):
+    reads: list[Any] = contract.get("reads", [])
+    for read_path_entry in reads:
+        if isinstance(read_path_entry, dict):
+            # Layer B: field-level read
+            read_path: str = read_path_entry.get("file", "")
+            fields: list[str] = read_path_entry.get("fields", [])
+        else:
+            read_path = read_path_entry
+            fields = []
+
+        # Resolve chapter placeholders before glob expansion
         resolved = resolve_or_skip(read_path, chapter)
         if resolved is None:
             continue  # unresolvable placeholder (genesis) — skip this read
-        full_path = project_dir / resolved
-        if full_path.exists():
-            try:
-                raw_text = full_path.read_text(encoding="utf-8")
-            except Exception:
-                raw_text = f"[binary or unreadable: {resolved}]"
-            # Layer B: filter to declared fields if available for this path.
-            fields = fields_map.get(resolved) or fields_map.get(read_path)
-            if fields:
-                # filter_to_fields returns (filtered_text, matched_any).
-                # The escape-hatch WARN is already logged inside (contracts.fields)
-                # when matched is False; we just consume the text here.
-                raw_text, _matched = filter_to_fields(raw_text, fields, resolved)
-            raw_inputs[resolved] = raw_text
-        else:
-            raw_inputs[resolved] = f"[file not found: {resolved}]"
 
-    # Apply per-file cap and proportional total budget
-    total_raw = sum(len(v) for v in raw_inputs.values())
-    if total_raw > _INPUT_MAX_CHARS_TOTAL and len(raw_inputs) > 1:
-        budget_per_file = _INPUT_MAX_CHARS_TOTAL // len(raw_inputs)
-        for fname, text in raw_inputs.items():
-            limit = min(_INPUT_MAX_CHARS_PER_FILE, budget_per_file)
-            if len(text) > limit:
+        resolved_paths = _resolve_read_path(project_dir, resolved)
+        for full_path in resolved_paths:
+            try:
+                content = full_path.read_text(encoding="utf-8")
+            except Exception:
+                content = f"[binary or unreadable: {full_path}]"
+            if fields:
+                content, _matched = filter_to_fields(content, fields, str(full_path))
+            # Apply per-file char cap
+            if len(content) > _INPUT_MAX_CHARS_PER_FILE:
                 log.warning(
                     "input_truncated",
                     skill=skill,
-                    path=fname,
-                    original=len(text),
-                    truncated=limit,
-                )
-                input_texts[fname] = text[:limit]
-            else:
-                input_texts[fname] = text
-    else:
-        for fname, text in raw_inputs.items():
-            if len(text) > _INPUT_MAX_CHARS_PER_FILE:
-                log.warning(
-                    "input_truncated",
-                    skill=skill,
-                    path=fname,
-                    original=len(text),
+                    path=str(full_path),
+                    original=len(content),
                     truncated=_INPUT_MAX_CHARS_PER_FILE,
                 )
-                input_texts[fname] = text[:_INPUT_MAX_CHARS_PER_FILE]
-            else:
-                input_texts[fname] = text
+                content = content[:_INPUT_MAX_CHARS_PER_FILE]
+            input_texts[full_path.name] = content
 
     # Collect output paths
     output_paths: list[str] = []
