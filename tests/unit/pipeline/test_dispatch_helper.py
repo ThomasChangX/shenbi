@@ -305,16 +305,16 @@ class TestTruthTemplates:
         assert "## 活跃线索" in body
         assert "# Current State" in body
 
-    def test_character_matrix_has_declared_h2_stubs(self, tmp_path):
+    def test_character_matrix_template_created(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
 
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "character_matrix.md").read_text(encoding="utf-8")
-        # context-composing declares these 4 fields.
-        assert "## 主角" in body
-        assert "## 主要配角" in body
-        assert "## 反派" in body
-        assert "## 角色关系图谱" in body
+        # The template is created with frontmatter and H1; no H2 stubs are
+        # seeded since no consumer skill declares fields for this file
+        # (character_matrix.md is a slug-based table, not section-based).
+        assert "update_mode: replace" in body
+        assert "# Character Matrix" in body
 
     def test_chapter_summaries_has_declared_h2(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates
