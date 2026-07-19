@@ -54,6 +54,69 @@ class TestChineseOrdinalRules:
         assert len(idx.rules) == 2
 
 
+class TestDualSourceHooks:
+    def test_body_only_hooks_indexed_when_frontmatter_absent(self, tmp_path):
+        """Production state: frontmatter has no `hooks:` list, hooks live in
+        the body as ``### P0-N ...`` headings.
+        """
+        p = _make_project(tmp_path)
+        (p / "truth" / "pending_hooks.md").write_text(
+            "---\n"
+            "title: 伏笔追踪\n"
+            "project: 星火燃穹\n"
+            "last_chapter: 56\n"
+            "---\n"
+            "# 伏笔追踪\n\n"
+            "## 第56章伏笔呈现\n\n"
+            "### P0-4 TRIGGER 证据\n安静在阈附近完整段落。\n\n"
+            "### P0-9 偏移周日格式\n偏移段未从周日格式对照。\n\n"
+            "回访 P0-14 与 P0-15 两条伏笔。\n",
+            encoding="utf-8",
+        )
+        idx = build_index(p)
+        assert len(idx.hooks) >= 4, (
+            f"expected >=4 body hooks, got {len(idx.hooks)} (keys={sorted(idx.hooks)})"
+        )
+        assert "P0-4" in idx.hooks
+        assert "P0-9" in idx.hooks
+        assert "P0-14" in idx.hooks
+
+    def test_frontmatter_hooks_remain_authoritative(self, tmp_path):
+        """When the frontmatter `hooks:` list IS present, those entries keep
+        their richer extra payload; body hooks only fill gaps.
+        """
+        p = _make_project(tmp_path)
+        (p / "truth" / "pending_hooks.md").write_text(
+            "---\n"
+            "hooks:\n"
+            "  - id: H01\n"
+            "    content: Magic sword\n"
+            "    state: PLANTED\n"
+            "    last_reinforced: 3\n"
+            "    max_distance: 25\n"
+            "---\n"
+            "# Hooks\n\n"
+            "### H01 the sword\n### H02 new from body\n",
+            encoding="utf-8",
+        )
+        idx = build_index(p)
+        # H01 came from frontmatter — keeps its payload.
+        assert idx.hooks["H01"].extra.get("state") == "PLANTED"
+        # H02 came from body — minimal entry.
+        assert "H02" in idx.hooks
+
+    def test_no_duplicate_when_id_in_both_sources(self, tmp_path):
+        p = _make_project(tmp_path)
+        (p / "truth" / "pending_hooks.md").write_text(
+            "---\nhooks:\n  - id: P0-4\n    content: fm\n---\n### P0-4 body mention\n",
+            encoding="utf-8",
+        )
+        idx = build_index(p)
+        assert len(idx.hooks) == 1
+        # Frontmatter content wins.
+        assert idx.hooks["P0-4"].extra.get("content_keywords") == "fm"
+
+
 class TestHookIdRegex:
     def test_p0_hook_ids_matched_in_plan(self, tmp_path):
         """extract_entities_from_plan must recognise P0-N production IDs."""
