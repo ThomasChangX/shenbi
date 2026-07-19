@@ -544,6 +544,30 @@ def _dispatch_via_api(
     output_text = response.choices[0].message.content or ""
     log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
 
+    # Capture response.usage (spec §3.1): persist to cost ledger.
+    # Defensive: some OpenAI-compatible endpoints omit usage.
+    usage_obj = getattr(response, "usage", None)
+    if usage_obj is not None:
+        usage = {
+            "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
+            "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
+            "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
+        }
+        log.info(
+            "llm_token_usage",
+            skill=skill,
+            chapter=chapter,
+            model=model,
+            **usage,
+        )
+        try:
+            from shenbi.cost.ledger import TokenLedger
+
+            TokenLedger(project_dir).record(skill, chapter or 0, usage, model=model)
+        except Exception as exc:
+            # Cost accounting must NEVER break a dispatch.
+            log.warning("ledger_record_failed", skill=skill, error=str(exc))
+
     written = _write_parsed_outputs(
         output_text, output_paths, project_dir, create_truth_templates=True
     )
