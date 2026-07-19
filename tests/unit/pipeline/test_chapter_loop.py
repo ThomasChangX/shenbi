@@ -452,6 +452,7 @@ class TestGateFailurePaths:
         assert state.chapter_loop.step_index == 16
 
 
+@pytest.mark.last
 class TestAuditCircleIntegration:
     def test_last_audit_step_advances_past_audits(self, tmp_path):
         """At _FIRST_AUDIT_IDX (index 8), all audits are parallel-dispatched
@@ -925,6 +926,7 @@ class TestResolveG4Files:
 # ---------------------------------------------------------------------------
 # A5a: State-settling failure wiring — handle_state_settle_failure
 # ---------------------------------------------------------------------------
+@pytest.mark.last
 class TestStateSettleFailureWiring:
     """Tests that state-settling failure calls handle_state_settle_failure."""
 
