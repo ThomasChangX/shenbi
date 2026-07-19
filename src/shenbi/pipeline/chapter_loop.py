@@ -34,6 +34,7 @@ import json
 import re
 import shutil as _shutil
 import signal as _signal
+import time
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -679,6 +680,77 @@ def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> Non
 
 
 # ---------------------------------------------------------------------------
+# Observability: per-step timing (Task 11a)
+# ---------------------------------------------------------------------------
+
+
+def _record_step_timing(state: PipelineState, skill: str, elapsed: float) -> None:
+    """Record wall-clock elapsed time for a dispatched skill.
+
+    Appends *elapsed* (seconds) to ``state.chapter_loop.step_timings[skill]``
+    so ``_print_timing_summary`` can report per-skill statistics at chapter
+    completion.
+    """
+    timings = state.chapter_loop.step_timings
+    if skill not in timings:
+        timings[skill] = []
+    timings[skill].append(elapsed)
+
+
+def _print_timing_summary(state: PipelineState) -> None:
+    """Print per-skill timing summary at end of pipeline chapter.
+
+    Reports calls, average, min, and max elapsed seconds for each skill
+    that was executed during the chapter.
+    """
+    timings = state.chapter_loop.step_timings
+    if not timings:
+        return
+    log.info("timing_summary_header", chapter=state.chapter_loop.current_chapter)
+    for skill in sorted(timings):
+        times = timings[skill]
+        if not times:
+            continue
+        avg = sum(times) / len(times)
+        mn = min(times)
+        mx = max(times)
+        log.info(
+            "timing_summary_row",
+            skill=skill,
+            calls=len(times),
+            avg_seconds=round(avg, 1),
+            min_seconds=round(mn, 1),
+            max_seconds=round(mx, 1),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Word count stability check (Task 11b)
+# ---------------------------------------------------------------------------
+
+
+def _check_word_count_bounds(chapter_text: str) -> list[str]:
+    """G4 word count bounds check.
+
+    Counts Chinese characters (CJK Unified Ideographs U+4E00-U+9FFF).
+    WARN when below 4000 or above 15000 characters.
+
+    Args:
+        chapter_text: The full chapter prose text.
+
+    Returns:
+        List of issue strings (empty if within bounds).
+    """
+    issues: list[str] = []
+    chinese_chars = sum(1 for c in chapter_text if "\u4e00" <= c <= "\u9fff")
+    if chinese_chars < 4000:
+        issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min 4000)")
+    if chinese_chars > 15000:
+        issues.append(f"G4.word_count:above_ceiling -- {chinese_chars} chars (max 15000)")
+    return issues
+
+
+# ---------------------------------------------------------------------------
 # 10c: Truth-index periodic rebuild
 # ---------------------------------------------------------------------------
 
@@ -762,6 +834,9 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
 
     # 10e: Check world file freshness at volume boundaries
     _check_world_file_freshness(project_dir, chapter)
+
+    # 11a: Print per-step timing summary at chapter completion
+    _print_timing_summary(state)
 
     state.chapter_loop.current_chapter = chapter + 1
     state.chapter_loop.step_index = 0
@@ -2298,6 +2373,29 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     state.chapter_loop.current_step = step.skill
     log.info("chapter_step", chapter=chapter, step=step.step_num, skill=step.skill)
 
+    # ── Observability: per-step timing (Task 11a) ────────────────────────
+    step_start = time.monotonic()
+    try:
+        return _run_chapter_step_impl(state, project_dir, step_idx, step, chapter)
+    finally:
+        elapsed = time.monotonic() - step_start
+        log.info(
+            "step_timing",
+            chapter=chapter,
+            step=step.skill,
+            elapsed_seconds=round(elapsed, 1),
+        )
+        _record_step_timing(state, step.skill, elapsed)
+
+
+def _run_chapter_step_impl(
+    state: PipelineState,
+    project_dir: Path,
+    step_idx: int,
+    step: ChapterStep,
+    chapter: int,
+) -> bool:
+    """Implementation body of run_chapter_step — wrapped by timing instrumentation."""
     # ── Crash recovery: checkpoint-on-step (spec §3.4, §3.6) ────────────
     # Check for emergency shutdown flag at each step boundary (safe I/O from
     # the main thread — the signal handler only sets the atomic flag).
@@ -2769,6 +2867,13 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     if "chapter-drafting" in step.skill:
         _check_volume_map_alignment(project_dir, chapter)
         _run_g4_checks(state, chapter)
+        # 11b: Word count bounds check
+        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+        if chapter_path.exists():
+            chapter_text = chapter_path.read_text(encoding="utf-8")
+            wc_issues = _check_word_count_bounds(chapter_text)
+            for issue in wc_issues:
+                log.warning("word_count_bounds", chapter=chapter, issue=issue)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":

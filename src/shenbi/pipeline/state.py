@@ -152,6 +152,10 @@ class ChapterLoopStateData:
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
+    # Observability: per-skill wall-clock timing (list of elapsed seconds per call).
+    # Populated by run_chapter_step; summarized by _print_timing_summary at chapter
+    # completion. Key is the skill name (e.g. "shenbi-chapter-drafting").
+    step_timings: dict[str, list[float]] = field(default_factory=dict)
 
 
 @dataclass
