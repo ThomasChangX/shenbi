@@ -1075,7 +1075,16 @@ def _advance(
         project_dir = Path(state.project_dir)
 
     state.chapter_loop.step_index = step_idx + 1
-    state.chapter_loop.current_step = ""
+    # Explicitly set current_step alongside step_index (Task 17-13 root cause fix).
+    # Previously current_step was left as "" here, creating a corruption window
+    # between _advance and the next run_chapter_step call. On crash-resume,
+    # step_index would be advanced but current_step empty, causing the pipeline
+    # to lose track of which step to resume.
+    next_idx = step_idx + 1
+    if next_idx < len(CHAPTER_STEPS):
+        state.chapter_loop.current_step = CHAPTER_STEPS[next_idx].skill
+    else:
+        state.chapter_loop.current_step = "chapter_complete"
 
     if step.checkpoint is not None:
         # Honour --auto suppression flags so automated runs aren't

@@ -426,3 +426,77 @@ def compact_pipeline_state(state: PipelineState) -> None:
         # Keep only the most recent 30 entries by insertion order
         items = list(cl.retry_feedback.items())
         cl.retry_feedback = dict(items[-30:])
+
+
+# ---------------------------------------------------------------------------
+# State machine healing: current_step corruption (Task 17-13)
+# ---------------------------------------------------------------------------
+
+
+def _heal_current_step(state: PipelineState, chapter_steps: list[Any]) -> None:
+    """Heal current_step from step_index when current_step is empty.
+
+    Fixes the known corruption bug: _advance sets step_index
+    but not current_step, leaving it as "".
+
+    Args:
+        state: The pipeline state to heal.
+        chapter_steps: Ordered list of ChapterStep objects defining the step
+            sequence (imported from chapter_loop.CHAPTER_STEPS).
+    """
+    cl = state.chapter_loop
+    if cl.current_step:
+        return  # Already set, nothing to heal
+
+    if cl.step_index <= 0:
+        return  # Not yet started
+
+    if cl.step_index < len(chapter_steps):
+        cl.current_step = chapter_steps[cl.step_index].skill
+    else:
+        cl.current_step = "chapter_complete"
+
+    from shenbi.logging import get_logger
+
+    logger = get_logger(__name__)
+    logger.warning(
+        "healed_current_step",
+        step_index=cl.step_index,
+        new_current_step=cl.current_step,
+    )
+
+
+def _validate_state_consistency(state: PipelineState, chapter_steps: list[Any]) -> list[str]:  # pyright: ignore[reportUnusedFunction] -- called from cli.py on resume
+    """Validate pipeline state consistency at resume. Heals if possible.
+
+    Checks:
+    - step_index > 0 but current_step is empty -> heal
+    - step_index out of range -> clamp
+
+    Args:
+        state: The pipeline state to validate.
+        chapter_steps: Ordered list of ChapterStep objects defining the step
+            sequence.
+
+    Returns:
+        List of issue strings describing any problems found and actions taken.
+        Empty list means state is consistent.
+    """
+    issues: list[str] = []
+    cl = state.chapter_loop
+
+    if not cl.current_step and cl.step_index > 0:
+        issues.append(
+            f"state_inconsistent: step_index={cl.step_index} but current_step='' -- auto-healing"
+        )
+        _heal_current_step(state, chapter_steps)
+
+    if cl.step_index > len(chapter_steps):
+        issues.append(
+            f"step_index={cl.step_index} exceeds CHAPTER_STEPS length "
+            f"({len(chapter_steps)}) -- clamping"
+        )
+        cl.step_index = len(chapter_steps)
+        cl.current_step = "chapter_complete"
+
+    return issues
