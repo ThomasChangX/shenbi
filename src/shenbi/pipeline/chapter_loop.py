@@ -2739,6 +2739,17 @@ def _run_chapter_step_impl(
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
+        # ── Linguistic drift check (non-blocking) ────────────────────────
+        if step.skill == "pipeline-linguistic-drift-check":
+            try:
+                _check_linguistic_drift(project_dir, chapter)
+            except Exception:
+                log.warning(
+                    "linguistic_drift_check_failed",
+                    chapter=chapter,
+                    exc_info=True,
+                )
+
         _record_step_done(state, step, chapter)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
