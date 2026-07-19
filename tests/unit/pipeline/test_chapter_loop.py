@@ -156,7 +156,8 @@ class TestRunChapterStep:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     def test_g3_checked_for_independent_skill(self, mock_disp, mock_g4, mock_ri, mock_g3, tmp_path):
         """G3 independence check runs for skills where requires_independent returns True.
-        Uses chapter-drafting (step 4, index 3) which dispatches and hits the G3 path."""
+        Uses chapter-drafting (step 4, index 3) which dispatches and hits the G3 path.
+        """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
         mock_g3.return_value = {"status": "PASS"}
@@ -220,17 +221,19 @@ class TestContextAssembly:
         """Step 2 (chapter-planning) calls context assembly (calls_context_assembly=True)."""
         from unittest.mock import patch as _patch
 
-        with _patch("shenbi.pipeline.chapter_loop.dispatch_skill",
-                     return_value=DispatchResult(True, 0, "{}", "")):
-            with _patch("shenbi.pipeline.chapter_loop.run_gate_g4",
-                         return_value={"status": "PASS"}):
-                state = PipelineState.default(str(tmp_path))
-                state.chapter_loop.current_chapter = 1
-                state.chapter_loop.step_index = 1  # chapter-planning (step 2)
-                run_chapter_step(state, tmp_path)
-                mock_assemble.assert_called_once_with(tmp_path, "plans/chapter-1-plan.md")
-                mock_write.assert_called_once()
-                assert state.chapter_loop.step_index == 2
+        with _patch(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            return_value=DispatchResult(True, 0, "{}", ""),
+        ), _patch(
+            "shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}
+        ):
+            state = PipelineState.default(str(tmp_path))
+            state.chapter_loop.current_chapter = 1
+            state.chapter_loop.step_index = 1  # chapter-planning (step 2)
+            run_chapter_step(state, tmp_path)
+            mock_assemble.assert_called_once_with(tmp_path, "plans/chapter-1-plan.md")
+            mock_write.assert_called_once()
+            assert state.chapter_loop.step_index == 2
 
     @patch(
         "shenbi.pipeline.context_assemble.assemble_context",
@@ -238,18 +241,21 @@ class TestContextAssembly:
     )
     def test_context_assembly_failure_does_not_crash(self, mock_assemble, tmp_path):
         """Missing plan file is tolerated -- step still advances.
-        Step 2 (chapter-planning) dispatches, so we also mock dispatch/G4."""
+        Step 2 (chapter-planning) dispatches, so we also mock dispatch/G4.
+        """
         from unittest.mock import patch as _patch
 
-        with _patch("shenbi.pipeline.chapter_loop.dispatch_skill",
-                     return_value=DispatchResult(True, 0, "{}", "")):
-            with _patch("shenbi.pipeline.chapter_loop.run_gate_g4",
-                         return_value={"status": "PASS"}):
-                state = PipelineState.default(str(tmp_path))
-                state.chapter_loop.current_chapter = 1
-                state.chapter_loop.step_index = 1  # chapter-planning (step 2)
-                run_chapter_step(state, tmp_path)
-                assert state.chapter_loop.step_index == 2
+        with _patch(
+            "shenbi.pipeline.chapter_loop.dispatch_skill",
+            return_value=DispatchResult(True, 0, "{}", ""),
+        ), _patch(
+            "shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}
+        ):
+            state = PipelineState.default(str(tmp_path))
+            state.chapter_loop.current_chapter = 1
+            state.chapter_loop.step_index = 1  # chapter-planning (step 2)
+            run_chapter_step(state, tmp_path)
+            assert state.chapter_loop.step_index == 2
 
 
 # ---------------------------------------------------------------------------
@@ -447,20 +453,26 @@ class TestGateFailurePaths:
 class TestAuditCircleIntegration:
     def test_last_audit_step_advances_past_audits(self, tmp_path):
         """At _FIRST_AUDIT_IDX (index 8), all audits are parallel-dispatched
-        and step_index jumps past _LAST_AUDIT_IDX (index 13) to 14."""
+        and step_index jumps past _LAST_AUDIT_IDX (index 13) to 14.
+        """
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = _FIRST_AUDIT_IDX  # index 8 (first audit)
 
         with (
-            patch("shenbi.pipeline.chapter_loop.dispatch_skill",
-                   return_value=DispatchResult(True, 0, "{}", "")),
-            patch("shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                   side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks]),
-            patch("shenbi.pipeline.parallel_dispatch.consolidate_review_results",
-                   return_value="# Chapter 1 — Consolidated\n\nNo issues found."),
-            patch("shenbi.pipeline.chapter_loop.run_gate_g4",
-                   return_value={"status": "PASS"}),
+            patch(
+                "shenbi.pipeline.chapter_loop.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ),
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            ),
+            patch(
+                "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
+                return_value="# Chapter 1 — Consolidated\n\nNo issues found.",
+            ),
+            patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}),
         ):
             run_chapter_step(state, tmp_path)
         # Advances past all audits to _LAST_AUDIT_IDX + 1 = 14
@@ -471,18 +483,18 @@ class TestConditionalResolveIntegration:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     def test_lifecycle_step_dispatches_via_parallel(self, mock_disp, tmp_path):
         """foreshadowing-lifecycle (index 6) triggers parallel post-draft
-        dispatch which runs both lifecycle and settling together."""
+        dispatch which runs both lifecycle and settling together.
+        """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6  # foreshadowing-lifecycle (step 7)
         # Mock run_parallel_post_draft_steps to return success for both
-        with patch("shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
-                    return_value=(DispatchResult(True, 0, "{}", ""),
-                                  DispatchResult(True, 0, "{}", ""))):
-            with patch("shenbi.pipeline.chapter_loop.run_gate_g4",
-                        return_value={"status": "PASS"}):
-                run_chapter_step(state, tmp_path)
+        with patch(
+            "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+            return_value=(DispatchResult(True, 0, "{}", ""), DispatchResult(True, 0, "{}", "")),
+        ), patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value={"status": "PASS"}):
+            run_chapter_step(state, tmp_path)
         # Advances past both lifecycle (6) and settling (7) to index 8
         assert state.chapter_loop.step_index == 8
 
@@ -502,7 +514,9 @@ class TestConditionalResolveIntegration:
             _check_conditional_resolve(state, tmp_path, 1)
         # dispatch_skill called for resolve
         assert mock_disp.call_count >= 1
-        resolve_skills = [c[0][0] for c in mock_disp.call_args_list if "foreshadowing-resolve" in c[0][0]]
+        resolve_skills = [
+            c[0][0] for c in mock_disp.call_args_list if "foreshadowing-resolve" in c[0][0]
+        ]
         assert len(resolve_skills) >= 1
 
 
@@ -707,7 +721,8 @@ class TestRevisionRoutingIntegration:
     def test_clean_audits_dont_skip_snapshot_or_drift(self, tmp_path):
         """Steps 15 (snapshot) runs even when audits are clean.
         Regression: _is_revision_skipped must only affect step 16
-        (chapter-revision), not the snapshot step that precedes it."""
+        (chapter-revision), not the snapshot step that precedes it.
+        """
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
             state = PipelineState.default(str(tmp_path))
@@ -944,7 +959,8 @@ class TestStateSettleFailureWiring:
 class TestScoringFailureWiring:
     """Tests review-resonance exit code handling via handle_scoring_failure.
     Review-resonance is now part of parallel audit dispatch; the scoring
-    failure handler is tested directly rather than through run_chapter_step."""
+    failure handler is tested directly rather than through run_chapter_step.
+    """
 
     def test_exit_code_2_triggers_redispatch(self, tmp_path):
         """exit_code=2 triggers retry (handle_scoring_failure returns True)."""

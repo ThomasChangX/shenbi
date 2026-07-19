@@ -7,7 +7,16 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from shenbi.pipeline.truth_io import _path_lock, write_truth_file
+import pytest
+
+from shenbi.pipeline.truth_io import (
+    _path_lock,
+    _read_truth_rows,
+    _read_yaml_records,
+    _upsert_by_key,
+    _upsert_markdown_table_row,
+    write_truth_file,
+)
 
 
 def test_replace_mode_overwrites_existing():
@@ -178,6 +187,168 @@ def test_write_preserves_utf8_chinese_characters():
 
         result = target.read_text()
         assert "林烽离开边城" in result
+
+
+# ---------------------------------------------------------------------------
+# Error handling / validation tests
+# ---------------------------------------------------------------------------
+
+
+class TestWriteTruthFileValidation:
+    def test_unknown_mode_raises_valueerror(self, tmp_path: Path):
+        """Unrecognized mode must raise ValueError immediately."""
+        with pytest.raises(ValueError, match="Unknown mode"):
+            write_truth_file(tmp_path, "test.md", "data", mode="invalid_mode")
+
+    def test_upsert_yaml_missing_key_field_raises(self, tmp_path: Path):
+        """upsert_yaml without key_field must raise ValueError."""
+        with pytest.raises(ValueError, match="key_field"):
+            write_truth_file(
+                tmp_path, "test.md", [{"a": 1}], mode="upsert_yaml"
+            )
+
+    def test_upsert_yaml_non_list_raises(self, tmp_path: Path):
+        """upsert_yaml with non-list new_data must raise ValueError."""
+        with pytest.raises(ValueError, match="list"):
+            write_truth_file(
+                tmp_path, "test.md", "not a list", mode="upsert_yaml", key_field="id"
+            )
+
+    def test_upsert_yaml_with_dict_raises(self, tmp_path: Path):
+        """upsert_yaml with dict (not list) new_data must raise ValueError."""
+        with pytest.raises(ValueError, match="list"):
+            write_truth_file(
+                tmp_path, "test.md", {"a": 1}, mode="upsert_yaml", key_field="id"
+            )
+
+    def test_upsert_markdown_row_missing_key_field_raises(self, tmp_path: Path):
+        """upsert_markdown_row with dict data and no key_field must raise."""
+        (tmp_path / "truth").mkdir()
+        with pytest.raises(ValueError, match="key_field"):
+            write_truth_file(
+                tmp_path, "test.md", {"chapter": "1"}, mode="upsert_markdown_row"
+            )
+
+    def test_replace_mode_with_dict_produces_bullet_format(self, tmp_path: Path):
+        """Replace mode with dict new_data writes bullet-format content."""
+        (tmp_path / "truth").mkdir()
+        write_truth_file(
+            tmp_path, "current_state.md", {"chapter": 1, "resonance": 65}, mode="replace"
+        )
+        content = (tmp_path / "truth" / "current_state.md").read_text()
+        assert "chapter" in content
+        assert "resonance" in content
+
+    def test_replace_mode_with_list_data(self, tmp_path: Path):
+        """Replace mode with list new_data writes str() representation."""
+        (tmp_path / "truth").mkdir()
+        write_truth_file(
+            tmp_path, "items.md", [{"a": 1}, {"b": 2}], mode="replace"
+        )
+        content = (tmp_path / "truth" / "items.md").read_text()
+        assert "a" in content
+
+
+# ---------------------------------------------------------------------------
+# Low-level helper tests
+# ---------------------------------------------------------------------------
+
+
+class TestReadTruthRows:
+    def test_empty_file_returns_empty_list(self, tmp_path: Path):
+        f = tmp_path / "empty.md"
+        f.write_text("")
+        assert _read_truth_rows(f) == []
+
+    def test_nonexistent_file_returns_empty_list(self, tmp_path: Path):
+        assert _read_truth_rows(tmp_path / "nonexistent.md") == []
+
+    def test_bullet_rows_parsed_correctly(self, tmp_path: Path):
+        f = tmp_path / "bullets.md"
+        f.write_text("- ch1: some data\n- ch2: other data\n")
+        rows = _read_truth_rows(f)
+        assert len(rows) == 2
+        assert rows[0] == {"ch1": "some data"}
+        assert rows[1] == {"ch2": "other data"}
+
+    def test_table_rows_parsed_correctly(self, tmp_path: Path):
+        f = tmp_path / "table.md"
+        f.write_text("| Ch1 | 60 | high |\n| Ch2 | 58 | medium |\n")
+        rows = _read_truth_rows(f)
+        assert len(rows) == 2
+        assert rows[0] == {"Ch1": "60 high"}
+        assert rows[1] == {"Ch2": "58 medium"}
+
+    def test_header_row_skipped(self, tmp_path: Path):
+        """The table header row 'chapter' is skipped."""
+        f = tmp_path / "table.md"
+        f.write_text("| chapter | score |\n| Ch1 | 60 |\n")
+        rows = _read_truth_rows(f)
+        # Only the Ch1 data row, not the header
+        assert len(rows) == 1
+        assert "Ch1" in rows[0]
+
+
+class TestUpsertMarkdownTableRow:
+    def test_non_table_row_appended_as_is(self):
+        """A non-table new_row is appended without dedup."""
+        existing = "# Header\n\nSome prose.\n"
+        new = "Just a plain line"
+        result = _upsert_markdown_table_row(existing, new, "chapter")
+        assert "Some prose." in result
+        assert "Just a plain line" in result
+
+    def test_matching_key_row_is_replaced(self):
+        existing = "| Ch1 | old | data |\n| Ch2 | old2 | data2 |\n"
+        new = "| Ch2 | new | stuff |"
+        result = _upsert_markdown_table_row(existing, new, "chapter")
+        assert "| Ch2 | new | stuff |" in result
+        assert "| Ch2 | old2 | data2 |" not in result
+        assert "| Ch1 | old | data |" in result
+
+
+class TestReadYamlRecords:
+    def test_empty_file_returns_empty_list(self, tmp_path: Path):
+        f = tmp_path / "empty.md"
+        f.write_text("")
+        assert _read_yaml_records(f) == []
+
+    def test_no_frontmatter_returns_empty_list(self, tmp_path: Path):
+        f = tmp_path / "nofm.md"
+        f.write_text("# Just a header\n\nbody text\n")
+        assert _read_yaml_records(f) == []
+
+    def test_reads_records_from_hooks_key(self, tmp_path: Path):
+        f = tmp_path / "hooks.md"
+        f.write_text("---\nhooks:\n  - id: H1\n    state: active\n---\n\nbody\n")
+        records = _read_yaml_records(f)
+        assert len(records) == 1
+        assert records[0]["id"] == "H1"
+
+    def test_reads_records_from_items_key(self, tmp_path: Path):
+        f = tmp_path / "items.md"
+        f.write_text("---\nitems:\n  - id: I1\n    name: test\n---\n\nbody\n")
+        records = _read_yaml_records(f)
+        assert len(records) == 1
+        assert records[0]["id"] == "I1"
+
+
+class TestUpsertByKey:
+    def test_new_record_replaces_existing(self):
+        existing = [{"id": "a", "val": 1}, {"id": "b", "val": 2}]
+        new = [{"id": "a", "val": 99}]
+        result = _upsert_by_key(existing, new, "id")
+        assert len(result) == 2
+        assert {"id": "a", "val": 99} in result
+        assert {"id": "b", "val": 2} in result
+
+    def test_record_without_key_preserved(self):
+        """Records missing the key_field are preserved at front."""
+        existing = [{"id": "a", "val": 1}, {"other": "field"}]
+        new = [{"id": "b", "val": 3}]
+        result = _upsert_by_key(existing, new, "id")
+        assert len(result) == 3
+        assert {"other": "field"} in result
 
 
 # ---------------------------------------------------------------------------
