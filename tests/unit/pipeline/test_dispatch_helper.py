@@ -323,9 +323,7 @@ class TestTruthTemplates:
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
         assert body.startswith("---\n")
-        assert "type: current_state" in body
-        assert "category: truth" in body
-        assert "status: initialized" in body
+        assert "update_mode: replace" in body
 
     def test_does_not_overwrite_existing_file(self, tmp_path):
         from shenbi.pipeline.dispatch_helper import _init_truth_templates

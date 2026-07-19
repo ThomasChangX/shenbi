@@ -328,11 +328,11 @@ def _write_parsed_outputs(
 #: (fix D21) rather than a bare H1, so skills that read e.g.
 #: ``truth/current_state.md [主角状态, 当前世界局势, 活跃线索]`` find their H2
 #: headings present on first run instead of tripping G1 ``check_fields_exist``.
-_TRUTH_FILE_TITLES: dict[str, str] = {
-    "current_state.md": "Current State",
-    "character_matrix.md": "Character Matrix",
-    "emotional_arcs.md": "Emotional Arcs",
-    "chapter_summaries.md": "Chapter Summaries",
+_TRUTH_FILE_TITLES: dict[str, tuple[str, str]] = {
+    "current_state.md": ("Current State", "replace"),
+    "character_matrix.md": ("Character Matrix", "replace"),
+    "emotional_arcs.md": ("Emotional Arcs", "upsert_markdown_row"),
+    "chapter_summaries.md": ("Chapter Summaries", "upsert_markdown_row"),
 }
 
 
@@ -367,31 +367,23 @@ def _collect_declared_truth_fields() -> dict[str, list[str]]:
 def _init_truth_templates(project_dir: Path) -> None:
     """Create minimal truth template files with required YAML frontmatter.
 
-    Each template's body carries the H1 title plus ``## <field>`` stubs for the
-    union of fields consumers declare (fix D21), so a freshly-seeded file
-    already satisfies G1 ``check_fields_exist`` instead of WARN-ing on every
-    consumer until state-settling fills it in.
+    Each template includes an ``update_mode`` field (``replace``,
+    ``upsert_markdown_row``, or ``upsert_yaml``) so downstream writers and
+    state-settling can distinguish snapshot vs cumulative files. The value
+    must match one of the modes accepted by ``write_truth_file()``.
     """
     truth_dir = project_dir / "truth"
     truth_dir.mkdir(parents=True, exist_ok=True)
     declared_fields = _collect_declared_truth_fields()
-    for filename, title in _TRUTH_FILE_TITLES.items():
+    for filename, (title, mode) in _TRUTH_FILE_TITLES.items():
         tp = truth_dir / filename
         if tp.exists():
-            continue
-        stub_key = filename.removesuffix(".md")
-        body_lines = [f"# {title}"]
-        for field in declared_fields.get(filename, []):
-            body_lines.append("")
-            body_lines.append(f"## {field}")
-            body_lines.append("")
-            body_lines.append("> 待填充")
-        content = (
-            f"type: {stub_key}\ncategory: truth\nstatus: initialized\n"
-            f"---\n" + "\n".join(body_lines) + "\n"
-        )
-        safe_write(tp, f"---\n{content}")
-        log.info("truth_template_created", path=str(tp), fields=declared_fields.get(filename, []))
+            continue  # Don't overwrite existing truth files
+        fields = declared_fields.get(filename, [])
+        header = f"---\nupdate_mode: {mode}\n---\n\n# {title}\n\n"
+        body = "\n".join(f"## {f}\n\n" for f in fields)
+        safe_write(tp, header + body)
+        log.info("truth_template_created", file=filename, mode=mode)
 
 
 # ---------------------------------------------------------------------------

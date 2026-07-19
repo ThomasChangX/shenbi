@@ -138,6 +138,27 @@ def test_upsert_yaml_dedups_records_by_key_field():
         assert "TRIGGERED" in result
 
 
+def test_init_templates_include_update_mode_frontmatter():
+    """Truth file templates include update_mode in YAML frontmatter."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        from shenbi.pipeline.dispatch_helper import _init_truth_templates
+
+        _init_truth_templates(project_dir)
+
+        # Cumulative markdown-table files must have update_mode: upsert_markdown_row
+        arcs = (project_dir / "truth" / "emotional_arcs.md").read_text()
+        assert "update_mode: upsert_markdown_row" in arcs, (
+            "emotional_arcs should be upsert_markdown_row-mode"
+        )
+
+        # Snapshot files must have update_mode: replace
+        current = (project_dir / "truth" / "current_state.md").read_text()
+        assert "update_mode: replace" in current, "current_state should be replace-mode"
+
+
 def test_write_preserves_utf8_chinese_characters():
     """replace/upsert preserves Chinese characters correctly."""
     with tempfile.TemporaryDirectory() as tmp:
