@@ -154,6 +154,103 @@ def g4_character_design(
     else:
         mf.append("G4.cd.minor_chars:directory_missing")
 
+    # G4.cd.archetype: validate archetype_sources in major character files
+    major_dir = rp.read("characters/major")
+    if major_dir.exists():
+        for mf_path in sorted(major_dir.glob("*.md")):
+            archetype_issues = _validate_archetype(mf_path, c)
+            mf.extend(archetype_issues)
+
+    # Also check protagonist for archetype
+    for fp in fps or []:
+        pf = resolve_input_path(fp, rd)
+        if pf.suffix == ".md" and "protagonist" in str(fp):
+            archetype_issues = _validate_archetype(pf, c)
+            mf.extend(archetype_issues)
+            break
+
     if mf:
         return fail("G4-character-design", c, "scoring", mf)
     return passed("G4-character-design", c)
+
+
+def _validate_archetype(
+    file_path: Path,
+    checks: list[dict[str, Any]],
+) -> list[str]:
+    """Validate archetype_sources frontmatter in a character archive.
+
+    Returns a list of failure strings (empty if valid).
+    """
+    local_failures: list[str] = []
+    char_name = file_path.stem
+
+    try:
+        fm = yload(str(file_path))
+    except Exception:
+        return [f"G4.cd.archetype.yaml_error:{char_name}"]
+
+    archetype_sources = fm.get("archetype_sources", [])
+
+    if not archetype_sources or not isinstance(archetype_sources, list):
+        local_failures.append(f"G4.cd.archetype.missing:{char_name}")
+        return local_failures
+
+    for i, source in enumerate(archetype_sources):
+        prefix = f"G4.cd.archetype.{char_name}[{i}]"
+
+        # Historical figure name (must be specific, not abstract)
+        name = source.get("name", "")
+        if not name or not isinstance(name, str) or len(name) < 3:
+            local_failures.append(f"{prefix}.name:too_short_or_missing")
+            continue
+
+        abstract_terms = [
+            "elder",
+            "mentor",
+            "warrior",
+            "sage",
+            "hero",
+            "villain",
+            "trickster",
+            "maiden",
+            "crone",
+            "everyman",
+        ]
+        if name.lower() in abstract_terms:
+            local_failures.append(f"{prefix}.name:abstract_type_not_historical_figure")
+
+        # traits_borrowed: >= 3
+        borrowed = source.get("traits_borrowed", [])
+        if not isinstance(borrowed, list) or len(borrowed) < 3:
+            local_failures.append(
+                f"{prefix}.traits_borrowed:need_3_got_{len(borrowed) if isinstance(borrowed, list) else 0}"
+            )
+
+        # traits_discarded: >= 2
+        discarded = source.get("traits_discarded", [])
+        if not isinstance(discarded, list) or len(discarded) < 2:
+            local_failures.append(
+                f"{prefix}.traits_discarded:need_2_got_{len(discarded) if isinstance(discarded, list) else 0}"
+            )
+
+        # adaptation_rationale: >= 100 characters
+        rationale = source.get("adaptation_rationale", "")
+        if not isinstance(rationale, str) or len(rationale) < 100:
+            local_failures.append(
+                f"{prefix}.adaptation_rationale:need_100_chars_got_{len(rationale) if isinstance(rationale, str) else 0}"
+            )
+
+        if not local_failures:
+            checks.append(
+                {
+                    "id": f"G4.cd.archetype.{char_name}",
+                    "s": "PASS",
+                    "archetype_name": name,
+                    "borrowed_count": len(borrowed),
+                    "discarded_count": len(discarded),
+                    "rationale_chars": len(rationale),
+                }
+            )
+
+    return local_failures

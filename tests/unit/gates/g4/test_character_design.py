@@ -238,12 +238,27 @@ voice_profile:
   speech_patterns: [short sentences, asks questions]
   catchphrases: ["This is my path"]
   avoid_patterns: [self-pity]
+archetype_sources:
+  - name: Liu Bang
+    period: Han Dynasty founding
+    traits_borrowed: [commoner-to-king, pragmatic, delegator, people-first]
+    traits_discarded: [ruthlessness, paranoia in later years]
+    adaptation_rationale: Liu Bang's rise from peasant to emperor mirrors the cultivation journey from mortal to immortal, adapted by discarding historical ruthlessness in favor of a more compassionate leadership style.
 ---""")
 
-    # Create 3 major characters
+    # Create 3 major characters with valid archetypes
     for i, name in enumerate(["Chen Weimin", "Zhao Tiezhu", "Chu Yunlan"]):
         slug = name.lower().replace(" ", "-")
-        (major_dir / f"{slug}.md").write_text(f"# {name}\n\nMajor character profile.")
+        (major_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: Zhou Enlai 1930s Shanghai
+    period: 1930s Republic China
+    traits_borrowed: [diplomatic, patient, strategic, loyal]
+    traits_discarded: [political ideology, party loyalty]
+    adaptation_rationale: Adapted Zhou's underground negotiation skills to the cultivation world's sect diplomacy, replacing political maneuvering with spiritual power dynamics. The character retains Zhou's legendary patience and ability to find common ground.
+---
+""")
 
     # Create 2 minor characters
     for name in ["Koen Whiteman", "Gangshan Tieya"]:
@@ -319,3 +334,183 @@ def test_g4_character_design_fails_when_too_few_major(tmp_path: Path):
     data = json.loads(result)
     assert data["status"] == "FAIL"
     assert any("G4.cd.major_chars" in f for f in data.get("must_fix", []))
+
+
+# ── Task 8: Archetype validation tests ────────────────────────────────────
+
+
+def test_archetype_validation_passes_with_valid_archetype(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    # Create 3 major and 2 minor with valid archetypes
+    for i, name in enumerate(["Chen Weimin", "Zhao Tiezhu", "Chu Yunlan"]):
+        slug = name.lower().replace(" ", "-")
+        (major_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: Zhou Enlai 1930s Shanghai
+    period: 1930s Republic China
+    traits_borrowed: [diplomatic, patient, strategic, loyal]
+    traits_discarded: [political ideology, party loyalty]
+    adaptation_rationale: Adapted Zhou's underground negotiation skills to the cultivation world's sect diplomacy,
+      replacing political maneuvering with spiritual power dynamics. The character retains Zhou's legendary patience
+      and ability to find common ground.
+---
+""")
+
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: T.E. Lawrence
+    period: WWI Middle East
+    traits_borrowed: [charismatic, unconventional, adaptive, bridge-builder]
+    traits_discarded: [British imperialism, self-loathing]
+    adaptation_rationale: Lawrence's cross-cultural bridge-building adapted to this character's role as intermediary
+      between cultivation sects and foreign powers, discarding the colonial context while preserving the outsider-who-understands dynamic.
+---
+""")
+
+    (tmp_path / "characters" / "protagonist.md").write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Power
+goal_deep: Protection
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: villager
+arc_turning: loss
+arc_ending: protector
+voice_profile:
+  speech_patterns: [short, questions]
+  catchphrases: [path]
+  avoid_patterns: [self-pity]
+archetype_sources:
+  - name: Liu Bang
+    period: Han Dynasty founding
+    traits_borrowed: [commoner-to-king, pragmatic, delegator, people-first]
+    traits_discarded: [ruthlessness, paranoia in later years]
+    adaptation_rationale: Liu Bang's rise from peasant to emperor mirrors the cultivation journey from mortal to immortal,
+      adapted by discarding historical ruthlessness in favor of a more compassionate leadership style suited to the novel's themes.
+---
+""")
+
+    (tmp_path / "characters" / "relationships.md").write_text("""| A | B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor |
+| Lin Feng | Zhao Tiezhu | partner |
+| Lin Feng | Chu Yunlan | ally |
+""")
+
+    from shenbi.gates.g4.character_design import g4_character_design
+
+    fps = [
+        str(tmp_path / "characters" / "protagonist.md"),
+        str(tmp_path / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+
+    archetype_checks = [c for c in data.get("checks", []) if "archetype" in c.get("id", "").lower()]
+    assert len(archetype_checks) > 0, "No archetype checks found"
+    for ac in archetype_checks:
+        assert ac["s"] == "PASS", f"Archetype check failed: {ac}"
+
+
+def test_archetype_validation_fails_when_traits_borrowed_insufficient(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    (major_dir / "chen-weimin.md").write_text("""---
+name: Chen Weimin
+archetype_sources:
+  - name: Zhou Enlai
+    period: 1930s
+    traits_borrowed: [diplomatic]  # Only 1, need >= 3
+    traits_discarded: [political]
+    adaptation_rationale: Short.  # < 100 chars
+---
+""")
+    (major_dir / "zhao-tiezhu.md").write_text("""---
+name: Zhao Tiezhu
+archetype_sources:
+  - name: Guan Yu
+    period: Three Kingdoms
+    traits_borrowed: [loyal, strong, honorable]
+    traits_discarded: [arrogance, rigidity]
+    adaptation_rationale: A very long and detailed adaptation rationale that exceeds one hundred characters minimum requirement for this field.
+---
+""")
+    (major_dir / "chu-yunlan.md").write_text("""---
+name: Chu Yunlan
+archetype_sources:
+  - name: Wu Zetian
+    period: Tang Dynasty
+    traits_borrowed: [ambitious, strategic, charismatic, resilient]
+    traits_discarded: [ruthlessness, paranoia]
+    adaptation_rationale: Wu Zetian's unprecedented rise as a female ruler adapted to a cultivation world where gender barriers exist but can be overcome through power.
+---
+""")
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: T.E. Lawrence
+    period: WWI
+    traits_borrowed: [charismatic, unconventional, adaptive]
+    traits_discarded: [imperialism, self-loathing]
+    adaptation_rationale: Lawrence's cross-cultural role adapted to this character's position as intermediary between cultivation sects and outsiders.
+---
+""")
+
+    (tmp_path / "characters" / "protagonist.md").write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Power
+goal_deep: Protection
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: villager
+arc_turning: loss
+arc_ending: protector
+voice_profile:
+  speech_patterns: [short, questions]
+  catchphrases: [path]
+  avoid_patterns: [self-pity]
+---
+""")
+    (tmp_path / "characters" / "relationships.md").write_text("""| A | B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor |
+| Lin Feng | Zhao Tiezhu | partner |
+| Lin Feng | Chu Yunlan | ally |
+""")
+
+    from shenbi.gates.g4.character_design import g4_character_design
+
+    fps = [
+        str(tmp_path / "characters" / "protagonist.md"),
+        str(tmp_path / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "FAIL"
+    failures = data.get("must_fix", [])
+    assert any("archetype" in f.lower() for f in failures), (
+        f"No archetype failure found in {failures}"
+    )
