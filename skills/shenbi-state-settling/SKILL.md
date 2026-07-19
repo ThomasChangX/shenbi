@@ -36,6 +36,38 @@ contract:
 
 HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
 
+### Truth File Update Mode Rules (CRITICAL)
+
+**Every truth file declares its update mode in YAML frontmatter: `update_mode: replace`, `update_mode: upsert_markdown_row`, or `update_mode: upsert_yaml`.**
+
+- **replace-mode files** (snapshot type — output the ENTIRE file content):
+  - `current_state.md` — current chapter snapshot
+  - `character_matrix.md` — character state snapshot (DO NOT overwrite "角色定义" section — see below)
+
+- **upsert_markdown_row files** (cumulative type — output ONLY the new chapter's row, NOT the entire file):
+  - `resonance_trend.md` — one trend row for the current chapter
+  - `audit_drift.md` — drift findings for the current chapter
+  - `emotional_arcs.md` — emotional arc entry for the current chapter
+  - `chapter_summaries.md` — summary reference for the current chapter
+
+- **upsert_yaml files** (cumulative structured records — output ONLY the new record(s)):
+  - `pending_hooks.md` — hook planting/tracking data for the current chapter
+
+**For cumulative files (upsert_markdown_row / upsert_yaml):** Output ONLY the
+new data for the current chapter. The pipeline's `write_truth_file()` will
+dedup by natural key (chapter number / hook id) and merge — it will replace any
+existing record with the same key, so re-runs are safe. Do NOT output the
+complete file content for cumulative files — doing so will cause data
+accumulation to fail.
+
+### `character_matrix.md` Write-Protection Rule
+
+The `## 角色定义` section (character definitions) is HUMAN-AUTHORED from the
+character design files (`characters/protagonist.md`, etc.) and MUST NEVER be
+overwritten. Parameter agents (冷, 光, 安静, etc.) must be written to
+`particle_ledger.md`, NOT to `character_matrix.md`. Only update the per-chapter
+state section (names appearing in the chapter, state changes).
+
 在章节起草被人类合作者批准后，必须执行状态结算。
 
 ## 流程
@@ -102,16 +134,16 @@ digraph state_settling {
 
 ## 更新规则
 
-| 变化类型 | 更新的文件 |
-|---------|-----------|
-| 位置 | `truth/current_state.md` |
-| 资源 | `truth/particle_ledger.md` |
-| 关系 | `truth/character_matrix.md` |
-| 情绪 | `truth/emotional_arcs.md` |
-| 信息 | `truth/character_matrix.md` (信息边界) |
-| 线索 | `truth/subplot_board.md` [Phase 4] |
-| 伏笔 | `truth/pending_hooks.md` |
-| 摘要 | `truth/chapter_summaries.md` (追加) |
+| 变化类型 | 更新的文件 | 更新模式 |
+|---------|-----------|---------|
+| 位置 | `truth/current_state.md` | replace |
+| 资源 | `truth/particle_ledger.md` | replace |
+| 关系 | `truth/character_matrix.md` | replace |
+| 情绪 | `truth/emotional_arcs.md` | upsert_markdown_row |
+| 信息 | `truth/character_matrix.md` (信息边界) | replace |
+| 线索 | `truth/subplot_board.md` [Phase 4] | replace |
+| 伏笔 | `truth/pending_hooks.md` | upsert_yaml |
+| 摘要 | `truth/chapter_summaries.md` (追加) | upsert_markdown_row |
 
 > **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
 > - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。
