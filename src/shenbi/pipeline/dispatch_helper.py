@@ -30,6 +30,14 @@ from pydantic import ValidationError
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
 from shenbi.logging import get_logger
+from shenbi.exceptions import DispatchWriteFailureError
+from shenbi.pipeline.llm_output_integrity import (
+    check_audit_completeness,
+    check_audit_line_refs,
+    check_markdown_fence_balance,
+    check_prose_leakage,
+    detect_write_failure,
+)
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
@@ -728,6 +736,42 @@ def _check_content_size_guard(
     return False, ""
 
 
+#: Regex for the chapter-number in an audit filename like
+#: ``chapter-32-foreshadowing.md`` or a prose file ``chapter-32.md``.
+_CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
+
+
+def _is_audit_file(name: str) -> bool:
+    """True iff *name* looks like an audit report (``chapter-NN-<dim>.md``).
+
+    Matches the production layout: audit reports are ``chapter-NN-<dimension>.md``
+    (e.g. ``chapter-8-foreshadowing.md``, ``chapter-51-anti-ai.md``). A bare
+    ``chapter-NN.md`` (the prose file) is NOT an audit.
+    """
+    stem = Path(name).stem
+    m = _CHAPTER_NUM_RE.match(stem)
+    if not m:
+        return False
+    # stem must have a suffix after the number to be an audit.
+    return len(stem) > len(m.group(0))
+
+
+def _resolve_chapter_for_audit(full_path: Path, project_dir: Path) -> Path:
+    """Return the prose chapter file paired with an audit at *full_path*.
+
+    ``audits/chapter-NN-<dim>.md`` -> ``chapters/chapter-NN.md``. Falls back to
+    a sibling ``chapter-NN.md`` if the canonical chapters/ dir is absent.
+    """
+    m = _CHAPTER_NUM_RE.search(full_path.stem)
+    if not m:
+        return full_path  # caller treats missing file as a no-op
+    num = m.group(1)
+    canonical = project_dir / "chapters" / f"chapter-{num}.md"
+    if canonical.exists():
+        return canonical
+    return full_path.parent / f"chapter-{num}.md"
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -773,8 +817,28 @@ def _write_parsed_outputs(
     wildcard_patterns = [p for p in output_paths if "*" in p or "?" in p]
 
     def _write_one(rel_path: str, content: str) -> None:
-        """Write a single output file with validation and size guard."""
+        """Write a single output file with validation, write-failure detection,
+        and size guard. After writing, runs post-write integrity checks
+        (prose leakage, fence balance, audit completeness, line-ref skew)
+        and logs findings without blocking the write.
+        """
         full_path = project_dir / rel_path
+
+        # 1. WRITE-FAILURE DETECTION (pre-write, blocks the write).
+        is_failure, signature = detect_write_failure(content)
+        if is_failure:
+            log.error(
+                "dispatch_write_failure_detected",
+                path=str(full_path),
+                signature=signature,
+            )
+            raise DispatchWriteFailureError(
+                f"LLM reported write failure for {full_path}: '{signature}'. "
+                f"The output is a diagnostic message, not file content. Retry "
+                f"with explicit write-capability confirmation.",
+                signature=signature or "",
+            )
+
         if full_path.suffix == ".json":
             content = sanitize_json_content(content)
         try:
@@ -788,10 +852,29 @@ def _write_parsed_outputs(
             log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
             return  # Skip this file, preserve original
 
+        # 2. WRITE.
         safe_write(full_path, content)
         written.append(rel_path)
         mode = semantics.get(rel_path, {}).get("mode")
         log.info("output_written", path=rel_path, size=len(content), mode=mode)
+
+        # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
+        issues: list[str] = []
+        name = full_path.name
+        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(name)
+        is_audit = _is_audit_file(name)
+
+        if is_chapter:
+            issues += check_prose_leakage(full_path)
+            issues += check_markdown_fence_balance(full_path)
+
+        if is_audit:
+            issues += check_audit_completeness(full_path)
+            chapter_path = _resolve_chapter_for_audit(full_path, project_dir)
+            issues += check_audit_line_refs(full_path, chapter_path)
+
+        for issue in issues:
+            log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)
 
     # Process literal contract paths
     for rel_path in literal_paths:

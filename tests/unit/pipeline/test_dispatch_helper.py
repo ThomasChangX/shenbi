@@ -816,3 +816,52 @@ class TestSanitizeJsonContent:
         result = sanitize_json_content(content)
         assert "林烽" in result
         assert "在场" in result
+
+
+# ---------------------------------------------------------------------------
+# LLM-output integrity choke point tests (Plan 16 Task 3)
+# ---------------------------------------------------------------------------
+
+
+class TestWriteParsedOutputsIntegrity:
+    """Integration tests for the LLM-output integrity choke point."""
+
+    def test_write_failure_raises_before_write(self, tmp_path):
+        from shenbi.exceptions import DispatchWriteFailureError
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = (
+            "### FILE: chapters/chapter-1.md\n由于沙箱限制，我无法直接写文件。请使用现有内容。\n"
+        )
+        with pytest.raises(DispatchWriteFailureError):
+            _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
+        # The file must NOT have been written.
+        assert not (tmp_path / "chapters" / "chapter-1.md").exists()
+
+    def test_prose_leakage_logged_not_raised(self, tmp_path, caplog):
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = (
+            f"### FILE: chapters/chapter-56.md\n正文……\nNow the decisions JSON:\n{'段落' * 200}\n"
+        )
+        written = _write_parsed_outputs(response, ["chapters/chapter-56.md"], tmp_path)
+        # The write succeeds; leakage is a post-write warning.
+        assert written == ["chapters/chapter-56.md"]
+        assert (tmp_path / "chapters" / "chapter-56.md").exists()
+
+    def test_audit_completeness_check_runs(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        aborted = "所有输入文件已确认。现在执行完整的伏笔审计……"
+        response = f"### FILE: audits/chapter-32-foreshadowing.md\n{aborted}\n"
+        # Aborted stub writes (it is not a write-failure) but is flagged.
+        written = _write_parsed_outputs(response, ["audits/chapter-32-foreshadowing.md"], tmp_path)
+        assert written == ["audits/chapter-32-foreshadowing.md"]
+
+    def test_clean_output_passes_through(self, tmp_path):
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        clean_prose = "林烽推开门，走进教室。" * 200
+        response = f"### FILE: chapters/chapter-1.md\n{clean_prose}\n"
+        written = _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
+        assert written == ["chapters/chapter-1.md"]
