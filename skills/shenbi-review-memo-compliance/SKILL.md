@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-memo-compliance
-description: "Use when a finished chapter needs an 8-section chapter memo compliance audit against `plans/chapter-N-plan.md`"
+description: Use when a finished chapter needs an 8-section chapter memo compliance
+  audit against `plans/chapter-N-plan.md`
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+  - chapters/chapter-N.md
+  - plans/chapter-N-plan.md
+  - truth/pending_hooks.md
   writes:
-    - audits/chapter-N-memo-compliance.md
+  - file: audits/chapter-N-memo-compliance.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

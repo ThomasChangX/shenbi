@@ -1,19 +1,32 @@
 ---
 name: shenbi-review-resonance
-description: "Use when a finished chapter needs a positive quality score on emotional landing, presence, prose craft, and reader reward — runs in an independent agent"
+description: Use when a finished chapter needs a positive quality score on emotional
+  landing, presence, prose craft, and reader reward — runs in an independent agent
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - {file: chapters/chapter-N.md, fields: [POST_WRITE_SELF_CHECK]}
-    - {file: plans/chapter-N-plan.md, fields: ["1. 当前任务"]}
-    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式"]}
-    - benchmarks/anchors/
+  - file: chapters/chapter-N.md
+    fields:
+    - POST_WRITE_SELF_CHECK
+  - file: plans/chapter-N-plan.md
+    fields:
+    - 1. 当前任务
+  - file: style/style_profile.md
+    fields:
+    - 11. 综合画像
+    - 6. 修辞模式
+  - benchmarks/anchors/
   writes:
-    - audits/chapter-N-resonance.md
+  - file: audits/chapter-N-resonance.md
+    mode: create_or_overwrite
   updates:
-    - truth/audit_drift.md
-    - truth/resonance_trend.md
+  - file: truth/audit_drift.md
+    mode: append_dedup
+    key: chapter
+  - file: truth/resonance_trend.md
+    mode: append_dedup
+    key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 

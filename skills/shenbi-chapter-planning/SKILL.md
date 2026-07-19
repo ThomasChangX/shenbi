@@ -1,19 +1,31 @@
 ---
 name: shenbi-chapter-planning
-description: "Use when planning the next chapter, generating chapter memo, or deciding what should happen in an upcoming chapter"
+description: Use when planning the next chapter, generating chapter memo, or deciding
+  what should happen in an upcoming chapter
 contract:
   kind: artifact
   reads:
-    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
-    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-    - outline/volume_map.md
-    - outline/story_frame.md
-    - truth/current_focus.md
-    - truth/author_intent.md
+  - file: truth/current_state.md
+    fields:
+    - 主角状态
+    - 当前世界局势
+    - 活跃线索
+  - file: truth/pending_hooks.md
+    fields:
+    - 活跃伏笔
+    - 伏笔统计
+  - file: truth/chapter_summaries.md
+    fields:
+    - 已完成章节
+  - outline/volume_map.md
+  - outline/story_frame.md
+  - truth/current_focus.md
+  - truth/author_intent.md
   writes:
-    - plans/chapter-N-plan.md
-    - plans/chapter-N-plan-decisions.json
+  - file: plans/chapter-N-plan.md
+    mode: create_or_overwrite
+  - file: plans/chapter-N-plan-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

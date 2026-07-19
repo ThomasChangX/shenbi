@@ -146,7 +146,7 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
         if not isinstance(val, list):
             raise ContractError(f"contract.{field} must be a list[str]", skill=skill, field=field)
         if field == "reads":
-            # reads may use dict-form {file, fields?}; writes/updates stay str-only.
+            # reads may use dict-form {file, fields?}
             paths: list[str] = []
             for item in val:
                 path, fields = _normalize_read_item(item)
@@ -155,11 +155,20 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
                     read_fields[path] = fields
             items = paths
         else:
-            if not all(isinstance(x, str) for x in val):
-                raise ContractError(
-                    f"contract.{field} must be a list[str]", skill=skill, field=field
-                )
-            items = val
+            # writes/updates accept plain strings or dicts {file, mode?, ...}
+            wu_paths: list[str] = []
+            for item in val:
+                if isinstance(item, str):
+                    wu_paths.append(item)
+                elif isinstance(item, dict) and "file" in item:
+                    wu_paths.append(str(item["file"]))
+                else:
+                    raise ContractError(
+                        f"contract.{field} must be a list[str] or list[{{file: 'path', ...}}]",
+                        skill=skill,
+                        field=field,
+                    )
+            items = wu_paths
         for p in items:
             if not resolves(p, registry):
                 raise ContractError(

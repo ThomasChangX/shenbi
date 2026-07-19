@@ -1,14 +1,17 @@
 ---
 name: shenbi-short-outline
-description: "Use when outlining a short novel with fewer than 30 chapters, condensing the outline process for shorter works, or generating a fast outline for short-story publication"
+description: Use when outlining a short novel with fewer than 30 chapters, condensing
+  the outline process for shorter works, or generating a fast outline for short-story
+  publication
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - truth/author_intent.md
-    - outline/story_frame.md
+  - novel.json
+  - truth/author_intent.md
+  - outline/story_frame.md
   writes:
-    - outline/short_story_map.md
+  - file: outline/short_story_map.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

@@ -1,14 +1,16 @@
 ---
 name: shenbi-book-spine-init
-description: "Use when initializing the book spine at the end of the genesis layer, before entering the per-chapter writing loop"
+description: Use when initializing the book spine at the end of the genesis layer,
+  before entering the per-chapter writing loop
 contract:
   kind: artifact
   reads:
-    - outline/story_frame.md
-    - outline/volume_map.md
-    - novel.json
+  - outline/story_frame.md
+  - outline/volume_map.md
+  - novel.json
   writes:
-    - truth/book_spine.md
+  - file: truth/book_spine.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

@@ -1,14 +1,16 @@
 ---
 name: shenbi-review-anti-ai
-description: "Use when a finished chapter needs an AI-pattern audit against fatigue words, structural tells, and genre-config prohibitions"
+description: Use when a finished chapter needs an AI-pattern audit against fatigue
+  words, structural tells, and genre-config prohibitions
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
+  - chapters/chapter-N.md
+  - genre-config.json
   writes:
-    - audits/chapter-N-anti-ai.md
+  - file: audits/chapter-N-anti-ai.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

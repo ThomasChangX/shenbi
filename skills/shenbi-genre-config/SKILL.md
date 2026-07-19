@@ -1,14 +1,17 @@
 ---
 name: shenbi-genre-config
-description: "Use when configuring or updating genre rules, modifying fatigue word lists, calibrating pacing rules, defining chapter types, activating audit dimensions, or adding custom rules for a novel"
+description: Use when configuring or updating genre rules, modifying fatigue word
+  lists, calibrating pacing rules, defining chapter types, activating audit dimensions,
+  or adding custom rules for a novel
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - genre-config.json
+  - novel.json
+  - genre-config.json
   writes: []
   updates:
-    - genre-config.json
+  - file: genre-config.json
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

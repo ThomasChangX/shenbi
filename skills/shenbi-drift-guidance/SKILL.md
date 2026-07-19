@@ -1,19 +1,23 @@
 ---
 name: shenbi-drift-guidance
-description: "Use when a chapter has completed all audits and results need to be conveyed to the next chapter's writing context"
+description: Use when a chapter has completed all audits and results need to be conveyed
+  to the next chapter's writing context
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - audits/chapter-N-*.md
-    - truth/resonance_trend.md
-    - truth/volume_score_trend.md
-    - truth/arc_payoff_trend.md
+  - chapters/chapter-N.md
+  - audits/chapter-N-*.md
+  - truth/resonance_trend.md
+  - truth/volume_score_trend.md
+  - truth/arc_payoff_trend.md
   writes:
-    - truth/drift_guidance.md
+  - file: truth/drift_guidance.md
+    mode: create_or_overwrite
   updates:
-    - truth/audit_drift.md
+  - file: truth/audit_drift.md
+    mode: append_dedup
+    key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 

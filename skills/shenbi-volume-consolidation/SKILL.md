@@ -1,16 +1,20 @@
 ---
 name: shenbi-volume-consolidation
-description: "Use when a volume has been completed and needs summarization for context management in subsequent writing"
+description: Use when a volume has been completed and needs summarization for context
+  management in subsequent writing
 contract:
   kind: artifact
   reads:
-    - chapters/chapter-N.md
-    - truth/chapter_summaries.md
-    - truth/pending_hooks.md
+  - chapters/chapter-N.md
+  - truth/chapter_summaries.md
+  - truth/pending_hooks.md
   writes:
-    - truth/volume_summaries.md
+  - file: truth/volume_summaries.md
+    mode: create_or_overwrite
   updates:
-    - truth/chapter_summaries.md
+  - file: truth/chapter_summaries.md
+    mode: append_dedup
+    key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 

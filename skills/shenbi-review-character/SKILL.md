@@ -1,17 +1,19 @@
 ---
 name: shenbi-review-character
-description: "Use when a finished chapter needs character consistency audit against profiles and arcs"
+description: Use when a finished chapter needs character consistency audit against
+  profiles and arcs
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - characters/protagonist.md
-    - characters/major/*.md
-    - truth/character_matrix.md
-    - truth/emotional_arcs.md
+  - chapters/chapter-N.md
+  - characters/protagonist.md
+  - characters/major/*.md
+  - truth/character_matrix.md
+  - truth/emotional_arcs.md
   writes:
-    - audits/chapter-N-character.md
+  - file: audits/chapter-N-character.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

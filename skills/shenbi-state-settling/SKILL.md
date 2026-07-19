@@ -6,16 +6,29 @@ contract:
   reads:
     - chapters/chapter-N.md
   writes:
-    - truth/state-settling-decisions.json
-    - truth/character_matrix.md
+    - file: truth/state-settling-decisions.json
+      mode: create_or_overwrite
+    - file: truth/character_matrix.md
+      mode: create_or_overwrite
   updates:
-    - truth/current_state.md
-    - truth/particle_ledger.md
-    - truth/character_matrix.md
-    - truth/emotional_arcs.md
-    - truth/subplot_board.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    - file: truth/current_state.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/particle_ledger.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/emotional_arcs.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/subplot_board.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/pending_hooks.md
+      mode: append_dedup
+      key: hook_id
+    - file: truth/chapter_summaries.md
+      mode: append_dedup
+      key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -29,7 +42,7 @@ contract:
 
 - **Reads:** chapters/chapter-N.md
 - **Writes:** truth/state-settling-decisions.json, truth/character_matrix.md
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/character_matrix.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
 <!-- END AUTO-GENERATED -->
 

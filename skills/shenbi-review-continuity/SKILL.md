@@ -1,16 +1,24 @@
 ---
 name: shenbi-review-continuity
-description: "Use when a finished chapter needs an internal consistency audit against truth files"
+description: Use when a finished chapter needs an internal consistency audit against
+  truth files
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-    - world/rules.md
+  - chapters/chapter-N.md
+  - file: truth/current_state.md
+    fields:
+    - 主角状态
+    - 当前世界局势
+    - 活跃线索
+  - file: truth/chapter_summaries.md
+    fields:
+    - 已完成章节
+  - world/rules.md
   writes:
-    - audits/chapter-N-continuity.md
+  - file: audits/chapter-N-continuity.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

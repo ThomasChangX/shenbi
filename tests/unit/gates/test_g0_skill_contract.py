@@ -155,3 +155,20 @@ class TestEmptyIssuesOnCleanContract:
             },
         )
         assert check_skill_contracts(skills_dir) == []
+
+
+class TestRealSkillsTree:
+    def test_all_real_skills_pass_contract_check(self):
+        """Every skill in the real skills/ tree passes G0.16.
+
+        This is the regression gate: after frontmatter is updated to declare
+        write semantics, the whole tree must be clean.
+        """
+        from shenbi.gates.shared import SKILLS
+
+        issues = check_skill_contracts(SKILLS)
+        # If this fails, the failing skill needs its writes/updates given a
+        # 'mode:' (and the description shortened/triggerified if flagged).
+        assert issues == [], "G0.16 contract violations in real skills tree:\n  " + "\n  ".join(
+            issues
+        )

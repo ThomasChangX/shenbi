@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-highpoint
-description: "Use when a finished chapter needs a high-point audit (suppression-explosion, twist detection, climax keyword diversity, 爽点虚化)"
+description: Use when a finished chapter needs a high-point audit (suppression-explosion,
+  twist detection, climax keyword diversity, 爽点虚化)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - plans/chapter-N-plan.md
-    - genre-config.json
+  - chapters/chapter-N.md
+  - plans/chapter-N-plan.md
+  - genre-config.json
   writes:
-    - audits/chapter-N-highpoint.md
+  - file: audits/chapter-N-highpoint.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

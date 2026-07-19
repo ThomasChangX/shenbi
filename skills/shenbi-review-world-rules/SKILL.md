@@ -1,19 +1,21 @@
 ---
 name: shenbi-review-world-rules
-description: "Use when a finished chapter needs a world-rules consistency audit against power system, setting, and numerical records"
+description: Use when a finished chapter needs a world-rules consistency audit against
+  power system, setting, and numerical records
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - world/rules.md
-    - world/power_system.md
-    - world/locations.md
-    - world/story_bible.md
-    - truth/chapter_summaries.md
-    - truth/current_state.md
+  - chapters/chapter-N.md
+  - world/rules.md
+  - world/power_system.md
+  - world/locations.md
+  - world/story_bible.md
+  - truth/chapter_summaries.md
+  - truth/current_state.md
   writes:
-    - audits/chapter-N-world-rules.md
+  - file: audits/chapter-N-world-rules.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

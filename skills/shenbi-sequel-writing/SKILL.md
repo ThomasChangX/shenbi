@@ -1,17 +1,21 @@
 ---
 name: shenbi-sequel-writing
-description: "Use when continuing a paused novel from a breakpoint snapshot, resuming writing after a break, reconstructing context for sequel chapters, or picking up an abandoned draft"
+description: Use when continuing a paused novel from a breakpoint snapshot, resuming
+  writing after a break, reconstructing context for sequel chapters, or picking up
+  an abandoned draft
 contract:
   kind: artifact
   reads:
-    - snapshots/chapter-NNN/*
-    - truth/*.md
-    - outline/volume_map.md
-    - outline/thread_map.md
+  - snapshots/chapter-NNN/*
+  - truth/*.md
+  - outline/volume_map.md
+  - outline/thread_map.md
   writes:
-    - chapters/chapter-N.md
+  - file: chapters/chapter-N.md
+    mode: create_or_overwrite
   updates:
-    - truth/*.md
+  - file: truth/*.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

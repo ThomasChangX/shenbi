@@ -1,17 +1,21 @@
 ---
 name: shenbi-relationship-map
-description: "Use when modeling character relationships, building interest chains between characters, tracking faction affiliations, defining information boundaries, or designing how relationships evolve over the story"
+description: Use when modeling character relationships, building interest chains between
+  characters, tracking faction affiliations, defining information boundaries, or designing
+  how relationships evolve over the story
 contract:
   kind: artifact
   reads:
-    - characters/**/*.md
-    - characters/relationships.md
-    - truth/character_matrix.md
-    - world/factions.md
+  - characters/**/*.md
+  - characters/relationships.md
+  - truth/character_matrix.md
+  - world/factions.md
   writes: []
   updates:
-    - characters/relationships.md
-    - truth/character_matrix.md
+  - file: characters/relationships.md
+    mode: create_or_overwrite
+  - file: truth/character_matrix.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

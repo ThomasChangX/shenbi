@@ -1,16 +1,21 @@
 ---
 name: shenbi-character-design
-description: "Use when creating or refining character profiles, designing character arcs, voice profiles, or personality systems"
+description: Use when creating or refining character profiles, designing character
+  arcs, voice profiles, or personality systems
 contract:
   kind: artifact
   reads:
-    - world/story_bible.md
-    - world/rules.md
+  - world/story_bible.md
+  - world/rules.md
   writes:
-    - characters/protagonist.md
-    - characters/major/*.md
-    - characters/minor/*.md
-    - characters/relationships.md
+  - file: characters/protagonist.md
+    mode: create_or_overwrite
+  - file: characters/major/*.md
+    mode: create_or_overwrite
+  - file: characters/minor/*.md
+    mode: create_or_overwrite
+  - file: characters/relationships.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

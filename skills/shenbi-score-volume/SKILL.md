@@ -1,17 +1,20 @@
 ---
 name: shenbi-score-volume
-description: "Use when scoring 卷级评分 on goal attainment and anchor calibration"
+description: Use when scoring 卷级评分 on goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - truth/volume_summaries.md
-    - outline/volume_map.md
-    - truth/book_spine.md
-    - benchmarks/anchors/
+  - truth/volume_summaries.md
+  - outline/volume_map.md
+  - truth/book_spine.md
+  - benchmarks/anchors/
   writes:
-    - audits/volume-N-score.md
-    - truth/volume_score_trend.md
+  - file: audits/volume-N-score.md
+    mode: create_or_overwrite
+  - file: truth/volume_score_trend.md
+    mode: append_dedup
+    key: chapter
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

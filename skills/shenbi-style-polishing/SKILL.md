@@ -1,15 +1,25 @@
 ---
 name: shenbi-style-polishing
-description: "Use when a chapter has been drafted and audit-passed, and surface-level prose quality needs improvement without altering plot or character"
+description: Use when a chapter has been drafted and audit-passed, and surface-level
+  prose quality needs improvement without altering plot or character
 contract:
   kind: artifact
   reads:
-    - chapters/chapter-N.md
-    - {file: genre-config.json, fields: [fatigueWords]}
-    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式", "1. 句长分布", "2. 段长分布"]}
+  - chapters/chapter-N.md
+  - file: genre-config.json
+    fields:
+    - fatigueWords
+  - file: style/style_profile.md
+    fields:
+    - 11. 综合画像
+    - 6. 修辞模式
+    - 1. 句长分布
+    - 2. 段长分布
   writes: []
   updates:
-    - chapters/chapter-N.md
+  - file: chapters/chapter-N.md
+    mode: merge_prose
+    no_op_behavior: skip_write
 ---
 <!-- AUTO-CHECK-START -->
 

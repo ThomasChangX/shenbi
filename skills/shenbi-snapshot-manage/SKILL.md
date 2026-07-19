@@ -1,18 +1,20 @@
 ---
 name: shenbi-snapshot-manage
-description: "Use when creating chapter completion snapshots, viewing snapshot history, rolling back to a previous snapshot, or recovering novel state after a misstep"
+description: Use when creating chapter completion snapshots, viewing snapshot history,
+  rolling back to a previous snapshot, or recovering novel state after a misstep
 contract:
   kind: artifact
   reads:
-    - truth/*.md
-    - characters/**/*.md
-    - world/*.md
-    - outline/*.md
-    - plans/chapter-N-plan.md
-    - style/style_profile.md
-    - chapters/chapter-N.md
+  - truth/*.md
+  - characters/**/*.md
+  - world/*.md
+  - outline/*.md
+  - plans/chapter-N-plan.md
+  - style/style_profile.md
+  - chapters/chapter-N.md
   writes:
-    - snapshots/chapter-NNN/*
+  - file: snapshots/chapter-NNN/*
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

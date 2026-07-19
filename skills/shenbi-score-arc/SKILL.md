@@ -1,19 +1,22 @@
 ---
 name: shenbi-score-arc
-description: "Use when scoring 弧段级评分 on goal attainment and anchor calibration"
+description: Use when scoring 弧段级评分 on goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - truth/arcs/arc-N.md
-    - truth/book_spine.md
-    - truth/volume_summaries.md
-    - truth/book_strata.md
-    - benchmarks/anchors/
+  - truth/arcs/arc-N.md
+  - truth/book_spine.md
+  - truth/volume_summaries.md
+  - truth/book_strata.md
+  - benchmarks/anchors/
   writes:
-    - audits/arc-N-score.md
+  - file: audits/arc-N-score.md
+    mode: create_or_overwrite
   updates:
-    - truth/audit_drift.md
+  - file: truth/audit_drift.md
+    mode: append_dedup
+    key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 

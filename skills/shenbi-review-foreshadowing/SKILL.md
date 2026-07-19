@@ -1,16 +1,18 @@
 ---
 name: shenbi-review-foreshadowing
-description: "Use when a finished chapter needs foreshadowing audit against hook ledger and cultivation rules"
+description: Use when a finished chapter needs foreshadowing audit against hook ledger
+  and cultivation rules
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - truth/pending_hooks.md
-    - plans/chapter-N-plan.md
-    - truth/subplot_board.md
+  - chapters/chapter-N.md
+  - truth/pending_hooks.md
+  - plans/chapter-N-plan.md
+  - truth/subplot_board.md
   writes:
-    - audits/chapter-N-foreshadowing.md
+  - file: audits/chapter-N-foreshadowing.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

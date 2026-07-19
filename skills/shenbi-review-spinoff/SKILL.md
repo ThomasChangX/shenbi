@@ -1,16 +1,18 @@
 ---
 name: shenbi-review-spinoff
-description: "Use when a finished chapter in a spinoff needs a main-story consistency audit (event conflict, future info leak, world rule consistency, hook isolation)"
+description: Use when a finished chapter in a spinoff needs a main-story consistency
+  audit (event conflict, future info leak, world rule consistency, hook isolation)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - truth/parent_canon.md
-    - world/rules.md
-    - truth/pending_hooks.md
+  - chapters/chapter-N.md
+  - truth/parent_canon.md
+  - world/rules.md
+  - truth/pending_hooks.md
   writes:
-    - audits/chapter-N-spinoff.md
+  - file: audits/chapter-N-spinoff.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

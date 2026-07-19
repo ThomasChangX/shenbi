@@ -8,9 +8,12 @@ contract:
     - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔时间线]}
     - {file: truth/chapter_summaries.md, fields: [已完成章节]}
   writes:
-    - truth/bridge_tracker.md
+    - file: truth/bridge_tracker.md
+      mode: create_or_overwrite
   updates:
-    - truth/pending_hooks.md
+    - file: truth/pending_hooks.md
+      mode: append_dedup
+      key: hook_id
 ---
 <!-- AUTO-CHECK-START -->
 

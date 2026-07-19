@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-reader-pull
-description: "Use when a finished chapter needs a reader-pull audit (opening hook, chapter-end suspense, expectation management)"
+description: Use when a finished chapter needs a reader-pull audit (opening hook,
+  chapter-end suspense, expectation management)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - plans/chapter-N-plan.md
-    - truth/pending_hooks.md
+  - chapters/chapter-N.md
+  - plans/chapter-N-plan.md
+  - truth/pending_hooks.md
   writes:
-    - audits/chapter-N-reader-pull.md
+  - file: audits/chapter-N-reader-pull.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

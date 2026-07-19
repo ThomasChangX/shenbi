@@ -1,17 +1,20 @@
 ---
 name: shenbi-foundation-review
-description: "Use when reviewing the complete worldbuilding + character + story architecture foundation before writing begins, or when a human partner asks for a quality assessment of story fundamentals"
+description: Use when reviewing the complete worldbuilding + character + story architecture
+  foundation before writing begins, or when a human partner asks for a quality assessment
+  of story fundamentals
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - world/*.md
-    - characters/**/*.md
-    - outline/*.md
-    - truth/current_state.md
-    - truth/chapter_summaries.md
+  - world/*.md
+  - characters/**/*.md
+  - outline/*.md
+  - truth/current_state.md
+  - truth/chapter_summaries.md
   writes:
-    - foundation/review_report.md
+  - file: foundation/review_report.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

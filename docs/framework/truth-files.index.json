@@ -526,8 +526,7 @@
       "shenbi-state-settling"
     ],
     "updates": [
-      "shenbi-relationship-map",
-      "shenbi-state-settling"
+      "shenbi-relationship-map"
     ]
   },
   "truth/resonance_trend.md": {

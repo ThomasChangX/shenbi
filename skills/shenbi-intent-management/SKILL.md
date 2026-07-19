@@ -1,15 +1,18 @@
 ---
 name: shenbi-intent-management
-description: "Use when your human partner wants to set or update their creative intent, or before chapter-planning when current focus may have changed"
+description: Use when your human partner wants to set or update their creative intent,
+  or before chapter-planning when current focus may have changed
 contract:
   kind: artifact
   reads:
-    - truth/author_intent.md
-    - truth/audit_drift.md
+  - truth/author_intent.md
+  - truth/audit_drift.md
   writes: []
   updates:
-    - truth/author_intent.md
-    - truth/current_focus.md
+  - file: truth/author_intent.md
+    mode: create_or_overwrite
+  - file: truth/current_focus.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 
