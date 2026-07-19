@@ -15,6 +15,7 @@ import json
 import re
 from collections import Counter
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Literal
 
@@ -243,3 +244,25 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
         deviations=deviations,
         message=message,
     )
+
+
+def check_opening_similarity(chapter_text: str, prev_chapter_text: str) -> float:
+    """Compare first 300 characters of consecutive chapters using SequenceMatcher."""
+    opening1 = chapter_text[:300]
+    opening2 = prev_chapter_text[:300]
+    return SequenceMatcher(None, opening1, opening2).ratio()
+
+
+def check_window_redundancy(chapters: list[str], window_size: int = 4) -> float:
+    """Compute pairwise similarity of all chapter pairs within a sliding window.
+    Returns the maximum similarity found. Threshold: >0.35 flags content looping.
+    """
+    if len(chapters) < 2:
+        return 0.0
+    max_similarity = 0.0
+    window = chapters[-window_size:] if len(chapters) >= window_size else chapters
+    for i in range(len(window)):
+        for j in range(i + 1, len(window)):
+            sim = SequenceMatcher(None, window[i][:500], window[j][:500]).ratio()
+            max_similarity = max(max_similarity, sim)
+    return max_similarity
