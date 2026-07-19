@@ -151,3 +151,12 @@ class ScoringError(ShenbiError):
 
 class ScoringRejectError(ScoringError):
     """Scoring validation rejected the result."""
+
+
+class RetryExhaustedError(ShenbiError):
+    """The durable retry budget for a chapter step has been exceeded.
+
+    Raised when retry_budget_consumed exceeds state.config.max_audit_retries,
+    so crash-resume still enforces the limit even though the ephemeral
+    retry_counts is cleared on success (spec §3.1).
+    """

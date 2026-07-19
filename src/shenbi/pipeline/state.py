@@ -144,6 +144,10 @@ class ChapterLoopStateData:
     chapter_states: dict[str, ChapterState] = field(default_factory=dict)
     per_chapter_review_enabled: bool = True
     retry_counts: dict[str, int] = field(default_factory=dict)
+    # Durable retry budget (spec §3.1): NOT cleared by _reset_retries, so
+    # crash-resume can enforce max_audit_retries. Contrast retry_counts above,
+    # which is intentionally cleared on step success.
+    retry_budget_consumed: dict[str, int] = field(default_factory=dict)
     modify_feedback: str | None = None
     retry_feedback: dict[str, str] = field(default_factory=dict)
     soft_fail_trackers: dict[str, SoftFailTracker] = field(default_factory=dict)
@@ -245,6 +249,7 @@ class PipelineState:
                 },
                 "per_chapter_review_enabled": self.chapter_loop.per_chapter_review_enabled,
                 "retry_counts": self.chapter_loop.retry_counts,
+                "retry_budget_consumed": self.chapter_loop.retry_budget_consumed,
                 "modify_feedback": self.chapter_loop.modify_feedback,
                 "retry_feedback": self.chapter_loop.retry_feedback,
                 "soft_fail_trackers": {
@@ -326,6 +331,7 @@ class PipelineState:
                 chapter_states=chapter_states,
                 per_chapter_review_enabled=cl_data.get("per_chapter_review_enabled", True),
                 retry_counts=cl_data.get("retry_counts", {}),
+                retry_budget_consumed=cl_data.get("retry_budget_consumed", {}),
                 modify_feedback=cl_data.get("modify_feedback"),
                 retry_feedback=cl_data.get("retry_feedback", {}),
                 soft_fail_trackers=soft_fail_trackers,

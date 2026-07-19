@@ -70,6 +70,7 @@ from shenbi.pipeline.state import (
     PipelineState,
     SoftFailTracker,
 )
+from shenbi.exceptions import RetryExhaustedError
 from shenbi.status import GateStatus
 from datetime import UTC
 
@@ -584,6 +585,24 @@ def _handle_failure(
     key = _retry_key(chapter, step.skill)
     count = state.chapter_loop.retry_counts.get(key, 0) + 1
     state.chapter_loop.retry_counts[key] = count
+
+    # Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
+    # can enforce max_audit_retries even after a successful retry.
+    consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
+    state.chapter_loop.retry_budget_consumed[key] = consumed
+    if consumed > state.config.max_audit_retries:
+        log.error(
+            "retry_budget_exhausted",
+            chapter=chapter,
+            skill=step.skill,
+            consumed=consumed,
+            max=state.config.max_audit_retries,
+        )
+        raise RetryExhaustedError(
+            f"Retry budget ({state.config.max_audit_retries}) exhausted for {key} "
+            f"(consumed {consumed})"
+        )
+
     from shenbi.pipeline.error_handler import handle_dispatch_failure
 
     if handle_dispatch_failure(state, step.skill, count):
@@ -2242,6 +2261,14 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
         if hard_fails:
             state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
+            # Durable budget trail for both paths (spec §3.1).
+            consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
+            state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+            if consumed > state.config.max_audit_retries:
+                raise RetryExhaustedError(
+                    f"Retry budget ({state.config.max_audit_retries}) exhausted for {retry_key} "
+                    f"(consumed {consumed})"
+                )
             if state.config.per_chapter_review_enabled:
                 return _handle_failure(state, step, chapter, "gate", project_dir)
             count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
