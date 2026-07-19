@@ -56,3 +56,47 @@ def test_context_file_fallback_written_when_assembly_throws():
             "Fallback context must be written when assembly throws "
             "(spec §3.1 Gap 1: error-swallowing try/except must add post-check + fallback)"
         )
+
+
+def test_curated_context_written_on_curation():
+    """Curated context MUST be written to disk (Gap 2 fix)."""
+    from shenbi.pipeline.chapter_loop import _run_context_curation
+
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "context").mkdir(parents=True)
+        (project_dir / "chapters").mkdir(parents=True)
+
+        # curate_context returns a string; ensure it gets persisted
+        with patch(
+            "shenbi.pipeline.context_curation.curate_context",
+            return_value="## Curated\n\nSection body.\n",
+        ):
+            _run_context_curation(project_dir, 1)
+
+        curated_file = project_dir / "context" / "chapter-1-curated.md"
+        assert curated_file.exists(), (
+            "Curated context must be written to disk (spec §3.1 Gap 2: "
+            "curate_context output was previously computed and discarded)"
+        )
+        assert "Section body" in curated_file.read_text(encoding="utf-8")
+
+
+def test_curated_context_uses_safe_write():
+    """Curation persistence must go through safe_write (atomic + locked)."""
+    from shenbi.pipeline.chapter_loop import _run_context_curation
+
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        (project_dir / "context").mkdir(parents=True)
+        (project_dir / "chapters").mkdir(parents=True)
+
+        with (
+            patch(
+                "shenbi.pipeline.context_curation.curate_context",
+                return_value="curated body",
+            ),
+            patch("shenbi.safe_write.safe_write") as mock_sw,
+        ):
+            _run_context_curation(project_dir, 2)
+            assert mock_sw.called, "safe_write must be used to persist curated context"

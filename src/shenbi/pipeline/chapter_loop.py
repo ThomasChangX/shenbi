@@ -797,22 +797,33 @@ def _write_minimal_context_fallback(project_dir: Path, chapter: int) -> None:
 
 
 def _run_context_curation(project_dir: Path, chapter: int) -> None:
-    """Run deterministic context curation after assembly.
+    """Run deterministic context curation and PERSIST it (Gap 2 fix).
 
     Replaces the ``shenbi-context-composing`` LLM call (step 5) with
-    deterministic Python operations: 9-section structuring, ending
-    diversity check, and hook debt briefing generation.
+    deterministic Python operations: 9-section structuring, ending diversity
+    check, and hook debt briefing generation.
 
-    Curation failures are non-fatal: a warning is logged and the pipeline
-    continues without curated context.
+    Closing spec §3.1 Gap 2: the previous body called ``curate_context`` and
+    only logged the result length — the curated string was computed and then
+    DISCARDED, never written to disk. This version persists the curated
+    9-section document via :func:`safe_write` and post-checks the file.
     """
-    try:
-        from shenbi.pipeline.context_curation import curate_context
+    from shenbi.pipeline.context_curation import curate_context
+    from shenbi.safe_write import safe_write
 
+    curated_path = project_dir / "context" / f"chapter-{chapter}-curated.md"
+    try:
         curated = curate_context(project_dir, chapter)
-        log.info("context_curated", chapter=chapter, length=len(curated))
+        curated_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(curated_path, curated)  # FIX: actually persist (was discarded)
+        log.info("context_curated", chapter=chapter, length=len(curated), output=str(curated_path))
     except Exception as e:
         log.warning("context_curation_failed", chapter=chapter, error=str(e), exc_info=True)
+
+    # Post-check: curation failures are non-fatal, but surface a hard error if
+    # the output is unexpectedly absent after a non-throwing run.
+    if not curated_path.exists():
+        log.error("context_curation_no_output", chapter=chapter)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
