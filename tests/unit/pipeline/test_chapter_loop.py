@@ -318,8 +318,10 @@ class TestConditionalResolve:
 # ---------------------------------------------------------------------------
 class TestRetryEscalation:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
-    def test_dispatch_fail_retries_then_escalates(self, mock_disp, tmp_path):
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
+    def test_dispatch_fail_retries_then_escalates(self, mock_esc_disp, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(False, 1, "", "error")
+        mock_esc_disp.return_value = DispatchResult(True, 0, "{}", "")
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.config.max_revision_retries = 3
@@ -337,9 +339,11 @@ class TestRetryEscalation:
         assert state.pending_checkpoint.type == CheckpointType.ESCALATION
 
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
     @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
-    def test_g4_fail_retries_then_escalates(self, mock_g4, mock_disp, tmp_path):
+    def test_g4_fail_retries_then_escalates(self, mock_g4, mock_esc_disp, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
+        mock_esc_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "FAIL"}
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
