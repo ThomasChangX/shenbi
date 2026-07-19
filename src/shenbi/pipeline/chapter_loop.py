@@ -1167,6 +1167,59 @@ def _prune_old_snapshots(project_dir: Path) -> None:
     log.info("snapshots_pruned", pruned=len(to_prune), retention=retention)
 
 
+# ---------------------------------------------------------------------------
+# Core snapshot file list + CJK content guard (spec §3.7, §3.8)
+# ---------------------------------------------------------------------------
+
+# Files included in snapshots (core chapter-state only).
+# Excludes audits, truth files, and staging to prevent ~15x bloat (spec §3.7).
+_CORE_SNAPSHOT_PATTERNS = [
+    "chapters/chapter-{chapter}.md",
+    "chapters/chapter-{chapter}-meta.md",
+    "chapters/chapter-{chapter}-decisions.json",
+    "chapters/chapter-{chapter}-revision-decisions.json",
+]
+
+
+def _get_core_snapshot_files(project_dir: Path, chapter: int) -> list[Path]:
+    """Get list of core chapter files to include in a snapshot.
+
+    Only includes chapter body, metadata, decisions, and revision decisions.
+    Excludes audit reports, truth files, and staging to reduce snapshot bloat.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+
+    Returns:
+        List of existing file paths to include in the snapshot.
+    """
+    files: list[Path] = []
+    for pattern in _CORE_SNAPSHOT_PATTERNS:
+        path = project_dir / pattern.format(chapter=chapter)
+        if path.exists():
+            files.append(path)
+    return files
+
+
+def _has_minimum_chinese_chars(text: str, threshold: int = 500) -> bool:
+    """Check if text has at least ``threshold`` Chinese characters.
+
+    Chinese characters are defined as CJK Unified Ideographs (U+4E00 to
+    U+9FFF). This is used to flag snapshots that may contain revision
+    metadata instead of actual prose.
+
+    Args:
+        text: The text content to check.
+        threshold: Minimum number of Chinese characters required.
+
+    Returns:
+        True if the text has >= ``threshold`` Chinese characters.
+    """
+    count = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
+    return count >= threshold
+
+
 def _snapshot_chapter_files(
     project_dir: Path,
     chapter: int,
@@ -1174,9 +1227,14 @@ def _snapshot_chapter_files(
 ) -> None:
     """Create a timestamped file-based snapshot of chapter outputs.
 
-    Copies chapter files, audit reports, and truth files into a single
-    timestamped markdown file under ``snapshots/``. Updates the manifest
-    and prunes old snapshots.
+    Copies core chapter files only (body, metadata, decisions, revision
+    decisions) into a single timestamped markdown file under ``snapshots/``.
+    Excludes audit reports, truth files, and staging to prevent ~15x bloat
+    (spec §3.7). Updates the manifest and prunes old snapshots.
+
+    Includes a CJK content guard (spec §3.8): warns if the chapter body
+    has fewer than 500 Chinese characters, which could indicate that the
+    snapshot captured revision metadata instead of actual prose.
 
     This replaces the ``shenbi-snapshot-manage`` LLM dispatch with pure
     file operations — no git dependency.
@@ -1200,22 +1258,22 @@ def _snapshot_chapter_files(
 
     parts: list[str] = []
 
-    # Chapter file
-    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if chapter_file.exists():
-        parts.append(f"## Chapter {chapter}\n\n{chapter_file.read_text(encoding='utf-8')}")
+    # Core chapter files only (excludes audits, truth, staging — spec §3.7)
+    core_files = _get_core_snapshot_files(project_dir, chapter)
+    for fpath in core_files:
+        fname = fpath.name
+        parts.append(f"## {fname}\n\n{fpath.read_text(encoding='utf-8')}")
 
-    # Audit files
-    audit_dir = project_dir / "audits"
-    if audit_dir.exists():
-        for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
-            parts.append(f"## Audit: {audit_file.stem}\n\n{audit_file.read_text(encoding='utf-8')}")
-
-    # Truth files
-    truth_dir = project_dir / "truth"
-    if truth_dir.exists():
-        for truth_file in sorted(truth_dir.glob("*.md")):
-            parts.append(f"## Truth: {truth_file.name}\n\n{truth_file.read_text(encoding='utf-8')}")
+    # Content guard: warn if chapter body has too few Chinese chars (§3.8)
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if chapter_path.exists():
+        text = chapter_path.read_text(encoding="utf-8")
+        if not _has_minimum_chinese_chars(text):
+            log.warning(
+                "snapshot_suspect_content",
+                chapter=chapter,
+                chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
+            )
 
     content = "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
     safe_write(snap_path, content.encode("utf-8"))
