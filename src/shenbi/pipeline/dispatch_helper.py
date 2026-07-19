@@ -33,6 +33,12 @@ from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
+# write_truth_file is imported so tests can verify it is NOT routed through
+# the generic dispatch write path. Truth-file append/upsert is the CALLER's
+# responsibility (the state-settling skill calls write_truth_file directly).
+# Imported but never called in this module.
+from shenbi.pipeline.truth_io import write_truth_file  # noqa: F401  # pyright: ignore[reportUnusedImport]
+
 log = get_logger(__name__)
 
 #: Repository root, resolved from this file's location (match gates/shared.py pattern).
@@ -727,18 +733,40 @@ def _write_parsed_outputs(
     output_paths: list[str],
     project_dir: Path,
     create_truth_templates: bool = False,
+    *,
+    skill: str | None = None,
+    skip_paths: set[str] | None = None,
 ) -> list[str]:
-    """Parse agent response and write per-file content.
+    """Parse agent response and write per-file content, honoring no_op_behavior.
+
+    This generic dispatch path writes WHOLE FILES (one ``### FILE: <path>`` block
+    per output). It honors only ``no_op_behavior: skip_write`` (paths in
+    *skip_paths* are not written). For all declared modes — including
+    ``append_dedup`` — it writes the whole file via ``safe_write``.
+
+    Truth-file append/upsert (``mode: append_dedup``) is NOT routed here. That
+    mode is declared in the contract so G0.16 can verify it, but the upsert
+    itself is the CALLER's responsibility: the state-settling skill calls
+    ``write_truth_file`` directly with a real semantic key field (``chapter``,
+    ``hook_id``, ...). Fabricating a key from raw prose in this generic path
+    would be wrong — the key is semantic and only the calling skill knows it.
+    ``merge_prose`` content-preservation is likewise enforced by G4 / the caller;
+    the dispatch write itself replaces the file.
 
     Returns list of successfully written paths.
-
-    Handles both literal contract paths and wildcard patterns (e.g.,
-    ``characters/major/*.md``). When the LLM outputs a concrete path matching
-    a wildcard contract pattern, intermediate directories are auto-created
-    via ``_resolve_all_wildcards``.
     """
     parsed = _parse_file_outputs(response)
     written: list[str] = []
+    skip = skip_paths or set()
+
+    semantics: dict[str, dict[str, Any]] = {}
+    if skill is not None:
+        try:
+            from shenbi.contracts import load_contract
+
+            semantics = load_contract(skill).get("write_semantics", {})
+        except Exception:
+            semantics = {}  # contract issues surface in G0; never block dispatch here
 
     # Split output_paths into literal and wildcard
     literal_paths = [p for p in output_paths if "*" not in p and "?" not in p]
@@ -762,16 +790,25 @@ def _write_parsed_outputs(
 
         safe_write(full_path, content)
         written.append(rel_path)
-        log.info("output_written", path=rel_path, size=len(content))
+        mode = semantics.get(rel_path, {}).get("mode")
+        log.info("output_written", path=rel_path, size=len(content), mode=mode)
 
     # Process literal contract paths
     for rel_path in literal_paths:
+        if "*" in rel_path:
+            continue
+        if rel_path in skip:
+            log.info("write_skipped_noop", path=rel_path, skill=skill)
+            continue
         content = parsed.get(rel_path, parsed.get("__stdout__", ""))
         if not content.strip():
             log.warning("output_empty", path=rel_path)
             continue
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
+        # NOTE: append_dedup is intentionally NOT branched here. The dispatch
+        # path writes whole files; truth-file upsert is the caller's job
+        # (state-settling skill calls write_truth_file with a real key).
         _write_one(rel_path, content)
 
     # Process wildcard paths: check parsed outputs against wildcard patterns
@@ -780,6 +817,9 @@ def _write_parsed_outputs(
             continue
         if rel_path in literal_paths:
             continue  # Already handled above
+        if rel_path in skip:
+            log.info("write_skipped_noop", path=rel_path, skill=skill)
+            continue
         matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
         if matching:
             if not content.strip():
@@ -950,7 +990,11 @@ def _dispatch_via_api(
             log.warning("ledger_record_failed", skill=skill, error=str(exc))
 
     written = _write_parsed_outputs(
-        output_text, output_paths, project_dir, create_truth_templates=True
+        output_text,
+        output_paths,
+        project_dir,
+        create_truth_templates=True,
+        skill=skill,
     )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
@@ -1034,7 +1078,11 @@ def _dispatch_via_ide(
     log.info("ide_dispatch_complete", skill=skill)
 
     written = _write_parsed_outputs(
-        r.stdout, output_paths, project_dir, create_truth_templates=True
+        r.stdout,
+        output_paths,
+        project_dir,
+        create_truth_templates=True,
+        skill=skill,
     )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")

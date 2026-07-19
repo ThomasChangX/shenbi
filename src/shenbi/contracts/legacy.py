@@ -46,6 +46,7 @@ class Contract(TypedDict):
     writes: list[str]
     updates: list[str]
     read_fields: dict[str, list[str]]
+    write_semantics: dict[str, dict[str, Any]]
 
 
 def _skill_path(skill: str) -> Path:
@@ -68,6 +69,23 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
             raise ContractError("contract.reads[].fields must be list[str]", field="reads")
         return str(item["file"]), fields
     raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
+
+
+def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[str, Any]]:
+    """Normalize a writes/updates entry into (path, semantics_meta).
+
+    Accepts a plain string (no declared semantics -> empty meta) or a dict
+    {file, mode?, no_op_behavior?, key?}. Dict-form is the new write-semantics
+    declaration (spec §3.2).
+    """
+    if isinstance(item, str):
+        return item, {}
+    if isinstance(item, dict) and "file" in item:
+        meta = {k: v for k, v in item.items() if k != "file"}
+        return str(item["file"]), meta
+    raise ContractError(
+        f"contract.{field}[] must be str or {{file, mode?}}", skill=skill, field=field
+    )
 
 
 def load_registry() -> TruthFilesRegistry:
@@ -141,46 +159,39 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
 
     validated: dict[str, list[str]] = {}
     read_fields: dict[str, list[str]] = {}
+    write_semantics: dict[str, dict[str, Any]] = {}
     for field in ("reads", "writes", "updates"):
         val = raw.get(field)
         if not isinstance(val, list):
-            raise ContractError(f"contract.{field} must be a list[str]", skill=skill, field=field)
+            raise ContractError(f"contract.{field} must be a list", skill=skill, field=field)
         if field == "reads":
-            # reads may use dict-form {file, fields?}
             paths: list[str] = []
             for item in val:
                 path, fields = _normalize_read_item(item)
                 paths.append(path)
                 if fields is not None:
                     read_fields[path] = fields
-            items = paths
+            collected: list[str] = paths
         else:
-            # writes/updates accept plain strings or dicts {file, mode?, ...}
-            wu_paths: list[str] = []
+            collected = []
             for item in val:
-                if isinstance(item, str):
-                    wu_paths.append(item)
-                elif isinstance(item, dict) and "file" in item:
-                    wu_paths.append(str(item["file"]))
-                else:
-                    raise ContractError(
-                        f"contract.{field} must be a list[str] or list[{{file: 'path', ...}}]",
-                        skill=skill,
-                        field=field,
-                    )
-            items = wu_paths
-        for p in items:
+                path, meta = _normalize_write_item(item, field, skill)
+                collected.append(path)
+                if meta:
+                    write_semantics[path] = meta
+        for p in collected:
             if not resolves(p, registry):
                 raise ContractError(
                     "contract path does not resolve in registry", skill=skill, field=field, path=p
                 )
-        validated[field] = items
+        validated[field] = collected
     return {
         "kind": kind,
         "reads": validated["reads"],
         "writes": validated["writes"],
         "updates": validated["updates"],
         "read_fields": read_fields,
+        "write_semantics": write_semantics,
     }
 
 
