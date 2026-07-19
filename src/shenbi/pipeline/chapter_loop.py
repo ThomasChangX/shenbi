@@ -62,6 +62,7 @@ from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
     collect_audit_issues,
+    dispatch_escalation,
     route_chapter_revision,
 )
 from shenbi.pipeline.state import (
@@ -71,6 +72,7 @@ from shenbi.pipeline.state import (
     SoftFailTracker,
 )
 from shenbi.exceptions import RetryExhaustedError
+from shenbi.skill_utils.escalation.check import check_escalation
 from shenbi.status import GateStatus
 from datetime import UTC
 
@@ -699,6 +701,105 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         )
         return True
     return False
+
+
+def _find_current_volume(chapter: int, volume_boundaries: set[int]) -> int | None:
+    """Return the volume index (0-based) that *chapter* belongs to.
+
+    *volume_boundaries* is a set of last-chapter numbers per volume (from
+    ``read_volume_boundaries``). Returns ``None`` when boundaries are empty or
+    *chapter* lies beyond the last boundary.
+    """
+    if not volume_boundaries:
+        return None
+    sorted_boundaries = sorted(volume_boundaries)
+    for idx, boundary in enumerate(sorted_boundaries):
+        if chapter <= boundary:
+            return idx
+    return None  # chapter beyond last boundary
+
+
+def _check_volume_completion(project_dir: Path, current_volume: int | None, chapter: int) -> bool:
+    """Check whether the current volume's objective has been met.
+
+    Stub: returns True (volume objective met) when *current_volume* is None;
+    otherwise checks for a ``context/volume-{n}-complete.json`` marker file.
+    """
+    if current_volume is None:
+        return True
+    marker = project_dir / "context" / f"volume-{current_volume}-complete.json"
+    return marker.exists()
+
+
+def _check_soft_fail_escalation(state: PipelineState, project_dir: Path, chapter: int) -> None:
+    """Consume soft-fail-tracker escalation and route to check_escalation.
+
+    Spec 22 E32: the trackers detected transition/fatigue drift but the signal
+    was orphaned. This wires it to the existing ``check_escalation`` consumer
+    using its real signature. When any tracker has crossed its threshold AND
+    ``check_escalation`` fires >=1 signal, dispatch escalation-review via the
+    existing ``dispatch_escalation`` path.
+    """
+    from shenbi.pipeline.triggers import read_volume_boundaries
+
+    any_escalated = any(
+        len(t.occurrences) >= t.escalation_threshold
+        for t in state.chapter_loop.soft_fail_trackers.values()
+    )
+    if not any_escalated:
+        return
+
+    # Gather check_escalation inputs (real signature).
+    resonance_scores: list[float] = [
+        float(s) for s in _get_recent_resonance_scores(project_dir, chapter, window=5)
+    ]
+    sensitivity_blocking = any(
+        "sensitivity" in (cid or "").lower()
+        for cid, t in state.chapter_loop.soft_fail_trackers.items()
+        if len(t.occurrences) >= t.escalation_threshold
+    )
+    # Check if volume boundary is met by reading volume_map.md
+    volume_boundaries = read_volume_boundaries(project_dir)
+    current_volume = _find_current_volume(chapter, volume_boundaries)
+    volume_objective_met = _check_volume_completion(project_dir, current_volume, chapter)
+    # regeneration_attempts: max per-step retry count currently in flight.
+    regeneration_attempts = max(state.chapter_loop.retry_counts.values(), default=0)
+
+    signals = check_escalation(
+        resonance_scores=resonance_scores,
+        sensitivity_blocking=sensitivity_blocking,
+        volume_objective_met=volume_objective_met,
+        regeneration_attempts=regeneration_attempts,
+    )
+    if not signals:
+        log.info(
+            "soft_fail_escalation_no_signals",
+            chapter=chapter,
+            scores=resonance_scores,
+        )
+        return
+
+    log.warning(
+        "soft_fail_escalation_triggered",
+        chapter=chapter,
+        signals=[{"trigger": s.trigger, "detail": s.detail} for s in signals],
+    )
+    # dispatch_escalation's real signature is (project_dir, chapter, context="").
+    # It has no `reason=` / `signals=` kwargs. Write the signals to a sidecar
+    # file the escalation skill can read, then dispatch with context pointing
+    # to that file.
+    from dataclasses import asdict
+
+    signals_path = project_dir / "context" / f"chapter-{chapter}-escalation-signals.json"
+    safe_write(
+        signals_path,
+        json.dumps([asdict(s) for s in signals], ensure_ascii=False, indent=2),
+    )
+    dispatch_escalation(
+        project_dir,
+        chapter,
+        context=f"Soft-fail escalation triggered. Signals at: {signals_path}",
+    )
 
 
 def _advance(
@@ -2317,6 +2418,9 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                     check_id=tracker_key,
                     occurrences=tracker.occurrences,
                 )
+                # Spec 22 E32: route the orphaned escalation signal to the
+                # check_escalation consumer + dispatch escalation-review.
+                _check_soft_fail_escalation(state, Path(project_dir), chapter)
 
         if hard_fails:
             state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
