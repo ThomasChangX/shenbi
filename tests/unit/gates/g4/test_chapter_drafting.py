@@ -167,3 +167,17 @@ def test_protagonist_presence_check_passes_with_sufficient_mentions():
 
     issues = _check_protagonist_presence(text, protagonist_names, threshold=3)
     assert len(issues) == 0
+
+
+# ── Task 11: META Stripping Warning ─────────────────────────────────────────
+
+
+def test_chapter_drafting_skill_has_meta_warning_block():
+    """The chapter-drafting SKILL.md must have a prominent META stripping warning."""
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "WARNING" in content or "IMPORTANT" in content
+    assert "META" in content
+    assert "strip" in content.lower() or "not prose" in content.lower()

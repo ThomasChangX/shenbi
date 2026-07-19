@@ -126,7 +126,14 @@ PRE_WRITE_CHECK:
 
 ## 元数据与正文分离（新增铁律）
 
-章节文件中的 PRE_WRITE_CHECK 和 POST_WRITE_SELF_CHECK 必须用 `<!--META-BEGIN-->` 和 `<!--META-END-->` 包裹。下游解析器（字数统计、审计、评分）必须剥离 META 块后处理纯正文。
+> **WARNING: META blocks are NOT part of the novel prose.**
+>
+> META blocks (`<!--META-BEGIN-->...<!--META-END-->`) contain internal
+> quality-control self-checks (PRE_WRITE_CHECK and POST_WRITE_SELF_CHECK).
+> These are for pipeline use only. Downstream parsers (word count, audit,
+> scoring, publication) MUST strip META blocks before processing prose.
+> The canonical stripping method is in `src/shenbi/gates/shared.py:120-121`.
+> See `docs/framework/chapter-file-format.md` for full specification.
 
 ## Anti-Rationalization
 
