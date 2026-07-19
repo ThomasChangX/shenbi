@@ -1,0 +1,5 @@
+Stage 1: FAILED at 2026-07-19T21:27:13+08:00
+  Step 1 (static checks): PASSED
+  Step 2 (unit tests): FAILED — 67 failures, coverage 18.41%
+  Step 3 (gate checks): FAILED — G0.16, G2.1
+  Step 4 (imports): FAILED — 2/3 CORE imports broken (truth_index.classify_truth_files, resonance_parser)
