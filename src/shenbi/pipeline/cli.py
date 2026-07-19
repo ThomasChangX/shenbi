@@ -803,6 +803,44 @@ def cmd_rollback(args: argparse.Namespace) -> int:
     return 1
 
 
+def cmd_backfill_context(args: argparse.Namespace) -> int:
+    """Re-run deterministic context assembly + curation for a chapter range.
+
+    These are deterministic Python functions and can be re-executed safely to
+    close coverage gaps for already-generated chapters. Uses the real
+    assemble_context(project_dir, plan_path) / write_context_file / curate_context
+    signatures (spec §3.1 backfill).
+    """
+    from shenbi.pipeline.context_assemble import assemble_context, write_context_file
+    from shenbi.pipeline.context_curation import curate_context
+    from shenbi.safe_write import safe_write
+
+    project_path = Path(args.project_dir)
+
+    chapters = args.chapters
+    if "-" in chapters:
+        start, end = chapters.split("-")
+        chapter_range = range(int(start), int(end) + 1)
+    else:
+        ch = int(chapters)
+        chapter_range = range(ch, ch + 1)
+
+    for ch in chapter_range:
+        try:
+            plan_path = f"plans/chapter-{ch}-plan.md"
+            pkg = assemble_context(project_path, plan_path)
+            write_context_file(project_path, ch, pkg)  # safe_write inside
+            curated = curate_context(project_path, ch)
+            curated_path = project_path / "context" / f"chapter-{ch}-curated.md"
+            curated_path.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(curated_path, curated)
+            print(f"  Backfilled context for chapter {ch}")
+        except Exception as e:
+            print(f"  FAILED chapter {ch}: {e}", file=sys.stderr)
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point; parses ``argv`` (defaults to ``sys.argv[1:]``)."""
     configure_logging()
@@ -840,6 +878,15 @@ def main(argv: list[str] | None = None) -> int:
     p_chapters = sub.add_parser("chapters", help="Show chapter progress")
     p_chapters.add_argument("project_dir", type=str)
     p_chapters.set_defaults(func=cmd_chapters)
+
+    p_backfill = sub.add_parser(
+        "backfill-context", help="Re-run context assembly for a chapter range"
+    )
+    p_backfill.add_argument(
+        "--chapters", type=str, required=True, help="Chapter range, e.g. '13-54'"
+    )
+    p_backfill.add_argument("--project-dir", type=str, default=".", help="Project directory")
+    p_backfill.set_defaults(func=cmd_backfill_context)
 
     args = parser.parse_args(argv)
     # argparse stores set_defaults(func=...) as Any; annotate so the dispatched

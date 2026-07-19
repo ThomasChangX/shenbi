@@ -34,7 +34,10 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
 from shenbi.contracts.paths import resolve_chapter_path
 from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
@@ -483,6 +486,15 @@ def _enrich_g4_feedback(failures: list[str]) -> str:
             lines.append("  (请重新生成此检查的输出以达到标准格式)")
         lines.append("")
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Drift escalation exception
+# ---------------------------------------------------------------------------
+
+
+class DriftEscalationError(Exception):
+    """Raised when linguistic drift reaches ESCALATE severity."""
 
 
 # ---------------------------------------------------------------------------
@@ -1364,6 +1376,145 @@ def _ensure_revision_decisions_exists(
 
 
 # ---------------------------------------------------------------------------
+# Linguistic drift detection (3-tier intervention — spec §3.4, Task 5)
+# ---------------------------------------------------------------------------
+
+
+def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:
+    """Check chapter text for linguistic drift and apply tiered intervention.
+
+    Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
+    compares its pragmatic alarm metrics (Task 3) against the established
+    baseline, and applies WARN/HARD/ESCALATE intervention per spec §3.4.
+    """
+    from shenbi.skill_utils.drift_detection.linguistic_drift import (
+        check_opening_similarity,
+        compute_linguistic_metrics,
+        detect_drift,
+    )
+
+    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_file.exists():
+        return None
+
+    chapter_text = chapter_file.read_text(encoding="utf-8")
+
+    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)
+    baseline_file = project_dir / "style" / "linguistic_baseline.json"
+    if baseline_file.exists():
+        baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
+    else:
+        log.warning("no_linguistic_baseline", chapter=chapter)
+        return None
+
+    current = compute_linguistic_metrics(chapter_text, project_dir=project_dir)
+    result = detect_drift(current, baseline)
+
+    if result.is_drift:
+        log.warning(
+            "linguistic_drift_detected",
+            chapter=chapter,
+            severity=result.severity,
+            metrics=result.metrics,
+        )
+
+        if result.severity == "ESCALATE":
+            log.error("drift_escalate_pause_for_review", chapter=chapter)
+            raise DriftEscalationError(
+                f"Chapter {chapter}: system term density "
+                f"{result.metrics.get('system_term_density', 0):.1f} per mille. "
+                "Pipeline paused for human review."
+            )
+        if result.severity == "HARD":
+            _inject_drift_correction(project_dir, chapter, result)
+        elif result.severity == "WARN":
+            _inject_drift_warning(project_dir, chapter, result)
+
+    # Check opening similarity against the previous chapter
+    if chapter > 1:
+        prev_file = project_dir / "chapters" / f"chapter-{chapter - 1}.md"
+        if prev_file.exists():
+            prev_text = prev_file.read_text(encoding="utf-8")
+            opening_sim = check_opening_similarity(chapter_text, prev_text)
+            if opening_sim > 0.6:
+                log.warning(
+                    "opening_similarity_high",
+                    chapter=chapter,
+                    similarity=round(opening_sim, 2),
+                )
+                _inject_opening_variation_directive(project_dir, chapter, opening_sim)
+
+    return result
+
+
+def _inject_drift_correction(project_dir: Path, chapter: int, result: DriftResult) -> None:
+    """Write a PRE_WRITE_CHECK directive for the next chapter to correct drift."""
+    directive = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - DRIFT DETECTED)
+
+CRITICAL: Chapter {chapter} has system term density of {result.metrics.get("system_term_density", 0):.1f} per mille (baseline: <5).
+The next chapter MUST:
+1. Use natural Chinese narrative prose — NO system parameter language (冷在场, 冷值, 在场度)
+2. Include at least 3 dialogue exchanges with human characters
+3. Include at least 2 physical actions or sensory descriptions
+4. Use varied sentence structures — no repeated sentence templates
+"""
+    directive_file = project_dir / "context" / f"drift-correction-{chapter + 1}.md"
+    safe_write(directive_file, directive)
+
+
+def _inject_drift_warning(project_dir: Path, chapter: int, result: DriftResult) -> None:
+    """Write a gentle warning for the next chapter."""
+    warning = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - STYLE WARNING)
+
+Note: Chapter {chapter} shows early signs of parametric language.
+Please prioritize natural prose and human character dialogue in the next chapter.
+"""
+    warning_file = project_dir / "context" / f"drift-warning-{chapter + 1}.md"
+    safe_write(warning_file, warning)
+
+
+def _inject_opening_variation_directive(project_dir: Path, chapter: int, similarity: float) -> None:
+    """Warn about high opening similarity."""
+    directive = f"""## PRE_WRITE_CHECK (OPENING VARIATION)
+
+The opening of Chapter {chapter} is {similarity * 100:.0f}% similar to Chapter {chapter - 1}.
+Next chapter MUST use a different opening approach.
+Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
+"""
+    directive_file = project_dir / "context" / f"opening-variation-{chapter + 1}.md"
+    safe_write(directive_file, directive)
+
+
+# ---------------------------------------------------------------------------
+# Context Coverage Audit (Task 6)
+# ---------------------------------------------------------------------------
+
+
+def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int]:  # pyright: ignore[reportUnusedFunction]
+    """Scan all chapters up to current_chapter and return list of missing context files.
+
+    Uses the real (non-padded) ``chapter-{ch}-context.md`` naming. Called at
+    pipeline resume initialization to surface the 77% coverage gap (spec §3.1).
+    """
+    import structlog
+
+    log = structlog.get_logger()
+    context_dir = project_dir / "context"
+    missing = []
+    for ch in range(1, current_chapter + 1):
+        context_file = context_dir / f"chapter-{ch}-context.md"
+        if not context_file.exists():
+            missing.append(ch)
+    if missing:
+        log.warning(
+            "context_coverage_gap",
+            missing_chapters=missing,
+            gap_ratio=f"{len(missing)}/{current_chapter}",
+        )
+    return missing
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -1547,7 +1698,20 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         _reset_retries(state, step, chapter)
         # Update manifest tracking for steps that were handled inline.
         if step.skill == "shenbi-snapshot-manage":
-            pass  # snapshot already taken + manifest updated in _snapshot_chapter_files
+            # snapshot already taken + manifest updated in _snapshot_chapter_files
+            # Run linguistic drift check after snapshot (spec §3.4, Task 5)
+            try:
+                _check_linguistic_drift(project_dir, chapter)
+            except DriftEscalationError as e:
+                log.error("drift_escalation_checkpoint", chapter=chapter, error=str(e))
+                set_checkpoint(
+                    state,
+                    CheckpointType.ESCALATION,
+                    chapter=chapter,
+                    artifact=f"audits/escalation-{chapter}-drift.md",
+                    context=str(e),
+                )
+                return True
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
