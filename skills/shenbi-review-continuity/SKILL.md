@@ -89,6 +89,23 @@ digraph review_continuity {
 - 检查场景的空间描述是否一致（同一场景内距离、物体位置）
 - 如果本章涉及战斗/移动，检查空间逻辑
 
+## Arithmetic Consistency Verification
+
+For each chapter, verify:
+1. **Currency accumulation**: Copper/silver coin totals must be arithmetically
+   consistent with previous chapters. Recompute from known baselines.
+   If the previous chapter had N coins and the current chapter adds M,
+   the total must be N+M (accounting for expenditures).
+2. **Date and count patterns**: Verify daily-increment patterns
+   (e.g., "每日+1" sequences). Flag discrepancies > 0.
+3. **Inventory tracking**: If a character acquires or expends items,
+   verify the running totals.
+
+Report any arithmetic discrepancy with:
+- The incorrect value found in the chapter
+- The correct computed value
+- The line reference (approximate line number in chapter body)
+
 ## 缺陷证据格式
 
 每条缺陷报告必须遵循  定义的四要素格式：
