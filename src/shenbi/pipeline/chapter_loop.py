@@ -56,6 +56,7 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g3,
     run_gate_g4,
 )
+from shenbi.pipeline.snapshot_diff import create_differential_snapshot
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
@@ -1224,77 +1225,89 @@ def _snapshot_chapter_files(
     project_dir: Path,
     chapter: int,
     label: str = "",
+    use_legacy_snapshot: bool = False,
 ) -> None:
-    """Create a timestamped file-based snapshot of chapter outputs.
+    """Create a snapshot of chapter outputs.
 
-    Copies core chapter files only (body, metadata, decisions, revision
-    decisions) into a single timestamped markdown file under ``snapshots/``.
-    Excludes audit reports, truth files, and staging to prevent ~15x bloat
-    (spec §3.7). Updates the manifest and prunes old snapshots.
+    By default, uses a differential SHA-256 hash-based snapshot that stores
+    full content only for the most recent RING_BUFFER_N chapters (enabling
+    revision-rollback to restore previous chapter content after a revision
+    overwrite). Truth files are always stored in full. Older chapter/plan
+    files are tracked by hash only.
 
-    Includes a CJK content guard (spec §3.8): warns if the chapter body
-    has fewer than 500 Chinese characters, which could indicate that the
-    snapshot captured revision metadata instead of actual prose.
-
-    This replaces the ``shenbi-snapshot-manage`` LLM dispatch with pure
-    file operations — no git dependency.
+    Set ``use_legacy_snapshot=True`` to use the old monolithic markdown
+    snapshot format (timestamped flat file in ``snapshots/``). The legacy
+    path is maintained for rollback safety during migration.
 
     Args:
         project_dir: Root directory of the novel project.
         chapter: Chapter number to snapshot.
-        label: Optional label inserted before the timestamp (e.g. "emergency").
+        label: Optional label for legacy snapshots (e.g. "emergency").
+        use_legacy_snapshot: If True, use the old monolithic markdown format.
     """
-    from datetime import datetime
+    if use_legacy_snapshot:
+        from datetime import datetime
 
-    snap_dir = project_dir / "snapshots"
-    snap_dir.mkdir(parents=True, exist_ok=True)
+        snap_dir = project_dir / "snapshots"
+        snap_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
-    if label:
-        snap_filename = f"chapter-{chapter:03d}-{label}-{timestamp}.md"
+        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+        if label:
+            snap_filename = f"chapter-{chapter:03d}-{label}-{timestamp}.md"
+        else:
+            snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
+        snap_path = snap_dir / snap_filename
+
+        parts: list[str] = []
+
+        # Core chapter files only (excludes audits, truth, staging — spec §3.7)
+        core_files = _get_core_snapshot_files(project_dir, chapter)
+        for fpath in core_files:
+            fname = fpath.name
+            parts.append(f"## {fname}\n\n{fpath.read_text(encoding='utf-8')}")
+
+        # Content guard: warn if chapter body has too few Chinese chars (§3.8)
+        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+        if chapter_path.exists():
+            text = chapter_path.read_text(encoding="utf-8")
+            if not _has_minimum_chinese_chars(text):
+                log.warning(
+                    "snapshot_suspect_content",
+                    chapter=chapter,
+                    chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
+                )
+
+        content = (
+            "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
+        )
+        safe_write(snap_path, content.encode("utf-8"))
+
+        # Update manifest
+        manifest = _load_manifest(project_dir)
+        chapter_key = str(chapter)
+        manifest.setdefault("chapters", {})
+        manifest["chapters"].setdefault(chapter_key, [])
+        manifest["chapters"][chapter_key].append(snap_filename)
+        _save_manifest(project_dir, manifest)
+
+        log.info(
+            "snapshot_created",
+            chapter=chapter,
+            file=snap_filename,
+            size=len(content),
+        )
+
+        # Prune old snapshots
+        _prune_old_snapshots(project_dir)
     else:
-        snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
-    snap_path = snap_dir / snap_filename
-
-    parts: list[str] = []
-
-    # Core chapter files only (excludes audits, truth, staging — spec §3.7)
-    core_files = _get_core_snapshot_files(project_dir, chapter)
-    for fpath in core_files:
-        fname = fpath.name
-        parts.append(f"## {fname}\n\n{fpath.read_text(encoding='utf-8')}")
-
-    # Content guard: warn if chapter body has too few Chinese chars (§3.8)
-    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if chapter_path.exists():
-        text = chapter_path.read_text(encoding="utf-8")
-        if not _has_minimum_chinese_chars(text):
-            log.warning(
-                "snapshot_suspect_content",
-                chapter=chapter,
-                chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
-            )
-
-    content = "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
-    safe_write(snap_path, content.encode("utf-8"))
-
-    # Update manifest
-    manifest = _load_manifest(project_dir)
-    chapter_key = str(chapter)
-    manifest.setdefault("chapters", {})
-    manifest["chapters"].setdefault(chapter_key, [])
-    manifest["chapters"][chapter_key].append(snap_filename)
-    _save_manifest(project_dir, manifest)
-
-    log.info(
-        "snapshot_created",
-        chapter=chapter,
-        file=snap_filename,
-        size=len(content),
-    )
-
-    # Prune old snapshots
-    _prune_old_snapshots(project_dir)
+        # Differential SHA-256 hash-based snapshot (default).
+        # Stores full content for recent chapters (ring buffer) so
+        # revision-rollback can restore previous chapter after an overwrite.
+        # Truth files always stored in full; older chapters hash-only.
+        snapshot_dir = project_dir / "snapshots" / f"chapter-{chapter:03d}"
+        create_differential_snapshot(project_dir, chapter, snapshot_dir)
+        # Prune old snapshots
+        _prune_old_snapshots(project_dir)
 
 
 # ---------------------------------------------------------------------------
