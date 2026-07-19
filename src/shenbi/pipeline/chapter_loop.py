@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil as _shutil
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -1268,6 +1269,30 @@ def _get_chapter_state(state: PipelineState, chapter: int) -> ChapterState:
     return cs
 
 
+def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
+    """Create a backup of the chapter file before revision dispatch.
+
+    Copies ``chapters/chapter-N.md`` to ``chapters/chapter-N-pre-rev.md``
+    using ``shutil.copy2`` which preserves metadata. If the chapter file
+    does not exist, this is a no-op.
+
+    This ensures the original prose is recoverable even if the revision
+    skill incorrectly overwrites the chapter body.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+    """
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_path.exists():
+        log.debug("pre_rev_backup_skip", chapter=chapter, reason="chapter file does not exist")
+        return
+
+    backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
+    _shutil.copy2(chapter_path, backup_path)
+    log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
+
+
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Collect audit issues and determine the revision route (spec §6.3).
 
@@ -1275,6 +1300,8 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     chapter's ``audit_results`` so that step 18 (chapter-revision) can decide
     whether to run or skip.
     """
+    _create_pre_revision_backup(project_dir, chapter)
+
     issues, blocking = collect_audit_issues(project_dir, chapter)
     route = route_chapter_revision(issues, blocking)
     cs = _get_chapter_state(state, chapter)
