@@ -1245,6 +1245,8 @@ def _snapshot_chapter_files(
     chapter: int,
     label: str = "",
     use_legacy_snapshot: bool = False,
+    *,
+    state: PipelineState | None = None,
 ) -> None:
     """Create a snapshot of chapter outputs.
 
@@ -1258,11 +1260,16 @@ def _snapshot_chapter_files(
     snapshot format (timestamped flat file in ``snapshots/``). The legacy
     path is maintained for rollback safety during migration.
 
+    When *state* is provided, updates ``state.last_snapshot`` to point at the
+    newly written snapshot (spec §3.3) so resume/rollback can find the recovery
+    point from state without scanning the snapshots directory.
+
     Args:
         project_dir: Root directory of the novel project.
         chapter: Chapter number to snapshot.
         label: Optional label for legacy snapshots (e.g. "emergency").
         use_legacy_snapshot: If True, use the old monolithic markdown format.
+        state: Optional pipeline state to record last_snapshot pointer into.
     """
     if use_legacy_snapshot:
         from datetime import datetime
@@ -1301,6 +1308,20 @@ def _snapshot_chapter_files(
         )
         safe_write(snap_path, content.encode("utf-8"))
 
+        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
+        # resume/rollback can find the recovery point without a directory scan.
+        if state is not None:
+            state.last_snapshot = {
+                "chapter": chapter,
+                "path": str(snap_path.relative_to(project_dir)),
+                "timestamp": timestamp,
+            }
+            log.info(
+                "last_snapshot_updated",
+                chapter=chapter,
+                path=state.last_snapshot["path"],
+            )
+
         # Update manifest
         manifest = _load_manifest(project_dir)
         chapter_key = str(chapter)
@@ -1323,8 +1344,25 @@ def _snapshot_chapter_files(
         # Stores full content for recent chapters (ring buffer) so
         # revision-rollback can restore previous chapter after an overwrite.
         # Truth files always stored in full; older chapters hash-only.
+        from datetime import datetime
+
         snapshot_dir = project_dir / "snapshots" / f"chapter-{chapter:03d}"
         create_differential_snapshot(project_dir, chapter, snapshot_dir)
+
+        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
+        # resume/rollback can find the recovery point without a directory scan.
+        if state is not None:
+            state.last_snapshot = {
+                "chapter": chapter,
+                "path": str(snapshot_dir.relative_to(project_dir)),
+                "timestamp": datetime.now(UTC).strftime("%Y%m%dT%H%M%S"),
+            }
+            log.info(
+                "last_snapshot_updated",
+                chapter=chapter,
+                path=state.last_snapshot["path"],
+            )
+
         # Prune old snapshots
         _prune_old_snapshots(project_dir)
 
@@ -1494,7 +1532,7 @@ def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path)
 
     if skill == "shenbi-snapshot-manage":
         # Replace LLM dispatch with deterministic file-based snapshot.
-        _snapshot_chapter_files(project_dir, chapter)
+        _snapshot_chapter_files(project_dir, chapter, state=state)
         return False
 
     # All other steps run unconditionally.
@@ -1986,7 +2024,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             state.chapter_loop.step_index,
             project_dir=project_dir,
         ):
-            _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter)
+            _snapshot_chapter_files(project_dir, state.chapter_loop.current_chapter, state=state)
 
         # Register emergency handler ONCE (installs signal handlers + atexit backstop)
         _register_emergency_snapshot(project_dir, state.chapter_loop.current_chapter)
