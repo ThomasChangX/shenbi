@@ -266,3 +266,94 @@ def check_window_redundancy(chapters: list[str], window_size: int = 4) -> float:
             sim = SequenceMatcher(None, window[i][:500], window[j][:500]).ratio()
             max_similarity = max(max_similarity, sim)
     return max_similarity
+
+
+# ---------------------------------------------------------------------------
+# Pipeline-facing deterministic drift check (ADD-3, per Spec 4 §3.2)
+# ---------------------------------------------------------------------------
+
+
+def _load_baseline(project_dir: Path) -> dict[str, float]:
+    """Load or create linguistic baseline from early chapters."""
+    baseline_path = project_dir / "context" / "linguistic_baseline.json"
+    if baseline_path.exists():
+        loaded: dict[str, float] = json.loads(baseline_path.read_text(encoding="utf-8"))
+        return loaded
+
+    # Create baseline from early chapters
+    baseline: dict[str, float] = {
+        "system_term_density": 0.0,
+        "em_dash_density": 0.0,
+        "dialogue_ratio": 0.0,
+    }
+    chapters_read = 0
+
+    for ch in range(1, 6):
+        ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
+        if ch_path.exists():
+            text = ch_path.read_text(encoding="utf-8")
+            total_chars = len(text)
+            system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
+            em_dashes = text.count("——") + text.count("--")
+            dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
+            baseline["system_term_density"] += system_terms / max(total_chars, 1)
+            baseline["em_dash_density"] += em_dashes / max(total_chars, 1)
+            baseline["dialogue_ratio"] += dialogue_chars / max(total_chars, 1)
+            chapters_read += 1
+
+    if chapters_read > 0:
+        for k in baseline:
+            baseline[k] /= chapters_read
+
+    from shenbi.safe_write import safe_write
+
+    safe_write(baseline_path, json.dumps(baseline, indent=2))
+    return baseline
+
+
+def check_linguistic_drift(project_dir: Path, chapter: int) -> list[str]:
+    """Run linguistic drift detection. Returns WARN alerts.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number to check.
+
+    Returns:
+        List of warning strings (empty if no drift detected).
+    """
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_path.exists():
+        return []
+
+    text = chapter_path.read_text(encoding="utf-8")
+    total_chars = max(len(text), 1)
+    baseline = _load_baseline(project_dir)
+
+    alerts = []
+
+    # System term density (per mille)
+    system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
+    system_density = (system_terms / total_chars) * 1000
+    if system_density > 30:
+        alerts.append(
+            f"System term density {system_density:.0f}‰ "
+            f"(baseline: {baseline.get('system_term_density', 0) * 1000:.0f}‰)"
+        )
+
+    # Em-dash density (per mille)
+    em_dashes = text.count("——") + text.count("--")
+    em_density = (em_dashes / total_chars) * 1000
+    if em_density > 20:
+        alerts.append(
+            f"Em-dash density {em_density:.0f}‰ "
+            f"(baseline: {baseline.get('em_dash_density', 0) * 1000:.0f}‰)"
+        )
+
+    # Dialogue density check (>chapter 10, near zero dialogue)
+    if chapter > 10:
+        dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
+        dialogue_ratio = dialogue_chars / total_chars
+        if dialogue_ratio < 0.01:
+            alerts.append("Dialogue density near zero -- possible character disappearance")
+
+    return alerts

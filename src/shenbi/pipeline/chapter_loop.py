@@ -829,6 +829,20 @@ def _print_timing_summary(state: PipelineState) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _run_post_draft_extract(state: PipelineState, chapter: int) -> None:
+    """Deterministic: extract SCR from freshly drafted chapter (ADD-2).
+
+    Non-blocking: if extract_scr fails (e.g., chapter file missing or
+    incomplete), the pipeline continues. The SCR extraction is best-effort.
+    """
+    try:
+        from shenbi.pipeline.scr_extractor import extract_scr
+
+        extract_scr(Path(state.project_dir), chapter)
+    except Exception:
+        log.debug("post_draft_extract_failed", chapter=chapter, exc_info=True)
+
+
 def _check_word_count_bounds(chapter_text: str) -> list[str]:
     """G4 word count bounds check.
 
@@ -2978,6 +2992,7 @@ def _run_chapter_step_impl(
     # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
     if "chapter-drafting" in step.skill:
         _check_volume_map_alignment(project_dir, chapter)
+        _run_post_draft_extract(state, chapter)
         _run_g4_checks(state, chapter)
         # 11b: Word count bounds check
         chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
