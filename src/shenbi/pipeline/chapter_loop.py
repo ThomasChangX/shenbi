@@ -1759,6 +1759,111 @@ def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int
 
 
 # ---------------------------------------------------------------------------
+# Volume map alignment check (WARN-level, non-blocking)
+# ---------------------------------------------------------------------------
+
+
+def _check_volume_map_alignment(project_dir: Path, chapter: int) -> None:
+    """WARN-level check: compare volume_map chapter node terms against chapter text.
+
+    Non-blocking: blueprint is guidance, creative deviation is allowed.
+    Warns when >70% of key terms from volume_map are missing from chapter.
+    """
+    vm_path = project_dir / "outline" / "volume_map.md"
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+
+    if not vm_path.exists() or not chapter_path.exists():
+        return
+
+    volume_map_text = vm_path.read_text(encoding="utf-8")
+
+    # Extract chapter node description
+    node = _extract_chapter_node_from_map(volume_map_text, chapter)
+    if node is None:
+        return
+
+    # Extract key terms (nouns and proper nouns, Chinese/English)
+    key_terms = _extract_key_terms(node["content"])
+    if not key_terms:
+        return
+
+    chapter_text = chapter_path.read_text(encoding="utf-8")
+
+    # Check term presence
+    found_terms: list[str] = []
+    missing_terms: list[str] = []
+    for term in key_terms:
+        if term.lower() in chapter_text.lower():
+            found_terms.append(term)
+        else:
+            missing_terms.append(term)
+
+    total = len(key_terms)
+    match_rate = len(found_terms) / total if total > 0 else 1.0
+
+    if match_rate < 0.3:  # >70% missing
+        log.warning(
+            "volume_map_alignment",
+            chapter=chapter,
+            match_rate=f"{match_rate:.1%}",
+            found_terms=found_terms,
+            missing_terms=missing_terms,
+            expected=node["content"][:120],
+        )
+
+
+def _extract_chapter_node_from_map(volume_map_text: str, chapter: int) -> dict[str, str] | None:
+    """Extract {role, content} from volume_map table row for a chapter."""
+    pattern = re.compile(rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|")
+    m = pattern.search(volume_map_text)
+    if m:
+        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
+    return None
+
+
+def _extract_key_terms(text: str) -> list[str]:
+    """Extract significant key terms from a description.
+
+    Returns Chinese words (2+ chars) and English words (3+ chars),
+    skipping common stop words.
+    """
+    stop_words = {
+        "the",
+        "and",
+        "in",
+        "of",
+        "to",
+        "a",
+        "is",
+        "for",
+        "with",
+        "this",
+        "that",
+        "from",
+        "be",
+    }
+    terms: list[str] = []
+
+    # English words 3+ chars
+    eng_words = re.findall(r"[a-zA-Z]{3,}", text)
+    for w in eng_words:
+        if w.lower() not in stop_words:
+            terms.append(w)
+
+    # Chinese character sequences 2+ chars
+    cn_seqs = re.findall(r"[\u4e00-\u9fff]{2,}", text)
+    terms.extend(cn_seqs)
+
+    # Filter generic terms
+    filtered: list[str] = []
+    for t in terms:
+        if t.lower() not in {"chapter", "volume", "node", "role", "content", "character"}:
+            filtered.append(t)
+
+    return filtered
+
+
+# ---------------------------------------------------------------------------
 # Resume cleanup
 # ---------------------------------------------------------------------------
 
@@ -2263,6 +2368,10 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:
         _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+
+    # Blueprint alignment check after chapter drafting (WARN-level, non-blocking)
+    if "chapter-drafting" in step.skill:
+        _check_volume_map_alignment(project_dir, chapter)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":

@@ -12,7 +12,10 @@ then escalate.
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from shenbi.pipeline.chapter_loop import (
     _LAST_AUDIT_IDX,
@@ -1041,3 +1044,78 @@ class TestResonanceScoreParser:
         report = tmp_path / "resonance.md"
         report.write_text("# No score here\n\nJust text.")
         assert _parse_resonance_score(report) is None
+
+
+# ---------------------------------------------------------------------------
+# Volume Map Alignment Check (Task 3)
+# ---------------------------------------------------------------------------
+class TestVolumeMapAlignment:
+    """Tests _check_volume_map_alignment for blueprint deviation warnings."""
+
+    @pytest.fixture
+    def project_with_volume_map_and_chapter(self, tmp_path: Path) -> Path:
+        outline_dir = tmp_path / "outline"
+        outline_dir.mkdir()
+        (outline_dir / "volume_map.md").write_text("""# Volume Map
+## Volume 1: Awakening (Ch 1-15)
+### Chapter Nodes
+| Ch | Role | Content |
+|----|------|---------|
+| 1 | opening | Lin Feng awakens, cultivates, meets elder |
+""")
+        chapters_dir = tmp_path / "chapters"
+        chapters_dir.mkdir()
+        return tmp_path
+
+    def test_alignment_check_passes_when_key_terms_present(
+        self, project_with_volume_map_and_chapter: Path
+    ):
+        from shenbi.pipeline.chapter_loop import _check_volume_map_alignment
+
+        chapter_text = "Lin Feng slowly awoke in the dark cave. He began to cultivate, sensing the elder's presence."
+        (project_with_volume_map_and_chapter / "chapters" / "chapter-1.md").write_text(chapter_text)
+
+        with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
+            _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
+            # Should not warn when terms match
+            warn_calls = [
+                c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)
+            ]
+            assert len(warn_calls) == 0
+
+    def test_alignment_check_warns_when_key_terms_missing(
+        self, project_with_volume_map_and_chapter: Path
+    ):
+        from shenbi.pipeline.chapter_loop import _check_volume_map_alignment
+
+        chapter_text = (
+            "The sun rose over the mountains. Birds sang in the trees. A gentle breeze blew."
+        )
+        (project_with_volume_map_and_chapter / "chapters" / "chapter-1.md").write_text(chapter_text)
+
+        with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
+            _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
+            mock_log.warning.assert_any_call(
+                "volume_map_alignment",
+                chapter=1,
+                match_rate="0.0%",
+                found_terms=[],
+                missing_terms=["Lin", "Feng", "awakens", "cultivates", "meets", "elder"],
+                expected="Lin Feng awakens, cultivates, meets elder",
+            )
+
+    def test_alignment_check_skips_when_no_volume_map(
+        self, project_with_volume_map_and_chapter: Path
+    ):
+        from shenbi.pipeline.chapter_loop import _check_volume_map_alignment
+
+        (project_with_volume_map_and_chapter / "outline" / "volume_map.md").unlink()
+        chapter_text = "Anything."
+        (project_with_volume_map_and_chapter / "chapters" / "chapter-1.md").write_text(chapter_text)
+
+        with patch("shenbi.pipeline.chapter_loop.log") as mock_log:
+            _check_volume_map_alignment(project_with_volume_map_and_chapter, chapter=1)
+            warn_calls = [
+                c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)
+            ]
+            assert len(warn_calls) == 0
