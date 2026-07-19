@@ -2192,7 +2192,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
-    g4 = run_gate_g4(step.skill, g4_files, project_dir)
+    g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     if not _gate_passed(g4):
         must_fix = g4.get("must_fix", [])
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
@@ -2248,7 +2248,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
-        g3 = run_gate_g3(step.skill, project_dir)
+        g3 = run_gate_g3(step.skill, project_dir, chapter=chapter, phase="chapter_loop")
         if not _gate_passed(g3):
             log.error(
                 "chapter_g3_failed",

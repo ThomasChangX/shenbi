@@ -1131,8 +1131,18 @@ def dispatch_skill(
     return DispatchResult(r.returncode == 0, r.returncode, r.stdout, r.stderr)
 
 
-def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[str, Any]:
-    """Run G4 (skill-specific structural check) after dispatch."""
+def run_gate_g4(
+    skill: str,
+    files: list[str],
+    project_dir: Path | str,
+    chapter: int | None = None,
+    phase: str | None = None,
+) -> dict[str, Any]:
+    """Run G4 (skill-specific structural check) after dispatch.
+
+    When *chapter* and *phase* are provided, the result is recorded into the
+    pipeline gate manifest via :func:`~shenbi.gates.gate_manifest.record_gate_result`.
+    """
     cmd = [
         sys.executable,
         "-m",
@@ -1146,15 +1156,30 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     except subprocess.TimeoutExpired:
         log.error("g4_timeout", skill=skill)
-        return {"status": GateStatus.FAIL, "error": "G4 timed out"}
+        result: dict[str, Any] = {"status": GateStatus.FAIL, "error": "G4 timed out"}
+        if chapter is not None and phase is not None:
+            _record_gate_manifest(Path(project_dir), phase, chapter, skill, "G4", result)
+        return result
     try:
-        return json.loads(r.stdout)  # type: ignore[no-any-return]
+        result = json.loads(r.stdout)
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
+        result = {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
+    if chapter is not None and phase is not None:
+        _record_gate_manifest(Path(project_dir), phase, chapter, skill, "G4", result)
+    return result
 
 
-def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
-    """Run G3 (scoring independence) check."""
+def run_gate_g3(
+    skill: str,
+    round_dir: Path | str,
+    chapter: int | None = None,
+    phase: str | None = None,
+) -> dict[str, Any]:
+    """Run G3 (scoring independence) check.
+
+    When *chapter* and *phase* are provided, the result is recorded into the
+    pipeline gate manifest via :func:`~shenbi.gates.gate_manifest.record_gate_result`.
+    """
     rd = Path(round_dir)
     pp = rd / "progress.json"
     if not pp.exists():
@@ -1175,8 +1200,38 @@ def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
     except subprocess.TimeoutExpired:
         log.error("g3_timeout", skill=skill)
-        return {"status": GateStatus.FAIL, "error": "G3 timed out"}
+        result: dict[str, Any] = {"status": GateStatus.FAIL, "error": "G3 timed out"}
+        if chapter is not None and phase is not None:
+            _record_gate_manifest(rd, phase, chapter, skill, "G3", result)
+        return result
     try:
-        return json.loads(r.stdout)  # type: ignore[no-any-return]
+        result = json.loads(r.stdout)
     except (json.JSONDecodeError, ValueError):
-        return {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
+        result = {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
+    if chapter is not None and phase is not None:
+        _record_gate_manifest(rd, phase, chapter, skill, "G3", result)
+    return result
+
+
+def _record_gate_manifest(
+    project_dir: Path,
+    phase: str,
+    chapter: int,
+    skill: str,
+    gate: str,
+    result: dict[str, Any],
+) -> None:
+    """Record a gate result into the pipeline manifest (best-effort, never raises)."""
+    try:
+        from shenbi.gates.gate_manifest import record_gate_result
+
+        record_gate_result(
+            gate_manifest_dir=project_dir,
+            phase=phase,
+            chapter=chapter,
+            skill=skill,
+            gate=gate,
+            result=result,
+        )
+    except Exception:
+        log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)

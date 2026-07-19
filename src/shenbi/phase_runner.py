@@ -51,6 +51,30 @@ def now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def _record_gate_manifest(
+    project_dir: Path,
+    phase: str,
+    chapter: int,
+    skill: str,
+    gate: str,
+    result: dict[str, Any],
+) -> None:
+    """Record a gate result into the pipeline manifest (best-effort, never raises)."""
+    try:
+        from shenbi.gates.gate_manifest import record_gate_result
+
+        record_gate_result(
+            gate_manifest_dir=project_dir,
+            phase=phase,
+            chapter=chapter,
+            skill=skill,
+            gate=gate,
+            result=result,
+        )
+    except Exception:
+        log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)
+
+
 def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     """Run a gate via the live ``shenbi.gates.cli`` module, return parsed JSON.
 
@@ -186,8 +210,10 @@ def cmd_post_skill(
     if output_files:
         g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
+        _record_gate_manifest(proj, phase, chapter or 0, skill, "G2", g2)
     g4 = run_gate("G4", [skill, ",".join(output_files) if output_files else "", str(round_dir)])
     g4_status = g4.get("status", GateStatus.FAIL.value)
+    _record_gate_manifest(proj, phase, chapter or 0, skill, "G4", g4)
     step = {
         "action": "post-skill",
         "skill": skill,
