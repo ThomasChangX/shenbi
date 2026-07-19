@@ -5,6 +5,8 @@ import pytest
 from shenbi import exceptions as exc_mod
 from shenbi.error_guidance import ERROR_GUIDANCE, get_guidance
 from shenbi.exceptions import (
+    DispatcherError,
+    DispatchWriteFailureError,
     FrameworkError,
     GateError,
     GateMarkerMissingError,
@@ -126,3 +128,10 @@ class TestCatalogConsistency:
         """Errors with guidance should also have a recovery strategy defined."""
         guidance_only = set(ERROR_GUIDANCE.keys()) - set(RECOVERY_STRATEGIES.keys())
         assert not guidance_only, f"Errors with guidance but no recovery strategy: {guidance_only}"
+
+
+def test_dispatch_write_failure_is_dispatcher_error():
+    err = DispatchWriteFailureError("sandbox diagnostic", signature="由于沙箱限制")
+    assert isinstance(err, DispatcherError)
+    assert "sandbox diagnostic" in str(err)
+    assert err.signature == "由于沙箱限制"

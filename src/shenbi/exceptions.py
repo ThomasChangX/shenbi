@@ -87,6 +87,19 @@ class DispatcherError(FrameworkError):
     """Sub-agent dispatch failure."""
 
 
+class DispatchWriteFailureError(DispatcherError):
+    """The LLM emitted a write-failure diagnostic instead of file content.
+
+    Raised by ``_write_parsed_outputs`` when :func:`detect_write_failure`
+    matches. Carries the matched ``signature`` so the retry prompt can quote
+    it back to the model.
+    """
+
+    def __init__(self, message: str, *, signature: str = "") -> None:
+        super().__init__(message)
+        self.signature = signature
+
+
 class SubAgentTimeoutError(DispatcherError):
     """Sub-agent timed out."""
 
