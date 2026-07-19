@@ -698,6 +698,84 @@ class TestWriteParsedOutputsWithWildcards:
         assert written == []
 
 
+# ---------------------------------------------------------------------------
+# Plan skeleton injection tests (Plan 10 Task 13)
+# ---------------------------------------------------------------------------
+
+
+class TestPlanSkeletonInjection:
+    """Task 13: _build_skill_prompt injects plan skeleton for chapter planning."""
+
+    def test_chapter_planning_prompt_includes_skeleton(self, tmp_path: Path, monkeypatch):
+        """When dispatching shenbi-chapter-planning, the REAL _build_skill_prompt
+        must include a plan skeleton when volume_map.md exists.
+
+        This does NOT mock _build_skill_prompt (that would make the test a no-op).
+        Instead it exercises the real function and asserts the skeleton-derived
+        content appears in the returned prompt, proving the Task 13 wiring works.
+        """
+        from shenbi.contracts import OutputKind
+        from shenbi.pipeline.dispatch_helper import (
+            _build_skill_prompt,
+        )
+
+        # ---- Arrange: set up project structure ----
+        outline_dir = tmp_path / "outline"
+        outline_dir.mkdir()
+        (outline_dir / "volume_map.md").write_text(
+            """# Volume Map
+## Volume 1 (Ch 1-15)
+### Chapter Nodes
+| Ch | Role | Content |
+|----|------|---------|
+| 1 | opening | Test content |
+""",
+            encoding="utf-8",
+        )
+
+        # _build_skill_prompt reads SKILL.md from _PROJECT_ROOT / "skills" / skill.
+        # Redirect _PROJECT_ROOT to tmp_path so it finds our test SKILL.md.
+        skill_dir = tmp_path / "skills" / "shenbi-chapter-planning"
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: shenbi-chapter-planning\n"
+            "description: Use when planning\n"
+            "contract: {kind: artifact}\n"
+            "---\n# Chapter Planning Skill body\n",
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(
+            "shenbi.pipeline.dispatch_helper._PROJECT_ROOT",
+            tmp_path,
+        )
+
+        # Mock load_contract to return a minimal valid contract
+        mock_contract = {
+            "kind": OutputKind.ARTIFACT,
+            "reads": [],
+            "writes": ["plans/chapter-1-plan.md"],
+            "updates": [],
+            "read_fields": {},
+        }
+        monkeypatch.setattr(
+            "shenbi.contracts.legacy.load_contract",
+            lambda s: mock_contract,
+        )
+
+        # ---- Act: call the REAL _build_skill_prompt ----
+        system_prompt, user_prompt, output_paths = _build_skill_prompt(
+            skill="shenbi-chapter-planning",
+            project_dir=tmp_path,
+            prompt="plan chapter 1",
+            chapter=1,
+        )
+
+        # ---- Assert: skeleton-derived content proves Task 13 wiring ----
+        assert "Plan Skeleton" in user_prompt or "plan skeleton" in user_prompt.lower()
+        assert "Test content" in user_prompt
+        assert "opening" in user_prompt.lower()
+
+
 class TestSanitizeJsonContent:
     """Tests for sanitize_json_content (illegal control character removal)."""
 

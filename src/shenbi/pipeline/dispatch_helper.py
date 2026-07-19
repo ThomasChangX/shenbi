@@ -472,6 +472,27 @@ def _build_skill_prompt(
             user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
     user_prompt = "\n".join(user_parts)
 
+    # Task 13: Inject plan skeleton for shenbi-chapter-planning when volume_map exists.
+    if skill == "shenbi-chapter-planning" and chapter is not None:
+        vm_path = project_dir / "outline" / "volume_map.md"
+        if vm_path.exists():
+            try:
+                from shenbi.pipeline.plan_skeleton import generate_plan_skeleton
+
+                skeleton = generate_plan_skeleton(project_dir, chapter)
+                skeleton_header = "## Plan Skeleton (auto-generated from volume_map.md)\n\n"
+                skeleton_footer = (
+                    "\n\n---\n\n"
+                    "Complete the [LLM]-marked sections above. Pre-filled sections "
+                    "are derived from the blueprint and are EDITABLE CONTEXT -- you "
+                    "may modify, override, or deviate from them as the story requires. "
+                    "Section 5 (Key Decisions) is entirely yours to create.\n\n"
+                    "---"
+                )
+                user_prompt = skeleton_header + skeleton + skeleton_footer + "\n\n" + user_prompt
+            except Exception as e:
+                log.warning("plan_skeleton_inject_failed", skill=skill, error=str(e))
+
     # Inject shared review checklist for review skills (Phase 2.3).
     if _is_review_skill(skill) and chapter is not None:
         try:

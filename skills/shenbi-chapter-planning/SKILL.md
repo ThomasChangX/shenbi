@@ -38,6 +38,18 @@ contract:
 
 <!-- END AUTO-GENERATED -->
 
+## Input: Plan Skeleton
+
+You will receive a pre-generated "Plan Skeleton" derived from the volume_map.md
+blueprint. Sections marked `[LLM]` require your creative completion. Sections
+with concrete content are EDITABLE CONTEXT derived from the blueprint -- you may
+modify, override, or deviate from them as the story requires.
+
+Do NOT regenerate pre-filled sections from scratch unless you are deliberately
+deviating. Polish them if needed, and preserve the volume_map intent where it
+serves the story. Section 5 (Key Decisions) is fully yours to create -- the
+skeleton provides no constraints there.
+
 # 章节规划
 
 HARD-GATE: 不得在没有章节备忘的情况下起草正文。
