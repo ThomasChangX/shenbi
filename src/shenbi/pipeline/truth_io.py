@@ -1,11 +1,27 @@
-"""Key-based upsert truth-file writer for pipeline integrity.
+"""Thread-safe truth file I/O (spec §3.2).
+
+The concurrency model for skill dispatch is in-process ``ThreadPoolExecutor``
+(threads). The correct synchronization primitive is therefore ``threading.Lock``
+— NOT ``fcntl.flock``, which targets inter-process locking and leaves
+``.lock`` files on disk. This module provides a path-keyed lock registry so
+that writes to different truth files do not block each other, while
+concurrent writes to the SAME file serialize.
+
+A read-merge-write (e.g. upsert-markdown-row) is NOT atomic across threads
+even though the final ``safe_write`` is atomic (temp + ``os.replace``): two
+threads can each read the prior content and the second writer's merge loses
+the first writer's row (spec §2.2 lost-update race). The per-path lock
+serializes the whole read-merge-write transaction.
 
 Wraps :func:`shenbi.safe_write.safe_write` with update-mode awareness:
 - ``replace``: atomic overwrite (current snapshot files)
 - ``upsert_yaml``: read existing YAML records, dedup by key_field, merge,
   re-serialize, write (structured data like hooks)
-- ``upsert_markdown_row``: read existing markdown table rows, dedup by key
-  column, merge new row, write (trend files read by escalation_bridge)
+- ``upsert_markdown_row``: read existing markdown table/bullet rows, dedup by
+  key column, merge new row, write (trend files read by escalation_bridge)
+
+Supports both str-based (table-row format) and dict-based (bullet-row format)
+data for ``replace`` and ``upsert_markdown_row`` modes.
 
 Idempotency is based on NATURAL KEYS (chapter number, hook id), NOT substring
 matching. truth_index.py already abandoned substring matching as the broken
@@ -31,38 +47,48 @@ from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
 
-# Per-path locks for in-process concurrency. Keyed by resolved truth-file path.
+# Module-level registry of per-path locks. Access to the registry dict itself
+# is guarded by _REGISTRY_LOCK to avoid a race where two threads lazily create
+# a lock for the same path and each stores its own (losing one). No lock files
+# are written to disk — this is purely in-process.
+_REGISTRY_LOCK = threading.Lock()
 _PATH_LOCKS: dict[str, threading.Lock] = {}
-_PATH_LOCKS_GUARD = threading.Lock()
 
 
-def _get_path_lock(path: Path) -> threading.Lock:
-    """Get or create the in-process lock for a given truth-file path."""
+def _path_lock(path: Path) -> threading.Lock:
+    """Return the singleton lock for *path*, creating it lazily.
+
+    Different paths get different locks (no cross-file blocking); the same
+    path always returns the same lock object (serializes same-file writers).
+    """
     key = str(path)
-    with _PATH_LOCKS_GUARD:
-        if key not in _PATH_LOCKS:
-            _PATH_LOCKS[key] = threading.Lock()
-        return _PATH_LOCKS[key]
+    with _REGISTRY_LOCK:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.Lock()
+            _PATH_LOCKS[key] = lock
+        return lock
 
 
 def write_truth_file(
     project_dir: Path,
     filename: str,
-    new_data: str | list[dict[str, Any]],  # str for markdown_table mode, list[dict] for yaml
+    new_data: str | dict[str, Any] | list[dict[str, Any]],
     *,
-    mode: str = "replace",  # replace | upsert_yaml | upsert_markdown_row
+    mode: str = "replace",
     key_field: str | None = None,
 ) -> None:
-    """Write to a truth file, respecting update_mode.
+    """Write to a truth file thread-safely, respecting update_mode.
 
     Args:
         project_dir: Root directory of the novel project.
         filename: Relative filename within ``truth/`` (e.g. ``resonance_trend.md``).
-        new_data: Content to write. ``str`` for replace/upsert_markdown_row,
-            ``list[dict]`` for upsert_yaml.
+        new_data: Content to write. ``str`` for table-row format,
+            ``dict[str, Any]`` for bullet-row format (key/value pairs),
+            ``list[dict]`` for YAML records.
         mode: ``"replace"`` for atomic overwrite, ``"upsert_yaml"`` for
             structured-record key dedup, ``"upsert_markdown_row"`` for
-            table-row key-column dedup.
+            table/bullet-row key-column dedup.
         key_field: Natural key for dedup (e.g. ``"chapter"``, ``"id"``).
             Required for the upsert modes.
 
@@ -78,21 +104,28 @@ def write_truth_file(
     truth_dir.mkdir(parents=True, exist_ok=True)
     path = truth_dir / filename
 
-    lock = _get_path_lock(path)
+    lock = _path_lock(path)
     with lock:
         if mode == "replace":
-            content = new_data if isinstance(new_data, str) else str(new_data)
-            safe_write(path, content)
-            log.debug("truth_file_replaced", file=filename)
+            if isinstance(new_data, dict):
+                body = f"# {filename.removesuffix('.md')}\n\n- {new_data}\n"
+                safe_write(path, body.encode("utf-8"))
+            else:
+                content = new_data if isinstance(new_data, str) else str(new_data)
+                safe_write(path, content)
+            log.info("truth_file_written", path=str(path), mode=mode)
             return
 
         if mode == "upsert_markdown_row":
-            if not isinstance(new_data, str):
-                raise ValueError("upsert_markdown_row requires str new_data")
-            existing = path.read_text(encoding="utf-8") if path.exists() else ""
-            merged = _upsert_markdown_table_row(existing, new_data, key_field or "chapter")
-            safe_write(path, merged)
-            log.info("truth_file_markdown_row_upserted", file=filename)
+            if isinstance(new_data, dict):
+                _upsert_markdown_bullet(path, filename, new_data, key_field)
+            elif isinstance(new_data, str):
+                existing = path.read_text(encoding="utf-8") if path.exists() else ""
+                merged = _upsert_markdown_table_row(existing, new_data, key_field or "chapter")
+                safe_write(path, merged)
+                log.info("truth_file_markdown_row_upserted", file=filename)
+            else:
+                raise ValueError("upsert_markdown_row requires str or dict new_data")
             return
 
         if mode == "upsert_yaml":
@@ -105,6 +138,64 @@ def write_truth_file(
             yaml_content = _serialize_yaml_records(merged_records, filename)
             safe_write(path, yaml_content)
             log.info("truth_file_yaml_upserted", file=filename)
+
+
+def _read_truth_rows(path: Path) -> list[dict[str, str]]:
+    """Parse existing markdown rows into list of {column: value} dicts.
+
+    Reads lines starting with ``- `` (bullet rows) or ``| ... |`` (table
+    rows) and splits on ``:`` (bullet) or ``|`` (table). Tolerates an empty
+    or heading-only file by returning [].
+    """
+    if not path.exists():
+        return []
+    rows: list[dict[str, str]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s.startswith("- "):
+            body = s[2:]
+            if ":" in body:
+                k, _, v = body.partition(":")
+                rows.append({k.strip(): v.strip()})
+        elif s.startswith("|") and s.endswith("|") and set(s) != {"|"}:
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            if cells and cells[0] and cells[0] != "chapter":
+                # treat first cell as key column for table form
+                rows.append({cells[0]: " ".join(cells[1:])})
+    return rows
+
+
+def _upsert_markdown_bullet(
+    path: Path,
+    filename: str,
+    new_data: dict[str, Any],
+    key_field: str | None,
+) -> None:
+    """Upsert a dict row into a bullet-format markdown truth file.
+
+    Reads existing bullet/table rows, deduplicates by *key_field* value,
+    appends the new row, and writes back. Serialized by the per-path lock
+    so concurrent upserts to the same file cannot lose updates.
+    """
+    if key_field is None:
+        raise ValueError("upsert_markdown_row requires key_field")
+    rows = _read_truth_rows(path)
+    # Dedup: drop any existing row whose key matches the new row's key_field value.
+    key_val = str(new_data.get(key_field, ""))
+    rows = [r for r in rows if next(iter(r.keys())) != key_val]
+    # Render non-key fields as "k=v" pairs.
+    rest_fields = " ".join(f"{k}={v}" for k, v in new_data.items() if k != key_field)
+    rows.append({key_val: rest_fields} if rest_fields else {key_val: ""})
+    body = f"# {filename.removesuffix('.md')}\n\n"
+    body += "\n".join(f"- {next(iter(r.items()))[0]}: {next(iter(r.items()))[1]}" for r in rows)
+    body += "\n"
+    safe_write(path, body.encode("utf-8"))
+    log.info(
+        "truth_file_written",
+        path=str(path),
+        mode="upsert_markdown_row",
+        rows=len(rows),
+    )
 
 
 def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> str:
