@@ -80,6 +80,25 @@ def gate_G2(
             # file_type gate instead.
             if not fp.endswith(".json"):
                 continue  # skip .md files — decisions branch only validates JSON
+            # G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())
+            # (G4 retry feedback can cause LLM to concatenate old + new JSON under
+            # one ### FILE: marker. This catches it early.)
+            #
+            # CRITICAL ORDERING: json.loads() raises JSONDecodeError on concatenated JSON
+            # ("Extra data" error), so this check must execute first. If we placed it
+            # after data = json.loads(content), the line above would raise before the
+            # check is ever reached, making the check dead code.
+            if content.count('"$schema"') > 1:
+                mf.append(
+                    {
+                        "id": "G2.dec.4",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
+                    }
+                )
+                continue  # skip the json.loads() below for this file — it would raise
+
             # G2.dec.1 — valid JSON (with multi-JSON concatenation recovery)
             # Multi-JSON detection runs BEFORE json.loads(): if raw_decode()
             # succeeds where json.loads() fails (due to concatenated JSON objects),

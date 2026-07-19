@@ -512,3 +512,40 @@ class TestG2DecisionsBranch:
 
         # Overall the gate passes (the .md was skipped, not failed).
         assert data["status"] == "PASS"
+
+    def test_g2_dec4_detects_concatenated_json(self, tmp_path: Path) -> None:
+        """G2.dec.4 fails when multiple JSON objects exist in one file."""
+        decisions_json = tmp_path / "chapter-5-decisions.json"
+        obj1 = {"$schema": "shenbi-decisions-v1", "skill": "chapter-drafting"}
+        obj2 = {"$schema": "shenbi-decisions-v1", "skill": "chapter-revision"}
+        content = json.dumps(obj1) + "\n" + json.dumps(obj2)
+        decisions_json.write_text(content)
+
+        result = gate_G2(str(decisions_json), file_type="decisions")
+        data = _result_dict(result)
+        assert data["status"] == "FAIL"
+        assert any("G2.dec.4" in mf for mf in data.get("must_fix", []))
+
+    def test_g2_dec4_passes_single_json(self, tmp_path: Path) -> None:
+        """G2.dec.4 passes when only one JSON object is present."""
+        decisions_json = tmp_path / "chapter-5-decisions.json"
+        content = json.dumps(
+            {
+                "$schema": "shenbi-decisions-v1",
+                "skill": "chapter-drafting",
+                "chapter": 5,
+                "produced_at": "2026-07-07T12:00:00Z",
+                "selections": [],
+            }
+        )
+        decisions_json.write_text(content)
+
+        result = gate_G2(str(decisions_json), file_type="decisions")
+        data = _result_dict(result)
+        # G2.dec.4 should not appear in checks or must_fix for single JSON
+        assert not any("G2.dec.4" in mf for mf in data.get("must_fix", []))
+        # Also verify the decisions pass
+        assert data["status"] == "PASS"
+        dec_pass = [c for c in data.get("checks", []) if c.get("id") == "G2.dec"]
+        assert dec_pass
+        assert dec_pass[0]["s"] == "PASS"
