@@ -204,6 +204,91 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     return []
 
 
+def _wildcard_to_regex(pattern: str) -> str:
+    r"""Convert a glob-style pattern to a regex pattern string.
+
+    'characters/major/*.md' -> '^characters/major/[^/]*\\.md$'
+    """
+    escaped = re.escape(pattern)
+    # Replace escaped \* with a non-slash wildcard
+    return "^" + escaped.replace(r"\*", r"[^/]*") + "$"
+
+
+def _resolve_wildcard_path(
+    contract_pattern: str,
+    concrete_path: str,
+    base_dir: Path | None = None,
+) -> bool:
+    """Check if concrete_path matches contract_pattern and ensure parent dirs exist.
+
+    Returns True if the path matches and directories were handled.
+    Returns False if the path does not match the pattern.
+
+    contract_pattern examples:
+        'characters/major/*.md'
+        'characters/minor/*.md'
+
+    When a match is found, all intermediate directories are created so the
+    caller can safely write the file.
+    """
+    regex = re.compile(_wildcard_to_regex(contract_pattern))
+
+    p = Path(concrete_path)
+    if base_dir is not None and not p.is_absolute():
+        p = base_dir / p
+
+    # Compute the relative path for pattern matching.
+    # If base_dir is provided, match against the path relative to base_dir.
+    if base_dir is not None:
+        try:
+            match_path = str(p.relative_to(base_dir))
+        except ValueError:
+            # concrete_path is not under base_dir — cannot match
+            return False
+    else:
+        match_path = concrete_path
+
+    # Normalize path separator
+    normalized = match_path.replace("\\", "/")
+
+    if not regex.match(normalized):
+        return False
+
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return True
+
+
+def _resolve_all_wildcards(
+    contract_writes: list[str],
+    concrete_path: str,
+    base_dir: Path | None = None,
+) -> list[str]:
+    """Return the list of contract patterns that match concrete_path.
+
+    For each matching pattern, ensure directories exist.
+    """
+    matching: list[str] = []
+    for pattern in contract_writes:
+        if "*" in pattern or "?" in pattern:
+            if _resolve_wildcard_path(pattern, concrete_path, base_dir):
+                matching.append(pattern)
+        else:
+            # Literal match: compare against the relative path if base_dir set
+            if base_dir is not None:
+                p = Path(concrete_path)
+                if not p.is_absolute():
+                    p = base_dir / p
+                try:
+                    rel = str(p.relative_to(base_dir))
+                except ValueError:
+                    continue
+            else:
+                rel = concrete_path
+            if pattern in rel or rel.endswith(pattern):
+                matching.append(pattern)
+    return matching
+
+
 # ---------------------------------------------------------------------------
 # Prompt building
 # ---------------------------------------------------------------------------
@@ -625,19 +710,22 @@ def _write_parsed_outputs(
     """Parse agent response and write per-file content.
 
     Returns list of successfully written paths.
+
+    Handles both literal contract paths and wildcard patterns (e.g.,
+    ``characters/major/*.md``). When the LLM outputs a concrete path matching
+    a wildcard contract pattern, intermediate directories are auto-created
+    via ``_resolve_all_wildcards``.
     """
     parsed = _parse_file_outputs(response)
     written: list[str] = []
 
-    for rel_path in output_paths:
-        if "*" in rel_path:
-            continue
-        content = parsed.get(rel_path, parsed.get("__stdout__", ""))
-        if not content.strip():
-            log.warning("output_empty", path=rel_path)
-            continue
+    # Split output_paths into literal and wildcard
+    literal_paths = [p for p in output_paths if "*" not in p and "?" not in p]
+    wildcard_patterns = [p for p in output_paths if "*" in p or "?" in p]
+
+    def _write_one(rel_path: str, content: str) -> None:
+        """Write a single output file with validation and size guard."""
         full_path = project_dir / rel_path
-        full_path.parent.mkdir(parents=True, exist_ok=True)
         if full_path.suffix == ".json":
             content = sanitize_json_content(content)
         try:
@@ -649,11 +737,39 @@ def _write_parsed_outputs(
         should_block, reason = _check_content_size_guard(project_dir, rel_path, content)
         if should_block:
             log.warning("write_blocked_content_size_guard", path=rel_path, reason=reason)
-            continue  # Skip this file, preserve original
+            return  # Skip this file, preserve original
 
         safe_write(full_path, content)
         written.append(rel_path)
         log.info("output_written", path=rel_path, size=len(content))
+
+    # Process literal contract paths
+    for rel_path in literal_paths:
+        content = parsed.get(rel_path, parsed.get("__stdout__", ""))
+        if not content.strip():
+            log.warning("output_empty", path=rel_path)
+            continue
+        full_path = project_dir / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        _write_one(rel_path, content)
+
+    # Process wildcard paths: check parsed outputs against wildcard patterns
+    for rel_path, content in parsed.items():
+        if rel_path == "__stdout__":
+            continue
+        if rel_path in literal_paths:
+            continue  # Already handled above
+        matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
+        if matching:
+            if not content.strip():
+                log.warning("output_empty", path=rel_path)
+                continue
+            _write_one(rel_path, content)
+            log.debug(
+                "wildcard_output_matched",
+                path=rel_path,
+                patterns=matching,
+            )
 
     if create_truth_templates and any("*" in p for p in output_paths):
         _init_truth_templates(project_dir)

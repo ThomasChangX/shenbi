@@ -7,6 +7,7 @@ Wave 3 Task 1: dispatch wrapper that reuses the existing dispatcher CLI
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -465,6 +466,236 @@ class TestValidateJsonOutput:
 # ---------------------------------------------------------------------------
 # Control character sanitization tests (Plan 02 Task 2)
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Wildcard path resolution tests (Plan 10 Task 5)
+# ---------------------------------------------------------------------------
+
+
+class TestResolveWildcardPath:
+    """Tests for _resolve_wildcard_path wildcard-to-concrete matching."""
+
+    def test_resolve_wildcard_creates_directory_for_concrete_path(self, tmp_path: Path):
+        """When a contract declares characters/major/*.md and LLM outputs
+        characters/major/chen-weimin.md, auto-create the major/ directory.
+        """
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        contract_pattern = "characters/major/*.md"
+        concrete_path = tmp_path / "characters" / "major" / "chen-weimin.md"
+        assert not concrete_path.parent.exists()
+
+        _resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
+
+        assert concrete_path.parent.exists()
+
+    def test_resolve_wildcard_matches_pattern(self, tmp_path: Path):
+        """Wildcard pattern should match concrete paths."""
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        assert (
+            _resolve_wildcard_path(
+                "characters/major/*.md",
+                str(tmp_path / "characters" / "major" / "chen-weimin.md"),
+                base_dir=tmp_path,
+            )
+            is True
+        )
+
+    def test_resolve_wildcard_rejects_non_matching_path(self, tmp_path: Path):
+        """Concrete path must match the wildcard pattern."""
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        assert (
+            _resolve_wildcard_path(
+                "characters/major/*.md",
+                str(tmp_path / "characters" / "protagonist.md"),
+                base_dir=tmp_path,
+            )
+            is False
+        )
+
+    def test_resolve_wildcard_with_minor_characters(self, tmp_path: Path):
+        """Test with minor character wildcard."""
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        contract_pattern = "characters/minor/*.md"
+        concrete_path = tmp_path / "characters" / "minor" / "zhao-tiezhu.md"
+        assert not concrete_path.parent.exists()
+
+        _resolve_wildcard_path(contract_pattern, str(concrete_path), base_dir=tmp_path)
+        assert concrete_path.parent.exists()
+
+    def test_resolve_wildcard_creates_dir_for_truth_wildcard(self, tmp_path: Path):
+        """truth/*.md wildcard should match truth/current_state.md."""
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        concrete_path = tmp_path / "truth" / "current_state.md"
+        assert not concrete_path.parent.exists()
+
+        result = _resolve_wildcard_path("truth/*.md", str(concrete_path), base_dir=tmp_path)
+        assert result is True
+        assert concrete_path.parent.exists()
+
+    def test_resolve_wildcard_rejects_deeply_nested_path(self, tmp_path: Path):
+        """Wildcard * should not match across directory boundaries."""
+        from shenbi.pipeline.dispatch_helper import _resolve_wildcard_path
+
+        assert (
+            _resolve_wildcard_path(
+                "characters/major/*.md",
+                str(tmp_path / "characters" / "major" / "subdir" / "chen-weimin.md"),
+                base_dir=tmp_path,
+            )
+            is False
+        )
+
+
+class TestWildcardToRegex:
+    """Tests for _wildcard_to_regex pattern conversion."""
+
+    def test_wildcard_pattern_to_regex(self):
+        """Internal: pattern conversion."""
+        from shenbi.pipeline.dispatch_helper import _wildcard_to_regex
+
+        pattern = _wildcard_to_regex("characters/major/*.md")
+        regex = re.compile(pattern)
+        assert regex.match("characters/major/chen-weimin.md")
+        assert not regex.match("characters/major/subdir/chen-weimin.md")
+        assert not regex.match("characters/protagonist.md")
+
+    def test_wildcard_to_regex_escapes_dots(self):
+        """Dots in pattern should be escaped to match literal dots."""
+        from shenbi.pipeline.dispatch_helper import _wildcard_to_regex
+
+        pattern = _wildcard_to_regex("truth/*.md")
+        regex = re.compile(pattern)
+        assert regex.match("truth/current_state.md")
+        assert not regex.match("truth/current_state_Xmd")  # dot must be literal
+
+    def test_wildcard_to_regex_anchors_both_ends(self):
+        """Pattern should be anchored at both start and end."""
+        from shenbi.pipeline.dispatch_helper import _wildcard_to_regex
+
+        pattern = _wildcard_to_regex("import/analysis/*.md")
+        regex = re.compile(pattern)
+        # Should match full path
+        assert regex.match("import/analysis/01_plot.md")
+        # Should NOT partial-match
+        assert not regex.match("prefix_import/analysis/01_plot.md")
+        assert not regex.match("import/analysis/01_plot.md_suffix")
+
+
+class TestResolveAllWildcards:
+    """Tests for _resolve_all_wildcards batch matching."""
+
+    def test_resolve_all_matches_single_pattern(self, tmp_path: Path):
+        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+
+        contract_writes = ["characters/major/*.md", "characters/minor/*.md"]
+        concrete = str(tmp_path / "characters" / "major" / "chen-weimin.md")
+
+        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        assert matching == ["characters/major/*.md"]
+
+    def test_resolve_all_creates_directories(self, tmp_path: Path):
+        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+
+        contract_writes = ["characters/major/*.md"]
+        concrete = str(tmp_path / "characters" / "major" / "li-xiaoyao.md")
+
+        assert not (tmp_path / "characters" / "major").exists()
+        _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        assert (tmp_path / "characters" / "major").exists()
+
+    def test_resolve_all_returns_empty_for_no_match(self, tmp_path: Path):
+        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+
+        contract_writes = ["characters/major/*.md"]
+        concrete = str(tmp_path / "other" / "file.md")
+
+        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        assert matching == []
+
+    def test_resolve_all_handles_literal_fallback(self, tmp_path: Path):
+        """Literal patterns (no wildcards) should also match via substring heuristic."""
+        from shenbi.pipeline.dispatch_helper import _resolve_all_wildcards
+
+        contract_writes = ["chapters/chapter-1.md"]
+        concrete = str(tmp_path / "chapters" / "chapter-1.md")
+
+        matching = _resolve_all_wildcards(contract_writes, concrete, base_dir=tmp_path)
+        assert "chapters/chapter-1.md" in matching
+
+
+class TestWriteParsedOutputsWithWildcards:
+    """Integration tests for _write_parsed_outputs with wildcard contract patterns."""
+
+    def test_writes_concrete_path_matching_wildcard(self, tmp_path: Path):
+        """When LLM outputs characters/major/chen-weimin.md and contract has
+        characters/major/*.md, the file should be written.
+        """
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = "### FILE: characters/major/chen-weimin.md\n# 陈伟民\n\n主角的好友，性格沉稳。\n"
+        output_paths = [
+            "characters/protagonist.md",
+            "characters/major/*.md",
+            "characters/minor/*.md",
+        ]
+        _write_parsed_outputs(response, output_paths, tmp_path)
+
+        written_file = tmp_path / "characters" / "major" / "chen-weimin.md"
+        assert written_file.exists()
+        content = written_file.read_text(encoding="utf-8")
+        assert "陈伟民" in content
+
+    def test_writes_multiple_wildcard_matches(self, tmp_path: Path):
+        """Multiple wildcard-matching files should all be written."""
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = (
+            "### FILE: characters/major/li-xiaoyao.md\n"
+            "# 李逍遥\n\n主角。\n"
+            "### FILE: characters/major/zhao-ling-er.md\n"
+            "# 赵灵儿\n\n女主角。\n"
+        )
+        output_paths = ["characters/major/*.md"]
+        _write_parsed_outputs(response, output_paths, tmp_path)
+
+        assert (tmp_path / "characters" / "major" / "li-xiaoyao.md").exists()
+        assert (tmp_path / "characters" / "major" / "zhao-ling-er.md").exists()
+
+    def test_wildcard_and_literal_paths_together(self, tmp_path: Path):
+        """Literal and wildcard writes should coexist."""
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = (
+            "### FILE: characters/protagonist.md\n"
+            "# 主角\n\n林烽。\n"
+            "### FILE: characters/major/chen-weimin.md\n"
+            "# 陈伟民\n\n好友。\n"
+        )
+        output_paths = [
+            "characters/protagonist.md",
+            "characters/major/*.md",
+        ]
+        _write_parsed_outputs(response, output_paths, tmp_path)
+
+        assert (tmp_path / "characters" / "protagonist.md").exists()
+        assert (tmp_path / "characters" / "major" / "chen-weimin.md").exists()
+
+    def test_non_matching_parsed_output_is_skipped(self, tmp_path: Path):
+        """A parsed output that matches neither literal nor wildcard should be skipped."""
+        from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+        response = "### FILE: unrelated/extra_file.md\n# Extra\n\nShould not be written.\n"
+        output_paths = ["characters/major/*.md"]
+        written = _write_parsed_outputs(response, output_paths, tmp_path)
+
+        assert not (tmp_path / "unrelated" / "extra_file.md").exists()
+        assert written == []
 
 
 class TestSanitizeJsonContent:
