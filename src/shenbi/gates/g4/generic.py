@@ -201,6 +201,7 @@ def gate_G4(
     from shenbi.gates.g4.score_volume import g4_score_volume
     from shenbi.gates.g4.score_stratum import g4_score_stratum
     from shenbi.gates.g4.escalation_review import g4_escalation_review
+    from shenbi.gates.g4.chapter_revision import g4_chapter_revision
     from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
 
     checkers = {
@@ -234,7 +235,7 @@ def gate_G4(
         "shenbi-escalation-review": g4_escalation_review,
         # New: decisions-only (no existing dedicated checker)
         "shenbi-market-radar": g4_decisions,
-        "shenbi-chapter-revision": g4_decisions,
+        "shenbi-chapter-revision": make_composite_checker(g4_decisions, g4_chapter_revision),
         "shenbi-short-drafting": g4_decisions,
     }
     fn = checkers.get(skill_name)
