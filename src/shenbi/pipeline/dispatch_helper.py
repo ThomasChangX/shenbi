@@ -25,7 +25,14 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+import httpx
 from pydantic import ValidationError
+from tenacity import (
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_exponential_jitter,
+)
 
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
@@ -1018,6 +1025,43 @@ def _init_truth_templates(project_dir: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Retry with exponential backoff for LLM API calls
+# ---------------------------------------------------------------------------
+
+_RETRYABLE_STATUSES: set[int] = {429, 500, 502, 503, 504}
+
+
+def _is_retryable(exception: BaseException) -> bool:
+    """Determine if an HTTP error is retryable."""
+    if isinstance(exception, httpx.TimeoutException):
+        return True
+    if isinstance(exception, httpx.HTTPStatusError):
+        return exception.response.status_code in _RETRYABLE_STATUSES
+    return False
+
+
+@retry(  # type: ignore[untyped-decorator]
+    stop=stop_after_attempt(3),
+    wait=wait_exponential_jitter(initial=1, max=30),
+    retry=retry_if_exception(_is_retryable),
+    before_sleep=lambda retry_state: log.warning(
+        "llm_retry",
+        attempt=retry_state.attempt_number,
+        exception=str(retry_state.outcome.exception()) if retry_state.outcome else "unknown",
+    ),
+)
+def _call_llm_with_retry(
+    client: Any, model: str, messages: list[dict[str, str]], **kwargs: Any
+) -> Any:
+    """Call LLM API with exponential backoff retry on transient failures.
+
+    Retries: 429 (rate limit), 5xx (server errors), timeouts.
+    Does NOT retry: 400, 401, 403 (client errors).
+    """
+    return client.chat.completions.create(model=model, messages=messages, **kwargs)
+
+
+# ---------------------------------------------------------------------------
 # Dispatch paths
 # ---------------------------------------------------------------------------
 
@@ -1065,9 +1109,10 @@ def _dispatch_via_api(
     warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
 
     try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
+        response = _call_llm_with_retry(
+            client,
+            model,
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],

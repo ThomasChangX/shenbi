@@ -17,6 +17,7 @@ dependencies = [
     # 注：sentence-transformers 移至 [project.optional-dependencies].embeddings
     #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
     "openai>=2.44.0",
+    "tenacity>=8.0.0",
 ]
 [project.optional-dependencies]
 embeddings = ["sentence-transformers>=3.0.0"]
@@ -87,6 +88,10 @@ ignore_missing_imports = true
 module = "numpy.*"
 follow_imports = "skip"
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "tenacity.*"
+ignore_missing_imports = true
 
 [tool.mutmut]
 # mutmut 3.x reads underscored keys; the prior hyphenated names
