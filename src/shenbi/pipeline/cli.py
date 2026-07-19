@@ -179,7 +179,11 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     Dispatches to genesis / chapter-loop / closure step runners, and handles
     trigger execution + closure transition at the start of each new chapter.
     """
-    from shenbi.pipeline.chapter_loop import run_chapter_step
+    from shenbi.pipeline.chapter_loop import (
+        _cleanup_residual_staging,  # pyright: ignore[reportPrivateUsage]
+        _has_pending_staging_step,  # pyright: ignore[reportPrivateUsage]
+        run_chapter_step,
+    )
     from shenbi.pipeline.closure import run_closure_step
     from shenbi.pipeline.genesis import run_genesis_step
     from shenbi.pipeline.transitions import (
@@ -187,6 +191,9 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
         transition_closure_to_completed,
     )
     from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
+
+    # Clean residual staging at pipeline resume to prevent stale file accumulation.
+    _cleanup_residual_staging(project_dir, has_pending_staging=_has_pending_staging_step(state))
 
     while True:
         # Execute any pending re-dispatches queued by modify decisions (G4).

@@ -1,8 +1,9 @@
-"""Tests for staging cleanup in auto-commit paths."""
+"""Tests for staging cleanup in auto-commit paths and resume cleanup."""
 
 import tempfile
 from pathlib import Path
 
+from shenbi.pipeline.chapter_loop import _cleanup_residual_staging
 from shenbi.pipeline.checkpoint import clear_staging, commit_staging, staging_path
 
 
@@ -63,3 +64,40 @@ def test_clear_staging_handles_nested_directories():
         clear_staging(project_dir)
 
         assert not staging_dir.exists()
+
+
+def test_cleanup_removes_residual_staging_on_resume():
+    """Residual staging is cleaned at pipeline resume."""
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        staging_dir = project_dir / "staging"
+        staging_dir.mkdir()
+        (staging_dir / "plans").mkdir()
+        (staging_dir / "plans" / "old-file.md").write_text("stale data")
+
+        _cleanup_residual_staging(project_dir, has_pending_staging=False)
+
+        assert not staging_dir.exists()
+
+
+def test_cleanup_preserves_staging_when_steps_pending():
+    """Staging is NOT cleaned when pending staging steps exist."""
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        staging_dir = project_dir / "staging"
+        staging_dir.mkdir()
+        (staging_dir / "pending.txt").write_text("active step data")
+
+        _cleanup_residual_staging(project_dir, has_pending_staging=True)
+
+        assert staging_dir.exists()
+
+
+def test_cleanup_handles_no_staging_dir():
+    """No error when staging directory does not exist."""
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+
+        _cleanup_residual_staging(project_dir, has_pending_staging=False)
+
+        # No exception expected

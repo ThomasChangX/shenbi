@@ -1544,6 +1544,47 @@ def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int
 
 
 # ---------------------------------------------------------------------------
+# Resume cleanup
+# ---------------------------------------------------------------------------
+
+
+def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
+    project_dir: Path,
+    has_pending_staging: bool,
+) -> None:
+    """Clean residual staging directory at pipeline resume.
+
+    If the staging directory exists and no pipeline steps are pending
+    that write to staging, the directory is safe to remove. This
+    prevents accumulation of stale staging files across pipeline runs.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        has_pending_staging: True if any pending step uses staging.
+    """
+    from shenbi.pipeline.checkpoint import clear_staging
+
+    staging_dir = project_dir / "staging"
+    if not staging_dir.exists():
+        return
+
+    if has_pending_staging:
+        log.debug("staging_cleanup_skipped", reason="pending staging steps")
+        return
+
+    clear_staging(project_dir)
+    log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
+
+
+def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[reportUnusedFunction]
+    """Check if any pending step in the current chapter uses staging."""
+    step_idx = state.chapter_loop.step_index
+    if step_idx >= len(CHAPTER_STEPS):
+        return False
+    return any(step.uses_staging for step in CHAPTER_STEPS[step_idx:])
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
