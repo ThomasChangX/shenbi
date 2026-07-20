@@ -10,6 +10,8 @@ generic adapter.
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 from typing import Any
 from collections.abc import Callable
 
@@ -19,6 +21,51 @@ from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
 from shenbi.gates.shared import fail, passed, resolve_input_path
 from shenbi.status import GateStatus
+
+
+def _check_adjacent_budget(project_dir: Path, chapter: int) -> list[str]:
+    """Check if adjacent chapter decision budgets are identical.
+
+    Identical budgets across adjacent chapters suggest copy-paste without
+    per-chapter recalculation. This is a WARN-level check.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Current chapter number.
+
+    Returns:
+        List of issue strings (WARN level, not HARD).
+    """
+    if chapter <= 1:
+        return []
+
+    prev_path = project_dir / "chapters" / f"chapter-{chapter - 1}-decisions.json"
+    curr_path = project_dir / "chapters" / f"chapter-{chapter}-decisions.json"
+
+    if not prev_path.exists() or not curr_path.exists():
+        return []
+
+    try:
+        prev_data = json.loads(prev_path.read_text(encoding="utf-8"))
+        curr_data = json.loads(curr_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    prev_budget = prev_data.get("budget", {})
+    curr_budget = curr_data.get("budget", {})
+
+    if prev_budget and curr_budget and prev_budget == curr_budget:
+        return [f"G4.dec.budget_unchanged: chapters {chapter - 1}-{chapter}"]
+
+    return []
+
+
+def _extract_chapter_number(filepath: str) -> int | None:
+    """Extract chapter number from a decisions file path like 'chapter-6-decisions.json'."""
+    m = re.search(r"chapter-(\d+)-decisions\.json", filepath)
+    if m:
+        return int(m.group(1))
+    return None
 
 
 def g4_decisions(
@@ -72,6 +119,19 @@ def g4_decisions(
 
     if not fps:
         c.append({"id": "G4.dec", "s": "SKIP", "r": "no files"})
+
+    # Adjacent-chapter budget comparison (WARN-level check).
+    # Only runs when project_dir is available (not in raw CLI mode).
+    if project_dir:
+        pd = Path(project_dir)
+        seen_chapters: set[int] = set()
+        for fp in fps or []:
+            ch = _extract_chapter_number(fp)
+            if ch is not None and ch not in seen_chapters:
+                seen_chapters.add(ch)
+                budget_issues = _check_adjacent_budget(pd, ch)
+                for issue in budget_issues:
+                    c.append({"id": "G4.dec.budget", "file": fp, "s": "WARN", "r": issue})
 
     if mf:
         return fail("G4-decisions", c, "scoring", mf)

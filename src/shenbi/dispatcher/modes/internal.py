@@ -1,30 +1,24 @@
-"""Internal development fallback mode."""
+"""Internal development fallback mode — hard-reject: no LLM backend."""
 
 from __future__ import annotations
 
 from pathlib import Path
+from typing import NoReturn
 
+from shenbi.exceptions import DispatcherError
 from shenbi.logging import get_logger
-from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
 
 
 def dispatch_internal(
     skill: str, test_type: str, round_dir: Path, prompt: str, agent_id: str
-) -> int:
-    """Development fallback: prints dispatcher instructions for manual completion."""
-    scores_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent.json"
-    prompt_file = round_dir / "skill-traces" / f"{skill}-{test_type}-prompt.md"
-    prompt_file.parent.mkdir(parents=True, exist_ok=True)
-    safe_write(prompt_file, prompt)
+) -> NoReturn:
+    """Hard-reject: internal mode has no LLM backend, cannot score.
 
-    log.info("internal_mode_prompt_saved", path=str(prompt_file))
-    log.info(
-        "internal_mode_banner",
-        message="=== Internal Mode: Dispatcher completes scoring manually ===",
+    Set ``SHENBI_LLM_API_KEY`` to use API mode, or install the codex CLI
+    for IDE agent dispatch.
+    """
+    raise DispatcherError(
+        "internal mode has no LLM backend, cannot score. Set SHENBI_LLM_API_KEY to use API mode."
     )
-    log.info("prompt_saved", path=str(prompt_file))
-    log.info("scores_file_target", path=str(scores_file))
-    log.info("agent_id", agent_id=agent_id)
-    return 0

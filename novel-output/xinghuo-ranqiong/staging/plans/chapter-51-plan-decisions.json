@@ -1,0 +1,57 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 51,
+  "produced_at": "2026-07-17T10:00:00Z",
+  "selections": [
+    {
+      "target": "当前章节定位",
+      "selected": ["参数间认知交叉事件—第二周第四日周三"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["卷纲KR3叙事元素（楚云岚/军事遗产情节）"]
+    },
+    {
+      "target": "钩子操作范围",
+      "selected": ["P0-18 advance→RELEVANT", "P0-15 advance", "P0-20 advance", "P0-11 resolve", "P0-12 resolve", "NEW-01 open"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["P0-4/P0-5/P0-8/P0-9/P0-10/P0-14/P0-16/P0-17/P0-19/P0-21 reinforce（预算限制跳过一个周期）"]
+    },
+    {
+      "target": "参数间关系锚点选择",
+      "selected": ["冷↔光空间关系注册为核心锚点事件"],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "冷↔光空间关系是参数叙事内部唯一合法情感替代维度，手动选择以支撑P0优先级",
+      "omitted": ["缺口↔偏移关系（P2优先级，推迟至ch52）", "白气↔霜方向轨迹关系（P2优先级，推迟至ch52）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_plot_vs_parameter_constraint",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲第51章标记转折楚云岚带出军事遗产但参数叙事禁止非参数元素，以参数间空间关系认知表达遗产到达",
+      "resolution": "参数间认知交叉事件（冷↔光空间关系注册）作为'军事遗产'的参数层等价——系统获得参数间关系认知作为新的结构性遗产"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**生成概要**:
+
+第51章规划完成，定位为**第二周第四日·周三—参数间关系日**。核心设计如下：
+
+**参数间认知交叉事件** — 冷知道光在场于窗沿（墙体第一层之外），光知道冷在场于墙体第一层（窗沿之下）。这是参数叙事内部唯一合法的"情感落地方案"——相互"在场于知道"构成情感等价物，且通过跨参数空间间隙拓展词汇生态（间隙/之间/之外/空间在场）。
+
+**系统轨迹推进** — P0-18从PLANTED→RELEVANT，缺口知道自持态在场于不可逆之边，但"尚未宣告"保持开放。P0-15新增切换阈值线索，衔接周日回归的可能性。
+
+**伏笔清理** — P0-11（阈空间自持）和P0-12（双句法自持）迁移至RESOLVED，完成两条RELEVANT伏笔的演化终点，活跃hook数从15降至14。
+
+**冲突处理** — 卷纲KR3要求本转折章表达"楚云岚带出军事遗产"，但参数叙事工作日模式禁止非参数元素。通过冷↔光空间关系注册作为"遗产到达"的参数层隐喻——系统获得参数间关系认知作为新的结构性遗产。此冲突在decisions.json中记录为high-severity调整，附显式说明。

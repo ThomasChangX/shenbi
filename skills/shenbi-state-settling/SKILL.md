@@ -6,15 +6,29 @@ contract:
   reads:
     - chapters/chapter-N.md
   writes:
-    - truth/state-settling-decisions.json
+    - file: truth/state-settling-decisions.json
+      mode: create_or_overwrite
+    - file: truth/character_matrix.md
+      mode: create_or_overwrite
   updates:
-    - truth/current_state.md
-    - truth/particle_ledger.md
-    - truth/character_matrix.md
-    - truth/emotional_arcs.md
-    - truth/subplot_board.md
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+    - file: truth/current_state.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/particle_ledger.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/emotional_arcs.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/subplot_board.md
+      mode: append_dedup
+      key: chapter
+    - file: truth/pending_hooks.md
+      mode: append_dedup
+      key: hook_id
+    - file: truth/chapter_summaries.md
+      mode: append_dedup
+      key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -27,14 +41,46 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md
-- **Writes:** truth/state-settling-decisions.json
-- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/character_matrix.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
+- **Writes:** truth/state-settling-decisions.json, truth/character_matrix.md
+- **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
 <!-- END AUTO-GENERATED -->
 
 # 状态结算
 
 HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settling 的章节视为未完成——后续章节的 chapter-planning 读到的 truth files 是过时的，导致全书状态漂移。
+
+### Truth File Update Mode Rules (CRITICAL)
+
+**Every truth file declares its update mode in YAML frontmatter: `update_mode: replace`, `update_mode: upsert_markdown_row`, or `update_mode: upsert_yaml`.**
+
+- **replace-mode files** (snapshot type — output the ENTIRE file content):
+  - `current_state.md` — current chapter snapshot
+  - `character_matrix.md` — character state snapshot (DO NOT overwrite "角色定义" section — see below)
+
+- **upsert_markdown_row files** (cumulative type — output ONLY the new chapter's row, NOT the entire file):
+  - `resonance_trend.md` — one trend row for the current chapter
+  - `audit_drift.md` — drift findings for the current chapter
+  - `emotional_arcs.md` — emotional arc entry for the current chapter
+  - `chapter_summaries.md` — summary reference for the current chapter
+
+- **upsert_yaml files** (cumulative structured records — output ONLY the new record(s)):
+  - `pending_hooks.md` — hook planting/tracking data for the current chapter
+
+**For cumulative files (upsert_markdown_row / upsert_yaml):** Output ONLY the
+new data for the current chapter. The pipeline's `write_truth_file()` will
+dedup by natural key (chapter number / hook id) and merge — it will replace any
+existing record with the same key, so re-runs are safe. Do NOT output the
+complete file content for cumulative files — doing so will cause data
+accumulation to fail.
+
+### `character_matrix.md` Write-Protection Rule
+
+The `## 角色定义` section (character definitions) is HUMAN-AUTHORED from the
+character design files (`characters/protagonist.md`, etc.) and MUST NEVER be
+overwritten. Parameter agents (冷, 光, 安静, etc.) must be written to
+`particle_ledger.md`, NOT to `character_matrix.md`. Only update the per-chapter
+state section (names appearing in the chapter, state changes).
 
 在章节起草被人类合作者批准后，必须执行状态结算。
 
@@ -102,16 +148,16 @@ digraph state_settling {
 
 ## 更新规则
 
-| 变化类型 | 更新的文件 |
-|---------|-----------|
-| 位置 | `truth/current_state.md` |
-| 资源 | `truth/particle_ledger.md` |
-| 关系 | `truth/character_matrix.md` |
-| 情绪 | `truth/emotional_arcs.md` |
-| 信息 | `truth/character_matrix.md` (信息边界) |
-| 线索 | `truth/subplot_board.md` [Phase 4] |
-| 伏笔 | `truth/pending_hooks.md` |
-| 摘要 | `truth/chapter_summaries.md` (追加) |
+| 变化类型 | 更新的文件 | 更新模式 |
+|---------|-----------|---------|
+| 位置 | `truth/current_state.md` | replace |
+| 资源 | `truth/particle_ledger.md` | replace |
+| 关系 | `truth/character_matrix.md` | replace |
+| 情绪 | `truth/emotional_arcs.md` | upsert_markdown_row |
+| 信息 | `truth/character_matrix.md` (信息边界) | replace |
+| 线索 | `truth/subplot_board.md` [Phase 4] | replace |
+| 伏笔 | `truth/pending_hooks.md` | upsert_yaml |
+| 摘要 | `truth/chapter_summaries.md` (追加) | upsert_markdown_row |
 
 > **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
 > - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。
@@ -216,3 +262,29 @@ digraph state_settling {
 | "结算太费时间" | 结算5分钟 vs 回溯修30章30小时 |
 | "审批门禁太繁琐，直接写 truth 就行" | 不经审批的结算 = 未经人类确认的状态变更 = 潜在漂移源 |
 | "跨文件一致性等发现不一致再查" | 事后修复成本是事前检查的10倍以上 |
+
+## Character Matrix Update (NEW)
+
+After updating character state, update `truth/character_matrix.md`:
+
+1. For each character that appeared in the current chapter:
+   - Update "Current State" (e.g., Active, Deceased, Injured, Missing)
+   - Update "Current Location" with slug reference to location
+   - Update "Current Emotion" (primary emotional state)
+   - Update "Active Relationships" with slug references
+   - Update "Arc Stage" if a stage transition occurred this chapter
+   - Set "Last Updated Ch" to current chapter number
+
+2. For the protagonist specifically, append an `arc_log` entry to
+   `characters/protagonist.md` frontmatter:
+
+```yaml
+arc_log:
+  - chapter: {N}
+    stage: {current_arc_stage}
+    key_beat: {one-line description of arc-relevant event}
+    emotional_shift: {from -> to}
+    relationship_change: {brief description or "none"}
+```
+
+3. Write updated character_matrix.md to disk.

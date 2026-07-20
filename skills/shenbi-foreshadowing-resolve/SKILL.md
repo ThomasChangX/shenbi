@@ -1,14 +1,17 @@
 ---
 name: shenbi-foreshadowing-resolve
-description: "Use when foreshadowing hooks reach TRIGGERED state and need resolution, or when a volume ends and requires foreshadowing inventory"
+description: Use when foreshadowing hooks reach TRIGGERED state and need resolution,
+  or when a volume ends and requires foreshadowing inventory
 contract:
   kind: artifact
   reads:
-    - truth/pending_hooks.md
-    - truth/chapter_summaries.md
+  - truth/pending_hooks.md
+  - truth/chapter_summaries.md
   writes: []
   updates:
-    - truth/pending_hooks.md
+  - file: truth/pending_hooks.md
+    mode: append_dedup
+    key: hook_id
 ---
 <!-- AUTO-CHECK-START -->
 

@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import statistics
 import sys
+from typing import Any
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -144,6 +145,17 @@ def detect_volume_drift(volume_scores: list[float]) -> list[DriftFinding]:
             )
         ]
     return []
+
+
+def check_linguistic_drift_trigger(linguistic_result: Any) -> bool:
+    """4th trigger: linguistic alarm metrics exceed thresholds.
+
+    Independent of resonance scores (which are contaminated by the degraded
+    LLM context). Fires on HARD/ESCALATE linguistic drift only.
+    """
+    if linguistic_result is None:
+        return False
+    return linguistic_result.is_drift and linguistic_result.severity in ("HARD", "ESCALATE")
 
 
 def parse_trend(path: str | Path, dims: list[str]) -> dict[str, list[tuple[float, bool]]]:

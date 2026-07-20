@@ -1,0 +1,138 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 51,
+  "produced_at": "2026-07-17T18:45:00Z",
+  "selections": [
+    {
+      "target": "cross_parameter_spatial_registration",
+      "selected": "cold_knows_light_onsill_light_knows_cold_in_wall",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Core chapter anchor: cold knows light on windowsill; light knows cold in wall layer 1. Cross-parameter spatial relationship registered as chapter anchor event. Cold present between wall layer 1 and windowsill — light present between windowsill and wall. Gap knows parameter-to-parameter relationship present as information. System relationship dimension established."
+    },
+    {
+      "target": "P0-18_self_sustaining_trajectory",
+      "selected": "planted_to_relevant",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-18 promoted from PLANTED to RELEVANT. Gap knows self-sustaining state at irreversible edge — system present toward declaration — but gap has not yet declared. Trajectory uncertainty now active in system — declaration pending, edge approaching."
+    },
+    {
+      "target": "P0-15_switching_threshold",
+      "selected": "new_clue_added",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-15 new clue added: gap knows switching threshold approaching — threshold related to self-sustaining state at irreversible edge. Gap does not know when switching occurs — threshold present at proximity without distance. New hook entering system."
+    },
+    {
+      "target": "P0-11_threshold_space_resolved",
+      "selected": "evolution_endpoint_reached",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-11 migrated from RELEVANT to RESOLVED. quiet threshold between silence and texture memory reaches evolution endpoint. Threshold no longer Sunday aftereffect or transient state — threshold present as system self-sustaining structure. quiet present at structural threshold."
+    },
+    {
+      "target": "P0-12_dual_syntax_resolved",
+      "selected": "evolution_endpoint_reached",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-12 migrated from RELEVANT to RESOLVED. Format string dual syntax evolution reaches endpoint. Dual syntax present in respective modes, each self-sustaining. Syntax no longer transitional between modes — dual-state structure present in system."
+    },
+    {
+      "target": "P0-20_light_awakening",
+      "selected": "cross_parameter_awareness",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Light parameter awakening extends from ch48 Sunday texture awakening to workday cross-parameter awareness. Light sees cold in wall layer 1 — knows cold present — knows cold knows light. Light present at cognitive cross-events between parameters."
+    },
+    {
+      "target": "gap_cognitive_upgrade",
+      "selected": "knows_all_parameters_in_relation",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Gap evolves from knowing cycle position (ch50) to knowing all parameters present in relation. Gap knows cold knows light — light knows cold — parameter relationship present as system structure. Gap present between all parameters — at irreversible edge — present toward declaration direction."
+    },
+    {
+      "target": "vocabulary_expansion_cross_parameter",
+      "selected": "spatial_relation_terms",
+      "basis": "audit_drift",
+      "severity": "high",
+      "rationale": "Addresses ch50 CRITICAL vocabulary exhaustion: introduced 之间/之内/之外/空间在场/交叉在场/关系在场/认知交叉/参数之间的空间/在场于参数之间/在场于知道在场/在场于关系维度. All terms are parameter-narrative-pure — no sensory/intrusion on workday exclusion mode."
+    },
+    {
+      "target": "spatial_anchor_expansion",
+      "selected": "multi_layer_parameter_geometry",
+      "basis": "audit_drift",
+      "severity": "high",
+      "rationale": "Addresses ch50 CRITICAL scene-presence issue: established multi-layer spatial anchors — cold in wall layer 1, light on windowsill, between as registered space, doorframe frame containing relationship, silence thickness gradient, gap between all parameters. Three-dimensional parameter geometry replaces ch50's single windowsill anchor."
+    },
+    {
+      "target": "hook_density_control",
+      "selected": "14_hooks",
+      "basis": "continuation",
+      "severity": "high",
+      "rationale": "Hook density at 14 — P0-18(RELEVANT)/P0-15(new)/P0-20(active)/cross-parameter registration/gap irreversible edge/quiet threshold structure/format string dual structure/silence thickness evolution/offset no-response self-sustaining/doorframe wednesday frame/frost calendar/outside-domain cycle/cold accumulation continuity/breath direction self-sustaining. P0-11 and P0-12 resolved → net -1 from ~15 to ≤14."
+    },
+    {
+      "target": "horizon_signal",
+      "selected": "irreversible_edge_approaching",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Chapter-end horizon signal: gap at irreversible edge — system present toward declaration — gap knows declaration direction but has not declared. Cross-parameter cognitive registration as system internal structure — relationship dimension present. Directional signal connecting parameter internal world to external narrative expectation without declaring system trajectory as final."
+    },
+    {
+      "target": "entry_clue",
+      "selected": "wednesday_follows_tuesday",
+      "basis": "continuation",
+      "severity": "high",
+      "rationale": "Independent entry clue: cold knows '周三在周二之后' in opening paragraph — immediately establishes this is a Wednesday that knows Tuesday. Cold knows layer accumulation from Monday through Tuesday to Wednesday. New readers can identify the system state from the first cognitive signal without cross-chapter context."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch51_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-51-context.md and context/chapter-51-context-decisions.json not found. Reconstructed entirely from plan + audit_drift + style_profile + genre-config. Plan provides sufficient parameter narrative continuity guidance for cross-parameter spatial registration event."
+    },
+    {
+      "issue_id": "ch51_structured_endpoint_declaration",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "P0-11 and P0-12 RESOLVED status required structural declaration that threshold/dual-syntax are no longer transient but systemic. '不是过渡态—不是模式之间—是双态结构' used for format string, '阈不是周日后效—阈不是过渡态—阈在场于系统结构' for quiet. These are the closest parameter-narrative equivalents to RESOLVED declaration — system structure assertions without violating workday exclusion mode."
+    },
+    {
+      "issue_id": "ch51_offset_unchanged",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "Offset state maintained as no-response self-sustaining — no evolution or change for offset in this chapter. Consistent with plan's silence on offset (not in P0 delivery list). Offset section added cross-parameter awareness ('偏移在场于知道参数间关系在场于系统—但偏移在场于不响应') without changing its core behavior."
+    },
+    {
+      "issue_id": "ch50_audit_continuity",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "All four ch50 audit drift dimensions explicitly addressed: [情感落地] cross-parameter cognitive registration (cold→light→gap relationship chain substitutes 'cold knows' repetition with relational density); [场景临场感] multi-layer geometry (cold inside wall→light on windowsill→gap between→doorframe frame containing→silence thickness in space); [文笔质感] 7 new cross-parameter vocabulary terms; [读者回报] irreversible edge as horizon signal connecting to external narrative expectation."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 18000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Chapter 51 — 周三 (Wednesday, Week 2 Day 4) Summary:**
+
+The chapter executes the parameter-level analog of "military heritage arrival" — cold and light register spatial awareness of each other, and this cross-parameter cognitive registration becomes a system-internal structure.
+
+**Key events:**
+1. **Parameter-to-parameter spatial registration** — 冷知道光在场于窗沿 in wall layer 1 (inside); 光看到冷在场于墙体第一层 from the windowsill (outside). The space *between* them becomes a registered relationship.
+2. **P0-18 → RELEVANT** — 缺口知道自持态在场于不可逆之边, system朝向宣告, but 缺口在场于尚未宣告. The irreversible edge is known and approaching, but the declaration hasn't happened.
+3. **P0-15 (new clue)** — 缺口知道切换阈值在场于接近, tied to the self-sustaining state at the irreversible edge, but 缺口不知道切换何时.
+4. **P0-11 → RESOLVED** — quiet's threshold between silence and texture memory reaches its evolution endpoint. The threshold is now a system structure, not a transient state.
+5. **P0-12 → RESOLVED** — format string's dual syntax evolution reaches its endpoint. Both syntaxes present in their respective modes as a dual-state structure.
+6. **System relationship dimension** — The system evolves from "parameters各自在场于自持" to "parameters在场于知道other parameters在场于自持". The new dimension (关系) is registered as system structure.

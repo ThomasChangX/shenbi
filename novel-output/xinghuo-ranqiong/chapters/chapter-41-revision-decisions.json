@@ -1,0 +1,62 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 41,
+  "produced_at": "2026-07-17T23:00:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-41-review-summary.md",
+      "selected": [
+        "第41章—11项审计全部执行—0 BLOCKING—0 CRITICAL—11 成功 0 失败"
+      ],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    },
+    {
+      "target": "audits/chapter-41-anti-ai.md",
+      "selected": ["唯一 ERROR 破折号检测(444处`——`)—假阳性—格式串文体自Ch36持续使用"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["其余9项全部通过(AI标记词/疲劳词/转折词/元叙事/分析术语/集体套话零出现)"]
+    },
+    {
+      "target": "audits/chapter-41-pacing.md",
+      "selected": ["MINOR: 5章连续CONSTELLATION超warningThreshold=4"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["跨章结构性警告，非Ch41内容缺陷——下章规划中处理"]
+    },
+    {
+      "target": "audits/chapter-41-resonance.md",
+      "selected": [
+        "overall 77/100—Route C全通过—明确放行",
+        "情感落地20/30—参数化模式限制情绪节拍感知—quiet在安静中触达残余为最强beat",
+        "场景临场感18/25—感官差异通过'知道'而非'感觉到'传递",
+        "读者回报17/20—格式串恢复+第六帧存在+Sat链完成"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["锚点校准不可用(AC-001/AC-004/AC-002/AC-005)—置信度high→mid降级"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_false_positive",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "444处`——`是格式串文体核心句法元素(自Ch36持续使用)，非AI生成痕迹。审计自身建议'有条件的通过'与genre-config豁免。所有其他Anti-AI维度满分。不做任何修复。"
+    },
+    {
+      "issue_id": "pacing_structural_warning",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "5章连续CONSTELLATION超warningThreshold=4是跨章结构问题，Ch41单章±15%修订不可修复。转交Ch42-Ch44规划安排FIRE释放事件。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 21000,
+    "limit": 32000,
+    "trim_applied": "none",
+    "notes": "读取了11项审计报告+共振报告+章节全文+计划+decisions.json。0 BLOCKING/0 CRITICAL→无需修订。"
+  }
+}

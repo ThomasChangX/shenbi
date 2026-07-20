@@ -1,19 +1,34 @@
 ---
 name: shenbi-foreshadowing-plant
-description: "Use when a chapter memo's hook ledger contains OPEN items that need foreshadowing planted before drafting begins"
+description: Use when a chapter memo's hook ledger contains OPEN items that need foreshadowing
+  planted before drafting begins
 contract:
   kind: artifact
   reads:
-    - file: plans/chapter-N-plan.md
-      fields: ["3. 该兑现的 / 暂不掀的", "7. 本章 hook 账"]
-    - outline/story_frame.md    # for genesis mode
-    - outline/volume_map.md     # for genesis mode
-    - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔统计, 伏笔时间线]}
-    - {file: genre-config.json, fields: [chapterTypes, customRules]}
+  - file: plans/chapter-N-plan.md
+    fields:
+    - 3. 该兑现的 / 暂不掀的
+    - 7. 本章 hook 账
+  - outline/story_frame.md
+  - outline/volume_map.md
+  - file: truth/pending_hooks.md
+    fields:
+    - 活跃伏笔
+    - 伏笔统计
+    - 伏笔时间线
+  - file: genre-config.json
+    fields:
+    - chapterTypes
+    - customRules
   writes: []
   updates:
-    - truth/pending_hooks.md
+  - file: truth/pending_hooks.md
+    mode: append_dedup
+    key: hook_id
 ---
+# DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+# This skill is retained for reference. Do not dispatch.
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

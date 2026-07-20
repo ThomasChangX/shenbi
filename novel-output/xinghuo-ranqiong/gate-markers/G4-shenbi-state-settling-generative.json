@@ -1,0 +1,53 @@
+{
+  "gate": "G4-composite-g4_state_settling",
+  "status": "PASS",
+  "timestamp": "2026-07-17T13:17:47.880147+00:00",
+  "checks": [
+    {
+      "id": "G4.ss.summaries",
+      "file": "staging/truth/chapter_summaries.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ss.characters",
+      "file": "staging/truth/character_matrix.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ss.position",
+      "file": "staging/truth/current_state.md",
+      "s": "WARN",
+      "r": "no position/location heading found"
+    },
+    {
+      "id": "G4.ss.arcs",
+      "file": "staging/truth/emotional_arcs.md",
+      "s": "WARN",
+      "r": "no emotional arc chapter heading found"
+    },
+    {
+      "id": "G4.ss.particle_ledger",
+      "file": "staging/truth/particle_ledger.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.ss.pending_hooks",
+      "file": "staging/truth/pending_hooks.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.dec",
+      "s": "SKIP",
+      "r": "no files"
+    }
+  ],
+  "files_checked": [
+    "staging/truth/chapter_summaries.md",
+    "staging/truth/character_matrix.md",
+    "staging/truth/current_state.md",
+    "staging/truth/emotional_arcs.md",
+    "staging/truth/particle_ledger.md",
+    "staging/truth/pending_hooks.md",
+    "staging/truth/subplot_board.md"
+  ]
+}

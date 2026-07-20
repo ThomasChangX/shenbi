@@ -14,7 +14,7 @@ from shenbi.contracts.paths import resolve_chapter_path
 class RoundPaths:
     round_dir: Path  # this round's workspace (outputs, markers, state)
     project_dir: Path  # the novel project root (novel.json, world/, chapters/, truth/)
-    repo_root: Path  # repo root (SKILL.md, fixtures, rubric, validate-gate.py)
+    repo_root: Path  # repo root (SKILL.md, fixtures, rubric)
 
     def read(self, rel: str, chapter: int | None = None) -> Path:
         resolved = resolve_chapter_path(rel, chapter)

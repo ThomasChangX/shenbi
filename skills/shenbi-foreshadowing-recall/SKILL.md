@@ -1,14 +1,19 @@
 ---
 name: shenbi-foreshadowing-recall
-description: "Use when checking for overdue foreshadowing hooks across a large chapter range, or after each chapter's state-settling to maintain the recall index"
+description: Use when checking for overdue foreshadowing hooks across a large chapter
+  range, or after each chapter's state-settling to maintain the recall index
 contract:
   kind: artifact
   reads:
-    - truth/pending_hooks.md
+  - truth/pending_hooks.md
   writes:
-    - truth/foreshadowing_recall_result.md
+  - file: truth/foreshadowing_recall_result.md
+    mode: create_or_overwrite
   updates: []
 ---
+# DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+# This skill is retained for reference. Do not dispatch.
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

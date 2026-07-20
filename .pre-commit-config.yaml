@@ -19,6 +19,7 @@ repos:
             types-PyYAML>=6.0.12,
             numpy>=1.26.0,
             openai>=2.44.0,
+            tenacity>=8.0.0,
           ]
         pass_filenames: false
         args: [src/shenbi/]

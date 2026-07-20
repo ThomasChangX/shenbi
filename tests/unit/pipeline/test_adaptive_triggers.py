@@ -12,7 +12,6 @@ from shenbi.pipeline.chapter_loop import (
     _should_run_step,
     _snapshot_chapter_files,
 )
-from shenbi.pipeline.state import PipelineState
 
 
 class TestAdaptiveRecall:
@@ -48,28 +47,57 @@ class TestFileSnapshot:
 
         snap_dir = tmp_path / "snapshots"
         assert snap_dir.exists()
-        snapshots = list(snap_dir.glob("chapter-005-*.md"))
-        assert len(snapshots) == 1
-        assert "Chapter 5 content" in snapshots[0].read_text(encoding="utf-8")
-
-        manifest = snap_dir / "manifest.json"
-        assert manifest.exists()
-        data = json.loads(manifest.read_text(encoding="utf-8"))
-        assert "5" in data["chapters"]
+        # Differential snapshots create chapter subdirectories with a manifest.
+        chapter_snap_dir = snap_dir / "chapter-005"
+        assert chapter_snap_dir.exists()
+        manifest_file = chapter_snap_dir / "snapshot-manifest.json"
+        assert manifest_file.exists()
+        data = json.loads(manifest_file.read_text(encoding="utf-8"))
+        assert data["chapter"] == 5
+        # Verify the chapter file entry exists.
+        assert any("chapter-5.md" in f["path"] for f in data.get("files", []))
 
 
 class TestShouldRunStep:
-    """Integration tests for _should_run_step adaptive triggering."""
+    """Integration tests for _should_run_step conditional dispatch.
 
-    def test_snapshot_manage_always_returns_false(self, tmp_path: Path):
-        """Snapshot-manage step always returns False — it runs inline, no LLM dispatch."""
-        state = PipelineState.default(str(tmp_path))
-        state.chapter_loop.current_chapter = 5
+    Updated for Plan 18 Task 5: _should_run_step now uses (state, step) signature
+    with step.conditional flag gating instead of skill-specific inline handling.
+    """
 
+    def test_non_conditional_step_always_runs(self, tmp_path: Path):
+        """Steps with conditional=False always return True."""
+        from unittest.mock import MagicMock
+
+        state = MagicMock()
         step = ChapterStep(
-            step_num=19,
-            skill="shenbi-snapshot-manage",
-            name="snapshot-manage",
+            step_num=2,
+            skill="shenbi-chapter-planning",
+            name="chapter-planning",
+            step_type="core",
+            conditional=False,
         )
+        assert _should_run_step(state, step) is True
 
-        assert _should_run_step(step, state, tmp_path) is False
+    def test_intent_management_gated_by_volume_boundary(self, tmp_path: Path):
+        """intent-management only runs at volume boundaries."""
+        from unittest.mock import MagicMock, patch
+
+        state = MagicMock()
+        step = ChapterStep(
+            step_num=1,
+            skill="shenbi-intent-management",
+            name="intent-management",
+            step_type="core",
+            conditional=True,
+        )
+        with patch(
+            "shenbi.pipeline.chapter_loop._is_volume_boundary",
+            return_value=False,
+        ):
+            assert _should_run_step(state, step) is False
+        with patch(
+            "shenbi.pipeline.chapter_loop._is_volume_boundary",
+            return_value=True,
+        ):
+            assert _should_run_step(state, step) is True

@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-era
-description: "Use when a finished chapter needs a historical era accuracy audit (period vocabulary, artifacts, locations)"
+description: Use when a finished chapter needs a historical era accuracy audit (period
+  vocabulary, artifacts, locations)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
-    - era-reference.md
+  - chapters/chapter-N.md
+  - genre-config.json
+  - era-reference.md
   writes:
-    - audits/chapter-N-era.md
+  - file: audits/chapter-N-era.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

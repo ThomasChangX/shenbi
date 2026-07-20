@@ -1,0 +1,115 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 10,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md",
+      "selected": [
+        "P0: 读者回报——章尾以时间线收敛制造推进锚点（7/21截止距~2天）",
+        "P0: 催收危机逼近——催收员实体出场/直接接触",
+        "P1: MH-020解决窗口——max_distance=8极限，第四次信号功能域定性",
+        "P1: 灰色第三组第一次正式接货——7/19傍晚/旧水塔东侧/锹头朝西",
+        "P1: 文笔质感改善——破折号/省略号非常规标点+非并列句法",
+        "P2: 门框'点'再确认——换角度感知（听觉/温度分布）",
+        "P2: MH-001激活——cultivation_interval=3警戒线"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "P2: 战争二次预兆（排至Ch11-Ch12——本章密度已5/8，非标引擎声再出现会分散催收/MH-020焦点）",
+        "P2: MH-003强化（距上限3章仍安全，保持defer观察）",
+        "Ch12前瞻——催收线收束等（排至Ch11计划时评估）"
+      ]
+    },
+    {
+      "target": "volume_map.md (KR2)",
+      "selected": ["KR2整体方向（从独善其身到加入组织）——保持总体方向认同"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": [
+        "第10章原定位'林烽决定留下来正式加入灵火会'"
+      ],
+      "rationale": "Ch10实际轨迹聚焦灰色第三组接货+催收员实体出场+MH-020功能定性，仍停留在铁炉堡城区。陈卫民/灵火会相遇连续第五次推迟（Ch6→Ch7→Ch8→Ch9→Ch10）。current_focus明确将KR2对应定位推迟至卷末桥接目标。这是连续第五次manual_override，建议第11章重新评估灵火会入场时机"
+    },
+    {
+      "target": "pending_hooks.md",
+      "selected": [
+        "MH-020: advance——第四次信号，功能域定性（max_distance=8极限，Ch10必须扩大/解决/重置）",
+        "MH-021: advance——门框'点'再定位，换角度感知",
+        "MH-022: advance——催收员正面出场，从纸面通知→实体人际压迫",
+        "MH-001: advance——cultivation_interval=3警戒线，灰色接货场景中激活",
+        "MH-003: defer——距上限3章，保持观察期"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "author_intent.md",
+      "selected": [
+        "非英雄化觉醒——催收员接触不导致顿悟或勇气爆发，只有被迫计算剩余路径",
+        "道德灰度——灰色接货在催收员出场后从'生存选择'微妙转向'必要但不可持续的选择'",
+        "每一步都有代价——接货执行后暴露面扩大+系统记录加深+催收知道有收入的可能性上升",
+        "拒绝龙傲天——五个hook中3个advance但都不解决问题（知道手机功能域≠能还钱；见到催收员≠有还款方案；点了'点'≠打开门）"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_vs_actual_trajectory_continued_v5",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2第10章收官定位'正式加入灵火会'被实际轨迹第五次覆盖。Ch5-Ch10持续停留在铁炉堡城区灰色经济生态中。强行跳到灵火会场景会破坏底层叙事的自然积累。建议Ch11重新评估入场时机——灰色第三组执行2-3次后自然引向灰道网络中其他角色/场景，可能成为灵火会的前置接触"
+    },
+    {
+      "issue_id": "MH-020_max_distance_critical_resolved",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "MH-020种植于Ch2（8章前），max_distance=8在Ch10满额。第四次信号必须提供功能域定性以重置max_distance计数器。建议字符从温迹→部分可辨认序列或图案暗示功能域（翻译/感知/通讯三选一），但不展示操作方式。此advance重置max_distance计数器，从'神秘未知'阶段进入'功能探索'新阶段"
+    },
+    {
+      "issue_id": "Ch8_Ch9_static_hovering_payoff",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch8以'不确定要不要打开'收束，Ch9以'坐在这里'收束——连续两章静态悬停同构。Ch10章尾必须以时间线收敛（距7/21截止~2天）+催收员实体接触+MH-020功能定性这三个'必须知道的截止'信息制造推进锚点。章尾信息类型从'还存在'的陈述转向'必须知道+必须行动'的驱动型信息"
+    },
+    {
+      "issue_id": "MH-001_cultivation_interval_vigilance",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "MH-001 cultivation_interval=3，距上次强化（Ch7）3章=警戒线。Ch10必须激活。结合灰色第三组接货场景（灵能密集区域/执法队灵能抑制器残留/接头人灵能场）自然触发金属片微反应。但不要过度解读——仅建立'金属片对特定环境有反应'的认知关联，不做信息内容揭示"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12500,
+    "limit": 14000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**备忘自检结果**:
+
+| 检查项 | 结果 |
+|--------|------|
+| 段完整性 8/8 | ✅ |
+| 段标题精确匹配 | ✅ |
+| 优先级来源声明（段1） | ✅ `current_focus`，含冲突说明 |
+| chapter_role 声明 | ✅ `推进/转折` |
+| 章尾改变数 ≥3，含advance型 | ✅ 3条全部advance（关系/信息/物理各1） |
+| hook账列名 | ✅ ID/操作/推进方式/沉默章数 |
+| hook操作有效性 | ✅ 4 advance + 1 defer |
+| 沉默检测（无defer+≥4沉默） | ✅ 无僵尸伏笔 |
+| 密度预算 ≤8 | ✅ 5/8 |
+
+**关键决策说明**:
+
+- **优先级链**: current_focus（P0/P1）→ author_intent（非英雄化/道德灰度）。volume_map KR2收官节点第五次被覆盖——故事仍在铁炉堡城区灰色渠道阶段，灵火会相遇继续推迟。核心原因：Ch5-Ch10持续停留在灰色经济生态中（从入口接受→首次执行→规则内化→正式接货），这是完整的弧线运动。强行跳到灵火会场景意味着放弃弧线——不兼容铁炉堡城区→荒野→灵火会的场景转换需要在章节间留出过渡空间，不可在本章内完成。
+- **MH-020临界处理**: max_distance=8满额（Ch2→Ch10=8章）。第四次信号必须做功能域定性以重置计数器。关键在"先定性后详解"——仅确认功能域（翻译/感知/通讯三选一），不给操作方式。功能域定性本身提供了足够的信息密度重置max_distance但保持下一层的悬念（具体怎么用、什么时候能用）。
+- **三重推进线架构**: 催收员出场（人际压迫建立）+ MH-020功能定性（神秘解惑）+ 灰色第三组接货（系统参与深化）——三线各自advance但都不解决问题。催收员给了方案但需权衡代价，手机有了功能域但不会操作，灰色接货有收入但暴露面扩大。三线汇聚制造"知道了更多但解决方案仍然模糊"的章尾状态，提供比悬停更积极的读者回报。
+- **Ch10→Ch11桥接**: 催收还款决策悬至Ch11。催收员出场给出分期/一次性/延期三选项，但各选项的代价评估需要时间（还=确认可压榨性；不还=执法上门；分期=需暴露灰色收入来源）。Ch11的核心决策场景是林烽面对三个选项的沉默计算——不给读者答案，给读者林烽计算的重量。

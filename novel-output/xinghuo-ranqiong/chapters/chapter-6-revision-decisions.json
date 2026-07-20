@@ -1,0 +1,132 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 6,
+  "produced_at": "2026-07-16T07:50:00Z",
+  "revision_round": 1,
+  "max_rounds": 3,
+  "pre_revision_state": "truth/state_snapshot-pre-rev.md",
+  "audit_sources": [
+    "audits/chapter-6-anti-ai.md",
+    "audits/chapter-6-character.md",
+    "audits/chapter-6-continuity.md",
+    "audits/chapter-6-dialogue.md",
+    "audits/chapter-6-foreshadowing.md",
+    "audits/chapter-6-memo-compliance.md",
+    "audits/chapter-6-motivation.md",
+    "audits/chapter-6-pacing.md",
+    "audits/chapter-6-pov.md",
+    "audits/chapter-6-resonance.md",
+    "audits/chapter-6-review-summary.md",
+    "audits/chapter-6-sensitivity.md",
+    "audits/chapter-6-world-rules.md"
+  ],
+  "route_assessment": {
+    "overall_gate": "PASS",
+    "overall_score": 85,
+    "consolidated_blocking": 0,
+    "consolidated_critical": 0,
+    "route_c_unmet_goals": [],
+    "revision_mode": "spot-fix",
+    "mode_rationale": "Continuity BLOCKING value error is a single word fix. Anti-AI '不是...而是...' + dash#9 is local phrasing. Pacing door metaphor MINOR is local imagery. All issues are surface-level craft problems — no structural/narrative rewriting needed."
+  },
+  "delegation_decisions": [
+    {
+      "issue_type": "continuity_day_count",
+      "audit_source": "audits/chapter-6-continuity.md",
+      "severity": "BLOCKING",
+      "intended_handler": "shenbi-chapter-revision",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Direct textual error — single word fix within chapter-revision scope."
+    },
+    {
+      "issue_type": "anti-ai_not...but..._pattern",
+      "audit_source": "audits/chapter-6-anti-ai.md",
+      "severity": "MINOR",
+      "intended_handler": "shenbi-anti-detect",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Per revision skill delegation rules, anti-AI surface issues should go to shenbi-anti-detect. However, pipeline mode has no separate anti-detect step invoked. chapter-revision handles as spot-fix."
+    },
+    {
+      "issue_type": "anti-ai_em_dash_#9",
+      "audit_source": "audits/chapter-6-anti-ai.md",
+      "severity": "MINOR",
+      "intended_handler": "shenbi-anti-detect",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Same as above — dramatic pause dash combined with '不是...而是...' fix in the same line."
+    },
+    {
+      "issue_type": "door_metaphor_precision",
+      "audit_source": "audits/chapter-6-pacing.md",
+      "severity": "MINOR",
+      "intended_handler": "shenbi-style-polishing",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Local imagery refinement — single metaphor replacement within revision scope. Too minor to warrant delegation to style-polishing pipeline step."
+    }
+  ],
+  "spot_fixes": [
+    {
+      "location": "L35",
+      "original": "空袭后的第三天",
+      "revised": "空袭后的第四天",
+      "type": "word_replacement",
+      "rationale": "Time continuity BLOCKING — Ch5 covered day 2→3, Ch6 is explicit next day (day 4). Matches truth/current_state.md and chapter_summaries.md."
+    },
+    {
+      "location": "L91",
+      "original": "他在那堆电路板前蹲下，刚伸手拨开一块塑料碎片——口袋里的手机震了一下。不是电话的震动，而是像收到短信时那种短促的一振。",
+      "revised": "他在那堆电路板前蹲下，刚伸手拨开一块塑料碎片。口袋里的手机震了一下，一种像收到短信时那种短促的振动。",
+      "type": "dash_removal + contrast_pattern_removal",
+      "rationale": "Combined fix: (1) dramatic pause '——' replaced with period to eliminate AI-pattern em dash #9; (2) '不是...而是...' contrast pattern replaced with direct descriptive appositive. Both anti-AI MINOR issues resolved in single change."
+    },
+    {
+      "location": "L204",
+      "original": "那扇门在他的意识里静静地散发着微弱的信号，像一堵墙在承受过压力之后，墙体内部发生了变化，表面看不出裂缝，但结构已经变了。",
+      "revised": "那扇门在他的意识里静静地散发着微弱的信号，像一口被敲响过的钟，振动早已平息，但铜壁内部还在发生细微的结构调整。",
+      "type": "metaphor_replacement",
+      "rationale": "Pacing audit MINOR: wall metaphor consumed two descriptions without clearly anchoring 'internal state change' — replaced with bell metaphor where '被敲响→平息的振动→铜壁内部结构调整' is a more precise physical analogy for the door having been touched and then responding internally. Resonance P1 also noted explanatory-over-suggestive issue with original wall image."
+    }
+  ],
+  "preserved_elements": [
+    {
+      "location": "L186",
+      "element": "一种微弱的、像风吹过门缝的气息感——不是温度变化，不是声音，是一种位移的感知",
+      "reason": "Legitimate use of em dash for definition cascade — establishes door's first-ever autonomous signal. Not part of any anti-AI pattern."
+    },
+    {
+      "location": "L190",
+      "element": "一切物理秩序都正常。但意识里的那扇门，它的状态变了。",
+      "reason": "Core narrative rhythm of chapter — contrast between physical and psychic worlds. Preserved as-is."
+    }
+  ],
+  "acceptance_check": {
+    "blocking_before": 0,
+    "blocking_after_expected": 0,
+    "critical_before": 0,
+    "critical_after_expected": 0,
+    "ai_tell_before": 14,
+    "ai_tell_after_expected": 12,
+    "improvement_achieved": true,
+    "improvement_details": "1 '不是...而是...' pattern eliminated. 1 dramatic pause em dash (#9) eliminated. Door metaphor refined for precision. No blocking/critical introduced. Content preservation verified — no dialogue, no character state changes, no scene transitions altered."
+  },
+  "content_preservation_verification": {
+    "key_dialogues_preserved": true,
+    "paid_off_foreshadowing_preserved": true,
+    "character_state_changes_preserved": true,
+    "scene_transition_markers_preserved": true,
+    "items": [
+      {"item": "MH-020 首次文本证据（手机震动+梅德兰文字闪现）", "status": "preserved"},
+      {"item": "门自发反馈（气息感/位移感知——灵能确认真实）", "status": "preserved"},
+      {"item": "中年女人第三次相遇（白线标记+检查站招工+动机信号）", "status": "preserved"},
+      {"item": "灰衬衫过路费征收场景（S-006从目击→体验升级）", "status": "preserved"},
+      {"item": "城外矿道传闻（第7章转移种子）", "status": "preserved"},
+      {"item": "救济站重返感官追加（Ch5 drift补偿）", "status": "preserved"},
+      {"item": "章末三联收束（铜币/标记/门）", "status": "preserved"},
+      {"item": "零顿悟—确认取代明白", "status": "preserved"}
+    ]
+  },
+  "budget": {
+    "context_tokens_estimate": 7500,
+    "limit": 12000
+  }
+}

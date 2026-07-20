@@ -1,17 +1,19 @@
 ---
 name: shenbi-score-stratum
-description: "Use when scoring 大弧/书级健康评分 on goal attainment and anchor calibration"
+description: Use when scoring 大弧/书级健康评分 on goal attainment and anchor calibration
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - truth/book_strata.md
-    - truth/book_spine.md
-    - benchmarks/anchors/
+  - truth/book_strata.md
+  - truth/book_spine.md
+  - benchmarks/anchors/
   writes:
-    - audits/stratum-N-score.md
+  - file: audits/stratum-N-score.md
+    mode: create_or_overwrite
   updates:
-    - truth/book_spine.md
+  - file: truth/book_spine.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

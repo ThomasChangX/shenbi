@@ -141,3 +141,43 @@ def test_fails_when_fatigue_words_exceeded(tmp_path: Path) -> None:
 
     assert result["status"] == "FAIL"
     assert any("G4.fatigue" in m for m in mf)
+
+
+# ── Task 6: Protagonist Presence ───────────────────────────────────────────
+
+
+def test_protagonist_presence_check_detects_absence():
+    """G4.cd.protagonist_presence fails when protagonist appears < 3 times."""
+    from shenbi.gates.g4.chapter_drafting import _check_protagonist_presence
+
+    text = "参数知道深度在第X层——光在场于第三日"  # No protagonist names
+    protagonist_names = ["林烽", "他"]
+
+    issues = _check_protagonist_presence(text, protagonist_names, threshold=3)
+    assert len(issues) > 0
+    assert "protagonist_absent" in issues[0]
+
+
+def test_protagonist_presence_check_passes_with_sufficient_mentions():
+    """G4 check passes when protagonist appears >= threshold."""
+    from shenbi.gates.g4.chapter_drafting import _check_protagonist_presence
+
+    text = "林烽握紧拳头。他看着前方。林烽知道这一战不可避免。他深吸一口气。"
+    protagonist_names = ["林烽", "他"]
+
+    issues = _check_protagonist_presence(text, protagonist_names, threshold=3)
+    assert len(issues) == 0
+
+
+# ── Task 11: META Stripping Warning ─────────────────────────────────────────
+
+
+def test_chapter_drafting_skill_has_meta_warning_block():
+    """The chapter-drafting SKILL.md must have a prominent META stripping warning."""
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-chapter-drafting" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "WARNING" in content or "IMPORTANT" in content
+    assert "META" in content
+    assert "strip" in content.lower() or "not prose" in content.lower()

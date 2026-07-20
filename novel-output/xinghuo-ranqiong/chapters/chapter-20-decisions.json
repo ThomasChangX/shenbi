@@ -1,0 +1,75 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 20,
+  "produced_at": "2026-07-16T16:45:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-20-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-20-context.md",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context文件缺失，以plans/chapter-20-plan.md为主输入"]
+    },
+    {
+      "target": "context/chapter-20-context-decisions.json",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context-decisions文件缺失"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第19章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["第15章", "第16章", "第17章", "第18章"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch19_physiological_baseline_cross_period",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "跨时段生理基线对照:窄巷入口转身后第三步心率与Ch19围挡段峰值分化比对——比昨日围挡段低一档但高于早晨基础线——'不是面对威胁的反应——是确认昨天已完成的封锁今天仍然存在'"
+    },
+    {
+      "issue_id": "drift_ch19_emotional_small_reward",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "情感性小回报:两个自然嵌入的'停止恶化'信号——门框温度梯度连续四天累积后首次持平(二次扫描确认)+MH-001晨检'和昨天一样'(放回时手指停了一瞬的非设计时刻)"
+    },
+    {
+      "issue_id": "style_profile_bootstrap",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "style_profile仍为bootstrap(confidence:low)——Ch20产出后建议运行compute_stats.py覆盖"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 32000,
+    "limit": 35000,
+    "trim_applied": "none"
+  }
+}

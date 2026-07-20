@@ -1,17 +1,19 @@
 ---
 name: shenbi-escalation-review
-description: "Use when an escalation signal has been triggered and human review is required"
+description: Use when an escalation signal has been triggered and human review is
+  required
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - truth/resonance_trend.md
-    - audits/volume-N-score.md
-    - audits/arc-N-score.md
-    - audits/stratum-N-score.md
-    - audits/chapter-N-sensitivity.md
+  - truth/resonance_trend.md
+  - audits/volume-N-score.md
+  - audits/arc-N-score.md
+  - audits/stratum-N-score.md
+  - audits/chapter-N-sensitivity.md
   writes:
-    - audits/escalation-N-report.md
+  - file: audits/escalation-N-report.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

@@ -1,0 +1,69 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 48,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["高潮/兑现"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["推进/转折"]
+    },
+    {
+      "target": "priority_source",
+      "selected": ["局部覆盖"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["卷纲 Key Result", "current_focus", "author_intent"]
+    },
+    {
+      "target": "hook_density",
+      "selected": ["10_operations"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["8_operations_recommended"],
+      "note": "结构锚点章——周日作为第一个非工作日，全部10个活跃系统组件伏笔均须展现其在周日的各自行为变奏。密度高于常规建议值8，因current_focus P0/P1项覆盖了全部10个钩子的系统行为描述，不操作即未覆盖所需行为。已确认无僵尸伏笔"
+    },
+    {
+      "target": "texture_expression",
+      "selected": ["parallel_dimension_within_parameter_framework"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["sensory_replacement_of_parameters", "pure_parameter_continuation"]
+    },
+    {
+      "target": "quiet_texture_relationship",
+      "selected": ["quiet_in_between_stillness_and_texture"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["quiet_absence_on_sunday", "quiet_ignores_texture"]
+    },
+    {
+      "target": "gap_sunday_cognition",
+      "selected": ["gap_knows_sunday_itself"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["gap_resolved_on_sunday", "gap_ignores_sunday"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch47_drift_emotional_grounding_and_prose_and_reward",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "三项drift合并为质地维度回归这一个P0驱动，无需单独修复项。质地感官句法同时解决情感落地(触感锚定)、文笔质感(句法变奏)、读者回报(系统释放)"
+    }
+  ]
+}
+```
+
+**第48章章节备忘已完成**。核心定位：周日质地维度回归——六个工作日排除后的结构锚点章，ch44承诺的结构性兑现。
+
+**关键决策**:
+- **优先级来源**: 局部覆盖（参数叙事系统内部逻辑覆盖了传统卷纲KR3）
+- **chapter_role**: 高潮/兑现（质地回归是ch44建立承诺的兑现）
+- **10条hook操作**（密度略高于建议值8，但周日锚点章结构特殊——全部系统组件须展现其在第一个非工作日的各自行为变奏，current_focus P0/P1覆盖了全部钩子）
+- **MH-026 resolve**: 质地模式巩固的中央问题（质地是否在周日回归？）在周日得到答案，收束该伏笔
+- **句法变奏**: 质地感官短链替代"X知道Y"主体参数宣告，回应ch47审计三项drift

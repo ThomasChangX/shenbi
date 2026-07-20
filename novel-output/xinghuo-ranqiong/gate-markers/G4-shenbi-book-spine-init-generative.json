@@ -1,0 +1,9 @@
+{
+  "gate": "G4-book-spine-init",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:49:36.427504+00:00",
+  "checks": [],
+  "files_checked": [
+    "truth/book_spine.md"
+  ]
+}

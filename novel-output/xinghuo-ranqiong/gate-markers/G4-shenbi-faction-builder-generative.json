@@ -1,0 +1,20 @@
+{
+  "gate": "G4-faction-builder",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:17:40.296649+00:00",
+  "checks": [
+    {
+      "id": "G4.factions.count",
+      "s": "PASS",
+      "count": 4
+    },
+    {
+      "id": "G4.factions.complete",
+      "s": "PASS",
+      "complete": 4
+    }
+  ],
+  "files_checked": [
+    "world/factions.md"
+  ]
+}

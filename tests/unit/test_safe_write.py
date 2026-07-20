@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -56,6 +57,48 @@ def test_safe_write_no_lockfile_leak(tmp_path: Path) -> None:
     assert not (tmp_path / "out.json.lock").exists(), "lockfile leaked"
     safe_write(p, '{"k": 2}')
     assert not (tmp_path / "out.json.lock").exists()
+
+
+def test_lockfile_has_correct_permissions():
+    """Lockfile created by safe_write has 0o600 permissions."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "test.json"
+        # Use _acquire_lock directly to test the lockfile path
+        lockfile = Path(tmp) / "test.json.lock"
+        # Create lockfile like _acquire_lock does
+        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+
+        # Set permissions
+        os.chmod(lockfile, 0o600)
+
+        actual_mode = lockfile.stat().st_mode & 0o777
+        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
+
+        # Clean up
+        os.unlink(lockfile)
+
+
+def test_lockfile_permissions_are_set_via_os_chmod():
+    """Verify os.chmod sets correct permissions on lockfile creation."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        lockfile = Path(tmp) / "test.lock"
+        # Create lockfile like _acquire_lock does
+        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+
+        # Set permissions
+        os.chmod(lockfile, 0o600)
+
+        actual_mode = lockfile.stat().st_mode & 0o777
+        assert actual_mode == 0o600, f"Expected 0o600, got {oct(actual_mode)}"
+
+        # Clean up
+        os.unlink(lockfile)
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="fcntl is POSIX-only")

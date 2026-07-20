@@ -9,7 +9,6 @@ Commands:
     review <project-dir> approve|reject|modify [--feedback <file>]
     resume <project-dir>
     chapters <project-dir>
-    rollback <project-dir> --chapter <N>
 
 All machine-readable output goes to stdout via :func:`emit_json`; human
 diagnostics go to stderr via structlog (see ``cli_utils`` module docstring).
@@ -180,7 +179,11 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     Dispatches to genesis / chapter-loop / closure step runners, and handles
     trigger execution + closure transition at the start of each new chapter.
     """
-    from shenbi.pipeline.chapter_loop import run_chapter_step
+    from shenbi.pipeline.chapter_loop import (
+        _cleanup_residual_staging,  # pyright: ignore[reportPrivateUsage]
+        _has_pending_staging_step,  # pyright: ignore[reportPrivateUsage]
+        run_chapter_step,
+    )
     from shenbi.pipeline.closure import run_closure_step
     from shenbi.pipeline.genesis import run_genesis_step
     from shenbi.pipeline.transitions import (
@@ -188,6 +191,9 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
         transition_closure_to_completed,
     )
     from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
+
+    # Clean residual staging at pipeline resume to prevent stale file accumulation.
+    _cleanup_residual_staging(project_dir, has_pending_staging=_has_pending_staging_step(state))
 
     while True:
         # Execute any pending re-dispatches queued by modify decisions (G4).
@@ -537,7 +543,7 @@ def cmd_review(args: argparse.Namespace) -> int:
                 if cp.type == CheckpointType.CHAPTER_MEMO:
                     state.chapter_loop.step_index = 1  # CHAPTER_STEPS[1] = chapter-planning
                 elif cp.type == CheckpointType.STATE_SETTLE:
-                    state.chapter_loop.step_index = 6  # CHAPTER_STEPS[6] = state-settling
+                    state.chapter_loop.step_index = 7  # CHAPTER_STEPS[7] = state-settling
                 elif cp.type == CheckpointType.GENESIS_COMPLETE:
                     state.genesis.current_step = max(0, state.genesis.current_step - 1)
 
@@ -683,10 +689,43 @@ def cmd_resume(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
 
-            # Truth-integrity check (spec \u00a73.4): verify truth files exist
+            # Self-heal orphaned counters/pointers from disk (spec §3.4):
+            # retry_budget_consumed, revision_count, last_snapshot.
+            from shenbi.pipeline.state_heal import heal_state_counters
+
+            heal_state_counters(state, project_dir)
+
+            # Persist healed values immediately so crash-resume sees them.
+            save_state(project_dir, state)
+
+            # Heal emergency shutdown state (spec §3.4): if the pipeline was
+            # interrupted by a crash/SIGTERM, the current_step will be marked
+            # "EMERGENCY_SHUTDOWN_AT_{skill}". Restore the correct step name
+            # from CHAPTER_STEPS so the loop can resume cleanly.
+            cl = state.chapter_loop
+            if cl.current_step and cl.current_step.startswith("EMERGENCY_SHUTDOWN"):
+                from shenbi.pipeline.chapter_loop import CHAPTER_STEPS
+
+                log.warning(
+                    "resuming_from_emergency_shutdown",
+                    chapter=cl.current_chapter,
+                    step=cl.current_step,
+                )
+                if cl.step_index < len(CHAPTER_STEPS):
+                    cl.current_step = CHAPTER_STEPS[cl.step_index].skill
+                else:
+                    cl.current_step = ""
+                save_state(project_dir, state)
+
+            # Truth-integrity check (spec §3.4): verify truth files exist
             # before resuming, so missing files surface immediately rather than
             # on the first step dispatch.
             _verify_truth_integrity(state, project_dir)
+
+            # Auto-rebuild progress.json from trace if stale or missing (Task 12).
+            from shenbi.pipeline.chapter_loop import _auto_rebuild_progress_if_stale  # pyright: ignore[reportPrivateUsage]
+
+            _auto_rebuild_progress_if_stale(project_dir)
 
             if state.checkpoint_history:
                 last = state.checkpoint_history[-1]
@@ -784,17 +823,61 @@ def cmd_chapters(args: argparse.Namespace) -> int:
 def cmd_rollback(args: argparse.Namespace) -> int:
     """Rollback to a chapter snapshot.
 
-    Placeholder: requires snapshot integration landing in Wave 3/4. The
-    ``--chapter`` argument is accepted now so the interface is stable.
+    Not yet implemented -- requires snapshot integration (deferred to a future
+    spec, see docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
+    The subparser registration has been removed so 'pipeline --help' does not
+    advertise this command. This function is retained for direct callers and
+    returns a non-zero exit code.
     """
     project_dir = Path(args.project_dir)
-    log.info("rollback_requested", project_dir=str(project_dir), chapter=args.chapter)
+    log.info("rollback_not_implemented", project_dir=str(project_dir), chapter=args.chapter)
     emit_json(
         {
             "status": "not_implemented",
-            "message": "Rollback requires snapshot integration (Wave 3/4)",
+            "message": (
+                "Rollback requires snapshot integration (deferred to future spec). "
+                "See docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
+            ),
         }
     )
+    return 1
+
+
+def cmd_backfill_context(args: argparse.Namespace) -> int:
+    """Re-run deterministic context assembly + curation for a chapter range.
+
+    These are deterministic Python functions and can be re-executed safely to
+    close coverage gaps for already-generated chapters. Uses the real
+    assemble_context(project_dir, plan_path) / write_context_file / curate_context
+    signatures (spec §3.1 backfill).
+    """
+    from shenbi.pipeline.context_assemble import assemble_context, write_context_file
+    from shenbi.pipeline.context_curation import curate_context
+    from shenbi.safe_write import safe_write
+
+    project_path = Path(args.project_dir)
+
+    chapters = args.chapters
+    if "-" in chapters:
+        start, end = chapters.split("-")
+        chapter_range = range(int(start), int(end) + 1)
+    else:
+        ch = int(chapters)
+        chapter_range = range(ch, ch + 1)
+
+    for ch in chapter_range:
+        try:
+            plan_path = f"plans/chapter-{ch}-plan.md"
+            pkg = assemble_context(project_path, plan_path)
+            write_context_file(project_path, ch, pkg)  # safe_write inside
+            curated = curate_context(project_path, ch)
+            curated_path = project_path / "context" / f"chapter-{ch}-curated.md"
+            curated_path.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(curated_path, curated)
+            print(f"  Backfilled context for chapter {ch}")
+        except Exception as e:
+            print(f"  FAILED chapter {ch}: {e}", file=sys.stderr)
+
     return 0
 
 
@@ -836,10 +919,14 @@ def main(argv: list[str] | None = None) -> int:
     p_chapters.add_argument("project_dir", type=str)
     p_chapters.set_defaults(func=cmd_chapters)
 
-    p_rollback = sub.add_parser("rollback", help="Rollback to chapter snapshot")
-    p_rollback.add_argument("project_dir", type=str)
-    p_rollback.add_argument("--chapter", type=int, required=True)
-    p_rollback.set_defaults(func=cmd_rollback)
+    p_backfill = sub.add_parser(
+        "backfill-context", help="Re-run context assembly for a chapter range"
+    )
+    p_backfill.add_argument(
+        "--chapters", type=str, required=True, help="Chapter range, e.g. '13-54'"
+    )
+    p_backfill.add_argument("--project-dir", type=str, default=".", help="Project directory")
+    p_backfill.set_defaults(func=cmd_backfill_context)
 
     args = parser.parse_args(argv)
     # argparse stores set_defaults(func=...) as Any; annotate so the dispatched

@@ -1,15 +1,18 @@
 ---
 name: shenbi-chapter-pattern
-description: "Use when classifying chapters by structural pattern, detecting pattern monotony across the novel, monitoring chapter type distribution, or preventing repetitive chapter structures"
+description: Use when classifying chapters by structural pattern, detecting pattern
+  monotony across the novel, monitoring chapter type distribution, or preventing repetitive
+  chapter structures
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/*.md
-    - truth/chapter_summaries.md
-    - genre-config.json
+  - chapters/*.md
+  - truth/chapter_summaries.md
+  - genre-config.json
   writes:
-    - outline/chapter_patterns.md
+  - file: outline/chapter_patterns.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

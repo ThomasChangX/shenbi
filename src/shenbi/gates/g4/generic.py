@@ -16,6 +16,7 @@ from shenbi.gates.shared import (
     passed,
     resolve_input_path,
 )
+from shenbi.status import GateStatus
 
 
 def g4_generic_generative(
@@ -157,6 +158,80 @@ def g4_generic_clean(
     return passed("G4-clean", c)
 
 
+#: Findings that FAIL the gate vs WARN. Everything else defaults to WARN.
+_POST_WRITE_FAIL_PREFIXES = (
+    "G4.pi.model_leakage",
+    "G4.pi.unfinished_ending",
+    "G4.ac.",
+    "G4.av.",
+)
+
+
+def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict[str, Any]:
+    """G4 checker: consume persisted post-write integrity findings.
+
+    Reads ``audits/.integrity-findings-<chapter>.jsonl`` (written by
+    ``_write_parsed_outputs``) and maps each finding to a G4 check with the
+    severity from spec §3.6. Returns a dict ``{"status", "checks"}``.
+    """
+    findings_path = project_dir / "audits" / f".integrity-findings-{chapter}.jsonl"
+    checks: list[dict[str, Any]] = []
+    has_fail = False
+    has_warn = False
+    if findings_path.exists():
+        for line in findings_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            finding = str(entry.get("finding", ""))
+            is_fail = any(finding.startswith(p) for p in _POST_WRITE_FAIL_PREFIXES)
+            # fence_imbalance is the only WARN.
+            if finding.startswith("G4.pi.fence_imbalance"):
+                is_fail = False
+            check_id = finding.split(":", maxsplit=1)[0] if ":" in finding else finding
+            checks.append(
+                {"id": check_id, "s": GateStatus.FAIL if is_fail else GateStatus.WARN, "r": finding}
+            )
+            has_fail = has_fail or is_fail
+            has_warn = has_warn or (not is_fail)
+    status = GateStatus.FAIL if has_fail else (GateStatus.WARN if has_warn else GateStatus.PASS)
+    return {"status": status, "checks": checks}
+
+
+def _chapter_number_from_paths(file_paths: list[str]) -> int | None:
+    """Extract chapter number from file paths like ``chapter-NN``."""
+    for fp in file_paths:
+        m = re.search(r"chapter-(\d+)", fp)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def _merge_pwi_into_result(result_str: str, pwi: dict[str, Any]) -> str:
+    """Merge post-write integrity findings into an existing G4 result JSON string."""
+    try:
+        result_data: dict[str, Any] = json.loads(result_str)
+    except (json.JSONDecodeError, TypeError):
+        result_data = {"status": GateStatus.FAIL, "checks": [], "must_fix": ["unparseable"]}
+
+    result_data.setdefault("checks", [])
+    existing_checks: list[dict[str, Any]] = result_data["checks"]
+    existing_checks.extend(pwi["checks"])
+
+    # Elevate status: FAIL > WARN > PASS
+    current = result_data.get("status", GateStatus.PASS)
+    pwi_status = pwi["status"]
+    if pwi_status == GateStatus.FAIL or current == GateStatus.FAIL:
+        result_data["status"] = GateStatus.FAIL
+    elif pwi_status == GateStatus.WARN and current != GateStatus.FAIL:
+        result_data["status"] = GateStatus.WARN
+
+    return json.dumps(result_data, indent=2, ensure_ascii=False)
+
+
 def gate_G4(
     skill_name: str,
     test_type: str,
@@ -201,6 +276,7 @@ def gate_G4(
     from shenbi.gates.g4.score_volume import g4_score_volume
     from shenbi.gates.g4.score_stratum import g4_score_stratum
     from shenbi.gates.g4.escalation_review import g4_escalation_review
+    from shenbi.gates.g4.chapter_revision import g4_chapter_revision
     from shenbi.gates.g4.decisions_validator import g4_decisions, make_composite_checker
 
     checkers = {
@@ -234,14 +310,25 @@ def gate_G4(
         "shenbi-escalation-review": g4_escalation_review,
         # New: decisions-only (no existing dedicated checker)
         "shenbi-market-radar": g4_decisions,
-        "shenbi-chapter-revision": g4_decisions,
+        "shenbi-chapter-revision": make_composite_checker(g4_decisions, g4_chapter_revision),
         "shenbi-short-drafting": g4_decisions,
     }
     fn = checkers.get(skill_name)
     if fn:
-        return fn(file_paths, round_dir, project_dir, repo_root)
-    # Generic fallback for skills without dedicated checkers
-    return g4_generic_generative(file_paths, round_dir, project_dir, repo_root)
+        result = fn(file_paths, round_dir, project_dir, repo_root)
+    else:
+        # Generic fallback for skills without dedicated checkers
+        result = g4_generic_generative(file_paths, round_dir, project_dir, repo_root)
+
+    # Post-write integrity findings (spec 19 §3.6) — apply to every chapter.
+    if project_dir:
+        chapter_num = _chapter_number_from_paths(file_paths)
+        if chapter_num is not None:
+            pwi = g4_post_write_integrity(Path(project_dir), chapter=chapter_num)
+            if pwi["checks"]:
+                result = _merge_pwi_into_result(result, pwi)
+
+    return result
 
 
 def gate_G4_bughunt(file_paths: list[str]) -> str:

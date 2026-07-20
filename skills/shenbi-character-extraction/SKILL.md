@@ -1,17 +1,23 @@
 ---
 name: shenbi-character-extraction
-description: "Use when reverse-extracting character profiles from existing chapters, building character cards from an analyzed manuscript, or generating speech-style fingerprints from sample dialogue"
+description: Use when reverse-extracting character profiles from existing chapters,
+  building character cards from an analyzed manuscript, or generating speech-style
+  fingerprints from sample dialogue
 contract:
   kind: artifact
   reads:
-    - import/analysis/02_characters.md
-    - chapters/*.md
-    - import/analysis/04_plot.md
+  - import/analysis/02_characters.md
+  - chapters/*.md
+  - import/analysis/04_plot.md
   writes:
-    - characters/protagonist.md
-    - characters/major/*.md
-    - characters/minor/*.md
-    - characters/relationships.md
+  - file: characters/protagonist.md
+    mode: create_or_overwrite
+  - file: characters/major/*.md
+    mode: create_or_overwrite
+  - file: characters/minor/*.md
+    mode: create_or_overwrite
+  - file: characters/relationships.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

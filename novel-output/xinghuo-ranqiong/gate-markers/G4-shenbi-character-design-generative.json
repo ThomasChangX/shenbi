@@ -1,0 +1,78 @@
+{
+  "gate": "G4-character-design",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:09:48.792485+00:00",
+  "checks": [
+    {
+      "id": "G4.protag.name",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.role",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.personality_tags",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.core_value",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.goal_surface",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.goal_deep",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.fear",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.arc_type",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.arc_starting",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.arc_turning",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.arc_ending",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.protag.voice_profile",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.voice.speech_patterns",
+      "s": "PASS",
+      "count": 5
+    },
+    {
+      "id": "G4.voice.catchphrases",
+      "s": "PASS",
+      "count": 5
+    },
+    {
+      "id": "G4.voice.avoid_patterns",
+      "s": "PASS",
+      "count": 3
+    },
+    {
+      "id": "G4.cd.major_chars",
+      "s": "SKIP",
+      "r": "no major directory yet (genesis mode)"
+    }
+  ],
+  "files_checked": [
+    "characters/protagonist.md"
+  ]
+}

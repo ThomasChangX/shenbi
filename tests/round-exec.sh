@@ -86,8 +86,20 @@ echo "G0 PASSED (expected chapters: ${EXPECTED_CHAPTERS})"
 
 mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,skill-output,skill-traces}
 
-# progress.json: written via update-progress.py single-writer (no direct edits)
-uv run shenbi-progress init "${ROUND_DIR}" "${TIER}" --expected-chapters "${EXPECTED_CHAPTERS}"
+# progress.json: created directly. The historical `shenbi-progress init`
+# invoked an entry point never registered in pyproject.toml; mirror the
+# direct-write pattern from src/shenbi/dispatcher/modes/codex.py:_record_completion.
+python3 -c "
+import json
+progress = {
+    'completed_skill_names': [],
+    'skills': {},
+    'tier': '${TIER}',
+    'expected_chapters': ${EXPECTED_CHAPTERS},
+}
+with open('${ROUND_DIR}/progress.json', 'w', encoding='utf-8') as f:
+    json.dump(progress, f, indent=2, ensure_ascii=False)
+"
 
 # Override tokens
 TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")

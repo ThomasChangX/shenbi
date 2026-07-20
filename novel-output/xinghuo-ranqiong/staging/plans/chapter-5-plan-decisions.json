@@ -1,0 +1,80 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 5,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results KR1",
+      "selected": ["KR1: 困境建立与第一次觉醒 - Ch.5 收官定位"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "原定'带着幸存者逃出铁炉堡废城区'因实际故事轨迹偏离不再适用——少女死亡(Ch3)+老刘死亡(Ch3)+无幸存者群体"
+      ]
+    },
+    {
+      "target": "current_focus.md P0-P2 优先级指令",
+      "selected": [
+        "P0: 情绪酝酿呼吸空间——关键沮丧/不公节拍处留3-5句悬浮区间",
+        "P0: 生存线升级——从'找容身之所'到'找收入来源'",
+        "P0: 灵能第一次主动尝试——'门'从意识边缘移到主动触碰位置",
+        "P1: 对话段感官锚定——关键对话段至少2个感官专属信号",
+        "P1: 关键抉择点'停留'节奏——抉择前环境承载的深呼吸节拍",
+        "P1: 战争后遗症日常化——检查站制度壁垒常态化呈现",
+        "P2: 中年女人关系深化——从一次性互助到可重复接触",
+        "P2: MH-001 REINFORCE/首次TRIGGER——金属片与灵能关联深化"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "P2: 催收债务回归（空袭后第5-6天，社会秩序尚未恢复到催收公司重启运营的程度——延迟至第6-7章）",
+        "P2: 矿工组织端倪（为第6章预留——第5章聚焦生存线+灵能线，不宜塞入过多新话题）"
+      ]
+    },
+    {
+      "target": "黄金三章纪律",
+      "selected": [],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第5章超出 golden_opening_chapters=3 范围，黄金三章特殊纪律不再适用"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_divergence_ch5",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR1第5章'带着幸存者逃出废城区'因少女死亡+老刘死亡不可执行，已通过局部覆盖优先级调整为'觉醒之后第一步'"
+    },
+    {
+      "issue_id": "drift_ch4_emotional_soak",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch4 检查站被拒段情绪释放过快——第5章要求在关键沮丧/不公节拍处留3-5句悬浮区间"
+    },
+    {
+      "issue_id": "drift_ch4_dialogue_sensory",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch4 检查站交涉段感官空白——第5章要求关键对话段锚定至少2个感官专属信号"
+    },
+    {
+      "issue_id": "drift_ch4_breath_beat",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch4 检查站被拒→妇女善意间隙过短——第5章要求关键抉择前插入深呼吸节拍"
+    },
+    {
+      "issue_id": "MH-020_first_hint_landing",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "MH-020沉默3章接近阈值——第5章通过告示板视线+手机口袋微暗示首次落地种子"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

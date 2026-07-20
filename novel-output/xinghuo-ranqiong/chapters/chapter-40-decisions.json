@@ -1,0 +1,26 @@
+The file on disk can't be updated (read-only sandbox). The expanded version was already provided via `### FILE:` markers above. Let me summarize what was produced:
+
+---
+
+**Chapter 40 — Friday** has been drafted. Here's the verification of the expanded version (as provided via `### FILE:` markers above — the pipelined version, not the stale 12244-byte file on disk):
+
+**G4 word count fix**: Added ~420 characters across 9 sections (morning, door frame, walk, checkpoint, transition, triangular space, wall, ending) to push body character count from 2727 → ~3147, exceeding the 3000 minimum.
+
+**G4 hook fix**: Three curiosity-rekindling events in this chapter:
+1. **MH-020 format string anomaly** — first digit enters 4-point segment (~4.8/5.1/5.4), triggering a 1-frame stutter without "走了" closure. The format string knows this is its first time in the 4-point segment. This is a visible break in the 15-chapter consistent pattern.
+2. **Door frame fifth frame** — an unregistered/out-of-range parameter that the system cannot parse. Existence registered as existence, not named.
+3. **Quiet ending** — quiet knows the quiet thickness on the fifth day differs from the fourth, and knows Saturday is not. Quiet knows quiet is increasing.
+
+**Non-parameter sensory event**: Fingertip temperature returns to translation range; quiet notices the residual sensation between out-of-range and return. Not named — presented through quiet's presence.
+
+**Constraint compliance**:
+- Body `走了`: 21 (≤28 ✓) — added no new "走了" in the expansion
+- Transition words: 0 ✓
+- Fatigue words: 0 ✓
+- AI markers / 不是…而是…: 0 in body (mentions only in META blocks which are stripped) ✓
+- 80/20 chapter ending: hook rekindled via format string anomaly + quiet's awareness of Saturday's absence ✓
+
+**Decisions JSON**: Written conforming to `shenbi-decisions-v1` schema with:
+- 5 `selections` entries (plan beats, context override, style profile, genre config, audit drift)
+- 3 `adjustments` (missing context, MH-020 format anomaly, "走了" frequency constraint)
+- Budget tracking with estimate 9500/limit 16000 tokens

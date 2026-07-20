@@ -1,0 +1,67 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 19,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "冲突高潮形态",
+      "selected": "三条触发线(战争线/偏移策略/MH-001)在空间收缩极限下汇聚为一次不可逆选择",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "卷末高潮段核心指令: 三条线在Ch17触发+Ch18扩散后必须于Ch19汇聚为一次选择",
+      "omitted": ["战斗对抗高潮", "新角色引入高潮"]
+    },
+    {
+      "target": "战争线升级方向",
+      "selected": "白线从标记→主动执行(林烽目睹有人被拦截阻止通行, 无身份证明无法通过)",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "战争线从'影响行动路径'→'直接决定生存可能'——性质变化而非量变",
+      "omitted": ["第二波军列/卡车内燃机车", "巡逻与林烽直接接触冲突"]
+    },
+    {
+      "target": "MH-001 TRIGGERED触发时机",
+      "selected": "在绕行极限空间(窄巷侧身通行/无法退/无法进的生存阈值时刻)自然触发",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "遵循非英雄化觉醒原则——在生存极限时刻自然触发, 不附加顿悟或力量释放",
+      "omitted": ["主动操作触发", "认识关联灵能场触发"]
+    },
+    {
+      "target": "偏移策略上限表达",
+      "selected": "所有可选通道携带同等级风险——窄巷出口被路障封锁/宽路有白线执行/偏移路线出口在管控区内",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "结构性上限而非崩塌——偏移仍是观察事实, 但'选择窄巷更安全'的策略已不成立",
+      "omitted": ["偏移完全失效", "林烽放弃偏移策略"]
+    },
+    {
+      "target": "不可逆代价",
+      "selected": "一条窄巷中段通道被新设路障封堵——管控从工业带入口向内渗透至日常通勤路线",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "不可逆损失: 路障不会自行撤除, 明天无法使用. 符合'每次胜利都有代价'叙事原则",
+      "omitted": ["林烽身份被注意/暴露", "物资损失", "身体受伤"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_嗅觉前置预警",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "白线场景: 林烽到达白线前通过嗅觉前置锚定——漆味扩散距离/浓度梯度/新旧标记气味差异, 从Ch18的'事后确认'升级为'前置预警'"
+    },
+    {
+      "issue_id": "drift_style_profile覆盖",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "Ch19完成后立即运行compute_stats.py覆盖style_profile——当前bootstrap状态confidence:low, 33500字累积仍零正文样本"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

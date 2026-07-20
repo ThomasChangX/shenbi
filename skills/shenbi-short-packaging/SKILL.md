@@ -1,15 +1,17 @@
 ---
 name: shenbi-short-packaging
-description: "Use when preparing a short story for publication, generating sales materials, writing the book blurb and selling points, or producing cover image prompts"
+description: Use when preparing a short story for publication, generating sales materials,
+  writing the book blurb and selling points, or producing cover image prompts
 contract:
   kind: artifact
   reads:
-    - outline/short_story_map.md
-    - chapters/*.md
-    - world/story_bible.md
-    - truth/author_intent.md
+  - outline/short_story_map.md
+  - chapters/*.md
+  - world/story_bible.md
+  - truth/author_intent.md
   writes:
-    - import/packaging/*
+  - file: import/packaging/*
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

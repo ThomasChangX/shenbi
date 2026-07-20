@@ -1,0 +1,85 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 33,
+  "produced_at": "2026-07-17T04:30:00+08:00",
+  "selections": [
+    {
+      "target": "plans/chapter-33-plan.md",
+      "selected": [
+        "P0_1_third_week_calendar_three_passages",
+        "P0_1_known_rhythm_pervasive",
+        "P0_2_grey_channel_mold_smell_landing",
+        "P0_3_checkpoint_speech_fragment",
+        "P1_1_cold_deepening_early_winter_edge",
+        "P1_2_emotional_baseline_third_week",
+        "P1_3_offset_strategy_unchanged",
+        "P1_4_door_frame_third_week_maintenance",
+        "P1_5_phase_2_third_week_condensation",
+        "P2_1_MH_020_format_string_third_week",
+        "P2_2_MH_003_engine_sound_third_week",
+        "P2_3_non_parameter_domain_blank_maintenance",
+        "P2_4_seasonal_advance_frost_edge"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_content_standards_costs",
+        "zero_category_extension_to_other_domains",
+        "cold_assessment_causal_link",
+        "meta_narrative_week_declaration",
+        "third_week_week2_comparison",
+        "new_walking_routes",
+        "long_op_breakthrough",
+        "pre_avoidance_declaration"
+      ]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": [
+        "ch32_audit_1_smell_dimension_narrow",
+        "ch32_audit_2_emotional_bandwidth_limited",
+        "ch32_audit_3_fragmented_sentence_reader_threshold"
+      ],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "all three Ch32 audit items merged to Ch33 per plan: smell dimension (grey channel), emotional micro-variation (speech fragment), rhythm deviation (sentence structure pause)"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_no_assemble_context",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "context/chapter-33-context.md and context/chapter-33-context-decisions.json not found; loaded from plan + truth files + adjacent chapters"
+    },
+    {
+      "issue_id": "drift_smell_dimension_narrow_ch32",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "grey channel moldy smell deposition signal landing expands sensory coverage from single to dual; max 1-2 frames, no composition analysis"
+    },
+    {
+      "issue_id": "drift_emotional_bandwidth_limited_ch32",
+      "severity": "high",
+      "handling": "compensate_via_emotional_broadening",
+      "rationale": "checkpoint speech fragment introduces micro-emotional variation plus first frost; broadening within transition chapter constraints"
+    },
+    {
+      "issue_id": "drift_fragmented_sentence_threshold_ch32",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "1-2 frame rhythm deviation via speech fragment; sentence structure differs during fragment section, restores after deviation passes"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "chapter_word_count_estimate": 8500,
+    "pacing_notes": "Ch33 third week Monday. Calendar transitions from calendrical presence to pervasive presence. Cold deepens toward early winter edge with first frost. Grey channel moldy smell second sensory dimension. Checkpoint speech fragment 1-2 frame rhythm deviation. Pre-avoidance natural operation unchanged. MH-020 9.9/10.2/10.5. Engine sound same Monday frequency, cold changes propagation. 12 operations in budget. 0 transition words. Exit shorter than Ch32."
+  }
+}
+```
+
+---
+
+Both files are ready. The chapter uses the title **"遍在"** (pervasive presence) to signal the core arc — the known rhythm transitions from calendrical presence (Ch29-discovery, Ch31-calendrical, Ch32-Saturday-finalization) to pervasive presence. The calendar no longer needs to be discovered or declared; it simply is in all walking parameters like breathing. Key elements delivered: third week passage with self-knowing, grey channel moldy smell landing (dual sensory coverage), checkpoint speech fragment with 1-2 frame rhythm deviation, first frost at early-winter edge, pre-avoidance as natural operation, all 12 P0/P1/P2 items covered, zero transition words, zero fatigue words, zero "不是…而是…" constructions.

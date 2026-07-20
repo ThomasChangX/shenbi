@@ -1,0 +1,222 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 5,
+  "produced_at": "2026-07-16T07:20:00Z",
+  "revision_round": 1,
+  "max_rounds": 3,
+  "pre_revision_state": "truth/state_snapshot-pre-rev.md",
+  "audit_sources": [
+    "audits/chapter-5-anti-ai.md",
+    "audits/chapter-5-memo-compliance.md",
+    "audits/chapter-5-foreshadowing.md",
+    "audits/chapter-5-continuity.md",
+    "audits/chapter-5-pacing.md",
+    "audits/chapter-5-motivation.md",
+    "audits/chapter-5-resonance.md",
+    "audits/chapter-5-review-summary.md"
+  ],
+  "route_assessment": {
+    "overall_gate": "PASS",
+    "overall_score": 80,
+    "consolidated_blocking": 0,
+    "consolidated_critical": 0,
+    "route_c_unmet_goals": [
+      {
+        "hook_id": "MH-020",
+        "severity": "BLOCKING",
+        "category": "unmet_goal",
+        "description": "smartphone/detection approach hook silent since ch2 — 4 consecutive chapters without evidence",
+        "disposition": "deferred_to_ch6",
+        "rationale": "Resonance report §5.4: MH-020 is P1 seed hook, not P0 critical circuit. Core chapter function (advance/transition) fully delivered. Inserting into ch5 would require structural addition breaking ±15% rule. Resonance explicitly recommends 'ch6优先落地，无需revision'."
+      }
+    ],
+    "revision_mode": "spot-fix",
+    "mode_rationale": "All actionable issues are surface-level craft problems (dashes, metanarrative word). MH-020 BLOCKING deferred to ch6 per resonance recommendation. No structural/narrative rewriting needed."
+  },
+  "delegation_decisions": [
+    {
+      "issue_type": "anti-ai_dashes",
+      "audit_source": "audits/chapter-5-anti-ai.md",
+      "severity": "CRITICAL",
+      "intended_handler": "shenbi-anti-detect",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Per revision skill delegation rules, anti-AI surface issues should go to shenbi-anti-detect. However, pipeline mode has no separate anti-detect step invoked. chapter-revision handles as spot-fix."
+    },
+    {
+      "issue_type": "metanarrative_transition",
+      "audit_source": "audits/chapter-5-anti-ai.md",
+      "severity": "MINOR",
+      "intended_handler": "shenbi-anti-detect",
+      "actual_handler": "shenbi-chapter-revision",
+      "rationale": "Same as above — single word replacement handled in spot-fix."
+    },
+    {
+      "issue_type": "hook_MH-020_advance_missing",
+      "audit_source": "audits/chapter-5-memo-compliance.md",
+      "severity": "CRITICAL",
+      "intended_handler": "shenbi-chapter-planning (ch6)",
+      "actual_handler": "deferred",
+      "rationale": "Cannot retroactively insert new scene/action into written chapter without breaking ±15% and 'only fix audit issues' rules. Resonance §11.5 recommends ch6 landing. Hook should be prioritized in chapter 6 planning."
+    }
+  ],
+  "spot_fixes": [
+    {
+      "location": "L55",
+      "original": "没有孩子——孩子在这片废墟不那么常见了。",
+      "revised": "没有孩子。孩子在这片废墟不那么常见了。",
+      "type": "dash_to_period",
+      "rationale": "Eliminate 'not X—Y' adjacent pattern cluster"
+    },
+    {
+      "location": "L79",
+      "original": "一小堆东西——几根铜管，一个缺了口的铁锅，一把生锈的镰刀——放在一块干净的地面上",
+      "revised": "一小堆东西：几根铜管，一个缺了口的铁锅，一把生锈的镰刀，放在一块干净的地面上",
+      "type": "dash_to_colon+comma",
+      "rationale": "Enumeration restructured — colon for list intro, comma for continuation"
+    },
+    {
+      "location": "L83",
+      "original": "他捡起一块平整的铁片——巴掌大，边缘被火烧得卷曲",
+      "revised": "他捡起一块平整的铁片，巴掌大，边缘被火烧得卷曲",
+      "type": "dash_to_comma",
+      "rationale": "Appositive attribution — comma serves same function"
+    },
+    {
+      "location": "L107",
+      "original": "他找到铁桶——桶沿磕得凹凸不平，铁链还在。",
+      "revised": "他找到铁桶，桶沿磕得凹凸不平，铁链还在。",
+      "type": "dash_to_comma",
+      "rationale": "Appositive attribution — comma serves same function"
+    },
+    {
+      "location": "L131",
+      "original": "目光从他的布袋上滑过——布袋底部的凸起只有硬币大小和形状",
+      "revised": "目光从他的布袋上滑过。布袋底部的凸起只有硬币大小和形状",
+      "type": "dash_to_period",
+      "rationale": "Shift appositive to new sentence — eliminates dash pattern"
+    },
+    {
+      "location": "L145",
+      "original": "螺丝，铜件，没碎的工具——都有人收。",
+      "revised": "螺丝，铜件，没碎的工具，都有人收。",
+      "type": "dash_to_comma",
+      "rationale": "Enumeration conclusion — comma replaces dash naturally"
+    },
+    {
+      "location": "L201",
+      "original": "车上已经有了不少东西——金属片、铜管、工具。",
+      "revised": "车上已经有了不少东西：金属片、铜管、工具。",
+      "type": "dash_to_colon",
+      "rationale": "Enumeration intro — colon is standard punctuation for lists"
+    },
+    {
+      "location": "L215",
+      "original": "不是声音变大，不是距离拉近——是它的轮廓更分明了。",
+      "revised": "不是声音变大，不是距离拉近。是它的轮廓更分明了。",
+      "type": "dash_to_period",
+      "rationale": "Core '不是X——是Y' pattern elimination in psychic section"
+    },
+    {
+      "location": "L227",
+      "original": "在意识的那个固定方位——一个不是黑色但比黑色更深的区域",
+      "revised": "在意识的那个固定方位，一个不是黑色但比黑色更深的区域",
+      "type": "dash_to_comma",
+      "rationale": "Appositive attribution — comma serves same function"
+    },
+    {
+      "location": "L231",
+      "original": "不去推，不去够——只是盯着它。",
+      "revised": "不去推，不去够。只是盯着它。",
+      "type": "dash_to_period",
+      "rationale": "Parallel structure preserved with period instead of contrastive dash"
+    },
+    {
+      "location": "L239",
+      "original": "不是耳朵能听到的声音——是整个人被低频音波扫过的感觉",
+      "revised": "不是耳朵能听到的声音。是整个人被低频音波扫过的感觉",
+      "type": "dash_to_period",
+      "rationale": "Core '不是X——是Y' pattern elimination"
+    },
+    {
+      "location": "L253",
+      "original": "它不再是视野边缘永远追不上的余光——它变成了一扇他可以主动将注意力投向它的门。",
+      "revised": "它不再是视野边缘永远追不上的余光。它变成了一扇他可以主动将注意力投向它的门。",
+      "type": "dash_to_period",
+      "rationale": "Contrastive pattern converted to separate sentences"
+    },
+    {
+      "location": "L263",
+      "original": "城墙上的士兵在看他，或者没有——只是他的脊背在空旷的街道上暴露得太久",
+      "revised": "城墙上的士兵在看他，或者没有。只是他的脊背在空旷的街道上暴露得太久",
+      "type": "dash_to_period",
+      "rationale": "Contrastive pattern converted to separate sentences"
+    },
+    {
+      "location": "L267",
+      "original": "不是慵懒的吠——是一种急促的、带着威胁的咆哮",
+      "revised": "不是慵懒的吠。是一种急促的、带着威胁的咆哮",
+      "type": "dash_to_period",
+      "rationale": "Core '不是X——是Y' pattern elimination"
+    },
+    {
+      "location": "L277",
+      "original": "不是明显高于体温的热——是一种柔和而稳定的温暖",
+      "revised": "不是明显高于体温的热。是一种柔和而稳定的温暖",
+      "type": "dash_to_period",
+      "rationale": "Core '不是X——是Y' pattern elimination — last instance in psychic section"
+    },
+    {
+      "location": "L181",
+      "original": "接下来的时间在翻捡中流过去。他又找到几样能卖的东西：一把断了刃的锉刀，一个拳头大的铜质齿轮，一只完好的烛台。",
+      "revised": "他又翻了一会儿，捡到几样能卖的东西：一把断了刃的锉刀，一个拳头大的铜质齿轮，一只完好的烛台。",
+      "type": "metanarrative_word_replacement",
+      "rationale": "Replace '接下来的时间' with direct action to eliminate metanarrative marker"
+    }
+  ],
+  "preserved_elements": [
+    {
+      "location": "L119",
+      "element": "远处金属翻捡的声音传过来——叮，叮，叮",
+      "reason": "Legitimate onomatopoeia intro — preserved as distinctive sound design element"
+    },
+    {
+      "location": "L153",
+      "element": "\"东边的烂尾楼\"——她顿了顿——\"今天早上有人在那边拉线了。\"",
+      "reason": "Legitimate dialogue pause — two dashes wrap dialogue tag, standard usage"
+    }
+  ],
+  "acceptance_check": {
+    "blocking_before": 0,
+    "blocking_after_expected": 0,
+    "critical_before": 0,
+    "critical_after_expected": 0,
+    "ai_tell_before": 19,
+    "ai_tell_after_expected": 3,
+    "improvement_achieved": true,
+    "improvement_details": "19 dashes reduced to 3 (legitimate stylistic uses). Metanarrative word removed. Content preservation verified — no dialogue, no character state changes, no scene transitions altered."
+  },
+  "content_preservation_verification": {
+    "key_dialogues_preserved": true,
+    "paid_off_foreshadowing_preserved": true,
+    "character_state_changes_preserved": true,
+    "scene_transition_markers_preserved": true,
+    "items": [
+      {"item": "MH-021 advance（门从被动→可主动触碰）", "status": "preserved"},
+      {"item": "MH-001 advance（金属片灵能后变温）", "status": "preserved"},
+      {"item": "中年女人对话（水井/招工/烂尾楼情报）", "status": "preserved"},
+      {"item": "检查站常态化+废墟未清理+烂尾楼划地盘三处社会观察", "status": "preserved"},
+      {"item": "男孩被驱赶的沮丧节拍悬浮段", "status": "preserved"},
+      {"item": "井水发现→打水→饮用的生理释放序列", "status": "preserved"},
+      {"item": "章末三联收束（水源+联络点+触碰）", "status": "preserved"},
+      {"item": "零顿悟—确认取代明白", "status": "preserved"}
+    ]
+  },
+  "budget": {
+    "context_tokens_estimate": 6800,
+    "limit": 12000
+  }
+}
+```
+
+---

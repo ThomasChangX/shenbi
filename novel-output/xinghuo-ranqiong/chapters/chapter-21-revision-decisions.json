@@ -1,0 +1,63 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 21,
+  "revision_count": 1,
+  "produced_at": "2026-07-16T18:15:00+0800",
+  "mode": "spot-fix",
+  "source_audit": "audits/chapter-21-resonance.md",
+  "audit_score": 87,
+  "audit_pass": true,
+  "route_c_all_delivered": true,
+  "selections": [
+    {
+      "target": "audits/chapter-21-resonance.md",
+      "selected": ["全部"],
+      "basis": "primary_audit_source",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "dash_density",
+      "handling": "explicit_callout",
+      "severity": "low",
+      "rationale": "3个破折号替换为冒号/逗号——不同：昨天、信号：边缘比、不是覆盖，是将昨天——破折号从~32降至~30（~5.17/千字），延续Ch20→Ch21的递减趋势"
+    },
+    {
+      "issue_id": "olfactory_encoding_absent",
+      "handling": "explicit_callout",
+      "severity": "low",
+      "rationale": "晨醒场景中插入嗅觉编码"空气中带地下室特有的微尘沉积气味——封闭空间经一夜沉降后的气息，在晨醒时最浓"，补全感官覆盖（听觉/触觉/温度/视觉→+嗅觉）"
+    }
+  ],
+  "preservation_verification": [
+    { "item": "MH-003 engine return scene", "preserved": true, "change": "无" },
+    { "item": "Doorway day 5 lateral maintenance", "preserved": true, "change": "无" },
+    { "item": "MH-001 Phase 2 condensation signal", "preserved": true, "change": "无" },
+    { "item": "MH-020 time comparison (morning vs afternoon)", "preserved": true, "change": "无" },
+    { "item": "Baseline maintenance conclusion", "preserved": true, "change": "无" },
+    { "item": "Scene transition markers (4 section breaks)", "preserved": true, "change": "无" },
+    { "item": "Character state: stride internalized, baseline sustained", "preserved": true, "change": "无" },
+    { "item": "Positive physical anchor (shoulder drop + fingertip texture)", "preserved": true, "change": "无" }
+  ],
+  "acceptance_check": {
+    "blocking_count_pre": 0,
+    "blocking_count_post": 0,
+    "critical_count_pre": 0,
+    "critical_count_post": 0,
+    "ai_tell_count_pre": 0,
+    "ai_tell_count_post": 0,
+    "at_least_one_improvement": true,
+    "improvements": ["破折号密度改善 (32→30)", "嗅觉编码补全"],
+    "length_delta_percent": 0.47,
+    "length_delta_within_15pct": true,
+    "worsening": false
+  },
+  "budget": {
+    "context_tokens_estimate": 6500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

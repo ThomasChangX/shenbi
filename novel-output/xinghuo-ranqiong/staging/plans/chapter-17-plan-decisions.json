@@ -1,0 +1,97 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 17,
+  "produced_at": "2026-07-16T14:00:00Z",
+  "selections": [
+    {
+      "target": "cr:战争线→地面可感触发",
+      "selected": ["战争线从空中信号→地面连锁变化(军列/炮击/车队——迫使行为调整)", "触发载体优先军列或炮击(工业带深处传出——与MH-003引擎声并置对比)", "战争从'可观察'→'可感受'的核心切换"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["战争线完整来源揭示(哪一方/目的地/战略意图)", "另两条线同时触发(控制触发密度——MH-020和偏移在同一场景中推进但不独立触发)"]
+    },
+    {
+      "target": "cr:方向偏移→行动化",
+      "selected": ["偏移从Ch16'被看见'(被动感知)→Ch17主动选择(在战争线选择场景中)", "林烽选择窄巷时知道自己为什么选边缘(因为边缘更安全)", "偏移行动化不等同于阶级觉醒(不追问'为什么趋边缘')"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["偏移的完整认知突破/觉醒宣言", "阶级认同驱动力揭示", "偏移从主动策略→认知批判的推进"]
+    },
+    {
+      "target": "cr:MH-020→功能域揭示",
+      "selected": ["在触发场景中自然揭示使用方式(隐蔽等待/方向判断)", "圆形加点今日触发或格式串[s]后数值可识读", "林烽从'这是测量'→'这个测量能帮我判断方向'"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["MH-020完整功能体系揭示", "术语化描述(不用不属于林烽知识库的词汇)", "脱离主线堆砌(功能域揭示不离开触发场景单独推进)"]
+    },
+    {
+      "target": "drift:生理锚点确认",
+      "selected": ["触发场景增加独立生理锚点(颈动脉搏动/呼吸节律/体温跳变)", "动作序列+体征形成双层对照", "禁止'感到·心跳加速'式直接陈述"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["仅行为锚点承载情感分量(Ch16短板)", "生理锚点缺失"],
+      "rationale": "Ch16 resonance audit — 偏移自觉情感分量偏轻(仅行为锚点),P0强制生理锚点确认"
+    },
+    {
+      "target": "drift:触觉锚点补全",
+      "selected": ["至少1个独立触觉锚点(风温差/表面温差/灵能感知体感对应物)", "推荐工业带开阔区vs窄巷阴影区域皮肤温差感知"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch16触觉维度单一(仅手机冷却+体表油脂)", "灵能感知仅热辐射梯度一条线"],
+      "rationale": "Ch16 resonance audit — 触觉/温度感知维度单一,P0强制补全"
+    },
+    {
+      "target": "P2在场线",
+      "selected": ["MH-021新周期开始第一天(增量≤5%)", "MH-003常规模式持续在场(不演化)", "MH-022距评估21天不激活新触发点", "MH-001触觉锚点确认在场(不操作/不测试)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["门后揭示", "MH-003引擎来源揭示", "催收线新触发点", "MH-001操作/测试/揭示"]
+    },
+    {
+      "target": "volume_map_divergence",
+      "selected": ["继续defer", "以current_focus局部覆盖为准"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["跳至灵火会/赵铁柱训练场景", "引入迷雾山脉线", "执行volume_map KR1原定Ch17承接节点"],
+      "rationale": "volume_map卷二KR1定位Ch17'赵铁柱带领军事训练'与实际叙事严重偏离(仍处铁炉堡工业带边缘探索阶段)。偏差距灵火会线仍有显著距离——三条线(战争线/偏移/MH-020)相位均在城内新常态框架内。结构性卷定义调整超出章节规划范围,继续defer"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_014_physiological_anchor",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch16偏移自觉情感分量偏轻——偏移被看见时情感冲击仅通过行为锚点(停住/回头看)承载,无独立生理锚点确认。Ch17强制:触发场景情绪临界点增加心率/呼吸/体温独立生理锚点,与动作序列形成双层对照"
+    },
+    {
+      "issue_id": "drift_015_tactile_dimension",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch16灵能感知维度仅一条线(热辐射梯度),触觉维度的风温差/表面温差/体感对应物缺位。Ch17强制:至少1个独立触觉锚点(工业带开阔区vs窄巷阴影的皮肤温差感知),扩展触觉维度"
+    },
+    {
+      "issue_id": "drift_016_payoff_trigger",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch16三条线(方向偏移+战争线+MH-020)同时推至阶段性终点但以蓄势为主无冲突爆发。Ch17强制:至少一条线从'预备触发'→'触发'状态(实质性感知或对抗),避免Ch16积累的读者预期面临回报缺口"
+    },
+    {
+      "issue_id": "volume_map_vs_actual_divergence_ch17",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map卷二KR1 Ch17定位'赵铁柱带领军事训练,林烽用工程思维优化营地防御'与实际叙事严重偏离——仍处铁炉堡城内/工业带边缘探索。三条核心线(战争线/偏移/MH-020)相位均在城内新常态框架内,偏差距灵火会线仍有显著距离。以current_focus局部覆盖为准,继续defer"
+    },
+    {
+      "issue_id": "trigger_line_priority",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "三条触发线优先级:战争线优先(外部事件、不可避免),战争线场景为方向偏移行动化提供选择场景,MH-020在触发场景中自然揭示——不脱离主线单独推进。控制触发密度——战争线实质性触发,其余线推进至触发边缘(差一个条件即可触发)"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}

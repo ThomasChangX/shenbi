@@ -1,15 +1,18 @@
 ---
 name: shenbi-style-learning
-description: "Use when extracting a style fingerprint from existing chapters for style imitation, computing sentence/paragraph length statistics, or generating a statistical style profile"
+description: Use when extracting a style fingerprint from existing chapters for style
+  imitation, computing sentence/paragraph length statistics, or generating a statistical
+  style profile
 contract:
   kind: artifact
   reads:
-    - chapters/*.md              # normal mode (exists after ch1)
-    - import/source/*.txt        # optional reference works
-    - novel.json                 # bootstrap mode
-    - genre-config.json          # bootstrap mode
+  - chapters/*.md
+  - import/source/*.txt
+  - novel.json
+  - genre-config.json
   writes:
-    - style/style_profile.md
+  - file: style/style_profile.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

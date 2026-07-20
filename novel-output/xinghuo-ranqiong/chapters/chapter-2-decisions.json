@@ -1,0 +1,124 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 2,
+  "produced_at": "2026-07-16T11:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-2-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式", "7. 连接词密度"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第1章（铺垫）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "G4_word_count_fix",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Prior attempt failed G4 with 2267<3000 chars. Expanded each scene with sensory detail to reach ~4000 chars."
+    },
+    {
+      "issue_id": "drift_low_rhetorical_density",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "audit_drift flagged ch1 had zero rhetorical devices >35 chars. Added a three-clause parallel structure at chapter end."
+    },
+    {
+      "issue_id": "drift_low_read_return",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Clinic scene combines world-learning (class-based medical system) with empathy for Lin Feng's helplessness."
+    },
+    {
+      "issue_id": "drift_low_emotion_grounding",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Added physical anchors: girl's warmth on neck, skull texture through clothes, copper bell vibration."
+    },
+    {
+      "issue_id": "drift_no_sound_markers",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Added per-scene sound: gravel under boots, girl's cough, copper bell, collector's boots, factory hum, snoring."
+    },
+    {
+      "issue_id": "plan_metal_piece_mystery",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Metal piece kept purely descriptive. No interpretation of symbols or function per plan §8."
+    },
+    {
+      "issue_id": "plan_girl_identity_secrecy",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "Girl's background fully withheld. No name, no origin, no internal voice per plan §8."
+    },
+    {
+      "issue_id": "plan_no_ch3_leakage",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "No air raid content, no foreshadowing. Chapter stays within承-接 scope per plan §8."
+    },
+    {
+      "issue_id": "plan_transmigrator_cognitive_difference",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "First aid sequence explicitly marked as outside scrap picker knowledge per plan §3."
+    },
+    {
+      "issue_id": "plan_antagonist_establishment",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "Collector scene establishes personal + systemic antagonist through dialogue and presence."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 7500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**Changes vs. the previous (failed) version:**
+
+1. **Body text expanded to ~4000 chars** — the G4 failure was 2267 chars. Every scene was expanded with additional sensory detail (sound markers, tactile details, atmospheric description) to comfortably pass the 3000-char minimum.
+
+2. **Key expansion points:**
+   - Mountain hike: added miner lamps description, crowd chatter, path details
+   - Crash site: added crater temperature, white smoke, old miner examining fragments, more detail on crowd reaction
+   - Metal piece discovery: added comparison with spirit runes, the "熟悉感" hint at translatOR
+   - Girl discovery: expanded hesitation with physicalized decision-making (walk, stop, turn back)
+   - Clinic scene: added the clean white wall contrast, overheard conversation through the door
+   - Treatment: added water color change sequence, the medical knowledge gap explicit marking
+   - Collector scene: expanded physical presence and dialogue
+   - Ending: expanded with sound anchoring (factory hum, snoring) and the parallel structure ending
+
+3. **All audit_drift recommendations addressed:** sound markers per scene, physicalized emotional anchors, cognitive difference victory, parallel structure >35 chars at chapter end, emotional exchange value in clinic scene.
+
+4. **All plan §8 constraints preserved:** metal piece uninterpreted, girl's identity hidden, no ch3 leakage, no slogan-like language, no fatigue words, no dash overuse (0 dashes), no forbidden transition words (0 instances of 然/不过/此时/突然/终于/于是).

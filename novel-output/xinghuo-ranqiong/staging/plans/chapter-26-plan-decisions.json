@@ -1,0 +1,93 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 26,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "vol 2 baseline establishment (P0)",
+        "assessment social exposure (P0)",
+        "sensory spectrum opening (P0)",
+        "technical density management (P0)"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "迷雾山脉探索 (KR3)",
+        "战斗飞行器行为模式 (P2)"
+      ]
+    },
+    {
+      "target": "outline/volume_map.md",
+      "selected": ["KR3: 梵天遗产发现与盟友建立 (chapter role: opening)"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["MH-022 (assessment path)", "MH-021 (door frame)", "MH-003 (engine sound)", "MH-020 (format string)", "MH-001 (Phase 2)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态 (walking baseline from Ch25 end state)"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["narrative_principles (拒绝龙傲天, 非英雄化觉醒, 底层视角)", "thematic_progress (passing system exposure)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_sensory_spectrum_narrow",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch25 audit identified narrow sensory spectrum (thermal/visual/acoustic dominant; olfactory+L29 only; full body/kinesthetic absent). Ch26 utilizes vol 2 seasonal reset (autumn arrival) to open olfactory and non-parametric body-sense frames naturally within walking baseline."
+    },
+    {
+      "issue_id": "drift_technical_density",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch25 audit identified '感知系统/参数寄存器/热辐射梯度' density suppressing emotional accessibility. Ch26 switches from system-language to perception-language at assessment arrival beats and chapter-end exit."
+    },
+    {
+      "issue_id": "kr3_vs_current_focus_conflict",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map KR3 positions Ch26 as misty mountain exploration opener; current_focus overrides as vol 2 city baseline chapter. KR3 elements deferred to Ch27+ per current_focus scope constraints."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**章节备忘决策说明**：
+
+**目标推导**: `current_focus.md > volume_map KR3` — 卷纲KR3定位Ch26为迷雾山脉探索开篇，但current_focus明确vol 2首章功能为基线建立+评估社会性暴露。迷雾山脉线推迟至Ch27+。
+
+**chapter_role**: `推进/转折` — vol 2首章，评估线从个人倒计时推进为社会制度在场（转折：passing system从信息碎片→城市可见前端）。非"高潮/兑现"（无兑现事件）亦非"过渡/铺垫"（有实质性推进）。
+
+**P0 执行要点**:
+1. `vol 2基线建立` — 行走参数从Ch25末直接继承，不做hard reset。门框持平/窄巷排除/格式串/引擎声/白线范围全部以不变开场——vol 2方向独立决定但首日以不变确认ch持续形态
+2. `评估社会性暴露` — 评估申请处排队/表格/标识/人群——评估作为制度前端在城市空间中可见。节制：不揭示评估内部内容，林烽不决策不改变路线，通过行走中自然看见完成
+3. `感官谱打开` — 秋天气味(煤烟/枯叶) ≥1处非参数化嗅觉帧 + 秋风在面颊(非温度读数) ≥1处非参数化体感帧 + "冷"(非热辐射量) ≥1处非测量化温度感知
+4. `技术密度管理` — 评估触达段和章末出口从系统语言切换为感知语言
+
+**hook 账密度**: 5/8 (全advance)。MH-022为P0推进，其余4条(maintenance确认)在密度预算内。无defer操作，无沉默警告。
+
+**章末出口推荐**: 评估在社会中在场——看见了——走过去了——走了——走完了——明天从同一个基线开始——秋天在皮肤上的感觉——安静

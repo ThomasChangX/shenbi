@@ -1,16 +1,18 @@
 ---
 name: shenbi-pacing-design
-description: "Use when designing pacing principles for the novel, planning the buildup→escalation→explosion→aftermath cycle, configuring scene type sequence, or calibrating the three-line ratio"
+description: Use when designing pacing principles for the novel, planning the buildup→escalation→explosion→aftermath
+  cycle, configuring scene type sequence, or calibrating the three-line ratio
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - outline/story_frame.md
-    - outline/volume_map.md
-    - genre-config.json
+  - novel.json
+  - outline/story_frame.md
+  - outline/volume_map.md
+  - genre-config.json
   writes: []
   updates:
-    - outline/rhythm_principles.md
+  - file: outline/rhythm_principles.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

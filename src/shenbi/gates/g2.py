@@ -28,6 +28,8 @@ from shenbi.gates.shared import (
     yload,
 )
 
+_META_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
 
 def gate_G2(
     file_paths: str | list[str] | None,
@@ -80,12 +82,69 @@ def gate_G2(
             # file_type gate instead.
             if not fp.endswith(".json"):
                 continue  # skip .md files — decisions branch only validates JSON
-            # G2.dec.1 — valid JSON
+            # G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())
+            # (G4 retry feedback can cause LLM to concatenate old + new JSON under
+            # one ### FILE: marker. This catches it early.)
+            #
+            # CRITICAL ORDERING: json.loads() raises JSONDecodeError on concatenated JSON
+            # ("Extra data" error), so this check must execute first. If we placed it
+            # after data = json.loads(content), the line above would raise before the
+            # check is ever reached, making the check dead code.
+            if content.count('"$schema"') > 1:
+                mf.append(
+                    {
+                        "id": "G2.dec.4",
+                        "file": fp,
+                        "s": "FAIL",
+                        "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
+                    }
+                )
+                continue  # skip the json.loads() below for this file — it would raise
+
+            # G2.dec.1 — valid JSON (with multi-JSON concatenation recovery)
+            # Multi-JSON detection runs BEFORE json.loads(): if raw_decode()
+            # succeeds where json.loads() fails (due to concatenated JSON objects),
+            # extract only the first complete object and warn about truncation.
+            data: Any = None
             try:
                 data = json.loads(content)
             except json.JSONDecodeError:
-                mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
-                continue
+                # Recovery: attempt raw_decode() to extract first complete JSON object
+                decoder = json.JSONDecoder()
+                try:
+                    clean_data, end_pos = decoder.raw_decode(content)
+                    if isinstance(clean_data, dict):
+                        data = clean_data
+                        remaining = content[end_pos:].strip()
+                        if remaining:
+                            log.warning(
+                                "g2_decisions_multi_json_truncated",
+                                file=fp,
+                                original_len=len(content),
+                                recovered_len=end_pos,
+                                remaining_preview=remaining[:200],
+                            )
+                        else:
+                            # Trailing whitespace only — borderline valid, accept
+                            log.info(
+                                "g2_decisions_json_trailing_ws_recovered",
+                                file=fp,
+                                original_len=len(content),
+                                cleaned_len=end_pos,
+                            )
+                    else:
+                        mf.append(
+                            {
+                                "id": "G2.dec.1",
+                                "file": fp,
+                                "s": "FAIL",
+                                "r": f"recovered non-object JSON: {type(clean_data).__name__}",
+                            }
+                        )
+                        continue
+                except json.JSONDecodeError:
+                    mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
+                    continue
             if not isinstance(data, dict):
                 mf.append(
                     {
@@ -262,6 +321,13 @@ def gate_G2(
         else:
             checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
 
+        # G2.meta_ratio: WARN when META block proportion > 50%
+        meta_checks, meta_failures = _check_meta_ratio(p)
+        checks.extend(meta_checks)
+        if meta_failures:
+            for f in meta_failures:
+                checks.append({"id": "G2.meta_ratio", "file": fp, "s": "WARN", "r": f})
+
     if mf:
         return fail(
             "G2",
@@ -270,6 +336,47 @@ def gate_G2(
             [x["id"] + ":" + x.get("file", "") for x in mf],
         )
     return passed("G2", checks)
+
+
+def _check_meta_ratio(
+    file_path: Path,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Check META block proportion in chapter files.
+
+    Returns (checks, failures). WARN-level: triggers when META block
+    content exceeds 50% of total file size (indicates planning bloat).
+    """
+    checks: list[dict[str, Any]] = []
+    failures: list[str] = []
+
+    if not file_path.exists() or file_path.suffix != ".md":
+        return checks, failures
+
+    content = file_path.read_text(encoding="utf-8")
+    total_chars = len(content)
+
+    meta_chars = sum(len(m.group(0)) for m in _META_RE.finditer(content))
+
+    if total_chars == 0:
+        return checks, failures
+
+    ratio = meta_chars / total_chars
+
+    if meta_chars > 0:
+        checks.append(
+            {
+                "id": "G2.meta_ratio",
+                "s": "WARN" if ratio > 0.5 else "PASS",
+                "ratio": f"{ratio:.1%}",
+                "meta_chars": meta_chars,
+                "total_chars": total_chars,
+            }
+        )
+
+        if ratio > 0.5:
+            failures.append(f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold")
+
+    return checks, failures
 
 
 def _is_important_chapter(fp: str, project_dir: str) -> bool:

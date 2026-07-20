@@ -1,0 +1,50 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 52,
+  "produced_at": "2026-07-17T19:10:00Z",
+  "selections": [
+    {
+      "target": "revision_mode",
+      "selected": "skip_revision",
+      "basis": "audit_result",
+      "severity": "high",
+      "rationale": "No revision needed. All 11 audits passed with 0 BLOCKING + 0 CRITICAL issues. Resonance audit passed at 66/100 (≥65 threshold for 推进/转折). Route C all three hard-binaries achieved: (1) parameter relationship event arrived — cold-light state modulation, (2) sensory dimension parameter introduced — roughness, (3) system trajectory advanced to ACTIVE — gap knows declaration approaching. Memo-compliance 8/10 with only MINOR issues (daily params 4/8 coverage, P0-4 absence, P0-5/P0-20 labeling mismatch). Pacing 5/10 findings are about the experimental arc structure — recommendations for Ch53+ not Ch52 itself."
+    },
+    {
+      "target": "content_preservation",
+      "selected": "preserve_as_is",
+      "basis": "audit_result",
+      "severity": "high",
+      "rationale": "Chapter preserved unchanged. Key content retained: cold-light state modulation event (cold present because light present — cold's frame within light's frame — cold's state changed by light's presence), roughness as sensory-dimension parameter at wall layer 2 surface, gap ACTIVE advancement, drift RELEVANT advancement, silence and texture RESOLVED, relationship fragility planted, asymmetric relationship (light does not know it changes cold), nested syntax iteration from 'X knows Y — X present at Z' to 'X present at knowing Y knows Z present at X present at Y's frame'."
+    },
+    {
+      "target": "audit_drift_carryover",
+      "selected": "reserve_for_ch53",
+      "basis": "arc_continuity",
+      "severity": "medium",
+      "rationale": "Resonance audit_drift recommendations (sensory anchor for Sunday chapter, emotional version of cold-light relationship, reader-exit readability) are for future chapters, not Ch52 revision. Pacing WARNING about Ch53 needing a FIRE/climax event using gap's ACTIVE state is a Ch53 concern. Memo-compliance MINOR suggestion to restore doorframe and frost params in Ch53 is a Ch53 concern. POV MINOR (texture knowledge boundary self-contradiction: texture 'knows surface particles' but 'does not know surface is not smooth') is noted but not severe enough to warrant revision at 0 BLOCKING/CRITICAL level."
+    }
+  ],
+  "adjustments": [
+    {
+      "target": "revision_process",
+      "selected": "no_adjustment_needed",
+      "basis": "audit_result",
+      "severity": "high",
+      "rationale": "Zero BLOCKING + zero CRITICAL across all 11 reviews. Resonance passed. No deviation from acceptance criteria. Revision not triggered — no adjustment needed."
+    }
+  ],
+  "p0_tracking": {
+    "active_revision": false,
+    "current_state": "passed_all_gates",
+    "pre_revision_blocking_count": 0,
+    "pre_revision_critical_count": 0,
+    "pre_revision_ai_tell_count": 0,
+    "pre_revision_resonance_score": 66,
+    "resonance_threshold": 65,
+    "route_c_met": true,
+    "revision_attempts": 0,
+    "final_decision": "skip_revision — chapter passes all gates"
+  }
+}

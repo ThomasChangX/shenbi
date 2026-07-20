@@ -1,0 +1,116 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 48,
+  "produced_at": "2026-07-17T15:53:00Z",
+  "selections": [
+    {
+      "target": "texture_dimension_return",
+      "selected": "sensory_short_chain_syntax",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Texture dimension returns on Sunday after six workdays of pure parameter mode (ch42-47). Syntactic variation introduced: sensory short chains (perception→cognition gradual unfolding) replace X知道Y parameter declarations for texture descriptions. Parameter and texture syntaxes interweave on Sunday as dual parallel dimensions."
+    },
+    {
+      "target": "entry_clue",
+      "selected": "texture_definition",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Texture defined as independent dimension in relation to existing system: texture is the dimension of surfaces - texture has no thickness - texture is not perpendicular to silence - texture is parallel to parameter - texture is Sunday. Establishes texture as Sunday-exclusive, parallel to parameter, independent from silence, without thickness."
+    },
+    {
+      "target": "cold_layer",
+      "selected": "seventh_layer_texture_conduction",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Cold reaches Volume 2 deepest layer (seventh) on Sunday. Cold seventh-layer mode includes texture conduction (rate/quality of temperature transmission through wall surfaces) - distinct from cold's temperature-value parameter declaration in workdays. Not declared as deepest possible - only as deepest reached."
+    },
+    {
+      "target": "quiet_sunday_state",
+      "selected": "presence_between_silence_and_texture",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "quiet on Sunday perceives texture return - knows texture is not parameter - present in texture, present in silence, present between silence and texture. Presence trajectory not declared settled."
+    },
+    {
+      "target": "gap_sunday_cognition",
+      "selected": "knows_sunday_itself",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Gap cognition leaps from knows Sunday will arrive (ch47) to knows Sunday itself. Gap knows Sunday as dimension distinct from workdays/slots/bridge - perceives texture. Not declared sealed/repaired."
+    },
+    {
+      "target": "doorframe_sunday_variation",
+      "selected": "texture_no_frame",
+      "basis": "volume_scope",
+      "severity": "medium",
+      "rationale": "Doorframe on Sunday: has texture, no frame (not Monday frame/Thursday slot/Saturday bridge). Doorframe knows Sunday texture dimension - present in texture - knows non-workday. Not declared as reset to Monday frame."
+    },
+    {
+      "target": "offset_sunday_behavior",
+      "selected": "awakened_by_texture",
+      "basis": "volume_scope",
+      "severity": "medium",
+      "rationale": "Offset on Sunday awakened by texture - interacts with texture dimension. Not declared as zero, return, or fixed trajectory. Direction on Sunday not declared as determined."
+    },
+    {
+      "target": "silence_sunday_mode",
+      "selected": "seventh_day_new_thickness",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Silence seventh-day thickness mode - distinct from all six workday patterns. Silence knows texture return - present in co-existence space of silence and texture. Not declared as settled mode."
+    },
+    {
+      "target": "system_micro_release",
+      "selected": "texture_sensory_language",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "After six workdays pure parameter state (ch42-47), texture return as system-level release. Texture sensory language provides differentiated cognitive load - addresses ch47 audit_drift prose quality and reader payoff concerns."
+    },
+    {
+      "target": "syntactic_variation_scope",
+      "selected": "sunday_only",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Sensory short chain syntax restricted to Sunday - does not imply workday syntax degradation. Sunday syntactic variation is Sunday's dimension feature only. Prohibition: Sunday syntax variation only for Sunday."
+    },
+    {
+      "target": "texture_relation_to_parameters",
+      "selected": "independent_not_explanatory",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Texture is not a sensory explanation of parameters - does not answer what silence is or what offset is. Texture is an independent dimension coexisting with parameters on Sunday. Prohibition honored."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_007_emotional_grounding",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch47 audit: addresses via texture sensory short chains providing physical/environmental emotional beats - tile particle touch, iron rust texture, wall powdering surface, temperature conduction texture quality - replacing X知道Y repeated declarations."
+    },
+    {
+      "issue_id": "drift_008_prose_texture",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch47 audit: introduces syntactic variation - sensory short chain perception-to-cognition unfolding replaces X知道Y---X在Z symmetric structure. Texture and parameter syntaxes interweave in counterpoint. Sunday-only scope honored."
+    },
+    {
+      "issue_id": "drift_009_reader_payoff",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch47 audit: provides system-level release through texture dimension return. Six workdays of pure parameter exclusion followed by texture sensory language emergence as differentiated cognitive load."
+    },
+    {
+      "issue_id": "ch48_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "Context files not found - reconstructed entirely from plan + audit_drift + style_profile + genre-config. Plan provides sufficient parameter narrative continuity guidance."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14000,
+    "limit": 22000,
+    "trim_applied": "none"
+  }
+}

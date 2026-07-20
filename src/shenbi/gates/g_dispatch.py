@@ -65,7 +65,7 @@ def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
     c = [{"id": "GD.1", "s": "PASS", "completed": len(completed)}]
 
     # GD.2 / GD.3 — deferred
-    c.append({"id": "GD.2", "s": "PASS", "note": "PENDING check deferred"})
-    c.append({"id": "GD.3", "s": "PASS", "note": "DEAD bypass check deferred"})
+    c.append({"id": "GD.2", "s": "UNIMPLEMENTED", "note": "PENDING check not yet implemented"})
+    c.append({"id": "GD.3", "s": "UNIMPLEMENTED", "note": "DEAD bypass check not yet implemented"})
 
     return passed("G_DISPATCH", c)

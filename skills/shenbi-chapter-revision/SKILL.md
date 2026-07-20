@@ -11,10 +11,14 @@ contract:
     - file: plans/chapter-N-plan.md
       fields: ["1. 当前任务", "6. 章尾必须发生的改变", "8. 不要做"]
   writes:
-    - truth/state_snapshot-pre-rev.md
-    - chapters/chapter-N-revision-decisions.json
+    - file: truth/state_snapshot-pre-rev.md
+      mode: create_or_overwrite
+    - file: chapters/chapter-N-revision-decisions.json
+      mode: create_or_overwrite
   updates:
-    - chapters/chapter-N.md
+    - file: chapters/chapter-N.md
+      mode: merge_prose
+      no_op_behavior: skip_write
 ---
 <!-- AUTO-CHECK-START -->
 

@@ -1,0 +1,73 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 24,
+  "produced_at": "2026-07-16T21:30:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-24-plan.md",
+      "selected": [
+        "contrast_closures_narrow_alley",
+        "post_intersection_backgrounding",
+        "assessment_path_formal_presence",
+        "door_frame_day8_plateau_continue",
+        "emotional_landing_narrow_alley",
+        "reader_return_cross_chapter",
+        "maintains_day8_check",
+        "phase_2_maintenance"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "door_frame_day8_cycle_turning",
+        "MH_020_finer_segmentation",
+        "assessment_decision_trigger",
+        "collection_line_integration"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "narrow_alley_contrast",
+        "domain_background_chapter_end",
+        "gray_channel_shape",
+        "posterior_quiet_emotion"
+      ],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": [
+        "MH_021_day8_plateau",
+        "MH_022_assessment_shape",
+        "MH_003_stable_coordinate"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "MH_001_condensation_signal_change"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotion_ch23",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "emotional closure via narrow alley site body-knowledge beat (non-narrative, non-retrospective)"
+    },
+    {
+      "issue_id": "drift_reader_return_ch23",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "reader return via narrow alley cross-chapter closure (Ch19→Ch24) structural and emotional"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 7000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

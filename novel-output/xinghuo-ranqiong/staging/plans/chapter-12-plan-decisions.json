@@ -1,0 +1,80 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 12,
+  "produced_at": "2026-07-16T02:45:24Z",
+  "selections": [
+    {
+      "target": "cr:催收线不可逆变化",
+      "selected": ["催收员晨哨回归", "默认路径执行", "灵能协会登记/身份标记"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "drift:情感极性迁移",
+      "selected": ["有名字的情绪触发(愤怒/悲哀/决定带来的轻)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch11式压缩窄带收束"],
+      "rationale": "Ch11短板修复——情绪光谱从'承受'基线向'转向'偏移(P0 drift纠偏)"
+    },
+    {
+      "target": "drift:推进性收束",
+      "selected": ["认知跳跃/行动决定/不可逆信号——章尾推进性收束"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch11式傍晚静坐信息密度骤降收束"],
+      "rationale": "Ch11短板修复——收束段信息密度回升(P0 drift纠偏)"
+    },
+    {
+      "target": "P1钩子处理",
+      "selected": ["MH-020 max_distance确认/符号复现", "MH-003地面信号累积(最后安全窗口)", "MH-021首次操作尝试"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "P2钩子处理",
+      "selected": ["MH-001银币测试(微测试预留不强制)", "战争线一条地面信号保持"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["灰色渠道人员面孔展开", "战争线深入展开"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_004_emotion_polarity",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch11情绪压缩窄带未偏移——Ch12通过催收员二次接触/抉择场景强制触发有名字情绪"
+    },
+    {
+      "issue_id": "drift_005_info_density_drop",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch11收束段信息密度骤降——Ch12章尾以行动决定/认知跳跃替代静坐式收束"
+    },
+    {
+      "issue_id": "volumemap_vs_actual_divergence",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR3定位灵火会据点线但实际叙事在城市生存阶段——以current_focus为准推迟陈卫民线到卷末转折"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**Key structural decisions for Ch12:**
+
+- **催收线收束**: 7/21晨哨日——催收员二次回归，默认路径执行。林烽在最后关头选择灵能协会登记延期(主动的被选择)，换来30天缓冲但失去匿名性。这是Ch7→Ch12催收弧线的收束节点。
+- **情感极性迁移**: 通过催收员面对面场景触发有名字情绪——愤怒(被系统压迫的清晰认知)或决定带来的轻(不再悬而未决)。偏离Ch11的压缩窄带。
+- **推进性收束**: 章尾以催收登记/身份标签化的完成替代Ch11的静坐式收束——一个不可逆信号(灵能协会已标记身份)或一个行动决定(签了延期)。
+- **P1钩子**: MH-020操作探索延续(max_distance确认/圆形+点符号复现)、MH-003地面信号累积(最后安全窗口)、MH-021首次操作尝试(方向确认)。
+- **密度**: 5操作(1 resolve + 3 advance + 1 defer) ≤ 8，在预算内。无僵尸伏笔(所有defer沉默章数<4)。

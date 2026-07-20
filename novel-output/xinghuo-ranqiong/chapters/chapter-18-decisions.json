@@ -1,0 +1,89 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 18,
+  "produced_at": "2026-07-16T15:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-18-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-18-context.md",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context文件缺失，以truth/current_focus.md+truth/current_state.md+plans/chapter-18-plan.md为主输入"]
+    },
+    {
+      "target": "context/chapter-18-context-decisions.json",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context-decisions文件缺失"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第17章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["第15章", "第16章"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch17_sensory_density_drop",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "末段强制2-3锚点+至少1中等强度感知锚点(光锥分层线温度跃变)。末段共5锚点包含1中等强度"
+    },
+    {
+      "issue_id": "mh001_cultivation_urgency",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "距上次强化5章(Ch13→Ch18)。废料堆阴影中执行手掌覆盖检测→温度梯度折点+核聚区确认→TRIGGERED预备态达成"
+    },
+    {
+      "issue_id": "style_profile_bootstrap",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "style_profile仍为bootstrap—Ch18初稿后需运行compute_stats.py覆盖"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 32000,
+    "limit": 35000,
+    "trim_applied": "none"
+  }
+}
+```
+
+两条文件均已完整生成。第18章《界》覆盖了全部P0-P1要求：
+
+**战争线→承受代价**：白线标记封锁工业带入口、巡逻升级、窄巷入口人声异常——行动半径比昨天少了约三百米，回程更短，路线调整三处。
+
+**偏移→压力测试**：林烽在连续使用六天的窄巷入口前，因鞋印密度异常+人声残余首次在入口处停住并决定放弃——偏移从绝对有效转为条件有效。
+"安全的条件——不被注意——在这个入口处已经不成立了。"
+
+**MH-020→系统差异发现+代价萌芽**：三个位置(封闭[s] / 半开敞[n] / 开阔[d])的读数系统性差异已验证。代价：阴影读8呼吸，开阔仅2呼吸。
+
+**MH-001→TRIGGERED预备态**：战争线环境变化后检测金属片——温度梯度折点出现+核聚区确认，"它和外面发生的事情有关系"。
+
+**感官收束段修正**：末段光锥分层线温度跃变(中等强度感知锚点)、铁梯泛音、手机背壳温度对比、指尖灰层——正片+自检完毕。

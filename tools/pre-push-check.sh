@@ -33,22 +33,37 @@ uv run python tools/lint_no_forbid_with_computed_field.py src/shenbi/contracts
 echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
-# 5. Tests (ci.yml step 10)
-echo "--- pytest (with coverage >= 89%) ---"
-uv run pytest -n auto -m "not last" --cov-fail-under=85
+# 4b. Security audit (ci.yml security workflow)
+echo "--- pip-audit ---"
+uv run pip-audit
 
-# 6. Coverage threshold test (serial, last only)
+# 5. Tests (ci.yml step 10)
+# --dist loadscope groups tests by module so ThreadPoolExecutor tests
+# don't interfere across modules. --timeout prevents indefinite hangs.
+echo "--- pytest (with coverage >= 85%) ---"
+uv run pytest -n auto --dist loadscope -m "not last" --cov-fail-under=85 --timeout=120
+
+# 6. Dead code detection
+echo "--- dead code check (reportUnusedFunction) ---"
+UNUSED_COUNT=$(grep -r 'reportUnusedFunction' src/shenbi/ --include='*.py' | grep -v test_ | grep -v __pycache__ | wc -l | tr -d ' ')
+if [ "$UNUSED_COUNT" -gt 5 ]; then
+    echo "WARNING: $UNUSED_COUNT reportUnusedFunction suppressions found in src/shenbi/"
+    echo "These may indicate dead code that should be removed or wired in."
+    echo "Review with: grep -rn 'reportUnusedFunction' src/shenbi/"
+fi
+
+# 7. Coverage threshold test (serial, last only)
 # Must use --no-cov so this invocation doesn't overwrite coverage.xml
 # produced by step 5. The test reads the existing coverage.xml.
 echo "--- pytest coverage threshold ---"
-uv run pytest -p no:xdist -m "last" --no-cov
+uv run pytest -p no:xdist -m "last" --no-cov --timeout=60
 
-# 6. Contract sync idempotency (ci.yml contract-sync job)
+# 8. Contract sync idempotency (ci.yml contract-sync job)
 echo "--- contract-sync idempotency ---"
 uv run shenbi-sync-contracts >/dev/null
 git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/
 
-# 7. Auto-check docs idempotency
+# 9. Auto-check docs idempotency
 echo "--- autocheck-docs idempotency ---"
 uv run python tools/generate_autocheck_docs.py >/dev/null
 git diff --exit-code -- skills/

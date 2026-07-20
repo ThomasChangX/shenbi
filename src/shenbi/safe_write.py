@@ -65,7 +65,9 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
     # Franklin Important: M5 fallback with O_EXCL for real mutual exclusion
     # (touch() grants zero exclusion — two writers both proceed).
     try:
-        return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY), lockfile
+        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.chmod(lockfile, 0o600)
+        return fd, lockfile
     except FileExistsError:
         # Another writer holds the lock — retry with backoff
         import time
@@ -73,10 +75,9 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
         for _attempt in range(10):
             time.sleep(0.1)
             try:
-                return (
-                    os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY),
-                    lockfile,
-                )
+                fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.chmod(lockfile, 0o600)
+                return fd, lockfile
             except FileExistsError:  # retry with backoff
                 continue
         # Stale lock takeover (Helmholtz P3 fix): unlink + recreate with O_EXCL.
@@ -85,7 +86,9 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
             os.unlink(str(lockfile))
         except FileNotFoundError:
             pass  # already gone — safe to proceed with O_EXCL recreate
-        return os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY), lockfile
+        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.chmod(lockfile, 0o600)
+        return fd, lockfile
 
 
 def safe_write(

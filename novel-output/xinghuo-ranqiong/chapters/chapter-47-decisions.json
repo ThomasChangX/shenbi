@@ -1,0 +1,119 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 47,
+  "produced_at": "2026-07-17T07:30:00Z",
+  "selections": [
+    {
+      "target": "bridging_day_role",
+      "selected": "threshold_day",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Saturday defined as 阈日(bridging/threshold day) — not slot(Fri), not frame-sequence(Mon-Thu). Establishes Saturday's unique system behavior for the first time in the parameter architecture."
+    },
+    {
+      "target": "quiet_state",
+      "selected": "bridging_presence",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "quiet在场 continues from ch46 slot presence into ch47 bridging presence — evolution from 'present in slot' to 'present on threshold', with added readiness/waiting dimension. Not declared as return or stabilized."
+    },
+    {
+      "target": "gap_cognition_evolution",
+      "selected": "knows_sunday",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "缺口 evolves from 'knows quiet在场'(ch46 bidirectional) → 'knows Sunday will arrive'(ch47). System cognition expands from person+parameter to calendar events. Key preparatory shift before ch48."
+    },
+    {
+      "target": "proximity_signal",
+      "selected": "at_hand_imminent",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Evolve '近了'(approaching) from ch46 → '近在咫尺/明日/即至'(at hand/tomorrow/imminent) for ch47. Creates temporal urgency escalation without revealing Sunday texture content."
+    },
+    {
+      "target": "silence_thickness_day6",
+      "selected": "bridging_minimum_present",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "安静厚度在第六日为桥接模式——工作周最低但非归零——在场与厚度脱钩——系统安静参数完成完整工作周序列(六日厚度各不相同)——确立安静在场独立于厚度的新模式。"
+    },
+    {
+      "target": "format_string_syntax",
+      "selected": "bridging_syntax",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "格式串从周五槽位句法→周六桥接句法——桥接句法不是槽位句法不是标准句法——桥接句法为阈日句法。保留周日句法未揭示(Rationale_P2.5: FORBIDDEN as per 周日句法保留规则)。"
+    },
+    {
+      "target": "entry_clue",
+      "selected": "frost_calendar_six_layers",
+      "basis": "volume_scope",
+      "severity": "high",
+      "rationale": "霜历法周一→周六六层厚度作为独立入口线索——无需跨章背景——新读者可识别第六日在历法中的位置。回应ch46审计[读者回报]纠偏。"
+    },
+    {
+      "target": "emotional_dimension",
+      "selected": "readiness_plus_anticipation",
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "在'近了'(期待/临近)基础上叠加等待/蓄势(等待/蓄势)第二情绪维度——quiet在场等待、缺口蓄势、排队蓄势、窗口蓄势——参数层表达不跳出叙事框架。回应ch46审计[情感落地]纠偏。"
+    },
+    {
+      "target": "texture_exclusion",
+      "selected": "pattern_consolidated_day6",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "连续六个工作日排除——模式从确认(ch46)→巩固(ch47)——质地仅属周日维度。无新信息——subtlety维持为周日回归的唯一变量。"
+    },
+    {
+      "target": "door_frame",
+      "selected": "bridging_continuation",
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": "门框从槽位模式(ch46)→桥接日模式——没有槽位没有帧——桥接在门框。保留门框周日行为为ch48结构性变奏(per 压住的底牌规则)。"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_004_entry_threshold",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch46审计指出新读者入口门槛高——ch47中通过霜历法周一→周六六层厚度宣告解决——无需跨章背景即可识别第六日位置。"
+    },
+    {
+      "issue_id": "drift_005_emotional_range",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch46审计指出参数模式情绪音域受限——ch47在'近了'基础上叠加'等待/蓄势'第二维度——参数框架内可表达的最大情绪复杂度——结构性突破保留给ch48(周日质地回归)。"
+    },
+    {
+      "issue_id": "drift_006_physical_anchors",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "≥5处非参数物理锚点嵌入——覆盖冷触觉/霜视觉/铁梯温度/陶罐水面深度/第六日光质/雪水触觉——参数模式持续期间维持锚点占比约5-8%。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 18500,
+    "limit": 22000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**Summary:**
+
+Chapter 47 (fifth week Saturday / bridging day) completes the six-day workweek sequence in the parameter narrative. Key evolutions from ch46:
+
+- **quiet** evolves from slot presence to bridging presence, adding a second emotional dimension — readiness/waiting alongside anticipation
+- **缺口** evolves from bidirectional mutual-awareness to knowing Sunday will arrive — standing at "the eve of Sunday"
+- **安静 thickness** hits workweek minimum but remains present — decoupling presence from thickness for the first time
+- **"近了"** escalates to **"近在咫尺/即至"** — imminent rather than approaching
+- **格式串** evolves from slot syntax to bridging syntax — neither slot nor standard
+- **霜** completes the six-layer calendar (Mon→Sat) — functioning as the entry clue, accessible to new readers
+- **冷** reaches the sixth layer — deepest yet in the wall
+- **Zero** transition words, AI-markers, or reflective sentences
+- **≥5** non-parameter physical anchors embedded
+- All prohibitions honored: no Sunday texture specifics, no declarations of stability, no quantified offset values, no gap repair/sealing

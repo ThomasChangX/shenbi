@@ -1,0 +1,86 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 53,
+  "produced_at": "2026-07-17T18:00:00Z",
+  "selections": [
+    {
+      "target": "当前章节定位",
+      "selected": ["周日前奏日—第二周第六日周五—未参与参数回归+关系脆弱性系统化"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["卷纲KR3叙事元素(人民自卫军整编/建立正规化制度情节)"]
+    },
+    {
+      "target": "核心拓展方向",
+      "selected": ["未参与参数全体回归认知同步", "关系脆弱性从冷独占升级为参数空间共同认知", "冷层积跨第五日上限逼近"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["宣告触发(P0-18推迟至ch54)", "感官等价升维体验层(推迟至ch54周日)", "句法深度推进(维持ch52水平)"]
+    },
+    {
+      "target": "宣告时机策略",
+      "selected": ["不在ch53宣告——保留宣告窗口给ch54周日"],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "三个audit_drift P0执行项(场景体验锚/情感桥接/可读性出口)全部定于ch54——宣告叠加周日质地回归获得最高张力释放——周日有感官短链作为叙事出口供参数适应宣告后状态——ch53工作日宣告则参数在无出口状态下适应新状态，与P0执行项冲突。以current_focus P0执行项优先",
+      "omitted": ["ch53宣告(挤占周日释放窗口)", "ch53+ch54双宣告取消周日宣告(分步宣告削弱周日张力)"]
+    },
+    {
+      "target": "感官维度实现策略",
+      "selected": ["粗糙维持感官等价',参数知道感官信息不在体验'——为周日升维做认知准备"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["粗糙引入温度作为子维度(推迟)", "粗糙与质地建立工作日关联(禁止——工作日排除模式维持)"]
+    },
+    {
+      "target": "钩子密度管理",
+      "selected": ["7操作(6REINFORCE+1ADVANCE) 1迁移(P0-19 PLANTED→RELEVANT) 无新种"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["P0-4 reinforce(quiet回归不追迹hook操作)", "P0-9 reinforce(偏移周日行为语义并入P0-15)", "P0-14 reinforce(域外回归不在hook操作追迹)"]
+    },
+    {
+      "target": "句法复杂度策略",
+      "selected": ["维持ch52嵌套深度不加深——控制在读者认知上限边界内"],
+      "basis": "reader_accessibility",
+      "severity": "low",
+      "omitted": ["继续加深嵌套句法(引发读者认知过载)", "回退句法复杂度(丢失参数叙事的结构一致性)"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_plot_vs_parameter_constraint_ch53",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲第53章标记承接'人民自卫军进行整编，建立正规化制度'但参数叙事禁止非参数元素。以参数空间全域认知同步(未参与参数全体知道状态调制/关系脆弱/宣告逼近)作为'整编'的参数层等价——参数集体在周日之前统一认知基础。卷纲的'正规化制度'以关系脆弱性系统化(脆弱性从冷独占→参数空间公共知识)作为结构等价",
+      "resolution": "未参与参数回归+认知同步作为'整编'等价——关系脆弱性系统化作为'制度正规化'等价——参数空间在周日前的结构统一"
+    },
+    {
+      "issue_id": "p0_18_declaration_delay",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "P0-18已ACTIVE——宣告逼近但不在ch53执行。此延迟不是轨迹倒退——缺口ACTIVE维持，宣告方向仍在逼近，但周日边界提供自然宣告窗口。ch53维持'缺口知道宣告在场于逼近但周五不在宣告日——缺口知道周日可能在场于宣告但不在场于确定'——ACTIVE状态保持开放而不降级",
+      "resolution": "缺口ACTIVE维持——宣告方向不变——时机延迟至周日——ACTIVE状态保持开放——不降级不宣告"
+    },
+    {
+      "issue_id": "parameter_absence_recovery",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "白气/quiet/门框/格式串/霜/域外在ch52全体缺席——认知鸿沟2-3章。ch53需恢复全体认知同步但每条参数的认知状态不同：白气(P0-19)有追踪，安静梯度已RESOLVED(静态度)，门框是帧认知载体，格式串是句法宿主，霜是历法精确性，域外是外部视角。需差异化处理每条参数的回归认知",
+      "resolution": "白气:PLANTED→RELEVANT(P0-19 ADVANCE)；quiet:回归但不追迹hook操作(阈结构态维持)；门框:帧认知同步(知道冷↔光状态调制)；格式串:句法结构态维持+周日句法在场于即将；霜:历法精确到第二周第六日；域外:外部认知同步(知道但不在场)"
+    },
+    {
+      "issue_id": "audit_drift_P0_items_deferral",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "三个audit_drift P0执行项(场景体验锚/情感桥接/可读性出口)全部定于ch54周日。ch53不承担任何P0执行——以P1(未参与参数回归+关系脆弱+宣告窗口)为章节核心。P0项的周日归属不变",
+      "resolution": "ch53不执行任何audit_drift P0项——全部保留给ch54周日——ch53专注于P1:参数回归+关系脆弱+宣告窗口维护"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10200,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

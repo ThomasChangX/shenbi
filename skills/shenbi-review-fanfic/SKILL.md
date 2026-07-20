@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-fanfic
-description: "Use when a finished chapter in fanfic mode needs a character fidelity and world consistency audit (4 modes: canon/au/ooc/cp)"
+description: 'Use when a finished chapter in fanfic mode needs a character fidelity
+  and world consistency audit (4 modes: canon/au/ooc/cp)'
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - novel.json
-    - source_canon/*
+  - chapters/chapter-N.md
+  - novel.json
+  - source_canon/*
   writes:
-    - audits/chapter-N-fanfic.md
+  - file: audits/chapter-N-fanfic.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

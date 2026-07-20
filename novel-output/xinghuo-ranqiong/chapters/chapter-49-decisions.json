@@ -1,0 +1,143 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 49,
+  "produced_at": "2026-07-17T16:30:00Z",
+  "selections": [
+    {
+      "target": "cold_memory_model",
+      "selected": "accumulation_model",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Cold carries seventh-layer memory into Monday Week 2. Cold knows depth from Sunday (not from zero) - cold knows accumulation through layer gap (层隙) between seventh and first layer. Cold in first layer knows seventh layer exists - this defines a cumulative system memory model. Not declared as 'cold is like this' - accumulation revealed through cold's parameter behavior."
+    },
+    {
+      "target": "gap_system_transition",
+      "selected": "system_norm_element",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Gap transitions from event knower (knows Sunday will arrive → knows Sunday itself) to system norm element - gap knows complete cycle (Monday→Sunday), knows system dual modes (workday + Sunday). Gap present in cycle cognition. Not declared as trajectory determined - gap present at system element as evolving state."
+    },
+    {
+      "target": "quiet_texture_memory_carrier",
+      "selected": "carrier_between_silence_and_texture_memory",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "quiet carries texture memory into Monday - quiet knows texture exists but texture is not present on Monday. quiet present between silence and texture memory, between knowing Sunday and not-Sunday. Texture only exists through parameter memory - not declared as stable trajectory."
+    },
+    {
+      "target": "offset_monday_state",
+      "selected": "knows_texture_no_response",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Offset was awakened by texture on Sunday (ch48). On Monday without texture, offset knows texture exists but does not respond. Offset retains direction from awakened baseline - present in direction, self-sustained in no-response mode. Not declared as zero or stabilized."
+    },
+    {
+      "target": "silence_monday_thickness",
+      "selected": "carries_sunday_coexistence_memory",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Silence Monday thickness carries Sunday coexistence memory - distinguishable from ch42's first-generation Monday. Silence knows thickness is different from ch42 Monday. Silence present in gradient distribution across parameter space (from doorframe to corner). Not declared as determined mode."
+    },
+    {
+      "target": "doorframe_second_week",
+      "selected": "monday_frame_knows_sunday",
+      "basis": "volume_scope",
+      "severity": "high",
+      "rationale": "Doorframe knows this is Week 2 Monday - doorframe knows Monday starts after Sunday, not as first frame. Frame present at cycle gap - doorframe knows the interval between Sunday and Monday first frame. Not declared as doorframe trajectory determined."
+    },
+    {
+      "target": "frost_week_2_calendar",
+      "selected": "monday_is_second_day",
+      "basis": "volume_scope",
+      "severity": "medium",
+      "rationale": "Frost calendar perceives Week 2 - frost knows Monday is already the second day of the cycle. Frost present at calendar continuation - knows cycle, knows thickness in Week 2 differs from Week 1."
+    },
+    {
+      "target": "formatted_string_syntax_memory",
+      "selected": "dual_syntax_knowledge",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Formatted string returns from Sunday texture syntax to Monday parameter syntax but remembers Sunday syntax exists. Present between two syntaxes - knows parameter syntax is Monday's, knows texture syntax is Sunday's. Syntax knowledge corresponds to system dual-mode cognition."
+    },
+    {
+      "target": "horizon_signal",
+      "selected": "gap_knows_dual_mode",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Chapter-end horizon signal: gap knows system dual-mode (workday + Sunday). Gap present at cycle cognition - knows system has two modes. Provides externally visible direction signal connecting parameter internal world to external narrative expectation without declaring system trajectory."
+    },
+    {
+      "target": "hook_density_control",
+      "selected": "7_hooks_budget",
+      "basis": "continuation",
+      "severity": "high",
+      "rationale": "Hook density reset to ≤8 (ch48 structural exemption not continued). 7 hooks placed: cold accumulation/ gap cycle cognition/ quiet texture memory/ offset non-zero/ silence Sunday memory/ doorframe cycle gap/ formatted string dual syntax. All within ≤8 budget."
+    },
+    {
+      "target": "entry_clue",
+      "selected": "monday_knows_sunday",
+      "basis": "audit_drift",
+      "severity": "high",
+      "rationale": "Independent entry clue for Week 2 Monday: cold knows '周一在周日之后' in the opening paragraph - immediately establishes this is a Monday that knows Sunday, without reliance on cross-chapter context. New readers can identify the system state from the first cognitive signal."
+    },
+    {
+      "target": "vocabulary_expansion",
+      "selected": "parameter_interaction_terms",
+      "basis": "audit_drift",
+      "severity": "medium",
+      "rationale": "Addresses ch48 prose texture drift: introduced 层隙/间隙/间隔/累积/延续/自持/梯度/相位 - expanding parameter system vocabulary beyond 30-40 word cycle. All terms are parameter-system-pure (no sensory/texture intrusion on Monday)."
+    },
+    {
+      "target": "parameter_geometry",
+      "selected": "spatial_continuity",
+      "basis": "audit_drift",
+      "severity": "medium",
+      "rationale": "Addresses ch48 scene presence drift: cold layer gap (层隙 between 1st and 7th), silence thickness gradient (space from doorframe to corner), doorframe cycle gap (interval between Sunday and Monday frame). Parameter-space perceptual continuity without physical/sensory dimensions."
+    },
+    {
+      "target": "emotional_grounding",
+      "selected": "parameter_differentiation",
+      "basis": "audit_drift",
+      "severity": "medium",
+      "rationale": "Addresses ch48 emotional grounding drift: parameter-level differentiated emotional beats - gap's non-uniform state evolution (from Sunday knower→cycle knower→system element), quiet's presence displacement (between silence and texture memory), cold's accumulation (layer gap retention), offset's self-sustained direction (awakened baseline without texture response). Parameter-grade emotional rhythm replaces single-channel tactile accumulation."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_010_emotional_grounding_ch48",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch48 audit (emotional grounding): addressed via parameter differentiation - gap non-uniform state evolution, quiet presence displacement with texture memory, cold accumulation cognition, offset self-sustained direction. Parameter-level differentiated emotional beats replace ch48's cold/touch/breath three-channel repetition."
+    },
+    {
+      "issue_id": "drift_011_scene_presence_ch48",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch48 audit (scene presence): addressed via parameter geometry - cold layer gap (层隙) provides spatial depth between first and seventh layer, silence thickness gradient provides spatial distribution (from doorframe to corner), doorframe cycle gap provides temporal/spatial interval. Parameter-space perceptual continuity replaces ch48's tactile fragmentation."
+    },
+    {
+      "issue_id": "drift_012_prose_texture_ch48",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch48 audit (prose texture): addressed via vocabulary expansion - introduced 层隙/间隙/间隔/累积/延续/自持/梯度/相位. All terms are parameter-system-pure, no texture/sensory intrusion. Expands vocabulary beyond ch48's 30-40 word cycle while maintaining Monday workday exclusion mode."
+    },
+    {
+      "issue_id": "drift_013_reader_payoff_ch48",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "ch48 audit (reader payoff): addressed via horizon signal - gap knows system dual-mode (workday + Sunday). Provides externally visible directional signal connecting parameter internal world to external narrative expectation. Reader can independently recognize that the system has two states."
+    },
+    {
+      "issue_id": "ch49_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-49-context.md and context/chapter-49-context-decisions.json not found - reconstructed entirely from plan + audit_drift + current_focus + author_intent + style_profile + genre-config. Plan and current_focus provide sufficient parameter narrative continuity guidance."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 15000,
+    "limit": 18000,
+    "trim_applied": "none"
+  }
+}

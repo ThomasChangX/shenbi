@@ -1,0 +1,67 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 25,
+  "produced_at": "2026-07-16T23:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-25-plan.md",
+      "selected": [
+        "time_compression_framework",
+        "assessment_path_concrete",
+        "new_volume_entry_assessment_debt_intersection",
+        "external_world_anchor_building",
+        "non_parametric_sensory_frame_autumn",
+        "door_frame_plateau_maintain",
+        "phase_2_maintain",
+        "MH_003_MH_020_in_situ"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_content_reveal",
+        "decision_trigger_on_assessment",
+        "door_frame_new_phase",
+        "volume_2_content_preview"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "time_compression_P0",
+        "assessment_fee_concrete",
+        "debt_assessment_intersection",
+        "sensory_compensation_external_anchor"
+      ],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_sensory_spectrum_ch24",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "external world anchor and non-parametric sensory frame compensate Ch24 narrow sensory spectrum"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+Chapter 25 "秋" is complete. The chapter delivers the vol 1→vol 2 transitional function specified in the plan:
+
+**Time compression**: The narrative moves from day 10→day 5 through environmental markers — light pillar cumulative offset (几张纸的厚度), building repair (弹坑填补 completed between passes, window boarded), and the arrival of autumn on the skin (face-side temperature drop after days of sensory inattention).
+
+**Two gray channel updates**: First fragment (周六/城西/材料清单) in the first walking segment from a different voice than Ch24's — tighter, more locatable. Second fragment (三枚银币/材料费另算) after the jump — a concrete price number from a different speaker, from a different channel.
+
+**Assessment+debt intersection**: The fee number triggers an automatic calculation of Lin Feng's copper coin + one silver coin reserves — insufficient. The shortfall naturally activates the debt timer in the same perceptual register. Both countdowns present in the same walking segment, in the same parameter register, without triggering decision-making.
+
+**Sensory compensation**: External world anchor (the building's repaired facade as objective time marker) and non-parametric sensory frame (autumn arriving on the face — not measured, felt) address Ch24's noted sensory spectrum narrowness.
+
+**Structural gates respected**: No assessment content revealed, no decision triggered, no urgency manufactured, no meta-narrative markers, no volume preview, no door frame phase change, ending quiet without dash.

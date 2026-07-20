@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
+from shenbi.contracts.thresholds import TEST_PASS
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
 
@@ -174,7 +175,7 @@ def compute_score(
 
 
 def classify(score: float | int) -> ScoreClassification:
-    if score >= 90:
+    if score >= TEST_PASS:
         return ScoreClassification.PASS_EXCELLENT
     if score >= 75:
         return ScoreClassification.PASS_ACCEPTABLE
@@ -300,12 +301,16 @@ def main() -> dict[str, Any]:
         idx = sys.argv.index("--files") if "--files" in sys.argv else -1
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
-        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         proc_result = subprocess.run(
-            [sys.executable, vg, gate_type, ",".join(files), ftype], capture_output=True, text=True
+            [sys.executable, "-m", "shenbi.gates.cli", gate_type, ",".join(files), ftype],
+            capture_output=True,
+            text=True,
         )
-        emit_json(json.loads(proc_result.stdout))
-        sys.exit(0 if proc_result.returncode == 0 else 1)
+        gate_output = json.loads(proc_result.stdout)
+        emit_json(gate_output)
+        # shenbi.gates.cli always returns exit code 0 for known gates,
+        # even on FAIL — derive exit code from JSON status field instead.
+        sys.exit(0 if gate_output.get("status") != "FAIL" else 1)
 
     rubric_path = sys.argv[1]
     dimensions, kill_switches = load_rubric(rubric_path)
@@ -329,7 +334,6 @@ def main() -> dict[str, Any]:
     if tier:
         import subprocess
 
-        vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")
         if tier == "T1" and test_type:
             # G3: prerequisite check — extract skill_name from rubric path
             rubric_p = Path(rubric_path)
@@ -337,7 +341,15 @@ def main() -> dict[str, Any]:
             if skill_name:
                 if round_dir:
                     gate_result = subprocess.run(
-                        [sys.executable, vg, "G3", skill_name, test_type, round_dir],
+                        [
+                            sys.executable,
+                            "-m",
+                            "shenbi.gates.cli",
+                            "G3",
+                            skill_name,
+                            test_type,
+                            round_dir,
+                        ],
                         capture_output=True,
                         text=True,
                     )
@@ -347,7 +359,7 @@ def main() -> dict[str, Any]:
                             emit_json(gate_out)
                             sys.exit(1)
                     except Exception:
-                        pass
+                        pass  # Expected when gate output is not valid JSON (e.g. subprocess error)
 
     # Gate marker enforcement — MUST pass before scoring can proceed
     if test_type:

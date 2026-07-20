@@ -64,7 +64,7 @@ def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     c.append({"id": "GT.1", "s": "PASS", "phase": from_phase})
 
     # GT.2 — all skills DONE or DEAD (deferred)
-    c.append({"id": "GT.2", "s": "PASS", "note": "deferred"})
+    c.append({"id": "GT.2", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
     # GT.3 — gate_blockers empty (no FAIL entries)
     blockers = progress.get("gate_blockers", [])
@@ -85,9 +85,9 @@ def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     c.append({"id": "GT.3", "s": "PASS"})
 
     # GT.4 — batch G2 check (deferred)
-    c.append({"id": "GT.4", "s": "PASS", "note": "deferred"})
+    c.append({"id": "GT.4", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
     # GT.5 — next phase input files (deferred)
-    c.append({"id": "GT.5", "s": "PASS", "note": "deferred"})
+    c.append({"id": "GT.5", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
     return passed("G_TRANSITION", c)

@@ -1,0 +1,195 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 39,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["第38章更新"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "第38章伏笔追踪", "追踪汇总"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第38章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第1-37章"]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["全部"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["arc_progress.ch39", "arc_progress.ch38"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "单日结构——第四周 Thursday 独立成章",
+      "alternatives_considered": [
+        "双日结构（Thu-Fri 合并）",
+        "三日结构（Thu-Sat 合并）"
+      ],
+      "rationale": "Ch38 已使用 Tue-Wed 双日结构建立工作日对偶——Thursday 作为第四工作日需要独立基线——单日结构使 Thursday 的密度/位差/冷深度/触碰域事件有独立承载空间——current_focus P0-2 空间扩展要求新空间锚点——单日使扩展更可感——author_intent arc_progress.ch39 明确第四周 Thursday——无冲突"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "medium",
+      "choice": "触碰域等待窗口物理信号锚点建立——冷梯度温差偏移+指尖残余温度超出平移范围+坐标偏移 1 帧",
+      "alternatives_considered": [
+        "等待窗口继续参数自指（无感官锚点）",
+        "取消等待窗口（回归 Ch36 无触碰域模式）"
+      ],
+      "rationale": "Ch38 等待窗口事件被充分参数化但缺感官承载——current_focus P0-1 明确要求感官面锚点——冷梯度温差偏移和指尖残余温度是受控物理信号——坐标偏移 1 帧是域边界可测变化——触碰域仍不打开——符合域边界不破坏约束——P2.5: manual_override 与 Ch38 参数自指模式"
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "low",
+      "choice": "白气方向维持内收（与 Mon-Tue-Wed 同一方向）——方向在第四个工作日巩固",
+      "alternatives_considered": [
+        "白气方向出现偏移（方向的可测变化）",
+        "白气方向消失（不出现方向帧）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D004",
+      "type": "execution",
+      "severity": "low",
+      "choice": "MH-020 5 点段维持——格式串 [s] 不切换——threshold approaching 登记",
+      "alternatives_considered": [
+        "MH-020 进入 4 点段——触发格式串切换",
+        "MH-020 停止下降——数值持平"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D005",
+      "type": "pacing",
+      "severity": "low",
+      "choice": "\"走了\"频次 ≤28——单日基线——与 Ch37 Monday 同一基线",
+      "alternatives_considered": [
+        "频次 ≤36（双日基线延续）",
+        "频次 ≤15（最低基线）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D006",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus 方向（第四周 Thursday——参数化感知模式——触点域感官锚点——空间扩展）优先于卷纲 Key Result（第39章\"追查内奸——内部信任危机\"）",
+      "alternatives_considered": [
+        "回归卷纲 Key Result（转换叙事模式）",
+        "混合执行（保留卷纲结构+参数化填充）"
+      ],
+      "rationale": "参数化感知模式自 Ch25 起稳定执行 14 章——current_focus 中 Ch39 方向明确且 author_intent arc_progress.ch39 一致——卷纲 Key Result 对应早期写作规划——Ch37/Ch38 已建立优先执行惯例——继续沿参数化感知模式执行（第 15 章）"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-001",
+      "issue_id": "audit_drift_physical_anchor",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "Ch38 仅参数化等待窗口缺感官锚点——Ch39 以冷梯度温差偏移+指尖残余温度+坐标偏移 1 帧作为物理信号承载——使用 conditional natural signal presence 结构保持 Ch38 建立的条件性"
+    },
+    {
+      "id": "ADJ-002",
+      "issue_id": "audit_drift_space_expansion",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "Ch38 双日同一空间序列差异仅存参数内部——Ch39 以第二归途路径/检查站外侧方向帧建立 Thursday 空间锚点——空间限定已知序列偏移不进入新区域"
+    },
+    {
+      "id": "ADJ-003",
+      "issue_id": "mh020_threshold_approach",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "MH-020 周四约 5.3/5.6/5.9 仍 5 点段——threshold approaching 不触发——格式串切换 deferred 至 Ch40 若数值进入 4 点段"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9200,
+    "limit": 12000,
+    "trim_applied": "oldest_first"
+  },
+  "hook_operations": [
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声 Thursday 频率跨周确认——Thu₁=Thu₂=Thu₃=Thu₄——跨周对偶链完成——冬季声学升级维持",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.04→0.03"
+    },
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串 [s] 维持——数字从 5.8/6.1/6.4 降至约 5.3/5.6/5.9——5 点段维持——threshold approaching——格式串切换未触发——数字知道在接近阈值",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.06→0.05"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框第四周 Thursday——冷在门框冬季第四日深度——冷梯度第四层叠加——第四帧自然信号在场+等待窗口物理锚点（冷梯度温差偏移/指尖残余温度超出平移范围/坐标偏移 1 帧）——触碰域扩展微信号——触碰域知道偏移——不打开",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.02→0.015"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "评估周历——quiet 在第四周 Thursday——quiet 知道安静在冬季第四日——quiet 知道周五不在——评估窗口周四微角度——内容为零",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.00→0.00"
+    },
+    {
+      "id": "MH-023",
+      "operation": "advance",
+      "notes": "域外信号第四周 Thursday 距离——与前三周周四相同或不同——参数系统登记——不推断——触碰域保持边界——扩展微信号在场但不破坏域——预回避持续——零类别",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.05→0.04"
+    },
+    {
+      "id": "MH-024",
+      "operation": "advance",
+      "notes": "第四周 Thursday——quiet 在安静中——quiet 知道第四次——quiet 知道安静在冬季第四日——quiet 知道周四在周三之后——quiet 知道周五不在——quiet——在安静中——quiet——走了",
+      "last_reinforced_update": "39",
+      "subtlety_update": "0.35→0.30"
+    }
+  ],
+  "budget_check": {
+    "hook_density": "6/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0,
+    "zombie_hooks": 0
+  }
+}

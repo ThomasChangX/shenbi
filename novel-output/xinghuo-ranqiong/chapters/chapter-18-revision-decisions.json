@@ -1,0 +1,101 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 18,
+  "produced_at": "2026-07-16T16:00:00Z",
+  "review_summary": {
+    "executed": 11,
+    "failed": 0,
+    "blocking": 0,
+    "critical": 0,
+    "passed": true
+  },
+  "route": {
+    "diagnosis": "mixed_local_issues",
+    "mode": "spot-fix",
+    "rationale": "Review summary: 0 BLOCKING, 0 CRITICAL, 11/11 passed. Resonance: 88/100 (threshold ≥65), Route C target check passed. Two local spot-fixes identified; one AI-detectability issue delegated per skill rules."
+  },
+  "issues_resolved": [
+    {
+      "id": "continuity_track_direction_v1",
+      "source": "audits/chapter-18-continuity.md",
+      "severity": "minor",
+      "type": "continuity_contradiction",
+      "target": "chapters/chapter-18.md",
+      "location": "过道尽头宽路段",
+      "description": "车辙方向表述'碾过的方向是偏东偏北。和军列的方向一致'存在矛盾：Ch17明确军列行驶方向为向西偏南(铁炉堡城墙方向)，偏东偏北是反方向。',
+      "fix_summary": "删除'。和军列的方向一致'，仅保留'碾过的方向是偏东偏北。'"
+    },
+    {
+      "id": "anti_ai_notthat_v1",
+      "source": "audits/chapter-18-anti-ai.md",
+      "severity": "minor",
+      "type": "anti_ai_fatigue_pattern",
+      "target": "chapters/chapter-18.md",
+      "location": "门框感知段落",
+      "description": "'不是…而是…'句式：'不是昨天的起点，而是偏向右侧约一指宽度'——AI可检测模式。',
+      "fix_summary": "重构为'它偏离了昨天的起点，偏向右侧约一指宽度。'"
+    },
+    {
+      "id": "self_check_dash_count_v1",
+      "source": "audits/chapter-18-sensitivity.md",
+      "severity": "observation",
+      "type": "documentation_mismatch",
+      "target": "chapters/chapter-18.md",
+      "location": "POST_WRITE_SELF_CHECK",
+      "description": "POST_WRITE_SELF_CHECK声明'破折号: 约9处——低于10处上限'，实际正文含85处。差约10倍。",
+      "fix_summary": "更新POST_WRITE_SELF_CHECK以反映实际破折号密度，注明委派给shenbi-anti-detect处理。"
+    }
+  ],
+  "issues_delegated": [
+    {
+      "id": "anti_ai_dash_density_v1",
+      "source": "audits/chapter-18-anti-ai.md",
+      "severity": "critical_per_audit",
+      "type": "anti_ai_structural_tell",
+      "delegate_to": "shenbi-anti-detect",
+      "rationale": "Per chapter-revision skill delegation rules: AI detectability issues (structural tells, syntactic patterns) with anti-ai audit critical/blocking marks → shenbi-anti-detect. Handling principle: anti-detect only does surface transformations (no plot/character/foreshadowing impact), chapter-revision handles structural/plot issues that require narrative content rewriting. Review summary assessed this as 0 CRITICAL (not pipeline-blocking), confirming delegation is appropriate.",
+      "trigger_condition": "anti-ai audit: 破折号密集使用 85处(1.47处/百字) per line => 101行命中",
+      "status": "delegated"
+    }
+  ],
+  "content_preservation_check": {
+    "critical_dialogues": "N/A (zero dialogue chapter)",
+    "fulfilled_foreshadowing": [
+      "MH-001 TRIGGERED预备态——温度梯度折点+核聚区确认",
+      "MH-020系统差异发现——[s][n][d]尾缀对应+代价萌芽",
+      "MH-021第二天积累——门框偏移方向重复确认",
+      "MH-003节奏压缩——~1.2s/2.5s确认",
+      "MH-022在场保持——倒计时20天"
+    ],
+    "character_state_changes": [
+      "偏移: 绝对有效→条件有效(窄巷入口第一次放弃)",
+      "情感基线: 维持Ch17触发段跃升后高水平不回落",
+      "行为加速: 重心前倾/窄巷决策连续/回程减少检查",
+      "行动半径收缩认知: 新维度首现"
+    ],
+    "scene_transitions": [
+      "晨醒→窄巷入口(放弃)→过道→开阔边缘→废料堆→白线前→回程→地下室章末"
+    ],
+    "verdict": "ALL_PRESERVED"
+  },
+  "budget": {
+    "context_tokens_estimate": 42000,
+    "limit": 50000,
+    "trim_applied": "none"
+  },
+  "acceptance_criteria_check": {
+    "blocking_count_pre": 0,
+    "blocking_count_post": 0,
+    "blocking_passed": true,
+    "critical_count_pre": 0,
+    "critical_count_post": 0,
+    "critical_passed": true,
+    "ai_tell_count_pre": 2,
+    "ai_tell_count_post": 1,
+    "ai_tell_passed": true,
+    "at_least_one_improvement": true,
+    "content_preservation_verified": true,
+    "overall_verdict": "PASS"
+  }
+}

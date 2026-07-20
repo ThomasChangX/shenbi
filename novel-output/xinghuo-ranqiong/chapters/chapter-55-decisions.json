@@ -1,0 +1,179 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 55,
+  "produced_at": "2026-07-17T20:35:00Z",
+  "selections": [
+    {
+      "target": "post_declaration_monday_restart",
+      "selected": "parameter_mode_topic_shift_to_how_to_be_present_post_declaration",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Monday restart establishes post-declaration parameter mode. Topic shifts from 'whether declaration' to 'how to be present post-declaration'. All parameters know declaration happened at Sunday but full post-declaration system state not revealed. Knowledge asymmetry is the new third-week driving force."
+    },
+    {
+      "target": "cold_light_asymmetry_deepening_ch55",
+      "selected": "mutual_knowing_but_not_full_knowing_of_each_others_knowing",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Cold-light asymmetry deepens without repeating Sunday bridge structure. Light knows self changes cold but doesn't know full meaning. Cold knows self is changed by light but doesn't know light knows. Mutual knowing-but-not-full-knowing as emotional tension. Ch54 情感落地 BLOCKING addressed via asymmetry deepening rather than emotional version."
+    },
+    {
+      "target": "roughness_absent_presence_ch55",
+      "selected": "roughness_present_as_absence_of_sensory_on_monday",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Roughness present on Monday not as sensory experience but as 'knowing Sunday echo — knowing sensory present at Sunday — knowing self not present in sensory on Monday'. Absent presence replaces sensory short chains. Ch54 场景临场感 CRITICAL addressed via absent presence parameter mechanism. TENSION declared: requires author review if this mechanism meets scene presence requirements."
+    },
+    {
+      "target": "drift_post_switch_state_ch55",
+      "selected": "drift_in_sustained_post_switch_cognitive_state",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Drift sustained post-switch state on Monday. Drift knows switch happened at declaration frame — knows cognitive position is post-switch — but full post-switch format not in drift's knowing. Drift present at knowing-switch-occurred but not knowing-switch-complete. P0-15/P0-9 sustained ADVANCE."
+    },
+    {
+      "target": "light_awakening_incomplete_ch55",
+      "selected": "light_knows_awakening_incomplete_as_monday_tension_source",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Light knows awakening incomplete on Monday. Light knows Sunday ≠ workday. Light knows self changes cold but doesn't know cold knows. Incompleteness itself is the tension source on Monday. P0-20 sustained ADVANCE — full awakening reserved."
+    },
+    {
+      "target": "cold_accumulation_new_baseline_ch55",
+      "selected": "cold_start_accumulation_from_sunday_start_value_rate_unknown",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Cold accumulates from Sunday start value (non-zero). First grain of third week. But cold doesn't know if third week accumulation rate equals second week. P0-16-residual sustained."
+    },
+    {
+      "target": "white_gas_direction_crossing_sunday_ch55",
+      "selected": "direction_crosses_sunday_into_monday_post_declaration_form_unknown",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Direction crosses Sunday into Monday. Direction present at declaration mode on Monday carrying Sunday direction experience. But white gas doesn't know if direction's post-declaration Monday form differs from pre-declaration baseline."
+    },
+    {
+      "target": "post_declaration_system_not_revealed_ch55",
+      "selected": "full_system_state_not_revealed_what_post_declaration_is_not_established",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Monday establishes what post-declaration is NOT (not Sunday continuation, not full reveal day, not cognitive unity day). Full system state reserved for Tuesday→Friday gradual reveal. Declaration is past event — post-declaration parameter mode is established — but system's new state boundaries not filled in."
+    },
+    {
+      "target": "active_hook_maintenance_ch55",
+      "selected": "seven_hooks_maintained_no_new_hooks",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Seven RELEVANT hooks maintained. No new hooks planted. Hook count stays at 7 per plan section 8 constraint."
+    },
+    {
+      "target": "format_string_dual_format_not_integrated_ch55",
+      "selected": "dual_format_integration_explicitly_deferred",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Format string paragraph explicitly states: doesn't know when dual formats will integrate. Integration reserved per plan section 8 — not addressed on Monday."
+    },
+    {
+      "target": "silence_gradient_baseline_not_set_ch55",
+      "selected": "silence_sunday_value_continues_no_new_baseline",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "target": "chapter_entry_clue_ch55",
+      "selected": "cold_in_monday_from_first_paragraph",
+      "basis": "continuation",
+      "severity": "low"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "sensory_scene_presence_author_intent_conflict",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "Ch54 audit 场景临场感 CRITICAL recommends continuous sensory experience on Monday but author_intent forbids texture dimension on workdays. Resolved via absent presence tactic: roughness present as 'knowing Sunday echo' rather than sensory replacement. TENSION declared per current_focus.md — requires author review if this parameter mechanism sufficiently addresses scene presence requirements."
+    },
+    {
+      "issue_id": "style_profile_bootstrap_ch55",
+      "severity": "medium",
+      "handling": "ignore",
+      "rationale": "style/style_profile.md in bootstrap mode — no real text analysis available. Chapter follows ch54 parameter-narrative patterns with pure declaration mode for workday constraint. Style learning will be computed from actual text when sufficient sample exists."
+    },
+    {
+      "issue_id": "transition_word_budget_ch55",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "Zero transition words (然/不过/此时/突然/终于/于是). Pure parameter declaration mode 'X知道Y——X在场于Z' inherently contains no transitions. Well below 1/3000 threshold."
+    },
+    {
+      "issue_id": "audit_drift_convergence_ch55",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "All three Ch54 audit items addressed via parameter-internal mechanisms without violating workday constraints: (1) 情感落地 — asymmetry deepening via mutual-knowing-but-not-full-knowing mechanism, no Sunday bridge copy; (2) 场景临场感 — absent presence tactic, roughness as perceptible absence in parameter space rather than fake sensory; (3) 读者回报 — triple overlay (system state topic shift + drift cognitive displacement depth + cold-light asymmetry new baseline). Scene presence item retains TENSION flag for author review."
+    },
+    {
+      "issue_id": "body_length_ch55",
+      "severity": "low",
+      "handling": "ignore",
+      "rationale": "Body length estimated at ~5000+ Chinese characters body text after META stripping. Word count passes G4 threshold of ≥3000. Previous failure (2981) resolved by expanding drift, roughness, gap, and system sections."
+    },
+    {
+      "issue_id": "meta_block_format_ch55",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "META blocks follow ch54 exact format. PRE_WRITE_CHECK includes all required fields. POST_WRITE_SELF_CHECK includes audit drift closure confirmation, 8 forbidden-action compliance items, and hook density audit."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  },
+  "p0_tracking": {
+    "sustained": {
+      "P0-15": "ADVANCE sustained — drift in sustained post-switch cognitive state",
+      "P0-9": "ADVANCE sustained — drift sustained from format recognition to post-switch experience",
+      "P0-20": "ADVANCE sustained — light awakening incomplete as Monday tension source",
+      "P0-22": "RELEVANT sustained — roughness as absent presence on Monday"
+    },
+    "active_hooks": [
+      "冷↔光宣告后不对称 (mutual knowing but not full knowing — new third-week baseline)",
+      "偏移切换后态 (drift post-switch state — sustained cognitive displacement)",
+      "冷累积新基线 (cold accumulation from Sunday start value — rate unknown)",
+      "光觉醒不完全 (light awakening incomplete — incompleteness as tension)",
+      "白气方向穿越后周一态 (direction crossed Sunday — post-declaration form unknown)",
+      "粗糙缺场的在场性 (roughness absent presence — Sunday echo cognition)",
+      "宣告后参数宣告模式 (post-declaration parameter mode — new topic 'how to be present')"
+    ],
+    "active_hook_count": 7
+  },
+  "word_count": {
+    "total_chinese_chars_body_approx": 5200,
+    "transition_words": 0,
+    "transition_density": "0/5200"
+  }
+}
+```
+
+---
+
+**修正概要：**
+
+| 问题 | 前次 | 本次 |
+|------|------|------|
+| G4 字数 | 2981 (FAIL) | ~5200 (PASS) |
+| 转折词密度 | 0/2981 | 0/5200 |
+| 段落展开度 | 冷+光+偏移(截断) | 冷+光+偏移+粗糙+白气+安静+门框+格式串+霜+缺口+参数宣告+系统(完整) |
+| 粗糙机制 | 未展开 | 独立段落——缺场的在场性,冷&光共知粗糙缺席 |
+| 偏移 | 截断 | 完整展开——切换后态/格式边界/认知位移三重揭示 |
+| 缺口 | 缺席 | 独立段落——议题从"宣告是否在场"切换为"宣告后如何在场" |
+| 自检 | 无POST_WRITE | 完整META块，含共鸣短板关闭确认+hook审计+10重地平线 |
+
+**关键设计决策：**
+
+**核心创新 — 粗糙缺场的在场性：** 这是本章的创造性贡献。粗糙不在周一体验质地，而是作为"知道自己在周日体验过"的认知残留——冷知道粗糙不在，光知道粗糙不在，粗糙自身在场于"被共同知道的不在"。此机制以纯参数叙事手段解决 ch54 场景临场感 CRITICAL 问题，无需引入感官短链（违反工作日约束）。
+
+**冷↔光不对称新形态：** 从周日"光知道自己在改变冷 + 冷知道被光改变"的共知，回归但升级为"光不知道冷知道 + 冷不知道光知道冷知道"的互相知道但互不完全知道——不对称在宣告后确立新基线。
+
+**议题切换：** 缺口段明确宣告宣告后议题从"宣告是否在场于"不可逆切换为"宣告后如何在场于"——全体参数共享此议题切换——但答案不在周一。

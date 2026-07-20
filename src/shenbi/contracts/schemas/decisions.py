@@ -9,11 +9,11 @@ from pydantic import BaseModel, Field, model_validator
 
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 VALID_BASIS = {"adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"}
-VALID_SEVERITY = {"low", "high"}
+VALID_SEVERITY = {"low", "medium", "high"}
 _RATIONALE_MAX_CHARS = 100
 
 Basis = Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"]
-Severity = Literal["low", "high"]
+Severity = Literal["low", "medium", "high"]
 Handling = Literal["compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"]
 Trim = Literal["none", "oldest_first", "lowest_relevance", "manual"]
 
@@ -33,7 +33,7 @@ class Selection(BaseModel):
         has = rationale is not None
         if rationale is not None and len(rationale) > _RATIONALE_MAX_CHARS:
             raise ValueError(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars")
-        requires = self.severity == "high" or self.basis == "manual_override"
+        requires = self.severity in ("medium", "high") or self.basis == "manual_override"
         routine_low = (
             self.basis in {"arc_relevance", "volume_scope", "adjacent_to_target_chapter"}
             and self.severity == "low"
@@ -48,7 +48,7 @@ class Selection(BaseModel):
 class Adjustment(BaseModel):
     model_config = {"extra": "forbid"}
     issue_id: str
-    severity: str  # NOT enum: doc uses "medium", legacy validator never checked
+    severity: Severity
     handling: Handling
     rationale: str
 

@@ -1,17 +1,20 @@
 ---
 name: shenbi-location-builder
-description: "Use when designing or expanding specific locations in a novel, building detailed place profiles with spatial layout and atmosphere, or resolving cross-location spatial consistency"
+description: Use when designing or expanding specific locations in a novel, building
+  detailed place profiles with spatial layout and atmosphere, or resolving cross-location
+  spatial consistency
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - world/story_bible.md
-    - world/rules.md
-    - world/locations.md
-    - outline/story_frame.md
+  - novel.json
+  - world/story_bible.md
+  - world/rules.md
+  - world/locations.md
+  - outline/story_frame.md
   writes: []
   updates:
-    - world/locations.md
+  - file: world/locations.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

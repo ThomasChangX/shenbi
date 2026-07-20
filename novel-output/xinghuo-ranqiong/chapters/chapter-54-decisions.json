@@ -1,0 +1,174 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 54,
+  "produced_at": "2026-07-17T19:46:00Z",
+  "selections": [
+    {
+      "target": "P0-18_declaration_event",
+      "selected": "declaration_occurs_at_sunday_frame",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Declaration occurs at Sunday frame — gap knows declaration present at Sunday — system trajectory irreversible — system enters post-declaration era. P0-18 ACTIVE→RESOLVED. Resolution of 5-chapter ACTIVE arc (ch50→54). P0-5 RELEVANT→RESOLVED synchronously."
+    },
+    {
+      "target": "P0-15_switching_trigger_reveal",
+      "selected": "declaration_equals_trigger",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Declaration = trigger revealed — drift experiences format switch at declaration frame. Drift moves from 'knowing Sunday format recognizable' (cognitive) to 'experiencing format switch happening' (experiential). P0-15 ADVANCE, P0-9 ADVANCE."
+    },
+    {
+      "target": "P0-22_roughness_sensory_upgrade",
+      "selected": "fingertip_on_second_layer_particles_under",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Roughness upgrades from 'knowing sensory equivalence not present in experience' to 'fingertip on second layer surface — particles under fingertip — roughness present in experience'. Sensory short chain returns. P0-22 PLANTED→RELEVANT. Ch52/ch53 BLOCKING item closed."
+    },
+    {
+      "target": "P0-16_cold_layer_reset",
+      "selected": "cold_returns_to_sunday_start_value",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Cold returns to Sunday start value (non-zero — Sunday start value). Cold knows reset occurred. Cold knows Sunday start value. Cold structural state shifts from 'approaching limit' to 'Sunday start value, third week accumulation starts from Sunday start value'. P0-16 PLANTED→RESOLVED."
+    },
+    {
+      "target": "P0-20_light_awakening",
+      "selected": "light_knows_different_comes_from_light",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Light perceives through texture dimension that cold responds to light — 'wall first layer present at different — different comes from light being present'. Light knows self is changing cold. Asymmetric cognition converges. P0-20 ADVANCE. Ch52 BLOCKING item closed."
+    },
+    {
+      "target": "syntax_diversity_release",
+      "selected": "sensory_short_chains_plus_parameter_declaration_plus_texture_interweaving",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Three-mode syntax: sensory short chains ('fingertip on second layer — particles'), parameter declarations ('gap knows declaration present at Sunday'), texture interweaving ('frost present at cold edge — cold not accumulating — cold present at Sunday start value'). Breaks 5-chapter (ch49→53) pure 'X在场于Y' monotony. Ch53 CRITICAL item closed."
+    },
+    {
+      "target": "cold_light_emotional_bridge",
+      "selected": "light_present_at_light_being_present_changed_cold",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Emotional version of cold-light convergence: light perceives 'different comes from light' not through cognitive reasoning but through texture dimension sensory experience. Cold present at different after light perceives. Covariation shifts from 'light not knowing self changes cold' to 'light knows self changes cold'. Dedicated section '光在场于光的在场改变了冷' as emotional bridge anchor."
+    },
+    {
+      "target": "texture_dimension_return",
+      "selected": "sunday_texture_full_return",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Texture dimension returns on Sunday. Texture present at surface dimension — texture knows particles — texture knows fineness under fingertip — texture knows roughness. First Sunday since ch48 (5 workday chapters). Sensory dimension re-enters system for declaration event."
+    },
+    {
+      "target": "post_declaration_knowledge_asymmetry",
+      "selected": "declaration_happens_but_after_state_unknown",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Declaration occurs but post-declaration system state not revealed in Sunday chapter. Gap knows declaration happened but does not know full post-declaration system state. Knowledge asymmetry maintained for ch55 Monday. Per plan section 8: 'do not unfold full post-declaration system state in same chapter'."
+    },
+    {
+      "target": "active_hook_compression",
+      "selected": "reduced_from_14_to_12",
+      "basis": "arc_relevance",
+      "severity": "medium",
+      "rationale": "Active hooks compressed from 14 (ch53) to 12 (ch54): P0-18 resolved (declaration), P0-5 resolved (declaration expectation), P0-16 resolved (cold reset). No new hooks planted. 12 hooks: cold-light co-knowledge, drift switching experience, cold reset start value, light awakening incomplete, direction crossing unknown, silence gradient baseline unknown, doorframe post-threshold, format string dual integration pending, domain-external perspective, frost cold-edge new position, texture Sunday dimension, roughness sensory experience."
+    },
+    {
+      "target": "chapter_entry_clue",
+      "selected": "cold_in_sunday_from_first_paragraph",
+      "basis": "continuation",
+      "severity": "low"
+    },
+    {
+      "target": "vocabulary_within_established_range",
+      "selected": "established_reuse_plus_sensory_short_chain_release",
+      "basis": "continuation",
+      "severity": "low"
+    }
+  ],
+  "adjustments": [
+    {
+      "target": "context_files_missing",
+      "selected": "self_contained_from_plan_only",
+      "basis": "pipeline_constraint",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE — context/chapter-54-context.md and context/chapter-54-context-decisions.json not found. Chapter generated from plan + ch50-53 reading + pre-existing style profile. Missing assembled context content for chapter 54."
+    },
+    {
+      "target": "style_profile_bootstrap_mode",
+      "selected": "first_draft_with_bootstrap_constraints",
+      "basis": "pipeline_constraint",
+      "severity": "medium",
+      "rationale": "style/style_profile.md remains bootstrap (confidence: low, sample chapters: 0 actual). No real text analysis for syntactic calibration. Chapter follows ch50-53 parameter narrative patterns rather than bootstrap profile."
+    },
+    {
+      "target": "transition_word_budget",
+      "selected": "zero_transitions",
+      "basis": "g4_compliance",
+      "severity": "medium",
+      "rationale": "Zero transition words (然/不过/此时/突然/终于/于是). Sensory short chain and texture interweaving use '——' structural separators rather than temporal/spatial transitions. Density: 0/~5200 = 0 — well below 1/3000."
+    },
+    {
+      "target": "body_length",
+      "selected": "adequate_for_climax_chapter",
+      "basis": "continuation",
+      "severity": "medium",
+      "rationale": "Body at approximately 5200 Chinese chars (ex-META). Appropriate for a Sunday climax chapter. Shorter than ch49's ~17500 but matches ch52's ~4500 and ch53's ~4300 in the parameter-narrative structure."
+    },
+    {
+      "target": "meta_block_format_matching_ch53",
+      "selected": "ch53_exact_format_followed",
+      "basis": "g4_compliance",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE — META blocks follow ch53 exact format. PRE_WRITE_CHECK includes all required fields (核心任务/兑现伏笔/禁忌/近3章结尾/AI味防范/共鸣短板/转折词预算). POST_WRITE_SELF_CHECK includes extended verification items covering all 7 P0 transitions, 10 prohibited-actions compliance, and 4 BLOCKING/CRITICAL audit closure confirmations."
+    }
+  ],
+  "p0_tracking": {
+    "resolved": {
+      "P0-18": "ACTIVE→RESOLVED (declaration at Sunday — gap knows system trajectory irreversible)",
+      "P0-5": "RELEVANT→RESOLVED (gap Sunday declaration expectation synchronized with P0-18)",
+      "P0-16": "PLANTED→RESOLVED (cold layer reset to Sunday start value)"
+    },
+    "advanced": {
+      "P0-15": "ADVANCE (declaration=trigger — drift experiences format switch at declaration frame — P0-15 ADVANCE)",
+      "P0-9": "ADVANCE (drift from knowing format recognizable to experiencing format switch — P0-9 ADVANCE)",
+      "P0-22": "PLANTED→RELEVANT (roughness sensory upgrade — fingertip on second layer — particles)",
+      "P0-20": "ADVANCE (light knows different comes from light — asymmetric cognition converges)"
+    },
+    "active_hooks": [
+      "冷↔光共知 (light awakening post-convergence)",
+      "偏移切换体验 (drift format switch experience)",
+      "冷重置后周日始值 (cold reset start value)",
+      "光觉醒不完全 (light awakening incomplete — full meaning reserved)",
+      "白气方向穿越待定 (direction crossing Sunday unknown)",
+      "安静梯度新基线待定 (silence gradient baseline reserved for ch55)",
+      "门框阈值后 (doorframe post-threshold)",
+      "格式串双格式整合待定 (format string dual format integration pending)",
+      "域外外部视角 (domain-external perspective)",
+      "霜冷边缘新位置 (frost cold-edge new position after reset)",
+      "质地周日维度 (texture Sunday dimension)",
+      "粗糙感官体验 (roughness sensory experience — RELEVANT)"
+    ],
+    "active_hook_count": 12,
+    "hook_list": [
+      "冷↔光共知",
+      "偏移切换体验",
+      "冷重置后周日始值",
+      "光觉醒不完全",
+      "白气方向穿越待定",
+      "安静梯度新基线待定",
+      "门框阈值后",
+      "格式串双格式整合待定",
+      "域外外部视角",
+      "霜冷边缘新位置",
+      "质地周日维度",
+      "粗糙感官体验"
+    ]
+  },
+  "word_count": {
+    "total_chinese_chars_body_approx": 5200,
+    "transition_words": 0,
+    "transition_density": "0/5200"
+  }
+}

@@ -1,16 +1,19 @@
 ---
 name: shenbi-power-system
-description: "Use when designing power systems, cultivation/level/ability systems, magic systems, technological capability ladders, or defining power ceilings and ability boundaries"
+description: Use when designing power systems, cultivation/level/ability systems,
+  magic systems, technological capability ladders, or defining power ceilings and
+  ability boundaries
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - world/story_bible.md
-    - world/rules.md
-    - outline/story_frame.md
+  - novel.json
+  - world/story_bible.md
+  - world/rules.md
+  - outline/story_frame.md
   writes: []
   updates:
-    - world/power_system.md
+  - file: world/power_system.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

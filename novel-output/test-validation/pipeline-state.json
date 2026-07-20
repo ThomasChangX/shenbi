@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "project_dir": "novel-output/test-validation",
+  "phase": "genesis",
+  "genesis": {
+    "state": "in-progress",
+    "current_step": 2,
+    "skills_done": [
+      "shenbi-worldbuilding",
+      "shenbi-genre-config"
+    ],
+    "retry_counts": {
+      "shenbi-character-design": 1
+    },
+    "retry_feedback": {
+      "shenbi-worldbuilding": "G4 check failed: ['G4.rules.count:0', 'G4.locations.count:0', 'G4.truth.current_state.md.missing_type', 'G4.truth.current_state.md.missing_category', 'G4.truth.current_state.md.missing_status', 'G4.truth.character_matrix.md.missing_type', 'G4.truth.character_matrix.md.missing_category', 'G4.truth.character_matrix.md.missing_status', 'G4.truth.emotional_arcs.md.missing_type', 'G4.truth.emotional_arcs.md.missing_category', 'G4.truth.emotional_arcs.md.missing_status', 'G4.truth.chapter_summaries.md.missing_type', 'G4.truth.chapter_summaries.md.missing_category', 'G4.truth.chapter_summaries.md.missing_status']\nFull result: {\"gate\": \"G4-worldbuilding\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-19T14:20:05.981753+00:00\", \"checks\": [{\"id\": \"G4.novel.title\", \"s\": \"PASS\"}, {\"id\": \"G4.novel.genre\", \"s\": \"PASS\"}, {\"id\": \"G4.novel.language\", \"s\": \"PASS\"}, {\"id\": \"G4.novel.target_words\", \"s\": \"PASS\"}, {\"id\": \"G4.genre_config\", \"s\": \"PASS\"}, {\"id\": \"G4.sb\", \"s\": \"PASS\", \"sections\": 4}, {\"id\": \"G4.truth.current_state.md\", \"s\": \"PASS\"}, {\"id\": \"G4.truth.character_matrix.md\", \"s\": \"PASS\"}, {\"id\": \"G4.truth.emotional_arcs.md\", \"s\": \"PASS\"}, {\"id\": \"G4.truth.chapter_summaries.md\", \"s\": \"PASS\"}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.rules.count:0\", \"G4.locations.count:0\", \"G4.truth.current_state.md.missing_type\", \"G4.truth.current_state.md.missing_category\", \"G4.truth.current_state.md.missing_status\", \"G4.truth.character_matrix.md.missing_type\", \"G4.truth.character_matrix.md.missing_category\", \"G4.truth.character_matrix.md.missing_status\", \"G4.truth.emotional_arcs.md.missing_type\", \"G4.truth.emotional_arcs.md.missing_category\", \"G4.truth.emotional_arcs.md.missing_status\", \"G4.truth.chapter_summaries.md.missing_type\", \"G4.truth.chapter_summaries.md.missing_category\", \"G4.truth.chapter_summaries.md.missing_status\"]}",
+      "shenbi-character-design": "G4 check failed: ['G4.cd.major_chars:directory_missing', 'G4.cd.minor_chars:directory_missing', 'G4.cd.archetype.protagonist[0].name:too_short_or_missing']\nFull result: {\"gate\": \"G4-character-design\", \"status\": \"FAIL\", \"timestamp\": \"2026-07-19T14:32:21.985149+00:00\", \"checks\": [{\"id\": \"G4.protag.name\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.role\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.personality_tags\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.core_value\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.goal_surface\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.goal_deep\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.fear\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.arc_type\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.arc_starting\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.arc_turning\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.arc_ending\", \"s\": \"PASS\"}, {\"id\": \"G4.protag.voice_profile\", \"s\": \"PASS\"}, {\"id\": \"G4.voice.speech_patterns\", \"s\": \"PASS\", \"count\": 2}, {\"id\": \"G4.voice.catchphrases\", \"s\": \"PASS\", \"count\": 2}, {\"id\": \"G4.voice.avoid_patterns\", \"s\": \"PASS\", \"count\": 2}], \"blocked_action\": \"scoring\", \"must_fix\": [\"G4.cd.major_chars:directory_missing\", \"G4.cd.minor_chars:directory_missing\", \"G4.cd.archetype.protagonist[0].name:too_short_or_missing\"]}"
+    }
+  },
+  "chapter_loop": {
+    "current_chapter": 0,
+    "current_step": "",
+    "step_index": 0,
+    "chapter_states": {},
+    "per_chapter_review_enabled": false,
+    "retry_counts": {},
+    "retry_budget_consumed": {},
+    "modify_feedback": null,
+    "retry_feedback": {},
+    "soft_fail_trackers": {}
+  },
+  "closure": "pending",
+  "pending_checkpoint": {
+    "type": "none",
+    "chapter": null,
+    "artifact": null,
+    "context": null,
+    "options": [],
+    "created_at": null
+  },
+  "checkpoint_history": [
+    {
+      "type": "escalation",
+      "chapter": 0,
+      "decision": "approve",
+      "resolved_at": "2026-07-19T13:42:59.781376+00:00"
+    },
+    {
+      "type": "escalation",
+      "chapter": 0,
+      "decision": "approve",
+      "resolved_at": "2026-07-19T13:59:10.517680+00:00"
+    }
+  ],
+  "last_snapshot": {},
+  "closure_step": 0,
+  "closure_skills_done": [],
+  "closure_retry_counts": {},
+  "pending_re_dispatches": [],
+  "last_trigger_failure": null,
+  "config": {
+    "genesis_review_required": true,
+    "chapter_memo_review_required": false,
+    "state_settle_review_required": false,
+    "per_chapter_review_enabled": false,
+    "volume_boundary_review_required": true,
+    "max_revision_retries": 3,
+    "max_audit_retries": 3,
+    "context_budget_override": null,
+    "style_learning_interval": 12,
+    "genre_config_update_on_drift": true,
+    "resonance_global_floor": 65,
+    "snapshot_retention_chapters": 50
+  }
+}

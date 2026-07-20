@@ -21,6 +21,78 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
+    """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
+
+    Extracts hook IDs from plan Section 7 (Hook Ledger) and searches
+    for their presence in the chapter prose.
+
+    Args:
+        plan_path: Path to the chapter plan markdown file.
+        chapter_path: Path to the chapter markdown file.
+
+    Returns:
+        List of issue strings. Empty if all hooks are fulfilled or plan
+        is missing/has no hooks.
+    """
+    if not plan_path.exists():
+        return []
+
+    plan_text = plan_path.read_text(encoding="utf-8")
+    chapter_text = chapter_path.read_text(encoding="utf-8")
+
+    # Extract hook IDs from plan -- match patterns like MH-003, CP-012, etc.
+    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", plan_text))
+    # Extract hook IDs from chapter body
+    chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
+
+    missing = plan_hooks - chapter_hooks
+    if missing:
+        return [
+            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+            f"but none found in chapter body"
+        ]
+    return []
+
+
+def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str]:
+    """G4.cd.title: Validate chapter title quality.
+
+    Checks:
+    - No chapter numbers in title
+    - No duplicate titles
+    - No day-of-week labels (WARN, not HARD)
+    - Thematic naming encouraged (1-4 Chinese characters)
+    """
+    issues = []
+
+    # HARD FAIL: Chapter number in title
+    if re.search(r"第\d+章", title):
+        issues.append(
+            "G4.cd.title:contains_chapter_number -- "
+            "title must not include chapter number (SKILL.md:125)"
+        )
+
+    # HARD FAIL: Duplicate title
+    if title in previous_titles:
+        issues.append(
+            f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- title '{title}' already used"
+        )
+
+    # WARN: Day-of-week or date label
+    day_pattern = re.compile(
+        r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|"
+        r"周[一二三四五六日])"
+    )
+    if day_pattern.search(title):
+        issues.append(
+            "G4.cd.title:day_label_instead_of_thematic_name -- "
+            "prefer thematic 1-4 character name over date label"
+        )
+
+    return issues
+
+
 def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     """Build a set of paragraph hashes for content overlap comparison."""
     body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
@@ -36,6 +108,62 @@ def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
         if cjk >= min_len:
             hashes.add(hash(p))
     return hashes
+
+
+def _check_protagonist_presence(
+    text: str,
+    protagonist_names: list[str],
+    threshold: int = 3,
+) -> list[str]:
+    """G4.cd.protagonist_presence: verify protagonist appears >= threshold times.
+
+    Args:
+        text: Chapter prose text.
+        protagonist_names: List of protagonist names/pronouns to search for.
+        threshold: Minimum required occurrences.
+
+    Returns:
+        List of issue strings (empty if check passes).
+    """
+    total = sum(text.count(name) for name in protagonist_names)
+    if total < threshold:
+        return [
+            f"G4.cd.protagonist_absent: protagonist appears {total} times (threshold: {threshold})"
+        ]
+    return []
+
+
+def _load_protagonist_names(project_dir: str) -> list[str]:
+    """Load protagonist names from character design files."""
+    names: list[str] = []
+    chars_dir = Path(project_dir) / "characters"
+    if not chars_dir.exists():
+        return ["林烽", "他"]
+    protag = chars_dir / "protagonist.md"
+    if protag.exists():
+        text = protag.read_text(encoding="utf-8")
+        # Try frontmatter name first
+        match = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
+        if match:
+            names.append(match.group(1).strip())
+        # Also try YAML frontmatter
+        if text.startswith("---"):
+            parts = text.split("---", 2)
+            if len(parts) >= 3:
+                try:
+                    import yaml as _yaml
+
+                    fm = _yaml.safe_load(parts[1])
+                    if isinstance(fm, dict) and "name" in fm:
+                        names.append(str(fm["name"]))
+                except Exception:
+                    pass
+    if not names:
+        names = ["林烽", "他"]
+    # Always include common pronoun
+    if "他" not in names:
+        names.append("他")
+    return names
 
 
 def g4_chapter_drafting(
@@ -198,6 +326,16 @@ def g4_chapter_drafting(
                         mf.append(f"G4.cd.no_hook:{fp}")
                     else:
                         c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": "PASS"})
+
+        # G4.cd.protagonist_presence: protagonist appears >= threshold times
+        protagonist_names = (
+            _load_protagonist_names(str(project_root)) if project_dir else ["林烽", "他"]
+        )
+        protagonist_issues = _check_protagonist_presence(content, protagonist_names)
+        if protagonist_issues:
+            mf.extend(protagonist_issues)
+        else:
+            c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": "PASS"})
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

@@ -133,12 +133,14 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes a decisions sidecar + updates=7 truth files (all fold into outputs)
+    # shenbi-state-settling: writes a decisions sidecar + character_matrix,
+    # plus updates=7 truth files (all fold into outputs; character_matrix
+    # appears in both writes and updates).
     assert derive_output_files("shenbi-state-settling") == [
         "truth/state-settling-decisions.json",
+        "truth/character_matrix.md",
         "truth/current_state.md",
         "truth/particle_ledger.md",
-        "truth/character_matrix.md",
         "truth/emotional_arcs.md",
         "truth/subplot_board.md",
         "truth/pending_hooks.md",
@@ -241,28 +243,6 @@ def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
     import shenbi.dispatcher.modes.internal as internal_mod
 
     monkeypatch.setattr(internal_mod, "dispatch_internal", lambda *a, **kw: 0)
-
-    result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
-    assert result == 0
-
-
-@pytest.mark.unit
-def test_dispatch_routes_to_codex_api(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Dispatch routes to codex-api mode when detect_mode returns 'codex-api'."""
-    import subprocess
-    from pathlib import Path
-
-    import shenbi.dispatcher.executor as exec_mod
-    import shenbi.dispatcher.modes.codex_api as codex_api_mod
-
-    def mock_run(*a, **kw):
-        return type("R", (), {"stdout": '{"status": "PASS"}'})()
-
-    monkeypatch.setattr(subprocess, "run", mock_run)
-    monkeypatch.setattr(exec_mod, "detect_mode", lambda: "codex-api")
-    monkeypatch.setattr(codex_api_mod, "dispatch_codex_api", lambda *a, **kw: 0)
-
-    from shenbi.dispatcher.executor import dispatch
 
     result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
     assert result == 0

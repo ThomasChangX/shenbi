@@ -1,19 +1,34 @@
 ---
 name: shenbi-chapter-drafting
-description: "Use when writing chapter content, generating chapter text, or drafting a new chapter after planning is complete"
+description: Use when writing chapter content, generating chapter text, or drafting
+  a new chapter after planning is complete
 contract:
   kind: artifact
   reads:
-    - file: plans/chapter-N-plan.md
-      fields: ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"]
-    - context/chapter-N-context.md
-    - context/chapter-N-context-decisions.json
-    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式", "9. 对白占比"]}
-    - {file: genre-config.json, fields: [fatigueWords, pacing, chapterTypes]}
-    - truth/audit_drift.md
+  - file: plans/chapter-N-plan.md
+    fields:
+    - 1. 当前任务
+    - 3. 该兑现的 / 暂不掀的
+    - 6. 章尾必须发生的改变
+    - 8. 不要做
+  - context/chapter-N-context.md
+  - context/chapter-N-context-decisions.json
+  - file: style/style_profile.md
+    fields:
+    - 11. 综合画像
+    - 6. 修辞模式
+    - 9. 对白占比
+  - file: genre-config.json
+    fields:
+    - fatigueWords
+    - pacing
+    - chapterTypes
+  - truth/audit_drift.md
   writes:
-    - chapters/chapter-N.md
-    - chapters/chapter-N-decisions.json
+  - file: chapters/chapter-N.md
+    mode: create_or_overwrite
+  - file: chapters/chapter-N-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -126,7 +141,14 @@ PRE_WRITE_CHECK:
 
 ## 元数据与正文分离（新增铁律）
 
-章节文件中的 PRE_WRITE_CHECK 和 POST_WRITE_SELF_CHECK 必须用 `<!--META-BEGIN-->` 和 `<!--META-END-->` 包裹。下游解析器（字数统计、审计、评分）必须剥离 META 块后处理纯正文。
+> **WARNING: META blocks are NOT part of the novel prose.**
+>
+> META blocks (`<!--META-BEGIN-->...<!--META-END-->`) contain internal
+> quality-control self-checks (PRE_WRITE_CHECK and POST_WRITE_SELF_CHECK).
+> These are for pipeline use only. Downstream parsers (word count, audit,
+> scoring, publication) MUST strip META blocks before processing prose.
+> The canonical stripping method is in `src/shenbi/gates/shared.py:120-121`.
+> See `docs/framework/chapter-file-format.md` for full specification.
 
 ## Anti-Rationalization
 

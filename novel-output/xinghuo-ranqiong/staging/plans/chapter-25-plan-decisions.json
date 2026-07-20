@@ -1,0 +1,81 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 25,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "current_focus.md vs volume_map KR2",
+      "selected": ["P0:时间压缩框架", "P0:评估路径跨卷过渡", "P0:新卷入口浮现（方案A）", "P1:情感基线过渡", "P1:感官谱补偿"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲KR2军事行动方向（首次主动进攻/师徒信任建立）"],
+      "rationale": "实际叙事沿MH线和评估路径演化，Ch25从KR2收官转为vol 1→vol 2跨卷过渡章。卷纲为前期方向性规划，当前阶段以current_focus过渡指令为优先。"
+    },
+    {
+      "target": "P0新卷入口方案选择",
+      "selected": ["方案A:评估+催收交汇——评估费用触及资金线"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["方案B:战斗飞行器模式质变", "方案C:灵火会间接信号"],
+      "rationale": "方案A与评估路径跨卷过渡（P0）和催收线操作层交汇（current_focus推荐）完全吻合——两条线首次在操作层面交汇形成不可逆信号，vol 2可直接以评估启动为入口。方案B需引入新变量（飞行器模式变化）在时间压缩章中缺乏铺垫空间。方案C（灵火会代号）在Ch24无任何前置在场，突然出现会破坏压缩段的表面安静。"
+    },
+    {
+      "target": "P0时间压缩结构",
+      "selected": ["环境状态变化标识（光柱/温度/建筑状态/声场密度）+ ≤2处时间跳切"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["逐日展开（无压缩）", "天数标注压缩"],
+      "rationale": "不标天数不解释机制：时间流逝通过行走中环境状态的物化变化展示，节制规则（不制造紧迫/不标天数/跳切≤2处）严格遵守current_focus P0指令。建筑状态变化作为外部世界锚点同时承担感官谱补偿功能——一石二鸟。"
+    },
+    {
+      "target": "P1情感基线过渡类型",
+      "selected": ["过渡安静——安静在时间变化中不变"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["收束安静（Ch24类型延续）", "不安/紧迫安静"],
+      "rationale": "过渡安静与收束安静的差异明确：时间在走但行走参数不变——安静从交汇后稳定的安静→过渡中不变的安静。不自欺不恐慌不释然——Ch25出口安静是'走了——从第十天走到了第五天——每一天的基线是前一天走完后留下的一切——走了——走完了'。"
+    },
+    {
+      "target": "P1感官谱补偿策略",
+      "selected": ["外部世界锚点（建筑弹坑填补状态变化） + 非参数化体感帧（体感温度/秋天到达）"],
+      "basis": "arc_relevance",
+      "severity": "high",
+      "omitted": ["参数化补偿（增加测量帧密度）"],
+      "rationale": "Ch24 audit发现感官谱偏窄（场景临场感20/-1）——时间压缩章天然存在更大的感官缩窄风险。建筑状态变化是外部世界的时间物证（铁炉堡在空袭周期中的自然变化），体感温度帧是行走中的非参数化感知——两个机制在不破坏表面安静的前提下补偿场景临场感。"
+    },
+    {
+      "target": "MH-021/MH-001/MH-003/MH-020 跨卷处理",
+      "selected": ["在场确认但不深化——跨卷以当前形态进入vol 2"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["深化揭示", "暂停在场"],
+      "rationale": "四线在Ch25不需要推进——跨卷过渡章的主要功能是时间压缩+评估路径跨卷+新卷入口。门框高原/Phase 2/MH-003节奏/MH-020格式串在压缩段中以行走参数形态在场确认即可——vol 2独立决定各线的揭示时机。"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_Ch24_sensory_spectrum",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch24场景临场感20（-1）——感官谱偏窄/外部世界锚点缺位。Ch25时间压缩章面临更大感官缩窄风险。主动防御：压缩段中建筑状态变化锚点（白线执行域边缘三层砖混墙面弹坑填补）+ 非参数化体感帧（晨间温度在皮肤而非测量/秋天到达体感）。"
+    },
+    {
+      "issue_id": "compression_temporal_disorientation",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "时间跳切可能造成读者在压缩段中的空间-时间迷失。通过环境状态变化（建筑填补/光柱累计偏移/温度趋势变化）作为自然时间标记，替代天数标注。"
+    },
+    {
+      "issue_id": "cross_volume_interface_completeness",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch25作为vol 1→vol 2过渡章，需要同时完成vol 1收束接口和vol 2入口标记。评估路径具象化+评估+催收交汇+新卷入口形成三合一跨卷端口——确保vol 2启动时读者知道（1）评估的具象参数到了什么程度（2）评估有价格（3）价格和债务在同一根弦上。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10500,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}

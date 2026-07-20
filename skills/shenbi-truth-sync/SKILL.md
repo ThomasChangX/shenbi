@@ -1,16 +1,19 @@
 ---
 name: shenbi-truth-sync
-description: "Use when restoring consistency between manually edited chapter content and truth files, re-extracting state from revised chapters, or bootstrapping truth files from existing novel content"
+description: Use when restoring consistency between manually edited chapter content
+  and truth files, re-extracting state from revised chapters, or bootstrapping truth
+  files from existing novel content
 contract:
   kind: artifact
   reads:
-    - chapters/chapter-N.md
-    - truth/*.md
-    - world/*.md
-    - characters/**/*.md
+  - chapters/chapter-N.md
+  - truth/*.md
+  - world/*.md
+  - characters/**/*.md
   writes: []
   updates:
-    - truth/*.md
+  - file: truth/*.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

@@ -1,14 +1,19 @@
 ---
 name: shenbi-anti-detect
-description: "Use when anti-AI audit flags a chapter with critical/blocking-level detectability markers (structural tells, sentence-pattern regularity) that surface polishing cannot resolve — distinct from polishing, which handles only warning-level fatigue-word and rhythm issues"
+description: Use when anti-AI audit flags a chapter with critical/blocking-level detectability
+  markers (structural tells, sentence-pattern regularity) that surface polishing cannot
+  resolve — distinct from polishing, which handles only warning-level fatigue-word
+  and rhythm issues
 contract:
   kind: artifact
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
+  - chapters/chapter-N.md
+  - genre-config.json
   writes: []
   updates:
-    - chapters/chapter-N.md
+  - file: chapters/chapter-N.md
+    mode: merge_prose
+    no_op_behavior: skip_write
 ---
 <!-- AUTO-CHECK-START -->
 

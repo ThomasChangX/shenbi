@@ -1,0 +1,175 @@
+{
+  "characters": {
+    "relationships": {
+      "category": "character",
+      "entity_id": "relationships",
+      "file": "characters/relationships.md",
+      "ref": "characters/relationships.md",
+      "extra": {}
+    },
+    "林烽": {
+      "category": "character",
+      "entity_id": "林烽",
+      "file": "characters/protagonist.md",
+      "ref": "characters/protagonist.md",
+      "extra": {}
+    }
+  },
+  "hooks": {
+    "P0-4": {
+      "category": "hook",
+      "entity_id": "P0-4",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-4",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-9": {
+      "category": "hook",
+      "entity_id": "P0-9",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-9",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-14": {
+      "category": "hook",
+      "entity_id": "P0-14",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-14",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-15": {
+      "category": "hook",
+      "entity_id": "P0-15",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-15",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-19": {
+      "category": "hook",
+      "entity_id": "P0-19",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-19",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-20": {
+      "category": "hook",
+      "entity_id": "P0-20",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-20",
+      "extra": {
+        "source": "body"
+      }
+    },
+    "P0-22": {
+      "category": "hook",
+      "entity_id": "P0-22",
+      "file": "truth/pending_hooks.md",
+      "ref": "truth/pending_hooks.md#P0-22",
+      "extra": {
+        "source": "body"
+      }
+    }
+  },
+  "rules": {
+    "一": {
+      "category": "rule",
+      "entity_id": "一",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#一",
+      "extra": {
+        "content": "灵能总量守恒"
+      }
+    },
+    "二": {
+      "category": "rule",
+      "entity_id": "二",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#二",
+      "extra": {
+        "content": "知识即力量上限"
+      }
+    },
+    "三": {
+      "category": "rule",
+      "entity_id": "三",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#三",
+      "extra": {
+        "content": "位面时间流速不可逆"
+      }
+    },
+    "四": {
+      "category": "rule",
+      "entity_id": "四",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#四",
+      "extra": {
+        "content": "位面通道需要双向锚定"
+      }
+    },
+    "五": {
+      "category": "rule",
+      "entity_id": "五",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#五",
+      "extra": {
+        "content": "种姓劣势无法通过个人努力彻底弥合"
+      }
+    },
+    "六": {
+      "category": "rule",
+      "entity_id": "六",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#六",
+      "extra": {
+        "content": "灵能技术的代差决定战争胜负"
+      }
+    },
+    "七": {
+      "category": "rule",
+      "entity_id": "七",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#七",
+      "extra": {
+        "content": "殖民体系具有自我强化倾向"
+      }
+    },
+    "八": {
+      "category": "rule",
+      "entity_id": "八",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#八",
+      "extra": {
+        "content": "大范围社会实验的失败必然伴随着巨大牺牲"
+      }
+    },
+    "九": {
+      "category": "rule",
+      "entity_id": "九",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#九",
+      "extra": {
+        "content": "位面间存在\"话语霸权\""
+      }
+    },
+    "十": {
+      "category": "rule",
+      "entity_id": "十",
+      "file": "world/rules.md",
+      "ref": "world/rules.md#十",
+      "extra": {
+        "content": "历史的火种永远无法被彻底扑灭"
+      }
+    }
+  }
+}

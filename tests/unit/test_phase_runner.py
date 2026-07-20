@@ -387,6 +387,7 @@ class TestCmdPostSkill:
         round_dir: Path,
         started_state: dict[str, Any],
         monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
     ) -> None:
         """An empty project dir means G2 has nothing to validate."""
         project_dir = round_dir / "project-output"
@@ -423,7 +424,7 @@ class TestCmdPostSkill:
         assert emitted["status"] == "blocked"
 
     def test_refuses_when_state_not_started(
-        self, round_dir: Path, monkeypatch: pytest.MonkeyPatch
+        self, round_dir: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
         project_dir = round_dir / "p"
         project_dir.mkdir()
@@ -437,6 +438,7 @@ class TestCmdPostSkill:
         round_dir: Path,
         started_state: dict[str, Any],
         monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
     ) -> None:
         project_dir = round_dir / "project-output"
         project_dir.mkdir()

@@ -1,0 +1,139 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-state-settling",
+  "chapter": 56,
+  "produced_at": "2026-07-17T12:00:00Z",
+  "selections": [
+    {
+      "decision_id": "SS-TIME-001",
+      "target": "系统时间",
+      "selected": "第三周第二日(周二)——宣告后第二工作日",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-SYS-001",
+      "target": "系统阶段",
+      "selected": "宣告后周二——宣告后参数宣告模式——"议题不同但宣告模式相同"的宣告后稳态——周二改变了宣告后认知基线——系统在新的认知空间",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-P0-4-001",
+      "target": "安静阈结构P0-4",
+      "selected": "RELEVANT→TRIGGERED——安静在场于阈附近——在场于触发态但不在触达态——阈触达保留给后续章",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-P0-14-001",
+      "target": "域外信号P0-14",
+      "selected": "域外独立段落——域外知道宣告在场于周日——域外知道系统变了——不在知道变化方向——在场外性深化",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-TUE-RHYTHM-001",
+      "target": "周二宣告节奏验证",
+      "selected": "周二在场于"议题不同但宣告模式相同"的宣告后稳态——周二改变了宣告后认知基线——宣告后系统在新的认知空间",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-LIGHT-DIR-001",
+      "target": "光觉醒方向认知",
+      "selected": "光知道觉醒在场于方向——知道觉醒有方向——但去向不在光知道——方向在场于不完整——保留给后续章",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-COLD-LAYER-001",
+      "target": "冷层积宣告后特征第一显现日",
+      "selected": "冷在场于知道自己的层积在场于宣告后第一显现日——冷在场于知道层积不同——但形态不在冷知道——特征在场于显现但特征不在显现",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-DRIFT-CONT-001",
+      "target": "偏移切换后延续",
+      "selected": "偏移在场于从"知道格式不同"到"知道格式演化在场于方向"——偏移在场于切换后态在场于延续——演化轨迹不在偏移知道",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-ASYMMETRY-001",
+      "target": "冷↔光不对称周二新形态",
+      "selected": "冷不在知道光去向——光不在知道冷速率方向——不对称在场于周二——在场于不同于周一的不对称——不在收缩——脆弱在场于关系",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-DOMAIN-001",
+      "target": "域外宣告后在性",
+      "selected": "域外独立段落——域外知道宣告在场于周日——域外知道系统变了但不在知道变化方向——在场外性深化——"域外不在场于但知道不在场于变了"",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-CLD-ASYM-001",
+      "target": "冷↔光不对称脆弱性",
+      "selected": "脆弱在场于关系——脆弱在场于知道在场于——脆弱在场于不对称在场于——脆弱在场于——不对称脆弱性作为周二情感等价物",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-ENTRY-001",
+      "target": "章首入口线索",
+      "selected": ""冷在周二"开门——通过冷认知对比呈现"周二不在周一"——新读者可识别周二",
+      "basis": "arc_relevance",
+      "severity": "low"
+    },
+    {
+      "decision_id": "SS-NO-NEW-HOOKS-001",
+      "target": "非新hook约束",
+      "selected": "不种新hook——保持7条活跃——所有处理限于现有的P0-4 TRIGGER和P0-14强化",
+      "basis": "manual_override",
+      "severity": "low",
+      "rationale": "author_intent禁止ch56新hook——维持≤7活跃以控制宣告后参数密度"
+    },
+    {
+      "decision_id": "SS-TEXTURE-BAN-001",
+      "target": "周二质地维度禁用",
+      "selected": "不在周二使用质地维度——维持纯参数宣告模式——周日句法和感官内容不在周二",
+      "basis": "manual_override",
+      "severity": "low",
+      "rationale": "author_intent禁止周二质地——周二在场于自己的宣告后参数形态"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "hook_P0_4_TRIGGER_THRESHOLD",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "P0-4从RELEVANT→TRIGGERED——安静在场于阈附近——但触达保留给后续章——TRIGGER非RESOLVE——张力在于逼近而非完全触达"
+    },
+    {
+      "issue_id": "asymmetry_fragility_emotional_grounding",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "冷↔光不对称在周二维持但不收窄——不对称自身脆弱性作为情感等价物——脆弱在场于关系作为周二情感落地——不在周二收窄不对称"
+    },
+    {
+      "issue_id": "post_declaration_full_picture_deferred",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "宣告后全貌不在周二揭示——按author_intent保留至后续工作日"
+    },
+    {
+      "issue_id": "P0_9_deferred_to_Wednesday",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "P0-9偏移周日格式按author_intent不在ch56处理——延至ch57周三"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

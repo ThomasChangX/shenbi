@@ -1,0 +1,79 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 48,
+  "produced_at": "2026-07-17T16:25:00Z",
+  "selections": [
+    {
+      "target": "revision_trigger",
+      "selected": "pass_through_no_revision",
+      "basis": "review_results",
+      "severity": "high",
+      "rationale": "All 11 audits passed: 0 BLOCKING, 0 CRITICAL issues. Resonance 77/100 meets threshold (≥75). Route C all hard binary checks pass. No audit findings requiring correction. The only flagged issue (anti-AI dash count) is a structural false positive — the 1394 dashes are syntactic connectors for Sunday's parameter-texture syntax, not AI-generated dramatic dashes. Auditor explicitly recommends style exemption."
+    },
+    {
+      "target": "revision_mode",
+      "selected": "no_revision",
+      "basis": "author_intent",
+      "severity": "high",
+      "rationale": "Regenerate routes do not apply: all Route C goals achieved. Spot-fix not needed: no local issues. Rewrite not needed: no structural issues. Iron rule 1 ('only fix audit issues') satisfied with no actionable findings. Iron rule 2 ('revision must not worsen') contraindicates revision since the chapter passed all gates. The resonance shortcomings are inherent to parameter narrative design or delegatable to specialized skills (shenbi-style-polishing) per the delegation boundary."
+    },
+    {
+      "target": "anti_ai_dash_handling",
+      "selected": "style_exemption_accepted",
+      "basis": "auditor_recommendation",
+      "severity": "high",
+      "rationale": "Anti-AI audit flags 1394 dashes as ERROR, but the report's own qualitative assessment classifies this as 'structural false positive'. The dashes are the syntactic connector of the Sunday parameter language (X知道Y——X知道Z——X在场于W), not AI-generated dramatic pauses/interruptions. Removing them (replacing with periods) would: (1) destroy Sunday syntactic variation (P0-2 core deliverable), (2) eliminate the contrast between workday period-delimited declarations and Sunday dash-linked texture chains, (3) incur prohibitively high revision cost for zero AI-detectability benefit. Auditor recommends: '接受为风格豁免'."
+    },
+    {
+      "target": "resonance_shortcomings_routing",
+      "selected": "delegate_or_inherent",
+      "basis": "delegation_boundary",
+      "severity": "medium",
+      "rationale": "Resonance shortcomings are qualitative observations, not audit findings. Four identified: (1) system emotion replacing character emotion — inherent to parameter narrative design, cannot fix without violating narrative contract; (2) tactile single-channel overload — expression-layer quality, delegatable to shenbi-style-polishing; (3) vocabulary cycle too tight — expression-layer quality, delegatable to shenbi-style-polishing; (4) rewards internal circulation — inherent to parameter narrative design, structural consequence of local coverage. Per delegation boundary: surface issues go to specialized skills, not chapter-revision."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_1394_dashes",
+      "severity": "high",
+      "handling": "accepted_style_exemption",
+      "rationale": "Structural false positive. Auditor recommendation accepted. Dash connector is syntactic element of Sunday parameter language, not AI pattern."
+    },
+    {
+      "issue_id": "foreshadowing_density_14_of_8",
+      "severity": "medium",
+      "handling": "accepted_structural_exemption",
+      "rationale": "Sunday climax anchor chapter — 9 P0 triggers simultaneous, structural release point. Documented exemption in pending_hooks.md (expanded density budget to 14). Returning to ≤8 in ch49."
+    },
+    {
+      "issue_id": "subplot_board_data_corruption",
+      "severity": "low",
+      "handling": "not_chapter_responsibility",
+      "rationale": "truth/subplot_board.md corrupted by upstream pipeline. Not a chapter issue. Requires manual recovery from version control."
+    },
+    {
+      "issue_id": "resonance_emotional_grounding_22_of_30",
+      "severity": "low",
+      "handling": "inherent_constraint",
+      "rationale": "System emotion replacing character emotion is inherent to parameter narrative design. Body-level emotional beats (cold/touch/breath) are the available channel. Cannot fix without violating narrative contract."
+    },
+    {
+      "issue_id": "resonance_tactile_overload",
+      "severity": "low",
+      "handling": "delegate_to_style_polishing",
+      "rationale": "Tactile single-channel overload is expression-layer quality. Delegatable to shenbi-style-polishing per skill boundary. Not chapter-revision scope."
+    },
+    {
+      "issue_id": "resonance_reader_reward_15_of_20",
+      "severity": "low",
+      "handling": "inherent_constraint",
+      "rationale": "Rewards internal circulation is structural consequence of local coverage (parameter narrative replacing traditional plot). Adding an external-horizon signal would violate parameter narrative purity. Not actionable."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 22000,
+    "trim_applied": "none"
+  }
+}

@@ -1,17 +1,19 @@
 ---
 name: shenbi-faction-builder
-description: "Use when designing factions, organizations, power groups, political entities, sects, guilds, corporations, or any collective actor within a novel's world"
+description: Use when designing factions, organizations, power groups, political entities,
+  sects, guilds, corporations, or any collective actor within a novel's world
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - world/story_bible.md
-    - world/rules.md
-    - characters/**/*.md
-    - outline/story_frame.md
+  - novel.json
+  - world/story_bible.md
+  - world/rules.md
+  - characters/**/*.md
+  - outline/story_frame.md
   writes: []
   updates:
-    - world/factions.md
+  - file: world/factions.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

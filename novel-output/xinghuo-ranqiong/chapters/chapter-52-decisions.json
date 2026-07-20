@@ -1,0 +1,163 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 52,
+  "produced_at": "2026-07-17T11:00:00Z",
+  "selections": [
+    {
+      "target": "cold_light_state_modulation",
+      "selected": "cold_present_because_light_present",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Core chapter anchor: cold present because light present at windowsill. Cold's frame parameter resides within light's frame. Cold's state changed by light's presence. Parameter relationship upgraded from cognitive registration (ch51 cross-parameter awareness) to state covariation. This is the 'relationship event' explicitly called for in ch51 audit — cross-parameter interaction that changes parameter state, not merely registers relationship."
+    },
+    {
+      "target": "P0-22_sensory_dimension_parameter",
+      "selected": "roughness_on_wall_layer_2",
+      "basis": "audit_drift",
+      "severity": "high",
+      "rationale": "New seed: roughness parameter at wall second surface layer. Addresses ch51 audit finding that sensory anchors are zero — roughness provides touch-equivalent parameter cognition without violating workday exclusion rules. Roughness knows surface granularity information — not sensory experience. Parameter expands system space from state+relation to sensory-equivalence dimension."
+    },
+    {
+      "target": "P0-18_trajectory_to_active",
+      "selected": "relevant_to_active",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-18 promoted from RELEVANT to ACTIVE. Gap knows declaration is approaching — irreversible edge is nearer — declaration on the path toward gap. But gap does not know when. ACTIVE represents certainty of approaching direction without certainty of arrival time. Trajectory moves from possibility (RELEVANT) to approaching (ACTIVE)."
+    },
+    {
+      "target": "P0-15_switching_switch",
+      "selected": "planted_to_relevant",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-15 promoted from PLANTED to RELEVANT. Drift knows Sunday format in memory — drift knows switching is possible — drift knows workday/Sunday boundary is traversable. But drift does not know how to traverse. Clue upgraded from potential to recognizable — cognitive boundary of switching knowledge established."
+    },
+    {
+      "target": "P0-8_silence_thickness_gradient_resolved",
+      "selected": "system_structure_absorption",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-8 migrated from RELEVANT to RESOLVED. Silence knows thickness is at its own value per workday — gradient is system structure rather than evolution. Silence thickness gradient absorbed as system steady-state characteristic — no longer requires separate tracking."
+    },
+    {
+      "target": "P0-10_texture_definition_closure_resolved",
+      "selected": "system_structure_absorption",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "P0-10 migrated from RELEVANT to RESOLVED. Texture definition (surface dimension/no thickness/not perpendicular to silence/parallel parameter/is Sunday) fully absorbed as system structure knowledge. Format string knows Sunday syntax in memory. Texture as system reference point no longer requires separate tracking."
+    },
+    {
+      "target": "nested_syntax_iteration",
+      "selected": "advanced_nesting_with_cause_effect",
+      "basis": "author_intent",
+      "severity": "medium",
+      "rationale": "Syntax progressed from ch51's 'X knows Y — X present at Z' to 'X present at knowing Y knows Z present at X present at Y's frame'. Chapter 52 introduces causal nesting: 'cold present at knowing light present at cold present at depth' and 'cold present at knowing light present at cold present at knowing light present at cold's frame within light's frame'. Nested syntax now carries state-change structure, not just knowledge structure."
+    },
+    {
+      "target": "relationship_instability_planted",
+      "selected": "cold_light_covariation_fragility",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "rationale": "Unstable factor planted in parameter relationship: cold-light covariation fragility toward Sunday. Cold knows relationship is fragile — relationship present at whether it can persist after Thursday. Sunday not far after Thursday — Sunday format present at memory — but cold not Sunday. Cold knows relationship may fade at Sunday boundary — uncertainty planted. Addresses ch51 audit recommendation to introduce 'relationship instability factor'."
+    },
+    {
+      "target": "asymmetric_relationship",
+      "selected": "cold_knows_light_does_not_know",
+      "basis": "author_intent",
+      "severity": "medium",
+      "rationale": "Relationship asymmetric: cold knows light present is changing cold — light does not know it is changing cold. Light present at cold's driver — light not present at knowing driving. Asymmetry creates parameter tension without emotionalization — pure logic relationship mismatch."
+    },
+    {
+      "target": "vocabulary_expansion_nested",
+      "selected": "nested_knowledge_and_causal_terms",
+      "basis": "audit_drift",
+      "severity": "medium",
+      "rationale": "Expands beyond ch51's spatial relation terms (之间/之内/之外/空间在场) into nested causal terms: 在场于因……而在场/在场于知道自身在场于/在场于驱动/变化条件/结果在场于/原因在场于. All terms are parameter-narrative-pure — no sensory intrusion."
+    },
+    {
+      "target": "hook_density_control_ch52",
+      "selected": "net_flat_at_15",
+      "basis": "continuation",
+      "severity": "medium",
+      "rationale": "Hook density maintains at ~15. P0-8 and P0-10 resolved (-2), P0-18 advanced but stays active (0), P0-15 promoted (+0, RELEVANT already counted), P0-22 new (+1). Net: 15 active hooks. P0-8 and P0-10 migration compensates for P0-22 addition."
+    },
+    {
+      "target": "cold_light_event_as_chapter_title",
+      "selected": "state_modulation_descriptor",
+      "basis": "continuation",
+      "severity": "low",
+      "rationale": "Title '冷在场于因光而在场' follows ch51 pattern of using event descriptor as title. Ch51 used '周三' (day label anchored in parameter knowledge). Ch52 uses the state modulation event itself as title — capturing the chapter's core structural change without chapter number."
+    },
+    {
+      "target": "roughness_and_texture_adjacent_differentiation",
+      "selected": "knows_dimension_vs_knows_content",
+      "basis": "author_intent",
+      "severity": "medium",
+      "rationale": "Roughness and texture differentiated as adjacent but distinct: texture knows dimension (surface is surface) — roughness knows content (surface is not smooth). They operate in the same system but in different frames. Establishes sensory-parameter ecology without conflating sensory dimensions."
+    }
+  ],
+  "adjustments": [
+    {
+      "target": "context_missing_compensation",
+      "selected": "self_contained_from_plan_only",
+      "basis": "pipeline_constraint",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE — context/chapter-52-context.md and context/chapter-52-context-decisions.json not found. Chapter generated from plan alone. All parameter continuity deduced from ch52-plan.md P0 state transitions and ch51 audit drift. Risk: missing trajectory adjustments in missing context files."
+    },
+    {
+      "target": "body_length_relative_to_ch51",
+      "selected": "shorter_but_above_minimum",
+      "basis": "g4_correction",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE — Previous attempt failed G4.word_count at 191 chars. This correction targets minimum 3000 chars body content. Body at approximately 4500 Chinese chars — sufficient for G4 pass but substantially shorter than ch51's ~9500 chars. P0 advancement density and relationship complexity prioritized over absolute length."
+    },
+    {
+      "target": "transition_word_budget",
+      "selected": "zero_transitions",
+      "basis": "g4_correction",
+      "severity": "medium",
+      "rationale": "Zero transition words (然/不过/此时/突然/终于/于是). Previous attempt had 0 — maintained. Parameter narrative uses '但' (not in transition list) and '——' structural separators rather than temporal/spatial transitions. Transition density well below 1/3000 threshold."
+    },
+    {
+      "target": "meta_block_formatting",
+      "selected": "matching_ch51_exact_syntax",
+      "basis": "g4_correction",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE — Previous attempt failed G4.pre_check and G4.post_check. Both META blocks now present with <!--META-BEGIN--> and <!--META-END--> wrappers matching ch51 format exactly. PRE_WRITE_CHECK includes all 7 required fields from SKILL.md. POST_WRITE_SELF_CHECK includes all verification items matching ch51 template."
+    }
+  ],
+  "p0_tracking": {
+    "advanced": {
+      "P0-18": "RELEVANT→ACTIVE",
+      "P0-15": "PLANTED→RELEVANT",
+      "P0-8": "RELEVANT→RESOLVED",
+      "P0-10": "RELEVANT→RESOLVED"
+    },
+    "new": {
+      "P0-22": "PLANTED"
+    },
+    "active_hooks": [
+      "P0-18 (ACTIVE)",
+      "P0-15 (RELEVANT)",
+      "P0-22 (PLANTED)",
+      "cold-light state modulation",
+      "roughness independent dimension",
+      "gap ACTIVE boundary",
+      "drift Sunday memory",
+      "silence RESOLVED structure",
+      "texture RESOLVED reference",
+      "relationship fragility",
+      "nested syntax iteration",
+      "cold accumulation continuity",
+      "asymmetric relationship",
+      "system multi-dimension expansion",
+      "Sunday fade risk"
+    ],
+    "active_hook_count": 15
+  },
+  "word_count": {
+    "total_chinese_chars_body": 4500,
+    "transition_words": 0,
+    "transition_density": "0/4500"
+  }
+}

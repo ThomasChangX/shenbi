@@ -1,16 +1,19 @@
 ---
 name: shenbi-plot-thread-weaver
-description: "Use when coordinating multiple plot threads across the novel, planning thread crossing points, managing A/B/C line priorities, or designing climax windows for subplots"
+description: Use when coordinating multiple plot threads across the novel, planning
+  thread crossing points, managing A/B/C line priorities, or designing climax windows
+  for subplots
 contract:
   kind: artifact
   reads:
-    - outline/story_frame.md
-    - outline/volume_map.md
-    - outline/rhythm_principles.md
-    - truth/pending_hooks.md
+  - outline/story_frame.md
+  - outline/volume_map.md
+  - outline/rhythm_principles.md
+  - truth/pending_hooks.md
   writes: []
   updates:
-    - outline/thread_map.md
+  - file: outline/thread_map.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

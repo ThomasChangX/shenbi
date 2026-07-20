@@ -34,7 +34,11 @@ def configure_logging() -> None:
             renderer,
         ],
         logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
-        cache_logger_on_first_use=True,
+        # cache_logger_on_first_use=False: required for test environments
+        # where capsys replaces sys.stderr temporarily. When True, the
+        # first logger created captures sys.stderr permanently, and
+        # subsequent configure_logging() calls cannot rebind it.
+        cache_logger_on_first_use=False,
     )
 
 

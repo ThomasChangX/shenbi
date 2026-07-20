@@ -1,23 +1,34 @@
 """Unified field-level filtering. Replaces 3 divergent matching semantics:
 extract_h2_sections (exact), check_fields_exist (exact), lint normalize (lower).
 Canonical rule: strip + fold ASCII whitespace AND U+3000 to single ASCII space;
-do NOT lowercase (preserves Chinese heading semantics);
-do NOT fold zero-width chars (U+200B carries semantic meaning).
+remove zero-width chars (U+200B, U+FEFF, U+200C, U+200D);
+apply NFKC normalization (handles fullwidth ASCII, etc.);
+do NOT lowercase (preserves Chinese heading semantics).
 """
 
 from __future__ import annotations
 import json
 import re
+import unicodedata
+
 import structlog
 
 log = structlog.get_logger()
 
-# Fold ASCII whitespace + U+3000 (fullwidth space). Explicitly excludes U+200B/200C/200D.
-_WS_FOLD = re.compile(r"[\s\u3000]+")
-
 
 def _normalize_ws(s: str) -> str:
-    return _WS_FOLD.sub(" ", s).strip()
+    """Normalize whitespace and CJK-specific characters.
+
+    - Replace ideographic space (U+3000) with ASCII space
+    - Remove zero-width characters (U+200B, U+FEFF, U+200C, U+200D)
+    - Apply NFKC normalization (handles fullwidth ASCII, etc.)
+    - Collapse multiple whitespace to single space
+    - Strip leading/trailing whitespace
+    """
+    s = s.replace("\u3000", " ")
+    s = "".join(c for c in s if c not in ("\u200b", "\ufeff", "\u200c", "\u200d"))
+    s = unicodedata.normalize("NFKC", s)
+    return re.sub(r"\s+", " ", s).strip()
 
 
 def match_field(declared: str, heading: str) -> bool:

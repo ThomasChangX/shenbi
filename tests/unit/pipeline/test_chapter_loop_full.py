@@ -200,37 +200,39 @@ class TestFullChapterSequence:
         _drive_to_checkpoint(chapter_state, tmp_path)
         assert chapter_state.pending_checkpoint.type == CheckpointType.CHAPTER_MEMO
         assert chapter_state.chapter_loop.step_index == 2
-        assert chapter_succeeds.dispatch.call_count == 2
+        # Step 1 (volume-align) is pipeline-internal (not dispatched); only step 2 is.
+        assert chapter_succeeds.dispatch.call_count == 1
 
     def test_settle_checkpoint_raised_at_step_7(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """After clearing chapter-memo, steps 3-7 advance to state-settle."""
+        """After clearing chapter-memo, steps 3-8 advance to state-settle (now at step 8)."""
         _drive_to_checkpoint(chapter_state, tmp_path)
         clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
         _drive_to_checkpoint(chapter_state, tmp_path)
         assert chapter_state.pending_checkpoint.type == CheckpointType.STATE_SETTLE
-        assert chapter_state.chapter_loop.step_index == 7
-        # Steps 1,2 (seg 1) + 6,7 (seg 2; step 3 replaced, step 4 internal, step 5 skipped).
+        # After parallel dispatch of steps 7-8, step_index advances past both → 8.
+        assert chapter_state.chapter_loop.step_index == 8
+        # Steps 2,4 (seg 2) + lifecycle + settling (parallel, 2 calls) = 4 dispatches.
         assert chapter_succeeds.dispatch.call_count == 4
 
     def test_full_chapter_completes_with_per_chapter_checkpoint(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """All 20 steps run; chapter completes and raises per-chapter checkpoint."""
+        """All 16 steps run; chapter completes and raises per-chapter checkpoint."""
         _drive_three_segments(chapter_state, tmp_path)
 
         assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
         assert chapter_state.chapter_loop.current_chapter == 2
         assert chapter_state.chapter_loop.step_index == 0
-        # 6 dispatched steps: 1,2,6,7,8 + 17.
-        # (step 3 replaced, step 4 internal, step 5 skipped, steps 9/19/20
-        #  adaptive — recall/drift skipped without data, snapshot file-based,
-        #  steps 10-16 parallel, step 18 skipped).
-        assert chapter_succeeds.dispatch.call_count == 6
-        assert chapter_succeeds.g4.call_count == 6
-        # G3 runs only on step 17 (review-resonance, requires_independent).
-        assert chapter_succeeds.g3.call_count == 1
+        # 4 dispatched steps: chapter-planning, chapter-drafting, lifecycle, settling.
+        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
+        #  pre-revision-snapshot are pipeline-internal; audits are parallel-dispatched;
+        #  revision is skipped with NO_REVISION route).
+        assert chapter_succeeds.dispatch.call_count == 4
+        assert chapter_succeeds.g4.call_count == 4
+        # G3 is not called in the parallel-dispatch audit path.
+        assert chapter_succeeds.g3.call_count == 0
         # Parallel dispatch called once (wave 1).
         assert chapter_succeeds.par_disp.call_count >= 1
 
@@ -243,7 +245,7 @@ class TestFullChapterSequence:
         cs = chapter_state.chapter_loop.chapter_states["1"]
         all_skills = [s.skill for s in CHAPTER_STEPS]
         assert cs.steps_done == all_skills
-        assert len(cs.steps_done) == 20
+        assert len(cs.steps_done) == len(CHAPTER_STEPS)
 
 
 # ---------------------------------------------------------------------------
@@ -260,8 +262,8 @@ class TestStagingAndCheckpointArtifacts:
         """G4 for chapter-planning receives staging/plans/chapter-1-plan.md."""
         _drive_to_checkpoint(chapter_state, tmp_path)
         g4_calls = chapter_succeeds.g4.call_args_list
-        # Second G4 call is step 2 (chapter-planning); first is step 1.
-        planning_files = g4_calls[1][0][1]
+        # First G4 call is step 2 (chapter-planning); step 1 is pipeline-internal.
+        planning_files = g4_calls[0][0][1]
         assert any("staging/plans/chapter-1-plan.md" in f for f in planning_files)
 
     def test_chapter_planning_checkpoint_artifact(
@@ -291,8 +293,9 @@ class TestStagingAndCheckpointArtifacts:
     ) -> None:
         """Dispatch prompt for staging skills tells the skill to use staging/."""
         _drive_to_checkpoint(chapter_state, tmp_path)
-        # step 2 (chapter-planning) dispatch call.
-        planning_prompt = chapter_succeeds.dispatch.call_args_list[1][0][2]
+        # step 2 (chapter-planning) is the only dispatched step in this segment;
+        # step 1 (volume-align) is pipeline-internal and not dispatched.
+        planning_prompt = chapter_succeeds.dispatch.call_args_list[0][0][2]
         assert "staging/" in planning_prompt
 
 
@@ -302,34 +305,40 @@ class TestStagingAndCheckpointArtifacts:
 
 
 class TestContextAssemblyIntegration:
-    """Step 4 materializes the three-route context package before drafting."""
+    """Steps 2-3 materialize the three-route context package before drafting."""
 
     def test_assemble_context_called_with_chapter_plan(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """assemble_context receives the project dir and chapter-1 plan path."""
+        """assemble_context receives the project dir and chapter-1 plan path (twice:
+        once for step 2 chapter-planning, once for step 3 context-prepare).
+        """
         _drive_to_checkpoint(chapter_state, tmp_path)
         clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        chapter_succeeds.assemble.assert_called_once_with(tmp_path, "plans/chapter-1-plan.md")
+        # Called twice: step 2 and step 3 both trigger context assembly.
+        assert chapter_succeeds.assemble.call_count == 2
+        chapter_succeeds.assemble.assert_any_call(tmp_path, "plans/chapter-1-plan.md")
 
     def test_write_context_file_called_once(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """write_context_file materializes context/chapter-1-context.md."""
+        """write_context_file materializes context/chapter-1-context.md (twice:
+        once for step 2, once for step 3).
+        """
         _drive_to_checkpoint(chapter_state, tmp_path)
         clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        chapter_succeeds.write_ctx.assert_called_once()
+        assert chapter_succeeds.write_ctx.call_count == 2
 
     def test_context_assembly_before_drafting(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """Context materialization (step 4) happens before chapter-drafting (6)."""
+        """Context materialization (steps 2-3) happens before chapter-drafting (step 4)."""
         _drive_to_checkpoint(chapter_state, tmp_path)
         clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        assert chapter_succeeds.assemble.call_count == 1
+        assert chapter_succeeds.assemble.call_count == 2
         dispatch_skills = [c[0][0] for c in chapter_succeeds.dispatch.call_args_list]
         assert "shenbi-chapter-drafting" in dispatch_skills
 
@@ -340,12 +349,12 @@ class TestContextAssemblyIntegration:
 
 
 class TestAuditCircleAndRevisionRouting:
-    """7 core-circle audits run serially, then revision routing decides step 18."""
+    """6 domain-grouped audits run in parallel, then revision routing decides step 16."""
 
     def test_all_seven_core_audits_recorded(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """All 7 core-circle audit skills appear in steps_done."""
+        """All 6 core-circle audit skills appear in steps_done."""
         _drive_three_segments(chapter_state, tmp_path)
         cs = chapter_state.chapter_loop.chapter_states["1"]
         for step in CHAPTER_STEPS:
@@ -357,21 +366,22 @@ class TestAuditCircleAndRevisionRouting:
     ) -> None:
         """G4 validates audit reports at audits/chapter-1-{skill}.md.
 
-        With parallel dispatch (Task 7), only review-resonance (step 17) goes
-        through the serial G4 path. Core-circle audits are parallel-dispatched.
+        With parallel dispatch, all audits are dispatched in parallel waves;
+        G4 is only called for dispatched steps (planning, drafting, lifecycle,
+        settling), not for individual audit steps.
         """
         _drive_three_segments(chapter_state, tmp_path)
         audit_files: list[str] = []
         for call in chapter_succeeds.g4.call_args_list:
             files = call[0][1]
             audit_files.extend(f for f in files if "audits/" in f)
-        # review-resonance = 1 audit file via serial G4.
-        assert len(audit_files) == 1
+        # No G4 calls for audits in parallel dispatch path.
+        assert len(audit_files) == 0
 
     def test_revision_routing_runs_after_resonance(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """collect_audit_issues + route_chapter_revision fire after step 17."""
+        """collect_audit_issues + route_chapter_revision fire after all reviews."""
         _drive_three_segments(chapter_state, tmp_path)
         chapter_succeeds.collect.assert_called_once_with(tmp_path, 1)
         chapter_succeeds.route.assert_called_once()
@@ -379,20 +389,22 @@ class TestAuditCircleAndRevisionRouting:
     def test_revision_skipped_when_no_issues(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """Step 18 (chapter-revision) is skipped when route is NO_REVISION."""
+        """Step 16 (chapter-revision) is skipped when route is NO_REVISION."""
         _drive_three_segments(chapter_state, tmp_path)
         cs = chapter_state.chapter_loop.chapter_states["1"]
         assert cs.audit_results["revision_route"] == RevisionRoute.NO_REVISION.value
         # chapter-revision is still recorded in steps_done (ran as a no-op).
         assert "shenbi-chapter-revision" in cs.steps_done
-        # 6 dispatches: 1,2,6,7,8,17. (steps 10-16 parallel, 9/19/20 adaptive,
-        # 18 skipped).
-        assert chapter_succeeds.dispatch.call_count == 6
+        # 4 dispatches: chapter-planning, chapter-drafting, lifecycle, settling.
+        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
+        #  pre-revision-snapshot are pipeline-internal; audits are parallel-dispatched;
+        #  revision is skipped).
+        assert chapter_succeeds.dispatch.call_count == 4
 
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
     ) -> None:
-        """Step 18 dispatches when audit issues are found and route != NO_REVISION."""
+        """Step 16 dispatches when audit issues are found and route != NO_REVISION."""
         issues = [
             {
                 "severity": "CRITICAL",
@@ -433,12 +445,18 @@ class TestAuditCircleAndRevisionRouting:
                 "shenbi.pipeline.chapter_loop.route_chapter_revision",
                 return_value=RevisionRoute.SPOT_FIX,
             ),
+            # _any_audit_has_findings scans disk files; mock it since audit
+            # output files are not written to disk in this test.
+            patch(
+                "shenbi.pipeline.chapter_loop._any_audit_has_findings",
+                return_value=True,
+            ),
         ):
             _drive_three_segments(chapter_state, tmp_path)
             assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
-            # 7 dispatches: 1,2,6,7,8,17 + 18 (SPOT_FIX).
-            # (steps 9/19/20 adaptive — skipped without data; 10-16 parallel).
-            assert mock_disp.call_count == 7
+            # 5 dispatches: chapter-planning, chapter-drafting, lifecycle,
+            # settling, + chapter-revision (SPOT_FIX route).
+            assert mock_disp.call_count == 5
             cs = chapter_state.chapter_loop.chapter_states["1"]
             assert cs.audit_results["revision_route"] == RevisionRoute.SPOT_FIX.value
 

@@ -1,0 +1,65 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 50,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "note": "第50章不是结构性高潮（ch48周日已完成质性回归，ch49系统演化态确立）也不是纯过渡——它是系统自持态的确立章，第一个知道周期位置的周二。从'知道周日存在'(ch49)到'从知道周日的经验运作'(ch50)的推进。卷纲'承接'角色在参数叙事中映射为推进/转折——系统从演化态进入自持态的结构性推进"
+    },
+    {
+      "target": "priority_source",
+      "selected": ["卷纲 Key Result"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["外部指令", "current_focus", "author_intent"],
+      "note": "current_focus.md和author_intent.md均为占位内容(119字节)，无有效指导。无外部指令。卷三KR3/ch50为最高可用优先级层级。卷纲'独立自主、实事求是'在参数叙事层映射为系统自持态，无冲突需覆盖"
+    },
+    {
+      "target": "hook_density",
+      "selected": ["7_operations"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["ch49_8_operations", "ch48_exemption_14_operations"],
+      "note": "ch50为普通工作日周二，非过渡章。ch48结构性豁免(14/8)不延续。ch49(8/8)合规为参考基线。7条操作≤8预算：6条P0 advance + 1条SYS-04 open = 7，合规。已确认无僵尸伏笔(所有活跃钩子沉默章数≤1)"
+    },
+    {
+      "target": "workday_exclusion",
+      "selected": ["已知排除_自持"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["默认排除_ch42模式", "质地维度回归"],
+      "note": "周二仍然是工作日，质地维度仍然被排除。排除模式从ch49的'已知排除(携带记忆)'进化为'已知排除(自持)'——系统不仅在周一知道质地存在，在普通工作日周二仍然知道质地存在。排除是工作日的结构性特征，不是周一特殊态"
+    },
+    {
+      "target": "system_self_sustaining",
+      "selected": ["从累积经验运作"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["重置型运作", "默认型运作"],
+      "note": "系统在周二不重置、不依赖默认模式。参数从自身累积经验运作——缺口知道周二是第二周的第三天而非知道'周二是什么'，安静厚度在周二不同于周一而非安静恢复默认厚度。卷纲'独立自主、实事求是'在参数叙事层的精确映射"
+    },
+    {
+      "target": "quiet_threshold_nature",
+      "selected": ["系统自持结构"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["过渡态", "周日质地后效"],
+      "note": "quiet在场于安静和质地记忆之间的阈在第二个工作日持续在场——阈从周日质地后效(ch48)→周一演化(ch49)→周二自持(ch50)。阈不是过渡态的幸存而是结构态的在场。quiet的本质深化：在场于关系而非在场于位置"
+    },
+    {
+      "target": "gap_rhythm_evolution",
+      "selected": ["节奏预期_周期位置"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["保持周期认知", "重置为默认"],
+      "note": "缺口从ch49的'知道系统有完整周期(周一→周日)'进化为ch50的'知道周二是第二周的第三天'——从知道周期存在到知道在周期中的位置。缺口在场于节奏预期是在场于系统时间定位能力的自然演化方向"
+    }
+  ],
+  "adjustments": []
+}

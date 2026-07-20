@@ -1,0 +1,45 @@
+{
+  "gate": "G4-composite-g4_chapter_planning",
+  "status": "PASS",
+  "timestamp": "2026-07-17T13:07:31.093810+00:00",
+  "checks": [
+    {
+      "id": "G4.cp.sections",
+      "file": "staging/plans/chapter-56-plan.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.cp.chapter_role",
+      "file": "staging/plans/chapter-56-plan.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.cp.golden",
+      "file": "staging/plans/chapter-56-plan.md",
+      "s": "SKIP",
+      "r": "N=56, golden-3 only for N=1,2,3"
+    },
+    {
+      "id": "G4.cp.s5_choice",
+      "file": "staging/plans/chapter-56-plan.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.cp.s7_hook_ops",
+      "file": "staging/plans/chapter-56-plan.md",
+      "s": "PASS",
+      "ops": [
+        "advance",
+        "defer"
+      ]
+    },
+    {
+      "id": "G4.dec",
+      "s": "SKIP",
+      "r": "no files"
+    }
+  ],
+  "files_checked": [
+    "staging/plans/chapter-56-plan.md"
+  ]
+}

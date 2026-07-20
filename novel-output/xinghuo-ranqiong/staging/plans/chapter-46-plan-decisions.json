@@ -1,0 +1,73 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 46,
+  "produced_at": "2026-07-17T14:30:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "rationale": null
+    },
+    {
+      "target": "priority_source",
+      "selected": ["current_focus (local override)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["volume_map KR3 传统情节描述"],
+      "rationale": "volume_map 情节（主角信仰危机）不适用于当前参数叙事层，以 current_focus 参数叙事连续性为实际驱动"
+    },
+    {
+      "target": "hook_ops",
+      "selected": ["8 active advances + 1 defer, density=9"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["MH-022 defer, MH-023 defer — subtlety 0.01, defer to ch47"],
+      "rationale": null
+    },
+    {
+      "target": "physical_anchor",
+      "selected": ["embed 1-2 non-parameter sensory sentences"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [],
+      "rationale": null
+    },
+    {
+      "target": "emotional_marker",
+      "selected": ["embed 1 independent emotional signal"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [],
+      "rationale": null
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_045_physical_anchor",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch45 review identified 4 consecutive chapters with parameter-only sensory rendering; ch46 must include 1-2 direct non-parameter physical anchor sentences"
+    },
+    {
+      "issue_id": "drift_045_emotional_grounding",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch45 review identified emotion recognition requiring full parameter architecture understanding; ch46 must embed an independent emotional marker"
+    },
+    {
+      "issue_id": "volumemap_vs_parameter_conflict",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map KR3 ch46 (Lin Feng faith crisis) is traditional narrative description incompatible with current parameter narrative layer; resolved by honoring current_focus over volume_map for operational guidance"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}

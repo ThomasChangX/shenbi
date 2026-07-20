@@ -1,0 +1,96 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 53,
+  "produced_at": "2026-07-17T19:13:00Z",
+  "revision_count": 1,
+  "revision_mode": "constrained-regenerate",
+  "pre_revision_state": {
+    "resonance_overall": 52,
+    "blocking_count": 1,
+    "critical_count": 2,
+    "ai_tell_count": 0,
+    "route_c_passed": true
+  },
+  "selections": [
+    {
+      "target": "revision_routing",
+      "selected": "constrained-regenerate",
+      "basis": "route_c_achieved_resonance_issues",
+      "severity": "high",
+      "rationale": "Route C all passed (structural goals achieved), but resonance scored 52 < 65 threshold. Issues are structural — inherent to workday parameter narrative constraints per plan §8 (no sensory experience, no syntax deepening). Audit itself acknowledges 'pipeline约束下此为设计选择非执行缺陷' and 'workday约束禁止感官链'. constrained-regenerate: keep all Route C achievements intact, add targeted enrichments for resonance dimensions without violating constraints."
+    },
+    {
+      "target": "scene_presence_improvement",
+      "selected": "add_spatial_anchors_as_parameter_cognition",
+      "basis": "resonance_blocking",
+      "severity": "high",
+      "rationale": "Blocking issue: zero scene临场. Cannot add sensory experience (violates §8 '不提前使用周日句法'). Solution: add spatial/structural anchors presented as parameter cognition (墙体/窗/之间/表面/颗粒). These are '知道' not '感觉' — spatial relations as parameter knowledge, not sensory experience. Target: cold opening (+墙体窗下), doorframe (+之间/通过之口), roughness (+表面颗粒/不光滑)."
+    },
+    {
+      "target": "syntax_variation_improvement",
+      "selected": "minimal_variation_maintaining_ch52_depth",
+      "basis": "resonance_critical",
+      "severity": "medium",
+      "rationale": "Critical issue: syntax fatigue from 5 chapters of 'X在场于Y' uniform pattern. Cannot increase nesting depth (§8). Solution: introduce minimal syntactic variation through shorter staccato lines and inverted structures in specific sections (白气—direction自持 rhythm variation). Variation is surface-level only — maintains ch52 depth ceiling."
+    },
+    {
+      "target": "reader_payoff_improvement",
+      "selected": "strengthen_ending_cadence",
+      "basis": "resonance_critical",
+      "severity": "medium",
+      "rationale": "Critical issue: cognitive debt accumulation, all回报 in pure cognitive language with no non-parameter entry points. Cannot add non-parameter elements (§8 workday constraint). Solution: strengthen ending unified section with more emphatic rhythmic build — '参数空间在场于周五—在场于完整—在场于周日之前—在场于全—在场于在场于'. Gives stronger closure cadence without adding non-parameter elements."
+    },
+    {
+      "target": "emotional_valence_improvement",
+      "selected": "rhythmic_weight_in_vulnerability_section",
+      "basis": "resonance_score",
+      "severity": "low",
+      "rationale": "情感落地 scored 14/30 — all tell in parameter language. Cannot add emotional show means (§8). Solution: add rhythmic weight to vulnerability systematization section — '脆弱在场于系统—在场于参数间—在场于结构—冷在场于脆弱在场于不只冷在场于'. The repetition and shorter clauses carry emotional weight through rhythm rather than showing."
+    }
+  ],
+  "adjustments": [
+    {
+      "target": "resonance_vs_plan_constraint_tension",
+      "selected": "prioritize_plan_constraints_over_resonance_improvement",
+      "basis": "pipeline_constraint",
+      "severity": "high",
+      "rationale": "MANUAL_OVERRIDE: There is irreducible tension between resonance dimension improvement and plan §8 constraints. Scene presence requires sensory detail (forbidden). Syntax variety requires deeper nesting or different patterns (beyond 'maintain ch52 level'). Emotional showing requires narrative means (forbidden in workday parameter mode). Revision targets MINIMAL improvement that does not violate plan constraints — resonance recovery is structurally deferred to Sunday(Ch54) where workday constraints lift."
+    },
+    {
+      "target": "revision_scope",
+      "selected": "targeted_patches_not_full_rewrite",
+      "basis": "risk_management",
+      "severity": "medium",
+      "rationale": "Full rewrite risks losing Route C achievements (3/3 end-state changes completed, all 8 '不要做' restrictions observed). Using targeted patches (6 patches = ~125 chars addition, <3% of body) that add content without removing or changing existing semantics. Each patch is localized to specific sections and preserves existing parameter cognition."
+    },
+    {
+      "target": "preservation_verification",
+      "selected": "added_preservation_block_to_post_write_self_check",
+      "basis": "g4_compliance",
+      "severity": "high",
+      "rationale": "Per 铁律5: revision output must include preservation verification block. Adding preservation check section after POST_WRITE_SELF_CHECK that verifies all 14 parameter perspectives preserved, all 3 end-state changes intact, hook count unchanged, all 8 constraints still observed."
+    }
+  ],
+  "p0_tracking": {
+    "unchanged": [
+      "P0-5 (RELEVANT)",
+      "P0-15 (RELEVANT)",
+      "P0-16 (PLANTED)",
+      "P0-18 (ACTIVE)",
+      "P0-19 (RELEVANT)",
+      "P0-20 (RELEVANT)",
+      "P0-22 (PLANTED)"
+    ],
+    "active_hook_count_unchanged": 14
+  },
+  "word_count": {
+    "pre_revision_body_chars_approx": 4200,
+    "revision_additions_chars_approx": 125,
+    "post_revision_body_chars_approx": 4325,
+    "delta_pct": 3.0,
+    "transition_words": 0,
+    "transition_density": "0/4325"
+  }
+}
+```

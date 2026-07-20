@@ -114,8 +114,8 @@ def _protag_at_depth_two(tmp_path: Path) -> Path:
 
 
 @pytest.mark.unit
-def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
-    """characters/major/ with < 2 files -> WARN with G4.cd.major_chars:need_2_got_1."""
+def test_fails_when_major_chars_dir_has_fewer_than_three(tmp_path: Path) -> None:
+    """characters/major/ with < 3 files -> FAIL with G4.cd.major_chars."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
     project_dir = protag.parent.parent
@@ -124,31 +124,27 @@ def test_fails_when_major_chars_dir_has_fewer_than_two(tmp_path: Path) -> None:
     (major / "only.md").write_text("# x\n", encoding="utf-8")
 
     result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
-    assert result["status"] == "PASS"
-    assert any(
-        c.get("id") == "G4.cd.major_chars" and c.get("s") == "WARN" for c in result["checks"]
-    )
+    assert result["status"] == "FAIL"
+    assert any("G4.cd.major_chars" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
 def test_fails_when_major_chars_dir_missing(tmp_path: Path) -> None:
-    """No characters/major/ dir -> SKIP with G4.cd.major_chars (genesis mode)."""
+    """No characters/major/ dir -> FAIL with G4.cd.major_chars:directory_missing."""
     protag = _protag_at_depth_two(tmp_path)
     protag.write_text(_protagonist_md(), encoding="utf-8")
     project_dir = protag.parent.parent
 
     result = _result(g4_character_design([str(protag)], rd=str(project_dir)))
-    assert result["status"] == "PASS"
-    assert any(
-        c.get("id") == "G4.cd.major_chars" and c.get("s") == "SKIP" for c in result["checks"]
-    )
+    assert result["status"] == "FAIL"
+    assert any("G4.cd.major_chars:directory_missing" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
 def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Path) -> None:
-    """relationships.md with >=3 '## 关系对' and >=2 major chars -> both PASS.
+    """relationships.md with >=3 '## 关系对' and >=3 major chars -> both PASS.
 
-    Covers g4 lines 82-88 (relationships check) and 96 (major_chars PASS).
+    Covers g4 lines 82-88 (relationships check) and major_chars PASS (threshold >=3).
     """
     project_dir = tmp_path / "project"
     sub = project_dir / "skill-output"
@@ -162,8 +158,359 @@ def test_passes_when_relationships_has_three_pairs_and_major_chars(tmp_path: Pat
     major.mkdir(parents=True)
     (major / "hero.md").write_text("# Hero\n", encoding="utf-8")
     (major / "villain.md").write_text("# Villain\n", encoding="utf-8")
+    (major / "mentor.md").write_text("# Mentor\n", encoding="utf-8")
     result = _result(g4_character_design([str(rel)], rd=str(project_dir)))
     assert any(c.get("id") == "G4.rel.pairs" and c.get("s") == "PASS" for c in result["checks"])
     assert any(
         c.get("id") == "G4.cd.major_chars" and c.get("s") == "PASS" for c in result["checks"]
+    )
+
+
+# ── SKILL.md content tests (Task 6: 4-phase restructuring) ──────────────────
+
+
+def test_skill_md_has_four_explicit_phases():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert (
+        "Phase 1:" in content or "阶段一" in content or "第一阶段" in content
+    )  # Chinese or English
+    assert "Phase 2:" in content
+    assert "Phase 3:" in content
+    assert "Phase 4:" in content
+
+
+def test_skill_md_has_iron_law_for_named_characters():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "every character" in content.lower() or "iron law" in content.lower()
+    assert "chapter_outline" in content or "three_act" in content
+
+
+def test_skill_md_declares_major_and_minor_writes():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "characters/major/" in content
+    assert "characters/minor/" in content
+
+
+def test_skill_md_includes_archetype_sources_requirement():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-character-design" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "archetype_sources" in content
+    assert "historical" in content.lower() or "archetype" in content.lower()
+
+
+# ── Task 7: Raise G4.cd.major_chars threshold and add G4.cd.minor_chars ──────
+
+
+@pytest.fixture
+def project_with_characters(tmp_path: Path) -> Path:
+    """Create a project directory with character archives."""
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    # Create protagonist
+    protag = tmp_path / "characters" / "protagonist.md"
+    protag.write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Become strongest cultivator
+goal_deep: Protect those he loves
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: naive villager
+arc_turning: loss of mentor
+arc_ending: enlightened protector
+voice_profile:
+  speech_patterns: [short sentences, asks questions]
+  catchphrases: ["This is my path"]
+  avoid_patterns: [self-pity]
+archetype_sources:
+  - name: Liu Bang
+    period: Han Dynasty founding
+    traits_borrowed: [commoner-to-king, pragmatic, delegator, people-first]
+    traits_discarded: [ruthlessness, paranoia in later years]
+    adaptation_rationale: Liu Bang's rise from peasant to emperor mirrors the cultivation journey from mortal to immortal, adapted by discarding historical ruthlessness in favor of a more compassionate leadership style.
+---""")
+
+    # Create 3 major characters with valid archetypes
+    for i, name in enumerate(["Chen Weimin", "Zhao Tiezhu", "Chu Yunlan"]):
+        slug = name.lower().replace(" ", "-")
+        (major_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: Zhou Enlai 1930s Shanghai
+    period: 1930s Republic China
+    traits_borrowed: [diplomatic, patient, strategic, loyal]
+    traits_discarded: [political ideology, party loyalty]
+    adaptation_rationale: Adapted Zhou's underground negotiation skills to the cultivation world's sect diplomacy, replacing political maneuvering with spiritual power dynamics. The character retains Zhou's legendary patience and ability to find common ground.
+---
+""")
+
+    # Create 2 minor characters
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"# {name}\n\nMinor character profile.")
+
+    # Create relationships
+    rel = tmp_path / "characters" / "relationships.md"
+    rel.write_text("""| Character A | Character B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor-student |
+| Lin Feng | Zhao Tiezhu | partnership |
+| Lin Feng | Chu Yunlan | alliance |
+""")
+
+    return tmp_path
+
+
+def test_g4_character_design_major_count_pass(project_with_characters: Path):
+    fps = [
+        str(project_with_characters / "characters" / "protagonist.md"),
+        str(project_with_characters / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(project_with_characters))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "PASS"
+
+    # Verify G4.cd.major_chars check exists (threshold raised to >= 3) and passes
+    major_check = None
+    for c in data.get("checks", []):
+        if c.get("id", "") == "G4.cd.major_chars":
+            major_check = c
+            break
+    assert major_check is not None, "G4.cd.major_chars check missing"
+    assert major_check["s"] == "PASS", f"Expected PASS, got {major_check['s']}"
+    assert major_check.get("count", 0) >= 3
+
+
+def test_g4_character_design_minor_count_pass(project_with_characters: Path):
+    fps = [
+        str(project_with_characters / "characters" / "protagonist.md"),
+        str(project_with_characters / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(project_with_characters))
+    import json
+
+    data = json.loads(result)
+
+    # Verify G4.cd.minor_chars check exists (NEW, threshold >= 2) and passes
+    minor_check = None
+    for c in data.get("checks", []):
+        if c.get("id", "") == "G4.cd.minor_chars":
+            minor_check = c
+            break
+    assert minor_check is not None, "G4.cd.minor_chars check missing"
+    assert minor_check["s"] == "PASS", f"Expected PASS, got {minor_check['s']}"
+    assert minor_check.get("count", 0) >= 2
+
+
+def test_g4_character_design_fails_when_too_few_major(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    major_dir.mkdir(parents=True)
+    (tmp_path / "characters" / "minor").mkdir()
+    (major_dir / "only-one.md").write_text("# Only One")
+
+    # No protagonist or relationships needed in fps for this check
+    fps: list[str] = []
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "FAIL"
+    assert any("G4.cd.major_chars" in f for f in data.get("must_fix", []))
+
+
+# ── Task 8: Archetype validation tests ────────────────────────────────────
+
+
+def test_archetype_validation_passes_with_valid_archetype(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    # Create 3 major and 2 minor with valid archetypes
+    for i, name in enumerate(["Chen Weimin", "Zhao Tiezhu", "Chu Yunlan"]):
+        slug = name.lower().replace(" ", "-")
+        (major_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: Zhou Enlai 1930s Shanghai
+    period: 1930s Republic China
+    traits_borrowed: [diplomatic, patient, strategic, loyal]
+    traits_discarded: [political ideology, party loyalty]
+    adaptation_rationale: Adapted Zhou's underground negotiation skills to the cultivation world's sect diplomacy,
+      replacing political maneuvering with spiritual power dynamics. The character retains Zhou's legendary patience
+      and ability to find common ground.
+---
+""")
+
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: T.E. Lawrence
+    period: WWI Middle East
+    traits_borrowed: [charismatic, unconventional, adaptive, bridge-builder]
+    traits_discarded: [British imperialism, self-loathing]
+    adaptation_rationale: Lawrence's cross-cultural bridge-building adapted to this character's role as intermediary
+      between cultivation sects and foreign powers, discarding the colonial context while preserving the outsider-who-understands dynamic.
+---
+""")
+
+    (tmp_path / "characters" / "protagonist.md").write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Power
+goal_deep: Protection
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: villager
+arc_turning: loss
+arc_ending: protector
+voice_profile:
+  speech_patterns: [short, questions]
+  catchphrases: [path]
+  avoid_patterns: [self-pity]
+archetype_sources:
+  - name: Liu Bang
+    period: Han Dynasty founding
+    traits_borrowed: [commoner-to-king, pragmatic, delegator, people-first]
+    traits_discarded: [ruthlessness, paranoia in later years]
+    adaptation_rationale: Liu Bang's rise from peasant to emperor mirrors the cultivation journey from mortal to immortal,
+      adapted by discarding historical ruthlessness in favor of a more compassionate leadership style suited to the novel's themes.
+---
+""")
+
+    (tmp_path / "characters" / "relationships.md").write_text("""| A | B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor |
+| Lin Feng | Zhao Tiezhu | partner |
+| Lin Feng | Chu Yunlan | ally |
+""")
+
+    from shenbi.gates.g4.character_design import g4_character_design
+
+    fps = [
+        str(tmp_path / "characters" / "protagonist.md"),
+        str(tmp_path / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+
+    archetype_checks = [c for c in data.get("checks", []) if "archetype" in c.get("id", "").lower()]
+    assert len(archetype_checks) > 0, "No archetype checks found"
+    for ac in archetype_checks:
+        assert ac["s"] == "PASS", f"Archetype check failed: {ac}"
+
+
+def test_archetype_validation_fails_when_traits_borrowed_insufficient(tmp_path: Path):
+    major_dir = tmp_path / "characters" / "major"
+    minor_dir = tmp_path / "characters" / "minor"
+    major_dir.mkdir(parents=True)
+    minor_dir.mkdir(parents=True)
+
+    (major_dir / "chen-weimin.md").write_text("""---
+name: Chen Weimin
+archetype_sources:
+  - name: Zhou Enlai
+    period: 1930s
+    traits_borrowed: [diplomatic]  # Only 1, need >= 3
+    traits_discarded: [political]
+    adaptation_rationale: Short.  # < 100 chars
+---
+""")
+    (major_dir / "zhao-tiezhu.md").write_text("""---
+name: Zhao Tiezhu
+archetype_sources:
+  - name: Guan Yu
+    period: Three Kingdoms
+    traits_borrowed: [loyal, strong, honorable]
+    traits_discarded: [arrogance, rigidity]
+    adaptation_rationale: A very long and detailed adaptation rationale that exceeds one hundred characters minimum requirement for this field.
+---
+""")
+    (major_dir / "chu-yunlan.md").write_text("""---
+name: Chu Yunlan
+archetype_sources:
+  - name: Wu Zetian
+    period: Tang Dynasty
+    traits_borrowed: [ambitious, strategic, charismatic, resilient]
+    traits_discarded: [ruthlessness, paranoia]
+    adaptation_rationale: Wu Zetian's unprecedented rise as a female ruler adapted to a cultivation world where gender barriers exist but can be overcome through power.
+---
+""")
+    for name in ["Koen Whiteman", "Gangshan Tieya"]:
+        slug = name.lower().replace(" ", "-")
+        (minor_dir / f"{slug}.md").write_text(f"""---
+name: {name}
+archetype_sources:
+  - name: T.E. Lawrence
+    period: WWI
+    traits_borrowed: [charismatic, unconventional, adaptive]
+    traits_discarded: [imperialism, self-loathing]
+    adaptation_rationale: Lawrence's cross-cultural role adapted to this character's position as intermediary between cultivation sects and outsiders.
+---
+""")
+
+    (tmp_path / "characters" / "protagonist.md").write_text("""---
+name: Lin Feng
+role: protagonist
+personality_tags: [brave, curious, loyal, determined, compassionate]
+core_value: Freedom
+goal_surface: Power
+goal_deep: Protection
+fear: Powerlessness
+arc_type: hero's journey
+arc_starting: villager
+arc_turning: loss
+arc_ending: protector
+voice_profile:
+  speech_patterns: [short, questions]
+  catchphrases: [path]
+  avoid_patterns: [self-pity]
+---
+""")
+    (tmp_path / "characters" / "relationships.md").write_text("""| A | B | Type |
+|---|---|---|
+| Lin Feng | Chen Weimin | mentor |
+| Lin Feng | Zhao Tiezhu | partner |
+| Lin Feng | Chu Yunlan | ally |
+""")
+
+    from shenbi.gates.g4.character_design import g4_character_design
+
+    fps = [
+        str(tmp_path / "characters" / "protagonist.md"),
+        str(tmp_path / "characters" / "relationships.md"),
+    ]
+    result = g4_character_design(fps, rd=str(tmp_path))
+    import json
+
+    data = json.loads(result)
+    assert data["status"] == "FAIL"
+    failures = data.get("must_fix", [])
+    assert any("archetype" in f.lower() for f in failures), (
+        f"No archetype failure found in {failures}"
     )

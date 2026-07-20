@@ -1,0 +1,28 @@
+{
+  "gate": "G4-plot-thread-weaver",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:27:35.218882+00:00",
+  "checks": [
+    {
+      "id": "G4.pt.lines",
+      "s": "PASS",
+      "found": [
+        "## A",
+        "## B",
+        "## C"
+      ]
+    },
+    {
+      "id": "G4.pt.table",
+      "s": "PASS",
+      "rows": 169
+    },
+    {
+      "id": "G4.pt.blank_detection",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "outline/thread_map.md"
+  ]
+}

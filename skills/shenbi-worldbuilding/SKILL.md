@@ -1,17 +1,24 @@
 ---
 name: shenbi-worldbuilding
-description: "Use when creating a new novel's world, building story bible, or designing setting rules, geography, and social structure"
+description: Use when creating a new novel's world, building story bible, or designing
+  setting rules, geography, and social structure
 contract:
   kind: artifact
   reads:
-    - novel.json
+  - novel.json
   writes:
-    - novel.json
-    - genre-config.json
-    - world/story_bible.md
-    - world/rules.md
-    - world/locations.md
-    - truth/*.md
+  - file: novel.json
+    mode: create_or_overwrite
+  - file: genre-config.json
+    mode: create_or_overwrite
+  - file: world/story_bible.md
+    mode: create_or_overwrite
+  - file: world/rules.md
+    mode: create_or_overwrite
+  - file: world/locations.md
+    mode: create_or_overwrite
+  - file: truth/*.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

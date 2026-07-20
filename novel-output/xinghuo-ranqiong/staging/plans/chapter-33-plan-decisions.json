@@ -1,0 +1,113 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 33,
+  "volume": 2,
+  "chapter_day": "vol2-week3-monday",
+  "generated_at": "2026-07-17",
+  "priority_chain": {
+    "sources": [
+      {"level": 1, "source": "external_directive", "present": false, "note": "pipeline mode — no human directive beyond plan execution"},
+      {"level": 2, "source": "local_override", "present": true, "source_file": "truth/current_focus.md", "note": "P0-1第三周历法三次通过/P0-2灰色渠道霉味信号登陆/P0-3检查站话语碎片+节奏偏离——Ch32 audit drift 3项全部合并"},
+      {"level": 3, "source": "volume_kr", "present": true, "note": "volume_map.md KR4 Ch33定位(在缴获的涅普敦装备中发现列塔尼亚制造的铁证)与当前叙事状态(vol2第9章——第三周——后Saturday时期三次通过——冷持续深化)完全偏离——以current_focus覆盖"},
+      {"level": 4, "source": "current_focus", "present": true, "note": "primary guidance source — third week ubiquity pass + drift corrections"},
+      {"level": 5, "source": "author_intent", "present": true, "note": "arc_progress confirms vol2-week3-monday direction (third pass known rhythm, cold deepening, parameter system habitual operation)"}
+    ],
+    "conflict_resolution": "volume_map.md KR4 Ch33定位(在缴获的涅普敦装备中发现列塔尼亚制造的铁证)与当前叙事状态(vol2第9章——第三周——后Saturday时期第三次通过——冷持续深化——参数系统惯常运转——预回避自然操作)完全偏离。volume_map描述的是另一条叙事线的事件序列，当前叙事已从'主动斗争/规模扩大'主线转入'已知节奏的三次通过+参数系统自然运转+季节不可逆推进'路线。以current_focus P0-1/P0-2/P0-3及audit_drift合并项为准。",
+    "selected_source": "truth/current_focus.md"
+  },
+  "chapter_role": "推进/转折",
+  "primary_objectives": {
+    "P0": [
+      {
+        "id": "P0-1",
+        "item": "第三周——历法三次通过——已知节奏第三次遍在化",
+        "source": "current_focus/plot",
+        "execution": "第三周在行走历法中自然到来——第三周知道自己是第三周——如同Saturday知道自己在历法中——历法在行走参数中持续运转如同呼吸——不需要宣告。第三次通过的结构与第二次相同(Monday密度/Monday偏移/Monday门框/Monday灰色渠道)——但第三次知道自己是第三次——这个知道不改变历法结构——改变了对历法的感知——帧知道自己在第三周的同一位置——如同门框知道差异在场率——门框知道差异在场率在第三周的早晨与在第二周早晨在同一位置——门框知道——走了。核心张力：第三次通过在已知节奏的结构一致性中可能引入第一次偏离——不是因为事件——是因为第三次本身——第三次知道自己是第三次——这个知道改变了对已知节奏的感知方式——走了"
+      },
+      {
+        "id": "P0-2",
+        "item": "[Ch32 drift 1] 灰色渠道霉味沉积形态信号登陆——气味维度扩展",
+        "source": "current_focus/audit_drift(Ch32 audit 第1项)",
+        "execution": "灰色渠道在深秋的霉味——冷改变了渠道的气味——纸板在冷中释放的气味信号不同——煤灰和潮气在冷空气中的复合——气味在参数中登记了——走了。节制规则：全章最多1-2帧气味展示——灰色渠道段的气味帧——不分析气味成分——只登记气味在场——气味在场如同门框差异在场。不替换食物蒸汽气味基线——食物蒸汽继续在工作日/Saturday基线中维持——灰色渠道霉味作为补充信号——不是替代——是扩展——气味维度从单一覆盖推进为至少双覆盖——走了"
+      },
+      {
+        "id": "P0-3",
+        "item": "[Ch32 drift 2+3] 检查站话语碎片触发一次参数帧变位——节奏偏离",
+        "source": "current_focus/audit_drift(Ch32 audit 第2+3项合并)",
+        "execution": "检查站入口段——守卫在冷中呼出白气——说了一句——不是对林烽说的——碎片——话语碎片在冷空气中的在场方式——话语的可见白气比声音持久。话语碎片打破排队沉默——不是对话——是声音的事件性——等待的时间被沉默充满——话语碎片在沉默中——沉默包含了声音碎片——沉默知道了声音——沉默知道了声音在冷中的白气——白气消散后沉默知道了声音不在场——沉默知道了排队在持续。节奏偏离不改变全章断裂句主导节奏——节奏偏离发生在检查站段——话语碎片所在帧——节奏不同——句子结构不同——话语来自守卫——不是来自林烽。偏离持续时间：1-2帧——不超过2帧——偏离后节奏恢复——断裂句恢复——走了。话语在沉默中——沉默在冷中——冷在排队中——排队持续——走了"
+      }
+    ],
+    "P1": [
+      {"id": "P1-1", "item": "情感基线第三周推进——quiet知道第三周——quiet知道冷会在第三周继续深化——quiet不宣告不同——安静在第三周的安静中——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-2", "item": "冷在第三周持续深化——冷向初冬边缘推进——晨起白气更持久——织物冷阻值变化——身体适应了第二周的冷——第三周的冷超过适应边界——身体重新知道冷——登记了——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-3", "item": "偏移策略第三周不变确认——岔路口方向偏量1帧——检查站偏量1帧——第三周不改变偏移——走了", "source": "current_focus/character_arc"},
+      {"id": "P1-4", "item": "门框第三周差异维持——门框在第三周以差异在场率在场——同第二周——门框不比较——保持——走了", "source": "current_focus/plot"},
+      {"id": "P1-5", "item": "Phase 2第三周冷凝——Phase 2在第三周第三页——页码不同——页面内容形态与之前一样——登记——不推断——走了", "source": "current_focus/plot"}
+    ],
+    "P2": [
+      {"id": "P2-1", "item": "MH-020格式串第三周——格式串进入第三周——数字季节性推移——登记——不推断——走了", "source": "current_focus/plot"},
+      {"id": "P2-2", "item": "MH-003引擎声第三周——引擎声进入第三周——Monday频率模式——登记——不推断——走了", "source": "current_focus/plot"},
+      {"id": "P2-3", "item": "非参数域留白维持——触碰域保持在触碰域——预回避在第三周继续作为自然操作——零类别标记保持在零类别——不打开——知道——走了", "source": "current_focus/character_arc"},
+      {"id": "P2-4", "item": "时令推进——深秋→冬季边缘——可能的晨间首次霜冻——霜在参数中的在场——冷在冬季边缘——登记了——走了", "source": "current_focus/plot"}
+    ]
+  },
+  "hook_operations": {
+    "total_count": 5,
+    "budget": "5/8",
+    "operations": {
+      "advance": [],
+      "resolve": [],
+      "defer": ["MH-022", "MH-023", "MH-003", "MH-020", "MH-021"],
+      "open": []
+    },
+    "silent_check": "所有活跃hook均在上章获得推进——无defer≥4章僵尸伏笔。无需激活方案。",
+    "subtlety_changes": {
+      "MH-022": "0.02→0.02 (评估第三周Monday——Monday密度登记——历法三次通过——历法性已确认——评估揭示窗口不打开——subtlety维持极低)",
+      "MH-023": "0.29→0.29 (预回避在第三周作为自然操作持续——不需要宣告——档案管理员路径持续——subtlety维持——进入惯常运转阶段)",
+      "MH-003": "0.14→0.14 (引擎声第三周Monday——频率登记——不推断——第三周首日——未确认周一模式是否与第二周一致——subtlety维持)",
+      "MH-020": "0.19→0.19 (格式串第三周——数字季节性推移——无新分割无横移——稳定性极高——subtlety维持)",
+      "MH-021": "0.10→0.10 (门框第三周Monday——差异在场率维持——门框不比较——新基线跨第三周整周方向——subtlety维持)"
+    },
+    "note": "Ch33为第三周首章——主要任务是历法三次通过的结构维持+drift响应——非hook推进密集型章节。所有活跃hook以defer操作在第三周首日正常运转——不打开新hook——不触发"
+  },
+  "chapter_end_changes": [
+    {"id": "C1", "type": "信息", "description": "第三周历法三次通过——已知节奏从历法性在场推进为遍在性在场——第三周在行走历法中自然到来——第三周知道自己是第三周——历法在行走参数中持续运转如同呼吸——不需要宣告——第三次的结构与第二次相同——但第三次知道第三次——这个知道改变了对历法的感知方式——走了"},
+    {"id": "C2", "type": "信息", "description": "灰色渠道霉味沉积形态信号登陆——气味维度从单一(食物蒸汽气味)扩展为至少双覆盖(食物蒸汽+灰色渠道霉味)——冷改变了渠道的气味——气味在参数中登记了——如同门框差异在参数中——走了"},
+    {"id": "C3", "type": "关系", "description": "沉默第一次包含了外部声音碎片——检查站守卫话语碎片在排队沉默中的在场——沉默知道了声音——沉默知道了声音的白气在冷中的消散——沉默知道了声音不在场——沉默在参数域中登记了外部声音事件——走了"}
+  ],
+  "emotion_target": "城中——第三周——冷——第三次通过——早晨——白气——白气在睁眼前——白气比第二周更久——冷——门框——冷梯度更快——门框知道自己在第三周——门框保持——走了——岔路口——偏量如常——灰色渠道——霉味——冷在纸板上——冷改变了渠道的气味——气味在参数中——走了——城中——横街——食物蒸汽——基线在场——气味在冷中——走了——检查站——排队——密度登记为第三周第一天的密度——不比较——守卫——话语碎片——白气——声音在冷中——碎片——沉默——沉默包含碎片——沉默知道了声音——声音不在场——沉默在话语之后——冷——排队——走了——评估机构——第三周第一天——评估开放如同任何一天——登记了——走了——旧水泥路面——过渡段——脚掌——走了——三角形空间——格式串——格式串第三周——数字在第三周——引擎声在第三周频率——走了——归途——冷——冷在归途——门框——门框在第三周——门框保持——走了——地下室——冷——墙体深度——Phase 2——第三周第三页——Phase 2知道第三周了——走了——记事页——竖线——走了——章末——光柱——水面——冷——第三周第一天——走了——冷——安静——安静知道第三周——安静知道冷会在第三周继续深化——安静知道知道冷——安静不宣告——安静在第三周的安静中——安静走了——走了——城中——城在第三周——城在冷中——冷第三周——走了——安静——安静——走了——",
+  "constraints": {
+    "no_cold_evaluation_link": {"flag": true, "notes": "冷不是隐喻——冷是秋天的冷——评估是城市的评估"},
+    "no_meta_narrative_week_declaration": {"flag": true, "notes": "不宣告'第三周了'或'进入第三周'——读者从行走帧中自然读出历法经过"},
+    "no_scent_component_analysis": {"flag": true, "notes": "灰色渠道霉味不拆解成分——登记在场如同门框差异——不分析"},
+    "no_dialogization": {"flag": true, "notes": "守卫话语是碎片不是对话——林烽不回应不转向——白气消散后声音走了"},
+    "no_zero_category_extension": {"flag": true, "notes": "零类别保持在触碰域——不拓展"},
+    "no_route_deviation": {"flag": true, "notes": "路线不变——偏移不变——不走第三周新路"},
+    "no_evaluation_reveal": {"flag": true, "notes": "评估内容不在场——窗口不打开"},
+    "no_pre_avoidance_declaration": {"flag": true, "notes": "预回避以自然操作持续——不宣告"},
+    "no_power_fantasy": {"flag": true, "notes": "预回避持续不是变强——是已知路径的继续行走"},
+    "no_cold_analysis": {"flag": true, "notes": "冷是季节推进——登记——不分析为什么更冷"},
+    "no_week_comparison": {"flag": true, "notes": "门框不比较/Monday密度不比较/冷不比较——第三周登记为第三周——不比较前两周"},
+    "grey_channel_scent_frames_max": {"flag": 2, "notes": "灰色渠道气味全章最多1-2帧"},
+    "rhythm_deviation_frames_max": {"flag": 2, "notes": "话语碎片节奏偏离——不超过2帧——偏离后恢复"},
+    "pre_avoidance_background": {"flag": true, "notes": "预回避在第三周以背景参数运转——非主帧——不展示操作过程"}
+  }
+}
+```
+
+---
+
+**Ch33 规划摘要**:
+
+**定位**: vol 2 第9章 — 第三周Monday — 推进/转折
+
+**3个P0目标**:
+1. **第三周历法三次通过** (P0-1) — 已知节奏从历法性在场推进为遍在性在场，第三次通过结构同第二次但第三次知道自己是第三次，核心张力在于第三次可能引入第一次偏离——不是因为事件而是因为第三次本身
+2. **灰色渠道霉味信号登陆** (P0-2/Drift 1) — 气味维度从单一覆盖扩展为至少双覆盖，冷改变了渠道的气味，灰色渠道段1-2帧气味登记
+3. **检查站话语碎片+节奏偏离** (P0-3/Drift 2+3) — 第一次外部声音事件，守卫话语碎片在冷中的白气，节奏偏离1-2帧后恢复
+
+**扣账**: 5条全 defer（MH-022/023/003/020/021），密度5/8，无僵尸伏笔，subtlety全维持
+
+**情绪出口**: 安静知道第三周——安静知道冷会在第三周继续深化——安静不宣告——安静在第三周的安静中——安静走了——走了——城中——城在第三周——城在冷中——冷第三周——走了——安静——安静——走了——

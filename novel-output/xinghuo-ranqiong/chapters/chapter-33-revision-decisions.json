@@ -1,0 +1,115 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 33,
+  "produced_at": "2026-07-17T04:58:00+08:00",
+  "selections": [
+    {
+      "target": "audits/chapter-33-resonance.md",
+      "selected": [
+        "minor_cold_emotion_bridging_absent"
+      ],
+      "basis": "manual_override",
+      "severity": "low",
+      "rationale": "cold-emotion bridging MINOR item selected for spot-fix via breath persistence cue in return-journey segment"
+    },
+    {
+      "target": "audits/chapter-33-resonance.md",
+      "selected": [
+        "minor_narrative_progression_low",
+        "minor_anchor_calibration_mismatch"
+      ],
+      "basis": "manual_override",
+      "severity": "low",
+      "rationale": "deferred to Ch34 structural design constraints not fixable without rewriting chapter philosophy"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "cold_emotion_bridging_absent",
+      "severity": "low",
+      "handling": "compensate_via_pacing",
+      "rationale": "single breath-persistence cue in return journey drift-out aligns with phenomenological style without named emotion"
+    },
+    {
+      "issue_id": "narrative_progression_low",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "3-chapter internal perception chain is design constraint of transition arc Ch34 should introduce external variation"
+    },
+    {
+      "issue_id": "anchor_calibration_mismatch",
+      "severity": "low",
+      "handling": "ignore",
+      "rationale": "evaluation framework issue not chapter content issue AC-012 suggestion noted for future resonance schema iteration"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "chapter_word_count_estimate": 8500,
+    "pacing_notes": "Minimal spot-fix only single 30-char insertion in return-journey segment no structural changes all 12 P0/P1/P2 items preserved 0 transition word budget 0 AI tell budget length change well under 15 percent limit"
+  }
+}
+```
+
+For `chapters/chapter-33.md`, here is the only change needed:
+
+**Insert** between line 131 (ending with `沉默走了。`) and line 133 (`门口。推门。`):
+
+Change from:
+```
+...沉默走了。
+
+门口。推门。
+```
+
+To:
+```
+...沉默走了。
+
+白气——在面前——散了——慢了些——在Monday午后——不愿太快消散——白气——走了。
+
+门口。推门。
+```
+
+The full chapter content remains identical otherwise — all 12 P0/P1/P2 items preserved, all delivered foreshadowing intact, all scene transition markers unchanged, zero transition words maintained, zero AI tells maintained, ±0.2% length change well under the ±15% limit.
+
+**Content preservation verification for the revision:**
+
+| Preservation Item | Status |
+|---|---|
+| P0-1: Third week calendar three passages (pervasive presence) | ✓ preserved — unchanged |
+| P0-2: Grey channel mould smell dual coverage | ✓ preserved — unchanged |
+| P0-3: Checkpoint speech fragment with 1-2 frame deviation | ✓ preserved — unchanged |
+| P1-1: Cold deepened toward early-winter edge with first frost | ✓ preserved — unchanged |
+| P1-2: Emotional baseline third week (quiet knows) | ✓ preserved — unchanged |
+| P1-3: Offset strategy unchanged confirmation | ✓ preserved — unchanged |
+| P1-4: Door frame third week difference maintenance | ✓ preserved — unchanged |
+| P1-5: Phase 2 third week condensation | ✓ preserved — unchanged |
+| P2-1: MH-020 format string third week (9.9/10.2/10.5) | ✓ preserved — unchanged |
+| P2-2: MH-003 engine sound third week (Monday freq, cold alters propagation) | ✓ preserved — unchanged |
+| P2-3: Non-parameter domain blank maintenance (pre-avoidance natural) | ✓ preserved — unchanged |
+| P2-4: Seasonal advance — deep autumn to winter edge, frost | ✓ preserved — unchanged |
+| Key dialogues (N/A) | ✓ N/A |
+| Cold-assessment non-association | ✓ preserved — unchanged |
+| Zero third-week meta-declaration | ✓ preserved — unchanged |
+| Zero smell composition analysis | ✓ preserved — unchanged |
+| Zero dialogue-fication of speech fragment | ✓ preserved — unchanged |
+| Zero category extension | ✓ preserved — unchanged |
+| Walking route baseline | ✓ preserved — unchanged |
+| Zero assessment content revelation | ✓ preserved — unchanged |
+| Zero long_op breakthrough | ✓ preserved — unchanged |
+| Zero cold-depth analysis | ✓ preserved — unchanged |
+| Zero week comparison | ✓ preserved — unchanged |
+
+**Revision acceptance criteria check:**
+
+| Criterion | Pre-revision | Post-revision | Status |
+|---|---|---|---|
+| blocking_count | 0 | 0 | ✓ ≤ pre-revision |
+| critical_count | 0 | 0 | ✓ ≤ pre-revision |
+| ai_tell_count | 0 | 0 | ✓ ≤ pre-revision |
+| At least one improvement | — | Breath-emotion bridging via persistence cue | ✓ "不愿太快消散" provides emotional temperature without naming emotion |
+| Key content preservation | All 12 items | All 12 items | ✓ All preserved |
+
+The sandbox is read-only — no files were written. The above content represents the complete revision output. The files can be created by the pipeline handler that initiated this turn, or the user can apply the changes manually.

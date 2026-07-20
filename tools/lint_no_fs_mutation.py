@@ -8,6 +8,8 @@ Allowlist rationale:
   - safe_write.py: the atomic-write entry point (temp + os.replace + fsync).
   - trace/writer.py: TraceWriter does true append-only writes (.open("a") +
     per-line fsync). safe_write is temp+replace (full-file), incompatible.
+  - cost/ledger.py: TokenLedger does append-only writes (.open("a") +
+    per-line write). safe_write is temp+replace (full-file), incompatible.
 
 Transitional allowlist: files not yet migrated to safe_write. Each entry is
 verified by a test to contain actual violations (no dead entries). This list
@@ -32,6 +34,8 @@ PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
     {
         "safe_write.py",
         "trace/writer.py",
+        "cost/ledger.py",
+        "config/config_coherence.py",
     }
 )
 

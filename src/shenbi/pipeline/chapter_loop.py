@@ -31,10 +31,15 @@ from __future__ import annotations
 
 import json
 import re
+import shutil as _shutil
+import time
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
 from shenbi.contracts.paths import resolve_chapter_path
 from shenbi.contracts.schemas.hooks import HookState, parse_hook_state
@@ -49,12 +54,20 @@ from shenbi.pipeline.dispatch_helper import (
     requires_independent,
     run_gate_g3,
     run_gate_g4,
+    print_token_summary,
+)
+from shenbi.pipeline.snapshot_diff import create_differential_snapshot
+from shenbi.pipeline.crash_recovery import (
+    _check_emergency_flag as _cr_check_emergency_flag,  # pyright: ignore[reportPrivateUsage]
+    is_shutdown_requested,
+    register_emergency_handlers,
 )
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
     collect_audit_issues,
+    dispatch_escalation,
     route_chapter_revision,
 )
 from shenbi.pipeline.state import (
@@ -63,6 +76,8 @@ from shenbi.pipeline.state import (
     PipelineState,
     SoftFailTracker,
 )
+from shenbi.exceptions import RetryExhaustedError
+from shenbi.skill_utils.escalation.check import check_escalation
 from shenbi.status import GateStatus
 from datetime import UTC
 
@@ -78,6 +93,10 @@ class ChapterStep:
         skill: Skill name dispatched (``shenbi-*``) or pipeline-internal
             identifier (``pipeline-*`` -- not dispatched, just advanced).
         name: Human-readable label.
+        step_type: Step category: ``core`` (LLM dispatch), ``audit`` (LLM audit),
+            ``context`` (context assembly), ``checkpoint`` (deterministic checkpoint).
+        conditional: If True, the step is gated by ``_should_run_step`` and
+            only executes when its specific condition is met.
         checkpoint: Checkpoint type raised after this step succeeds, or None.
         uses_staging: If True, the dispatched skill writes to ``staging/``
             and G4 validates the staging copy (spec section 2.7).
@@ -92,6 +111,8 @@ class ChapterStep:
     step_num: int
     skill: str
     name: str
+    step_type: str = "core"
+    conditional: bool = False
     checkpoint: CheckpointType | None = None
     uses_staging: bool = False
     calls_context_assembly: bool = False
@@ -99,157 +120,172 @@ class ChapterStep:
     output_path: str = ""
 
 
-# Full 13-step + sub-steps from spec section 6.1.
-# The audit layer (spec step 8) is expanded into 7 individual core-circle
-# skills for serial execution. Genre-circle skills are dispatched dynamically
-# by the audit sub-orchestrator (W3T4).
+# Restructured CHAPTER_STEPS: 16 core steps (shrunk from 20 per Plan 18 Task 5).
+# Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
+#   foreshadowing-recall, context-composing.
+# Merged: 3 foreshadowing skills → shenbi-foreshadowing-lifecycle (MERGE-1).
+# Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
+# Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
+#   linguistic-drift-check, pre-revision-snapshot).
+# Conditional: intent-management, drift-guidance, snapshot-manage moved to
+#   CONDITIONAL_STEPS (invoked only when gates open).
+# NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
+#   reactively by revision_router.dispatch_escalation (Spec 5).
 CHAPTER_STEPS: list[ChapterStep] = [
+    # Step 1: Volume alignment (deterministic, pre-planning)
     ChapterStep(
         1,
-        "shenbi-intent-management",
-        "intent-management",
-        output_path="truth/current_focus.md",
+        "pipeline-volume-align",
+        "volume-align",
+        step_type="checkpoint",
     ),
+    # Step 2: Chapter planning (LLM)
     ChapterStep(
         2,
         "shenbi-chapter-planning",
         "chapter-planning",
+        step_type="core",
         checkpoint=CheckpointType.CHAPTER_MEMO,
         uses_staging=True,
         output_path="plans/chapter-N-plan.md",
+        calls_context_assembly=True,
     ),
+    # Step 3: Context prepare (deterministic, merged context-assemble + curation)
     ChapterStep(
         3,
-        "shenbi-foreshadowing-plant",
-        "foreshadowing-plant",
-        output_path="truth/pending_hooks.md",
+        "pipeline-context-prepare",
+        "context-prepare",
+        step_type="context",
+        calls_context_assembly=True,
+        uses_staging=True,
     ),
+    # Step 4: Chapter drafting (LLM)
     ChapterStep(
         4,
-        "pipeline-context-assemble",
-        "context-assembly",
-        calls_context_assembly=True,
-        output_path="context/chapter-N-context.md",
-    ),
-    ChapterStep(
-        5,
-        "shenbi-context-composing",
-        "context-composing",
-        output_path="",
-    ),
-    ChapterStep(
-        6,
         "shenbi-chapter-drafting",
         "chapter-drafting",
+        step_type="core",
         output_path="chapters/chapter-N.md",
     ),
+    # Step 5: Post-draft extract (deterministic)
+    ChapterStep(
+        5,
+        "pipeline-post-draft-extract",
+        "post-draft-extract",
+        step_type="checkpoint",
+    ),
+    # Step 6: Linguistic drift check (deterministic)
+    ChapterStep(
+        6,
+        "pipeline-linguistic-drift-check",
+        "linguistic-drift-check",
+        step_type="checkpoint",
+    ),
+    # Step 7: Foreshadowing lifecycle (LLM, MERGE-1 -- single call for recall+track+plant)
     ChapterStep(
         7,
-        "shenbi-state-settling",
-        "state-settling",
-        checkpoint=CheckpointType.STATE_SETTLE,
+        "shenbi-foreshadowing-lifecycle",
+        "foreshadowing-lifecycle",
+        step_type="core",
+        output_path="truth/pending_hooks.md",
         uses_staging=True,
-        output_path="",
     ),
+    # Step 8: State settling (LLM, runs parallel to Step 7)
     ChapterStep(
         8,
-        "shenbi-foreshadowing-track",
-        "foreshadowing-track",
-        output_path="truth/pending_hooks.md",
+        "shenbi-state-settling",
+        "state-settling",
+        step_type="core",
+        uses_staging=True,
     ),
+    # Step 9-14: Grouped audits (LLM, MERGE-2 -- dispatch as parallel waves
+    # via the existing parallel_dispatch.py, preserving the two-wave model)
     ChapterStep(
         9,
-        "shenbi-foreshadowing-recall",
-        "foreshadowing-recall",
-        output_path="truth/foreshadowing_recall_result.md",
+        "shenbi-review-group-factual",
+        "audit:factual",
+        step_type="audit",
+        is_audit=True,
     ),
-    # foreshadowing-resolve is conditional -- handled in run_chapter_step
-    # after foreshadowing-track succeeds (spec section 6.1 step 7b).
-    # Audit core circle: 7 skills, serial, BLOCKING stops (spec section 6.2).
     ChapterStep(
         10,
-        "shenbi-review-anti-ai",
-        "audit:anti-ai",
+        "shenbi-review-group-character",
+        "audit:character",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-anti-ai.md",
     ),
     ChapterStep(
         11,
-        "shenbi-review-continuity",
-        "audit:continuity",
+        "shenbi-review-group-craft",
+        "audit:craft",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-continuity.md",
     ),
     ChapterStep(
         12,
-        "shenbi-review-character",
-        "audit:character",
+        "shenbi-review-group-plan",
+        "audit:plan",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-character.md",
     ),
     ChapterStep(
         13,
-        "shenbi-review-pacing",
-        "audit:pacing",
+        "shenbi-review-resonance",
+        "review-resonance",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-pacing.md",
     ),
     ChapterStep(
         14,
-        "shenbi-review-foreshadowing",
-        "audit:foreshadowing",
+        "shenbi-review-sensitivity",
+        "audit:sensitivity",
+        step_type="audit",
         is_audit=True,
-        output_path="audits/chapter-N-foreshadowing.md",
     ),
+    # Step 15: Pre-revision snapshot (deterministic)
     ChapterStep(
         15,
-        "shenbi-review-memo-compliance",
-        "audit:memo-compliance",
-        is_audit=True,
-        output_path="audits/chapter-N-memo-compliance.md",
+        "pipeline-pre-revision-snapshot",
+        "pre-revision-snapshot",
+        step_type="checkpoint",
     ),
+    # Step 16: Chapter revision (LLM, conditional on audit findings)
     ChapterStep(
         16,
-        "shenbi-review-pov",
-        "audit:pov",
-        is_audit=True,
-        output_path="audits/chapter-N-pov.md",
-    ),
-    # Genre circle dispatched dynamically by audit sub-orchestrator (W3T4).
-    # TODO(W3T4): from shenbi.pipeline.audit_layer import run_audit_layer
-    #   Call after step 16 (last core-circle audit) to run genre-circle skills.
-    # review-resonance (independent agent, G3 required, spec section 6.1 step 9).
-    ChapterStep(
-        17,
-        "shenbi-review-resonance",
-        "review-resonance",
-        output_path="audits/chapter-N-resonance.md",
-    ),
-    # Revision routing + execution (conditional, spec section 6.1 steps 10-11).
-    # Revision routing runs after review-resonance (W3T5 integrated, spec §6.3).
-    # Step 18 is skipped when route == RevisionRoute.NO_REVISION.
-    ChapterStep(
-        18,
         "shenbi-chapter-revision",
         "revision",
+        step_type="core",
+        conditional=True,
         output_path="chapters/chapter-N.md",
     ),
-    # Snapshot + drift (spec section 6.1 steps 12-13).
-    # D20: snapshot-manage is handled inline by _snapshot_chapter_files, which
-    # writes a timestamped flatfile snapshots/chapter-NNN-{ts}.md (never a
-    # fixed path). The old output_path="snapshots/chapter-NNN/" was a fictional
-    # directory that never existed on disk. Empty output_path = no single file.
+]
+
+# Conditional steps (not in main list, invoked only when gates open).
+# NOTE: escalation-review is intentionally ABSENT -- it is dispatched
+# reactively from revision_router.dispatch_escalation (Spec 5), NOT from here.
+CONDITIONAL_STEPS: list[ChapterStep] = [
     ChapterStep(
-        19,
-        "shenbi-snapshot-manage",
-        "snapshot-manage",
-        output_path="",
+        1,
+        "shenbi-intent-management",
+        "intent-management",
+        step_type="core",
+        conditional=True,
+        output_path="truth/current_focus.md",
     ),
     ChapterStep(
-        20,
+        2,
         "shenbi-drift-guidance",
         "drift-guidance",
+        step_type="core",
+        conditional=True,
         output_path="truth/drift_guidance.md",
+    ),
+    ChapterStep(
+        3,
+        "shenbi-snapshot-manage",
+        "snapshot-manage",
+        step_type="checkpoint",
+        conditional=True,
     ),
 ]
 
@@ -258,6 +294,111 @@ _FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
 
 # 0-based index of the last core-circle audit step (for genre-circle trigger).
 _LAST_AUDIT_IDX = max(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
+
+
+# ---------------------------------------------------------------------------
+# Audit Cascading (Spec 8 Fix 8)
+# ---------------------------------------------------------------------------
+
+# Core 4 pass, skip 8 (NOT "skip 9").
+# memo-compliance and resonance ALWAYS run (scoring requires them) — they are
+# excluded from CASCADABLE_AUDITS and are never cascade-skipped. There is no
+# "confidence >90%" signal available; instead we use an N=3 chapter streak with
+# zero HARD failures as the cascade trigger.
+
+CORE_AUDITS = ["continuity", "character", "world-rules", "pacing"]
+
+ALWAYS_RUN = {"memo-compliance", "resonance"}
+
+CASCADABLE_AUDITS = [
+    "dialogue",
+    "motivation",
+    "sensitivity",
+    "foreshadowing",
+    "pov",
+    "anti-ai",
+    "texture",
+    "reader-pull",
+]
+
+CASCADE_STREAK_LENGTH = 3  # N=3
+
+
+def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
+    """N-chapter-streak cascade heuristic (Spec 8 Fix 8).
+
+    Skip `skill` only when ALL of the following hold:
+      1. `skill` is in CASCADABLE_AUDITS (core audits and ALWAYS_RUN audits run).
+      2. We have at least N=3 chapters of history for `skill`.
+      3. Each of the trailing N=3 entries for `skill` passed with zero HARD
+         failures.
+
+    Args:
+        skill: audit skill short-name (e.g. "dialogue", "continuity").
+        audit_history: list of per-chapter audit result dicts, most-recent-last.
+            Each entry maps skill -> {"passed": bool, "hard_failures": int}.
+
+    Returns:
+        True if the audit may be cascade-skipped this chapter.
+    """
+    # Core audits and always-run audits are never cascade-skipped.
+    if skill in CORE_AUDITS or skill in ALWAYS_RUN:
+        return False
+    if skill not in CASCADABLE_AUDITS:
+        return False  # Unknown skill → run normally
+
+    # Need at least N=3 chapters of history to establish a streak.
+    recent = audit_history[-CASCADE_STREAK_LENGTH:]
+    if len(recent) < CASCADE_STREAK_LENGTH:
+        return False
+
+    for chapter_results in recent:
+        result = chapter_results.get(skill)
+        if result is None:
+            return False  # No record for this skill in that chapter → no streak
+        if not result.get("passed", False):
+            return False  # Did not pass → break streak
+        if result.get("hard_failures", 0) > 0:
+            return False  # Any HARD failure → break streak
+
+    return True  # N=3 streak of zero-HARD-failure passes → cascade-skip
+
+
+def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[str, Any]]:
+    """Extract audit results from previous chapters in pipeline state.
+
+    Returns list of dicts with keys: skill, chapter, passed, issues
+    for all audit results from chapters < current_chapter.
+    The returned list is most-recent-last (sorted by chapter number).
+    """
+    results: list[dict[str, Any]] = []
+    for ch_num, ch_state in sorted(state.chapter_loop.chapter_states.items()):
+        ch_num_int = int(ch_num)
+        if ch_num_int >= current_chapter:
+            continue
+        for audit_key, audit_result in ch_state.audit_results.items():
+            if isinstance(audit_result, dict):
+                results.append(
+                    {
+                        "skill": audit_key,
+                        "chapter": ch_num_int,
+                        "passed": audit_result.get("passed", False),
+                        "hard_failures": audit_result.get("hard_failures", 0),
+                        "issues": audit_result.get("issues", []),
+                    }
+                )
+    return results
+
+
+def _audit_short_name(skill_name: str) -> str:
+    """Map full skill name to short audit dimension name.
+
+    Examples:
+        "shenbi-review-anti-ai" -> "anti-ai"
+        "shenbi-review-continuity" -> "continuity"
+        "shenbi-review-dialogue" -> "dialogue"
+    """
+    return skill_name.replace("shenbi-review-", "")
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +468,69 @@ def _extract_check_id(must_fix_item: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# G4 format examples for enriched retry feedback (Task 6)
+# ---------------------------------------------------------------------------
+
+
+G4_FORMAT_EXAMPLES: dict[str, str] = {
+    "G4.rr.detail_table": (
+        "评分明细表格式：\n"
+        "| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |\n"
+        "|------|------|------|--------|------|----------|\n"
+        '| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 > "..." | ... |\n'
+        "注意：六列必须完整，不可缺列。"
+    ),
+    "G4.rr.verdict": (
+        "校准门判定必须包含以下行：\n"
+        "判定: 通过    （或：判定: 阻断  / 判定: 待人机复核）\n"
+        "注意：'判定: ' 后必须有空格，且必须使用中文冒号"
+    ),
+    "G4.rr.evidence": (
+        "证据列每行必须包含文件和行号引用，格式：\n"
+        'chapter-N.md L45-52 > "引用原文"\n'
+        "至少一行包含 Lnn 或 line nn 格式的行号引用。"
+    ),
+}
+
+
+def _enrich_g4_feedback(failures: list[str]) -> str:
+    """Build enriched retry feedback with format examples for each failed check.
+
+    For each failure in ``failures``, extracts the check ID prefix and
+    appends the corresponding format example from ``G4_FORMAT_EXAMPLES``.
+    Failures without a known check ID receive generic retry guidance.
+
+    Args:
+        failures: List of G4 failure strings (e.g., "G4.rr.verdict:file.md:reason").
+
+    Returns:
+        A formatted feedback string suitable for inclusion in retry prompts.
+    """
+    lines = ["以下 G4 检查失败，请按指定格式修正：", ""]
+    for f in failures:
+        # Extract check ID prefix (e.g., "G4.rr.verdict" from "G4.rr.verdict:file:reason")
+        check_prefix = f.split(":")[0] if ":" in f else f
+        lines.append(f"- **{f}**")
+        if check_prefix in G4_FORMAT_EXAMPLES:
+            lines.append("  期望格式：")
+            for fmt_line in G4_FORMAT_EXAMPLES[check_prefix].split("\n"):
+                lines.append(f"  {fmt_line}")
+        else:
+            lines.append("  (请重新生成此检查的输出以达到标准格式)")
+        lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Drift escalation exception
+# ---------------------------------------------------------------------------
+
+
+class DriftEscalationError(Exception):
+    """Raised when linguistic drift reaches ESCALATE severity."""
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -386,6 +590,8 @@ def _handle_failure(
     chapter: int,
     failure: str,
     project_dir: Path | str,
+    *,
+    budget_pre_consumed: bool = False,
 ) -> bool:
     """Record a dispatch/gate failure for a chapter step.
 
@@ -393,10 +599,35 @@ def _handle_failure(
     then raises an escalation checkpoint. Returns False when the step should
     be retried on the next call (step_index unchanged) or True once an
     escalation checkpoint has been raised.
+
+    When *budget_pre_consumed* is True, the caller has already incremented
+    ``retry_budget_consumed`` (e.g. G4 hard-fail path), so this function
+    skips its own increment to avoid double-counting.
     """
     key = _retry_key(chapter, step.skill)
     count = state.chapter_loop.retry_counts.get(key, 0) + 1
     state.chapter_loop.retry_counts[key] = count
+
+    # Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume
+    # can enforce max_audit_retries even after a successful retry.
+    if not budget_pre_consumed:
+        consumed = state.chapter_loop.retry_budget_consumed.get(key, 0) + 1
+        state.chapter_loop.retry_budget_consumed[key] = consumed
+    else:
+        consumed = state.chapter_loop.retry_budget_consumed.get(key, 0)
+    if consumed > state.config.max_audit_retries:
+        log.error(
+            "retry_budget_exhausted",
+            chapter=chapter,
+            skill=step.skill,
+            consumed=consumed,
+            max=state.config.max_audit_retries,
+        )
+        raise RetryExhaustedError(
+            f"Retry budget ({state.config.max_audit_retries}) exhausted for {key} "
+            f"(consumed {consumed})"
+        )
+
     from shenbi.pipeline.error_handler import handle_dispatch_failure
 
     if handle_dispatch_failure(state, step.skill, count):
@@ -440,20 +671,226 @@ def _handle_failure(
     return True
 
 
-def _record_step_done(state: PipelineState, step: ChapterStep, chapter: int) -> None:
-    """Append the skill to the chapter's steps_done list."""
-    key = str(chapter)
-    cs = state.chapter_loop.chapter_states.get(key)
-    if cs is None:
-        cs = ChapterState()
-        state.chapter_loop.chapter_states[key] = cs
-    if step.skill not in cs.steps_done:
-        cs.steps_done.append(step.skill)
-
-
 def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> None:
     """Clear retry count after a successful step."""
     state.chapter_loop.retry_counts.pop(_retry_key(chapter, step.skill), None)
+
+
+# ---------------------------------------------------------------------------
+# Progress materialization from trace (Task 12: MARK_DONE events)
+# ---------------------------------------------------------------------------
+
+
+def _maybe_materialize_progress(state: PipelineState, chapter: int) -> None:
+    """Materialize progress.json from trace events every 5 steps.
+
+    The progress.json view is derived from trace events (spec §2.7). Without
+    periodic materialization, progress.json stays frozen at the last manual
+    update, even though trace events record every MARK_DONE.
+    """
+    steps_done = len(state.chapter_loop.chapter_states.get(str(chapter), ChapterState()).steps_done)
+    if steps_done % 5 == 0:
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(Path(state.project_dir), total_skills=total_skills)
+        except Exception:
+            pass  # Materialization is best-effort; failures should not block the pipeline.
+
+
+def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume via local import
+    """Rebuild progress.json if trace events exist but progress is stale.
+
+    Called on pipeline resume. Checks:
+    1. If progress.json is missing but trace events exist, rebuild it.
+    2. If trace events are newer than progress.json, rebuild it (stale).
+
+    This self-heals progress.json after crashes or if the process was killed
+    before materialization could run.
+    """
+    progress_path = project_dir / "progress.json"
+    trace_dir = project_dir / "trace"
+
+    if not trace_dir.exists():
+        return
+
+    trace_events = list(trace_dir.glob("*.jsonl"))
+    if not trace_events:
+        return
+
+    if not progress_path.exists():
+        log.info("auto_rebuilding_progress_from_trace")
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(project_dir, total_skills=total_skills)
+        except Exception:
+            log.warning("auto_rebuild_progress_failed", exc_info=True)
+        return
+
+    # Check staleness: trace has newer events than progress.json
+    trace_mtime = max(p.stat().st_mtime for p in trace_events)
+    if trace_mtime > progress_path.stat().st_mtime:
+        log.info("progress_stale_rebuilding_from_trace")
+        try:
+            from shenbi.trace.materialize import materialize_progress
+
+            total_skills = [step.skill for step in CHAPTER_STEPS]
+            materialize_progress(project_dir, total_skills=total_skills)
+        except Exception:
+            log.warning("auto_rebuild_progress_failed", exc_info=True)
+
+
+# ---------------------------------------------------------------------------
+# Observability: per-step timing (Task 11a)
+# ---------------------------------------------------------------------------
+
+
+def _record_step_timing(state: PipelineState, skill: str, elapsed: float) -> None:
+    """Record wall-clock elapsed time for a dispatched skill.
+
+    Appends *elapsed* (seconds) to ``state.chapter_loop.step_timings[skill]``
+    so ``_print_timing_summary`` can report per-skill statistics at chapter
+    completion.
+    """
+    timings = state.chapter_loop.step_timings
+    if skill not in timings:
+        timings[skill] = []
+    timings[skill].append(elapsed)
+
+
+def _print_timing_summary(state: PipelineState) -> None:
+    """Print per-skill timing summary at end of pipeline chapter.
+
+    Reports calls, average, min, and max elapsed seconds for each skill
+    that was executed during the chapter.
+    """
+    timings = state.chapter_loop.step_timings
+    if not timings:
+        return
+    log.info("timing_summary_header", chapter=state.chapter_loop.current_chapter)
+    for skill in sorted(timings):
+        times = timings[skill]
+        if not times:
+            continue
+        avg = sum(times) / len(times)
+        mn = min(times)
+        mx = max(times)
+        log.info(
+            "timing_summary_row",
+            skill=skill,
+            calls=len(times),
+            avg_seconds=round(avg, 1),
+            min_seconds=round(mn, 1),
+            max_seconds=round(mx, 1),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Word count stability check (Task 11b)
+# ---------------------------------------------------------------------------
+
+
+def _run_post_draft_extract(state: PipelineState, chapter: int) -> None:
+    """Deterministic: extract SCR from freshly drafted chapter (ADD-2).
+
+    Non-blocking: if extract_scr fails (e.g., chapter file missing or
+    incomplete), the pipeline continues. The SCR extraction is best-effort.
+    """
+    try:
+        from shenbi.pipeline.scr_extractor import extract_scr
+
+        extract_scr(Path(state.project_dir), chapter)
+    except Exception:
+        log.debug("post_draft_extract_failed", chapter=chapter, exc_info=True)
+
+
+def _check_word_count_bounds(chapter_text: str) -> list[str]:
+    """G4 word count bounds check.
+
+    Counts Chinese characters (CJK Unified Ideographs U+4E00-U+9FFF).
+    WARN when below 4000 or above 15000 characters.
+
+    Args:
+        chapter_text: The full chapter prose text.
+
+    Returns:
+        List of issue strings (empty if within bounds).
+    """
+    issues: list[str] = []
+    chinese_chars = sum(1 for c in chapter_text if "\u4e00" <= c <= "\u9fff")
+    if chinese_chars < 4000:
+        issues.append(f"G4.word_count:below_floor -- {chinese_chars} chars (min 4000)")
+    if chinese_chars > 15000:
+        issues.append(f"G4.word_count:above_ceiling -- {chinese_chars} chars (max 15000)")
+    return issues
+
+
+# ---------------------------------------------------------------------------
+# 10c: Truth-index periodic rebuild
+# ---------------------------------------------------------------------------
+
+
+def _maybe_rebuild_truth_index(project_dir: Path, chapter: int) -> None:
+    """Rebuild truth-index at volume boundaries or every 15 chapters."""
+    from shenbi.pipeline.triggers import is_volume_boundary
+
+    if chapter % 15 == 0 or is_volume_boundary(chapter, project_dir):
+        from shenbi.pipeline.truth_index import build_index
+
+        build_index(project_dir)
+        log.info("truth_index_rebuilt", chapter=chapter)
+
+
+# ---------------------------------------------------------------------------
+# 10e: World file freshness check
+# ---------------------------------------------------------------------------
+
+
+def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
+    """Check if locations.md needs updating at volume boundaries.
+
+    NOTE: The scr_extractor import is lazy (inside function body). This module
+    is delivered by Plan 18. If Plan 17 executes first, the scr_extractor
+    feature will silently degrade until Plan 18 ships. This is intentional --
+    no hard dependency.
+    """
+    from shenbi.pipeline.triggers import is_volume_boundary
+
+    if not is_volume_boundary(chapter, project_dir):
+        return
+
+    locations_path = project_dir / "world" / "locations.md"
+    if not locations_path.exists():
+        return
+
+    # Compare against SCR-extracted locations from last 10 chapters
+    try:
+        from shenbi.pipeline.scr_extractor import extract_scr  # Plan 18 delivers this
+    except ImportError:
+        log.debug("scr_extractor_not_available_skipping_world_freshness", chapter=chapter)
+        return
+
+    recent_locations: set[str] = set()
+    for ch in range(max(1, chapter - 10), chapter):
+        try:
+            scr = extract_scr(project_dir, ch)
+            for ref in scr.world_refs:
+                if ref.get("category") == "location":
+                    recent_locations.add(ref["element"])
+        except Exception:
+            continue
+
+    current_locations_text = locations_path.read_text(encoding="utf-8")
+    missing = [loc for loc in recent_locations if loc not in current_locations_text]
+    if missing:
+        log.warning(
+            "world_file_stale_locations",
+            chapter=chapter,
+            missing_locations=missing[:10],
+        )
 
 
 def _complete_chapter(state: PipelineState, chapter: int) -> bool:
@@ -462,12 +899,25 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     Returns True when a per-chapter checkpoint is set (review needed), False
     when automatic advancement is configured.
     """
+    project_dir = Path(state.project_dir)
     key = str(chapter)
     cs = state.chapter_loop.chapter_states.get(key)
     if cs is None:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
     cs.status = "complete"
+
+    # 10c: Rebuild truth-index at volume boundaries or every 15 chapters
+    _maybe_rebuild_truth_index(project_dir, chapter)
+
+    # 10e: Check world file freshness at volume boundaries
+    _check_world_file_freshness(project_dir, chapter)
+
+    # 11a: Print per-step timing summary at chapter completion
+    _print_timing_summary(state)
+
+    # Task 7: Print dispatch-level token usage summary at chapter completion
+    print_token_summary(state)
 
     state.chapter_loop.current_chapter = chapter + 1
     state.chapter_loop.step_index = 0
@@ -484,6 +934,105 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
         )
         return True
     return False
+
+
+def _find_current_volume(chapter: int, volume_boundaries: set[int]) -> int | None:
+    """Return the volume index (0-based) that *chapter* belongs to.
+
+    *volume_boundaries* is a set of last-chapter numbers per volume (from
+    ``read_volume_boundaries``). Returns ``None`` when boundaries are empty or
+    *chapter* lies beyond the last boundary.
+    """
+    if not volume_boundaries:
+        return None
+    sorted_boundaries = sorted(volume_boundaries)
+    for idx, boundary in enumerate(sorted_boundaries):
+        if chapter <= boundary:
+            return idx
+    return None  # chapter beyond last boundary
+
+
+def _check_volume_completion(project_dir: Path, current_volume: int | None, chapter: int) -> bool:
+    """Check whether the current volume's objective has been met.
+
+    Stub: returns True (volume objective met) when *current_volume* is None;
+    otherwise checks for a ``context/volume-{n}-complete.json`` marker file.
+    """
+    if current_volume is None:
+        return True
+    marker = project_dir / "context" / f"volume-{current_volume}-complete.json"
+    return marker.exists()
+
+
+def _check_soft_fail_escalation(state: PipelineState, project_dir: Path, chapter: int) -> None:
+    """Consume soft-fail-tracker escalation and route to check_escalation.
+
+    Spec 22 E32: the trackers detected transition/fatigue drift but the signal
+    was orphaned. This wires it to the existing ``check_escalation`` consumer
+    using its real signature. When any tracker has crossed its threshold AND
+    ``check_escalation`` fires >=1 signal, dispatch escalation-review via the
+    existing ``dispatch_escalation`` path.
+    """
+    from shenbi.pipeline.triggers import read_volume_boundaries
+
+    any_escalated = any(
+        len(t.occurrences) >= t.escalation_threshold
+        for t in state.chapter_loop.soft_fail_trackers.values()
+    )
+    if not any_escalated:
+        return
+
+    # Gather check_escalation inputs (real signature).
+    resonance_scores: list[float] = [
+        float(s) for s in _get_recent_resonance_scores(project_dir, chapter, window=5)
+    ]
+    sensitivity_blocking = any(
+        "sensitivity" in (cid or "").lower()
+        for cid, t in state.chapter_loop.soft_fail_trackers.items()
+        if len(t.occurrences) >= t.escalation_threshold
+    )
+    # Check if volume boundary is met by reading volume_map.md
+    volume_boundaries = read_volume_boundaries(project_dir)
+    current_volume = _find_current_volume(chapter, volume_boundaries)
+    volume_objective_met = _check_volume_completion(project_dir, current_volume, chapter)
+    # regeneration_attempts: max per-step retry count currently in flight.
+    regeneration_attempts = max(state.chapter_loop.retry_counts.values(), default=0)
+
+    signals = check_escalation(
+        resonance_scores=resonance_scores,
+        sensitivity_blocking=sensitivity_blocking,
+        volume_objective_met=volume_objective_met,
+        regeneration_attempts=regeneration_attempts,
+    )
+    if not signals:
+        log.info(
+            "soft_fail_escalation_no_signals",
+            chapter=chapter,
+            scores=resonance_scores,
+        )
+        return
+
+    log.warning(
+        "soft_fail_escalation_triggered",
+        chapter=chapter,
+        signals=[{"trigger": s.trigger, "detail": s.detail} for s in signals],
+    )
+    # dispatch_escalation's real signature is (project_dir, chapter, context="").
+    # It has no `reason=` / `signals=` kwargs. Write the signals to a sidecar
+    # file the escalation skill can read, then dispatch with context pointing
+    # to that file.
+    from dataclasses import asdict
+
+    signals_path = project_dir / "context" / f"chapter-{chapter}-escalation-signals.json"
+    safe_write(
+        signals_path,
+        json.dumps([asdict(s) for s in signals], ensure_ascii=False, indent=2),
+    )
+    dispatch_escalation(
+        project_dir,
+        chapter,
+        context=f"Soft-fail escalation triggered. Signals at: {signals_path}",
+    )
 
 
 def _advance(
@@ -507,7 +1056,16 @@ def _advance(
         project_dir = Path(state.project_dir)
 
     state.chapter_loop.step_index = step_idx + 1
-    state.chapter_loop.current_step = ""
+    # Explicitly set current_step alongside step_index (Task 17-13 root cause fix).
+    # Previously current_step was left as "" here, creating a corruption window
+    # between _advance and the next run_chapter_step call. On crash-resume,
+    # step_index would be advanced but current_step empty, causing the pipeline
+    # to lose track of which step to resume.
+    next_idx = step_idx + 1
+    if next_idx < len(CHAPTER_STEPS):
+        state.chapter_loop.current_step = CHAPTER_STEPS[next_idx].skill
+    else:
+        state.chapter_loop.current_step = "chapter_complete"
 
     if step.checkpoint is not None:
         # Honour --auto suppression flags so automated runs aren't
@@ -515,7 +1073,7 @@ def _advance(
         cfg = state.config
         if step.checkpoint == CheckpointType.CHAPTER_MEMO and not cfg.chapter_memo_review_required:
             # Auto mode: commit staging immediately since no human review
-            from shenbi.pipeline.checkpoint import commit_staging
+            from shenbi.pipeline.checkpoint import commit_staging, clear_staging
 
             target = resolve_chapter_path(step.output_path, chapter)
             try:
@@ -523,11 +1081,12 @@ def _advance(
                 log.info("staging_auto_committed", chapter=chapter, target=target)
             except FileNotFoundError:
                 log.warning("staging_auto_commit_skipped_no_file", chapter=chapter, target=target)
+            clear_staging(project_dir)  # Fix: clean staging after auto-commit
             # Fall through to chapter-completion check (no checkpoint raised)
         elif (
             step.checkpoint == CheckpointType.STATE_SETTLE and not cfg.state_settle_review_required
         ):
-            from shenbi.pipeline.checkpoint import STAGING_DIR
+            from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
@@ -542,6 +1101,7 @@ def _advance(
                 )
             else:
                 log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
+            clear_staging(project_dir)  # Fix: clean staging after auto-commit
             # Fall through to chapter-completion check (no checkpoint raised)
         else:
             artifact = (
@@ -567,17 +1127,20 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     """Materialize the three-route context package for the chapter.
 
     Calls :func:`assemble_context` + :func:`write_context_file` from
-    ``context_assemble``. Missing plan files are tolerated (early-stage
-    projects): a warning (with stack trace) is logged and the step continues
-    so chapter-drafting can proceed without context.
+    ``context_assemble``. Closing spec §3.1 Gap 1: the previous body wrapped
+    everything in a try/except that only logged a warning, so a throw from
+    ``write_context_file`` left NO context file on disk and the pipeline
+    silently continued. This version adds a mandatory post-check that verifies
+    the file exists and writes a minimal Route-C fallback if it does not.
     """
+    plan_path = f"plans/chapter-{chapter}-plan.md"
+    context_path = project_dir / "context" / f"chapter-{chapter}-context.md"
     try:
         from shenbi.pipeline.context_assemble import (
             assemble_context,
             write_context_file,
         )
 
-        plan_path = f"plans/chapter-{chapter}-plan.md"
         pkg = assemble_context(project_dir, plan_path)
         out = write_context_file(project_dir, chapter, pkg)
         log.info(
@@ -590,24 +1153,78 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     except Exception as e:
         log.warning("context_assembly_failed", chapter=chapter, error=str(e), exc_info=True)
 
+    # HARD VERIFY (Gap 1 fix): output file must exist regardless of the try/except.
+    if not context_path.exists() or context_path.stat().st_size == 0:
+        log.error("context_assembly_no_output", chapter=chapter)
+        _write_minimal_context_fallback(project_dir, chapter)
+
+
+def _write_minimal_context_fallback(project_dir: Path, chapter: int) -> None:
+    """Write a minimal Route-C-only context when full assembly failed.
+
+    Uses :func:`safe_write` (atomic + locked) so the fallback itself cannot be
+    half-written. Inlines the Route C fixed-rule retrieval to avoid importing
+    the private ``_route_c`` from ``context_assemble``.
+    """
+    from shenbi.safe_write import safe_write
+
+    project_dir = Path(project_dir)
+    # Route C: inline fixed-rule retrieval (same as _route_c in context_assemble)
+    _ROUTE_C_FILES: list[tuple[str, str]] = [
+        ("truth/book_spine.md", "book_spine"),
+        ("truth/audit_drift.md", "audit_drift"),
+        ("style/style_profile.md", "style_profile"),
+    ]
+    _ROUTE_C_MAX_CHARS = 2000
+    entries: list[dict[str, object]] = []
+    for fname, label in _ROUTE_C_FILES:
+        p = project_dir / fname
+        if p.exists():
+            entries.append(
+                {
+                    "source": f"route-c:{label}",
+                    "weight": 0.6,
+                    "text": p.read_text(encoding="utf-8")[:_ROUTE_C_MAX_CHARS],
+                    "id": label,
+                }
+            )
+    body = "\n\n".join(str(e.get("text", "")) for e in entries) or (
+        "## Context (Minimal Fallback)\n\n"
+        "Full context assembly failed; only Route C fixed rules available.\n"
+    )
+    out = project_dir / "context" / f"chapter-{chapter}-context.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    safe_write(out, body)
+
 
 def _run_context_curation(project_dir: Path, chapter: int) -> None:
-    """Run deterministic context curation after assembly.
+    """Run deterministic context curation and PERSIST it (Gap 2 fix).
 
     Replaces the ``shenbi-context-composing`` LLM call (step 5) with
-    deterministic Python operations: 9-section structuring, ending
-    diversity check, and hook debt briefing generation.
+    deterministic Python operations: 9-section structuring, ending diversity
+    check, and hook debt briefing generation.
 
-    Curation failures are non-fatal: a warning is logged and the pipeline
-    continues without curated context.
+    Closing spec §3.1 Gap 2: the previous body called ``curate_context`` and
+    only logged the result length — the curated string was computed and then
+    DISCARDED, never written to disk. This version persists the curated
+    9-section document via :func:`safe_write` and post-checks the file.
     """
-    try:
-        from shenbi.pipeline.context_curation import curate_context
+    from shenbi.pipeline.context_curation import curate_context
+    from shenbi.safe_write import safe_write
 
+    curated_path = project_dir / "context" / f"chapter-{chapter}-curated.md"
+    try:
         curated = curate_context(project_dir, chapter)
-        log.info("context_curated", chapter=chapter, length=len(curated))
+        curated_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(curated_path, curated)  # FIX: actually persist (was discarded)
+        log.info("context_curated", chapter=chapter, length=len(curated), output=str(curated_path))
     except Exception as e:
         log.warning("context_curation_failed", chapter=chapter, error=str(e), exc_info=True)
+
+    # Post-check: curation failures are non-fatal, but surface a hard error if
+    # the output is unexpectedly absent after a non-throwing run.
+    if not curated_path.exists():
+        log.error("context_curation_no_output", chapter=chapter)
 
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -630,6 +1247,7 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
             "shenbi-foreshadowing-resolve",
             project_dir,
             f"Resolve {triggered_count} TRIGGERED hooks for chapter {chapter}.",
+            state=state,
         )
     else:
         log.debug("no_triggered_hooks", chapter=chapter)
@@ -703,6 +1321,28 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     return None
 
 
+def _build_resonance_trend_row(chapter: int, overall: int) -> str:
+    """Build a 7-column markdown table row for resonance_trend.md.
+
+    Format MUST match what parse_resonance_scores
+    (src/shenbi/orchestration/escalation_bridge.py:15-17) reads:
+    lines starting with "|", split on "|", requires >=7 cells, reads
+    cells[6] (7th column) as the overall score.
+
+    Only the overall score (cs.resonance_score, an int) is available here;
+    the upstream parser _parse_resonance_score (chapter_loop.py:667) returns
+    int|None with no per-dimension breakdown. Columns without data use "-"
+    placeholders so the column count stays at 7. Key column (cells[0]) is
+    Ch{N} for key-based dedup.
+
+    Column layout (split("|")[1:-1] yields exactly these cells):
+        cells[0] = Ch{N}     (key)
+        cells[1..5] = "-"    (placeholder dimensions)
+        cells[6] = {overall} (7th column — what parse_resonance_scores reads)
+    """
+    return f"| Ch{chapter} | - | - | - | - | - | {overall} |"
+
+
 # ---------------------------------------------------------------------------
 # Adaptive triggering (spec §6.1 steps 9, 19-20 / Phase 4.2)
 # ---------------------------------------------------------------------------
@@ -748,7 +1388,7 @@ def _get_last_drift_chapter(project_dir: Path) -> int | None:
     return manifest.get("last_drift_chapter")
 
 
-def _should_run_recall(project_dir: Path, chapter: int) -> bool:
+def _should_run_recall(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
     """Determine whether foreshadowing recall should run for *chapter*.
 
     Triggers when any of these conditions are met:
@@ -826,7 +1466,7 @@ def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 
     return scores
 
 
-def _should_run_drift(project_dir: Path, chapter: int) -> bool:
+def _should_run_drift(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
     """Determine whether drift guidance should run for *chapter*.
 
     Triggers when either:
@@ -871,18 +1511,23 @@ def _prune_old_snapshots(project_dir: Path) -> None:
     """Remove snapshot files older than the retention window.
 
     Keeps only the most recent ``snapshot_retention_chapters`` worth of
-    snapshots. Removes files from disk and updates the manifest.
+    snapshots (counting CHAPTERS, not the numeric range — robust to gaps).
+    Removes files from disk and updates the manifest. Spec 22 E40: fixes the
+    off-by-one in the previous ``ch < keep_from`` comparator (which kept
+    ``retention + 1``) and adds a post-prune guard.
     """
     retention = _get_snapshot_retention(project_dir)
     manifest = _load_manifest(project_dir)
     chapters_dict = manifest.get("chapters", {})
 
     all_chapters = sorted(int(k) for k in chapters_dict)
-    if not all_chapters:
+    if len(all_chapters) <= retention:
         return
 
-    keep_from = max(all_chapters) - retention
-    to_prune = [ch for ch in all_chapters if ch < keep_from]
+    # Keep the newest ``retention`` chapters; prune the rest. Slice-based so
+    # gaps in chapter numbering do not distort the count.
+    keep_set = set(all_chapters[-retention:])
+    to_prune = [ch for ch in all_chapters if ch not in keep_set]
 
     if not to_prune:
         return
@@ -899,65 +1544,197 @@ def _prune_old_snapshots(project_dir: Path) -> None:
     _save_manifest(project_dir, manifest)
     log.info("snapshots_pruned", pruned=len(to_prune), retention=retention)
 
+    # GUARD: assert the cap is now respected (fail loudly if a concurrent
+    # writer re-added snapshots between the prune and this check).
+    remaining = len(chapters_dict)
+    if remaining > retention:
+        log.error(
+            "snapshot_prune_failed",
+            count=remaining,
+            cap=retention,
+            msg="snapshot count still exceeds cap after pruning — "
+            "concurrent writer or manifest corruption suspected",
+        )
 
-def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
-    """Create a timestamped file-based snapshot of chapter outputs.
 
-    Copies chapter files, audit reports, and truth files into a single
-    timestamped markdown file under ``snapshots/``. Updates the manifest
-    and prunes old snapshots.
+# ---------------------------------------------------------------------------
+# Core snapshot file list + CJK content guard (spec §3.7, §3.8)
+# ---------------------------------------------------------------------------
 
-    This replaces the ``shenbi-snapshot-manage`` LLM dispatch with pure
-    file operations — no git dependency.
+# Files included in snapshots (core chapter-state only).
+# Excludes audits, truth files, and staging to prevent ~15x bloat (spec §3.7).
+_CORE_SNAPSHOT_PATTERNS = [
+    "chapters/chapter-{chapter}.md",
+    "chapters/chapter-{chapter}-meta.md",
+    "chapters/chapter-{chapter}-decisions.json",
+    "chapters/chapter-{chapter}-revision-decisions.json",
+]
+
+
+def _get_core_snapshot_files(project_dir: Path, chapter: int) -> list[Path]:
+    """Get list of core chapter files to include in a snapshot.
+
+    Only includes chapter body, metadata, decisions, and revision decisions.
+    Excludes audit reports, truth files, and staging to reduce snapshot bloat.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+
+    Returns:
+        List of existing file paths to include in the snapshot.
     """
-    from datetime import datetime
+    files: list[Path] = []
+    for pattern in _CORE_SNAPSHOT_PATTERNS:
+        path = project_dir / pattern.format(chapter=chapter)
+        if path.exists():
+            files.append(path)
+    return files
 
-    snap_dir = project_dir / "snapshots"
-    snap_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
-    snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
-    snap_path = snap_dir / snap_filename
+def _has_minimum_chinese_chars(text: str, threshold: int = 500) -> bool:
+    """Check if text has at least ``threshold`` Chinese characters.
 
-    parts: list[str] = []
+    Chinese characters are defined as CJK Unified Ideographs (U+4E00 to
+    U+9FFF). This is used to flag snapshots that may contain revision
+    metadata instead of actual prose.
 
-    # Chapter file
-    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if chapter_file.exists():
-        parts.append(f"## Chapter {chapter}\n\n{chapter_file.read_text(encoding='utf-8')}")
+    Args:
+        text: The text content to check.
+        threshold: Minimum number of Chinese characters required.
 
-    # Audit files
-    audit_dir = project_dir / "audits"
-    if audit_dir.exists():
-        for audit_file in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
-            parts.append(f"## Audit: {audit_file.stem}\n\n{audit_file.read_text(encoding='utf-8')}")
+    Returns:
+        True if the text has >= ``threshold`` Chinese characters.
+    """
+    count = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
+    return count >= threshold
 
-    # Truth files
-    truth_dir = project_dir / "truth"
-    if truth_dir.exists():
-        for truth_file in sorted(truth_dir.glob("*.md")):
-            parts.append(f"## Truth: {truth_file.name}\n\n{truth_file.read_text(encoding='utf-8')}")
 
-    content = "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
-    safe_write(snap_path, content.encode("utf-8"))
+def _snapshot_chapter_files(  # pyright: ignore[reportUnusedFunction]
+    project_dir: Path,
+    chapter: int,
+    label: str = "",
+    use_legacy_snapshot: bool = False,
+    *,
+    state: PipelineState | None = None,
+) -> None:
+    """Create a snapshot of chapter outputs.
 
-    # Update manifest
-    manifest = _load_manifest(project_dir)
-    chapter_key = str(chapter)
-    manifest.setdefault("chapters", {})
-    manifest["chapters"].setdefault(chapter_key, [])
-    manifest["chapters"][chapter_key].append(snap_filename)
-    _save_manifest(project_dir, manifest)
+    By default, uses a differential SHA-256 hash-based snapshot that stores
+    full content only for the most recent RING_BUFFER_N chapters (enabling
+    revision-rollback to restore previous chapter content after a revision
+    overwrite). Truth files are always stored in full. Older chapter/plan
+    files are tracked by hash only.
 
-    log.info(
-        "snapshot_created",
-        chapter=chapter,
-        file=snap_filename,
-        size=len(content),
-    )
+    Set ``use_legacy_snapshot=True`` to use the old monolithic markdown
+    snapshot format (timestamped flat file in ``snapshots/``). The legacy
+    path is maintained for rollback safety during migration.
 
-    # Prune old snapshots
-    _prune_old_snapshots(project_dir)
+    When *state* is provided, updates ``state.last_snapshot`` to point at the
+    newly written snapshot (spec §3.3) so resume/rollback can find the recovery
+    point from state without scanning the snapshots directory.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number to snapshot.
+        label: Optional label for legacy snapshots (e.g. "emergency").
+        use_legacy_snapshot: If True, use the old monolithic markdown format.
+        state: Optional pipeline state to record last_snapshot pointer into.
+    """
+    if use_legacy_snapshot:
+        from datetime import datetime
+
+        snap_dir = project_dir / "snapshots"
+        snap_dir.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+        if label:
+            snap_filename = f"chapter-{chapter:03d}-{label}-{timestamp}.md"
+        else:
+            snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
+        snap_path = snap_dir / snap_filename
+
+        parts: list[str] = []
+
+        # Core chapter files only (excludes audits, truth, staging — spec §3.7)
+        core_files = _get_core_snapshot_files(project_dir, chapter)
+        for fpath in core_files:
+            fname = fpath.name
+            parts.append(f"## {fname}\n\n{fpath.read_text(encoding='utf-8')}")
+
+        # Content guard: warn if chapter body has too few Chinese chars (§3.8)
+        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+        if chapter_path.exists():
+            text = chapter_path.read_text(encoding="utf-8")
+            if not _has_minimum_chinese_chars(text):
+                log.warning(
+                    "snapshot_suspect_content",
+                    chapter=chapter,
+                    chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
+                )
+
+        content = (
+            "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
+        )
+        safe_write(snap_path, content.encode("utf-8"))
+
+        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
+        # resume/rollback can find the recovery point without a directory scan.
+        if state is not None:
+            state.last_snapshot = {
+                "chapter": chapter,
+                "path": str(snap_path.relative_to(project_dir)),
+                "timestamp": timestamp,
+            }
+            log.info(
+                "last_snapshot_updated",
+                chapter=chapter,
+                path=state.last_snapshot["path"],
+            )
+
+        # Update manifest
+        manifest = _load_manifest(project_dir)
+        chapter_key = str(chapter)
+        manifest.setdefault("chapters", {})
+        manifest["chapters"].setdefault(chapter_key, [])
+        manifest["chapters"][chapter_key].append(snap_filename)
+        _save_manifest(project_dir, manifest)
+
+        log.info(
+            "snapshot_created",
+            chapter=chapter,
+            file=snap_filename,
+            size=len(content),
+        )
+
+        # Prune old snapshots
+        _prune_old_snapshots(project_dir)
+    else:
+        # Differential SHA-256 hash-based snapshot (default).
+        # Stores full content for recent chapters (ring buffer) so
+        # revision-rollback can restore previous chapter after an overwrite.
+        # Truth files always stored in full; older chapters hash-only.
+        from datetime import datetime
+
+        snapshot_dir = project_dir / "snapshots" / f"chapter-{chapter:03d}"
+        create_differential_snapshot(project_dir, chapter, snapshot_dir)
+
+        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
+        # resume/rollback can find the recovery point without a directory scan.
+        if state is not None:
+            state.last_snapshot = {
+                "chapter": chapter,
+                "path": str(snapshot_dir.relative_to(project_dir)),
+                "timestamp": datetime.now(UTC).strftime("%Y%m%dT%H%M%S"),
+            }
+            log.info(
+                "last_snapshot_updated",
+                chapter=chapter,
+                path=state.last_snapshot["path"],
+            )
+
+        # Prune old snapshots
+        _prune_old_snapshots(project_dir)
 
 
 def _update_last_recall_manifest(project_dir: Path, chapter: int) -> None:
@@ -974,30 +1751,76 @@ def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
     _save_manifest(project_dir, manifest)
 
 
-def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path) -> bool:
-    """Determine whether *step* should execute based on adaptive triggering rules.
+def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
+    """Check if chapter is at a volume boundary.
 
-    Returns True if the step should execute normally (dispatch + gates).
-    Returns False if the step should be skipped for this chapter.
-
-    For ``shenbi-snapshot-manage``, the file-based snapshot is taken inline
-    and the LLM dispatch is always skipped (returns False).
+    Delegates to :func:`shenbi.pipeline.triggers.is_volume_boundary`.
     """
-    skill = step.skill
+    from shenbi.pipeline.triggers import is_volume_boundary as _is_vol_boundary
+
+    return _is_vol_boundary(chapter, project_dir)
+
+
+def _drift_guidance_triggered(state: PipelineState) -> bool:
+    """Check if drift guidance should run (3+ consecutive drift alerts)."""
+    alerts = getattr(state, "drift_alerts", [])
+    return len(alerts) >= 3
+
+
+def _any_audit_has_findings(state: PipelineState) -> bool:
+    """Check if any audit reported findings needing revision.
+
+    Scans audit files for BLOCKING or FAIL markers.
+    """
+    project_dir = Path(state.project_dir)
     chapter = state.chapter_loop.current_chapter
+    audit_dir = project_dir / "audits"
 
-    if skill == "shenbi-foreshadowing-recall":
-        return _should_run_recall(project_dir, chapter)
+    for atype in [
+        "continuity",
+        "character",
+        "world-rules",
+        "pacing",
+        "dialogue",
+        "motivation",
+        "pov",
+        "memo-compliance",
+        "foreshadowing",
+        "anti-ai",
+        "texture",
+        "reader-pull",
+        "sensitivity",
+    ]:
+        af = audit_dir / f"chapter-{chapter}-{atype}.md"
+        if af.exists():
+            text = af.read_text(encoding="utf-8")
+            if "BLOCKING" in text or "FAIL" in text:
+                return True
+    return False
 
-    if skill == "shenbi-drift-guidance":
-        return _should_run_drift(project_dir, chapter)
 
-    if skill == "shenbi-snapshot-manage":
-        # Replace LLM dispatch with deterministic file-based snapshot.
-        _snapshot_chapter_files(project_dir, chapter)
-        return False
+def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
+    """Determine if a step should run based on its conditional gates.
 
-    # All other steps run unconditionally.
+    Steps with ``conditional=False`` always run.
+    Steps with ``conditional=True`` are gated by skill-specific conditions.
+
+    NOTE: escalation-review is NOT gated here -- it is dispatched reactively
+    by revision_router.dispatch_escalation (see Spec 5).
+    """
+    if not step.conditional:
+        return True
+
+    if step.skill == "shenbi-intent-management":
+        return _is_volume_boundary(Path(state.project_dir), state.chapter_loop.current_chapter)
+
+    if step.skill == "shenbi-drift-guidance":
+        return _drift_guidance_triggered(state)
+
+    if step.skill == "shenbi-chapter-revision":
+        return _any_audit_has_findings(state)
+
+    # Other conditional steps default to running
     return True
 
 
@@ -1018,6 +1841,30 @@ def _get_chapter_state(state: PipelineState, chapter: int) -> ChapterState:
     return cs
 
 
+def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
+    """Create a backup of the chapter file before revision dispatch.
+
+    Copies ``chapters/chapter-N.md`` to ``chapters/chapter-N-pre-rev.md``
+    using ``shutil.copy2`` which preserves metadata. If the chapter file
+    does not exist, this is a no-op.
+
+    This ensures the original prose is recoverable even if the revision
+    skill incorrectly overwrites the chapter body.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+    """
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_path.exists():
+        log.debug("pre_rev_backup_skip", chapter=chapter, reason="chapter file does not exist")
+        return
+
+    backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
+    _shutil.copy2(chapter_path, backup_path)
+    log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
+
+
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Collect audit issues and determine the revision route (spec §6.3).
 
@@ -1025,10 +1872,24 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     chapter's ``audit_results`` so that step 18 (chapter-revision) can decide
     whether to run or skip.
     """
+    _create_pre_revision_backup(project_dir, chapter)
+
     issues, blocking = collect_audit_issues(project_dir, chapter)
     route = route_chapter_revision(issues, blocking)
     cs = _get_chapter_state(state, chapter)
     cs.audit_results[_REVISION_ROUTE_KEY] = route.value
+
+    # Wire revision_count (spec §3.2): increment only on an actual revision
+    # route, not on NO_REVISION. Previously this was missing entirely, leaving
+    # revision_count at 0 for all chapters.
+    if route != RevisionRoute.NO_REVISION:
+        cs.revision_count += 1
+        log.info(
+            "revision_count_incremented",
+            chapter=chapter,
+            route=route.value,
+            revision_count=cs.revision_count,
+        )
 
     # Resonance floor check (spec §6.3). Full borderline/escalation handling
     # is deferred pending chapter_role calibration (Wave 4+); for now a
@@ -1064,6 +1925,521 @@ def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
     return cs.audit_results.get(_REVISION_ROUTE_KEY) == RevisionRoute.NO_REVISION.value
 
 
+def _is_revision_routed(route: str | None) -> bool:
+    """Check if a revision route was actually assigned.
+
+    Returns True for any non-None route, including 'no_revision'.
+    """
+    return route is not None
+
+
+def _ensure_revision_decisions_exists(
+    project_dir: Path,
+    chapter: int,
+    state: PipelineState | None = None,
+    log: Any = None,
+) -> None:
+    """Write a minimal revision decisions file if one does not exist.
+
+    The file conforms to DecisionsDoc (extra="forbid"): $schema, skill,
+    chapter, selections, adjustments, produced_at. The skip decision is
+    documented in ``selections`` (not a ``route`` key). This ensures every
+    chapter routed through revision (including no-revision) produces an
+    audit-trail artifact.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        chapter: Chapter number.
+        state: Optional pipeline state for checking revision routing.
+        log: Optional logger for recording fallback writes.
+    """
+    rev_path = project_dir / "chapters" / f"chapter-{chapter}-revision-decisions.json"
+    if rev_path.exists():
+        return
+
+    if state is not None:
+        ch_state = state.chapter_loop.chapter_states.get(str(chapter))
+        route = ch_state.audit_results.get(_REVISION_ROUTE_KEY) if ch_state else None
+        if not _is_revision_routed(route):
+            return  # Chapter was never routed through revision
+
+    from datetime import datetime
+
+    min_decisions = {
+        "$schema": "shenbi-decisions-v1",
+        "skill": "shenbi-chapter-revision",
+        "chapter": chapter,
+        "selections": [
+            {
+                "target": "no_revision_needed",
+                "selected": [],
+                "basis": "arc_relevance",
+                "severity": "low",
+                "omitted": [],
+            }
+        ],
+        "adjustments": [],  # empty = no changes made
+        "produced_at": datetime.now(UTC).isoformat(),
+    }
+    safe_write(rev_path, json.dumps(min_decisions, ensure_ascii=False, indent=2))
+    if log is not None:
+        log.info("revision_decisions_fallback_written", chapter=chapter)
+
+
+# ---------------------------------------------------------------------------
+# Linguistic drift detection (3-tier intervention — spec §3.4, Task 5)
+# ---------------------------------------------------------------------------
+
+
+def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | None:  # pyright: ignore[reportUnusedFunction]
+    """Check chapter text for linguistic drift and apply tiered intervention.
+
+    Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),
+    compares its pragmatic alarm metrics (Task 3) against the established
+    baseline, and applies WARN/HARD/ESCALATE intervention per spec §3.4.
+    """
+    from shenbi.skill_utils.drift_detection.linguistic_drift import (
+        check_opening_similarity,
+        compute_linguistic_metrics,
+        detect_drift,
+    )
+
+    chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not chapter_file.exists():
+        return None
+
+    chapter_text = chapter_file.read_text(encoding="utf-8")
+
+    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)
+    baseline_file = project_dir / "style" / "linguistic_baseline.json"
+    if baseline_file.exists():
+        baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
+    else:
+        log.warning("no_linguistic_baseline", chapter=chapter)
+        return None
+
+    current = compute_linguistic_metrics(chapter_text, project_dir=project_dir)
+    result = detect_drift(current, baseline)
+
+    if result.is_drift:
+        log.warning(
+            "linguistic_drift_detected",
+            chapter=chapter,
+            severity=result.severity,
+            metrics=result.metrics,
+        )
+
+        if result.severity == "ESCALATE":
+            log.error("drift_escalate_pause_for_review", chapter=chapter)
+            raise DriftEscalationError(
+                f"Chapter {chapter}: system term density "
+                f"{result.metrics.get('system_term_density', 0):.1f} per mille. "
+                "Pipeline paused for human review."
+            )
+        if result.severity == "HARD":
+            _inject_drift_correction(project_dir, chapter, result)
+        elif result.severity == "WARN":
+            _inject_drift_warning(project_dir, chapter, result)
+
+    # Check opening similarity against the previous chapter
+    if chapter > 1:
+        prev_file = project_dir / "chapters" / f"chapter-{chapter - 1}.md"
+        if prev_file.exists():
+            prev_text = prev_file.read_text(encoding="utf-8")
+            opening_sim = check_opening_similarity(chapter_text, prev_text)
+            if opening_sim > 0.6:
+                log.warning(
+                    "opening_similarity_high",
+                    chapter=chapter,
+                    similarity=round(opening_sim, 2),
+                )
+                _inject_opening_variation_directive(project_dir, chapter, opening_sim)
+
+    return result
+
+
+def _inject_drift_correction(project_dir: Path, chapter: int, result: DriftResult) -> None:
+    """Write a PRE_WRITE_CHECK directive for the next chapter to correct drift."""
+    directive = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - DRIFT DETECTED)
+
+CRITICAL: Chapter {chapter} has system term density of {result.metrics.get("system_term_density", 0):.1f} per mille (baseline: <5).
+The next chapter MUST:
+1. Use natural Chinese narrative prose — NO system parameter language (冷在场, 冷值, 在场度)
+2. Include at least 3 dialogue exchanges with human characters
+3. Include at least 2 physical actions or sensory descriptions
+4. Use varied sentence structures — no repeated sentence templates
+"""
+    directive_file = project_dir / "context" / f"drift-correction-{chapter + 1}.md"
+    safe_write(directive_file, directive)
+
+
+def _inject_drift_warning(project_dir: Path, chapter: int, result: DriftResult) -> None:
+    """Write a gentle warning for the next chapter."""
+    warning = f"""## PRE_WRITE_CHECK (AUTO-GENERATED - STYLE WARNING)
+
+Note: Chapter {chapter} shows early signs of parametric language.
+Please prioritize natural prose and human character dialogue in the next chapter.
+"""
+    warning_file = project_dir / "context" / f"drift-warning-{chapter + 1}.md"
+    safe_write(warning_file, warning)
+
+
+def _inject_opening_variation_directive(project_dir: Path, chapter: int, similarity: float) -> None:
+    """Warn about high opening similarity."""
+    directive = f"""## PRE_WRITE_CHECK (OPENING VARIATION)
+
+The opening of Chapter {chapter} is {similarity * 100:.0f}% similar to Chapter {chapter - 1}.
+Next chapter MUST use a different opening approach.
+Forbidden openings: "冷知道/冷在/冷在场于" sentence patterns.
+"""
+    directive_file = project_dir / "context" / f"opening-variation-{chapter + 1}.md"
+    safe_write(directive_file, directive)
+
+
+# ---------------------------------------------------------------------------
+# Context Coverage Audit (Task 6)
+# ---------------------------------------------------------------------------
+
+
+def _audit_context_coverage(project_dir: Path, current_chapter: int) -> list[int]:  # pyright: ignore[reportUnusedFunction]
+    """Scan all chapters up to current_chapter and return list of missing context files.
+
+    Uses the real (non-padded) ``chapter-{ch}-context.md`` naming. Called at
+    pipeline resume initialization to surface the 77% coverage gap (spec §3.1).
+    """
+    import structlog
+
+    log = structlog.get_logger()
+    context_dir = project_dir / "context"
+    missing = []
+    for ch in range(1, current_chapter + 1):
+        context_file = context_dir / f"chapter-{ch}-context.md"
+        if not context_file.exists():
+            missing.append(ch)
+    if missing:
+        log.warning(
+            "context_coverage_gap",
+            missing_chapters=missing,
+            gap_ratio=f"{len(missing)}/{current_chapter}",
+        )
+    return missing
+
+
+# ---------------------------------------------------------------------------
+# Volume map alignment check (WARN-level, non-blocking)
+# ---------------------------------------------------------------------------
+
+
+def _check_volume_map_alignment(project_dir: Path, chapter: int) -> None:
+    """WARN-level check: compare volume_map chapter node terms against chapter text.
+
+    Non-blocking: blueprint is guidance, creative deviation is allowed.
+    Warns when >70% of key terms from volume_map are missing from chapter.
+    """
+    vm_path = project_dir / "outline" / "volume_map.md"
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+
+    if not vm_path.exists() or not chapter_path.exists():
+        return
+
+    volume_map_text = vm_path.read_text(encoding="utf-8")
+
+    # Extract chapter node description
+    node = _extract_chapter_node_from_map(volume_map_text, chapter)
+    if node is None:
+        return
+
+    # Extract key terms (nouns and proper nouns, Chinese/English)
+    key_terms = _extract_key_terms(node["content"])
+    if not key_terms:
+        return
+
+    chapter_text = chapter_path.read_text(encoding="utf-8")
+
+    # Check term presence
+    found_terms: list[str] = []
+    missing_terms: list[str] = []
+    for term in key_terms:
+        if term.lower() in chapter_text.lower():
+            found_terms.append(term)
+        else:
+            missing_terms.append(term)
+
+    total = len(key_terms)
+    match_rate = len(found_terms) / total if total > 0 else 1.0
+
+    if match_rate < 0.3:  # >70% missing
+        log.warning(
+            "volume_map_alignment",
+            chapter=chapter,
+            match_rate=f"{match_rate:.1%}",
+            found_terms=found_terms,
+            missing_terms=missing_terms,
+            expected=node["content"][:120],
+        )
+
+
+def _extract_chapter_node_from_map(volume_map_text: str, chapter: int) -> dict[str, str] | None:
+    """Extract {role, content} from volume_map table row for a chapter."""
+    pattern = re.compile(rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|")
+    m = pattern.search(volume_map_text)
+    if m:
+        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
+    return None
+
+
+def _extract_key_terms(text: str) -> list[str]:
+    """Extract significant key terms from a description.
+
+    Returns Chinese words (2+ chars) and English words (3+ chars),
+    skipping common stop words.
+    """
+    stop_words = {
+        "the",
+        "and",
+        "in",
+        "of",
+        "to",
+        "a",
+        "is",
+        "for",
+        "with",
+        "this",
+        "that",
+        "from",
+        "be",
+    }
+    terms: list[str] = []
+
+    # English words 3+ chars
+    eng_words = re.findall(r"[a-zA-Z]{3,}", text)
+    for w in eng_words:
+        if w.lower() not in stop_words:
+            terms.append(w)
+
+    # Chinese character sequences 2+ chars
+    cn_seqs = re.findall(r"[\u4e00-\u9fff]{2,}", text)
+    terms.extend(cn_seqs)
+
+    # Filter generic terms
+    filtered: list[str] = []
+    for t in terms:
+        if t.lower() not in {"chapter", "volume", "node", "role", "content", "character"}:
+            filtered.append(t)
+
+    return filtered
+
+
+def _extract_chapter_title(chapter_path: Path) -> str:
+    """Extract title from chapter markdown file. Title is first H1 heading."""
+    text = chapter_path.read_text(encoding="utf-8")
+    match = re.match(r"^#\s+(.+?)$", text, re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def _load_previous_titles(project_dir: Path, current_chapter: int) -> dict[str, int]:
+    """Load all previous chapter titles for duplicate detection.
+
+    Reads H1 headings from chapters/chapter-{1..current_chapter-1}.md.
+    Returns a dict mapping cleaned title -> chapter number.
+    """
+    previous: dict[str, int] = {}
+    chapters_dir = project_dir / "chapters"
+    if not chapters_dir.exists():
+        return previous
+    for ch_file in sorted(chapters_dir.glob("chapter-*.md")):
+        ch_match = re.match(r"chapter-(\d+)\.md", ch_file.name)
+        if not ch_match:
+            continue
+        ch_num = int(ch_match.group(1))
+        if ch_num >= current_chapter:
+            continue
+        try:
+            ch_text = ch_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        ch_title_match = re.match(r"^#\s+(.+)", ch_text)
+        if ch_title_match:
+            ch_raw = ch_title_match.group(1).strip()
+            # Clean chapter number prefix for dedup key
+            ch_title = re.sub(r"^第\d+章[：:\s]*", "", ch_raw).strip()
+            if ch_title:
+                previous[ch_title] = ch_num
+    return previous
+
+
+def _run_g4_checks(state: PipelineState, chapter: int) -> list[str]:
+    """Run post-drafting G4 quality checks.
+
+    Called after chapter-drafting step succeeds. Runs structural gate checks
+    that validate chapter quality before the pipeline proceeds.
+
+    Checks:
+    - G4.cd.title: validate chapter title quality (via check_chapter_title)
+    - G4.cd.hook_fulfillment: verify plan hooks are fulfilled in chapter
+
+    Args:
+        state: Pipeline state with project_dir.
+        chapter: Current chapter number.
+
+    Returns:
+        List of issue strings found (empty if all checks pass).
+    """
+    all_issues: list[str] = []
+    project_dir = Path(state.project_dir)
+
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
+
+    if not chapter_path.exists():
+        return all_issues
+
+    # --- G4.cd.title ---
+    from shenbi.gates.g4.chapter_drafting import check_chapter_title
+
+    title = _extract_chapter_title(chapter_path)
+    previous_titles = _load_previous_titles(project_dir, chapter)
+    title_issues = check_chapter_title(title, previous_titles)
+    all_issues.extend(title_issues)
+
+    # --- G4.cd.hook_fulfillment ---
+    from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment
+
+    hook_issues = check_hook_fulfillment(plan_path, chapter_path)
+    all_issues.extend(hook_issues)
+
+    # Log all issues for observability
+    for issue in all_issues:
+        log.warning("g4_post_drafting_issue", chapter=chapter, issue=issue)
+
+    return all_issues
+
+
+# ---------------------------------------------------------------------------
+# Resume cleanup
+# ---------------------------------------------------------------------------
+
+
+def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
+    project_dir: Path,
+    has_pending_staging: bool,
+) -> None:
+    """Clean residual staging directory at pipeline resume.
+
+    If the staging directory exists and no pipeline steps are pending
+    that write to staging, the directory is safe to remove. This
+    prevents accumulation of stale staging files across pipeline runs.
+
+    Args:
+        project_dir: Root directory of the novel project.
+        has_pending_staging: True if any pending step uses staging.
+    """
+    from shenbi.pipeline.checkpoint import clear_staging
+
+    staging_dir = project_dir / "staging"
+    if not staging_dir.exists():
+        return
+
+    if has_pending_staging:
+        log.debug("staging_cleanup_skipped", reason="pending staging steps")
+        return
+
+    clear_staging(project_dir)
+    log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
+
+
+def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[reportUnusedFunction]
+    """Check if any pending step in the current chapter uses staging."""
+    step_idx = state.chapter_loop.step_index
+    if step_idx >= len(CHAPTER_STEPS):
+        return False
+    return any(step.uses_staging for step in CHAPTER_STEPS[step_idx:])
+
+
+# ---------------------------------------------------------------------------
+# Parallel post-draft dispatch (Task 6 of Plan 18)
+# ---------------------------------------------------------------------------
+
+
+# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS.
+# Used to trigger parallel execution of steps 6-7 together.
+_FORESHADOWING_LIFECYCLE_IDX = 6
+
+
+def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
+    """Execute foreshadowing-lifecycle and state-settling in parallel.
+
+    Reuses the ThreadPoolExecutor + Future pattern already proven by
+    parallel_dispatch.dispatch_reviews_parallel() for the audit waves.
+    Worker threads return DispatchResult objects; the main thread merges
+    them sequentially to PipelineState (single-writer / actor-model).
+
+    Both steps depend on drafting completion and write to disjoint files:
+    - lifecycle -> pending_hooks.md
+    - state-settling -> 6 truth files
+    Zero data conflict.
+
+    Returns:
+        Tuple of (lifecycle_result, settling_result) DispatchResult objects.
+    """
+    import concurrent.futures
+
+    from shenbi.pipeline.state import _merge_step_result  # pyright: ignore[reportPrivateUsage]
+
+    project_dir = Path(state.project_dir)
+    chapter = state.chapter_loop.current_chapter
+
+    lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
+    settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
+
+    # Build prompts (mirrors the serial dispatch path)
+    def _build_prompt(step: ChapterStep) -> str:
+        prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
+        if step.uses_staging:
+            prompt += " Write output to staging/ directory."
+        return prompt
+
+    lifecycle_prompt = _build_prompt(lifecycle_step)
+    settling_prompt = _build_prompt(settling_step)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        lifecycle_future = executor.submit(
+            dispatch_skill,
+            lifecycle_step.skill,
+            project_dir,
+            lifecycle_prompt,
+            uses_staging=lifecycle_step.uses_staging,
+        )
+        settling_future = executor.submit(
+            dispatch_skill,
+            settling_step.skill,
+            project_dir,
+            settling_prompt,
+            uses_staging=settling_step.uses_staging,
+        )
+
+        lifecycle_result = lifecycle_future.result()
+        settling_result = settling_future.result()
+
+    # Single-writer: merge results on the main thread ONLY.
+    _merge_step_result(state, lifecycle_result)
+    _merge_step_result(state, settling_result)
+
+    if not lifecycle_result.success:
+        log.warning(
+            "foreshadowing_lifecycle_failed",
+            chapter=chapter,
+        )
+
+    if not settling_result.success:
+        log.warning(
+            "state_settling_failed",
+            chapter=chapter,
+        )
+
+    return lifecycle_result, settling_result
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -1087,6 +2463,52 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     state.chapter_loop.current_step = step.skill
     log.info("chapter_step", chapter=chapter, step=step.step_num, skill=step.skill)
 
+    # ── Observability: per-step timing (Task 11a) ────────────────────────
+    step_start = time.monotonic()
+    try:
+        return _run_chapter_step_impl(state, project_dir, step_idx, step, chapter)
+    finally:
+        elapsed = time.monotonic() - step_start
+        log.info(
+            "step_timing",
+            chapter=chapter,
+            step=step.skill,
+            elapsed_seconds=round(elapsed, 1),
+        )
+        _record_step_timing(state, step.skill, elapsed)
+
+
+def _run_chapter_step_impl(
+    state: PipelineState,
+    project_dir: Path,
+    step_idx: int,
+    step: ChapterStep,
+    chapter: int,
+) -> bool:
+    """Implementation body of run_chapter_step — wrapped by timing instrumentation."""
+    # ── Crash recovery: checkpoint-on-step (spec §3.4, §3.6) ────────────
+    # Check for emergency shutdown flag at each step boundary (safe I/O from
+    # the main thread — the signal handler only sets the atomic flag).
+    _cr_check_emergency_flag(project_dir)
+
+    # If shutdown was requested during cleanup, raise escalation checkpoint
+    # so the loop stops cleanly and the caller persists state.
+    if is_shutdown_requested():
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=chapter,
+            context=(
+                f"Emergency shutdown during chapter {chapter} step {step.step_num} ({step.skill})"
+            ),
+        )
+        return True
+
+    # ── Emergency registration (first step only) ─────────────────────────
+    if step_idx == 0:
+        # Register emergency handler ONCE (installs signal handlers + atexit backstop)
+        register_emergency_handlers(project_dir, state)
+
     # ── Parallel review dispatch (Task 7) ──────────────────────────────
     # When the first audit step is reached, dispatch all core-circle and
     # genre-circle reviews in two parallel waves instead of serial steps.
@@ -1104,6 +2526,27 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         from shenbi.pipeline.dispatch_helper import DispatchResult
         from shenbi.safe_write import safe_write
 
+        # Build shared audit context ONCE per chapter so auditors skip
+        # re-reading the same files from disk (Task 6 Step 2 wiring).
+        from shenbi.pipeline.audit_context_cache import build_shared_audit_context
+
+        shared_ctx = build_shared_audit_context(project_dir, chapter)
+        log.info(
+            "shared_audit_context_built_for_wave",
+            chapter=chapter,
+            estimated_tokens=shared_ctx.estimated_tokens,
+        )
+
+        # Load per-skill audit history for cascade filtering (Task 6 Step 3).
+        audit_history = _get_audit_history(state, chapter)
+
+        def _keep_task(task: ReviewTask) -> bool:
+            skill_short = _audit_short_name(task.skill)
+            if _should_skip_audit(skill_short, audit_history):
+                log.info("audit_cascade_skipped", chapter=chapter, skill=task.skill)
+                return False
+            return True
+
         # Wave 1: Core-circle reviews (7 skills in parallel)
         core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
         core_tasks = [
@@ -1112,11 +2555,19 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 project_dir=project_dir,
                 prompt=f"Execute {skill} for chapter {chapter}. Project dir: {project_dir}",
                 output_path=f"audits/chapter-{chapter}-{audit_suffix(skill)}.md",
+                shared_context=shared_ctx,
             )
             for skill in core_skills
         ]
-        log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
-        core_results = dispatch_reviews_parallel(core_tasks)
+        # Filter cascaded audits (core audits + always-run are never skipped)
+        core_tasks = [t for t in core_tasks if _keep_task(t)]
+
+        core_results: list[DispatchResult] = []
+        if core_tasks:
+            log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
+            core_results = dispatch_reviews_parallel(core_tasks)
+        else:
+            log.info("parallel_review_wave1_empty", chapter=chapter)
 
         # Wave 2: Genre-circle reviews (conditionally active, in parallel)
         gc_path = project_dir / "genre-config.json"
@@ -1128,13 +2579,19 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 project_dir=project_dir,
                 prompt=f"Execute {skill} audit for chapter {chapter}.",
                 output_path=audit_relative_path(chapter, skill),
+                shared_context=shared_ctx,
             )
             for skill in genre_skills
         ]
+        # Filter cascaded audits for genre wave too
+        genre_tasks = [t for t in genre_tasks if _keep_task(t)]
+
         genre_results: list[DispatchResult] = []
         if genre_tasks:
             log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
             genre_results = dispatch_reviews_parallel(genre_tasks)
+        else:
+            log.info("parallel_review_wave2_empty", chapter=chapter)
 
         # Consolidate all results
         all_results = core_results + genre_results
@@ -1145,7 +2602,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         # Record all review steps as done and advance past them
         for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
             if i < len(CHAPTER_STEPS):
-                _record_step_done(state, CHAPTER_STEPS[i], chapter)
+                state.add_step_done(chapter, CHAPTER_STEPS[i].skill)
 
         state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
         state.chapter_loop.current_step = ""
@@ -1158,6 +2615,11 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
 
+        # Run revision routing after all reviews complete (spec §6.3).
+        # In the serial path this is called after review-resonance; in the
+        # parallel path we call it once after consolidation.
+        _route_revision_after_resonance(state, project_dir, chapter)
+
         _reset_retries(state, step, chapter)
         return _advance(
             state,
@@ -1167,6 +2629,85 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
             project_dir=project_dir,
         )
 
+    # ── Parallel post-draft dispatch (Task 6) ────────────────────────────
+    # When the foreshadowing-lifecycle step is reached, execute it and
+    # state-settling in parallel. Both are LLM skills that write to
+    # disjoint files (pending_hooks.md vs truth/*.md) with zero data
+    # conflict. Workers call dispatch_skill; the main thread handles G4,
+    # step recording, and advancing (single-writer pattern).
+    if step_idx == _FORESHADOWING_LIFECYCLE_IDX:
+        lifecycle_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX]
+        settling_step = CHAPTER_STEPS[_FORESHADOWING_LIFECYCLE_IDX + 1]
+
+        lifecycle_result, settling_result = run_parallel_post_draft_steps(state)
+
+        # State-settling failure: mark settling_failed and pause (spec §11).
+        if not settling_result.success:
+            from shenbi.pipeline.error_handler import handle_state_settle_failure
+
+            handle_state_settle_failure(state, chapter)
+            log.error(
+                "chapter_state_settle_failed",
+                chapter=chapter,
+            )
+            return True  # checkpoint raised, pause for human
+
+        # Lifecycle failure: log but do not block (settling succeeded).
+        if not lifecycle_result.success:
+            log.error(
+                "chapter_dispatch_failed",
+                chapter=chapter,
+                step=lifecycle_step.step_num,
+                skill=lifecycle_step.skill,
+            )
+
+        # G4: structural validation for both steps (main thread only).
+        for pstep in (lifecycle_step, settling_step):
+            g4_files = _resolve_g4_files(project_dir, pstep, chapter)
+            g4 = run_gate_g4(
+                pstep.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop"
+            )
+            if not _gate_passed(g4):
+                log.warning(
+                    "parallel_post_draft_g4_failed",
+                    chapter=chapter,
+                    skill=pstep.skill,
+                )
+
+        # Record both steps as done and advance past them.
+        state.add_step_done(chapter, lifecycle_step.skill)
+        _reset_retries(state, lifecycle_step, chapter)
+        state.add_step_done(chapter, settling_step.skill)
+        _reset_retries(state, settling_step, chapter)
+
+        # Advance past both steps (idx 6 and 7 -> idx 8)
+        next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
+        state.chapter_loop.step_index = next_idx
+        state.chapter_loop.current_step = (
+            CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
+        )
+
+        # Materialize progress from trace events
+        _maybe_materialize_progress(state, chapter)
+
+        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            return _complete_chapter(state, chapter)
+
+        # Raise state-settle checkpoint after both parallel steps complete.
+        settling_artifact = (
+            resolve_chapter_path(settling_step.output_path, chapter)
+            if settling_step.output_path
+            else f"chapter-{chapter}/{settling_step.name}"
+        )
+        set_checkpoint(
+            state,
+            CheckpointType.STATE_SETTLE,
+            chapter=chapter,
+            artifact=settling_artifact,
+            context=f"Review {settling_step.name} for chapter {chapter}",
+        )
+        return True
+
     # Context assembly (step 4): materialize package before chapter-drafting.
     if step.calls_context_assembly:
         _run_context_assembly(project_dir, chapter)
@@ -1175,14 +2716,25 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
-        _record_step_done(state, step, chapter)
+        # ── Linguistic drift check (non-blocking) ────────────────────────
+        if step.skill == "pipeline-linguistic-drift-check":
+            try:
+                _check_linguistic_drift(project_dir, chapter)
+            except Exception:
+                log.warning(
+                    "linguistic_drift_check_failed",
+                    chapter=chapter,
+                    exc_info=True,
+                )
+
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # context-composing replaced by deterministic curation in step 4
     if step.skill == "shenbi-context-composing":
         log.info("context_composing_replaced_by_curation", chapter=chapter)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
@@ -1192,7 +2744,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
         count = plant_hooks_from_plan(project_dir, chapter)
         log.info("foreshadowing_plant_replaced_by_deterministic", chapter=chapter, count=count)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
@@ -1202,17 +2754,16 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
     # 20) must always run regardless of the revision route.
     if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
         log.info("revision_step_skipped", chapter=chapter)
-        _record_step_done(state, step, chapter)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
+        _ensure_revision_decisions_exists(project_dir, chapter, state, log)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # Adaptive triggering: recall, drift, snapshot run only when data indicates need.
-    if not _should_run_step(step, state, project_dir):
-        _record_step_done(state, step, chapter)
+    # Conditional dispatch: gated steps only run when their condition is met.
+    if not _should_run_step(state, step):
+        log.info("conditional_step_skipped", chapter=chapter, skill=step.skill)
+        state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
-        # Update manifest tracking for steps that were handled inline.
-        if step.skill == "shenbi-snapshot-manage":
-            pass  # snapshot already taken + manifest updated in _snapshot_chapter_files
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
     # Build dispatch prompt (staging steps write to staging/).
@@ -1245,6 +2796,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
         project_dir,
         prompt,
         uses_staging=step.uses_staging,
+        state=state,
     )
 
     # State-settling failure: mark settling_failed and pause (spec §11).
@@ -1283,7 +2835,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
-    g4 = run_gate_g4(step.skill, g4_files, project_dir)
+    g4 = run_gate_g4(step.skill, g4_files, project_dir, chapter=chapter, phase="chapter_loop")
     if not _gate_passed(g4):
         must_fix = g4.get("must_fix", [])
         hard_fails, soft_fails, warn_fails = _classify_g4_failures(must_fix)
@@ -1317,13 +2869,26 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                     check_id=tracker_key,
                     occurrences=tracker.occurrences,
                 )
+                # Spec 22 E32: route the orphaned escalation signal to the
+                # check_escalation consumer + dispatch escalation-review.
+                _check_soft_fail_escalation(state, Path(project_dir), chapter)
 
         if hard_fails:
-            state.chapter_loop.retry_feedback[retry_key] = (
-                f"G4 HARD check failed: {hard_fails}\nFull result: {json.dumps(g4, default=str)}"
-            )
+            state.chapter_loop.retry_feedback[retry_key] = _enrich_g4_feedback(hard_fails)
+            # Durable budget trail for both paths (spec §3.1).
+            consumed = state.chapter_loop.retry_budget_consumed.get(retry_key, 0) + 1
+            state.chapter_loop.retry_budget_consumed[retry_key] = consumed
+            if consumed > state.config.max_audit_retries:
+                raise RetryExhaustedError(
+                    f"Retry budget ({state.config.max_audit_retries}) exhausted for {retry_key} "
+                    f"(consumed {consumed})"
+                )
             if state.config.per_chapter_review_enabled:
-                return _handle_failure(state, step, chapter, "gate", project_dir)
+                # Budget already consumed above; prevent _handle_failure from
+                # double-incrementing the durable counter.
+                return _handle_failure(
+                    state, step, chapter, "gate", project_dir, budget_pre_consumed=True
+                )
             count = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
             state.chapter_loop.retry_counts[retry_key] = count
             if count <= 1:
@@ -1341,7 +2906,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
     # G3: scoring independence for requires_independent_agent skills (step 17).
     if requires_independent(step.skill):
-        g3 = run_gate_g3(step.skill, project_dir)
+        g3 = run_gate_g3(step.skill, project_dir, chapter=chapter, phase="chapter_loop")
         if not _gate_passed(g3):
             log.error(
                 "chapter_g3_failed",
@@ -1402,6 +2967,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
                 "shenbi-chapter-revision",
                 project_dir,
                 f"Revise chapter {chapter} to fix audit BLOCKING issues.",
+                state=state,
             )
             if not rev.success:
                 return _handle_failure(state, step, chapter, "audit-revision", project_dir)
@@ -1437,9 +3003,46 @@ def run_chapter_step(state: PipelineState, project_dir: Path | str) -> bool:
 
         _route_revision_after_resonance(state, project_dir, chapter)
 
+        # Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML).
+        # _parse_resonance_score (chapter_loop.py:667) already ran and stored the
+        # overall int in cs.resonance_score. Reuse it — do NOT re-parse.
+        overall = cs.resonance_score  # int | None
+        if overall is not None:
+            from shenbi.pipeline.truth_io import write_truth_file
+
+            trend_row = _build_resonance_trend_row(chapter, overall)
+            write_truth_file(
+                project_dir,
+                "resonance_trend.md",
+                trend_row,
+                mode="upsert_markdown_row",
+                key_field="chapter",  # dedup on first column (Ch{N})
+            )
+            log.info("resonance_score_persisted", chapter=chapter, overall=overall)
+
     # Success: record, reset retries, advance.
-    _record_step_done(state, step, chapter)
+    state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
+
+    # Materialize progress.json from trace every 5 steps (Task 12).
+    _maybe_materialize_progress(state, chapter)
+
+    # After chapter-revision step succeeds, ensure decisions file exists
+    if "chapter-revision" in step.skill:
+        _ensure_revision_decisions_exists(project_dir, chapter, state, log)
+
+    # Post-drafting G4 quality checks (title, hook fulfillment, etc.)
+    if "chapter-drafting" in step.skill:
+        _check_volume_map_alignment(project_dir, chapter)
+        _run_post_draft_extract(state, chapter)
+        _run_g4_checks(state, chapter)
+        # 11b: Word count bounds check
+        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+        if chapter_path.exists():
+            chapter_text = chapter_path.read_text(encoding="utf-8")
+            wc_issues = _check_word_count_bounds(chapter_text)
+            for issue in wc_issues:
+                log.warning("word_count_bounds", chapter=chapter, issue=issue)
 
     # Update manifest tracking for adaptive steps that just ran.
     if step.skill == "shenbi-foreshadowing-recall":

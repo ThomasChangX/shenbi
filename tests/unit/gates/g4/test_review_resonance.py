@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from shenbi.gates.g4.review_resonance import g4_review_resonance
+from shenbi.gates.g4.review_resonance import _match_verdict, g4_review_resonance
 
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
@@ -133,3 +133,50 @@ def test_nonexistent_file_fails(tmp_path: Path) -> None:
     result = _run([str(tmp_path / "nope.md")])
     assert result["status"] == "FAIL"
     assert any("G4.rr.not_found" in mf for mf in result["must_fix"])
+
+
+# ── _match_verdict unit tests ────────────────────────────────────────────
+
+
+@pytest.mark.unit
+def test_match_verdict_standard_already_handled():
+    """The existing pattern already matches the standard format."""
+    assert _match_verdict("判定: 通过") == "通过"
+
+
+@pytest.mark.unit
+def test_match_verdict_full_width_colon_already_handled():
+    """Full-width colon is already accepted by the existing regex."""
+    assert _match_verdict("判定：阻断") == "阻断"
+
+
+@pytest.mark.unit
+def test_match_verdict_no_space_already_handled():
+    r"""No space after colon is already accepted (\s* is optional)."""
+    assert _match_verdict("判定:通过") == "通过"
+
+
+@pytest.mark.unit
+def test_match_verdict_bold_format_is_the_genuine_gap():
+    """Genuine gap 1: '**判定**: 通过' (markdown bold) needs a supplement pattern."""
+    assert _match_verdict("**判定**: 通过") == "通过"
+    assert _match_verdict("**判定**：阻断") == "阻断"
+
+
+@pytest.mark.unit
+def test_match_verdict_english_prefix_is_the_genuine_gap():
+    """Genuine gap 2: 'Verdict: <token>' (English prefix) needs a supplement pattern.
+
+    _match_verdict returns the raw token; validation against _VERDICTS is the
+    caller's responsibility. So both "通过" and "PASS" are matched and returned.
+    """
+    # English prefix + Chinese verdict token -> matches the token
+    assert _match_verdict("Verdict: 通过") == "通过"
+    # English prefix + English token -> also matched (raw token returned)
+    assert _match_verdict("Verdict: PASS") == "PASS"
+
+
+@pytest.mark.unit
+def test_match_verdict_none_for_no_match():
+    """No verdict-like pattern returns None."""
+    assert _match_verdict("something else entirely") is None

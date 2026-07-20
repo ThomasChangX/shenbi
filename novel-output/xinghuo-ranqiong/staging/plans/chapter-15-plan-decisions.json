@@ -1,0 +1,96 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 15,
+  "produced_at": "2026-07-16T12:30:00Z",
+  "selections": [
+    {
+      "target": "drift:情感梯度脉冲",
+      "selected": ["行走序列中插入小型意外/知觉锚", "不经意的声响/似曾相识的路标/不期然的遮挡", "制造松弛→警觉脉冲→回落的情感微幅波动"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch14全程单一温度(状态维护型放松/舒适)的延续", "以认知推理展开意外事件"],
+      "rationale": "Ch14 resonance audit — 过渡章情绪全程维持单一温度,P0强制纠偏"
+    },
+    {
+      "target": "cr:催收适应推进",
+      "selected": ["新常态第3-4天身份标签化/追踪感知日常化增量推进", "执法升级路径不可逆后果可触可感"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["催收员面对面场景回溯", "Ch12催收登记完成后再次回到催收员循环"]
+    },
+    {
+      "target": "cr:MH-020功能域确认",
+      "selected": ["模式选择器假设验证(跨条件确认/排除)", "过程量边界探索(竖立标尺高低端触碰)", "输出选择性机制部分确认(圆形加点触发条件假设验证)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["圆形加点完整功能含义揭示", "基线漂移含义揭示", "max_distance极限测试"]
+    },
+    {
+      "target": "cr:阶级觉醒种子深化",
+      "selected": ["方向偏移从窄巷向其他行为域延伸", "同类场景偏移幅度加大或在新的行为选择上延续偏移"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["认知宣言/顿悟式觉醒", "下一次触发强制显性化"]
+    },
+    {
+      "target": "cr:门框积累探索",
+      "selected": ["完全衰减周期天数再确认(~66%→今日衰减率)", "阈值触发条件探索", "MH-020关联性再确认"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["门后揭示", "阈值精确数值判定"]
+    },
+    {
+      "target": "cr:MH-003在场保持",
+      "selected": ["信号特征持续或产生新参数变化", "战争线加速的地面信号载体"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["引擎来源揭示", "幕后技术支持者暗示"]
+    },
+    {
+      "target": "P2线处理",
+      "selected": ["战争线至少两条地面信号同时在场", "灰色渠道面孔化(非执行日观察)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["战争线深入展开或定性", "灰色渠道任务执行", "店铺非圆形符号强制推进", "Ch17前瞻内容展开"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_011_emotional_gradient",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch14过渡章情绪全程维持单一温度——Ch15行走序列插入小型意外/知觉锚制造情感微幅波动脉冲"
+    },
+    {
+      "issue_id": "volume_map_vs_actual_divergence_ch15",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR3 Ch15定位'灵火会撤入迷雾山脉外围'与实际叙事(催收线适应期新常态第3-4天)严重偏离——以current_focus局部覆盖为准,卷末催收线高潮后方开启灵火会线"
+    },
+    {
+      "issue_id": "volume_1_chapter_count_divergence",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map第一卷1-15章但实际轨迹Ch15仍在催收适应期,距灵火会相遇+迷雾山脉撤退场景遥远——Ch15后可能需延长卷1或调整卷定义,此调整超出章节规划范围"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 11500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+---
+
+**第15章规划核心判断**:
+
+**chapter_role**: 推进/转折 — Ch14是过渡/铺垫(低压蓄力+适应期巩固)，Ch15进入卷末冲突渐进前奏，从适应期中性推入累积张力阶段。情感梯度脉冲为P0 drift纠偏，防止延续Ch14的单温度情绪。
+
+**volume_map divergence (关键问题)**: volume_map KR3定位Ch15为"灵火会撤入迷雾山脉外围，第一卷收官"，但实际叙事处于催收线适应期(新常态第3-4天)。偏差距灵火会相遇+迷雾山脉撤退场景仍然遥远，这对第一卷的总体结构提出了调整需求——Ch15后可能需要延长第一卷定义范围或调整卷间边界。此结构性调整超出章节规划范围，已在decisions.json中记录为volume_1_chapter_count_divergence并defer。
+
+**优先级执行**: P0三线(情感梯度脉冲·催收适应·MH-020确认)为本章执行核心。P1四线(阶级种子·门框积累·MH-003·战争线)按实际行走序列自然融入。P2两线(灰色渠道·Ch17前瞻)保持背景通道开放但不强制触发。
+
+**Hook节奏**: 5/8密度预算。MH-001持续defer(距上次强化2章在容忍范围内)，MH-003/MH-020/MH-021/MH-022均advance但节制推进。无僵尸伏笔。

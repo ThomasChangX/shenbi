@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.g0_config_coherence import check_config_coherence
 from shenbi.gates.g0_purity import (
     check_scenario_dir_purity,
     check_scenario_file_purity,
@@ -235,7 +236,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append({"id": "G0.4", "s": "PASS", "skills_count": len(ALL_SKILLS)})
 
     # G0.5 — rubric weight sum = 100% (sampling check — full check is expensive)
-    checks.append({"id": "G0.5", "s": "PASS", "note": "sampled"})
+    checks.append({"id": "G0.5", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
     # G0.5b — rubric-SKILL.md consistency: for each rubric, verify that
     # dimension requirements reference concepts/rules that exist in the
@@ -612,4 +613,59 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
     )
 
+    # G0.16 — skill contract + description quality (spec §3.1). Validates every
+    # skills/*/SKILL.md: description <= 500 chars and trigger-only, writes/
+    # updates disjoint, write semantics (mode) declared.
+    from shenbi.gates.g0_skill_contract import check_skill_contracts
+
+    sc_issues = check_skill_contracts()
+    if sc_issues:
+        return fail(
+            "G0",
+            checks
+            + [
+                {
+                    "id": "G0.16",
+                    "s": "FAIL",
+                    "r": "; ".join(sc_issues),
+                }
+            ],
+            "round_creation",
+            [
+                "G0.16: shorten descriptions to <=500 chars (trigger-only), "
+                "remove writes/updates overlap, add mode: to declared writes/updates"
+            ],
+        )
+    checks.append(
+        {"id": "G0.16", "s": "PASS", "note": "all skills pass contract + description checks"}
+    )
+
+    # G0.cc — configuration coherence (threshold mismatch + critical audit
+    # disabled). Production genre-config.json does NOT live at the repo root
+    # (PROJECT); it lives one level down under novel-output/<project>/. So scan
+    # PROJECT / "novel-output" / "*" for any subdir containing a genre-config.json
+    # and run the coherence check against each. G0 is also invoked standalone on
+    # the repo itself, where there may be no novel-output/ at all — in that case
+    # the loop finds nothing and the check is a silent no-op.
+    cc_must_fix: list[str] = []
+    try:
+        novel_output = PROJECT / "novel-output"
+        project_dirs: list[Path] = []
+        if novel_output.is_dir():
+            project_dirs = [
+                p
+                for p in novel_output.iterdir()
+                if p.is_dir() and (p / "genre-config.json").exists()
+            ]
+        for project_dir in project_dirs:
+            cc_issues = check_config_coherence(project_dir)
+            for idx, issue in enumerate(cc_issues):
+                check_id = f"G0.cc.{idx + 1}"
+                checks.append({"id": check_id, "s": "FAIL", "r": issue})
+                cc_must_fix.append(check_id)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        log.debug("g0_config_coherence_skipped")
+
+    if cc_must_fix:
+        return fail("G0", checks, "config_coherence", cc_must_fix)
     return passed("G0", checks)

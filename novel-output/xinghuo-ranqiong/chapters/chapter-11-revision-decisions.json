@@ -1,0 +1,80 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 11,
+  "produced_at": "2026-07-16T10:50:00+0800",
+  "selections": [
+    {
+      "target": "audits/chapter-11-anti-ai.md",
+      "selected": ["破折号检查"],
+      "basis": "volume_scope",
+      "severity": "high",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-11-continuity.md",
+      "selected": ["缺陷1: 现金基数", "缺陷2: 兑换率计算"],
+      "basis": "volume_scope",
+      "severity": "high",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-11-world-rules.md",
+      "selected": ["问题1: 铜币存量跨章矛盾", "问题2: 等价购买力内部数学矛盾"],
+      "basis": "volume_scope",
+      "severity": "high",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-11-pacing.md",
+      "selected": ["缺陷1: 蓄压-爆发周期", "缺陷2: 爆发段类型匹配"],
+      "basis": "volume_scope",
+      "severity": "high",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-11-character.md",
+      "selected": ["OOC检测: 吐槽voice"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "rev_11_dash_54",
+      "severity": "high",
+      "handling": "spot-fix: reduce 54→11 dashes",
+      "rationale": "54处→11处破折号(0.25处/百字<0.3阈值); 保留11处自然用法(时间标签/电池/描述性停顿/递进排比); 6处成对插入语全部重构为句号分割; 其余改为逗号/句号/单破折号"
+    },
+    {
+      "issue_id": "rev_11_copper_base",
+      "severity": "high",
+      "handling": "spot-fix: 三十七枚半→四十六枚半",
+      "rationale": "Ch10末~46.5铜+1银(含灰色渠道+5铜收入); 修正后46.5-35.5(两日食物+日用)=11铜, 与Ch11清点一致"
+    },
+    {
+      "issue_id": "rev_11_exchange_calc",
+      "severity": "low",
+      "handling": "spot-fix: 五十六枚半→二十一",
+      "rationale": "11铜+1银, 汇率1:10→21铜等价购买力, 非56.5; 56.5对应1:45.5汇率与文本自述的一比十矛盾"
+    },
+    {
+      "issue_id": "rev_11_pacing_blocking",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "蓄压周期8章无FIRE与爆发段类型匹配问题为宏观结构缺陷, 无法在Ch11单章内修复; Ch12必须在规划层面安排FIRE类型章节(推荐催收对抗升级/门线突破/灰色渠道危机三选一)"
+    },
+    {
+      "issue_id": "rev_11_character_voice",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "吐槽voice连续3章缺失是叙事风格确定性演变为内化认知处理路径的体现, 非Ch11单章缺陷; Ch12催收员二次接触提供外部对话场景, 届时可验证voice恢复性或需降级voice_profile"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8000,
+    "limit": 10000,
+    "trim_applied": "none"
+  }
+}

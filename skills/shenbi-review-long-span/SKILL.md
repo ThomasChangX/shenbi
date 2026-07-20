@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-long-span
-description: "Use when a finished chapter (≥3) needs a cross-chapter pattern repetition audit (6-char n-gram, word/image loops, paragraph length drift)"
+description: Use when a finished chapter (≥3) needs a cross-chapter pattern repetition
+  audit (6-char n-gram, word/image loops, paragraph length drift)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - chapters/*.md
-    - genre-config.json
+  - chapters/chapter-N.md
+  - chapters/*.md
+  - genre-config.json
   writes:
-    - audits/chapter-N-long-span.md
+  - file: audits/chapter-N-long-span.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

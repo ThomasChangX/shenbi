@@ -1,15 +1,19 @@
 ---
 name: shenbi-story-architecture
-description: "Use when designing the overall story structure, creating story frame, volume map, or defining core conflicts and objectives"
+description: Use when designing the overall story structure, creating story frame,
+  volume map, or defining core conflicts and objectives
 contract:
   kind: artifact
   reads:
-    - world/story_bible.md
-    - characters/**/*.md
+  - world/story_bible.md
+  - characters/**/*.md
   writes:
-    - outline/story_frame.md
-    - outline/volume_map.md
-    - outline/rhythm_principles.md
+  - file: outline/story_frame.md
+    mode: create_or_overwrite
+  - file: outline/volume_map.md
+    mode: create_or_overwrite
+  - file: outline/rhythm_principles.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

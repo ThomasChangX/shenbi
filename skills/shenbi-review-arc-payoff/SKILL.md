@@ -1,19 +1,33 @@
 ---
 name: shenbi-review-arc-payoff
-description: "Use when at a volume/arc boundary to gate advancement on arc emotional delivery, foreshadowing payoff quality, thread resolution, expectation-debt settlement, and character arc — runs in an independent agent"
+description: Use when at a volume/arc boundary to gate advancement on arc emotional
+  delivery, foreshadowing payoff quality, thread resolution, expectation-debt settlement,
+  and character arc — runs in an independent agent
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/*.md                       # narrowed to arc range in prose
-    - {file: outline/volume_map.md, fields: [volume_promise, arc_beats]}
-    - {file: truth/pending_hooks.md, fields: ["活跃伏笔", "伏笔统计", "伏笔时间线"]}
-    - truth/resonance_trend.md            # §6.3 弧情感交付佐证
+  - chapters/*.md
+  - file: outline/volume_map.md
+    fields:
+    - volume_promise
+    - arc_beats
+  - file: truth/pending_hooks.md
+    fields:
+    - 活跃伏笔
+    - 伏笔统计
+    - 伏笔时间线
+  - truth/resonance_trend.md
   writes:
-    - audits/volume-N-payoff.md
+  - file: audits/volume-N-payoff.md
+    mode: create_or_overwrite
   updates:
-    - truth/audit_drift.md
-    - truth/arc_payoff_trend.md
+  - file: truth/audit_drift.md
+    mode: append_dedup
+    key: chapter
+  - file: truth/arc_payoff_trend.md
+    mode: append_dedup
+    key: chapter
 ---
 <!-- AUTO-CHECK-START -->
 

@@ -1,0 +1,61 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "chapter": 22,
+  "mode": "reconstruction",
+  "decision_type": "revision_routing",
+  "classification": "reconstruction",
+  "timestamp": "2026-07-16T18:30:00+0800",
+  "reasoning": {
+    "route_c_result": "clear_pass",
+    "resonance_score": 79,
+    "resonance_threshold": 65,
+    "resonance_passed": true,
+    "content_blocking_issues": 0,
+    "content_critical_issues": 0,
+    "file_integrity_issue": "G4_fix_overwrite",
+    "assessment": "Chapter passed all content gates. No revision needed. Reconstruction only due to pipeline file corruption."
+  },
+  "adjustments": [
+    {
+      "id": "recon-001",
+      "type": "reconstruction",
+      "scope": "full_chapter",
+      "reason": "File integrity: G4 fix pipeline bug — corrective summary overwrote original chapter narrative text in chapters/chapter-22.md",
+      "severity": "critical",
+      "rationale": "required",
+      "details": "Original ~3000 CJK characters lost. Content reconstructed from 11 audit cross-source citations (continuity, pacing, character, motivation, POV, dialogue, foreshadowing, memo-compliance, resonance, anti-ai, world-rules) + truth/current_state.md + truth/chapter_summaries.md + plans/chapter-22-plan.md. All confirmed quoted phrases preserved verbatim."
+    },
+    {
+      "id": "recon-002",
+      "type": "reconstruction",
+      "scope": "decisions_json",
+      "reason": "File integrity: chapters/chapter-22-decisions.json overwritten by same G4 fix pipeline bug",
+      "severity": "critical",
+      "rationale": "required",
+      "details": "Original decisions JSON lost. Recreated with shenbi-decisions-v1 schema documenting reconstruction mode."
+    }
+  ],
+  "pre_revision_metrics": {
+    "blocking_count": 0,
+    "critical_count": 0,
+    "ai_tell_count": 0,
+    "fatigue_words": 0,
+    "cjk_char_count": 3001,
+    "byte_length": 21000
+  },
+  "g4_fix_history": {
+    "original_word_count": 2990,
+    "fixed_word_count": 3001,
+    "fatigue_fix": "10 hits all in META block → oblique notation",
+    "instant_fix": "2 body occurances '瞬间' → '时便'/'时已'"
+  },
+  "skip_pipeline_gates": ["spot-fix", "regenerate", "constrained-regenerate"],
+  "preservation_verification": {
+    "status": "reconstructed_from_cross_source_evidence",
+    "key_dialogues_preserved": "N/A — zero dialogue chapter by design",
+    "vested_foreshadowing_preserved": "MH-021/020/003/022 all confirmed REINFORCE",
+    "character_state_changes_preserved": "precision_time_sense_birth, assessment_countdown_behavioral_encoding",
+    "scene_transition_markers_preserved": "all 17 events from continuity audit timeline"
+  }
+}
+```

@@ -1,6 +1,8 @@
-"""DEPRECATED: This module is the legacy implementation. New code should import from shenbi.contracts instead. This file will be deleted after all importers migrate.
+"""Canonical contract loader and validator.
 
-Original: Single loader for skill I/O contracts (spec §5.1, fixes audit D2).
+Despite historical naming (originally a legacy compatibility layer),
+this is the current single source of truth consumed by all gates,
+dispatchers, and pipeline components.
 
 The frontmatter ``contract:`` block is the ONE editable location for a skill's
 I/O. Every consumer (dispatcher, phase_runner, gates, generator) imports
@@ -46,6 +48,7 @@ class Contract(TypedDict):
     writes: list[str]
     updates: list[str]
     read_fields: dict[str, list[str]]
+    write_semantics: dict[str, dict[str, Any]]
 
 
 def _skill_path(skill: str) -> Path:
@@ -68,6 +71,23 @@ def _normalize_read_item(item: Any) -> tuple[str, list[str] | None]:
             raise ContractError("contract.reads[].fields must be list[str]", field="reads")
         return str(item["file"]), fields
     raise ContractError("contract.reads[] must be str or {file, fields?}", field="reads")
+
+
+def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[str, Any]]:
+    """Normalize a writes/updates entry into (path, semantics_meta).
+
+    Accepts a plain string (no declared semantics -> empty meta) or a dict
+    {file, mode?, no_op_behavior?, key?}. Dict-form is the new write-semantics
+    declaration (spec §3.2).
+    """
+    if isinstance(item, str):
+        return item, {}
+    if isinstance(item, dict) and "file" in item:
+        meta = {k: v for k, v in item.items() if k != "file"}
+        return str(item["file"]), meta
+    raise ContractError(
+        f"contract.{field}[] must be str or {{file, mode?}}", skill=skill, field=field
+    )
 
 
 def load_registry() -> TruthFilesRegistry:
@@ -141,37 +161,39 @@ def _validate(raw: dict[str, Any], skill: str, registry: TruthFilesRegistry) -> 
 
     validated: dict[str, list[str]] = {}
     read_fields: dict[str, list[str]] = {}
+    write_semantics: dict[str, dict[str, Any]] = {}
     for field in ("reads", "writes", "updates"):
         val = raw.get(field)
         if not isinstance(val, list):
-            raise ContractError(f"contract.{field} must be a list[str]", skill=skill, field=field)
+            raise ContractError(f"contract.{field} must be a list", skill=skill, field=field)
         if field == "reads":
-            # reads may use dict-form {file, fields?}; writes/updates stay str-only.
             paths: list[str] = []
             for item in val:
                 path, fields = _normalize_read_item(item)
                 paths.append(path)
                 if fields is not None:
                     read_fields[path] = fields
-            items = paths
+            collected: list[str] = paths
         else:
-            if not all(isinstance(x, str) for x in val):
-                raise ContractError(
-                    f"contract.{field} must be a list[str]", skill=skill, field=field
-                )
-            items = val
-        for p in items:
+            collected = []
+            for item in val:
+                path, meta = _normalize_write_item(item, field, skill)
+                collected.append(path)
+                if meta:
+                    write_semantics[path] = meta
+        for p in collected:
             if not resolves(p, registry):
                 raise ContractError(
                     "contract path does not resolve in registry", skill=skill, field=field, path=p
                 )
-        validated[field] = items
+        validated[field] = collected
     return {
         "kind": kind,
         "reads": validated["reads"],
         "writes": validated["writes"],
         "updates": validated["updates"],
         "read_fields": read_fields,
+        "write_semantics": write_semantics,
     }
 
 

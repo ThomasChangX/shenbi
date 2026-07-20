@@ -1,13 +1,16 @@
 ---
 name: shenbi-market-radar
-description: "Use when researching current platform trends, analyzing leaderboard data, evaluating genre opportunities, or seeking competitive positioning advice for a new novel"
+description: Use when researching current platform trends, analyzing leaderboard data,
+  evaluating genre opportunities, or seeking competitive positioning advice for a
+  new novel
 contract:
   kind: artifact
   reads:
-    - novel.json
-    - genre-config.json
+  - novel.json
+  - genre-config.json
   writes:
-    - context/market-radar-decisions.json
+  - file: context/market-radar-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

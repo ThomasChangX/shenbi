@@ -1,0 +1,58 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 56,
+  "produced_at": "2026-07-17T14:00:00+08:00",
+  "selections": [
+    {
+      "target": "P0-4 quiet阈结构处置",
+      "selected": "TRIGGER（advance to TRIGGERED）",
+      "basis": "arc_relevance",
+      "severity": "high",
+      "omitted": ["DEFER（延至ch57）"],
+      "rationale": "P0-4距max_distance上限归零——ch55未出场——ch56必须操作——current_focus推荐TRIGGER——TRIGGER释放hook生态空间并推进安静阈叙事线"
+    },
+    {
+      "target": "第56章叙事模式",
+      "selected": "参数叙事延续（纯参数宣告模式）",
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲KR1传统叙事（主动出击运动战）"],
+      "rationale": "参数叙事模式自ch54起确立——author_intent叙事原则禁止工作日引入非参数元素——卷纲KR1传统叙事描述不适用于当前叙事模式"
+    },
+    {
+      "target": "章节角色类型",
+      "selected": "推进/转折",
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"]
+    },
+    {
+      "target": "P0-14域外信号处置",
+      "selected": "REINFORCE（独立段落）",
+      "basis": "adjacent_to_target_chapter",
+      "severity": "high",
+      "omitted": ["继续弱出场"],
+      "rationale": "P0-14连续两章仅列名——距上限仅1章——必须直接强化为独立段落"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volumemap_vs_parameter_narrative",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR1描述主动出击运动战——实际执行为参数叙事——参数模式自ch54确立为局部覆盖"
+    },
+    {
+      "issue_id": "scene_presence_12_20_TENSION",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "场景临场感12/20 + 情感落地18/20为参数叙事结构约束——不可在工作日改善——保留至周日评估"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 14000,
+    "trim_applied": "none"
+  }
+}

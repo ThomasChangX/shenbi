@@ -1,0 +1,24 @@
+{
+  "gate": "G4-relationship-map",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:48:41.072865+00:00",
+  "checks": [
+    {
+      "id": "G4.rm.pairs",
+      "s": "PASS",
+      "count": 15
+    },
+    {
+      "id": "G4.rm.complete",
+      "s": "PASS",
+      "complete": 15
+    },
+    {
+      "id": "G4.rm.character_matrix",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "characters/relationships.md"
+  ]
+}

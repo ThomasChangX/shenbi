@@ -1,16 +1,28 @@
 ---
 name: shenbi-short-drafting
-description: "Use when batch-generating all chapters of a short story at once, drafting the complete short novel in one go, or running generate → review → revise on a full manuscript"
+description: Use when batch-generating all chapters of a short story at once, drafting
+  the complete short novel in one go, or running generate → review → revise on a full
+  manuscript
 contract:
   kind: artifact
   reads:
-    - outline/short_story_map.md
-    - truth/author_intent.md
-    - {file: genre-config.json, fields: [fatigueWords, pacing, chapterTypes]}
-    - {file: style/style_profile.md, fields: ["11. 综合画像", "6. 修辞模式", "9. 对白占比"]}
+  - outline/short_story_map.md
+  - truth/author_intent.md
+  - file: genre-config.json
+    fields:
+    - fatigueWords
+    - pacing
+    - chapterTypes
+  - file: style/style_profile.md
+    fields:
+    - 11. 综合画像
+    - 6. 修辞模式
+    - 9. 对白占比
   writes:
-    - chapters/chapter-N.md
-    - short/short-N-decisions.json
+  - file: chapters/chapter-N.md
+    mode: create_or_overwrite
+  - file: short/short-N-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

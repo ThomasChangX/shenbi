@@ -45,6 +45,7 @@ import json
 import re
 from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
 
@@ -76,6 +77,47 @@ VOLUME_MAP_PATH = "outline/volume_map.md"
 
 #: Path to the audit drift log (relative to project_dir, section 6.7).
 AUDIT_DRIFT_PATH = "truth/audit_drift.md"
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _iso_now() -> str:
+    return datetime.now(UTC).isoformat()
+
+
+def _style_profile_is_stale(project_dir: Path) -> bool:
+    """True if style_profile.md is still bootstrap mode with >=3 chapters done.
+
+    Used by check_triggers() for self-heal: when the periodic/volume trigger
+    did not fire (or fired but failed to persist), and the profile is still in
+    bootstrap mode, force r.style_learning = True on the next check so the
+    profile gets refreshed.
+    """
+    # Count completed chapters on disk
+    chapters_dir = project_dir / "chapters"
+    if not chapters_dir.exists():
+        return False
+    chapter_count = len(list(chapters_dir.glob("chapter-*.md")))
+    if chapter_count < 3:
+        return False
+
+    profile = project_dir / "style" / "style_profile.md"
+    if not profile.exists():
+        return True  # No profile at all despite >=3 chapters
+
+    text = profile.read_text(encoding="utf-8")
+    # Bootstrap markers (match either YAML frontmatter or prose form)
+    is_bootstrap = (
+        "confidence: low" in text
+        or "Generation mode: Seed" in text
+        or "generation_mode: seed_fingerprint" in text
+    )
+    sample_count_match = re.search(r"[Ss]ample.{0,20}count.{0,5}(\d+)", text)
+    sample_count = int(sample_count_match.group(1)) if sample_count_match else 0
+    return is_bootstrap and sample_count == 0
 
 
 # ---------------------------------------------------------------------------
@@ -274,7 +316,7 @@ _END_RE = re.compile(
     re.IGNORECASE,
 )
 _RANGE_RE = re.compile(
-    r"chapters?\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
+    r"(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
     re.IGNORECASE,
 )
 
@@ -411,6 +453,8 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
     """
     r = TriggerResult()
 
+    project_dir = Path(state.project_dir)
+
     # Arc-cycle (ch%12).
     if chapter > 0 and chapter % STYLE_INTERVAL == 0:
         r.l2_distill = True
@@ -424,7 +468,6 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
 
     # Volume boundary (from volume_map.md).
     if chapter > 0:
-        project_dir = Path(state.project_dir)
         if is_volume_boundary(chapter, project_dir):
             r.volume_boundary = True
             r.score_volume = True
@@ -432,13 +475,20 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
 
     # Genre-config drift (section 6.6).
     if state.config.genre_config_update_on_drift:
-        project_dir = Path(state.project_dir)
         if check_genre_config_drift(project_dir):
             r.genre_config_update = True
 
     # Book closure (last chapter or beyond).
     if chapter >= total_chapters:
         r.book_closure = True
+
+    # Self-heal: if style profile is still bootstrap with >=3 chapters done,
+    # force the style_learning trigger even when the periodic/volume condition
+    # did not fire. This recovers from cases where the trigger ran but failed
+    # to persist (handled by run_triggered_skills failure visibility below).
+    if not r.style_learning and _style_profile_is_stale(project_dir):
+        log.warning("style_learning_self_heal_triggered", chapter=chapter)
+        r.style_learning = True
 
     return r
 
@@ -559,6 +609,15 @@ def run_triggered_skills(
                 log.error("trigger_stderr", skill=step.skill, stderr_preview=disp.stderr[:2000])
             if hasattr(disp, "returncode"):
                 log.error("trigger_rc", skill=step.skill, rc=disp.returncode)
+            # Record the failure in state for post-mortem analysis.
+            # Previously the False return could be silently ignored by callers.
+            state.last_trigger_failure = {
+                "chapter": chapter,
+                "skill": step.skill,
+                "mode": getattr(step, "mode", None),
+                "stage": "dispatch",
+                "timestamp": _iso_now(),
+            }
             return False
 
         g4_file = step.output_path if step.output_path else ""
@@ -570,6 +629,13 @@ def run_triggered_skills(
                 skill=step.skill,
                 g4=g4,
             )
+            state.last_trigger_failure = {
+                "chapter": chapter,
+                "skill": step.skill,
+                "mode": getattr(step, "mode", None),
+                "stage": "g4",
+                "timestamp": _iso_now(),
+            }
             return False
 
         if step.requires_g3:

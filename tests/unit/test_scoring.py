@@ -1049,3 +1049,132 @@ class TestMainInteractiveMode:
         result = main()
         assert result["kill_switch_triggered"] is True
         assert result["final_score"] == 0
+
+
+# --- TestScoringGatePath -------------------------------------------------
+
+
+class TestScoringGatePath:
+    """Regression: scoring.py --gate-only and --tier blocks must not reference
+    the deleted tests/validate-gate.py. They must target shenbi.gates.cli.
+    """
+
+    def test_gate_only_uses_cli_module(self, tmp_path, monkeypatch):
+        """--gate-only must invoke python -m shenbi.gates.cli, not validate-gate.py."""
+        captured_cmds: list[list[str]] = []
+
+        class FakeCompleted:
+            returncode = 0
+            stdout = '{"status": "PASS"}'
+            stderr = ""
+
+        def fake_run(cmd, **kwargs):
+            captured_cmds.append(list(cmd))
+            return FakeCompleted()
+
+        # NOTE: scoring.py imports subprocess INSIDE its functions (line 296, 330),
+        # so shenbi.scoring has no module-level `subprocess` attribute. Patch the
+        # global subprocess.run instead — the function-local import binds to the
+        # same shared module object.
+        monkeypatch.setattr("subprocess.run", fake_run)
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "shenbi-score",
+                "--gate-only",
+                "G2",
+                "--files",
+                str(tmp_path / "f.md"),
+                "--type",
+                "chapter",
+            ],
+        )
+
+        try:
+            main()
+        except SystemExit:
+            pass  # Expected when --gate-only or gate-fail triggers sys.exit()
+
+        assert captured_cmds, "no subprocess captured — --gate-only path not reached"
+        # Check the last captured command (the gate call)
+        cmd = captured_cmds[-1]
+        assert "-m" in cmd, f"expected -m flag, got {cmd}"
+        assert "shenbi.gates.cli" in cmd
+        assert not any("validate-gate.py" in str(p) for p in cmd), (
+            f"scoring --gate-only still references deleted validate-gate.py: {cmd}"
+        )
+
+    def test_tier_t1_gate_uses_cli_module(self, tmp_path, monkeypatch):
+        """The --tier T1 integration block (scoring.py:332) must also target
+        shenbi.gates.cli, not validate-gate.py. This covers the second dead-path
+        site that test_gate_only_uses_cli_module does not exercise.
+
+        Strategy: Use the correct t1-skill/<skill>/rubric.md directory structure
+        and verify that scoring completes successfully when the G3 gate passes
+        and gate markers are present. The test_gate_only_uses_cli_module above
+        already verifies that the subprocess command uses shenbi.gates.cli.
+        """
+        # Build rubric under t1-skill/<skill>/rubric.md so that --tier T1
+        # G3 gate integration fires (scoring.py extracts skill_name from
+        # parent directory when parent's parent is "t1-skill").
+        skill_root = tmp_path / "t1-skill" / "testskill"
+        skill_root.mkdir(parents=True)
+        rubric = skill_root / "rubric.md"
+        rubric.write_text(
+            "| # | Dimension | Weight |\n|---|---|---|\n| 1 | Quality | 100% |\n",
+            encoding="utf-8",
+        )
+        scores = tmp_path / "scores.json"
+        scores.write_text('{"1": 90}', encoding="utf-8")
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        # Create the G4 gate marker so gate-marker enforcement passes,
+        # allowing the full tier path to execute end-to-end.
+        (round_dir / "gate-markers").mkdir()
+        (round_dir / "gate-markers" / "G4-testskill-generative.json").write_text(
+            "{}", encoding="utf-8"
+        )
+
+        # G3 subprocess must use shenbi.gates.cli — intercept and verify
+        import subprocess
+
+        captured_cmds: list[list[str]] = []
+
+        def fake_run(cmd, **kwargs):
+            captured_cmds.append(list(cmd))
+            return type(
+                "Completed",
+                (),
+                {
+                    "returncode": 0,
+                    "stdout": '{"status": "PASS"}',
+                    "stderr": "",
+                },
+            )()
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "shenbi-score",
+                str(rubric),
+                str(scores),
+                "--tier",
+                "T1",
+                "--test-type",
+                "generative",
+                "--round-dir",
+                str(round_dir),
+            ],
+        )
+
+        result = main()
+        assert result["final_score"] == 90.0
+
+        assert captured_cmds, "expected --tier T1 to trigger a gate subprocess call"
+        cmd = captured_cmds[-1]
+        assert "-m" in cmd, f"expected -m flag, got {cmd}"
+        assert "shenbi.gates.cli" in cmd
+        assert not any("validate-gate.py" in str(p) for p in cmd), (
+            f"scoring --tier T1 still references deleted validate-gate.py: {cmd}"
+        )

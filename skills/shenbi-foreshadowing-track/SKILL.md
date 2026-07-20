@@ -7,10 +7,17 @@ contract:
     - chapters/chapter-N.md
     - {file: truth/pending_hooks.md, fields: [活跃伏笔, 伏笔时间线]}
     - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-  writes: []
+  writes:
+    - file: truth/bridge_tracker.md
+      mode: create_or_overwrite
   updates:
-    - truth/pending_hooks.md
+    - file: truth/pending_hooks.md
+      mode: append_dedup
+      key: hook_id
 ---
+# DEPRECATED: Superseded by shenbi-foreshadowing-lifecycle (2026-07-19).
+# This skill is retained for reference. Do not dispatch.
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)
@@ -22,7 +29,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** none
+- **Writes:** truth/bridge_tracker.md
 - **Updates:** truth/pending_hooks.md
 
 <!-- END AUTO-GENERATED -->
@@ -143,3 +150,15 @@ digraph foreshadowing_track {
 4. **严重度** — BLOCKING | CRITICAL | MINOR
 
 缺少任一要素的缺陷报告视为不合格。
+
+## Cross-Volume Bridge Tracking (NEW)
+
+After updating foreshadowing_ledger.md, also check `truth/bridge_tracker.md`:
+
+1. Read the current chapter text
+2. For each bridge in PENDING state: if the chapter contains the bridge's key
+   terms (character name, item name, event description), mark it ACTIVATED
+   with the current chapter number as Actual Activation Ch
+3. If a bridge was expected to activate by this chapter but has not, mark it
+   DEFERRED with a note
+4. Write updated bridge_tracker.md back to disk

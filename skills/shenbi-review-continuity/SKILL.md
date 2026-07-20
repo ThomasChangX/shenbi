@@ -1,18 +1,29 @@
 ---
 name: shenbi-review-continuity
-description: "Use when a finished chapter needs an internal consistency audit against truth files"
+description: Use when a finished chapter needs an internal consistency audit against
+  truth files
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
-    - {file: truth/chapter_summaries.md, fields: [已完成章节]}
-    - world/rules.md
+  - chapters/chapter-N.md
+  - file: truth/current_state.md
+    fields:
+    - 主角状态
+    - 当前世界局势
+    - 活跃线索
+  - file: truth/chapter_summaries.md
+    fields:
+    - 已完成章节
+  - world/rules.md
   writes:
-    - audits/chapter-N-continuity.md
+  - file: audits/chapter-N-continuity.md
+    mode: create_or_overwrite
   updates: []
 ---
+<!-- DEPRECATED: Superseded by shenbi-review-group-factual (2026-07-19). -->
+<!-- This skill is retained for reference. Do not dispatch. -->
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)
@@ -80,6 +91,23 @@ digraph review_continuity {
 ### 4. 物理空间合理性
 - 检查场景的空间描述是否一致（同一场景内距离、物体位置）
 - 如果本章涉及战斗/移动，检查空间逻辑
+
+## Arithmetic Consistency Verification
+
+For each chapter, verify:
+1. **Currency accumulation**: Copper/silver coin totals must be arithmetically
+   consistent with previous chapters. Recompute from known baselines.
+   If the previous chapter had N coins and the current chapter adds M,
+   the total must be N+M (accounting for expenditures).
+2. **Date and count patterns**: Verify daily-increment patterns
+   (e.g., "每日+1" sequences). Flag discrepancies > 0.
+3. **Inventory tracking**: If a character acquires or expends items,
+   verify the running totals.
+
+Report any arithmetic discrepancy with:
+- The incorrect value found in the chapter
+- The correct computed value
+- The line reference (approximate line number in chapter body)
 
 ## 缺陷证据格式
 

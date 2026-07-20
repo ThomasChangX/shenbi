@@ -1,0 +1,35 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 7,
+  "produced_at": "2026-07-16T12:30:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-7-resonance.md",
+      "selected": ["overall", "情感落地", "场景临场感", "文笔质感", "读者回报", "Route C 诊断"],
+      "basis": "revision_routing: Route C diagnosis confirms all hard binary items achieved, no BLOCKING-level unmet goals. Resonance passed (85/100 ≥ 65). No revision needed.",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "plans/chapter-7-plan.md",
+      "selected": ["1. 当前任务", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "contract declared reads for chapter-revision",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "revision_decision_none",
+      "severity": "low",
+      "handling": "skip",
+      "rationale": "章节已通过共鸣审计（85/100），Route C 诊断确认所有硬二元项已达成（催收回归✓、第一次主动选择✓、门第二次触碰✓、MH-020信号✓、Drift补偿✓、三重advance✓）。G4 检查全部通过（word_count无代码块包裹✓、transition零转折词✓、meta完整✓）。无 blocking/critical 级审计问题。audits/chapter-7-*.md 不存在（除已通过的 resonance 外无审计发现）。无需触发 revision_routing。本次修订不修改原文。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 12000,
+    "limit": 14000,
+    "trim_applied": "none"
+  }
+}

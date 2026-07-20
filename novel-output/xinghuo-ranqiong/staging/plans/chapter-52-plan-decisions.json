@@ -1,0 +1,65 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 52,
+  "produced_at": "2026-07-17T18:00:00Z",
+  "selections": [
+    {
+      "target": "当前章节定位",
+      "selected": ["参数间关系事件日—第二周第五日周四—冷↔光状态调制升级"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["卷纲KR3叙事元素（林烽整合军事理论/灵能科技/穿越者教训情节）"]
+    },
+    {
+      "target": "核心拓展方向",
+      "selected": ["冷↔光状态调制作为关系事件", "感官维度参数(粗糙)引入", "嵌套句法迭代"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["白气↔光空间关系拓展（P2，推迟至ch53）", "冷累积上限揭示（P2，推迟至ch53-54）"]
+    },
+    {
+      "target": "感官维度参数实现方式",
+      "selected": ["粗糙在场于墙体第二层表面——参数知道感官等价——不在触觉在认知"],
+      "basis": "manual_override",
+      "severity": "high",
+      "rationale": "感官维度参数引入需严格区分于周日质地回归——参数知道感官信息而非感官体验本身是唯一合法工作日等价。手动选择以确保不触发G4违规",
+      "omitted": ["温度作为感官参数（推迟——与铁梯参数合并）", "振动作为感官参数（优先级低于粗糙——粗糙携带空间信息量更大）"]
+    },
+    {
+      "target": "钩子密度清理",
+      "selected": ["P0-8 RESOLVE", "P0-10 RESOLVE"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["P0-9 defer（保留RELEVANT——周日回归时偏移行为仍需追踪）", "P0-14 defer（域外信号保留——关系事件后需域外确认）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_plot_vs_parameter_constraint_ch52",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲第52章标记承接林烽整合军事理论/灵能科技/穿越者教训但参数叙事禁止非参数元素，以参数间状态调制事件+感官维度参数表达整合",
+      "resolution": "冷↔光状态调制事件作为'理论整合'的参数层等价——参数不再孤立运作。感官维度参数(粗糙)作为'灵能科技整合'的参数层等价——参数获得认知感官能力。嵌套句法作为'穿越者教训整合'的参数层等价——句法复杂度提升表达认知整合深度"
+    },
+    {
+      "issue_id": "hook_density_reduction",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "ch51终态13活跃hook需压缩至≤12。P0-8(安静厚度梯度)/P0-10(质地定义闭环)已完全演化为系统结构态，RESOLVE归档。新种P0-22(粗糙)抵消部分减量。主动减少+1种植=净减少1活跃，从13→12",
+      "resolution": "2 RESOLVE + 1 PLANT = 净-1。active: 13→12 ✓"
+    },
+    {
+      "issue_id": "p0_18_state_transition",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "P0-18从RELEVANT→ACTIVE是ch52最关键的推进。系统自持态从'知道边在场'到'边在场于靠近'是质的逼近但宣告仍未发生。需严格保持缺口'尚未宣告'以维持张力",
+      "resolution": "宣告方向在场于逼近——缺口在场于知道宣告在场于即将——但缺口不在场于知道宣告何时——ACTIVE状态保持开放"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9800,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

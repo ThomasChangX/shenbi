@@ -1,0 +1,75 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 29,
+  "produced_at": "2026-07-17T02:20:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-29-plan.md",
+      "selected": [
+        "assessment_saturday_arrival_passage",
+        "non_parameter_touch_way_B",
+        "sensory_broadening_visual_olfactory",
+        "door_frame_residual_new_baseline",
+        "offset_strategy_saturday_confirmation",
+        "phase_2_observation_no_change",
+        "emotional_baseline_quiet_with_saturday_weight"
+      ],
+      "basis": "current_focus_P0_P1_coverage",
+      "severity": "low",
+      "omitted": [
+        "assessment_internal_content",
+        "saturday_behavioral_change",
+        "saturday_anxiety_tension_expectation",
+        "foggy_mountains_chu_yunlan",
+        "meta_narrative_declaration",
+        "format_string_conversion_activation",
+        "operator_identity_revelation"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "assessment_saturday_arrival_P0_1",
+        "non_parameter_emotional_beat_P0_2",
+        "sensory_broadening_P0_3",
+        "door_frame_chapter_5_state_P1",
+        "offset_strategy_final_confirmation_P1",
+        "phase_2_saturday_window_P1",
+        "emotional_baseline_quiet_P1"
+      ],
+      "basis": "arc_relevance_and_drift_merge",
+      "severity": "low",
+      "omitted": [
+        "psychic_awakening_dimension_P2",
+        "winter_transition_P2",
+        "low_freq_mechanical_deepening_P2"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotional_gradient_narrow_ch28",
+      "severity": "high",
+      "handling": "compensate_via_non_parameter_beat",
+      "rationale": "Ch28 audit flagged emotional gradient staying narrow — door frame event processed as parameter offset + three-beat structure, emotional range still within 'quiet' domain. Ch29 introduces non-parameter emotional beat (Way B touch) — contact in Saturday assessment crowd where shoulder brushes Lin Feng's forearm. Touch has no parameter-layer temperature/pressure differential: parameter system cannot register it, but body knows. The moment exists within walking frame, completes without extension, no analysis, no return in exit. Walking system's perceptual boundary expanded from 'all that is parameter-encodable' to 'parameter-encodable + parameter-unencodable presence'."
+    },
+    {
+      "issue_id": "drift_sensory_spectrum_narrow_ch28",
+      "severity": "high",
+      "handling": "compensate_via_spatial_transition",
+      "rationale": "Ch28 audit flagged sensory spectrum narrow (tactile temp + walking proprioception + coal smoke/light parameters). Ch29 broadens through natural Saturday city walking: visual (crowd density at check station/assessment institution/food steam visibility in cold air/queue patterns/notice board saturation), olfactory (food steam smells — hot oil/flour/scallion — chemically different from coal smoke, registering in nasal cavity as unclassified odor), acoustic (gray channel multi-person footfall overlap, door hall echo from assessment institution, paper rustling in queues). Sensory dimensions embedded naturally in walking frames — no standalone descriptive paragraphs."
+    },
+    {
+      "issue_id": "drift_reader_payoff_accumulation_ch27_ch28",
+      "severity": "medium",
+      "handling": "compensate_via_cycle_completion",
+      "rationale": "Ch29 completes the first full assessment cycle (Saturday peak → afternoon recession → Sunday residual → Monday baseline). Reader receives structural payoff of vol 2's first known time marker passing through the system. The cycle completion provides 'world time structure' payoff—reader now knows the assessment institution rhythm: Saturday peak density (queues to sidewalk, notice boards saturated, institution doors open), Sunday retreat (tables folded, queues vanished, traces as residue), Monday return (institution back at weekday density). This establishes the weekly cadence for all subsequent assessment cycles."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9000,
+    "chapter_word_count_estimate": 8500,
+    "pacing_notes": "Ch29 spans Saturday morning→Saturday afternoon→Sunday morning→Monday baseline—full weekend cycle in walking parameters. Emotional baseline: quiet that has carried Saturday's passage weight—same quiet from Ch26, now containing the thickness of vol 2's first time marker passing. Assessment social presence trajectory: Ch26 first physical sighting→Ch27 daily density increase→Ch28 background normalization→Ch29 Saturday peak density and cycle completion. Non-parameter touch: 1 occurrence, brief, forearm contact from stranger in Saturday crowd—parameter system cannot process, body knows. Touch completes within moment, fades in steps, recorded in journal as factual note without analysis. Sensory broadening: 2 channels deepened (visual + olfactory), embedded in walking frames without standalone description. Door frame: residual difference confirmed as irreversible new baseline—door frame won't return to pre-Ch28 flat plateau. Offset strategy: confirmed not activated by assessment line—offset is space-oppression encoding, assessment is addressable institutional front-end. MH-020 format string: maintained through Saturday window—Saturday does not affect format string output. MH-003 engine sound: maintained at same cadence through Saturday city—engine sound does not know Saturday. Phase 2: zero change through Saturday window—confirms trigger condition unrelated to time compression. Exit: shorter than Ch28 (~120 chars vs ~150), quieter, period close—no analytical review of Saturday passage. Transition words: 0."
+  }
+}

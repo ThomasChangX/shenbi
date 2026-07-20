@@ -41,7 +41,12 @@ BUDGET_BY_ROLE: dict[str, int] = {
 DEFAULT_BUDGET = 12000
 TOKEN_FACTOR = 1.5
 
+# Bridge activation window: chapters before activation to start surfacing bridges.
+_BRIDGE_ACTIVATION_WINDOW = 3
+
 # Route C: always-loaded fixed context files (§7.1 "规则路由").
+# volume_map.md is also injected at runtime via _load_volume_context()
+# when outline/volume_map.md exists and the chapter falls within a known volume.
 _ROUTE_C_FILES: list[tuple[str, str]] = [
     ("truth/book_spine.md", "book_spine"),
     ("truth/audit_drift.md", "audit_drift"),
@@ -188,6 +193,108 @@ def _route_c(project_dir: Path) -> list[dict[str, Any]]:
     return results
 
 
+# Volume boundaries are parsed at runtime from volume_map.md via
+# triggers.py:read_volume_boundaries() -- NEVER hard-coded. Hard-coding
+# ('Volume 1', (1, 15)) duplicates the map and will diverge.
+
+
+def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
+    """Resolve (volume_name, ch_start, ch_end) for a chapter at runtime.
+
+    Parses volume_map.md via triggers.py:read_volume_boundaries() which
+    returns a set of last-chapter numbers per volume. We build the
+    (start, end) ranges from that set.
+    """
+    from shenbi.pipeline.triggers import read_volume_boundaries
+
+    boundary_chapters = read_volume_boundaries(project_dir)
+    if not boundary_chapters:
+        return None
+
+    boundaries_sorted = sorted(boundary_chapters)
+    prev_end = 0
+    for i, end in enumerate(boundaries_sorted, 1):
+        ch_start = prev_end + 1
+        if ch_start <= chapter <= end:
+            return (f"Volume {i}", ch_start, end)
+        prev_end = end
+    return None
+
+
+def _load_volume_context(project_dir: Path, chapter: int) -> str:
+    """Extract current volume context from volume_map.md for the given chapter.
+
+    Returns a markdown string containing:
+    - Current volume Objective
+    - Current chapter's node role and content description
+    - Pending cross-volume bridges approaching activation
+    """
+    vm_path = project_dir / "outline" / "volume_map.md"
+    if not vm_path.exists():
+        return ""
+
+    volume_map_text = vm_path.read_text(encoding="utf-8")
+
+    # Determine current volume at runtime (NEVER hard-code boundaries)
+    resolved = _resolve_volume_at_runtime(project_dir, chapter)
+    if resolved is None:
+        return ""
+    current_volume = resolved[0]
+
+    parts: list[str] = []
+    parts.append("## Current Volume Context (from volume_map.md)\n")
+
+    # Extract volume heading line (includes volume number and title)
+    vol_heading_pattern = re.compile(
+        rf"## ({re.escape(current_volume)}[^\n]*)\n",
+    )
+    vol_heading_match = vol_heading_pattern.search(volume_map_text)
+    if vol_heading_match:
+        parts.append(f"**Volume:** {vol_heading_match.group(1).strip()}\n")
+
+    # Extract volume objective
+    vol_pattern = re.compile(
+        rf"## {re.escape(current_volume)}.*?\n\*\*Objective:\*\*\s*(.+?)(?=\n##|\n###|\Z)",
+        re.DOTALL,
+    )
+    vol_match = vol_pattern.search(volume_map_text)
+    if vol_match:
+        parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
+
+    # Extract chapter node info
+    chapter_node_pattern = re.compile(
+        rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|",
+    )
+    node_match = chapter_node_pattern.search(volume_map_text)
+    if node_match:
+        role = node_match.group(1).strip()
+        content = node_match.group(2).strip()
+        parts.append(f"**Chapter Role:** {role}")
+        parts.append(f"**Expected Content:** {content}\n")
+
+    # Extract pending cross-volume bridges
+    bridge_section = volume_map_text.split("## Cross-Volume Bridges")
+    if len(bridge_section) > 1:
+        bridge_pattern = re.compile(
+            r"\|\s*(V\d+-B\d+)\s*\|([^|]+)\|\s*(?:Ch\s*)?(\d+)\s*\|",
+        )
+        pending_bridges: list[str] = []
+        for m in bridge_pattern.finditer(bridge_section[1]):
+            bridge_id = m.group(1)
+            bridge_content = m.group(2).strip()
+            activation_ch = int(m.group(3))
+            if chapter >= activation_ch - _BRIDGE_ACTIVATION_WINDOW:
+                pending_bridges.append(
+                    f"- **{bridge_id}** ({bridge_content}) activates Ch {activation_ch}"
+                )
+        if pending_bridges:
+            parts.append("**Pending Cross-Volume Bridges:**")
+            parts.extend(pending_bridges)
+            parts.append("")
+
+    return "\n".join(parts)
+
+
 def rerank_results(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Deterministic rerank: sort by weight desc, dedup by content hash.
 
@@ -221,6 +328,22 @@ def assemble_context(project_dir: Path | str, chapter_plan_path: str) -> Context
     route_a = _route_a(index, plan_text)
     route_b, degraded = _route_b(project_dir, plan_text)
     route_c = _route_c(project_dir)
+
+    # Inject volume map context into Route C assembly. Route entries are dicts
+    # (source/weight/text/id); rerank_results + the section-building loop convert
+    # them to ContextSection(source/priority/text/category/estimated_tokens).
+    _chapter_match = re.search(r"chapter-(\d+)", chapter_plan_path)
+    _chapter_num = int(_chapter_match.group(1)) if _chapter_match else 0
+    volume_ctx = _load_volume_context(project_dir, _chapter_num)
+    if volume_ctx:
+        route_c.append(
+            {
+                "source": "route-c:volume_map",
+                "weight": 0.6,
+                "text": volume_ctx,
+                "id": "volume_map",
+            }
+        )
 
     ranked = rerank_results(route_a + route_b + route_c)
     budget = BUDGET_BY_ROLE.get(chapter_role or "", DEFAULT_BUDGET)
@@ -310,6 +433,7 @@ __all__ = [
     "TOKEN_FACTOR",
     "ContextPackage",
     "ContextSection",
+    "_load_volume_context",
     "assemble_context",
     "main",
     "rerank_results",

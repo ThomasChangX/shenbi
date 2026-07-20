@@ -1,0 +1,63 @@
+{
+  "gate": "G4-worldbuilding",
+  "status": "PASS",
+  "timestamp": "2026-07-15T20:05:19.674488+00:00",
+  "checks": [
+    {
+      "id": "G4.novel.title",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.genre",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.language",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.novel.target_words",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.genre_config",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.sb",
+      "s": "PASS",
+      "sections": 4
+    },
+    {
+      "id": "G4.rules",
+      "s": "PASS",
+      "count": 10,
+      "testable": 0,
+      "note": "heading-format rules accepted without per-rule testable markers"
+    },
+    {
+      "id": "G4.locations",
+      "s": "PASS",
+      "count": 5
+    },
+    {
+      "id": "G4.truth.current_state.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.character_matrix.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.emotional_arcs.md",
+      "s": "PASS"
+    },
+    {
+      "id": "G4.truth.chapter_summaries.md",
+      "s": "PASS"
+    }
+  ],
+  "files_checked": [
+    "world/story_bible.md"
+  ]
+}

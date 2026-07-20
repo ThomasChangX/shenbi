@@ -1,0 +1,68 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 39,
+  "produced_at": "2026-07-17T02:00:00Z",
+  "selections": [
+    {
+      "target": "audits/chapter-39-*.md — all 12 audits",
+      "selected": [
+        "motivation_A13_judgment_node_spot_fix",
+        "self_check_accuracy_correction"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "走了_frequency_reduction",
+        "pacing_macro_restructure",
+        "anti_ai_hyphen_exempted",
+        "resonance_future_chapter_advice"
+      ]
+    },
+    {
+      "target": "audits/chapter-39-motivation.md — A13",
+      "selected": [
+        "cold_direction_preframe_before_second_return_path"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-39-memo-compliance.md — P0-5",
+      "selected": [
+        "self_check_acknowledge_actual_count_and_constraint_issue"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "retroactive_walked_reduction"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch39_memo_walked_frequency",
+      "severity": "medium",
+      "handling": "defer_to_next_chapter",
+      "rationale": "≤28 约束值与 Ch37 实际密度 53 次不符。审计分析建议校准基线，非追溯削减。"
+    },
+    {
+      "issue_id": "ch39_pacing_nonfire_10chapters",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "宏观结构问题跨 Ch30-39。非单章 ±15% 可修。建议 Ch40-42 安排 FIRE。"
+    },
+    {
+      "issue_id": "ch39_motivation_A13_judgment_gap",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "已添加冷方向前导帧——归途段 `冷知道方向可偏移` 作为判断节点投射。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

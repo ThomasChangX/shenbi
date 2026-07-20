@@ -1,14 +1,21 @@
 ---
 name: shenbi-length-normalizing
-description: "Use when a chapter falls below 3000 words (needs expansion) or exceeds 10000 words (needs compression)"
+description: Use when a chapter falls below 3000 words (needs expansion) or exceeds
+  10000 words (needs compression)
 contract:
   kind: artifact
   reads:
-    - chapters/chapter-N.md
-    - {file: novel.json, fields: [target_word_count, genre, language]}
+  - chapters/chapter-N.md
+  - file: novel.json
+    fields:
+    - target_word_count
+    - genre
+    - language
   writes: []
   updates:
-    - chapters/chapter-N.md
+  - file: chapters/chapter-N.md
+    mode: merge_prose
+    no_op_behavior: skip_write
 ---
 <!-- AUTO-CHECK-START -->
 

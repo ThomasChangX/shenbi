@@ -1,0 +1,137 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 43,
+  "produced_at": "2026-07-17T12:36:00Z",
+  "mode": "no_op",
+  "selections": [
+    {
+      "target": "audits/chapter-43-anti-ai.md",
+      "selected": ["建议"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "False positive: 688 —— is the consciousness-of-Monday stylistic baseline consistent across Ch40/Ch41/Ch42. Audit explicitly recommends '不作为修订项'. No change applied."
+    },
+    {
+      "target": "audits/chapter-43-foreshadowing.md",
+      "selected": ["缺陷汇总", "建议修复"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": ["修正操作"],
+      "rationale": "Density 10/8 overrun and documentation alignment issues (plan §7 MH-023 omission, MH-024 resolve→REINFORCE label mismatch) are planning/documentation concerns for future chapters, not chapter-43 content defects. No chapter content change warranted."
+    },
+    {
+      "target": "audits/chapter-43-pacing.md",
+      "selected": ["缺陷汇总", "建议修复"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": ["修正操作"],
+      "rationale": "Structural book-level issues (cumulative cycle ~18>15 max, 7 consecutive CONSTELLATION) cannot be resolved in a single chapter revision. Flagged for Ch44+ planning."
+    },
+    {
+      "target": "audits/chapter-43-review-summary.md",
+      "selected": ["BLOCKING", "CRITICAL"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "Consolidated review confirms 0 BLOCKING and 0 CRITICAL issues across all 11 reviews. No actionable defects."
+    },
+    {
+      "target": "audits/chapter-43-continuity.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "10/10 通过 — no defects."
+    },
+    {
+      "target": "audits/chapter-43-memo-compliance.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "10/10 通过 — all 22+ commitments fulfilled. No revision needed."
+    },
+    {
+      "target": "audits/chapter-43-character.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "8.3/10 通过 — zero OOC, all entity BDI aligned. No revision needed."
+    },
+    {
+      "target": "audits/chapter-43-motivation.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "9/10 通过 — framework mismatch is style feature, not defect. No revision needed."
+    },
+    {
+      "target": "audits/chapter-43-pov.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "10/10 通过 — zero information leakage. No revision needed."
+    },
+    {
+      "target": "audits/chapter-43-resonance.md",
+      "selected": ["Score", "Verdict"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "78/100 通过 — already corrected in prior pass (markdown verdict format). No further revision needed."
+    },
+    {
+      "target": "audits/chapter-43-sensitivity.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "Pass — no violations. No revision needed."
+    },
+    {
+      "target": "audits/chapter-43-world-rules.md",
+      "selected": ["评分"],
+      "basis": "revision_routing",
+      "severity": "low",
+      "omitted": [],
+      "rationale": "10/10 通过 — zero rule violations. No revision needed."
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch43_revision_no_op",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "No chapter-content-level revision needed. All audits either pass, document false-positives, or flag structural/book-level issues outside single-chapter scope."
+    },
+    {
+      "issue_id": "ch43_anti_ai_false_positive",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "Anti-ai 4/10 is false positive. The only finding (688 ——) is the consciousness-of-Monday stylistic baseline, consistent with Ch40/Ch41/Ch42. Audit explicitly recommends '不作为修订项'. Changing this would break stylistic consistency and worsen quality."
+    },
+    {
+      "issue_id": "ch43_pacing_book_level",
+      "severity": "medium",
+      "handling": "forward_to_planning",
+      "rationale": "Pacing BLOCKING (cumulative cycle ~18>15) and CRITICAL (7 consecutive CONSTELLATION) are book-level structural issues. Forwarded to Ch44 planning for mitigation: consider embedding scene-level micro-release events or type-switch window in Ch44-Ch46."
+    },
+    {
+      "issue_id": "ch43_foreshadowing_documentation",
+      "severity": "low",
+      "handling": "forward_to_planning",
+      "rationale": "Foreshadowing density 10/8 overrun and plan §7 documentation alignment (MH-023 omission, MH-024 label) are planning concerns. Forwarded to Ch44 planning for density normalization to ≤6/8 per audit recommendation."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 25000,
+    "limit": 32000,
+    "trim_applied": "none",
+    "notes": "No content changes applied. All outputs: state snapshot (truth/state_snapshot-pre-rev.md), revision decisions (chapters/chapter-43-revision-decisions.json), chapter-43.md (unchanged)."
+  }
+}

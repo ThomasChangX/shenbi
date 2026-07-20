@@ -1,0 +1,112 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 31,
+  "volume": 2,
+  "chapter_day": "vol2-week2",
+  "generated_at": "2026-07-17",
+  "priority_chain": {
+    "sources": [
+      {"level": 1, "source": "external_directive", "present": false, "note": "pipeline mode — no human directive beyond plan execution"},
+      {"level": 2, "source": "local_override", "present": true, "source_file": "truth/current_focus.md", "note": "P0-1/P0-2/P0-3 fully specified + audit_drift 2项全部合并"},
+      {"level": 3, "source": "volume_kr", "present": true, "note": "volume_map.md KR4开篇定位(整合梵天知识/灵能自主研发)与当前叙事状态完全偏离——以current_focus覆盖"},
+      {"level": 4, "source": "current_focus", "present": true, "note": "primary guidance source"},
+      {"level": 5, "source": "author_intent", "present": true, "note": "arc_progress confirms vol2-week2 direction"}
+    ],
+    "conflict_resolution": "volume_map.md Ch31定位(KR4开篇：整合梵天知识，启动灵能技术自主研发)与当前叙事状态(vol2第6章——第二周——评估路径惯常化阶段——冷空气外部锚事件+零类别预回避)完全偏离。以current_focus P0-1/P0-2/P0-3及audit_drift合并项为准。",
+    "selected_source": "truth/current_focus.md"
+  },
+  "chapter_role": "推进/转折",
+  "primary_objectives": {
+    "P0": [
+      {
+        "id": "P0-1",
+        "item": "第二周已知节奏深化——评估周历从历法性在场→惯常化在场",
+        "source": "current_focus/plot",
+        "execution": "Tuesday与Thursday密度各自登记为各自参数基值——不比较——不登记差。周历在行走参数中的登记从显性计数退化为经过时的体感密度——如同经过一条街不需要数人就知道喧闹程度——走了"
+      },
+      {
+        "id": "P0-2",
+        "item": "外部锚事件——冷空气强度跨越作为第一个可体感的季节变化",
+        "source": "current_focus/audit_drift(Ch30 audit 第1项)",
+        "execution": "冷从温度读数推进为行为调节参数——步幅因冷窄化——频率因冷加快——冷从章首第一帧到章末出口贯穿——读者从行走帧中直接感受冷——如同读者也在冷中"
+      },
+      {
+        "id": "P0-3",
+        "item": "情感梯度二次回归——参数系统预回避确认",
+        "source": "current_focus/audit_drift(Ch30 audit 第2项)",
+        "execution": "零类别标记持续在场——参数系统在触碰域体感参数可寻址范围内执行预编码跳过——钟在午夜走快——午夜在钟里。章中最多1帧。不宣告为认知结论。不延伸情绪反应。"
+      }
+    ],
+    "P1": [
+      {"id": "P1-1", "item": "第二周偏移状态确认", "source": "current_focus/character_arc"},
+      {"id": "P1-2", "item": "门框基线第二周稳定性", "source": "current_focus/plot"},
+      {"id": "P1-3", "item": "Phase 2第二周状态", "source": "current_focus/plot"},
+      {"id": "P1-4", "item": "感官基线维持(气味扩散方式因冷变化)", "source": "current_focus/audit_drift"},
+      {"id": "P1-5", "item": "情感基线深化(安静包含钟走快的速度)", "source": "current_focus/character_arc"}
+    ],
+    "P2": [
+      {"id": "P2-1", "item": "MH-020格式串第二周维持", "source": "current_focus/plot"},
+      {"id": "P2-2", "item": "MH-003引擎声第二周", "source": "current_focus/plot"},
+      {"id": "P2-3", "item": "非参数域留白保持", "source": "current_focus/character_arc"},
+      {"id": "P2-4", "item": "时令推进(冷空气强度跨越)", "source": "current_focus/plot"}
+    ]
+  },
+  "hook_operations": {
+    "total_count": 5,
+    "budget": "5/8",
+    "operations": {
+      "advance": ["MH-022", "MH-023", "MH-021"],
+      "resolve": [],
+      "defer": ["MH-020", "MH-003"],
+      "open": []
+    },
+    "silent_check": "所有活跃hook均在上章获得推进——无defer≥4章僵尸伏笔",
+    "subtlety_changes": {
+      "MH-022": "0.04→0.03",
+      "MH-023": "0.38→0.35",
+      "MH-021": "0.12→0.11",
+      "MH-020": "0.21→0.21 (defer)",
+      "MH-003": "0.17→0.17 (defer)"
+    }
+  },
+  "chapter_end_changes": [
+    {"id": "C1", "type": "物理", "description": "冷从温度读数推进为行为调节参数——步幅窄化/频率加速——可体感的季节变化确立"},
+    {"id": "C2", "type": "信息", "description": "零类别标记从参数系统悬停(Ch30)→参数系统预回避(Ch31)——不可编码物处理方式升级"},
+    {"id": "C3", "type": "信息", "description": "评估周历从历法性在场→惯常化在场——Tuesday与Thursday密度各自登记不比较"}
+  ],
+  "emotion_target": "冷——安静在冷中——冷在行走参数中——步幅窄了——频率快了——手在口袋中——口袋只是更冷的地方之外一个没那么冷的地方——冷穿过口袋——手在口袋中仍然冷——冷——午夜在钟里——钟走快了——在冷中走快了——冷——走了——冷——走了",
+  "constraints": {
+    "no_cold_evaluation_link": true,
+    "no_pre_avoidance_declaration": true,
+    "no_zero_category_extension": true,
+    "no_route_deviation": true,
+    "no_evaluation_reveal": true,
+    "no_meta_narrative": true,
+    "no_cold_analysis": true,
+    "no_power_fantasy": true,
+    "pre_avoidance_frame_max": 1
+  }
+}
+```
+
+两份文件完成。由于会话沙箱为 `read-only` 且 `approval_policy = never`，无法自动写入磁盘。请将以上两个文件内容分别写入：
+
+- `staging/plans/chapter-31-plan.md`
+- `staging/plans/chapter-31-plan-decisions.json`
+
+## 章节规划摘要
+
+**Ch31 定位**: vol 2 第6章 — 第二周已知节奏深化
+
+**3个P0目标**:
+1. **评估周历惯常化** — Tuesday 密度作为 Tuesday 密度、Thursday 密度作为 Thursday 密度，不比较，周历从显性计数退化为体感密度
+2. **外部锚事件 — 冷空气强度跨越** — 冷从温度读数推进为行为调节参数（步幅窄化/频率加速），读者无需参数框架即可感知冷
+3. **情感梯度二次回归 — 零类别预回避** — 参数系统对不可编码物执行分类跳过（钟在午夜走快而非停止），比失败帧更持久的处理方式
+
+**Hook 账**: 5条（3 advance + 2 defer），无僵尸伏笔，密度5/8
+
+**章尾改变**: 物理 x1（冷→行为参数）、信息 x2（预回避确认 + 周历惯常化）
+
+**约束**: 冷与评估不建立叙事关联、预回避不宣告为认知结论、零类别不延伸至其他感官域、路线不变、评估不揭示、无元叙事

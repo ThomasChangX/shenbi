@@ -1,12 +1,14 @@
 ---
 name: shenbi-anchor-curate
-description: "Use when generating a new scoring anchor from a reference work passage, or curating the existing anchor library"
+description: Use when generating a new scoring anchor from a reference work passage,
+  or curating the existing anchor library
 contract:
   kind: artifact
   reads:
-    - import/source/*.txt
+  - import/source/*.txt
   writes:
-    - benchmarks/anchors/AC-NNN.md
+  - file: benchmarks/anchors/AC-NNN.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

@@ -17,6 +17,37 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+def _record_completion(round_dir: Path, skill: str, test_type: str, score: float) -> None:
+    """Record skill completion directly into progress.json.
+
+    Replaces the historical ``shenbi-progress mark-done`` subprocess, which
+    invoked an entry point never registered in pyproject.toml. Mirrors how
+    gate logic (g_dispatch.py) reads ``completed_skill_names``.
+    """
+    progress_path = round_dir / "progress.json"
+    if progress_path.exists():
+        loaded = json.loads(progress_path.read_text(encoding="utf-8"))
+        progress: dict[str, object] = loaded if isinstance(loaded, dict) else {}
+    else:
+        progress = {}
+
+    completed_obj = progress.get("completed_skill_names", [])
+    completed = completed_obj if isinstance(completed_obj, list) else []
+    if skill not in completed:
+        completed.append(skill)
+    progress["completed_skill_names"] = completed
+
+    skills_obj = progress.get("skills", {})
+    skills = skills_obj if isinstance(skills_obj, dict) else {}
+    skill_entry_obj = skills.get(skill, {})
+    skill_entry = skill_entry_obj if isinstance(skill_entry_obj, dict) else {}
+    skill_entry[test_type] = {"score": score, "status": "done"}
+    skills[skill] = skill_entry
+    progress["skills"] = skills
+
+    safe_write(progress_path, json.dumps(progress, indent=2, ensure_ascii=False))
+
+
 def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, agent_id: str) -> int:
     """Dispatch via codex CLI."""
     if not prompt:
@@ -81,9 +112,6 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
         return result.returncode
 
     final = json.loads(result.stdout).get("final_score", 0)
-    subprocess.run(
-        ["uv", "run", "shenbi-progress", "mark-done", str(round_dir), skill, test_type, str(final)],
-        check=True,
-    )
+    _record_completion(round_dir, skill, test_type, final)
     emit_json(json.loads(result.stdout))
     return 0

@@ -175,7 +175,6 @@ class TestWave1E2E:
                 ["chapters", str(project_dir)],
                 ["next", str(project_dir)],
                 ["resume", str(project_dir)],
-                ["rollback", str(project_dir), "--chapter", "1"],
             ):
                 rc, out = _run(argv, monkeypatch)
                 # next/resume may return blocked (rc=1) at a checkpoint;

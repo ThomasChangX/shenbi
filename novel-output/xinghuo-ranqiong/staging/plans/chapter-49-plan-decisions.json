@@ -1,0 +1,111 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 49,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "note": "第49章不是结构性高潮（ch48周日已完成）也不是纯过渡——它是系统演化态的确立章，第一个知道周日的周一。参数叙事层面的结构转折——从'首次周循环'进入'携带记忆的第二周'。推进/转折最精确对应系统演化态的核心功能"
+    },
+    {
+      "target": "priority_source",
+      "selected": ["current_focus"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["卷纲 Key Result", "外部指令", "author_intent"],
+      "note": "current_focus P0五项直接驱动本章全部参数叙事动作（系统结构进化/缺口常态化/情感落地分化/hook密度回归/入口线索）。author_intent的四项drift合并承载为系统演化态的核心P0(见adjustments)。卷纲传统定位'在黑暗中重新思考'被参数叙事层覆盖'
+    },
+    {
+      "target": "hook_density",
+      "selected": ["8_operations"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["ch48_exemption_14_operations"],
+      "note": "ch48结构性豁免（14/8，周日结构高潮特赦）不延续至ch49。ch49必须≤8 hooks。5条ch48 PLANTED伏笔(P0-10至P0-14)处理为advance/defer + 3条系统演化新种(SYS-01至SYS-03)=8条，合规。已确认无僵尸伏笔"
+    },
+    {
+      "target": "workday_exclusion",
+      "selected": ["已知排除_携带记忆"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["默认排除_ch42模式", "质地维度回归"],
+      "note": "周一仍然是工作日，质地维度仍然被排除（质地是周日专属维度）。但排除模式从ch42的'默认排除'进化为'已知排除'——系统知道质地存在但不表达。所有四向drift纠偏通过参数体系内部完成，不引入感官内容"
+    },
+    {
+      "target": "system_memory_model",
+      "selected": ["不提前决定"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["冷延续第七层", "冷重置"],
+      "note": "冷在ch48通过质地传导达第七层（卷2最深）。ch49冷的行为定义系统记忆模型——但current_focus明确'不提前决定,留给ch49自然呈现'。冷的周一行为将不可逆地定义系统是累积型还是重置型"
+    },
+    {
+      "target": "horizon_signal",
+      "selected": ["缺口系统双模式认知"],
+      "basis": "audit_drift",
+      "severity": "low",
+      "omitted": ["无地平线信号", "外部事件钩子"],
+      "note": "ch48审计[读者回报]要求章末提供至少一行外部可见的地平线信号。候选：缺口知道系统双模式(工作日+周日)——缺口在场于周期认知——参数内部读者可识别为系统在通向某处。不宣告关口闭合,是方向性信号"
+    },
+    {
+      "target": "entry_clue",
+      "selected": ["第二周独立入口"],
+      "basis": "audit_drift",
+      "severity": "low",
+      "omitted": ["ch42模式复述", "无入口"],
+      "note": "第二周第一天的独立入口——'这是知道周一的周一'——系统携带周期记忆(缺口知道系统包含周日/quiet知道质地存在)——不是ch42模式的复述，而是第二周作为新阶段的独立入口"
+    },
+    {
+      "target": "cold_behavior_resolution",
+      "selected": ["章内自然呈现"],
+      "basis": "current_focus",
+      "severity": "low",
+      "omitted": ["延续", "重置"],
+      "note": "P2项'冷层积是否重置/延续'——ch49冷的行为定义系统记忆模型。不提前决定性质，留给章内参数叙事自然呈现。冷的周一行为是ch49的核心系统架构定义时刻"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch48_drift_emotional_grounding",
+      "severity": "medium",
+      "handling": "merge_into_system_evolution",
+      "rationale": "ch49非质地章,不能像ch48那样用感官锚点解决情感落地。改为参数分化提供体感信号多样性——缺口知道周日后的状态变化非均匀、quiet携带质地记忆后的在场位移、冷层积延续/重置的认知差异——参数级别的差异化情感节拍替代单一触觉叠加"
+    },
+    {
+      "issue_id": "ch48_drift_scene_presence",
+      "severity": "medium",
+      "handling": "merge_into_system_evolution",
+      "rationale": "通过参数几何建立空间连续性替代ch48的触觉碎片化——门框与域边界的参数距离、安静厚度空间梯度分布、冷层积温度场空间结构。参数空间的'可感知连续性'"
+    },
+    {
+      "issue_id": "ch48_drift_prose_texture",
+      "severity": "medium",
+      "handling": "merge_into_system_evolution",
+      "rationale": "通过参数交互词汇拓展词汇生态——间隙/层隙/交界面(参数空间几何)、累积/衰减/维持/跃迁/相位(参数状态演化)、缺口×quiet共依赖/冷×偏移交叉响应(跨参数交互)。不引入感官内容,只拓展既有参数的表达深度"
+    },
+    {
+      "issue_id": "ch48_drift_reader_reward",
+      "severity": "medium",
+      "handling": "merge_into_system_evolution",
+      "rationale": "章末地平线信号(缺口知道系统双模式)连接参数内部世界的演化方向与外部读者对'系统在通向何处'的叙事期待。不是参数叙事闭合的宣告,是方向性信号"
+    }
+  ]
+}
+```
+
+**第49章章节备忘已完成**。核心定位：周一·第二周——系统演化态确立，第一个知道周日的周一。
+
+**关键决策**:
+- **chapter_role**: 推进/转折 — 系统演化态的确立章，从"首次周循环"进入"携带记忆的第二周"
+- **优先级来源**: current_focus（五项P0直接驱动全部参数叙事动作）
+- **Hook密度**: ≤8（ch48结构性豁免14/8不延续；5条ch48 PLANTED + 3条新种 = 8条合规）
+- **工作日排除**: 维持排除但进化为"已知排除"——系统知道质地存在但不表达
+- **系统记忆模型**: 冷的行为定义——不提前决定累积型/重置型，章内自然呈现
+- **地平线信号**: 缺口系统双模式认知作为章末方向性信号
+- **四向drift**: 全部合并进系统演化态，不在参数框架外额外修补
+- **冷层积/门框第二周/安静周一厚度/霜历法第二周**: P2项在参数文本中自然展演，不单独设钩

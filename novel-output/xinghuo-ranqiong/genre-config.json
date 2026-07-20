@@ -1,0 +1,173 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-16",
+  "fatigueWords": {
+    "禁用": [
+      "心中暗道",
+      "眼中闪过一丝",
+      "嘴角勾起一抹冷笑",
+      "眸光一凝",
+      "深吸一口气",
+      "瞳孔猛地一缩",
+      "冷哼一声",
+      "嘴角抽搐了一下"
+    ],
+    "慎用": [
+      "微微一笑",
+      "点了点头",
+      "皱了皱眉",
+      "叹了口气",
+      "沉吟片刻",
+      "若有所思"
+    ],
+    "替换建议": {
+      "心中暗道": [
+        "暗想",
+        "心道",
+        "暗自思忖"
+      ],
+      "眼中闪过一丝": [
+        "眼底掠过",
+        "眸中闪过",
+        "目光微变"
+      ],
+      "嘴角勾起一抹冷笑": [
+        "唇角微扬",
+        "冷笑一声",
+        "面露讥诮"
+      ],
+      "眸光一凝": [
+        "目光一凝",
+        "眼神微凝",
+        "视线骤然聚焦"
+      ],
+      "深吸一口气": [
+        "长长吐出一口气",
+        "气息微沉",
+        "深呼吸"
+      ],
+      "瞳孔猛地一缩": [
+        "瞳孔微缩",
+        "眼神骤变",
+        "目光一紧"
+      ],
+      "冷哼一声": [
+        "轻哼一声",
+        "鼻间发出一声冷哼",
+        "嗤笑"
+      ],
+      "嘴角抽搐了一下": [
+        "面色微僵",
+        "表情一滞",
+        "神色间闪过一丝不自然"
+      ],
+      "微微一笑": [
+        "唇角轻扬",
+        "面带笑意",
+        "露出浅笑"
+      ],
+      "点了点头": [
+        "颔首",
+        "轻轻颔首",
+        "微一颔首"
+      ],
+      "皱了皱眉": [
+        "眉头微蹙",
+        "眉心微拧",
+        "眉间隆起"
+      ],
+      "叹了口气": [
+        "轻叹一声",
+        "叹息",
+        "发出一声轻叹"
+      ],
+      "沉吟片刻": [
+        "略一思忖",
+        "沉默须臾",
+        "思索片刻"
+      ],
+      "若有所思": [
+        "似在思索",
+        "陷入沉思",
+        "目光悠远"
+      ]
+    }
+  },
+  "pacing": {
+    "softRange": 0.15,
+    "hardRange": 0.3,
+    "minChaptersPerCycle": 8,
+    "maxChaptersPerCycle": 15
+  },
+  "chapterTypes": {
+    "战斗": {
+      "maxConsecutive": 2,
+      "warningThreshold": 3
+    },
+    "对话": {
+      "maxConsecutive": 3,
+      "warningThreshold": 4
+    },
+    "谋略": {
+      "maxConsecutive": 2,
+      "warningThreshold": 3
+    },
+    "人物": {
+      "maxConsecutive": 3,
+      "warningThreshold": 4
+    },
+    "世界观": {
+      "maxConsecutive": 2,
+      "warningThreshold": 3
+    },
+    "过渡": {
+      "maxConsecutive": 1,
+      "warningThreshold": 2
+    },
+    "高潮": {
+      "maxConsecutive": 1,
+      "warningThreshold": 2
+    },
+    "反思": {
+      "maxConsecutive": 2,
+      "warningThreshold": 3
+    }
+  },
+  "auditDimensions": {
+    "antiAi": true,
+    "character": true,
+    "motivation": true,
+    "pacing": true,
+    "continuity": true,
+    "foreshadowing": true,
+    "sensitivity": true,
+    "worldRules": true,
+    "dialogue": true,
+    "texture": true
+  },
+  "customRules": [
+    {
+      "id": "rule-001",
+      "description": "文字质感(texture)维度已启用——前期写作阶段同样执行质感审计，捕捉感官细节与场景临场感的退化（E34 修复）",
+      "enforcement": "warning",
+      "example": ""
+    },
+    {
+      "id": "rule-002",
+      "description": "政治敏感内容审查——涉及殖民主义、法西斯主义、阶级斗争等内容需确保符合小说主题设定，不出现无意义的政治口号",
+      "enforcement": "blocking",
+      "example": "主角空喊'为了革命'而不展示具体的人民动员过程"
+    },
+    {
+      "id": "rule-003",
+      "description": "穿越者知识使用限制——主角的现代知识（毛概思想、科技知识）必须在世界观中有合理的转化过程，不可直接照搬现实术语",
+      "enforcement": "warning",
+      "example": "直接出现'马克思主义'而非通过故事内概念表达"
+    }
+  ],
+  "approval": {
+    "reviewer": "pipeline-autonomous",
+    "decision": "approved",
+    "date": "2026-07-16"
+  }
+}

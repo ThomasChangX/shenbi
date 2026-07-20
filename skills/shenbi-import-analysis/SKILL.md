@@ -1,12 +1,15 @@
 ---
 name: shenbi-import-analysis
-description: "Use when ingesting an existing novel manuscript for analysis, parsing source chapters into structured data, or building the 8-pass reverse-engineering pipeline before downstream extraction"
+description: Use when ingesting an existing novel manuscript for analysis, parsing
+  source chapters into structured data, or building the 8-pass reverse-engineering
+  pipeline before downstream extraction
 contract:
   kind: artifact
   reads:
-    - import/source/*.txt
+  - import/source/*.txt
   writes:
-    - import/analysis/*.md
+  - file: import/analysis/*.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

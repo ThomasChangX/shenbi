@@ -1,15 +1,17 @@
 ---
 name: shenbi-review-sensitivity
-description: "Use when a finished chapter needs a sensitivity and platform-compliance audit against prohibited words and content boundaries"
+description: Use when a finished chapter needs a sensitivity and platform-compliance
+  audit against prohibited words and content boundaries
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
-    - novel.json
+  - chapters/chapter-N.md
+  - genre-config.json
+  - novel.json
   writes:
-    - audits/chapter-N-sensitivity.md
+  - file: audits/chapter-N-sensitivity.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

@@ -1,18 +1,23 @@
 ---
 name: shenbi-review-motivation
-description: "Use when a finished chapter needs a character motivation and behavior-chain plausibility audit"
+description: Use when a finished chapter needs a character motivation and behavior-chain
+  plausibility audit
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - characters/protagonist.md
-    - characters/major/*.md
-    - truth/character_matrix.md
+  - chapters/chapter-N.md
+  - characters/protagonist.md
+  - characters/major/*.md
+  - truth/character_matrix.md
   writes:
-    - audits/chapter-N-motivation.md
+  - file: audits/chapter-N-motivation.md
+    mode: create_or_overwrite
   updates: []
 ---
+<!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+<!-- This skill is retained for reference. Do not dispatch. -->
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

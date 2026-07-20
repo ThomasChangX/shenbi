@@ -1,0 +1,152 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 28,
+  "volume": 2,
+  "produced_at": "2026-07-17T10:00:00+08:00",
+  "source": "auto",
+  "context_inventory": {
+    "current_focus_version": "2026-07-17",
+    "author_intent_status": "active",
+    "pending_hooks_active": ["MH-003", "MH-020", "MH-021", "MH-022"],
+    "audit_drift_merged": ["Ch27_emotional_gradient", "Ch27_reader_payoff"],
+    "chapter_role_override_reason": "vol 2 day 3 — door frame produces first differential after 4-chapter plateau; evaluation Saturday ~1-2 days out; CH27 audit requires event-level upgrade from light-level micro-difference"
+  },
+  "selections": [
+    {
+      "target": "current_focus P0-2: 事件性微差引入(光线级→事件级)",
+      "selected": ["路径A: 门框差异帧"],
+      "omitted": ["路径B: 引擎声新尾缀", "路径C: 格式串新增游标"],
+      "basis": "单一事件同时服务P0-2(事件性微差)和P0-3(事件性回报三拍结构)——执行效率最高。门框4章持平后差异窗口与事件需求自然重合。门框在vol 1曾对重大事件节点产生响应(Ch3觉醒前/Ch20代价承担后)，vol 2首次时间标记点(Saturday~1-2天)为门框参数行为变化提供自然触发窗口",
+      "severity": "high",
+      "rationale": "路径A同时服务双P0。门框4章持平(Ch25末→Ch26→Ch27→Ch28晨检前)条件成熟——长期持平积累差异势能+评估Saturday临近+季节性温差累积三个条件叠加。差异存在即事件——不依赖差异含义。路径B/C保留为Ch29+备用路径"
+    },
+    {
+      "target": "current_focus P0-1: 评估路径社会性暴露日常化逼近",
+      "selected": ["定性转变——信号在场方式从'登记项'→'背景参数'"],
+      "omitted": ["密度增量显性展示(4-6处/章)", "评估Saturday紧迫叙事"],
+      "basis": "维持Ch27密度水平(2-4处/章)，定性转变为主——通过帧排列中评估信号在场方式从标记项向自动参数的过渡传递日常感。评估Saturday~1-2天信息通过城市痕迹密度传递，不转化为时间紧迫叙事。评估信号如同岔路口方向信息一样被感知系统自动登记但不从基线中分离",
+      "severity": "high",
+      "rationale": "遵循current_focus密度原则——增量递减接近基底。定性转变比计数增量更能传达日常化质感。Saturday压力通过触发新节制(不转化焦虑/紧张/期待)管理——入口在参数中等同于任何一天的路口"
+    },
+    {
+      "target": "current_focus P0-4: 评估+催收交汇基底化",
+      "selected": ["选项2: 灰色渠道Saturday提及+行走身体时间感自然并列"],
+      "omitted": ["选项1: 身体时间感纯参数帧", "选项3: 环境帧季节性时间接近"],
+      "basis": "最自然嵌入行走帧。Saturday对话碎片自然出现在灰色渠道语境中，行走系统身体时间感(冷风/光线/步行累积)同时在场——读者从帧排列中读到两枚时间自然并列而不需要林烽认知确认",
+      "severity": "high",
+      "rationale": "选项2提供事件性锚点(Saturday提及)与参数层锚点(身体时间感)的双重覆盖——读者同时从对话层和感知层读到交汇。完成后从P0降级至P1情感基线自然在场"
+    },
+    {
+      "target": "P1: 偏移策略激活验证窗口",
+      "selected": ["展示偏移未被评估日常化重新激活"],
+      "omitted": ["偏移新类型编码(身份回避策略)", "偏移同型激活(步幅窄化重新出现)"],
+      "basis": "Ch28展示1-2处确认帧(岔路口方向延续+检查站段偏量维持)。评估日常化逼近下偏移仍维持背景惰性——接受偏移不激活作为vol 2方向——offset只在空间压迫中激活",
+      "severity": "medium"
+    },
+    {
+      "target": "P1: 门框差异窗口",
+      "selected": ["以事件性微差路径A嵌入——三拍结构完成即差异窗口操作完成"],
+      "omitted": ["纯监控不操作(等待自然发生)"],
+      "basis": "与P0-2/P0-3共享执行路径——差异存在即完成。不分析差异原因/含义——感知系统登记差值→行走继续。差异保留或不保留皆可——事件经过即完成",
+      "severity": "medium"
+    },
+    {
+      "target": "Ch27 audit_drift: 情感梯度仍窄",
+      "selected": ["从光线级微差(感知帧色泽/散射角)升级为事件级微差(门框参数自发性偏移)"],
+      "omitted": ["维持光线级微差", "引入情感极性变化(希望/紧张/释然)"],
+      "basis": "事件级微差提供比Ch27'0.5秒感知亮度变化'更强的事件感知接触点。不改变安静极性——事件经过后安静恢复——参差是安静内部的质感变化不是安静变成别的东西",
+      "severity": "high",
+      "rationale": "Ch27光线级微差引入正确但幅度不足缓解Ch26 audit标记的阅读疲劳风险。升级为事件级微差是audit_drift明确的短板修复项。不通过引入情感极性改变基线——维持'不自欺/不恐慌/不释然'约束"
+    },
+    {
+      "target": "Ch27 audit_drift: 回报仍积累为主",
+      "selected": ["三拍结构(确认→变化→恢复)强制执行——变化拍确保存在"],
+      "omitted": ["扩大回报范围", "引入情感释放型回报"],
+      "basis": "Ch27未执行变化拍——Ch28强制执行。三拍结构嵌入门框晨检帧——确认拍(持平延续)—变化拍(温差偏移)—恢复拍(参数恢复/接近恢复)。回报来自读者作为事件见证者",
+      "severity": "high",
+      "rationale": "从'感知到变化'(Ch27)升级为'体验了事件'(Ch28变化拍)。事件性回报替代纯感知积累——读者体验从积累型接触点推进为事件型接触点。变化拍后恢复拍不做大回归——差异残留或不残留皆可"
+    },
+    {
+      "target": "round_exit_emotion",
+      "selected": ["安静有参差——出口语言短/参数化——不回顾事件"],
+      "omitted": ["安静有微差(Ch27模式)", "安静复归收紧(Ch26模式)", "事件后分析性出口"],
+      "basis": "事件在章中发生——章末回归行走参数——光柱偏移/水面循环/行走参数确认——参差在安静中不需要说出来。出口语言比Ch26-27更短、更参数化",
+      "severity": "medium"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "kr3_vs_current_focus_ch28",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "volume_map KR3 positions Ch28 as 'Entering the Equal Brahma sect's secret base, seeing the predecessor's legacy' — actual execution is vol 2 day 3 city walking with evaluation path. The divergence is fundamental — not a postponement but a different narrative trajectory. current_focus framework established in Ch26-30 scope supersedes volume_map's KR3. Proposed resolution: Accept trajectory divergence as committed — misty mountain line migrates to post-evaluation natural convergence point (Ch29-30 or later, per current_focus P2灵能预留项的'后续自然浮现' expectation)"
+    },
+    {
+      "issue_id": "door_frame_event_dual_P0_coverage",
+      "severity": "high",
+      "handling": "consolidated_execution",
+      "rationale": "Single door frame event must simultaneously satisfy: (a) P0-2 event nuance — door frame parameter produces non-zero reading after 4-chapter plateau; (b) P0-3 three-beat payoff — confirm→change→recover structure. Execution risk: change beat must be strong enough for payoff while remaining constrained within micro-event scope. Resolution: Use door frame temperature differential as the change content — micro-offset in material surface conduction temperature — perceptible at finger-pad level, registered by perceptual system, not escalating to 'anomaly' or 'concern'. The change beat's content is inherently the event — no additional narrative weight needed"
+    },
+    {
+      "issue_id": "P0_density_risk_4_df",
+      "severity": "medium",
+      "handling": "compensate_via_shared_execution",
+      "rationale": "Ch28 carries 4 P0 items — same count as Ch26/Ch27 — but 2 are new (event nuance upgrade + event payoff forced). Risk: P0s may compete for frame space. Mitigation: Path A door frame event simultaneously serves P0-2 and P0-3 and P1 door frame window. Intersection completion (P0-4) requires 1 gray channel frame. Evaluation approaching background (P0-1) is a qualitative shift within existing checkpoint frames — no extra frames needed. Effective narrative load: door frame section (~10 frames), gray channel fragment (~3 frames), checkpoint frames (~6 frames total for both passes) — no frame count increase from Ch27"
+    },
+    {
+      "issue_id": "silent_hook_risk",
+      "severity": "low",
+      "handling": "monitor_only",
+      "rationale": "All 4 active hooks reinforced in Ch27 — silence = 0 for all. No risk of zombie hooks in Ch28"
+    },
+    {
+      "issue_id": "density_pressure_intersection",
+      "severity": "medium",
+      "handling": "distribute_morning_afternoon",
+      "rationale": "Door frame event (morning) + gray channel Saturday mention (mid-walk) create two concentration points. Distribution is natural — event in晨检, intersection in灰色渠道 — not adjacent. Final exit should not carry additional P0 weight — only baseline parameter check + quiet"
+    }
+  ],
+  "edge_cases": [
+    {
+      "condition": "door_frame_returns_to_exact_baseline",
+      "response": "差异残留或不残留皆可——恢复至接近基线即可。三拍结构完成即事件感建立——不必精确回归",
+      "trigger": "写作中系统恢复拍选择"
+    },
+    {
+      "condition": "door_frame_event_extends_beyond_1_frame",
+      "response": "变化拍1-2帧上限——不超过2帧。差异不进入下一个行走段——门框段内完成",
+      "trigger": "事件帧扩写倾向"
+    },
+    {
+      "condition": "evaluation_saturday_anxiety_leaks_through",
+      "response": "如果林烽的感知帧中出现Saturday相关认知(倒数/准备/紧张)——删除——回归到城市痕迹密度本身作为时间信息",
+      "trigger": "时间紧迫叙事渗透"
+    },
+    {
+      "condition": "intersection_completion_cognitive_confirmation",
+      "response": "如果出现'评估和催收的时间在同一周'等分析性语句——删除——通过读者从帧排列中感知两枚时间在场不可分来完成",
+      "trigger": "认知确认倾向"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 14500,
+    "limit": 16000,
+    "trim_applied": "none",
+    "hook_density": "4/8 — budget headroom: 4"
+  }
+}
+```
+
+---
+
+**Ch28 章节备忘核心决策**：
+
+- **chapter_role**: `推进/转折` — vol 2第三天，门框4章持平后产生首次参数自发性事件；评估Saturday~1-2天
+- **事件性微差路径**: **路径A（门框差异帧）** — 4章持平(Ch25末→Ch26→Ch27→Ch28晨检前)后首次非零读数，三拍结构(确认→变化→恢复)嵌入晨检帧。单事件同时服务P0-2(事件性微差)和P0-3(事件性回报)
+- **评估密度**: 维持Ch27水平(2-4处/章)但定性转变——从"需要登记的周期性项"推进为"感知层自动处理的行走背景参数"
+- **交汇基底化**: 灰色渠道对话Saturday提及+行走身体时间感自然并列——两枚时间在感知层不可分辨——完成后从P0降级
+- **偏移验证**: 岔路口方向延续+检查站段偏量确认——展示评估日常化逼近下偏移未被重新激活
+- **情感出口**: "安静有参差" — 事件经过后安静恢复——出口语言比Ch26-27更短、更参数化——不回顾事件
+- **hook账**: 4操作(4 advance)，沉默章数均为0，密度预算内✓
+- **Ch27 audit修复**: 情感梯度从光线级升级为事件级 ✓；回报形态从积累型推进为事件型(三拍结构变化拍强制执行) ✓

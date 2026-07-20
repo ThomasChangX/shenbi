@@ -1,18 +1,23 @@
 ---
 name: shenbi-memory-distill
-description: "Use when distilling chapter summaries into arc syntheses (every 12 chapters), stratum syntheses (every 36 chapters), or rolling book spine review at volume or stratum boundaries"
+description: Use when distilling chapter summaries into arc syntheses (every 12 chapters),
+  stratum syntheses (every 36 chapters), or rolling book spine review at volume or
+  stratum boundaries
 contract:
   kind: artifact
   reads:
-    - truth/chapter_summaries.md
-    - truth/volume_summaries.md
-    - truth/pending_hooks.md
-    - truth/character_matrix.md
+  - truth/chapter_summaries.md
+  - truth/volume_summaries.md
+  - truth/pending_hooks.md
+  - truth/character_matrix.md
   writes:
-    - truth/arcs/arc-N.md
-    - truth/book_strata.md
+  - file: truth/arcs/arc-N.md
+    mode: create_or_overwrite
+  - file: truth/book_strata.md
+    mode: create_or_overwrite
   updates:
-    - truth/book_spine.md
+  - file: truth/book_spine.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

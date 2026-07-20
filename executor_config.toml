@@ -1,0 +1,22 @@
+[default]
+temperature = 0.7
+max_tokens = 16384
+
+[overrides."shenbi-chapter-drafting"]
+temperature = 0.85
+max_tokens = 16384
+
+[overrides."shenbi-chapter-revision"]
+temperature = 0.6
+
+[overrides."shenbi-review-continuity"]
+temperature = 0.2
+
+[overrides."shenbi-review-anti-ai"]
+temperature = 0.15
+
+[overrides."shenbi-review-resonance"]
+temperature = 0.1
+
+[overrides."shenbi-foreshadowing-lifecycle"]
+temperature = 0.5

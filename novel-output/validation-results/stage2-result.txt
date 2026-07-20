@@ -1,0 +1,5 @@
+Stage 2: FAILED at 2026-07-19T21:45:25+08:00
+  Step 1 (init pipeline): PASSED
+  Step 2 (3 chapters): BLOCKED — no LLM backend available (codex MCP broken, local proxy not running, SHENBI_LLM_API_KEY unset)
+  Step 3 (12 checks): 2/12 passed (14 errors, all due to missing chapter data)
+  Root cause: LLM backend unavailable. Requires working codex config or SHENBI_LLM_API_KEY.

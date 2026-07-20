@@ -1,15 +1,18 @@
 ---
 name: shenbi-volume-outlining
-description: "Use when designing a single volume's overall structure, planning a volume's per-chapter goals, building intra-volume tension curve, or designing cross-volume bridging"
+description: Use when designing a single volume's overall structure, planning a volume's
+  per-chapter goals, building intra-volume tension curve, or designing cross-volume
+  bridging
 contract:
   kind: artifact
   reads:
-    - outline/story_frame.md
-    - outline/volume_map.md
-    - truth/author_intent.md
+  - outline/story_frame.md
+  - outline/volume_map.md
+  - truth/author_intent.md
   writes: []
   updates:
-    - outline/volume_map.md
+  - file: outline/volume_map.md
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 

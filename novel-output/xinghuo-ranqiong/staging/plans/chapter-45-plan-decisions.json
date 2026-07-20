@@ -1,0 +1,46 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 45,
+  "produced_at": "2026-07-17T06:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"]
+    },
+    {
+      "target": "priority_source",
+      "selected": ["current_focus"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["卷纲 Key Result"],
+      "rationale": "实际叙事已沿卷2·灭海黄昏日常结构深入;卷纲KR2(陈卫民牺牲)不匹配当前弧线状态"
+    },
+    {
+      "target": "hook_density",
+      "selected": ["10_ops_single_day"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["trim_to_8"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "plan_volumemap_drift",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲Key Result定位Ch45为陈卫民牺牲;实际叙事为daily-structure模式;已在段1冲突说明中标注"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+Note: The read-only sandbox prevented writing to `staging/plans/`. The file content above is the complete output. The pipeline should capture these directly.

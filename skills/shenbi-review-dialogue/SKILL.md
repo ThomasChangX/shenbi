@@ -1,18 +1,23 @@
 ---
 name: shenbi-review-dialogue
-description: "Use when a finished chapter needs a dialogue style consistency audit against character voice profiles"
+description: Use when a finished chapter needs a dialogue style consistency audit
+  against character voice profiles
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - characters/protagonist.md
-    - characters/major/*.md
-    - truth/character_matrix.md
+  - chapters/chapter-N.md
+  - characters/protagonist.md
+  - characters/major/*.md
+  - truth/character_matrix.md
   writes:
-    - audits/chapter-N-dialogue.md
+  - file: audits/chapter-N-dialogue.md
+    mode: create_or_overwrite
   updates: []
 ---
+<!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+<!-- This skill is retained for reference. Do not dispatch. -->
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

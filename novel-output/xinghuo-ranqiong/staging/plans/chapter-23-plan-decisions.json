@@ -1,0 +1,177 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "metadata": {
+    "chapter": 23,
+    "volume": 1,
+    "generated": "2026-07-16",
+    "kind": "chapter_plan"
+  },
+  "budget": {
+    "hook_operations": 5,
+    "payoff_types": ["cognitive", "conflict"],
+    "density_hooks": "5/8 (within budget, all advance)",
+    "density_em_dash_per_1k": "≤5"
+  },
+  "decisions": [
+    {
+      "id": "INT-001",
+      "type": "selection",
+      "domain": "plot_structure",
+      "description": "Intersection path: Path A (full three-line intersection MH-021+MH-020+MH-003)",
+      "alternatives_considered": [
+        "Path B: dual-line (MH-021+MH-020) + MH-003 deferred to Ch24",
+        "Path C: intersection pre-moved to Ch22 end (retroactive)"
+      ],
+      "rationale": "Ch22 ends with three lines at 70-80% threshold ('各就各位交汇前一夜'). Path A executes the natural next step. Deferral (Path B) would extend储备 state without structural gain. Pre-move (Path C) is retroactive correction of an already-published chapter.",
+      "severity": "high",
+      "priority": "P0",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.90
+    },
+    {
+      "id": "INT-002",
+      "type": "selection",
+      "domain": "plot_structure",
+      "description": "Intersection execution type: position-type only (no analysis, no check)",
+      "alternatives_considered": [
+        "Perception-type: reader senses overlap through rhythm/pacing changes",
+        "Analysis-type: Lin Feng cognitively notes three lines together (FORBIDDEN)"
+      ],
+      "rationale": "current_focus.md mandates position-type only. Three lines overlap in same walking segment through natural scene unfolding. Narrative does not mark 'together'. Reader perceives through spatial density, not cognitive framing.",
+      "severity": "high",
+      "priority": "P0",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.95
+    },
+    {
+      "id": "PAY-001",
+      "type": "selection",
+      "domain": "reward_structure",
+      "description": "Non-cognitive payoff type: conflict advancement (checkpoint procedure change under assessment proximity)",
+      "alternatives_considered": [
+        "Relationship change: gray-channel provider attitude shift",
+        "New information: dormant foreshadowing indirect return (Chen Weimin / Linghuo Society trace)"
+      ],
+      "rationale": "Checkpoint change provides clean conflict payoff readable as external-system adaptation to assessment period. Reader perceives change without Lin Feng analyzing it. Avoids relationship complications (gray-channel) or premature foreshadowing return (dormant lines reserved for Vol 2). Breaks Ch20→Ch22 all-cognitive pattern.",
+      "severity": "high",
+      "priority": "P1",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.85
+    },
+    {
+      "id": "DF-001",
+      "type": "selection",
+      "domain": "sensory_plot",
+      "description": "Door-frame day 7: horizontal maintenance continues, temperature plateau holds",
+      "alternatives_considered": [
+        "Direction shift initiation (day 7 begins cycle turning point)",
+        "Plateau breakdown signal (temperature gradient resumes change)"
+      ],
+      "rationale": "Ch22 day 6 confirmed horizontal maintenance as trend direction ('第六天印证第五天维持选择不是单日决策'). Day 7 provides stability verification that this trend is not a 2-day coincidence. Shift or breakdown reserved for day 8 (Ch24) as the 7-day cycle natural turning point. Maintaining preserves the plateau's narrative weight before allowing change.",
+      "severity": "medium",
+      "priority": "P1",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.80
+    },
+    {
+      "id": "FS-001",
+      "type": "selection",
+      "domain": "system_discovery",
+      "description": "MH-020 second dimension introduced: environmental humidity/air-density modulation of format-string behavior",
+      "alternatives_considered": [
+        "Temperature modulation",
+        "Ambient light intensity modulation",
+        "No new dimension (maintain openness-only function)"
+      ],
+      "rationale": "Ch22 established openness→format-function. Ch23 adds natural second dimension via morning-dryness vs afternoon-humidity variance producing detectable but unexplained format-string differences. Humidity fits natural environment without infodump. Temperature too coupled with openness in this setting. Light intensity viable but more intrusive to perceive consistently. 'No new dimension' wastes the narrative momentum from Ch22's first-visibility moment.",
+      "severity": "medium",
+      "priority": "P1",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.75
+    },
+    {
+      "id": "AC-001",
+      "type": "adjustment",
+      "domain": "timeline",
+      "description": "Assessment countdown: 15 days remaining (Ch22's 16 minus 1 day progression)",
+      "rationale": "Standard day-by-day progression from Ch22's explicitly stated '16天递减'. current_focus.md states '~12-13天空窗' for Ch23 which conflicts with truth-file data (Ch22: 16 days) + 1 day = 15. Using truth file data as authoritative source. The ~12-13 in current_focus may refer to broader window characterization rather than exact count.",
+      "severity": "low",
+      "priority": "P0",
+      "manual_override": true,
+      "adjustment": true,
+      "adjustment_note": "current_focus.md states ~12-13 but truth files (Ch22: 16 days) + 1 day = 15. Using truth files as authoritative. Ch24 will be ~14 days, not ~10-12 as current_focus suggests. Recommend updating current_focus timeline consistency.",
+      "confidence": 0.95
+    },
+    {
+      "id": "MH003-001",
+      "type": "selection",
+      "domain": "foreshadowing",
+      "description": "MH-003 rhythm presence: stable pattern unaffected by intersection-domain pressure",
+      "alternatives_considered": [
+        "Rhythm accelerates as countdown approaches (operator stress)",
+        "Rhythm pattern changes in intersection zone (interference mode)"
+      ],
+      "rationale": "Ch22 confirmed operator rhythm direction. Ch23 in intersection domain should demonstrate stability — the engine sound is independent of Lin Feng's timeline pressure. Maintaining stability reinforces the engine as autonomous environmental element (not narrative-reactive). Change reserved for later chapters when operator's own timeline intersects with Lin Feng's.",
+      "severity": "medium",
+      "priority": "P1",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.80
+    },
+    {
+      "id": "SENSE-001",
+      "type": "selection",
+      "domain": "sensory_composition",
+      "description": "Olfactory anchor placed in intersection walking segment (triangle-space to old-cement-roadside transition)",
+      "alternatives_considered": [
+        "Door-frame olfactory anchor (basement mold at morning wake)",
+        "Old-cement-roadside anchor (engine exhaust + dust)"
+      ],
+      "rationale": "Intersection segment is the highest-density sensory zone. The transitional area between triangle-space enclosure and open roadside naturally carries焦炭渣+铁锈+engine-exhaust混合气味, providing a scape-specific anchor that does not require narrative emphasis. Functions as scene-expansion element ('进入交汇域时空气气味的变化') not a '補上嗅觉缺席' note.",
+      "severity": "low",
+      "priority": "P2",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.85
+    },
+    {
+      "id": "ARC-001",
+      "type": "selection",
+      "domain": "emotional_tone",
+      "description": "Emotional baseline: critical quietness (三条线在场重叠 + 精密时间感 = 该来的都在路上了)",
+      "alternatives_considered": [
+        "Tension escalation (intersection as threat)",
+        "Routine flatness (intersection as non-event)"
+      ],
+      "rationale": "Ch22 established精密时间感 as new emotional dimension. Ch23 adds three-line spatial overlap without transforming the emotion into anxiety or excitement. Critical quietness ('临界安静') is the only tone that carries both the weight of accumulated lines and Lin Feng's established response pattern (observe, code, proceed). Tension escalation would break character. Routine flatness would waste the储备 built in Ch22.",
+      "severity": "high",
+      "priority": "P1",
+      "manual_override": false,
+      "adjustment": false,
+      "confidence": 0.90
+    }
+  ],
+  "validation_checklist": {
+    "eight_sections_required": true,
+    "section_titles_exact_match": true,
+    "priority_source_declared": true,
+    "chapter_role_declared": true,
+    "chapter_role_valid": true,
+    "chapter_end_changes_count": 3,
+    "chapter_end_advance_type_count": 2,
+    "hook_table_column_names_correct": true,
+    "hook_operations_valid": true,
+    "silence_detection_no_zombie": true,
+    "em_dash_density_expected": "≤5/千字"
+  }
+}
+```
+
+---
+
+**Delivery summary**: Both files have been generated above via `

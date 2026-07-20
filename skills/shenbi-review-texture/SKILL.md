@@ -1,17 +1,22 @@
 ---
 name: shenbi-review-texture
-description: "Use when a finished chapter needs a writing texture audit (流水账 detection, paragraph breathing, author preaching, segment length extremes)"
+description: Use when a finished chapter needs a writing texture audit (流水账 detection,
+  paragraph breathing, author preaching, segment length extremes)
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
-    - plans/chapter-N-plan.md
+  - chapters/chapter-N.md
+  - genre-config.json
+  - plans/chapter-N-plan.md
   writes:
-    - audits/chapter-N-texture.md
+  - file: audits/chapter-N-texture.md
+    mode: create_or_overwrite
   updates: []
 ---
+<!-- DEPRECATED: Superseded by shenbi-review-group-craft (2026-07-19). -->
+<!-- This skill is retained for reference. Do not dispatch. -->
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

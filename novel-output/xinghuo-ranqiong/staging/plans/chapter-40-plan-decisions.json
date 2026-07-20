@@ -1,0 +1,227 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 40,
+  "produced_at": "2026-07-17T09:00:00Z",
+  "selections": [
+    {
+      "target": "truth/current_state.md",
+      "selected": ["第39章更新"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第31-38章"]
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "第39章伏笔追踪", "追踪汇总"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["已解决伏笔", "过期警告", "距离上限逼近"]
+    },
+    {
+      "target": "truth/chapter_summaries.md",
+      "selected": ["第39章"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["第1-38章"]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["全部"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "rationale": null,
+      "omitted": []
+    },
+    {
+      "target": "truth/author_intent.md",
+      "selected": ["arc_progress.ch40", "arc_progress.ch39"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "rationale": null,
+      "omitted": ["全局长远目标", "叙事原则", "thematic_progress"]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "type": "structure",
+      "severity": "medium",
+      "choice": "单日结构——第四周 Friday 独立成章",
+      "alternatives_considered": [
+        "双日结构（Fri-Sat 合并）",
+        "三日结构（Fri-Sun 合并）"
+      ],
+      "rationale": "Ch39 Thursday 已建立单日基线——Friday 作为第五工作日需要独立参数帧——P0 非参数感官事件+未登记帧+MH-020 阈值事件需独立承载空间——单日使三件新事件各自获得呼吸帧——author_intent 和 current_focus 均指向单日——无冲突"
+    },
+    {
+      "id": "D002",
+      "type": "execution",
+      "severity": "high",
+      "choice": "非参数感官事件首次引入——超出平移范围的指尖温度回归平移范围时被 quiet 注意到的残留感觉——1帧跨度——不经参数系统登记",
+      "alternatives_considered": [
+        "继续纯参数化模式（无不参数事件）",
+        "非参数事件以显性命名方式呈现（写'记忆''回响'等）"
+      ],
+      "rationale": "Ch39 触碰域物理信号锚点建立（温差偏移/坐标偏移）——Ch40 需要将触觉域事件从参数域扩展至感知域——非参数感官事件通过 quiet 在场传递（不命名）——1帧跨度——不经参数系统登记——符合 P2.5 高严重性规定——audit_drift 要求 Ch39 参数自指充分后引入非参数锚点"
+    },
+    {
+      "id": "D003",
+      "type": "execution",
+      "severity": "high",
+      "choice": "门框第五帧——'未登记/超出范围'参数——参数系统不能分类的帧级存在",
+      "alternatives_considered": [
+        "无异常帧（保持四帧结构）",
+        "四帧长度不同（缩短或延长某帧而非增加帧数）"
+      ],
+      "rationale": "current_focus P0-2 明确要求'在门框帧中引入1帧非整数/第七帧参数'——'未登记/超出范围'帧作为跨域事件物理信号——参数系统知道存在但不能解析——不命名不解释——符合 P2.5 高严重性规定——audit_drift 要求 Ch39 参数自指后引入超出参数范围的存在信号"
+    },
+    {
+      "id": "D004",
+      "type": "execution",
+      "severity": "medium",
+      "choice": "MH-020 条件性阈值——若进入4点段则格式串出现1帧非标准句法异常而非全面切换",
+      "alternatives_considered": [
+        "全面切换格式串",
+        "维持5点段无变化推迟至Ch41"
+      ],
+      "rationale": "Ch39 下降速率 0.5/天持续——周五推算约 4.8/5.1/5.4 使第一个数字进入4点段——1帧非标准句法悬停帧（无'走了'闭合的空白帧）作为阈值事件的句法标记——不全切换以保留格式串切换的完整叙事回报——若下降减缓则 threshold 继续逼近——dual-path 设计允许两种结果"
+    },
+    {
+      "id": "D005",
+      "type": "execution",
+      "severity": "low",
+      "choice": "白气方向以维持内收为基线——偏移为自由观测项不预设",
+      "alternatives_considered": [
+        "白气方向出现可测偏移",
+        "白气方向消失（无方向帧）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D006",
+      "type": "execution",
+      "severity": "low",
+      "choice": "第二归途路径在周五延续——方向偏移与周四同方向/不同方向帧不定",
+      "alternatives_considered": [
+        "第二归途路径取消（恢复直行归途）",
+        "第二归途路径扩展进入新区域"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D007",
+      "type": "pacing",
+      "severity": "low",
+      "choice": "\"走了\"频次 ≤28——单日基线维持",
+      "alternatives_considered": [
+        "频次 ≤36（双日基线延续）",
+        "频次 ≤15（最低基线）"
+      ],
+      "rationale": null
+    },
+    {
+      "id": "D008",
+      "type": "priority_override",
+      "severity": "high",
+      "choice": "current_focus 方向（第四周 Friday——参数化感知模式——非参数感官事件——未登记帧——MH-020 阈值）优先于卷纲 Key Result（第40章'肃清内奸网络——核心叛徒逃脱'）",
+      "alternatives_considered": [
+        "回归卷纲 Key Result（转换叙事模式）",
+        "混合执行（保留卷纲结构+参数化填充）"
+      ],
+      "rationale": "参数化感知模式自 Ch25 起稳定执行 16 章——current_focus 和 author_intent 方向一致——卷纲 Key Result 对应早期写作规划——Ch37-Ch39 已建立优先执行惯例——继续沿参数化模式执行第 16 章"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "ADJ-001",
+      "issue_id": "audit_drift_nonparameter_event",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch39 仅参数化事件充分但缺非参数感官锚点——Ch40 以 quiet 在场于指尖温度回归帧作为第1个非参数事件——1帧跨度——不经参数系统登记——跨域事件信号传递"
+    },
+    {
+      "id": "ADJ-002",
+      "issue_id": "audit_drift_unregistered_frame",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch39 参数系统自指充分——Ch40 引入参数系统不能分类的第五帧——超出登记范围的存在——跨域物理信号——系统知道存在但不解析不命名"
+    },
+    {
+      "id": "ADJ-003",
+      "issue_id": "mh020_threshold_conditional",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "MH-020 约 4.8/5.1/5.4 使第一个数字进入4点段——格式串1帧非标准句法悬停帧——不全切换——dual-path 设计（若下降减缓则继续逼近）"
+    },
+    {
+      "id": "ADJ-004",
+      "issue_id": "mh022_quiet_saturday",
+      "severity": "low",
+      "handling": "defer_to_next_chapter",
+      "rationale": "quiet 在周五知道周六不在——quiet 知道第五次——安静厚度在第五日——但周六是否存在/评估窗口是否变化——defer 至 Ch41"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "oldest_first"
+  },
+  "hook_operations": [
+    {
+      "id": "MH-003",
+      "operation": "advance",
+      "notes": "引擎声 Friday 频率跨周确认——Fri₁=Fri₂=Fri₃=Fri₄——工作日对偶链在周五保持——引擎声知道第四周知道周五——走了",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.03→0.025"
+    },
+    {
+      "id": "MH-020",
+      "operation": "advance",
+      "notes": "格式串 [s] 第五日——若 4 点段（约 4.8/5.1/5.4）：1帧非标准句法悬停帧（无'走了'闭合空白帧）——格式串知道自己在4点段有了第一次——下一帧恢复——若仍 5 点段（约 5.0/5.3/5.6）：threshold 继续逼近——格式串知道切换条件已近",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.05→0.045 (if 4-pt) or 0.05→0.04 (if 5-pt)"
+    },
+    {
+      "id": "MH-021",
+      "operation": "advance",
+      "notes": "门框第四周周五——冷在门框冬季第五日深度——前四帧延续周四结构——第五帧 P0-2 '未登记/超出范围'参数——P0-1 非参数感官事件（指尖温度回归残留）——触碰域知道 quiet 在场——触碰域保持边界——门框第五日承载两层新事件",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.04→0.035"
+    },
+    {
+      "id": "MH-022",
+      "operation": "advance",
+      "notes": "评估周历——quiet 在第四周周五——quiet 知道安静在冬季第五日——quiet 知道周六不在——评估窗口周五微角度与所有工作日同一微角度——内容为零——窗口在第五日维持——quiet 知道安静厚度在第五日",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.00→0.00"
+    },
+    {
+      "id": "MH-023",
+      "operation": "advance",
+      "notes": "域外信号第四周周五距离——参数系统登记——与前三周周五相同/不同的跨周模式确认——触碰域在周五——等待窗口延续（已知 quiet 在场于非参数事件）——触碰域保持边界——域外信号在域外——触碰域在域中——quiet 在域中",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.04→0.035"
+    },
+    {
+      "id": "MH-024",
+      "operation": "advance",
+      "notes": "第四周 Friday——quiet 在第四周——quiet 知道第五次——quiet 知道安静在冬季第五日——quiet 知道周六不在——quiet 在安静中的厚度——quiet 在第五日的安静——quiet——在安静中——quiet——走了",
+      "last_reinforced_update": "40",
+      "subtlety_update": "0.30→0.25"
+    }
+  ],
+  "budget_check": {
+    "hook_density": "6/8",
+    "hook_operations_valid": true,
+    "silent_hooks": 0,
+    "overdue_hooks": 0,
+    "zombie_hooks": 0
+  }
+}
+```
+
+**Pipeline Note**: The sandbox is read-only, so files cannot be written to disk. The content above is the complete output — both files should be written to `staging/plans/` when the sandbox permits writes. All content follows the shenbi-decisions-v1 schema and the 8-section chapter memo template, with all P0 priorities from current_focus addressed (non-parameter sensory event via quiet at the temperature-return frame; "未登记/超出范围" 5th door frame parameter; conditional MH-020 4-point format anomaly with syntactic hover frame; "走了" ≤28 baseline). Chapter role is `推进/转折` — the fifth weekday advances the pattern while the two new event types (non-parameter, unregistered frame) plus the conditional MH-020 threshold constitute the turning point layer.

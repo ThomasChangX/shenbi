@@ -1,0 +1,89 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 6,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results KR2",
+      "selected": ["KR2: 加入抵抗力量 - Ch.6 开篇定位"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "原定'在荒野中遇到灵火会游击小队'因Ch5实际轨迹仍停留在铁炉堡西区——少女死亡(Ch3)+无幸存者群体+主角尚未离开城区，Ch6无法直接跳至荒野场景"
+      ]
+    },
+    {
+      "target": "current_focus.md P0-P2 优先级指令",
+      "selected": [
+        "P0: MH-020 强制落地——4章沉默后首次文本证据",
+        "P0: 生存线过渡——16铜币告急，建立稳定收入模式的首次尝试",
+        "P0: 关键受挫/沮丧节拍处3-5句无目的感官描述（drift修复）",
+        "P0: 场景重现时植入前次缺失的感官新信号（drift修复）",
+        "P1: 灵能第一次反馈——尝试后可见结果展示（门自发变化/感知增强）",
+        "P2: 战争后遗症深化——检查站常态化/西区生存空间紧缩",
+        "P2: 中年女人关系深化——从信息交换到可信标记/工作引荐"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "P1: MH-001关联深化（cultivation_interval=3，距Ch5仅隔1章，延迟至Ch8）",
+        "P2: 催收债务回归（空袭后第7-8天，社会秩序尚未完全恢复到催收重启级别——延迟至第7章）",
+        "P2: 矿工组织端倪（预留至Ch7——第6章聚焦反馈闭环+生存过渡+MH-020落地，容量有限）"
+      ]
+    },
+    {
+      "target": "黄金三章纪律",
+      "selected": [],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["第6章超出 golden_opening_chapters=3 范围，黄金三章特殊纪律不再适用"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "volume_map_divergence_ch6",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2第6章'荒野遇游击小队'因Ch4-Ch5实际轨迹偏移不可行——局部覆盖调整为本反馈章+过渡章"
+    },
+    {
+      "issue_id": "MH-020_critical_debt",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "MH-020从Ch2布局至Ch6已达4章沉默，超出读者回报阈值——第6章必须首次落地"
+    },
+    {
+      "issue_id": "drift_ch5_emotional_soak",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch5 救济站'水发完了'节拍节奏略快(7行从被告知到离开)——第6章要求在受挫节拍处插入3-5句感官描述"
+    },
+    {
+      "issue_id": "drift_ch5_sensory_revisit",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch5 救济站排队段感官稀疏——第6章要求场景重现时植入前次缺失的感官新信号"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 8500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**生产摘要**: 第6章规划已完成，基于局部覆盖（Ch4-Ch5实际轨迹偏移）+ current_focus.md 第6-8章弧线框架，融合了 audit_drift 修复指令。
+
+**结构检查**:
+- 8/8 段全部存在
+- 段标题精确匹配
+- 优先级来源声明（局部覆盖 + current_focus）已标注
+- `chapter_role: 推进/转折`（合法值）
+- 章尾改变 3 条（灵能认知/生存模式/社会认知），全部为 advance 型（Ch6 > 3 达标）
+- hook 账 6 行（列名精确匹配），密度 6/8（预算充裕）
+- 无僵尸伏笔（无 defer+沉默≥4 的条目）
+- 操作值全部合法（open/advance/defer）
+- 段 8 含 7 条"不要做"，无空值

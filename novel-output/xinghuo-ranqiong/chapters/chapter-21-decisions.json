@@ -1,0 +1,134 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 21,
+  "produced_at": "2026-07-16T18:15:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-21-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-21-context.md",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context文件缺失，以plans/chapter-21-plan.md + truth files为主输入"]
+    },
+    {
+      "target": "context/chapter-21-context-decisions.json",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context-decisions文件缺失"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "风格学习汇总"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["chapterTypes"]
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第20章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["第21章核心", "Drift纠偏整合", "短板修复追踪"],
+      "basis": "explicit_task_input",
+      "severity": "low",
+      "omitted": ["第22章核心", "第23章核心", "线优先级总表", "情绪弧线", "伏笔节奏"]
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态", "进行中的情节线"],
+      "basis": "narrative_state_reference",
+      "severity": "low",
+      "omitted": ["当前世界局势", "已揭示的伏笔", "待解决的冲突"]
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["active_hooks.MH-003", "active_hooks.MH-020", "active_hooks.MH-021", "risk_signals"],
+      "basis": "hook_reinforcement_planning",
+      "severity": "low",
+      "omitted": ["active_hooks.MH-022", "resolved_hooks", "第20章伏笔追踪"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch20_positive_physical_anchoring",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "正面体征锚定加入两处:①MH-003回归确认段——肩部下沉约一指幅度('不是紧张的释放——是身体在完成确认后张力分布的自然微调'/'不是不是恐惧——是回来了')建立正面'是确认'输出替代排除法；②门框第五天确认段——指腹静摩擦反馈作为独立于温度的触觉纹理验证通道(纤维走向+磨光区域边界位置一致认可)"
+    },
+    {
+      "issue_id": "drift_ch20_vibration_material_density",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "焦炭渣→水泥过渡段嵌入脚步→墙壁振动传递编码:接地噪声反射/墙体基部不同频率分量响应/左右脚分跨两种材料产生的双侧不对称(左脚低频吸收/右脚高频反射)——封闭空间物理质感补全"
+    },
+    {
+      "issue_id": "drift_ch20_reader_reward_rhythm_buffer",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "两处加入节奏缓冲区:①MH-003回归段'听完了第二个完整的降速—提速循环'提供阅读时间窗口再转入下场；②门框确认段'指腹在确认维持后没有立即撤回——停住的瞬时'留出感知余韵"
+    },
+    {
+      "issue_id": "MH-003_absent_one_chapter",
+      "severity": "high",
+      "handling": "mandatory_return",
+      "rationale": "Ch20完全缺席后Ch21强制回归:城西偏南引擎声框架直接描写/降速—提速周期确认与Ch19一致/缺席一天未影响运作模式惯性延续/正面体征锚定配合回归"
+    },
+    {
+      "issue_id": "MH-001_Phase_2_signal",
+      "severity": "medium",
+      "handling": "emergent_observation",
+      "rationale": "晨醒冷凝分布差异(边缘凝聚密度高于中心/边缘升温快于中心)作为Phase 2信号——纯物理观察(湿度解释)/不追问来源/不归因灵能/不归因主动意图/林烽完成编码后不取出不放行"
+    },
+    {
+      "issue_id": "doorway_day5_lateral_evolution",
+      "severity": "high",
+      "handling": "execution_determined",
+      "rationale": "选择'维持'路径——横向次级分布未消失未扩展(位置幅度与第三第四天一致)/温度梯度次日重复持平——持平从间歇升级为新基线参数/指腹纹理独立确认通道验证"
+    },
+    {
+      "issue_id": "MH-020_time_dimension_comparison",
+      "severity": "medium",
+      "handling": "baseline_establishment",
+      "rationale": "晨间vs午后同一位置同开敞度下格式串一致([s]尾缀/竖立标尺三段间隔比例/数字±0.2)/环境光照变化不影响输出——标尺为位置函数非时间函数/首次建立时段独立性基线"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 34000,
+    "limit": 35000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+**Chapter 21 — "持" (Sustain)** — 基线维持确认完成。
+
+本章核心叙事成果：
+
+- **门框第五天** — 横向次级分布选择"维持"路径（未消失、未扩展、未进入新变形）。温度梯度第二日持平验证——持平从"间歇可能性"升级为新基线的稳定参数。
+- **MH-003回归** — 缺席一章后引擎声框架精确回归。降速—提速周期与Ch19一致，缺席一天未改变运作模式的惯性延续——正面体征锚定（肩部下沉约一指幅度）替代排除法界定。
+- **MH-001 Phase 2** — 冷凝分布差异信号（边缘密度>中心）作为纯物理观察浮现——林烽编码后不取出、不追问、不放行。
+- **MH-020时段对照** — 晨间vs午后同一位置格式串一致——首次建立时段独立性基线（标尺为位置函数，非时间函数）。
+- **基线测试** — 可走范围2/3、窄巷自动排除、白线边界未扩展、步幅窄化完全内化——全部Ch20新参数在Ch21运行一天后维持。
+- **P0/P2 drift全部修复** — 正面体征锚定×2、振动/材料密度编码×1、读者回报节奏缓冲区×2。
+- **章末宣告** — "今天是封锁以来第一个范围没有缩小的日子" / "明天可走的路和今天一样。不会少一条。也不会多一条。" — 从Ch20"基线建立"转向Ch21"基线维持确认"。

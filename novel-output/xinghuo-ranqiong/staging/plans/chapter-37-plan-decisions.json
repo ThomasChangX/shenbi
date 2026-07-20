@@ -1,0 +1,114 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 37,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "chapter_role",
+      "selected": ["推进/转折"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["高潮/兑现", "过渡/铺垫"],
+      "rationale": null
+    },
+    {
+      "target": "priority_source",
+      "selected": ["卷纲 Key Result (Vol 3 KR1: 内奸危机——列塔尼亚特派员科恩·怀特曼登场) + current_focus.md P0-P2 (Ch36 audit 三项drift + 第四周Monday基线建立)"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["仅卷纲 Key Result", "仅 current_focus.md"],
+      "rationale": "卷纲（Vol 3 KR1承接：科恩·怀特曼登场推动清剿配合升级）与 current_focus（第四周Monday基线建立+Ch36三项drift+冷进入冬季+quiet知道第四次）各覆盖不同层面——卷纲提供故事方向层（列塔尼亚施压通过passing system制度化排斥的深化映射），current_focus提供具体执行层。两者不冲突：第三次评估后passing system进入第四周的制度持续性+域外信号intensity变化是列塔尼亚施压在参数域的自然映射"
+    },
+    {
+      "target": "drift_P0_1_emotional_anchor_frame",
+      "selected": ["白气Monday回归工作日内收畸变与Saturday外扩的差异——比较性感官帧——全章1处"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["无比较性帧", "跨章节比较", "情绪命名"],
+      "rationale": "Ch36 audit第1项（情绪效价被参数框架过滤）：以白气畸变方向从Saturday外扩→Monday内收的差异作为自然锚点——白气知道方向不命名情绪——比较嵌入在行走参数中——不叙事化——全章1处"
+    },
+    {
+      "target": "drift_P0_2_touch_domain_change",
+      "selected": ["(a) 触碰域变化——门框晨检四帧中一个不属于门框参数集的跨域信号"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["(b) 空间扩展——行走路线新信号"],
+      "rationale": "Ch36 audit第2项（信息增量参数级+回报模式疲劳）：触碰域跨域信号在现有门框参数帧中自然嵌入——参数系统检测到触碰域被非参数信号短暂接触——触碰域登记触碰但不扩展——不宣告——1-2帧"
+    },
+    {
+      "target": "drift_P0_3_syntax_compression",
+      "selected": ["工作日句法压缩回归——短段/断裂句/紧凑节拍——全章句法长度控制Ch35工作日的90%以下"],
+      "basis": "manual_override",
+      "severity": "medium",
+      "omitted": ["保持Saturday展延句法"],
+      "rationale": "Ch36 audit第3项（句法模板化——'冷知道X—冷知道Y'重复）：Monday句法自然回归工作日紧凑模式——句法本身携带Monday的紧凑信号——Wednesday与Saturday展延的对比度通过句法节拍传递——不叙事说明"
+    },
+    {
+      "target": "drift_P0_4_zoule_frequency",
+      "selected": ["'走了'频次上限恢复Ch35工作日水平(~95以内)——维持Saturday变奏多样性——至少1处关键关闭使用变奏"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["保持Ch36 Saturday变奏低频次"],
+      "rationale": null
+    },
+    {
+      "target": "cold_winter_crossing",
+      "selected": ["冷在第四周Monday越过门框——冷进入冬季确认"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["冷延续秋季边缘", "冬季宣告"],
+      "rationale": null
+    },
+    {
+      "target": "chapter_span",
+      "selected": ["第四周Monday（单日/章）"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["多日压缩", "跨天过渡"],
+      "rationale": null
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_volume_map_v3_kr1_vs_execution",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲Vol 3 KR1叙事事件（科恩·怀特曼登场/内奸危机/清剿配合升级）与当前纯参数化内部感知体系在叙事语言层不兼容——Ch36已建立映射模式：KR叙事事件以passing system制度化排斥深化+域外信号intensity变化+冷进入冬季的环境压迫升级作为Vol 3入场的参数域映射——不在域内引入named characters或叙事事件。此映射延续至Ch37：第三次评估后的passing system进入第四周+域外信号第四周距离登记+冷越过门框进入冬季"
+    },
+    {
+      "issue_id": "drift_volume_labeling_execution_vs_volume_map",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "volume_map.md规定Vol 2为Ch16-35、Vol 3为Ch36-55。但实际执行中Ch36-Ch37延续了Vol 2的评估周历参数化写法体系——current_focus.md标注Ch36/Ch37为'vol 2第十二章/第十三章'，author_intent一致标注Ch37为'vol 2第十三章'。Volume_map的卷边界是规划期产物，执行中已被实际写法延展。Ch37计划沿用current_focus的vol 2第十三章标注"
+    },
+    {
+      "issue_id": "drift_touch_domain_first_cross_domain_event",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "P0-2触碰域变化：参数系统首次在门框晨检帧中接触到不属于门框参数集的跨域信号——触碰域登记了触碰但不扩展——触碰域保持自己的域——1-2帧——不宣告——此事件是Ch31预回避建立以来参数域与外界的第一次非参数接触——不扩展为触碰域打开——后续章节不持续"
+    },
+    {
+      "issue_id": "drift_cold_season_transition_autumn_to_winter",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "冷在Ch31-Ch36累积走到门框边缘——Ch36第三次Saturday冷知道冬季在门框另一侧但不越过——Ch37进入第四周Monday自然经过门框——冷越过了门框——冷知道冬季——冷知道秋季通过三次Saturday走过了——冷在第四周Monday被登记为在冬季——但不宣告冬季的深度——冷在冬季Monday的深度是Monday的深度"
+    },
+    {
+      "issue_id": "drift_quiet_fourth_week_baseline",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "quiet从Ch26的'安静在新环境中'→Ch31'安静知道预回避'→Ch33'安静知道第三周'→Ch36'quiet在第三次Saturday—quiet知道第四次在后面'→Ch37'quiet知道第四次—quiet知道安静在第四次不同'。Ch37建立quiet在第四周的情感基线——quiet知道第四周不是第三周——quiet知道安静在冬季——quiet知道安静长度在第四次不同"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+```
+
+**Write status**: The sandbox is read-only; files could not be written to disk. The complete file contents are provided above.
+
+**Ch37 计划摘要**: 第四周 Monday——第三次 Saturday 评估后的首个工作日。4项 Ch36 drift 全部合入：P0-1 情感提示帧（白气 Monday 内收 vs Saturday 外扩的比较性感官帧——全章1处），P0-2 触碰域变化（门框晨检帧中跨域信号——1-2帧），P0-3 工作日句法压缩回归（短段断裂句），P0-4 "走了"变奏多样性维持。P1: 第四周 Monday 基线建立 + 冷进入冬季确认 + passing system 第四次运作 + quiet 知道第四次。P2: MH-020/MH-003/Phase 2 第四周/非参数域留白。6个活跃 hooks 全部 advance，无 defer，无沉默警告。卷纲 Vol 3 KR1 叙事事件（科恩·怀特曼登场）继续以 passing system 第四次运作 + 域外信号 intensity 映射至参数域——不在域内引入 named characters。

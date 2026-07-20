@@ -1,0 +1,88 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 27,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-27-plan.md",
+      "selected": [
+        "assessment_social_exposure_density_increase_MH022_advance",
+        "emotional_nuance_path_b_perceived_nuance",
+        "lightweight_reader_payoff_checkpoint_evolution",
+        "assessment_collection_daily_normalization",
+        "autumn_sensory_maintenance",
+        "technical_density_management"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "assessment_internal_content",
+        "assessment_decision_trigger",
+        "volume_2_meta_narrative",
+        "passing_system_explanation",
+        "foggy_mountains_chu_yunlan",
+        "MH_020_format_conversion",
+        "MH_003_operator_identity",
+        "door_frame_variance_activation",
+        "MH_001_phase_2_evolution_prediction",
+        "offset_strategy_re_activation"
+      ]
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": [
+        "assessment_social_exposure_P0",
+        "emotional_nuance_P0",
+        "lightweight_emotional_payoff_P0",
+        "assessment_collection_deepening_P0",
+        "offset_strategy_monitoring_P1",
+        "autumn_deepening_P2"
+      ],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": [
+        "door_frame_vol_2_independent_P1",
+        "phase_2_near_assessment_P1",
+        "MH_020_maintenance_P1",
+        "MH_003_maintenance_P1",
+        "low_freq_mechanical_sound_P2",
+        "psychic_awakening_dimension_P2"
+      ]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_emotional_flatness_ch26",
+      "severity": "high",
+      "handling": "compensate_via_perceptual_variance",
+      "rationale": "Ch26 emotional baseline was correctly quiet but risked reader fatigue from sustained flatness. Ch27 introduces 0.5s perceptual brightness/color temperature variance in the old cement transition section — light through building gap at reduced autumn zenith angle produces a different color ('冷了一档' vs Ch26 same moment). The difference is perceived but unnamed — not labeled as emotion, not analyzed. '感知帧携带了与昨天不同的亮度——安静有亮度变化——亮度变化在安静中' — quiet baseline retains a brightness gradient"
+    },
+    {
+      "issue_id": "drift_reader_payoff_ch26",
+      "severity": "high",
+      "handling": "compensate_via_world_activity_micro_evolution",
+      "rationale": "Ch26 payoff was dominated by information advance and world-deepening without emotional release. Ch27 embeds lightweight emotional payoff via checkpoint scene evolution — forms stack changes from single to two stacks, wall notice posted (new paper/no curling), queue morphology different, voices from queue discussing required materials. Payoff is not a major reveal — it is '变化本身即回报' — the world is active, time passes at the checkpoint too. '不是评估在进化——是时间在检查站外侧留下了痕迹。'"
+    },
+    {
+      "issue_id": "drift_assessment_collection_intersection_ch26",
+      "severity": "medium",
+      "handling": "compensate_via_body_perceived_days",
+      "rationale": "Ch26 maintained assessment+collection intersection at information layer — confirmed co-presence but did not advance to parameter-layer normalization. Ch27 embeds intersection as body-perceived days at triangle space squat-stand transition: '身体知道走了几天。不是数出来的...不是计数——是身体在冷却的路面/在光线的色温/在煤烟浓度/在枯叶碎裂的声场深度中——知道了走了几天。两天倒计时的同一时间轴——在三角形空间蹲下与站起的动作之间——在场。不在数字——在身体知道。' — intersection advanced from 'knowing both countdowns exist' to 'body knows days without counting'"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9000,
+    "chapter_word_count_estimate": 8700,
+    "pacing_notes": "vol 2 day two — assessment density increase from single point to distributed presence across walking segments. Emotional nuance introduced within quiet baseline — brightness/color temperature variance at old cement transition. Checkpoint scene evolution provides micro-payoff through world-activity evidence. Walking parameters unchanged from Ch26 (door frame plateau, narrow alley exclusion, format string [s] maintained, engine sound rhythm steady). Autumn deepening continues — light zenith angle reduced further, accumulated offset ~2.5-3 paper thicknesses. Transition words: 0."
+  }
+}
+```
+
+**Chapter 27 notes for downstream:**
+
+- **Assessment density**: 4 signals across walking segments (checkpoint first pass → gray channel dialogue → west-east cross street pillar notice → checkpoint return pass) — up from 2 in Ch26. All external traces only — no internal content revealed.
+- **Emotional nuance (Path B)**: Old cement transition — light through building gap at further-reduced zenith angle produces perceptibly different color temperature ("冷了一档" vs Ch26 same moment). Named as brightness/variance, not as emotion. "感知帧携带了与昨天不同的亮度——安静有亮度变化——亮度变化在安静中".
+- **Reader payoff**: Checkpoint scene evolution — forms stack single→two stacks, wall notice posted (new, no curling), queue morphology change, voices from queue discussing materials. "不是评估在进化——是时间在检查站外侧留下了痕迹。"
+- **Assessment+collection normalization**: Triangle space — body perceives days without counting. "两天倒计时的同一时间轴——在场。不在数字——在身体知道。"
+- **Transition words**: 0 (budget ≤3). **Fatigue words**: 0. **AI markers**: 0. **Dash at exit**: none — final beat "走了就是走了。" closes cleanly on a period.

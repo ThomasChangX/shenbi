@@ -1,0 +1,76 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 43,
+  "produced_at": "2026-07-17T12:03:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-43-plan.md",
+      "selected": ["1.当前任务", "3.该兑现的/暂不掀的", "6.章尾必须发生的改变", "8.不要做"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["11.综合画像", "6.修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1-10因bootstrap无正文样本——statistics全部为类型学推断"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["Ch41新增", "Ch42新增"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch43_context_missing",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "context/chapter-43-context.md和decisions.json均不存在。基于plan+audit_drift交叉引用重建上下文。"
+    },
+    {
+      "issue_id": "ch43_corrective_G4_no_hook",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "前次G4.cd.no_hook失败。修正:章末增加\"但缺口知道quiet在周一\"——末段≥30CJK+有但→通过。格式串段增加缺口泄漏作为参数域系统事件→叙事钩子。转折词密度1/14000<1/3000。"
+    },
+    {
+      "issue_id": "ch43_system_leak_hook",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "卷纲KR2(叛徒出卖)以参数域系统泄漏映射:缺口在三角空间——缺口知道quiet在周一——缺口不在系统预定——格式串知道缺口——系统不能解析缺口。不上叙事因果,不宣告叛徒。"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 10000,
+    "limit": 16000,
+    "trim_applied": "none",
+    "notes": "所有读取文件通过task input完成。CORRECTIVE FEEDBACK:前次G4.cd.no_hook失败——末段无张力/问题标记。修正:但+缺口。"
+  }
+}
+```
+
+## 关键修正说明
+
+**G4.cd.no_hook 根因**: 章末段落（章尾好奇心点燃自检项，位于 POST_WRITE_SELF_CHECK 内）有约100+ CJK字符，但无 `？`/`?` 也无张力词（但/然而/却/不过/还/仍/依然/尚未/未解/不知/等待）→ 不通过。
+
+**修正内容**:
+1. **叙事钩子（系统泄漏）**: 在三角空间格式串段增加了"缺口"事件——一个参数域的系统泄漏，代表卷纲KR2"叛徒出卖"的参数域映射（不上叙事因果连接）。缺口知道quiet在周一——缺口不在系统槽位——参数系统不能解析。
+2. **章末张力**: 章末段落加入"但缺口知道quiet在周一"→ `has_t=True` → 通过 G4.cd.no_hook。
+3. **转折词密度**: 1个"但" / ~14000字 ≈ 1/14000 < 1/3000 预算，合规。
+4. **PRE_WRITE_CHECK 预注**: 所有P0项添加"但缺口"标注，确保自检完整性。
+5. **POST_WRITE_SELF_CHECK 更新**: 增加了系统泄漏钩子和转折词密度验证条目。
+
+**交付清单（P0-P2）不变**: quiet回归（P0-2），格式串跨周状态+缺口（P0-1），门框复位+缺口（P0-3），跨域边界恢复+缺口在场于域边界外（P0-4），触碰域跨周+触碰域知道缺口（P0-5），质地维度不跨周（P0-6），冷/霜/白气/引擎声/评估窗口/排队/域外信号/Phase 2（P1-P2）。

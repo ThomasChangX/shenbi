@@ -87,6 +87,19 @@ class DispatcherError(FrameworkError):
     """Sub-agent dispatch failure."""
 
 
+class DispatchWriteFailureError(DispatcherError):
+    """The LLM emitted a write-failure diagnostic instead of file content.
+
+    Raised by ``_write_parsed_outputs`` when :func:`detect_write_failure`
+    matches. Carries the matched ``signature`` so the retry prompt can quote
+    it back to the model.
+    """
+
+    def __init__(self, message: str, *, signature: str = "") -> None:
+        super().__init__(message)
+        self.signature = signature
+
+
 class SubAgentTimeoutError(DispatcherError):
     """Sub-agent timed out."""
 
@@ -151,3 +164,12 @@ class ScoringError(ShenbiError):
 
 class ScoringRejectError(ScoringError):
     """Scoring validation rejected the result."""
+
+
+class RetryExhaustedError(ShenbiError):
+    """The durable retry budget for a chapter step has been exceeded.
+
+    Raised when retry_budget_consumed exceeds state.config.max_audit_retries,
+    so crash-resume still enforces the limit even though the ephemeral
+    retry_counts is cleared on success (spec §3.1).
+    """

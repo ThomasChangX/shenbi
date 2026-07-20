@@ -1,18 +1,23 @@
 ---
 name: shenbi-review-pov
-description: "Use when a finished chapter needs a POV consistency and information boundary audit"
+description: Use when a finished chapter needs a POV consistency and information boundary
+  audit
 requires_independent_agent: true
 contract:
   kind: report
   reads:
-    - chapters/chapter-N.md
-    - genre-config.json
-    - truth/character_matrix.md
-    - truth/current_state.md
+  - chapters/chapter-N.md
+  - genre-config.json
+  - truth/character_matrix.md
+  - truth/current_state.md
   writes:
-    - audits/chapter-N-pov.md
+  - file: audits/chapter-N-pov.md
+    mode: create_or_overwrite
   updates: []
 ---
+<!-- DEPRECATED: Superseded by shenbi-review-group-character (2026-07-19). -->
+<!-- This skill is retained for reference. Do not dispatch. -->
+
 <!-- AUTO-CHECK-START -->
 
 ## auto-check (generated -- do not edit)

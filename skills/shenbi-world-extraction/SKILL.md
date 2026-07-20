@@ -1,18 +1,25 @@
 ---
 name: shenbi-world-extraction
-description: "Use when reverse-extracting worldbuilding files from existing chapters, building story_bible/rules/locations/factions/power_system from an analyzed manuscript, or reconstructing a novel's setting from text"
+description: Use when reverse-extracting worldbuilding files from existing chapters,
+  building story_bible/rules/locations/factions/power_system from an analyzed manuscript,
+  or reconstructing a novel's setting from text
 contract:
   kind: artifact
   reads:
-    - import/analysis/03_world.md
-    - chapters/*.md
-    - import/analysis/04_plot.md
+  - import/analysis/03_world.md
+  - chapters/*.md
+  - import/analysis/04_plot.md
   writes:
-    - world/story_bible.md
-    - world/rules.md
-    - world/locations.md
-    - world/factions.md
-    - world/power_system.md
+  - file: world/story_bible.md
+    mode: create_or_overwrite
+  - file: world/rules.md
+    mode: create_or_overwrite
+  - file: world/locations.md
+    mode: create_or_overwrite
+  - file: world/factions.md
+    mode: create_or_overwrite
+  - file: world/power_system.md
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->

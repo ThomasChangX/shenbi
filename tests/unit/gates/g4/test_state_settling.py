@@ -127,3 +127,62 @@ def test_passes_when_particle_ledger_has_particle_section(tmp_path: Path) -> Non
     f.write_text("# Ledger\n\n## 粒子账本\n- 粒子甲\n", encoding="utf-8")
     result = _run([str(f)])
     assert any(c["id"] == "G4.ss.particle_ledger" and c["s"] == "PASS" for c in result["checks"])
+
+
+# ── Task 6: Character Matrix Write-Protection ──────────────────────────────
+
+
+@pytest.mark.unit
+def test_state_settling_character_matrix_protection():
+    """state_settling prevents parameter agent names in character_matrix."""
+    from shenbi.gates.g4.state_settling import _validate_character_matrix
+
+    content = """---
+update_mode: replace
+---
+
+# Character Matrix
+
+## 角色定义
+- 林烽: 主角
+- 陈为民: 配角
+
+## Ch50 State
+- 冷: 参数化存在
+- 光: 格式层出现
+"""
+    issues = _validate_character_matrix(
+        content, known_parameter_agents={"冷", "光", "安静", "缺口"}
+    )
+    assert len(issues) > 0
+    assert "parameter_agent" in issues[0].lower()
+
+
+# ── Task 9: Character Matrix Template & arc_log ──────────────────────────
+
+
+def test_character_matrix_template_has_slug_column():
+    matrix_path = Path(__file__).resolve().parents[4] / "truth" / "character_matrix.md"
+    if not matrix_path.exists():
+        pytest.skip("character_matrix.md not yet created")
+    content = matrix_path.read_text(encoding="utf-8")
+    assert "Slug" in content
+    assert "Current State" in content
+    assert "Arc Stage" in content
+    assert "Last Updated Ch" in content
+
+
+def test_state_settling_skill_mentions_character_matrix():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "character_matrix" in content
+
+
+def test_state_settling_skill_mentions_arc_log():
+    skill_path = (
+        Path(__file__).resolve().parents[4] / "skills" / "shenbi-state-settling" / "SKILL.md"
+    )
+    content = skill_path.read_text(encoding="utf-8")
+    assert "arc_log" in content

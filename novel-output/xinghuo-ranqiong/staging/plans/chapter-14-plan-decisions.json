@@ -1,0 +1,117 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 14,
+  "produced_at": "2026-07-16T12:00:00Z",
+  "selections": [
+    {
+      "target": "drift:情感落地感官延长",
+      "selected": ["同类施与/接触/停留场景多感官维度同时落地", "触觉+听觉+嗅觉+动觉锚定"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch13墙根场景铜币入碗后仅视觉+认知完成"],
+      "rationale": "Ch13 drift — 墙根场景铜币入碗后缺少延伸感官锚定,P0强制纠偏"
+    },
+    {
+      "target": "drift:无味水感官机会",
+      "selected": ["对比参照信号化(不像东区供水站氯味)", "使\"无味\"成为有效感官定位"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch13章末\"没有任何味道\"失去的感官机会"],
+      "rationale": "Ch13 drift — 无味水错失感官机会,P0强制纠偏"
+    },
+    {
+      "target": "drift:信息情感节奏平衡",
+      "selected": ["信息密集段后追加身体回响锚点", "动作停顿/呼吸变化/体感触发"],
+      "basis": "manual_override",
+      "severity": "high",
+      "omitted": ["Ch13信息/情感篇幅比约4:1认知密度高回响不足"],
+      "rationale": "Ch13 drift — 认知密度高于情感脉冲密度,P0强制纠偏"
+    },
+    {
+      "target": "cr:催收适应巩固",
+      "selected": ["身份标签化后行动范围收窄感知", "追踪感日常化增量推进"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["催收员面对面场景回溯"]
+    },
+    {
+      "target": "cr:阶级觉醒种子巩固",
+      "selected": ["方向偏移在行为层面自然延伸", "窄巷绕行成为默认路线段落"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["认知宣言/顿悟式觉醒/退回原位"]
+    },
+    {
+      "target": "cr:MH-020功能域探索",
+      "selected": ["折线图标含义或12.4尾缀(n)至少揭示其一", "三维度分工关系初步理解"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["全部维度完全解码"]
+    },
+    {
+      "target": "cr:门框金属件积累深化",
+      "selected": ["弹性/塑性判定", "与MH-020关联性探索"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["门后揭示"]
+    },
+    {
+      "target": "cr:MH-003在场保持",
+      "selected": ["特征轻微变化确认", "非瞬时演化验证"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["引擎来源揭示"]
+    },
+    {
+      "target": "P2线处理",
+      "selected": ["战争线两条地面信号(侦察机+MH-003)", "灰色渠道面孔化(非执行日观察)"],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": ["战争线深入展开", "灰色渠道任务执行", "店铺非圆形符号强制推进"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_008_sensory_grounding",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch13墙根场景铜币入碗后延伸感官锚点不足——Ch14同类场景强制多感官锚定"
+    },
+    {
+      "issue_id": "drift_009_tasteless_water",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch13\"没有任何味道\"错失感官机会——Ch14通过对比参照信号化"
+    },
+    {
+      "issue_id": "drift_010_info_emotion_balance",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "Ch13信息/情感篇幅比4:1——Ch14信息密集段后追加身体回响锚点"
+    },
+    {
+      "issue_id": "volume_map_vs_actual_divergence_ch14",
+      "severity": "high",
+      "handling": "defer_to_next_chapter",
+      "rationale": "volume_map KR3定位Ch14为'地下交通网暴露'但实际叙事在催收线适应期——以current_focus局部覆盖为准,卷末转折"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 11000,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
+
+---
+
+第14章章节规划完成。核心判断：
+
+**chapter_role**: 过渡/铺垫 — Ch13是推进/转折(第一次有意义输出+阶级种子触发+演化确认)，Ch14是低压蓄力和适应期巩固，承接Ch13的突破但不制造新的爆发点。
+
+**优先级冲突**: volume_map KR3的"地下交通网暴露"与实际叙事状态严重偏差。以 current_focus 的局部覆盖为准——Ch14仍在催收线适应期(新常态第2-3天)，完成适应巩固+设备功能域探索+方向偏移行为延伸。
+
+**三个P0 drift纠偏直接继承自Ch13 resonance audit**：感官延长(同类场景多感官锚定)、无味水信号化(对比参照)、信息/情感节奏平衡(身体回响锚点)。这是前一个resonance audit产出要求的强制修复。
+
+**Hook节奏**: 5/8密度预算，无僵尸伏笔风险。MH-001进入观察期(距上限2章)，MH-003/MH-020/MH-021 advance但节制，MH-022 defer维持适应期背景。

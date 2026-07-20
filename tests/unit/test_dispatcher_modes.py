@@ -12,20 +12,17 @@ from shenbi.exceptions import DispatcherError
 
 
 @pytest.mark.unit
-def test_dispatch_internal_writes_prompt_file_and_returns_zero(tmp_path: Path) -> None:
-    """dispatch_internal saves the prompt under skill-traces/ and returns 0.
+def test_dispatch_internal_raises_dispatcher_error(tmp_path: Path) -> None:
+    """dispatch_internal hard-rejects because internal mode has no LLM backend.
 
-    Covers dispatcher/modes/internal.py:14-24 (the full function body).
+    Covers dispatcher/modes/internal.py:16-19 (the raise path).
     """
     round_dir = tmp_path / "round"
     round_dir.mkdir()
-    rc = dispatch_internal(
-        "shenbi-worldbuilding", "generative", round_dir, "complete the task", "agent-1"
-    )
-    assert rc == 0
-    prompt_file = round_dir / "skill-traces" / "shenbi-worldbuilding-generative-prompt.md"
-    assert prompt_file.exists()
-    assert prompt_file.read_text(encoding="utf-8") == "complete the task"
+    with pytest.raises(DispatcherError, match="internal mode has no LLM backend"):
+        dispatch_internal(
+            "shenbi-worldbuilding", "generative", round_dir, "complete the task", "agent-1"
+        )
 
 
 @pytest.mark.unit

@@ -1,0 +1,51 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-planning",
+  "chapter": 1,
+  "produced_at": "2026-07-16T00:00:00Z",
+  "selections": [
+    {
+      "target": "卷纲 Key Results",
+      "selected": ["KR1: 困境建立与第一次觉醒"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "current_focus.md 第1章指令",
+      "selected": [
+        "灵能等级制度展示",
+        "种姓压迫的临场感",
+        "躺平利己生存哲学",
+        "穿越者身份的悄悄交代",
+        "信息钩子"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": [
+        "梵天遗物（留待第2章）",
+        "被遗弃少女（留待第2章）"
+      ]
+    },
+    {
+      "target": "阶段性选择",
+      "selected": ["黄金三章纪律——第1章专用约束"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["hook 账本硬规则中P3部分（Phase 1 暂不执行）"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "info_hook_placement",
+      "severity": "low",
+      "handling": "explicit_callout",
+      "rationale": "Ch1 信息钩子不打开具体悬念ID（如空袭），仅制造氛围层面的不安感，保持黄金三章第3章空袭的爆发力"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 6500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}
