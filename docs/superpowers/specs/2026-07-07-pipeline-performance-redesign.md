@@ -184,7 +184,7 @@ class SoftFailTracker:
 
 def curate_context(project_dir: Path, chapter: int) -> str:
     """Curate the assembled context into a structured 9-section format.
-    
+
     Replaces the shenbi-context-composing LLM call with deterministic
     Python operations: section reordering, ending diversity check,
     hook debt briefing generation.
@@ -193,18 +193,18 @@ def curate_context(project_dir: Path, chapter: int) -> str:
     ctx_path = project_dir / "context" / f"chapter-{chapter}-context.md"
     if not ctx_path.exists():
         return _generate_minimal_context(project_dir, chapter)
-    
+
     assembled = ctx_path.read_text(encoding="utf-8")
-    
+
     # 2. Reorder flat sections into P1-P7 hierarchy
     sections = _reorder_to_layered_format(assembled, chapter, project_dir)
-    
+
     # 3. Check ending diversity (deterministic regex)
     ending_table = _check_ending_diversity(project_dir, chapter)
-    
+
     # 4. Build hook debt briefing (deterministic data aggregation)
     hook_briefing = _build_hook_debt_briefing(project_dir, chapter)
-    
+
     # 5. Render 9-section output
     return _render_context_document(sections, ending_table, hook_briefing)
 
@@ -214,22 +214,22 @@ def _reorder_to_layered_format(assembled: str, chapter: int, project_dir: Path) 
     # Parse ### route-a:Entity / ### route-b:chunk_id / ### route-c:label
     # Sort by priority: P1 (plan) → P2 (spine) → P3 (strata) → ...
     sections = _parse_assembled_sections(assembled)
-    
+
     # Priority key for sorting
     priority_order = {
         "chapter-plan": 1, "book_spine": 2, "book_strata": 3,
         "volume_summaries": 4, "arcs": 5, "chapter_summaries": 6,
         "world_rules": 7, "style_profile": 7, "audit_drift": 7,
     }
-    
+
     def sort_key(s: Section) -> int:
         for prefix, prio in priority_order.items():
             if prefix in s.source.lower():
                 return prio
         return 99  # unknown → bottom
-    
+
     sections.sort(key=sort_key)
-    
+
     # Also load the chapter plan as P1 if not in assembled results
     plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
     if plan_path.exists():
@@ -241,13 +241,13 @@ def _reorder_to_layered_format(assembled: str, chapter: int, project_dir: Path) 
             estimated_tokens=0,
         )
         sections.insert(0, plan_section)
-    
+
     return sections
 
 
 def _parse_assembled_sections(assembled: str) -> list[Section]:
     """Parse flat Route A/B/C results from assembled context markdown.
-    
+
     The assembled context is a flat series of `## route-X:entity_id` H2 sections.
     Extracts each into a Section with source, text, category, and priority.
     """
@@ -272,7 +272,7 @@ def _parse_assembled_sections(assembled: str) -> list[Section]:
 
 def _generate_minimal_context(project_dir: Path, chapter: int) -> str:
     """Fallback when assembled context is missing (early ramp-up chapters).
-    
+
     Returns a minimal 9-section context with just the chapter plan as P1.
     """
     plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
@@ -282,12 +282,12 @@ def _generate_minimal_context(project_dir: Path, chapter: int) -> str:
 
 def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
     """Check last 3 chapters' endings for consecutive same-type patterns.
-    
+
     Reads actual chapter files (not summaries — SKILL.md 铁律 4).
     """
     if chapter < 3:
         return "| 章节 | 结尾方式 | 末段首句 |\n|------|---------|---------|\n| (不足3章) | — | — |\n"
-    
+
     ENDING_PATTERNS = {
         "cliffhanger": r"(突然|猛然|就在此时|一声|眼前一|[？?]$)",
         "hook": r"(但|然而|却|不过|还[有存]|等待|尚未|不知)",
@@ -295,7 +295,7 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
         "reflection": r"(回想|想起|原来|或许|也许|大概)",
         "transition": r"(第二天|次日|翌日|接下来|之后|随后)",
     }
-    
+
     rows = []
     ending_types = []
     for offset in range(3, 0, -1):
@@ -303,35 +303,35 @@ def _check_ending_diversity(project_dir: Path, chapter: int) -> str:
         ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
         if not ch_path.exists():
             continue
-        
+
         text = ch_path.read_text(encoding="utf-8")
         # Get last paragraph (skip meta blocks)
-        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip() 
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()
                       and not p.startswith("<!--") and not p.startswith("## ")]
         last_p = paragraphs[-1] if paragraphs else ""
         first_20 = last_p[:20].replace("\n", " ")
-        
+
         # Classify ending type
         etype = "other"
         for name, pattern in ENDING_PATTERNS.items():
             if re.search(pattern, last_p):
                 etype = name
                 break
-        
+
         ending_types.append(etype)
         rows.append(f"| {ch} | {etype} | {first_20} |")
-    
+
     # Check for 3+ consecutive same type
     warning = ""
     if len(ending_types) >= 3 and len(set(ending_types[-3:])) == 1:
         warning = f"\n⚠️ 连续 3 章相同结尾方式 ({ending_types[-1]})，本章必须避免！\n"
-    
+
     # Monitor classifier health: if "other" rate exceeds 20%, patterns may have drifted
     other_rate = ending_types.count("other") / len(ending_types) if ending_types else 0
     if other_rate > 0.2:
         log.warning("ending_classifier_drift", chapter=chapter, other_rate=f"{other_rate:.0%}",
                     msg="ending type classifier 'other' rate high — regex patterns may need update")
-    
+
     header = "| 章节 | 结尾方式 | 末段首句（前 20 字） |\n|------|---------|-------------------|\n"
     return header + "\n".join(rows) + warning
 
@@ -340,7 +340,7 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
     """Generate MH*/H* two-tier hook debt briefing from truth files."""
     hooks = _read_pending_hooks(project_dir)
     spine_hooks = _read_spine_master_hooks(project_dir)
-    
+
     # MH* — from book_spine master hooks
     mh_rows = []
     for h in spine_hooks:
@@ -350,7 +350,7 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
             f"| {h['id']} | {h.get('content', '?')} | {h.get('state', '?')} | "
             f"{h.get('last_reinforced', '?')} | {silence} | {urgency or 'advance'} |"
         )
-    
+
     # H* — from pending_hooks non-MH hooks
     h_rows = []
     for h in hooks:
@@ -361,18 +361,18 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
             f"| {h['id']} | {h.get('content', '?')} | {h.get('state', '?')} | "
             f"{h.get('last_reinforced', '?')} | {silence} | |"
         )
-    
+
     briefing = "## Hook 债务简报\n\n"
     briefing += "### 主线钩子（MH*）\n\n"
     briefing += "| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 | 操作建议 |\n"
     briefing += "|---------|------|------|----------|---------|---------|\n"
     briefing += "\n".join(mh_rows) if mh_rows else "| (无) | — | — | — | — | — |\n"
-    
+
     briefing += "\n### 弧内钩子（H*）\n\n"
     briefing += "| Hook ID | 内容 | 状态 | 最后推进章 | 沉默章数 |\n"
     briefing += "|---------|------|------|----------|---------|\n"
     briefing += "\n".join(h_rows) if h_rows else "| (无) | — | — | — | — |\n"
-    
+
     return briefing
 ```
 
@@ -403,23 +403,23 @@ if step.calls_context_assembly:
 """Deterministic hook planting — replaces LLM-based foreshadowing-plant."""
 
 def plant_hooks_from_plan(project_dir: Path, chapter: int) -> int:
-    """Parse chapter plan section 7, extract plant operations, generate 
+    """Parse chapter plan section 7, extract plant operations, generate
     hook YAML, and append to truth/pending_hooks.md.
-    
+
     Returns: number of hooks planted.
     """
     plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
     if not plan_path.exists():
         return 0
-    
+
     plan = plan_path.read_text(encoding="utf-8")
     section7 = _extract_section_7(plan)
     planted = 0
-    
+
     for entry in _parse_hook_entries(section7, chapter):
         if entry.get("operation") != "plant":
             continue
-        
+
         # Generate hook metadata from plan entry + defaults
         hook = {
             "id": entry["hook_id"],
@@ -438,10 +438,10 @@ def plant_hooks_from_plan(project_dir: Path, chapter: int) -> int:
             "core_hook": entry.get("core_hook", False),
             "promoted": False,
         }
-        
+
         _append_to_pending_hooks(project_dir, hook)
         planted += 1
-    
+
     log.info("hooks_planted_deterministically", chapter=chapter, count=planted)
     return planted
 
@@ -454,13 +454,13 @@ def _extract_section_7(plan_text: str) -> str:
 
 def _parse_hook_entries(section7: str, chapter: int | None = None) -> list[dict]:
     """Parse hook operation entries from section 7.
-    
+
     Expects format like:
     | hook-005 | 矿井深处的心跳声 | plant | GENUINE | CHARACTER |
     or YAML block with hook entries.
     """
     entries = []
-    
+
     # Try table format first
     for line in section7.split("\n"):
         if "|" not in line or "hook-" not in line.lower():
@@ -474,7 +474,7 @@ def _parse_hook_entries(section7: str, chapter: int | None = None) -> list[dict]
                 "type": cells[3] if len(cells) > 3 else None,
                 "dimension": cells[4] if len(cells) > 4 else None,
             })
-    
+
     # Try YAML block format
     yaml_match = re.search(r"```ya?ml\s*\n(.*?)```", section7, re.DOTALL)
     if yaml_match:
@@ -485,7 +485,7 @@ def _parse_hook_entries(section7: str, chapter: int | None = None) -> list[dict]
                 entries.extend(yaml_entries)
         except Exception as e:
             log.warning("hook_yaml_parse_failed", chapter=chapter, error=str(e))
-    
+
     return entries
 ```
 
@@ -535,7 +535,7 @@ def generate_review_checklist(project_dir: Path, chapter: int) -> ReviewChecklis
     """Generate review checklist once per chapter. Cached result reused by all reviews."""
     gc = read_genre_config(project_dir)
     estimated_wc = _estimate_chapter_word_count(project_dir, chapter)
-    
+
     checklist = ReviewChecklist(
         chapter=chapter,
         transition_budget=max(5, estimated_wc // 1000),
@@ -548,10 +548,10 @@ def generate_review_checklist(project_dir: Path, chapter: int) -> ReviewChecklis
         world_rules_brief=_summarize_world_rules(project_dir),
         sensitivity_flags=gc.get("sensitivityFlags", []),
     )
-    
+
     # Cache to context/ directory with mtime-based freshness
     cache_path = project_dir / "context" / f"review-checklist-{chapter}.json"
-    
+
     # Check if cache is still fresh (truth files haven't changed since cache was written)
     if cache_path.exists():
         cache_mtime = cache_path.stat().st_mtime
@@ -559,10 +559,10 @@ def generate_review_checklist(project_dir: Path, chapter: int) -> ReviewChecklis
         if cache_mtime >= truth_mtimes:
             # Cache is fresh — return deserialized copy
             return ReviewChecklist(**json.loads(cache_path.read_text(encoding="utf-8")))
-    
+
     # Cache stale or missing — regenerate
     safe_write(cache_path, json.dumps(checklist.__dict__, indent=2, ensure_ascii=False))
-    
+
     return checklist
 
 
@@ -608,7 +608,7 @@ if _is_review_skill(skill):
 
 ```
 Step 10: review-anti-ai      (7 min)
-Step 11: review-continuity   (7 min)  
+Step 11: review-continuity   (7 min)
 Step 12: review-character    (9 min)  ← 最长
 Step 13: review-pacing       (6 min)
 Step 14: review-foreshadowing(7 min)
@@ -678,34 +678,34 @@ def _dispatch_with_retry(task: ReviewTask) -> DispatchResult:
     for attempt in range(MAX_RETRIES + 1):
         with _rate_limiter:  # Block until a slot is available
             result = dispatch_skill(task.skill, task.project_dir, task.prompt)
-        
+
         if result.success:
             return result
-        
+
         if attempt < MAX_RETRIES:
             delay = RETRY_BACKOFF_BASE ** attempt + random.uniform(0, RETRY_JITTER)
             log.warning("review_retry", skill=task.skill, attempt=attempt+1, delay=f"{delay:.1f}s")
             time.sleep(delay)
-    
+
     log.error("review_all_retries_exhausted", skill=task.skill)
     return result  # Return last failure
 
 
 def dispatch_reviews_parallel(tasks: list[ReviewTask]) -> list[DispatchResult]:
     """Dispatch multiple review skills in parallel with rate limiting.
-    
+
     Uses ThreadPoolExecutor (I/O-bound API calls) + Semaphore (rate limiting)
     + exponential backoff retry (transient failure resilience).
     Each review is independent — no shared state between them.
     """
     results: list[DispatchResult] = []
-    
+
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REVIEWS) as executor:
         future_map = {
             executor.submit(_dispatch_with_retry, t): t
             for t in tasks
         }
-        
+
         for future in as_completed(future_map):
             task = future_map[future]
             try:
@@ -716,59 +716,59 @@ def dispatch_reviews_parallel(tasks: list[ReviewTask]) -> list[DispatchResult]:
             except Exception as e:
                 log.error("parallel_review_exception", skill=task.skill, error=str(e))
                 results.append(DispatchResult(False, -1, "", str(e)))
-    
+
     return results
 
 
 def consolidate_review_results(results: list[DispatchResult], chapter: int) -> str:
     """Deterministic aggregation of parallel review results.
-    
-    IMPORTANT: This is NOT "LLM consensus." The 11 reviews check ORTHOGONAL 
-    dimensions (anti-ai checks word patterns, character checks BDI consistency, 
-    pov checks information boundaries, etc.). There are no conflicts to resolve — 
-    each review owns its dimension. This function purely aggregates: scan each 
+
+    IMPORTANT: This is NOT "LLM consensus." The 11 reviews check ORTHOGONAL
+    dimensions (anti-ai checks word patterns, character checks BDI consistency,
+    pov checks information boundaries, etc.). There are no conflicts to resolve —
+    each review owns its dimension. This function purely aggregates: scan each
     report for BLOCKING/CRITICAL markers and compile a unified issue list.
-    
+
     The revision step (shenbi-chapter-revision) receives all individual reports
     plus this summary and decides on fixes autonomously.
-    
+
     Known limitation: severity detection relies on string-matching "BLOCKING"/
     "CRITICAL" markers in free-text reports. This is the existing pattern used
-    throughout audit_layer.py. 
-    
+    throughout audit_layer.py.
+
     ## Future Enhancement: Structured Review Output (Post-MVP)
-    
-    The industry standard for agent-to-agent communication in 2025-2026 is 
-    **structured JSON output with schema enforcement**, following the 
+
+    The industry standard for agent-to-agent communication in 2025-2026 is
+    **structured JSON output with schema enforcement**, following the
     Generate → Validate → Repair → Parse pipeline pattern:
-    
+
     1. **Generate**: Review skill prompt includes a JSON schema for its output.
        The LLM is instructed to return `{"severity": "BLOCKING", "issues": [...]}`
        rather than free-text markdown.
-    
+
     2. **Validate**: Deterministic validation with `jsonschema` + Pydantic.
        Checks: is it valid JSON? Are required fields present? Are enums valid?
-    
-    3. **Repair**: On validation failure, feed exact error messages back to 
-       the model for targeted correction (not "try again" — tell it exactly 
+
+    3. **Repair**: On validation failure, feed exact error messages back to
+       the model for targeted correction (not "try again" — tell it exactly
        which field failed and why).
-    
-    4. **Parse**: Only after validation passes, map to typed objects for 
+
+    4. **Parse**: Only after validation passes, map to typed objects for
        downstream consumption (consolidation, revision routing).
-    
-    This eliminates string-matching fragility entirely. The review skill's 
-    contract switches from "write markdown with BLOCKING markers" to 
-    "return JSON matching this schema." Consolidation becomes 
+
+    This eliminates string-matching fragility entirely. The review skill's
+    contract switches from "write markdown with BLOCKING markers" to
+    "return JSON matching this schema." Consolidation becomes
     `json.loads()` + field access instead of regex scanning.
-    
-    **Why not now**: This is a cross-cutting change affecting all 11 review 
-    skill SKILL.mds, their G4 checkers, and the consolidation logic. It 
-    should be a follow-up phase after the deterministic extraction and 
+
+    **Why not now**: This is a cross-cutting change affecting all 11 review
+    skill SKILL.mds, their G4 checkers, and the consolidation logic. It
+    should be a follow-up phase after the deterministic extraction and
     parallel dispatch are stable.
     """
     blocking_issues = []
     critical_issues = []
-    
+
     for result in results:
         if not result.success:
             continue
@@ -778,22 +778,22 @@ def consolidate_review_results(results: list[DispatchResult], chapter: int) -> s
                 blocking_issues.append(line.strip())
             elif "CRITICAL" in line:
                 critical_issues.append(line.strip())
-    
+
     summary = f"""# Chapter {chapter} Review Summary
 
 ## BLOCKING Issues ({len(blocking_issues)})
 """
     for issue in blocking_issues:
         summary += f"- {issue}\n"
-    
+
     summary += f"\n## CRITICAL Issues ({len(critical_issues)})\n"
     for issue in critical_issues:
         summary += f"- {issue}\n"
-    
+
     summary += f"\n## All Reports\n"
     for i, result in enumerate(results):
         summary += f"- Report {i+1}: {'PASS' if result.success else 'FAIL'}\n"
-    
+
     return summary
 ```
 
@@ -806,13 +806,13 @@ step 10 (核心审查批次) 和 genre circle 合并为两波并行 dispatch：
 if step_idx == _FIRST_AUDIT_IDX:
     # Wave 1: 7 core-circle reviews in parallel
     core_tasks = [
-        ReviewTask("shenbi-review-anti-ai", project_dir, 
+        ReviewTask("shenbi-review-anti-ai", project_dir,
                    f"Execute anti-ai review for chapter {chapter}.",
                    f"audits/chapter-{chapter}-anti-ai.md"),
         # ... 6 more core reviews
     ]
     core_results = dispatch_reviews_parallel(core_tasks, max_workers=7)
-    
+
     # Wave 2: genre-circle reviews in parallel
     genre_skills = get_active_genre_audits(gc)
     genre_tasks = [
@@ -822,7 +822,7 @@ if step_idx == _FIRST_AUDIT_IDX:
         for skill in genre_skills
     ]
     genre_results = dispatch_reviews_parallel(genre_tasks, max_workers=4) if genre_tasks else []
-    
+
     # Consolidate
     all_results = core_results + genre_results
     consolidated = consolidate_review_results(all_results, chapter)
@@ -853,10 +853,10 @@ if step_idx == _FIRST_AUDIT_IDX:
 def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path) -> bool:
     """Determine if a periodic step should run this chapter."""
     chapter = state.chapter_loop.current_chapter
-    
+
     if step.skill == "shenbi-foreshadowing-recall":
         return _should_run_recall(project_dir, chapter)
-    
+
     if step.skill == "shenbi-snapshot-manage":
         # File-based timestamped snapshot — no git dependency
         _snapshot_chapter_files(project_dir, chapter)
@@ -864,7 +864,7 @@ def _should_run_step(step: ChapterStep, state: PipelineState, project_dir: Path)
 
     if step.skill == "shenbi-drift-guidance":
         return _should_run_drift(project_dir, chapter)
-    
+
     return True  # All other steps always run
 
 
@@ -873,7 +873,7 @@ def _should_run_recall(project_dir: Path, chapter: int) -> bool:
     hooks = _read_pending_hooks(project_dir)
     if not hooks:
         return False
-    
+
     # Trigger 1: any hook within 3 chapters of max_distance
     for h in hooks:
         if h.get("state") == "RESOLVED":
@@ -881,80 +881,80 @@ def _should_run_recall(project_dir: Path, chapter: int) -> bool:
         silence = chapter - h.get("last_reinforced", h.get("plant_chapter", 0))
         if silence >= h.get("max_distance", 20) - 3:
             return True
-    
+
     # Trigger 2: >5 hooks in TRIGGERED state
     triggered = sum(1 for h in hooks if h.get("state") == "TRIGGERED")
     if triggered > 5:
         return True
-    
+
     # Trigger 3: last recall was >8 chapters ago (safety net)
     last_recall = _get_last_recall_chapter(project_dir)
     if chapter - last_recall > 8:
         return True
-    
+
     return False
 
 
 def _should_run_drift(project_dir: Path, chapter: int) -> bool:
     """Run drift when resonance moving average shows concerning trend.
-    
-    Resonance scores are on a 0-100 scale (per pipeline config 
+
+    Resonance scores are on a 0-100 scale (per pipeline config
     resonance_global_floor: 50). A 10-point drop on this scale represents
     a significant quality regression (e.g., 75→65).
     """
     scores = _get_recent_resonance_scores(project_dir, last_n=5)
     if len(scores) < 3:
         return False
-    
+
     # 3-chapter moving average
     ma3_current = sum(scores[-3:]) / 3
     ma3_previous = sum(scores[-4:-1]) / 3 if len(scores) >= 4 else ma3_current
-    
+
     if ma3_previous - ma3_current > 10:
         return True
-    
+
     # Safety net: at least every 12 chapters
     last_drift = _get_last_drift_chapter(project_dir)
     if chapter - last_drift >= 12:
         return True
-    
+
     return False
 
 
 def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
     """Create timestamped file copies of chapter + audit outputs.
-    
+
     Uses versioned file storage pattern (similar to Google Docs version history,
     Notion page history, MLflow artifact tracking):
     - Each snapshot is a timestamped copy under snapshots/{project_id}/
     - manifest.json tracks which chapters have snapshots
     - Retention policy prunes old snapshots beyond config limit
-    
+
     Why NOT git: this pipeline will be packaged as a multi-tenant web UI.
     Git requires per-user git config, a valid .git repository, and is not
     safe for concurrent access from web server processes. Timestamped file
     copies work in any deployment environment with zero dependencies.
     """
     from datetime import datetime, timezone
-    
+
     snap_dir = project_dir / "snapshots"
     snap_dir.mkdir(exist_ok=True)
-    
+
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%S")
-    
+
     # Copy chapter file
     ch_src = project_dir / "chapters" / f"chapter-{chapter}.md"
     if ch_src.exists():
         ch_dst = snap_dir / f"chapter-{chapter:03d}-{timestamp}.md"
         shutil.copy2(ch_src, ch_dst)
-    
+
     # Copy audit files for this chapter
     audit_dir = project_dir / "audits"
     if audit_dir.exists():
         for audit_file in audit_dir.glob(f"chapter-{chapter}-*.md"):
             audit_dst = snap_dir / f"{audit_file.stem}-{timestamp}.md"
             shutil.copy2(audit_file, audit_dst)
-    
+
     # Update manifest
     manifest = _load_manifest(snap_dir)
     manifest["chapters"][str(chapter)] = {
@@ -964,11 +964,11 @@ def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
         ],
     }
     _save_manifest(snap_dir, manifest)
-    
+
     # Prune old snapshots beyond retention limit
     retention = _get_snapshot_retention(project_dir)
     _prune_old_snapshots(snap_dir, retention)
-    
+
     log.info("snapshot_created", chapter=chapter, timestamp=timestamp)
 
 
@@ -989,7 +989,7 @@ def _prune_old_snapshots(snap_dir: Path, retention: int) -> None:
     chapters = _load_manifest(snap_dir).get("chapters", {})
     if len(chapters) <= retention:
         return
-    
+
     # Sort by chapter number, keep most recent `retention`
     sorted_chapters = sorted(chapters.keys(), key=int, reverse=True)
     for ch_key in sorted_chapters[retention:]:
@@ -998,7 +998,7 @@ def _prune_old_snapshots(snap_dir: Path, retention: int) -> None:
             if fpath.exists():
                 fpath.unlink()
         del chapters[ch_key]
-    
+
     _save_manifest(snap_dir, {"chapters": chapters})
     log.info("snapshot_pruned", removed=len(sorted_chapters) - retention)
 ```
@@ -1024,30 +1024,30 @@ Phase 2.3 的审查前置清单已缓存到 `context/review-checklist-{chapter}.
 ```python
 def _extract_voice_constraints(project_dir: Path, chapter: int) -> dict[str, str]:
     """Extract voice fingerprints for characters appearing in this chapter.
-    
+
     Deterministic name-matching — simpler and more reliable than embedding search.
     """
     chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text(encoding="utf-8")
     characters_dir = project_dir / "characters"
-    
+
     voice_map = {}
     for profile_path in characters_dir.glob("**/*.md"):
         char_name = profile_path.stem  # e.g., "protagonist" → "陈烬" from frontmatter
         profile_text = profile_path.read_text(encoding="utf-8")
-        
+
         # Extract actual character name from frontmatter
         name_match = re.search(r"name\s*[:：]\s*(.+)", profile_text)
         display_name = name_match.group(1).strip() if name_match else char_name
-        
+
         # Check if character appears in this chapter (case-insensitive)
         if display_name not in chapter_text:
             continue
-        
+
         # Extract voice fingerprint
         voice_match = re.search(r"voice_fingerprint\s*[:：]\s*(.+)", profile_text)
         if voice_match:
             voice_map[display_name] = voice_match.group(1).strip()
-    
+
     return voice_map
 ```
 
@@ -1058,7 +1058,7 @@ def _extract_voice_constraints(project_dir: Path, chapter: int) -> dict[str, str
 ```python
 def _extract_world_rules_semantic(project_dir: Path, chapter: int) -> str:
     """Use Route B embeddings to find chapter-relevant world rules.
-    
+
     Queries with full chapter text (not just first 500 chars) to capture
     mid/late-chapter elements. Falls back to first 2000 chars if rules file
     is small enough to not need semantic filtering.
@@ -1243,18 +1243,18 @@ class ValidatedReport:
 
 def parse_review_output(raw_output: str, skill: str, chapter: int) -> ValidatedReport:
     """Parse and validate a review skill's JSON output with repair loop.
-    
+
     Follows the Generate → Validate → Repair → Parse pipeline.
     Returns a ValidatedReport on success.
     Raises ValidationError after MAX_REPAIR_ATTEMPTS exhausted.
     """
     # Stage 1: Extract JSON from markers
     json_text = _extract_json_block(raw_output)
-    
+
     for attempt in range(MAX_REPAIR_ATTEMPTS + 1):
         # Stage 2: Validate
         errors = _validate_against_schema(json_text)
-        
+
         if not errors:
             # Stage 4: Parse → typed object
             data = _json.loads(json_text)
@@ -1267,13 +1267,13 @@ def parse_review_output(raw_output: str, skill: str, chapter: int) -> ValidatedR
                 metrics=data.get("metrics", {}),
                 raw_json=data,
             )
-        
+
         if attempt >= MAX_REPAIR_ATTEMPTS:
             raise ValidationError(
                 f"Review {skill} chapter {chapter}: {len(errors)} schema errors "
                 f"after {MAX_REPAIR_ATTEMPTS} repair attempts"
             )
-        
+
         # Stage 3: Repair — feed exact errors back
         json_text = _repair_json(json_text, errors, skill, chapter)
 
@@ -1293,7 +1293,7 @@ def _validate_against_schema(json_text: str) -> list[str]:
         data = _json.loads(json_text)
     except _json.JSONDecodeError as e:
         return [f"JSON parse error: {e}"]
-    
+
     validator = jsonschema.Draft202012Validator(REVIEW_REPORT_SCHEMA)
     errors = []
     for err in validator.iter_errors(data):
@@ -1304,7 +1304,7 @@ def _validate_against_schema(json_text: str) -> list[str]:
 
 def _repair_json(json_text: str, errors: list[str], skill: str, chapter: int) -> str:
     """Feed exact validation errors to a small model for targeted repair.
-    
+
     Uses the same dispatch mechanism but with minimal context — only the
     broken JSON + error list + schema snippet. No full chapter context needed.
     """
@@ -1314,7 +1314,7 @@ def _repair_json(json_text: str, errors: list[str], skill: str, chapter: int) ->
 
 Fix ALL errors and return ONLY valid JSON between ---BEGIN JSON--- and ---END JSON--- markers.
 Do NOT change the review findings — only fix the JSON structure."""
-    
+
     result = dispatch_skill(skill, Path("."), repair_prompt)
     if result.success:
         return _extract_json_block(result.stdout)
@@ -1330,14 +1330,14 @@ def consolidate_review_results(reports: list[ValidatedReport], chapter: int) -> 
     """Aggregate structured review results — deterministic, type-safe."""
     blocking = []
     critical = []
-    
+
     for report in reports:
         for issue in report.issues:
             if issue["severity"] == "BLOCKING":
                 blocking.append({"skill": report.skill, **issue})
             elif issue["severity"] == "CRITICAL":
                 critical.append({"skill": report.skill, **issue})
-    
+
     return {
         "chapter": chapter,
         "verdicts": {r.skill: r.verdict for r in reports},
